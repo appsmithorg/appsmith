@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
+import com.appsmith.server.events.CommentNotificationEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommentUtils;
@@ -227,8 +228,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 List<Mono<Notification>> notificationMonos = new ArrayList<>();
                 for (String username : usernames) {
                     if (!username.equals(user.getUsername()) && !username.equals(APPSMITH_BOT_USERNAME)) {
+                        CommentNotificationEvent notificationEvent = CommentNotificationEvent.CREATED;
+                        if(CommentUtils.isUserMentioned(savedComment, username)) {
+                            notificationEvent = CommentNotificationEvent.TAGGED;
+                        }
                         Mono<Notification> notificationMono = notificationService.createNotification(
-                                savedComment, username
+                                savedComment, notificationEvent, username
                         );
                         notificationMonos.add(notificationMono);
                     }
@@ -332,7 +337,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 return Mono.just(user);
             }
         }).zipWith(threadRepository.findById(threadId, AclPermission.READ_THREAD))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId)))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, "comment thread", threadId))
+                )
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final CommentThread threadFromDb = tuple.getT2();
@@ -386,7 +393,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                                                 updatedThread,
                                                 originHeader
                                         );
-                                        return notificationService.createNotification(updatedThread, user.getUsername())
+                                        return notificationService
+                                                .createNotification(updatedThread, CommentNotificationEvent.RESOLVED, user.getUsername())
                                                 .then(publishEmailMono).thenReturn(updatedThread);
                                     }
                                 }
@@ -404,7 +412,8 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         userData.setLatestCommentEvent(CommentBotEvent.RESOLVED);
                         Mono<UserData> saveUserDataMono = userDataRepository.save(userData);
 
-                        Mono<CommentThread> saveThreadMono = applicationService.getById(resolvedThread.getApplicationId())
+                        Mono<CommentThread> saveThreadMono = applicationService
+                                .getById(resolvedThread.getApplicationId())
                                 .flatMap(application -> {
                                     // create a new bot thread
                                     CommentThread commentThread = new CommentThread();
