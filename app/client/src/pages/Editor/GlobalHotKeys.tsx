@@ -32,6 +32,7 @@ import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
 import {
   filterCategories,
+  SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
@@ -40,7 +41,7 @@ type Props = {
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: () => void;
+  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -76,10 +77,12 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    this.props.setGlobalSearchFilterContext({
-      category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    });
-    this.props.toggleShowGlobalSearchModal();
+    // this.props.setGlobalSearchFilterContext({
+    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+    // });
+    this.props.toggleShowGlobalSearchModal(
+      filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+    );
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
 
@@ -253,7 +256,8 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
-    toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    toggleShowGlobalSearchModal: (category: SearchCategory) =>
+      dispatch(toggleShowGlobalSearchModal(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),

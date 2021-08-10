@@ -164,7 +164,7 @@ function GlobalSearch() {
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
-      setCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]);
+      setCategory(filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION]);
     }
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());

@@ -12,7 +12,7 @@ export enum SEARCH_CATEGORY_ID {
   SNIPPETS = "Snippets",
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
-  INIT = "",
+  INIT = "INIT",
 }
 
 export enum SEARCH_ITEM_TYPES {
