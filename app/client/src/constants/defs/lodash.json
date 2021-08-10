@@ -1,5 +1,5 @@
 {
-  "!name": "lodash",
+  "!name": "LIB/lodash",
   "_": {
     "chunk": {
       "!url": "https://lodash.com/docs/4.17.15#chunk",

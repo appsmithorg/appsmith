@@ -2,6 +2,8 @@ import { AppState } from "reducers";
 import { get } from "lodash";
 import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import getFeatureFlags from "utils/featureFlags";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -21,15 +23,28 @@ export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
 
-export const commentModeSelector = (state: AppState) =>
-  state.ui.comments?.isCommentMode;
+export const commentModeSelector = (state: AppState) => {
+  const pathName = window.location.pathname;
+  const onEditorOrViewerPage =
+    matchBuilderPath(pathName) || matchViewerPath(pathName);
+
+  if ((window as any).isCommentModeForced) return true;
+
+  return (
+    state.ui.comments?.isCommentMode &&
+    !!onEditorOrViewerPage &&
+    areCommentsEnabledForUserAndApp()
+  );
+};
+
+export const isUnsubscribedSelector = (state: AppState) =>
+  state.ui.comments?.unsubscribed;
 
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
-export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.comments?.areCommentsEnabled;
+export const areCommentsEnabledForUserAndApp = () => getFeatureFlags().COMMENT;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
@@ -147,8 +162,8 @@ export const appCommentsFilter = (state: AppState) =>
 export const showUnreadIndicator = (state: AppState) =>
   state.ui.comments.unreadCommentThreadsCount > 0;
 
-export const visibleCommentThread = (state: AppState) =>
+export const visibleCommentThreadSelector = (state: AppState) =>
   state.ui.comments.visibleCommentThreadId;
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>
-  state.ui.comments.isIntroCarouselVisible;
+  state.ui.comments.isIntroCarouselVisible && areCommentsEnabledForUserAndApp();

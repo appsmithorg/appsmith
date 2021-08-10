@@ -1,7 +1,11 @@
 import { set, cloneDeep } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -22,7 +26,28 @@ export const metaReducer = createReducer(initialState, {
 
     return next;
   },
-  [ReduxActionTypes.WIDGET_DELETE]: (
+  [ReduxActionTypes.TABLE_PANE_MOVED]: (
+    state: MetaState,
+    action: ReduxAction<TableFilterPanePositionConfig>,
+  ) => {
+    const next = { ...state };
+    let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
+    if (widgetMetaProps === undefined) {
+      widgetMetaProps = {
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
+    } else {
+      widgetMetaProps = {
+        ...widgetMetaProps,
+        isMoved: true,
+        position: { ...action.payload.position },
+      };
+    }
+    next[action.payload.widgetId] = widgetMetaProps;
+    return next;
+  },
+  [WidgetReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
   ) => {
@@ -53,5 +78,14 @@ export const metaReducer = createReducer(initialState, {
     return initialState;
   },
 });
+
+interface TableFilterPanePositionConfig {
+  widgetId: string;
+  isMoved: boolean;
+  position: {
+    left: number;
+    top: number;
+  };
+}
 
 export default metaReducer;

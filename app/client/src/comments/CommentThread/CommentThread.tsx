@@ -24,7 +24,9 @@ import { animated } from "react-spring";
 import { AppState } from "reducers";
 import { useEffect } from "react";
 
-const ThreadContainer = styled(animated.div)<{
+const ThreadContainer = styled(animated.div).withConfig({
+  shouldForwardProp: (prop) => !["visible", "inline"].includes(prop),
+})<{
   visible?: boolean;
   inline?: boolean;
   pinned?: boolean;
@@ -42,7 +44,7 @@ const ThreadContainer = styled(animated.div)<{
   max-height: ${(props) =>
     props.inline ? `calc(100vh - ${props.theme.smallHeaderHeight})` : "unset"};
   /* overflow: auto collapses the comment threads in the sidebar */
-  overflow: ${(props) => (props.inline ? "visible" : "unset")};
+  overflow: ${(props) => (props.inline ? "auto" : "unset")};
 `;
 
 const CommentsContainer = styled.div<{ inline?: boolean }>`

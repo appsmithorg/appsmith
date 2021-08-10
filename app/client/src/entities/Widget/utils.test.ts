@@ -3,6 +3,7 @@ import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -163,10 +164,25 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
-        defaultSearchText: "TEXT",
-        defaultSelectedRow: "DEFAULT_SELECTED_ROW",
-        isVisible: "BOOLEAN",
-        tableData: "TABLE_DATA",
+        defaultSearchText: {
+          type: "TEXT",
+        },
+        defaultSelectedRow: {
+          params: {
+            expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
+              example: "0 | [0, 1]",
+              type: "Index of row(s)",
+            },
+          },
+          type: "FUNCTION",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        tableData: {
+          type: "OBJECT_ARRAY",
+        },
       },
     };
 
@@ -174,6 +190,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       selectedRow: true,
       selectedRows: true,
     });
+
+    // Note: Removing until we figure out how functions are represented here.
+    delete result.validationPaths.defaultSelectedRow.params?.fn;
 
     expect(result).toStrictEqual(expected);
   });
@@ -226,12 +245,62 @@ describe("getAllPathsFromPropertyConfig", () => {
         onDataPointClick: true,
       },
       validationPaths: {
-        "chartData.random-id.data": "CHART_SERIES_DATA",
-        "chartData.random-id.seriesName": "TEXT",
-        chartName: "TEXT",
-        isVisible: "BOOLEAN",
-        xAxisName: "TEXT",
-        yAxisName: "TEXT",
+        "chartData.random-id.data": {
+          params: {
+            children: {
+              params: {
+                allowedKeys: [
+                  {
+                    name: "x",
+                    type: "TEXT",
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "y",
+                    type: "NUMBER",
+                    params: {
+                      default: 10,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+              type: "OBJECT",
+            },
+          },
+          type: "ARRAY",
+        },
+        "chartData.random-id.seriesName": {
+          type: "TEXT",
+        },
+        chartName: {
+          type: "TEXT",
+        },
+        chartType: {
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+          type: "TEXT",
+        },
+        isVisible: {
+          type: "BOOLEAN",
+        },
+        xAxisName: {
+          type: "TEXT",
+        },
+        yAxisName: {
+          type: "TEXT",
+        },
       },
     };
 

@@ -8,6 +8,11 @@ import {
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
 import { set } from "lodash";
+import { Org } from "constants/orgConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -350,4 +355,22 @@ export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   }
 
   return object;
+};
+
+// Can be used to check if the user has developer role access to org
+export const getCanCreateApplications = (currentOrg: Org) => {
+  const userOrgPermissions = currentOrg.userPermissions || [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.CREATE_APPLICATION,
+  );
+  return canManage;
+};
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    return new URL(redirectURL).origin === window.location.origin;
+  } catch (e) {
+    return false;
+  }
 };

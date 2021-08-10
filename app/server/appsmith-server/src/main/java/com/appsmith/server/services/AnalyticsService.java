@@ -7,13 +7,13 @@ import com.appsmith.server.domains.User;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,14 +25,17 @@ public class AnalyticsService {
     private final Analytics analytics;
     private final SessionUserService sessionUserService;
     private final CommonConfig commonConfig;
+    private final ConfigService configService;
 
     @Autowired
     public AnalyticsService(@Autowired(required = false) Analytics analytics,
                             SessionUserService sessionUserService,
-                            CommonConfig commonConfig) {
+                            CommonConfig commonConfig,
+                            ConfigService configService) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;
+        this.configService = configService;
     }
     public boolean isActive() {
         return analytics != null;
@@ -71,29 +74,46 @@ public class AnalyticsService {
             return;
         }
 
-        if (!commonConfig.isCloudHosted()) {
-            userId = DigestUtils.sha256Hex(userId);
-            if (properties.containsKey("username")) {
-                properties.put("username", userId);
-            }
-            if (properties.containsKey("request")) {
-                properties.remove("request");
-            }
-        }
+        // Can't update the properties directly as it's throwing ImmutableCollection error
+        // java.lang.UnsupportedOperationException: null
+        // at java.base/java.util.ImmutableCollections.uoe(ImmutableCollections.java)
+        // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
+        Map<String, Object> analyticsProperties = new HashMap<>(properties);
 
-        TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(userId);
-
-        if (!CollectionUtils.isEmpty(properties)) {
-            // Segment throws an NPE if any value in `properties` is null.
-            for (final Map.Entry<String, Object> entry : properties.entrySet()) {
-                if (entry.getValue() == null) {
-                    properties.put(entry.getKey(), "");
+        // Hash usernames at all places for self-hosted instance
+        if (!commonConfig.isCloudHosting()) {
+            final String hashedUserId = DigestUtils.sha256Hex(userId);
+            analyticsProperties.remove("request");
+            if (!CollectionUtils.isEmpty(analyticsProperties)) {
+                for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                    if (entry.getValue() == null) {
+                        analyticsProperties.put(entry.getKey(), "");
+                    } else if (entry.getValue().equals(userId)) {
+                        analyticsProperties.put(entry.getKey(), hashedUserId);
+                    }
                 }
             }
-            messageBuilder = messageBuilder.properties(properties);
+            userId = hashedUserId;
         }
 
-        analytics.enqueue(messageBuilder);
+        if (!CollectionUtils.isEmpty(analyticsProperties) && commonConfig.isCloudHosting()) {
+            // Segment throws an NPE if any value in `properties` is null.
+            for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
+                if (entry.getValue() == null) {
+                    analyticsProperties.put(entry.getKey(), "");
+                }
+            }
+        }
+
+        final String finalUserId = userId;
+        configService.getInstanceId().map(instanceId -> {
+            TrackMessage.Builder messageBuilder = TrackMessage.builder(event).userId(finalUserId);
+            analyticsProperties.put("originService", "appsmith-server");
+            analyticsProperties.put("instanceId", instanceId);
+            messageBuilder = messageBuilder.properties(analyticsProperties);
+            analytics.enqueue(messageBuilder);
+            return instanceId;
+        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
     }
 
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
@@ -120,7 +140,6 @@ public class AnalyticsService {
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", username);
                     analyticsProperties.put("oid", object.getId());
-                    analyticsProperties.put("originService", "appsmith-server");
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                     }

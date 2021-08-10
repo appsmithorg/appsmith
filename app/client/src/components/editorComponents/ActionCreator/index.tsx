@@ -1,37 +1,41 @@
-import React, { useMemo } from "react";
-import { AppState } from "reducers";
-import {
-  getActionsForCurrentPage,
-  getDBDatasources,
-} from "selectors/entitiesSelector";
 import { createActionRequest } from "actions/actionActions";
-import {
-  getModalDropdownList,
-  getNextModalName,
-} from "selectors/widgetSelectors";
+import { createModalAction } from "actions/widgetActions";
+import { TreeDropdownOption } from "components/ads/TreeDropdown";
+import TreeStructure from "components/utils/TreeStructure";
+import { OnboardingStep } from "constants/OnboardingConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { PluginType } from "entities/Action";
+import { Datasource } from "entities/Datasource";
+import { keyBy } from "lodash";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { apiIcon, getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import React, { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { Datasource } from "entities/Datasource";
+import {
+  getActionsForCurrentPage,
+  getDBDatasources,
+  getPageListAsOptions,
+} from "selectors/entitiesSelector";
+import {
+  getModalDropdownList,
+  getNextModalName,
+} from "selectors/widgetSelectors";
+import { createNewQueryName } from "utils/AppsmithUtils";
+import history from "utils/history";
 import Fields, {
-  ACTION_TRIGGER_REGEX,
-  ACTION_ANONYMOUS_FUNC_REGEX,
   ActionType,
+  ACTION_ANONYMOUS_FUNC_REGEX,
+  ACTION_TRIGGER_REGEX,
   FieldType,
 } from "./Fields";
-import { TreeDropdownOption } from "components/ads/TreeDropdown";
-import { useDispatch, useSelector } from "react-redux";
-import { createModalAction } from "actions/widgetActions";
-import { createNewQueryName } from "utils/AppsmithUtils";
-import TreeStructure from "components/utils/TreeStructure";
-import { getWidgets } from "sagas/selectors";
-import { PluginType } from "entities/Action";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
-import history from "utils/history";
-import { keyBy } from "lodash";
-import { getPluginIcon, apiIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -94,9 +98,9 @@ function getFieldFromValue(
   if (!value) {
     return fields;
   }
-  if (value.indexOf("run") !== -1) {
+  if (value.indexOf(".run") !== -1) {
     const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-    if (matches.length) {
+    if (matches.length && matches[0][1]?.indexOf(".run") !== -1) {
       const funcArgs = matches[0][2];
       const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
       const successArg = args[0];
@@ -147,8 +151,8 @@ function getFieldFromValue(
       );
       errorFields[0].label = "onError";
       fields.push(errorFields);
+      return fields;
     }
-    return fields;
   }
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
@@ -223,14 +227,6 @@ function getFieldFromValue(
   return fields;
 }
 
-function getPageDropdownOptions(state: AppState) {
-  return state.entities.pageList.pages.map((page) => ({
-    label: page.pageName,
-    id: page.pageId,
-    value: `'${page.pageName}'`,
-  }));
-}
-
 function useModalDropdownList() {
   const dispatch = useDispatch();
   const nextModalName = useSelector(getNextModalName);
@@ -259,19 +255,6 @@ function useModalDropdownList() {
   );
 
   return finalList;
-}
-
-function useWidgetOptionTree() {
-  const widgets = useSelector(getWidgets) || {};
-  return Object.values(widgets)
-    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
-    .map((w) => {
-      return {
-        label: w.widgetName,
-        id: w.widgetName,
-        value: `"${w.widgetName}"`,
-      };
-    });
 }
 
 function getIntegrationOptionsWithChildren(
@@ -365,6 +348,9 @@ function useIntegrationsOptionTree() {
   });
   const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getActionsForCurrentPage);
+  // For onboarding
+  const currentStep = useSelector(getCurrentStep);
+  const currentSubStep = useSelector(getCurrentSubStep);
 
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     pageId,
@@ -379,9 +365,18 @@ function useIntegrationsOptionTree() {
       icon: "plus",
       className: "t--create-datasources-query-btn",
       onSelect: () => {
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
+        // For onboarding
+        if (currentStep === OnboardingStep.ADD_INPUT_WIDGET) {
+          if (currentSubStep === 2) {
+            dispatch({
+              type: ReduxActionTypes.ONBOARDING_ADD_ONSUBMIT_BINDING,
+            });
+          }
+        } else {
+          history.push(
+            INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+          );
+        }
       },
     },
     dispatch,
@@ -397,9 +392,9 @@ type ActionCreatorProps = {
 
 export function ActionCreator(props: ActionCreatorProps) {
   const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useWidgetOptionTree();
+  const widgetOptionTree = useSelector(getWidgetOptionsTree);
   const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageDropdownOptions);
+  const pageDropdownOptions = useSelector(getPageListAsOptions);
   const fields = getFieldFromValue(props.value);
   return (
     <TreeStructure>

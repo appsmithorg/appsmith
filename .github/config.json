@@ -85,8 +85,8 @@
       "color": "0075ca",
       "description": "Improvements or additions to documentation"
     },
-    "Dropdown Widget": {
-      "name": "Dropdown Widget",
+    "Select Widget": {
+      "name": "Select Widget",
       "color": "0c669e",
       "description": ""
     },
@@ -134,6 +134,11 @@
       "name": "Good First Issue",
       "color": "7057ff",
       "description": "Good for newcomers"
+    },
+    "Google Sheets": {
+      "name": "Google Sheets",
+      "color": "7057ff",
+      "description": "Issues related to Google Sheets"
     },
     "Generate Page": {
       "name": "Generate Page",
@@ -505,6 +510,11 @@
               },
               {
                 "type": "hasLabel",
+                "label": "Google Sheets",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
                 "label": "API pane",
                 "value": true
               },
@@ -559,7 +569,7 @@
                 "value": true
               },
               {
-                "label": "Dropdown Widget",
+                "label": "Select Widget",
                 "type": "hasLabel",
                 "value": true
               },
@@ -635,6 +645,26 @@
               },
               {
                 "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Menu Button",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Validation",
                 "type": "hasLabel",
                 "value": true
               },
