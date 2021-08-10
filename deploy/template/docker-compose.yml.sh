@@ -62,7 +62,7 @@ services:
     expose:
       - "27017"
     env_file:
-      - ./mongo.env
+      - ./docker.env
     volumes:
       - ./data/mongo/db:/data/db
       - ./data/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro

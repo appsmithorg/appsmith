@@ -769,12 +769,6 @@ overwrite_file "data/mongo/init.js"           "$templates_dir/mongo-init.js"
 overwrite_file "docker.env"                   "$templates_dir/docker.env"
 overwrite_file "encryption.env"               "$templates_dir/encryption.env"
 
-cat <<EOF >"$install_dir/mongo.env"
-MONGO_INITDB_DATABASE=$mongo_database
-MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
-MONGO_INITDB_ROOT_PASSWORD=$mongo_root_password
-EOF
-
 echo ""
 
 curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
