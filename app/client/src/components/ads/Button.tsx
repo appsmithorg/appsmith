@@ -49,7 +49,7 @@ type BtnFontType = {
   height: number;
 };
 
-type ButtonProps = CommonComponentProps & {
+export type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   text?: string;
   category?: Category;

@@ -1,31 +1,50 @@
 import React from "react";
-import Button, { Size, Category } from "components/ads/Button";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import Button, { Size, Category, ButtonProps } from "components/ads/Button";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper, Variant } from "components/ads/common";
+import { Variant } from "components/ads/common";
 import { IconCollection, IconName } from "components/ads/Icon";
 
 export default {
-  title: "Button",
+  title: "Form/Button",
   component: Button,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
 };
 
-export const withDynamicProps = () => (
-  <StoryWrapper>
-    <Button
-      category={select("category", Object.values(Category), Category.primary)}
-      disabled={boolean("Disabled", false)}
-      fill={boolean("fill", false)}
-      icon={select(
-        "Icon name",
-        ["Select icon" as IconName, ...IconCollection],
-        "Select icon" as IconName,
-      )}
-      isLoading={boolean("Loading", false)}
-      size={select("size", Object.values(Size), Size.large)}
-      text={text("text", "Get")}
-      variant={select("variant", Object.values(Variant), Variant.info)}
-    />
-  </StoryWrapper>
-);
+export function Primary(args: ButtonProps) {
+  return <Button {...args} />;
+}
+
+Primary.args = {
+  category: Category.primary,
+  disabled: false,
+  fill: false,
+  icon: "Select icon" as IconName,
+  isLoading: false,
+  size: Size.large,
+  text: "Get",
+  variant: Variant.info,
+  tag: "button",
+};
+
+Primary.argTypes = {
+  category: {
+    control: "select",
+    options: Object.values(Category),
+  },
+  disabled: { control: "boolean" },
+  fill: { control: "boolean" },
+  icon: {
+    control: "select",
+    options: ["Select icon" as IconName, ...IconCollection],
+  },
+  isLoading: { control: "boolean" },
+  size: {
+    control: "select",
+    options: Object.values(Size),
+  },
+  text: { control: "text" },
+  variant: {
+    control: "select",
+    options: Object.values(Variant),
+  },
+};
