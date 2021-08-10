@@ -30,6 +30,7 @@ import moment from "moment";
 import history from "utils/history";
 
 import { getAppMode } from "selectors/applicationSelectors";
+import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 import { USER_PHOTO_URL } from "constants/userConstants";
 
@@ -55,7 +56,6 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
-import { getAllWidgetsMap } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
 const StyledContainer = styled.div`
@@ -336,7 +336,9 @@ function CommentCard({
     setCardMode(CommentCardModes.VIEW);
   };
 
-  const widgetMap = useSelector(getAllWidgetsMap);
+  const widgetMap: Record<string, any> = useSelector(
+    widgetsMapWithParentModalId,
+  );
 
   const contextMenuProps = {
     switchToEditCommentMode,
@@ -359,10 +361,14 @@ function CommentCard({
   const handleCardClick = () => {
     if (inline) return;
     if (commentThread.widgetType) {
+      // for the view mode we use canvas widgets instead of widgets by page
+      // since we don't have the dsl for all the pages currently
       const widget = widgetMap[commentThread.refId];
-      // only needed for modal widgetMap
-      // TODO check if we can do something similar for tabs
-      if (widget.parentModalId) {
+
+      // 1. This is only needed for the modal widgetMap
+      // 2. TODO check if we can do something similar for tabs
+      // 3. getAllWidgetsMap doesn't exist for the view mode, so these won't work for the view mode
+      if (widget?.parentModalId) {
         navigateToWidget(
           commentThread.refId,
           commentThread.widgetType,
@@ -376,6 +382,7 @@ function CommentCard({
     history.push(
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
+
     if (!commentThread.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }

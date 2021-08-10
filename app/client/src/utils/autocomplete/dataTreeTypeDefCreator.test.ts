@@ -38,12 +38,18 @@ describe("dataTreeTypeDefCreator", () => {
       validationPaths: {},
       logBlackList: {},
     };
-    const { def } = dataTreeTypeDefCreator(dataTreeEntity, "Input1");
+    const { def, entityInfo } = dataTreeTypeDefCreator({
+      Input1: dataTreeEntity,
+    });
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
     expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET);
     expect(def).toHaveProperty("Input1.isDisabled");
+    expect(entityInfo.get("Input1")).toStrictEqual({
+      type: ENTITY_TYPE.WIDGET,
+      subType: WidgetTypes.INPUT_WIDGET,
+    });
   });
 
   it("creates a correct def for an object", () => {

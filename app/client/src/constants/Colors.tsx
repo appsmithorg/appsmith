@@ -1,5 +1,5 @@
 // Color Names generated from http://chir.ag/projects/name-that-color
-export const Colors: Record<string, string> = {
+export const Colors = {
   WHITE: "#FFFFFF",
   WHITE_SMOKE: "#F4F4F4",
   POLAR: "#E9FAF3",
@@ -77,6 +77,7 @@ export const Colors: Record<string, string> = {
   NERO: "#2B2B2B",
   CHARCOAL: "#4B4848",
   LIGHT_GREY: "#D4D4D4",
+  LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
@@ -87,6 +88,29 @@ export const Colors: Record<string, string> = {
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
   RATE_INACTIVE: "#F2F2F2",
-};
 
+  ICON_BUTTON_WARNING_SOLID: "#FEB811",
+  ICON_BUTTON_WARNING_SOLID_HOVER: "#EFA903",
+  ICON_BUTTON_WARNING_OUTLINE_HOVER: "#FFFAE9",
+  ICON_BUTTON_WARNING_GHOST_HOVER: "#FBEED0",
+
+  ICON_BUTTON_DANGER_SOLID: "#F22B2B",
+  ICON_BUTTON_DANGER_SOLID_HOVER: "#B90707",
+  ICON_BUTTON_DANGER_NO_SOLID_HOVER: "#FDE4E4",
+
+  ICON_BUTTON_INFO_SOLID: "#6698FF",
+  ICON_BUTTON_INFO_SOLID_HOVER: "#1A65FF",
+  ICON_BUTTON_INFO_NO_SOLID_HOVER: "#CEDCFF",
+
+  ICON_BUTTON_PRIMARY_SOLID_HOVER: "#00693B",
+  ICON_BUTTON_PRIMARY_OUTLINE_HOVER: "#D9FDED",
+  ICON_BUTTON_PRIMARY_GHOST_HOVER: "#CBF4E2",
+
+  BOX_SHADOW_DEFAULT_VARIANT1: "rgba(0, 0, 0, 0.25)",
+  BOX_SHADOW_DEFAULT_VARIANT2: "rgba(0, 0, 0, 0.25)",
+  BOX_SHADOW_DEFAULT_VARIANT3: "rgba(0, 0, 0, 0.5)",
+  BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
+  BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
+  SELECT_DISABLED: "#ced9e080",
+};
 export type Color = typeof Colors[keyof typeof Colors];
