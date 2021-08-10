@@ -68,7 +68,7 @@ public class MockDataServiceImpl implements MockDataService {
         }
 
         return  WebClient
-                .create( "http://localhost:8090" + "/api/v1/mocks")
+                .create( baseUrl + "/api/v1/mocks")
                 .get()
                 .exchange()
                 .flatMap(response -> response.bodyToMono(new ParameterizedTypeReference<ResponseDTO<MockDataDTO>>() {}))
