@@ -140,7 +140,7 @@ export const HelpMap = {
     searchKey: "Icon Button",
   },
   STATBOX_WIDGET: {
-    path: "",
+    path: "/widget-reference/statbox",
     searchKey: "Stat Box",
   },
 };

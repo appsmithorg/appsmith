@@ -1268,8 +1268,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     STATBOX_WIDGET: {
-      rows: 13 * GRID_DENSITY_MIGRATION_V1,
-      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      rows: 14 * GRID_DENSITY_MIGRATION_V1,
+      columns: 12 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Statbox",
       backgroundColor: "white",
       children: [],
@@ -1290,12 +1290,58 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     type: "TEXT_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: { top: 1, left: 1.5 },
                     props: {
                       text: "Page Views",
+                      fontSize: "PARAGRAPH2",
+                      textColor: "#999999",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 1.5 * GRID_DENSITY_MIGRATION_V1,
+                      left: 1.5,
+                    },
+                    props: {
+                      text: "2.6 M",
                       fontSize: "HEADING1",
+                      fontStyle: "BOLD",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 3 * GRID_DENSITY_MIGRATION_V1, left: 1.5 },
+                    props: {
+                      text: "21% more than last month",
+                      fontSize: "PARAGRAPH2",
+                      textColor: Colors.GREEN,
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "ICON_BUTTON_WIDGET",
+                    size: {
+                      rows: 12 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 1, left: 12 * GRID_DENSITY_MIGRATION_V1 },
+                    props: {
+                      iconName: "arrow-top-right",
+                      buttonStyle: "PRIMARY",
+                      buttonVariant: "SOLID",
                       version: 1,
                     },
                   },
