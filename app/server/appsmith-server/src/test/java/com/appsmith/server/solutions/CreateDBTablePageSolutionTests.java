@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
@@ -93,6 +94,8 @@ public class CreateDBTablePageSolutionTests {
 
     private final String LIST_QUERY = "ListFiles";
 
+    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
@@ -160,6 +163,8 @@ public class CreateDBTablePageSolutionTests {
         testDatasource.setOrganizationId(testOrg.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         testDatasource.setStructure(structure);
+        datasourceConfiguration.setUrl("http://test.com");
+        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
         datasourceService.create(testDatasource).block();
 
         resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
@@ -279,6 +284,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MySql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -338,6 +344,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Redshift-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -391,6 +398,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MSSql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -443,6 +451,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Snowflake-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -612,6 +621,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Mongo-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
