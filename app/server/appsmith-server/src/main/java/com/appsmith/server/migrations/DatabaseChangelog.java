@@ -2867,11 +2867,20 @@ public class DatabaseChangelog {
 
     private void encryptPathValueIfExists(Document document, String path, EncryptionService encryptionService) {
         String[] pathKeys = path.split("\\.");
+        /**
+         * - For attribute path "datasourceConfiguration.connection.ssl.keyFile.base64Content", first get the parent
+         * document that contains the attribute 'base64Content' i.e. fetch the document corresponding to path
+         * "datasourceConfiguration.connection.ssl.keyFile"
+         */
         String parentDocumentPath = StringUtils.join(ArrayUtils.subarray(pathKeys, 0, pathKeys.length - 1), ".");
         Document parentDocument = getDocumentFromPath(document, parentDocumentPath);
 
         if (parentDocument != null) {
-            // Replace old value with new encrypted value if the key exists and is non-null.
+            /**
+             * - Replace old value with new encrypted value if the key exists and is non-null.
+             * - Use the last element in pathKeys since it the key that names the attribute that needs to be encrypted
+             * e.g. 'base64Content' in "datasourceConfiguration.connection.ssl.keyFile.base64Content"
+             */
             parentDocument.computeIfPresent(
                     pathKeys[pathKeys.length - 1],
                     (k, v) -> encryptionService.encryptString((String) v)
