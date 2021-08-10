@@ -125,7 +125,7 @@ export const TopLeftHandleStyles = styled.div<{
   ${CornerHandleStyles};
   left: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
   top: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
-  ${(props) => (!props.showAsBorder ? "cursor: ew-resize;" : "")}
+  ${(props) => (!props.showAsBorder ? "cursor: nw-resize;" : "")}
 `;
 export const TopRightHandleStyles = styled.div<{
   showAsBorder: boolean;
