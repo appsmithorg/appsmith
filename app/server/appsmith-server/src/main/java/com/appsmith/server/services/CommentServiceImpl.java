@@ -483,6 +483,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
     public Mono<CommentThread> deleteThread(String threadId) {
         return threadRepository.findById(threadId, AclPermission.MANAGE_THREAD)
                 .flatMap(threadRepository::archive)
+                .flatMap(commentThread ->
+                    notificationService.createNotification(
+                            commentThread, CommentNotificationEvent.DELETED, commentThread.getAuthorUsername()
+                    ).collectList().thenReturn(commentThread)
+                )
                 .flatMap(analyticsService::sendDeleteEvent);
     }
 

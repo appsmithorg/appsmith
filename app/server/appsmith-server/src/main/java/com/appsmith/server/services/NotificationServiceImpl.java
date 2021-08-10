@@ -122,11 +122,11 @@ public class NotificationServiceImpl
     }
 
     @Override
-    public Flux<Notification> createNotification(CommentThread commentThread, CommentNotificationEvent event, String forUsername) {
+    public Flux<Notification> createNotification(CommentThread commentThread, CommentNotificationEvent event, String authorUsername) {
         if(!CollectionUtils.isEmpty(commentThread.getSubscribers())) {
             List<Notification> notificationMonoList = new ArrayList<>(commentThread.getSubscribers().size());
             for(String subscriberUserName: commentThread.getSubscribers()) {
-                if(!subscriberUserName.equals(forUsername)) {
+                if(!subscriberUserName.equals(authorUsername)) {
                     CommentThreadNotification commentThreadNotification = new CommentThreadNotification();
                     commentThreadNotification.setCommentThread(commentThread);
                     commentThreadNotification.setForUsername(subscriberUserName);
