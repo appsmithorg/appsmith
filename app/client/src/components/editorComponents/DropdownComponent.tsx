@@ -1,7 +1,10 @@
 import React, { Component, ReactNode } from "react";
 import styled from "styled-components";
 import { MenuItem, Menu, ControlGroup, InputGroup } from "@blueprintjs/core";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import {
+  BaseButton,
+  ButtonStyleName,
+} from "components/designSystems/blueprint/ButtonComponent";
 import {
   ItemRenderer,
   Select,
@@ -9,11 +12,16 @@ import {
   IItemListRendererProps,
 } from "@blueprintjs/select";
 import { DropdownOption } from "widgets/DropdownWidget";
+import { WrappedFieldInputProps } from "redux-form";
 
 const Dropdown = Select.ofType<DropdownOption>();
 const StyledDropdown = styled(Dropdown)``;
 
 class DropdownComponent extends Component<DropdownComponentProps> {
+  componentDidMount() {
+    const { input, selected } = this.props;
+    input && input.onChange(selected?.value);
+  }
   private newItemTextInput: HTMLInputElement | null = null;
   private setNewItemTextInput = (element: HTMLInputElement | null) => {
     this.newItemTextInput = element;
@@ -82,6 +90,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     );
   };
   onItemSelect = (item: DropdownOption): void => {
+    this.props.input?.onChange(item.value);
     this.props.selectHandler(item.value);
   };
 
@@ -96,10 +105,10 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       <MenuItem
         active={modifiers.active}
         key={option.value}
-        label={option.label ? option.label : ""}
+        label={this.props.hasLabel ? option.label : ""}
         onClick={handleClick}
         shouldDismissPopover={false}
-        text={option.label || option.label}
+        text={option.label}
       />
     );
   };
@@ -110,20 +119,31 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         (option) => option.value === selectedValue,
       );
 
-      return item && (item.label || item.label);
+      return item && item.label;
     }
     return "";
   };
 
   render() {
+    const {
+      accent,
+      addItem,
+      autocomplete,
+      filled,
+      input,
+      options,
+      selected,
+    } = this.props;
+
     return (
       <StyledDropdown
-        activeItem={this.props.selected}
-        filterable={!!this.props.autocomplete}
-        itemListRenderer={this.props.addItem && this.renderItemList}
+        activeItem={selected}
+        filterable={!!autocomplete}
+        {...input}
+        itemListRenderer={addItem && this.renderItemList}
         itemPredicate={this.searchItem}
         itemRenderer={this.renderItem}
-        items={this.props.options}
+        items={options}
         itemsEqual="value"
         noResults={<MenuItem disabled text="No results." />}
         onItemSelect={this.onItemSelect}
@@ -131,7 +151,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       >
         {this.props.toggle || (
           <BaseButton
-            accent="secondary"
+            accent={accent || "secondary"}
+            filled={!!filled}
             rightIcon="chevron-down"
             text={this.getSelectedDisplayText()}
           />
@@ -142,6 +163,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 }
 
 export interface DropdownComponentProps {
+  hasLabel?: boolean;
   options: DropdownOption[];
   selectHandler: (selectedValue: string) => void;
   selected?: DropdownOption;
@@ -154,6 +176,9 @@ export interface DropdownComponentProps {
     addItemHandler: (name: string) => void;
   };
   toggle?: ReactNode;
+  accent?: ButtonStyleName;
+  filled?: boolean;
+  input?: WrappedFieldInputProps;
 }
 
 export default DropdownComponent;

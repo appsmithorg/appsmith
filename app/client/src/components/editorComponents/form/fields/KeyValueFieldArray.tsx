@@ -14,6 +14,29 @@ import {
 import Text, { Case, TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import DynamicDropdownField from "./DynamicDropdownField";
+import { Colors } from "constants/Colors";
+
+enum MultiPartOptionTypes {
+  TEXT = "Text",
+  FILE = "File",
+}
+
+interface MULTI_PART_DROPDOWN_OPTION {
+  label: MultiPartOptionTypes;
+  value: string;
+}
+
+const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
+  {
+    label: MultiPartOptionTypes.TEXT,
+    value: "TEXT",
+  },
+  {
+    label: MultiPartOptionTypes.FILE,
+    value: "FILE",
+  },
+];
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -83,6 +106,18 @@ const FlexContainer = styled.div`
   }
 `;
 
+const DynamicTextFieldWithDropdownWrapper = styled.div`
+  display: flex;
+  position: relative;
+  top: -1px;
+  border-bottom: solid 1px ${Colors.MERCURY};
+  margin-bottom: 10px;
+
+  & .CodeEditorTarget * {
+    border-bottom: none !important;
+  }
+`;
+
 const expected = {
   type: FIELD_VALUES.API_ACTION.params,
   example: "",
@@ -136,16 +171,37 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
             return (
               <FormRowWithLabel key={index}>
                 <Flex size={1}>
-                  <DynamicTextField
-                    border={CodeEditorBorder.BOTTOM_SIDE}
-                    className={`t--${field}.key.${index}`}
-                    dataTreePath={`${props.dataTreePath}[${index}].key`}
-                    expected={expected}
-                    hoverInteraction
-                    name={`${field}.key`}
-                    placeholder={`Key ${index + 1}`}
-                    theme={props.theme}
-                  />
+                  {props.hasType ? (
+                    <DynamicTextFieldWithDropdownWrapper>
+                      <DynamicTextField
+                        border={CodeEditorBorder.BOTTOM_SIDE}
+                        className={`t--${field}.key.${index}`}
+                        dataTreePath={`${props.dataTreePath}[${index}].key`}
+                        expected={expected}
+                        hoverInteraction
+                        name={`${field}.key`}
+                        placeholder={`Key ${index + 1}`}
+                        theme={props.theme}
+                      />
+                      <DynamicDropdownField
+                        accent="grey"
+                        filled
+                        name={`${field}.type`}
+                        options={MULTI_PART_DROPDOWN_OPTIONS}
+                      />
+                    </DynamicTextFieldWithDropdownWrapper>
+                  ) : (
+                    <DynamicTextField
+                      border={CodeEditorBorder.BOTTOM_SIDE}
+                      className={`t--${field}.key.${index}`}
+                      dataTreePath={`${props.dataTreePath}[${index}].key`}
+                      expected={expected}
+                      hoverInteraction
+                      name={`${field}.key`}
+                      placeholder={`Key ${index + 1}`}
+                      theme={props.theme}
+                    />
+                  )}
                 </Flex>
 
                 {!props.actionConfig && (
@@ -239,6 +295,7 @@ type Props = {
   dataTreePath?: string;
   hideHeader?: boolean;
   theme?: EditorTheme;
+  hasType?: boolean;
 };
 
 function KeyValueFieldArray(props: Props) {

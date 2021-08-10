@@ -48,7 +48,7 @@ export const CONTENT_TYPE_HEADER_KEY = "content-type";
 export enum ApiContentTypes {
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
-  MULTIPART_FORM_DATA = "form-data",
+  MULTIPART_FORM_DATA = "multi-part",
   RAW = "raw",
 }
 
