@@ -48,6 +48,8 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -208,14 +210,18 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
                     passwordResetToken.setEmail(email);
+                    passwordResetToken.setRequestCount(1);
+                    passwordResetToken.setFirstRequestTime(Instant.now());
                     return Mono.just(passwordResetToken);
                 }))
                 .map(resetToken -> {
+                    // check the validity of the token
+                    validateResetLimit(resetToken);
                     resetToken.setTokenHash(passwordEncoder.encode(token));
                     return resetToken;
                 });
 
-        // Save the password reset link and send an email to the user
+        // Save the password reset link and send email to the user
         Mono<Boolean> resetFlowMono = passwordResetTokenMono
                 .flatMap(passwordResetTokenRepository::save)
                 .flatMap(obj -> {
@@ -234,14 +240,34 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             params
                     );
                 })
-                .thenReturn(true)
-                .onErrorResume(error -> {
-                    log.error("Unable to send email because the template replacement failed. Cause: ", error);
-                    return Mono.just(true);
-                });
+                .thenReturn(true);
 
         // Connect the components to first find a valid user and then initiate the password reset flow
         return userMono.then(resetFlowMono);
+    }
+
+    /**
+     * This method checks whether the reset request limit has been exceeded.
+     * If the limit has been exceeded, it raises an Exception.
+     * Otherwise, it'll update the counter and date in the resetToken object
+     * @param resetToken {@link PasswordResetToken}
+     */
+    private void validateResetLimit(PasswordResetToken resetToken) {
+        if(resetToken.getRequestCount() >= 3) {
+            Duration duration = Duration.between(resetToken.getFirstRequestTime(), Instant.now());
+            long l = duration.toHours();
+            if(l >= 24) { // ok, reset the counter
+                resetToken.setRequestCount(1);
+                resetToken.setFirstRequestTime(Instant.now());
+            } else { // too many requests, raise an exception
+                throw new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+            }
+        } else {
+            resetToken.setRequestCount(resetToken.getRequestCount() + 1);
+            if(resetToken.getFirstRequestTime() == null) {
+                resetToken.setFirstRequestTime(Instant.now());
+            }
+        }
     }
 
     /**
