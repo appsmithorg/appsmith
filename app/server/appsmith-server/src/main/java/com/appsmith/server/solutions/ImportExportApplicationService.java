@@ -89,15 +89,10 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
-    private final CommonConfig commonConfig;
     private final ReleaseNotesService releaseNotesService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
-    private static final String PAGE_DIRECTORY = "/Pages/";
-    private static final String ACTION_DIRECTORY = "/Actions/";
-    private static final String DATASOURCE_DIRECTORY = "/Datasources/";
-
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
     }
@@ -623,6 +618,7 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
+                        
                         return newAction;
                     })
                     .then()
