@@ -1,13 +1,8 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import { io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
-import { throttle } from "lodash";
-import { getCurrentUser } from "../../selectors/usersSelectors";
-import { useSelector } from "react-redux";
-
-const pageLevelSocket = io("/page/edit");
 
 const Canvas = styled.canvas`
   position: absolute;
@@ -17,32 +12,25 @@ const Canvas = styled.canvas`
   width: 100%;
   overflow-y: auto;
   z-index: 1;
+  pointer-events: none;
 `;
 
-function CanvasMultiPointerArena() {
+function CanvasMultiPointerArena({
+  pageLevelSocket,
+}: {
+  pageLevelSocket: Socket;
+}) {
   const { pageId } = useParams<ExplorerURLParams>();
-  const currentUser = useSelector(getCurrentUser);
-  const shareMousePointer = (e: any) => {
-    if (!!pageLevelSocket) {
-      const selectionCanvas: any = document.getElementById(
-        "multiplayer-canvas",
-      );
-      const rect = selectionCanvas.getBoundingClientRect();
+  let pointerData: { [s: string]: any } = {};
 
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      pageLevelSocket.emit("collab:mouse_pointer", {
-        data: { x, y },
-        pageId,
-      });
-    }
-  };
-  const delayedShareMousePointer = useCallback(
-    throttle((e) => shareMousePointer(e), 50, { trailing: false }),
-    [shareMousePointer],
-  );
-
+  let selectionCanvas: any;
   useEffect(() => {
+    selectionCanvas = document.getElementById("multiplayer-canvas");
+    const rect = selectionCanvas.getBoundingClientRect();
+    if (!!selectionCanvas) {
+      selectionCanvas.width = rect.width;
+      selectionCanvas.height = rect.height;
+    }
     pageLevelSocket.connect();
     pageLevelSocket.emit("collab:start_edit", pageId);
     return () => {
@@ -51,51 +39,52 @@ function CanvasMultiPointerArena() {
     };
   }, []);
 
-  const throttledClearCanvas = useCallback(
-    throttle((ctx, width, height) => ctx.clearRect(0, 0, width, height), 50, {
-      trailing: false,
-    }),
-    [],
-  );
-
-  const drawPointers = (eventData: any) => {
-    const selectionCanvas: any = document.getElementById("multiplayer-canvas");
-    const rect = selectionCanvas.getBoundingClientRect();
-    selectionCanvas.width = rect.width;
-    selectionCanvas.height = rect.height;
+  const drawPointers = async () => {
     const ctx = selectionCanvas.getContext("2d");
-    throttledClearCanvas(ctx, rect.width, rect.height);
-    // ctx.clearRect(0, 0, rect.width, rect.height);
+    const rect = selectionCanvas.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.font = "16px Georgia";
-    ctx.fillText(
-      `${eventData?.user?.email}`,
-      eventData.data.x,
-      eventData.data.y,
-    );
+    Object.keys(pointerData).forEach((socId: string) => {
+      const eventData = pointerData[socId];
+      ctx.fillText(
+        `${eventData?.user?.email}`,
+        eventData.data.x,
+        eventData.data.y,
+      );
+    });
   };
 
-  // const throttledDrawPointers = useCallback(
-  //   throttle((e) => drawPointers(e), 10),
-  //   [drawPointers],
-  // );
-
   useEffect(() => {
-    pageLevelSocket.on("collab:mouse_pointer", (eventData: any) => {
-      if (eventData && eventData.user?.email !== currentUser?.email) {
-        drawPointers(eventData);
-      }
-    });
+    const drawingInterval = setInterval(() => drawPointers(), 50);
+    const clearPointerDataInterval = setInterval(() => {
+      pointerData = {};
+    }, 120000);
+    return () => {
+      clearInterval(drawingInterval);
+      clearInterval(clearPointerDataInterval);
+    };
   }, []);
 
-  return (
-    <Canvas
-      id="multiplayer-canvas"
-      onMouseMove={(e) => {
-        e.persist();
-        delayedShareMousePointer(e);
-      }}
-    />
-  );
+  useEffect(() => {
+    pageLevelSocket.on(
+      "collab:mouse_pointer",
+      (eventData: {
+        data: { x: number; y: number };
+        socketId: string;
+        user: any;
+      }) => {
+        if (
+          eventData &&
+          selectionCanvas &&
+          pageLevelSocket.id !== eventData.socketId
+        ) {
+          pointerData[eventData.socketId] = eventData;
+        }
+      },
+    );
+  }, []);
+
+  return <Canvas id="multiplayer-canvas" />;
 }
 
 export default CanvasMultiPointerArena;

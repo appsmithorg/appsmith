@@ -38,7 +38,6 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import CanvasMultiPointerArena from "../pages/common/CanvasMultiPointerArena";
 
 /***
  * BaseWidget
@@ -304,15 +303,6 @@ abstract class BaseWidget<
     );
   }
 
-  addMultiPointerCanvasOverlay(content: ReactNode) {
-    return (
-      <>
-        {content}
-        <CanvasMultiPointerArena />
-      </>
-    );
-  }
-
   private getWidgetView(): ReactNode {
     let content: ReactNode;
 
@@ -329,7 +319,6 @@ abstract class BaseWidget<
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
-        content = this.addMultiPointerCanvasOverlay(content);
         return content;
 
       // return this.getCanvasView();
