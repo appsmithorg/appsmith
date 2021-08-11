@@ -1763,8 +1763,8 @@ Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
   cy.wait(2000);
   cy.get(commonlocators.dropdownmenu)
     .contains(text)
-    .click({ force: true })
-    .should("have.text", text);
+    .click({ force: true });
+  cy.xpath(commonlocators.dropDownOptSelected).should("have.text", text);
 });
 
 Cypress.Commands.add("selectTextSize", (text) => {
@@ -2454,6 +2454,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/organizations/*/logo").as("deleteLogo");
   cy.route("POST", "/api/v1/applications/*/fork/*").as("postForkAppOrg");
   cy.route("PUT", "/api/v1/users/leaveOrganization/*").as("leaveOrgApiCall");
+
+  cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
+  cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {

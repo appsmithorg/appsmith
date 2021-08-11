@@ -28,7 +28,7 @@ import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
-import { getCanManage } from "utils/helpers";
+import { getCanCreateApplications } from "utils/helpers";
 
 import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
 import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
@@ -214,7 +214,7 @@ export default function CommentsShowcaseCarousel() {
 
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
-  const canManage = getCanManage(currentOrg);
+  const canManage = getCanCreateApplications(currentOrg);
 
   const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
 
@@ -255,7 +255,11 @@ export default function CommentsShowcaseCarousel() {
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel activeIndex={activeIndex} steps={steps as Steps} />
+      <ShowcaseCarousel
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+        steps={steps as Steps}
+      />
     </CommentsCarouselModal>
   );
 }
