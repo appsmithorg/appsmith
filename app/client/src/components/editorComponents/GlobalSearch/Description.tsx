@@ -227,7 +227,7 @@ const SnippetContainer = styled.div`
     color: #4b4848;
     font-size: 14px;
     font-weight: 400;
-    margin-top: 10px;
+    margin: 10px 0;
   }
   .snippet-group {
     margin: 5px 0;
@@ -304,109 +304,117 @@ function SnippetDescription(props: any) {
         <span className="action-msg">Hit ⏎ to insert</span>
       </div>
       <div className="snippet-desc">{summary}</div>
-      <SyntaxHighlighter language={language} style={xcode}>
-        {getSnippet(snippet, selectedArgs)}
-      </SyntaxHighlighter>
       <TabbedViewContainer className="tab-container">
         <TabComponent
           onSelect={setSelectedIndex}
           selectedIndex={selectedIndex}
           tabs={[
             {
-              key: "Example",
-              title: "Example",
-              panelComponent:
-                examples && examples.length ? (
-                  <div className="snippet-group">
-                    <div className="content">
-                      {examples.map((ex: any) => (
-                        <>
-                          <p>{ex.title}</p>
-                          <SyntaxHighlighter language={language} style={xcode}>
-                            {ex.code}
-                          </SyntaxHighlighter>
-                          <p>{ex.summary}</p>
-                        </>
-                      ))}
+              key: "Snippet",
+              title: "Snippet",
+              panelComponent: (
+                <>
+                  <SyntaxHighlighter language={language} style={xcode}>
+                    {getSnippet(snippet, selectedArgs)}
+                  </SyntaxHighlighter>
+                  {examples && examples.length ? (
+                    <div className="snippet-group">
+                      <div className="header">Example</div>
+                      <div className="content">
+                        {examples.map((ex: any) => (
+                          <>
+                            <p>{ex.title}</p>
+                            <SyntaxHighlighter
+                              language={language}
+                              style={xcode}
+                            >
+                              {ex.code}
+                            </SyntaxHighlighter>
+                            <p>{ex.summary}</p>
+                          </>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div />
-                ),
+                  ) : (
+                    <div />
+                  )}
+                </>
+              ),
             },
-            // setSelectedArgs({
-            //   ...selectedArgs,
-            //   [arg.name]: value,
-            // })
             {
               key: "Customize",
               title: "Customize",
               panelComponent:
                 args && args.length > 0 ? (
-                  <div className="snippet-group">
-                    {args.map((arg: any) => (
-                      <div className="argument" key={arg.name}>
-                        <span>{arg.name}</span>
-                        <CodeEditor
-                          expected={arg.type}
-                          hideEvaluatedValue
-                          input={{
-                            value: selectedArgs[arg.name],
-                            onChange: (value: any) => {
-                              setSelectedArgs({
-                                ...selectedArgs,
-                                [arg.name]: value,
-                              });
-                            },
-                          }}
-                          mode={EditorModes.TEXT_WITH_BINDING}
-                          showLightningMenu={false}
-                          size={EditorSize.EXTENDED}
-                          tabBehaviour={TabBehaviour.INDENT}
-                          theme={EditorTheme.LIGHT}
-                        />
-                      </div>
-                    ))}
-                    <div className="actions-container">
-                      <Button
-                        className="t--apiFormRunBtn"
-                        onClick={() => {
-                          dispatch(
-                            evaluateSnippet({
-                              expression: getSnippet(snippet, selectedArgs),
-                              dataType: returnType,
-                            }),
-                          );
-                        }}
-                        size={Size.medium}
-                        tag="button"
-                        text="Run"
-                        type="button"
-                      />
-                      <Button
-                        className="copy-snippet-btn"
-                        onClick={() => {
-                          console.log();
-                        }}
-                        size={Size.medium}
-                        tag="button"
-                        text="Copy Snippet"
-                        type="button"
-                      />
-                    </div>
-                    {evaluatedSnippet && (
-                      <div className="snippet-group">
-                        <div className="header">Evaluated Snippet</div>
-                        <div className="content">
-                          <ReadOnlyEditor
-                            folding
-                            height="300px"
-                            input={{ value: evaluatedSnippet }}
+                  <>
+                    <SyntaxHighlighter language={language} style={xcode}>
+                      {getSnippet(snippet, selectedArgs)}
+                    </SyntaxHighlighter>
+                    <div className="snippet-group">
+                      {args.map((arg: any) => (
+                        <div className="argument" key={arg.name}>
+                          <span>{arg.name}</span>
+                          <CodeEditor
+                            expected={arg.type}
+                            hideEvaluatedValue
+                            input={{
+                              value: selectedArgs[arg.name],
+                              onChange: (value: any) => {
+                                setSelectedArgs({
+                                  ...selectedArgs,
+                                  [arg.name]: value,
+                                });
+                              },
+                            }}
+                            mode={EditorModes.TEXT_WITH_BINDING}
+                            showLightningMenu={false}
+                            size={EditorSize.EXTENDED}
+                            tabBehaviour={TabBehaviour.INDENT}
+                            theme={EditorTheme.LIGHT}
                           />
                         </div>
+                      ))}
+                      <div className="actions-container">
+                        <Button
+                          className="t--apiFormRunBtn"
+                          onClick={() => {
+                            dispatch(
+                              evaluateSnippet({
+                                expression: getSnippet(snippet, selectedArgs),
+                                dataType: returnType,
+                              }),
+                            );
+                          }}
+                          size={Size.medium}
+                          tag="button"
+                          text="Run"
+                          type="button"
+                        />
+                        <Button
+                          className="copy-snippet-btn"
+                          onClick={() => {
+                            console.log();
+                          }}
+                          size={Size.medium}
+                          tag="button"
+                          text="Copy Snippet"
+                          type="button"
+                        />
                       </div>
-                    )}
-                  </div>
+                      {evaluatedSnippet && (
+                        <div className="snippet-group">
+                          <div className="header">Evaluated Snippet</div>
+                          <div className="content">
+                            <ReadOnlyEditor
+                              folding
+                              height="300px"
+                              input={{ value: evaluatedSnippet }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 ) : (
                   <div />
                 ),

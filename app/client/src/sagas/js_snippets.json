@@ -8,15 +8,20 @@
         "dataType": "string",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
-            "snippet": "${var1}.concat(${var2})",
+            "snippet": "${data}.filter((item) => {\n  return item[${key}] == ${value};\n});",
             "args": [
                 {
-                    "name": "var1",
-                    "type": "array"
+                    "name": "data",
+                    "type": "array",
+                    "defaultValue": "Table1.tableData"
                 },
                 {
-                    "name": "var2",
-                    "type": "array"
+                    "name": "key",
+                    "type": "string"
+                },
+                {
+                    "name": "value",
+                    "type": "string"
                 }
             ],
             "summary": "Merge data from two entities into a single response",
@@ -135,7 +140,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "function(){\n    let heros = [{ \n        hero: \"Iron Man\", \n        team: \"Avengers\", \n        skills: \"Superhuman strength\", \n    }, { \n        hero: \"Bat Man\", \n        team: \"Justice Leaugue\", \n        skills: \"Gadgets\", \n    }, { \n        hero: \"Iron Man\",\n        team: \"Avengers\",\n        skills: \"Superhuman strength\",\n     }, { \n        hero: \"Bat Man\",\n        team: \"Justice Leaugue\",\n        skills: \"Gadgets\",\n     }, {\n         hero: \"Aqua Man\",\n         team: \"Justice Leaugue\",\n         skills: \"endurance\"\n     }, { \n         hero: \"Captain America\", \n         team: \"Avengers\", \n         skills: \"endurance\", \n    }]; \n    let JSONObject = heros.map(JSON.stringify); \n    let uniqueSet = new Set(JSONObject); \n    let uniqueArray = Array.from(uniqueSet).map(JSON.parse); \n    return uniqueArray; \n}()",
+                    "code": "(function(){\n    let heroes = [{ \n        hero: \"Iron Man\", \n        team: \"Avengers\", \n        skills: \"Superhuman strength\", \n    }, { \n        hero: \"Bat Man\", \n        team: \"Justice Leaugue\", \n        skills: \"Gadgets\", \n    }, { \n        hero: \"Iron Man\",\n        team: \"Avengers\",\n        skills: \"Superhuman strength\",\n     }, { \n        hero: \"Bat Man\",\n        team: \"Justice Leaugue\",\n        skills: \"Gadgets\",\n     }, {\n         hero: \"Aqua Man\",\n         team: \"Justice Leaugue\",\n         skills: \"endurance\"\n     }, { \n         hero: \"Captain America\", \n         team: \"Avengers\", \n         skills: \"endurance\", \n    }]; \n    let JSONObject = heroes.map(JSON.stringify); \n    let uniqueSet = new Set(JSONObject); \n    let uniqueArray = Array.from(uniqueSet).map(JSON.parse); \n    return uniqueArray; \n})()",
                     "summary": ""
                 }
             ]
