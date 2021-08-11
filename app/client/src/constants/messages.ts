@@ -368,6 +368,8 @@ export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving ${actionName}`;
 export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
   `Unable to update js collection name to ${actionName}`;
+export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
+  `Syntax error: ${message}`;
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";

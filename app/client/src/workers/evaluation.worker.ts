@@ -210,9 +210,13 @@ ctx.addEventListener(
             variables: variables,
           };
         } catch (e) {
-          console.log("error", e);
+          const errors = dataTreeEvaluator.errors;
+          errors.push({
+            type: EvalErrorTypes.PARSE_JS_ERROR,
+            message: e.message,
+          });
+          return errors;
         }
-        return true;
       }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
         const { action, collectionName } = requestData;

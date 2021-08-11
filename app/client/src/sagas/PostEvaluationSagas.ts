@@ -32,6 +32,7 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
+  PARSE_JS_FUNCTION_ERROR,
 } from "constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
@@ -235,6 +236,14 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
+        break;
+      }
+      case EvalErrorTypes.PARSE_JS_ERROR: {
+        Toaster.show({
+          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
+          variant: Variant.danger,
+          showDebugButton: false,
+        });
         break;
       }
       default: {
