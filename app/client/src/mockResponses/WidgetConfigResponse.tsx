@@ -1268,8 +1268,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     STATBOX_WIDGET: {
-      rows: 14 * GRID_DENSITY_MIGRATION_V1,
-      columns: 12 * GRID_DENSITY_MIGRATION_V1,
+      rows: 4 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Statbox",
       backgroundColor: "white",
       children: [],
@@ -1290,9 +1290,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     type: "TEXT_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
-                    position: { top: 1, left: 1.5 },
+                    position: { top: 0.5, left: 1.5 },
                     props: {
                       text: "Page Views",
                       fontSize: "PARAGRAPH2",
@@ -1304,10 +1304,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     type: "TEXT_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 1.5 * GRID_DENSITY_MIGRATION_V1,
+                      top: 5.5,
                       left: 1.5,
                     },
                     props: {
@@ -1321,9 +1321,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     type: "TEXT_WIDGET",
                     size: {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                      cols: 12 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
-                    position: { top: 3 * GRID_DENSITY_MIGRATION_V1, left: 1.5 },
+                    position: {
+                      top: 10,
+                      left: 1.5,
+                    },
                     props: {
                       text: "21% more than last month",
                       fontSize: "PARAGRAPH2",
@@ -1334,10 +1337,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "ICON_BUTTON_WIDGET",
                     size: {
-                      rows: 12 * GRID_DENSITY_MIGRATION_V1,
+                      rows: 2 * GRID_DENSITY_MIGRATION_V1,
                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
                     },
-                    position: { top: 1, left: 12 * GRID_DENSITY_MIGRATION_V1 },
+                    position: {
+                      top: 3,
+                      left: 45,
+                    },
                     props: {
                       iconName: "arrow-top-right",
                       buttonStyle: "PRIMARY",
