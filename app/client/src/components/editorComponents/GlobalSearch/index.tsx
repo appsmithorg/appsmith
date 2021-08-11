@@ -43,6 +43,10 @@ import {
   filterCategories,
   getFilterCategoryList,
   SearchCategory,
+  isNavigation,
+  isMenu,
+  isSnippet,
+  isDocumentation,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -56,14 +60,6 @@ import { keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-
-const isNavigation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
-const isDocumentation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
-const isSnippet = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
-const isMenu = (category: any) => category.id === SEARCH_CATEGORY_ID.INIT;
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -474,6 +470,7 @@ function GlobalSearch() {
       <GlobalSearchHotKeys {...hotKeyProps}>
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper
+            category={category}
             query={query}
             refinements={refinements}
             setRefinement={setRefinements}

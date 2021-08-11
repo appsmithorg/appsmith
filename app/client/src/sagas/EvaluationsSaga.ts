@@ -43,6 +43,7 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { setEvaluatedSnippet } from "actions/globalSearchActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -245,6 +246,21 @@ function* evaluationChangeListenerSaga() {
       yield call(evaluateTreeSaga, action.postEvalActions);
     }
   }
+}
+
+export function* evaluateSnippetSaga(action: any) {
+  try {
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression: action.payload.expression,
+        dataType: action.payload.dataType,
+      },
+    );
+    const { result, errors } = workerResponse;
+    put(setEvaluatedSnippet({ evaluatedSnippet: result }));
+  } catch (e) {}
 }
 
 export default function* evaluationSagaListeners() {

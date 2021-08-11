@@ -4,6 +4,7 @@ import { Hit as IHit } from "react-instantsearch-core";
 import { debounce } from "lodash";
 import { DocSearchItem, SearchItem, SEARCH_ITEM_TYPES } from "./utils";
 import { SEARCH_CATEGORY_ID } from "./utils";
+import { useState } from "react";
 
 type Props = {
   setDocumentationSearchResults: (
@@ -24,13 +25,17 @@ function SearchResults({
     [],
   );
 
+  const [hitsInState, setHitsInState] = useState<any>();
+
   useEffect(() => {
+    if (JSON.stringify(hits) === JSON.stringify(hitsInState)) return;
     const filteredHits = hits.filter((doc: SearchItem) => {
       return categoryId === SEARCH_CATEGORY_ID.SNIPPETS
         ? doc.body && doc.body.hasOwnProperty("snippet")
         : doc.kind === SEARCH_ITEM_TYPES.document;
     });
     debouncedSetter(filteredHits as any, categoryId);
+    setHitsInState(hits);
   }, [hits]);
 
   return null;

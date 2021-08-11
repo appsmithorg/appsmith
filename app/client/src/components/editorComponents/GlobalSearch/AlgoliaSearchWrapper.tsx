@@ -5,6 +5,7 @@ import { getAppsmithConfigs } from "configs";
 import { debounce } from "lodash";
 import { useSelector } from "store";
 import { AppState } from "reducers";
+import { isSnippet, SearchCategory } from "./utils";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
@@ -14,9 +15,16 @@ type SearchProps = {
   children: React.ReactNode;
   setRefinement: (args: any) => void;
   refinements: any;
+  category: SearchCategory;
 };
 
-function Search({ children, query, refinements, setRefinement }: SearchProps) {
+function Search({
+  category,
+  children,
+  query,
+  refinements,
+  setRefinement,
+}: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),
@@ -32,7 +40,7 @@ function Search({ children, query, refinements, setRefinement }: SearchProps) {
 
   return (
     <InstantSearch
-      indexName={algolia.indexName}
+      indexName={isSnippet(category) ? "js_snippets" : algolia.indexName}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}

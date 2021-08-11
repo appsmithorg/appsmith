@@ -47,7 +47,7 @@ export const Layers = {
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
   productUpdates: Indices.Layer7,
-  portals: Indices.Layer8,
+  portals: Indices.Layer9,
   header: Indices.Layer9,
   snipeableZone: Indices.Layer10,
   appComments: Indices.Layer7,

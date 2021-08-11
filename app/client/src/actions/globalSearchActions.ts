@@ -22,6 +22,19 @@ export const cancelSnippet = () => ({
   type: ReduxActionTypes.CANCEL_SNIPPET,
 });
 
+export const evaluateSnippet = (payload: {
+  expression: string;
+  dataType: string;
+}) => ({
+  type: ReduxActionTypes.EVALUATE_SNIPPET,
+  payload,
+});
+
+export const setEvaluatedSnippet = (payload: { evaluatedSnippet: any }) => ({
+  type: ReduxActionTypes.SET_EVALUATED_SNIPPET,
+  payload,
+});
+
 export const insertSnippet = (payload: string) => ({
   type: ReduxActionTypes.INSERT_SNIPPET,
   payload,

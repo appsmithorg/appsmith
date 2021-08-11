@@ -5,7 +5,14 @@
         "dataType": "string",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
-            "snippet": "API1.data.concat(API2.data)",
+            "snippet": "${var1}.concat(${var2})",
+            "args": [{
+                "name": "var1",
+                "type": "array"
+            }, {
+                "name": "var2",
+                "type": "array"
+            }],
             "summary": "Merge data from two entities into a single response",
             "examples": [{
                 "title": "",

@@ -793,12 +793,15 @@ function* executeCommand(
       );
       yield putResolve(
         setGlobalSearchFilterContext({
-          category: filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
           refinements,
           fieldMeta,
         }),
       );
-      yield put(toggleShowGlobalSearchModal());
+      yield put(
+        toggleShowGlobalSearchModal(
+          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+        ),
+      );
       const effectRaceResult = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
