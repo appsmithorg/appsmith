@@ -97,6 +97,7 @@ import {
   generateTemplateSuccess,
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -608,6 +609,7 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(selectMultipleWidgetsAction([]));
 
       history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
     }
