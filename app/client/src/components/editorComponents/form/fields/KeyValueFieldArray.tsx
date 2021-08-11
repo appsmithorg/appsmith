@@ -109,13 +109,18 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-  top: -1px;
   border-bottom: solid 1px ${Colors.MERCURY};
   margin-bottom: 10px;
-
+  top: -2px;
   & .CodeEditorTarget * {
     border-bottom: none !important;
   }
+`;
+
+const DynamicDropdownFieldWrapper = styled.div`
+  position: relative;
+  top: 1px;
+  margin-left: 5px;
 `;
 
 const expected = {
@@ -183,12 +188,15 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         placeholder={`Key ${index + 1}`}
                         theme={props.theme}
                       />
-                      <DynamicDropdownField
-                        accent="grey"
-                        filled
-                        name={`${field}.type`}
-                        options={MULTI_PART_DROPDOWN_OPTIONS}
-                      />
+
+                      <DynamicDropdownFieldWrapper>
+                        <DynamicDropdownField
+                          accent="grey"
+                          filled
+                          name={`${field}.type`}
+                          options={MULTI_PART_DROPDOWN_OPTIONS}
+                        />
+                      </DynamicDropdownFieldWrapper>
                     </DynamicTextFieldWithDropdownWrapper>
                   ) : (
                     <DynamicTextField
