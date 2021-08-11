@@ -7,10 +7,10 @@ import { Colors } from "constants/Colors";
 
 const POINTER_COLORS = [
   Colors.JAFFA,
+  Colors.SLATE_GRAY,
+  Colors.DANUBE,
   Colors.JUNGLE_GREEN,
   Colors.JAFFA_DARK,
-  Colors.DANUBE,
-  Colors.GRAY,
   Colors.PURPLE,
   Colors.BUTTER_CUP,
 ];
@@ -92,16 +92,17 @@ function CanvasMultiPointerArena({
     ctx.font = "14px Verdana";
     Object.keys(pointerData).forEach((socId: string, idx: number) => {
       const eventData = pointerData[socId];
+      const userName = eventData?.user?.name || eventData?.user?.email;
       drawMousePointer(
         idx,
         ctx,
         eventData.data.x,
         eventData.data.y,
-        eventData?.user?.email.length * PX_PER_CHAR * 1.054 || 0,
+        userName.length * PX_PER_CHAR * 1.054 || 0,
       );
       ctx.fillStyle = Colors.BLACK;
       ctx.fillText(
-        `${eventData?.user?.email}`,
+        `${userName}`,
         eventData.data.x + POINTER_MARGIN + POINTER_PADDING_Y,
         eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
