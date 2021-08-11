@@ -44,6 +44,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import _ from "lodash";
+import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 
@@ -109,98 +110,119 @@ function getFieldFromValue(
       },
     ];
   }
+  let entity;
   if (_.isString(value)) {
     const trimmedVal = value && value.replace(/(^{{)|(}}$)/g, "");
-    const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-      trimmedVal,
-    );
-    const entity = dataTree && dataTree[entityName];
-    if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        fields.push({
-          field: FieldType.ACTION_SELECTOR_FIELD,
-          getParentValue,
-          value,
-        });
-        const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-        if (matches.length) {
-          const funcArgs = matches[0][2];
-          const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-          const successArg = args[0];
-          const errorArg = args[1];
-          let sucesssValue;
-          if (successArg && successArg.length > 0) {
-            sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
-          }
-          const successFields = getFieldFromValue(
-            sucesssValue,
-            (changeValue: string) => {
-              const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-              const args = [
-                ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
-              ];
-              let successArg = args[0] ? args[0][0] : "() => {}";
-              const errorArg = args[1] ? args[1][0] : "() => {}";
-              successArg = changeValue.endsWith(")")
-                ? `() => ${changeValue}`
-                : `() => ${changeValue}()`;
-
-              return value.replace(
-                ACTION_TRIGGER_REGEX,
-                `{{$1(${successArg}, ${errorArg})}}`,
-              );
-            },
-            dataTree,
-          );
-          successFields[0].label = "onSuccess";
-          fields.push(successFields);
-
-          let errorValue;
-          if (errorArg && errorArg.length > 0) {
-            errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
-          }
-          const errorFields = getFieldFromValue(
-            errorValue,
-            (changeValue: string) => {
-              const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-              const args = [
-                ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
-              ];
-              const successArg = args[0] ? args[0][0] : "() => {}";
-              let errorArg = args[1] ? args[1][0] : "() => {}";
-              errorArg = changeValue.endsWith(")")
-                ? `() => ${changeValue}`
-                : `() => ${changeValue}()`;
-              return value.replace(
-                ACTION_TRIGGER_REGEX,
-                `{{$1(${successArg}, ${errorArg})}}`,
-              );
-            },
-            dataTree,
-          );
-          errorFields[0].label = "onError";
-          fields.push(errorFields);
+    const entityProps = getEntityNameAndPropertyPath(trimmedVal);
+    entity = dataTree && dataTree[entityProps.entityName];
+  }
+  if (entity && "ENTITY_TYPE" in entity) {
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
+      fields.push({
+        field: FieldType.ACTION_SELECTOR_FIELD,
+        getParentValue,
+        value,
+      });
+      const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+      if (matches.length) {
+        const funcArgs = matches[0][2];
+        const args = [...funcArgs.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
+        const successArg = args[0];
+        const errorArg = args[1];
+        let sucesssValue;
+        if (successArg && successArg.length > 0) {
+          sucesssValue = successArg[1] !== "{}" ? `{{${successArg[1]}}}` : ""; //successArg[1] + successArg[2];
         }
-        return fields;
+        const successFields = getFieldFromValue(
+          sucesssValue,
+          (changeValue: string) => {
+            const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+            const args = [
+              ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
+            ];
+            let successArg = args[0] ? args[0][0] : "() => {}";
+            const errorArg = args[1] ? args[1][0] : "() => {}";
+            successArg = changeValue.endsWith(")")
+              ? `() => ${changeValue}`
+              : `() => ${changeValue}()`;
+
+            return value.replace(
+              ACTION_TRIGGER_REGEX,
+              `{{$1(${successArg}, ${errorArg})}}`,
+            );
+          },
+          dataTree,
+        );
+        successFields[0].label = "onSuccess";
+        fields.push(successFields);
+
+        let errorValue;
+        if (errorArg && errorArg.length > 0) {
+          errorValue = errorArg[1] !== "{}" ? `{{${errorArg[1]}}}` : ""; //errorArg[1] + errorArg[2];
+        }
+        const errorFields = getFieldFromValue(
+          errorValue,
+          (changeValue: string) => {
+            const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+            const args = [
+              ...matches[0][2].matchAll(ACTION_ANONYMOUS_FUNC_REGEX),
+            ];
+            const successArg = args[0] ? args[0][0] : "() => {}";
+            let errorArg = args[1] ? args[1][0] : "() => {}";
+            errorArg = changeValue.endsWith(")")
+              ? `() => ${changeValue}`
+              : `() => ${changeValue}()`;
+            return value.replace(
+              ACTION_TRIGGER_REGEX,
+              `{{$1(${successArg}, ${errorArg})}}`,
+            );
+          },
+          dataTree,
+        );
+        errorFields[0].label = "onError";
+        fields.push(errorFields);
       }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+      return fields;
+    }
+    if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
+      const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
+      if (!!matches) {
+        const entityPropertyPath = matches[0][1];
+        const { propertyPath } = getEntityNameAndPropertyPath(
+          entityPropertyPath,
+        );
         const path = propertyPath && propertyPath.replace("()", "");
-        const argsProps = entity.meta[path].arguments;
+        const argsProps =
+          path &&
+          entity.meta &&
+          entity.meta[path] &&
+          entity.meta[path].arguments;
         fields.push({
           field: FieldType.ACTION_SELECTOR_FIELD,
           getParentValue,
           value,
+          args: argsProps ? argsProps : [],
         });
         if (argsProps && argsProps.length > 0) {
-          fields.push({
-            field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
-            argsProps: argsProps,
-          });
+          for (let i = 0; i < argsProps.length; i++) {
+            fields.push({
+              field: FieldType.ARGUMENT_KEY_VALUE_FIELD,
+              getParentValue,
+              value,
+              label: argsProps[i].name,
+              index: i,
+            });
+          }
         }
-        return fields;
       }
+      return fields;
     }
   }
+  fields.push({
+    field: FieldType.ACTION_SELECTOR_FIELD,
+    getParentValue,
+    value,
+  });
   if (value.indexOf("navigateTo") !== -1) {
     fields.push({
       field: FieldType.URL_FIELD,
@@ -330,7 +352,7 @@ function getIntegrationOptionsWithChildren(
   plugins: any,
   options: TreeDropdownOption[],
   actions: any[],
-  jsActions: any[],
+  jsActions: Array<JSActionData>,
   datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
@@ -425,12 +447,20 @@ function getIntegrationOptionsWithChildren(
         if (jsObject) {
           jsObject.children = [createIntegrationOption];
           jsAction.config.actions.forEach((js: any) => {
+            const jsArguments = js.actionConfiguration.jsArguments;
+            const argValue: Array<any> = [];
+            if (jsArguments && jsArguments.length) {
+              jsArguments.forEach((arg: any) => {
+                argValue.push(arg.value);
+              });
+            }
             const jsFunction = {
               label: js.name,
               id: js.id,
               value: jsAction.config.name + "." + js.name,
-              type: jsObject.value,
+              type: jsOption.value,
               icon: jsFileIcon,
+              args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(
               jsFunction as TreeDropdownOption,

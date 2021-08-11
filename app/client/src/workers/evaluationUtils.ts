@@ -24,6 +24,7 @@ import _ from "lodash";
 import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { Severity } from "entities/AppsmithConsole";
+import { variable } from "entities/JSAction";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -585,30 +586,26 @@ export function getSafeToRenderDataTree(
   }, tree);
 }
 
+export const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
+export const ARGUMENT_NAMES = /([^\s,]+)/g;
+
 export function getParams(func: any) {
-  let str = func.toString();
-  str = str
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/(.)*/g, "")
-    .replace(/{[\s\S]*}/, "")
-    .replace(/=>/g, "")
-    .trim();
-  const start = str.indexOf("(") + 1;
-  const end = str.length - 1;
-  const result = str.substring(start, end).split(", ");
-  const params: any = [];
-  result.forEach((element: any) => {
-    // Removing any default value
-    element = element.split("=");
-    if (element.length > 0 && element[0].length > 0) {
-      const result = {
+  const fnStr = func.toString().replace(STRIP_COMMENTS, "");
+  const args: Array<variable> = [];
+  let result = fnStr
+    .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
+    .match(ARGUMENT_NAMES);
+  if (result === null) result = [];
+  if (result && result.length) {
+    result.forEach((arg: string) => {
+      const element = arg.split("=");
+      args.push({
         name: element[0],
-        value: element[1] ? JSON.parse(element[1]) : null,
-      };
-      params.push(result);
-    }
-  });
-  return params;
+        value: element[1],
+      });
+    });
+  }
+  return args;
 }
 
 export const addErrorToEntityProperty = (

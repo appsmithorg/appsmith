@@ -42,6 +42,7 @@ import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "constants/messages";
+import { validateResponse } from "./ErrorSagas";
 
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
@@ -159,7 +160,10 @@ function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
     const data = yield call(handleParseUpdateJSAction, { body: body });
     if (data) {
       const response = yield JSActionAPI.updateJSAction(data);
-      yield put(updateJSActionSuccess({ data: response?.data }));
+      const isValidResponse = yield validateResponse(response);
+      if (isValidResponse) {
+        yield put(updateJSActionSuccess({ data: response?.data }));
+      }
     }
   } catch (error) {
     yield put({

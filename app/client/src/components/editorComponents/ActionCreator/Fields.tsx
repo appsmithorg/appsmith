@@ -11,7 +11,6 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
-
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 
@@ -233,10 +232,12 @@ type SelectorViewProps = ViewProps & {
     option: TreeDropdownOption,
     displayValue?: string,
   ) => React.ReactNode;
+  index?: number;
 };
 
 type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
+  index?: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
@@ -289,7 +290,7 @@ const views = {
                 props.set(event);
               }
             }}
-            value={props.get(props.value, false) as string}
+            value={props.get(props.value, props.index, false) as string}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -354,6 +355,7 @@ const fieldConfigs: FieldConfigs = {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       let defaultParams = "";
+      let defaultArgs: Array<any> = [];
       switch (type) {
         case ActionType.integration:
           value = `${value}.run`;
@@ -361,10 +363,17 @@ const fieldConfigs: FieldConfigs = {
         case ActionType.navigateTo:
           defaultParams = `'#', {}`;
           break;
+        case ActionType.jsFunction:
+          defaultArgs = option.args ? option.args : [];
+          break;
         default:
           break;
       }
-      return value === "none" ? "" : `{{${value}(${defaultParams})}}`;
+      return value === "none"
+        ? ""
+        : defaultArgs && defaultArgs.length
+        ? `{{${value}(${defaultArgs})}}`
+        : `{{${value}(${defaultParams})}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -405,13 +414,16 @@ const fieldConfigs: FieldConfigs = {
     view: ViewTypes.KEY_VALUE_VIEW,
   },
   [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
-    getter: (value: any) => {
-      return value;
+    getter: (value: any, index: number) => {
+      return textGetter(value, index);
     },
-    setter: (value: any) => {
-      return value;
+    setter: (value: any, currentValue: string, index: number) => {
+      if (value === "") {
+        value = undefined;
+      }
+      return textSetter(value, currentValue, index);
     },
-    view: ViewTypes.KEY_VALUE_VIEW,
+    view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.URL_FIELD]: {
     getter: (value: string) => {
@@ -661,6 +673,22 @@ function renderField(props: {
         displayValue: displayValue ? displayValue : "",
       });
       break;
+    case FieldType.ARGUMENT_KEY_VALUE_FIELD:
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        label: props.field.label || "",
+        get: fieldConfig.getter,
+        set: (value: string) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            props.field.index,
+          );
+          props.onValueChange(finalValueToSet);
+        },
+        index: props.field.index,
+        value: props.value || "",
+      });
+      break;
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: props.integrationOptionTree,
@@ -673,10 +701,6 @@ function renderField(props: {
         value: props.value,
         defaultText: "Select Action",
       });
-      break;
-    case FieldType.ARGUMENT_KEY_VALUE_FIELD:
-      break;
-    case FieldType.JS_ACTION_SELECTOR_FIELD:
       break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
@@ -760,14 +784,17 @@ function Fields(props: {
                     depth={props.depth + 1}
                     fields={field}
                     integrationOptionTree={props.integrationOptionTree}
+                    key={selectorField.label + index}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
                     onValueChange={(value: any) => {
-                      const parentValue = selectorField.getParentValue(
-                        value.substring(2, value.length - 2),
-                      );
-                      props.onValueChange(parentValue);
+                      const parentValue =
+                        selectorField.getParentValue &&
+                        selectorField.getParentValue(
+                          value.substring(2, value.length - 2),
+                        );
+                      props.onValueChange(parentValue || value);
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
                     value={selectorField.value}
@@ -777,7 +804,7 @@ function Fields(props: {
               );
             } else {
               return (
-                <li key={field.field}>
+                <li key={field.field + index}>
                   {renderField({
                     field: field,
                     ...otherProps,
