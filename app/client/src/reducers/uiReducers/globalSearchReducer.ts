@@ -16,6 +16,7 @@ const initialState: GlobalSearchReduxState = {
     category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
     fieldMeta: {},
     refinements: {},
+    evaluatedSnippet: "",
   },
 };
 
@@ -40,6 +41,16 @@ const globalSearchReducer = createReducer(initialState, {
     filterContext: {
       ...state.filterContext,
       ...action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_SNIPPET]: (
+    state: GlobalSearchReduxState,
+    action: any,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedSnippet: action.payload,
     },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
@@ -77,6 +88,7 @@ export interface GlobalSearchReduxState {
       dataType?: string;
       field?: string;
     };
+    evaluatedSnippet: string;
   };
 }
 

@@ -23,6 +23,9 @@ import CodeEditor from "../CodeEditor";
 import Button, { Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
 import { evaluateSnippet } from "actions/globalSearchActions";
+import { useSelector } from "store";
+import { AppState } from "reducers";
+import ReadOnlyEditor from "../ReadOnlyEditor";
 
 SyntaxHighlighter.registerLanguage("javascript", javascript);
 SyntaxHighlighter.registerLanguage("postgres", pgsql);
@@ -258,9 +261,14 @@ const SnippetContainer = styled.div`
       border-top: 1px solid #f0f0f0;
       .actions-container {
         display: flex;
-        margin-top: 15px;
+        margin: 15px 0;
         button {
           margin-right: 5px;
+        }
+        .copy-snippet-btn {
+          border: 2px solid #a9a7a7;
+          color: #a9a7a7;
+          background: white;
         }
       }
     }
@@ -286,6 +294,9 @@ function SnippetDescription(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedArgs, setSelectedArgs] = useState<any>({});
   const dispatch = useDispatch();
+  const evaluatedSnippet = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
+  );
   return (
     <SnippetContainer>
       <div className="snippet-title">
@@ -373,7 +384,7 @@ function SnippetDescription(props: any) {
                         type="button"
                       />
                       <Button
-                        className="t--apiFormRunBtn"
+                        className="copy-snippet-btn"
                         onClick={() => {
                           console.log();
                         }}
@@ -383,6 +394,18 @@ function SnippetDescription(props: any) {
                         type="button"
                       />
                     </div>
+                    {evaluatedSnippet && (
+                      <div className="snippet-group">
+                        <div className="header">Evaluated Snippet</div>
+                        <div className="content">
+                          <ReadOnlyEditor
+                            folding
+                            height="300px"
+                            input={{ value: evaluatedSnippet }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div />

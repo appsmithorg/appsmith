@@ -258,8 +258,8 @@ export function* evaluateSnippetSaga(action: any) {
         dataType: action.payload.dataType,
       },
     );
-    const { result, errors } = workerResponse;
-    put(setEvaluatedSnippet({ evaluatedSnippet: result }));
+    const { errors, result } = workerResponse;
+    yield put(setEvaluatedSnippet(result));
   } catch (e) {}
 }
 

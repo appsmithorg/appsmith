@@ -30,7 +30,7 @@ export const evaluateSnippet = (payload: {
   payload,
 });
 
-export const setEvaluatedSnippet = (payload: { evaluatedSnippet: any }) => ({
+export const setEvaluatedSnippet = (payload: any) => ({
   type: ReduxActionTypes.SET_EVALUATED_SNIPPET,
   payload,
 });
