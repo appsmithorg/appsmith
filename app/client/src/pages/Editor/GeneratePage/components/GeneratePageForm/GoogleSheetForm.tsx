@@ -212,7 +212,7 @@ function GoogleSheetForm(props: Props) {
       const payload = {
         columns,
         searchColumn: "",
-        tableName: selectedSpreadsheet.value || "",
+        tableName: selectedSheet.value || "",
         pluginSpecificParams: {
           sheetUrl: getSheetUrl(selectedSpreadsheet.id),
           tableHeaderIndex,
