@@ -490,7 +490,7 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={!!errorMsg}
-        height={props.height || "38px"}
+        height={props.height || "32px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
       >
