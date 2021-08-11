@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Socket } from "socket.io-client";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
+import { Colors } from "constants/Colors";
 
 const Canvas = styled.canvas`
   position: absolute;
@@ -14,6 +15,39 @@ const Canvas = styled.canvas`
   z-index: 1;
   pointer-events: none;
 `;
+
+const POINTER_MARGIN = 12;
+const POINTER_PADDING_X = 15;
+const POINTER_PADDING_Y = 5;
+const PX_PER_CHAR = 10;
+
+const drawMousePointer = (
+  ctx: any,
+  x: number,
+  y: number,
+  width: number,
+  height = 25,
+  radius = 2,
+) => {
+  if (width < 2 * radius) radius = width / 2;
+  if (height < 2 * radius) radius = height / 2;
+  ctx.fillStyle = Colors.GOLD;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + POINTER_PADDING_X, y + POINTER_PADDING_Y);
+  ctx.lineTo(x + POINTER_PADDING_Y, y + POINTER_PADDING_X);
+  ctx.fill();
+  x = x + POINTER_MARGIN;
+  y = y + POINTER_MARGIN;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+  ctx.fill();
+};
 
 function CanvasMultiPointerArena({
   pageLevelSocket,
@@ -43,13 +77,21 @@ function CanvasMultiPointerArena({
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.font = "16px Georgia";
+
+    ctx.font = "14px Verdana";
     Object.keys(pointerData).forEach((socId: string) => {
       const eventData = pointerData[socId];
-      ctx.fillText(
-        `${eventData?.user?.email}`,
+      drawMousePointer(
+        ctx,
         eventData.data.x,
         eventData.data.y,
+        eventData?.user?.email.length * PX_PER_CHAR || 0,
+      );
+      ctx.fillStyle = Colors.BLACK;
+      ctx.fillText(
+        `${eventData?.user?.email}`,
+        eventData.data.x + POINTER_MARGIN + POINTER_PADDING_Y,
+        eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
     });
   };
