@@ -739,9 +739,7 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     action.payload.widgetId,
   );
   const stateWidgets = yield select(getWidgets);
-  const deletedWidgetIds = deletedWidgets.map((each) => {
-    return each.widgetId;
-  });
+  const deletedWidgetIds = action.payload.widgetId.split(",");
   if (
     deletedWidgets &&
     Array.isArray(deletedWidgets) &&
