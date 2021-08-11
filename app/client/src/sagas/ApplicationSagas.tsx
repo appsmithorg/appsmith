@@ -31,6 +31,7 @@ import history from "utils/history";
 import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
+  getGenerateTemplateURL,
 } from "constants/routes";
 import { AppState } from "reducers";
 import {
@@ -47,7 +48,7 @@ import {
   DUPLICATING_APPLICATION,
 } from "constants/messages";
 import { Toaster } from "components/ads/Toast";
-import { APP_MODE } from "../reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
@@ -258,8 +259,7 @@ export function* updateApplicationSaga(
       ApplicationApi.updateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
-    console.log({ request, isValidResponse });
+    const isValidResponse: boolean = yield validateResponse(response);
     // as the redux store updates the app only on success.
     // we have to run this
     if (isValidResponse && request) {
@@ -455,7 +455,7 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const pageURL = BUILDER_PAGE_URL(
+        const pageURL = getGenerateTemplateURL(
           application.id,
           application.defaultPageId,
         );

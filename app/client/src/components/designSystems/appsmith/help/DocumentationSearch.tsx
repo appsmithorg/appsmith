@@ -290,7 +290,7 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   ${(props) =>
     props.hideSearch
       ? `
-    padding: ${props.theme.spaces[2]}px; 
+    padding: ${props.theme.spaces[2]}px;
   `
       : `
     padding-top: 68px;
@@ -341,6 +341,17 @@ if (intercomAppID) {
   });
 }
 
+export function bootIntercom(intercomAppID: string, user?: User) {
+  if (intercomAppID && window.Intercom) {
+    window.Intercom("boot", {
+      app_id: intercomAppID,
+      user_id: user?.username,
+      name: user?.name,
+      email: user?.email,
+    });
+  }
+}
+
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -348,17 +359,7 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
-  componentDidMount() {
-    const { user } = this.props;
-    if (intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-  }
+
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
