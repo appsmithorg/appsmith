@@ -161,42 +161,42 @@ function ColorPickerComponent(props: ColorPickerProps) {
     setColor(value);
   };
   return (
-    <Popover
-      enforceFocus={false}
-      interactionKind={PopoverInteractionKind.CLICK}
-      minimal
-      modifiers={{
-        offset: {
-          offset: "0, 24px",
-        },
-      }}
-      position={Position.BOTTOM}
-      usePortal
-    >
-      <StyledInputGroup
-        leftIcon={
-          color ? (
-            <ColorIcon color={color} />
+    <StyledInputGroup
+      leftIcon={
+        <Popover
+          enforceFocus={false}
+          interactionKind={PopoverInteractionKind.CLICK}
+          minimal
+          modifiers={{
+            offset: {
+              offset: "-7px, 24px",
+            },
+          }}
+          position={Position.BOTTOM}
+          usePortal
+        >
+          {color ? (
+            <ColorIcon className="t--color-picker" color={color} />
           ) : (
-            <NoColorIconWrapper>
+            <NoColorIconWrapper className="t--color-picker">
               <NoColorIcon>
                 <div className="line" />
               </NoColorIcon>
             </NoColorIconWrapper>
-          )
-        }
-        onChange={handleChangeColor}
-        placeholder="enter color name or hex"
-        value={color}
-      />
-      <ColorBoard
-        selectColor={(color) => {
-          setColor(color);
-          props.changeColor(color);
-        }}
-        selectedColor={color}
-      />
-    </Popover>
+          )}
+          <ColorBoard
+            selectColor={(color) => {
+              setColor(color);
+              props.changeColor(color);
+            }}
+            selectedColor={color}
+          />
+        </Popover>
+      }
+      onChange={handleChangeColor}
+      placeholder="enter color name or hex"
+      value={color}
+    />
   );
 }
 

@@ -136,7 +136,7 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Test to validate text color and text background", function() {
     cy.openPropertyPane("tablewidget");
-    cy.get(widgetsPage.textColor)
+    cy.get(widgetsPage.textColorPicker)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
@@ -149,7 +149,7 @@ describe("Table Widget property pane feature validation", function() {
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(widgetsPage.cellbackgroundColorPicker)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

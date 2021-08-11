@@ -22,7 +22,7 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{Text} Random Colour
      */
-    cy.get(widgetsPage.backgroundcolorPicker)
+    cy.get(widgetsPage.backgroundcolorPopover)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();

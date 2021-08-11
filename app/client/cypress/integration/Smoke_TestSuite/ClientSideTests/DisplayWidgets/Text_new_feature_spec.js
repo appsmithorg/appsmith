@@ -52,7 +52,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
 
   it("Test to validate color changes in text and background", function() {
     //Changing the Text Style's and validating
-    cy.get(widgetsPage.textColor)
+    cy.get(widgetsPage.textColorPicker)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
@@ -65,7 +65,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .type("purple", { force: true });
     cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
-    cy.get(widgetsPage.backgroundColor)
+    cy.get(widgetsPage.cellbackgroundColorPicker)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
