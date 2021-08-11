@@ -258,9 +258,12 @@ export function* evaluateSnippetSaga(action: any) {
         dataType: action.payload.dataType,
       },
     );
-    const { errors, result } = workerResponse;
+    const { result } = workerResponse;
     yield put(setEvaluatedSnippet(result));
-  } catch (e) {}
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
 }
 
 export default function* evaluationSagaListeners() {

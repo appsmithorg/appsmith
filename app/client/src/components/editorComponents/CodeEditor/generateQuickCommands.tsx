@@ -95,10 +95,13 @@ export const generateQuickCommands = (
   const datasourceCommands = datasources.map((action: any) => {
     return {
       text: "",
-      displayText: "New Datasource",
+      displayText: `${action.name}`,
+      className: "CodeMirror-commands",
+      data: action,
       action: () =>
         executeCommand({
-          actionType: "NEW_INTEGRATION",
+          actionType: "NEW_QUERY",
+          args: { datasource: action },
         }),
       render: (element: HTMLElement, self: any, data: any) => {
         ReactDOM.render(
@@ -135,21 +138,17 @@ export const generateQuickCommands = (
     createNewCommandsMatchingSearchText.push(
       ...matchingCommands([newIntegration], searchText, []),
     );
-    if (currentEntityType === "WIDGET") {
-      createNewCommandsMatchingSearchText.push(
-        ...matchingCommands([newIntegration], searchText, []),
-      );
-    }
-    let list: CommandsCompletion[] = [];
-    if (suggestionsMatchingSearchText.length) {
-      list = [suggestionsHeader, ...suggestionsMatchingSearchText];
-    }
+  }
+  let list: CommandsCompletion[] = [];
+  if (suggestionsMatchingSearchText.length) {
+    list = [suggestionsHeader, ...suggestionsMatchingSearchText];
+  }
 
-    if (createNewCommandsMatchingSearchText.length) {
-      list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
-    }
-    return list;
-  };
+  if (createNewCommandsMatchingSearchText.length) {
+    list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
+  }
+  return list;
+};
 
 const matchingCommands = (
   list: any,

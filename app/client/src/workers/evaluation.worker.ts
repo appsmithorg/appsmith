@@ -178,7 +178,7 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
-        const { dataType, expression } = requestData;
+        const { expression } = requestData;
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
         return evaluate(expression, evalTree);

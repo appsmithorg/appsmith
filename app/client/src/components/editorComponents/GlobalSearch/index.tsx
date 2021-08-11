@@ -293,9 +293,7 @@ function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
-      return filterCategoryList.filter(
-        (cat: SearchCategory) => !isMenu(cat),
-      );
+      return filterCategoryList.filter((cat: SearchCategory) => !isMenu(cat));
     }
     if (isSnippet(category)) {
       return snippets;
