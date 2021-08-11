@@ -241,7 +241,7 @@
         "dataType": "string",
         "body": {
             "title": "Formatting date inside the data picker widget",
-            "snippet": "moment(${Var1: date}.format(${dateFormat})",
+            "snippet": "moment(${date}).format(${dateFormat})",
             "summary": "If you want to change the format of the date object from a query, you can use moment.javascript and covert it into the desired format.",
             "examples": [
                 {
