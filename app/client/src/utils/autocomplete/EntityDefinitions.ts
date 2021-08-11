@@ -107,6 +107,24 @@ export const entityDefinitions = {
     isDisabled: "bool",
     options: "[dropdownOption]",
   },
+  MULTI_SELECT_WIDGET: {
+    "!doc":
+      "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a multi select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
   IMAGE_WIDGET: {
     "!doc":
       "Image widget is used to display images in your app. Images must be either a URL or a valid base64.",
@@ -244,13 +262,14 @@ export const entityDefinitions = {
     value: "number",
     maxCount: "number",
   },
-  IFRAME_WIDGET: {
+  IFRAME_WIDGET: (widget: any) => ({
     "!doc": "Iframe widget is used to display iframes in your app.",
     "!url": "https://docs.appsmith.com/widget-reference/iframe",
     isVisible: isVisible,
     source: "string",
     title: "string",
-  },
+    message: generateTypeDef(widget.message),
+  }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",
     "!url": "https://docs.appsmith.com/widget-reference/divider",
@@ -268,6 +287,12 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/menu-button",
     isVisible: isVisible,
     label: "string",
+  },
+  ICON_BUTTON_WIDGET: {
+    "!doc":
+      "Icon button widget is just an icon, along with all other button properties.",
+    "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+    isVisible: isVisible,
   },
 };
 

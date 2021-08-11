@@ -1,11 +1,13 @@
-import React, { ReactNode, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, ReactElement } from "react";
 import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
 import Text, { TextType } from "./Text";
 import { Popover, Position } from "@blueprintjs/core";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
+import Spinner from "./Spinner";
 
 export type DropdownOption = {
   label?: string;
@@ -17,7 +19,8 @@ export type DropdownOption = {
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
-  onSelect?: (value?: string) => void;
+  onSelect?: (value?: string, dropdownOption?: any) => void;
+  data?: any;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -25,39 +28,55 @@ export interface DropdownSearchProps {
   onSearch?: (value: any) => void;
 }
 
+export interface RenderDropdownOptionType {
+  index?: number;
+  option: DropdownOption;
+  optionClickHandler?: (dropdownOption: DropdownOption) => void;
+  isSelectedNode?: boolean;
+  extraProps?: any;
+  errorMsg?: string;
+}
+
+type RenderOption = ({
+  errorMsg,
+  index,
+  option,
+  optionClickHandler,
+}: RenderDropdownOptionType) => ReactElement<any, any>;
+
 export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
     options: DropdownOption[];
     selected: DropdownOption;
-    onSelect?: (value?: string) => void;
+    onSelect?: (value?: string, dropdownOption?: any) => void;
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
     optionWidth?: string;
     dropdownHeight?: string;
+    dropdownMaxHeight?: string;
     showDropIcon?: boolean;
-    dropdownTriggerIcon?: ReactNode;
+    dropdownTriggerIcon?: React.ReactNode;
     containerClassName?: string;
     headerLabel?: string;
     SelectedValueNode?: typeof DefaultDropDownValueNode;
     bgColor?: string;
     renderOption?: RenderOption;
+    isLoading?: boolean;
+    errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
   showLabelOnly?: boolean;
   isOpen?: boolean;
+  errorMsg?: string;
+  renderNode?: RenderOption;
 }
 
 export interface RenderDropdownOptionType {
   option: DropdownOption;
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
 }
-
-type RenderOption = ({
-  option,
-  optionClickHandler,
-}: RenderDropdownOptionType) => ReactNode;
 
 export const DropdownContainer = styled.div<{ width: string; height: string }>`
   width: ${(props) => props.width};
@@ -90,15 +109,21 @@ const Selected = styled.div<{
   disabled?: boolean;
   height: string;
   bgColor?: string;
+  hasError?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
-  background: ${(props) =>
-    props.disabled
-      ? props.theme.colors.dropdown.header.disabledBg
-      : !!props.bgColor
+  background: ${(props) => {
+    if (props.disabled) {
+      return props.theme.colors.dropdown.header.disabledBg;
+    } else if (props.hasError) {
+      return Colors.FAIR_PINK;
+    }
+    return !!props.bgColor
       ? props.bgColor
-      : props.theme.colors.dropdown.header.bg};
+      : props.theme.colors.dropdown.header.bg;
+  }};
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -135,6 +160,8 @@ const Selected = styled.div<{
   }
 `;
 
+const DropdownSelect = styled.div``;
+
 const DropdownWrapper = styled.div<{
   width: string;
 }>`
@@ -150,11 +177,13 @@ const DropdownWrapper = styled.div<{
 `;
 
 const DropdownOptionsWrapper = styled.div<{
+  maxHeight?: string;
   height: string;
 }>`
   display: flex;
   flex-direction: column;
   height: ${(props) => props.height};
+  max-height: ${(props) => props.maxHeight};
   overflow-y: auto;
 `;
 
@@ -244,7 +273,7 @@ const LeftIconWrapper = styled.span`
 `;
 
 const HeaderWrapper = styled.div`
-  color: #6d6d6d;
+  color: ${Colors.DOVE_GRAY};
   font-size: 10px;
   padding: 0px 7px 7px 7px;
 `;
@@ -275,21 +304,49 @@ const SelectedIcon = styled(Icon)`
   }
 `;
 
-export function DefaultDropDownValueNode({
+const ErrorMsg = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: ${Colors.POMEGRANATE2};
+  margin: 6px 0px 10px;
+`;
+
+const ErrorLabel = styled.span`
+  ${(props) => getTypographyByKey(props, "p1")};
+  color: ${Colors.POMEGRANATE2};
+`;
+
+function DefaultDropDownValueNode({
+  errorMsg,
+  renderNode,
   selected,
   showLabelOnly,
 }: DefaultDropDownValueNodeProps) {
+  const LabelText = showLabelOnly ? selected.label : selected.value;
+  function Label() {
+    return errorMsg ? (
+      <ErrorLabel>{LabelText}</ErrorLabel>
+    ) : (
+      <Text type={TextType.P1}>{LabelText}</Text>
+    );
+  }
+
   return (
     <SelectedDropDownHolder>
-      {selected.icon ? (
-        <SelectedIcon
-          name={selected.icon}
-          size={selected.iconSize || IconSize.XXS}
-        />
-      ) : null}
-      <Text type={TextType.P1}>
-        {showLabelOnly ? selected.label : selected.value}
-      </Text>
+      {renderNode ? (
+        renderNode({ isSelectedNode: true, option: selected, errorMsg })
+      ) : (
+        <>
+          {selected.icon ? (
+            <SelectedIcon
+              fillColor={selected?.iconColor}
+              hoverFillColor={selected?.iconColor}
+              name={selected.icon}
+              size={selected.iconSize || IconSize.XXS}
+            />
+          ) : null}
+          <Label />
+        </>
+      )}
     </SelectedDropDownHolder>
   );
 }
@@ -302,7 +359,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const { onSearch } = props;
+  const { onSearch, optionClickHandler, renderOption } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -330,12 +387,16 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         />
       )}
       {props.headerLabel && <HeaderWrapper>{props.headerLabel}</HeaderWrapper>}
-      <DropdownOptionsWrapper height={props.dropdownHeight || "100%"}>
+      <DropdownOptionsWrapper
+        height={props.dropdownHeight || "100%"}
+        maxHeight={props.dropdownMaxHeight || "auto"}
+      >
         {options.map((option: DropdownOption, index: number) => {
-          if (props.renderOption) {
-            return props.renderOption({
+          if (renderOption) {
+            return renderOption({
               option,
-              optionClickHandler: props.optionClickHandler,
+              index,
+              optionClickHandler,
             });
           }
           return (
@@ -351,6 +412,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               {option.icon ? (
                 <SelectedIcon
                   fillColor={option?.iconColor}
+                  hoverFillColor={option?.iconColor}
                   name={option.icon}
                   size={option.iconSize || IconSize.XXS}
                 />
@@ -384,7 +446,10 @@ export default function Dropdown(props: DropdownProps) {
   const {
     onSelect,
     showDropIcon = true,
+    isLoading = false,
     SelectedValueNode = DefaultDropDownValueNode,
+    renderOption,
+    errorMsg = "",
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
@@ -397,11 +462,15 @@ export default function Dropdown(props: DropdownProps) {
     (option: DropdownOption) => {
       setSelected(option);
       setIsOpen(false);
-      onSelect && onSelect(option.value);
-      option.onSelect && option.onSelect(option.value);
+      onSelect && onSelect(option.value, option);
+      option.onSelect && option.onSelect(option.value, option);
     },
     [onSelect],
   );
+
+  const disabled = props.disabled || isLoading || !!errorMsg;
+  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
@@ -412,21 +481,37 @@ export default function Dropdown(props: DropdownProps) {
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <Selected
-      bgColor={props.bgColor}
-      className={props.className}
-      disabled={props.disabled}
-      height={props.height || "38px"}
-      isOpen={isOpen}
-      onClick={() => setIsOpen(!isOpen)}
-    >
-      <SelectedValueNode
+    <DropdownSelect>
+      <Selected
+        bgColor={props.bgColor}
+        className={props.className}
+        disabled={props.disabled}
+        hasError={!!errorMsg}
+        height={props.height || "38px"}
         isOpen={isOpen}
-        selected={selected}
-        showLabelOnly={props.showLabelOnly}
-      />
-      {showDropIcon && <Icon name="downArrow" size={IconSize.XXS} />}
-    </Selected>
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <SelectedValueNode
+          errorMsg={errorMsg}
+          renderNode={renderOption}
+          selected={selected}
+          showLabelOnly={props.showLabelOnly}
+        />
+        {isLoading ? (
+          <Spinner size={IconSize.LARGE} />
+        ) : (
+          showDropIcon && (
+            <Icon
+              fillColor={downIconColor}
+              hoverFillColor={downIconColor}
+              name="downArrow"
+              size={IconSize.XXS}
+            />
+          )
+        )}
+      </Selected>
+      {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+    </DropdownSelect>
   );
   return (
     <DropdownContainer
@@ -438,7 +523,7 @@ export default function Dropdown(props: DropdownProps) {
     >
       <Popover
         boundary="scrollParent"
-        isOpen={isOpen && !props.disabled}
+        isOpen={isOpen && !disabled}
         minimal
         onInteraction={(state) => setIsOpen(state)}
         popoverClassName={props.className}

@@ -122,7 +122,11 @@ export default class DataTreeEvaluator {
 
   updateDataTree(
     unEvalTree: DataTree,
-  ): { updates: Diff<DataTree, DataTree>[]; evaluationOrder: string[] } {
+  ): {
+    updates: Diff<DataTree, DataTree>[];
+    evaluationOrder: string[];
+    unEvalUpdates: DataTreeDiff[];
+  } {
     const oldEvalTree = _.cloneDeep(this.evalTree);
     const totalStart = performance.now();
     // Calculate diff
@@ -134,8 +138,13 @@ export default class DataTreeEvaluator {
       return {
         updates: [],
         evaluationOrder: [],
+        unEvalUpdates: [],
       };
     }
+    const translatedDiffs = _.flatten(
+      differences.map(translateDiffEventToDataTreeDiffEvent),
+    );
+    this.logs.push({ differences, translatedDiffs });
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
@@ -145,7 +154,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
-    } = this.updateDependencyMap(differences, unEvalTree);
+    } = this.updateDependencyMap(translatedDiffs, unEvalTree);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
@@ -213,6 +222,7 @@ export default class DataTreeEvaluator {
     return {
       updates: evaluationChanges || [],
       evaluationOrder,
+      unEvalUpdates: translatedDiffs,
     };
   }
 
@@ -663,13 +673,13 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
+
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
-      propertyPath,
+      validation,
       valueToValidate,
       widget,
-      validation,
-      currentTree,
     );
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
@@ -732,7 +742,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDependencyMap(
-    differences: Array<Diff<any, any>>,
+    translatedDiffs: Array<DataTreeDiff>,
     unEvalDataTree: DataTree,
   ): {
     dependenciesOfRemovedPaths: Array<string>;
@@ -747,12 +757,8 @@ export default class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    const translatedDiffs = differences.map(
-      translateDiffEventToDataTreeDiffEvent,
-    );
-    this.logs.push({ differences, translatedDiffs });
     // Transform the diff library events to Appsmith evaluator events
-    _.flatten(translatedDiffs).forEach((dataTreeDiff) => {
+    translatedDiffs.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
       let entity = unEvalDataTree[entityName];
       if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {

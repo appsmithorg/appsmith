@@ -40,3 +40,13 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   };
   totalRecordCount?: number;
 }
+
+export const getCurrentRowBinding = (
+  entityName: string,
+  userInput: string,
+  withBinding = true,
+) => {
+  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
+  if (withBinding) rowBinding = `{{${rowBinding}}}`;
+  return rowBinding;
+};

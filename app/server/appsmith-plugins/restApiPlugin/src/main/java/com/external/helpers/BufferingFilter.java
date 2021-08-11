@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
  * It then adds this content length as a header to the original request
  */
 public class BufferingFilter implements ExchangeFilterFunction {
+
     @Override
     @NonNull
     public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
@@ -43,7 +44,7 @@ public class BufferingFilter implements ExchangeFilterFunction {
                     .flatMap(dataBuffer -> {
                         int length = dataBuffer.readableByteCount();
                         this.getDelegate().getHeaders().setContentLength(length);
-                        return super.writeWith(Mono.just(dataBuffer));
+                        return super.writeWith(body);
                     });
         }
     }

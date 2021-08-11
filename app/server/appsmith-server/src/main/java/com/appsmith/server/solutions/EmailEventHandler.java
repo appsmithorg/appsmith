@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 
 @Component
 @RequiredArgsConstructor
@@ -115,8 +116,13 @@ public class EmailEventHandler {
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application
             urlPostfix = "";
         }
+
+        String baseUrl = originHeader;
+        if(StringUtils.isEmpty(originHeader)) {
+            baseUrl = DEFAULT_ORIGIN_HEADER;
+        }
         return String.format("%s/applications/%s/pages/%s%s?commentThreadId=%s&isCommentMode=true",
-                originHeader, application.getId(), pageId, urlPostfix, threadId
+                baseUrl, application.getId(), pageId, urlPostfix, threadId
         );
     }
 

@@ -137,7 +137,7 @@ public class DataUtilsTest {
     @Test
     public void testParseMultipartFileData_withValidFileList_returnsExpectedBody() {
         List<Property> properties = new ArrayList<>();
-        final Property p1 = new Property("fileType", "{\"filename\": \"test.json\", \"contentType\": \"application/json\", \"part\" : {}}");
+        final Property p1 = new Property("fileType", "{\"name\": \"test.json\", \"type\": \"application/json\", \"data\" : {}}");
         p1.setType("file");
         properties.add(p1);
 
