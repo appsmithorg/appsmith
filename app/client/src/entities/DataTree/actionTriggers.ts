@@ -44,7 +44,7 @@ export type NavigateActionDescription = {
 export type ShowAlertActionDescription = {
   type: ActionTriggerType.SHOW_ALERT;
   payload: {
-    message: string;
+    message: string | unknown;
     style?: TypeOptions;
   };
 };
@@ -88,7 +88,7 @@ export type CopyToClipboardDescription = {
 export type ResetWidgetDescription = {
   type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME;
   payload: {
-    widgetName: string;
+    widgetName: string | unknown;
     resetChildren: boolean;
   };
 };

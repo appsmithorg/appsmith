@@ -1,4 +1,3 @@
-import { ExecuteActionPayloadEvent } from "constants/AppsmithActionConstants/ActionConstants";
 import { call, select } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
@@ -40,7 +39,6 @@ const isValidUrlScheme = (url: string): boolean => {
 
 export default function* navigateActionSaga(
   action: NavigateActionDescription["payload"],
-  event: ExecuteActionPayloadEvent,
 ) {
   const pageList = yield select(getPageList);
   const applicationId = yield select(getCurrentApplicationId);
@@ -79,7 +77,6 @@ export default function* navigateActionSaga(
         params,
       },
     });
-    if (event.callback) event.callback({ success: true });
   } else {
     AnalyticsUtil.logEvent("NAVIGATE", {
       navUrl: pageNameOrUrl,
@@ -94,6 +91,5 @@ export default function* navigateActionSaga(
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(url, "_blank");
     }
-    if (event.callback) event.callback({ success: true });
   }
 }

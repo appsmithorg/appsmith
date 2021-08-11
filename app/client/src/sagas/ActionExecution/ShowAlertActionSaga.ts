@@ -1,17 +1,14 @@
-import { ExecuteActionPayloadEvent } from "constants/AppsmithActionConstants/ActionConstants";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ShowAlertActionDescription } from "entities/DataTree/actionTriggers";
+import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 
 export default function* showAlertSaga(
   payload: ShowAlertActionDescription["payload"],
-  event: ExecuteActionPayloadEvent,
 ) {
   if (typeof payload.message !== "string") {
-    console.error("Toast message needs to be a string");
-    if (event.callback) event.callback({ success: false });
-    return;
+    throw new TriggerFailureError("Toast message needs to be a string");
   }
   let variant;
   switch (payload.style) {
@@ -29,11 +26,9 @@ export default function* showAlertSaga(
       break;
   }
   if (payload.style && !variant) {
-    console.error(
-      "Toast type needs to be a one of " + Object.values(Variant).join(", "),
+    throw new TriggerFailureError(
+      `Toast type needs to be a one of ${Object.values(Variant).join(", ")}`,
     );
-    if (event.callback) event.callback({ success: false });
-    return;
   }
   Toaster.show({
     text: payload.message,
@@ -44,5 +39,4 @@ export default function* showAlertSaga(
       ? `showAlert('${payload.message}', '${payload.style}') was triggered`
       : `showAlert('${payload.message}') was triggered`,
   });
-  if (event.callback) event.callback({ success: true });
 }

@@ -56,7 +56,6 @@ import {
 import { Variant } from "components/ads/common";
 import {
   EventType,
-  ExecuteActionPayloadEvent,
   PageAction,
   RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
@@ -208,7 +207,7 @@ function* confirmRunActionSaga() {
 
 export default function* executePluginActionTriggerSaga(
   pluginAction: PluginActionDescription["payload"],
-  event: ExecuteActionPayloadEvent,
+  eventType: EventType,
 ) {
   const { actionId, params } = pluginAction;
   PerformanceTracker.startAsyncTracking(
@@ -231,9 +230,9 @@ export default function* executePluginActionTriggerSaga(
     isExampleApp: currentApp.appIsExample,
   });
   const pagination =
-    event.type === EventType.ON_NEXT_PAGE
+    eventType === EventType.ON_NEXT_PAGE
       ? "NEXT"
-      : event.type === EventType.ON_PREV_PAGE
+      : eventType === EventType.ON_PREV_PAGE
       ? "PREV"
       : undefined;
   AppsmithConsole.info({
@@ -282,7 +281,10 @@ export default function* executePluginActionTriggerSaga(
       variant: Variant.danger,
       showDebugButton: true,
     });
-    throw new TriggerFailureError("Failed to execute plugin action", error);
+    throw new TriggerFailureError(
+      "Failed to execute plugin action",
+      new Error(error),
+    );
   } else {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
