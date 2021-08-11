@@ -8,7 +8,7 @@ const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
-describe("Table Widget and Navigate to functionality validation", function() {
+describe("Table Widget with Input Widget and Navigate to functionality validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
