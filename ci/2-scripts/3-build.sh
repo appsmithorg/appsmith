@@ -9,6 +9,9 @@ curl-fail() {
 	code="$(curl --insecure --silent --show-error --output "$outfile" --write-out "%{http_code}" "$@")"
 	if [[ $code -lt 200 || $code -gt 302 ]] ; then
 		cat "$outfile" >&2
+		# Need below line because cURL doesn't print a final newline and that messes the logs in CloudWatch.
+		echo
+		cat "$CODEBUILD_SRC_DIR/logs/server.log"
 		return 22
 	fi
 	cat "$outfile"

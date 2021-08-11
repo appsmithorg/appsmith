@@ -294,7 +294,7 @@ function GlobalSearch() {
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
       return filterCategoryList.filter(
-        (cat: SearchCategory) => cat.id !== SEARCH_CATEGORY_ID.INIT,
+        (cat: SearchCategory) => !isMenu(cat),
       );
     }
     if (isSnippet(category)) {

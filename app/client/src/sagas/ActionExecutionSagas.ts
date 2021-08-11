@@ -48,6 +48,7 @@ import {
   QUERIES_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
@@ -760,6 +761,7 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
       INTEGRATION_EDITOR_URL(),
+      SAAS_EDITOR_API_ID_URL(),
     ],
     exact: true,
     strict: false,
