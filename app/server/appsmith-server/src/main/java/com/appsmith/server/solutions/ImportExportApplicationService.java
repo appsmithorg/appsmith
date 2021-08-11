@@ -7,11 +7,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -63,12 +61,10 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -88,14 +84,10 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
-    private final CommonConfig commonConfig;
     private final ReleaseNotesService releaseNotesService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
-    private static final String PAGE_DIRECTORY = "/Pages/";
-    private static final String ACTION_DIRECTORY = "/Actions/";
-    private static final String DATASOURCE_DIRECTORY = "/Datasources/";
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
     }
@@ -103,7 +95,7 @@ public class ImportExportApplicationService {
     /**
      * This function will give the application resource to rebuild the application in import application flow
      * @param applicationId which needs to be exported
-     * @return application reference from which entire application can be rehydrated
+     * @return
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId) {
 
@@ -154,20 +146,21 @@ public class ImportExportApplicationService {
                 }
                 
                 if (application.getPublishedPages() != null) {
-                    application.getPublishedPages()
+                    ApplicationPage publishedDefaultPage = application.getPublishedPages()
                         .stream()
                         .filter(ApplicationPage::getIsDefault)
                         .findFirst()
-                        .ifPresent(
-                            publishedDefaultPage -> applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId())
-                        );
+                        .orElse(null);
+                    
+                    if(publishedDefaultPage != null) {
+                        applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId());
+                    }
                 }
 
                 // Refactor application to remove the ids
                 final String organizationId = application.getOrganizationId();
                 application.setOrganizationId(null);
                 application.setPages(null);
-                application.setPublishedPages(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
@@ -238,7 +231,7 @@ public class ImportExportApplicationService {
                             .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                     })
                     .collectList()
-                    .map(newActionList -> {
+                    .flatMap(newActionList -> {
                         Set<String> concernedDBNames = new HashSet<>();
                         newActionList.forEach(newAction -> {
                             newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -278,24 +271,26 @@ public class ImportExportApplicationService {
                             datasource.setId(null);
                             datasource.setOrganizationId(null);
                             datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                            datasource.setStructure(null);
                             if (datasource.getDatasourceConfiguration() != null) {
                                 datasource.getDatasourceConfiguration().setAuthentication(null);
                             }
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
+                        return saveApplicationWithinServerDirectory(applicationJson);
+                    })
+                    .map(repoPath -> {
+                        ApplicationJson app = reconstructApplicationFromServerDirectory(repoPath);
+                        log.debug(app.getExportedApplication().getName());
                         return applicationJson;
                     });
-            })
-            .then()
-            .thenReturn(applicationJson);
+                });
     }
 
     /**
      * This function will take the Json filepart and saves the application in organization
-     * @param orgId organization to which the application needs to be hydrated
-     * @param filePart Json file which contains the entire application object
-     * @return saved application in DB
+     * @param orgId
+     * @param filePart
+     * @return
      */
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
 
@@ -305,11 +300,11 @@ public class ImportExportApplicationService {
          */
 
         final MediaType contentType = filePart.headers().getContentType();
-
+        
         if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
-
+        
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
@@ -328,7 +323,7 @@ public class ImportExportApplicationService {
                     Gson gson = new Gson();
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInOrganization(orgId, jsonFile, "release");
+                    return importApplicationInOrganization(orgId, jsonFile);
                 });
     }
 
@@ -336,22 +331,9 @@ public class ImportExportApplicationService {
      * This function will save the application to organisation from the application resource
      * @param organizationId organization to which application is going to be stored
      * @param importedDoc application resource which contains necessary information to save the application
-     * @return saved application in DB
-     */
-    public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
-        return importApplicationInOrganization(organizationId, importedDoc, null);
-    }
-
-    /**
-     * This function will take the application reference object to hydrate the application in mongoDB
-     * @param organizationId
-     * @param importedDoc
-     * @param branchName
      * @return
      */
-    public Mono<Application> importApplicationInOrganization(String organizationId,
-                                                             ApplicationJson importedDoc,
-                                                             String branchName) {
+    public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
 
         /*
             1. Fetch organization by id
@@ -365,15 +347,15 @@ public class ImportExportApplicationService {
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
-
+        
         Application importedApplication = importedDoc.getExportedApplication();
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
-
+        
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(organizationId).cache();
-
+        
         String errorField = "";
         if (importedNewPageList == null || importedNewPageList.isEmpty()) {
             errorField = FieldName.PAGES;
@@ -384,7 +366,7 @@ public class ImportExportApplicationService {
         } else if (importedDatasourceList == null) {
             errorField = FieldName.DATASOURCE;
         }
-
+        
         if(!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         } else if(importedDoc.getAppsmithVersion() == null) {
@@ -397,7 +379,7 @@ public class ImportExportApplicationService {
         } else if(!releaseNotesService.getReleasedVersion().equals(importedDoc.getAppsmithVersion())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE_ERROR));
         }
-
+        
         return pluginRepository.findAll()
             .map(plugin -> {
                 pluginMap.put(plugin.getPackageName(), plugin.getId());
@@ -407,24 +389,18 @@ public class ImportExportApplicationService {
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
             )
-            .flatMap(organization -> {
-                // Check if the request is to hydrate the application to DB for particular branch
-                if (branchName != null) {
-                    // No need to hydrate the datasource as we expect user will configure the datasource
-                    return Mono.empty();
-                }
-                return Flux.fromIterable(importedDatasourceList)
+            .flatMap(organization -> Flux.fromIterable(importedDatasourceList)
                 //Check for duplicate datasources to avoid duplicates in target organization
                 .flatMap(datasource -> {
                     datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                     datasource.setOrganizationId(organization.getId());
-
+                    
                     //Check if any decrypted fields are present for datasource
                     if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
-
+                        
                         DecryptedSensitiveFields decryptedFields =
                             importedDoc.getDecryptedFields().get(datasource.getName());
-
+                        
                         updateAuthenticationDTO(datasource, decryptedFields);
                     }
                     return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
@@ -433,8 +409,8 @@ public class ImportExportApplicationService {
                     datasourceMap.put(datasource.getName(), datasource.getId());
                     return datasource;
                 })
-                .collectList();
-            })
+                .collectList()
+            )
             .then(
                 // 1. Assign the policies for the imported application
                 // 2. Check for possible duplicate names,
@@ -444,13 +420,13 @@ public class ImportExportApplicationService {
                         .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
                         .collectList()
                         .flatMap(applicationList -> {
-
+                            
                             Application duplicateNameApp = applicationList
                                 .stream()
                                 .filter(application1 -> StringUtils.equals(application1.getName(), application.getName()))
                                 .findAny()
                                 .orElse(null);
-
+                            
                             return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
                                 .map(suffix -> {
                                     importedApplication.setName(importedApplication.getName() + suffix);
@@ -461,7 +437,6 @@ public class ImportExportApplicationService {
                     )
             )
             .flatMap(savedApp -> {
-                assert importedApplication != null;
                 importedApplication.setId(savedApp.getId());
                 Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
                     PublishType.UNPUBLISHED, new ArrayList<>(),
@@ -469,53 +444,50 @@ public class ImportExportApplicationService {
                 );
 
                 // Import and save pages, also update the pages related fields in saved application
-                assert importedNewPageList != null;
                 return importAndSavePages(
                     importedNewPageList,
                     importedApplication,
                     importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                     importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
                 )
-                    .map(newPage -> {
-                        ApplicationPage unpublishedAppPage = new ApplicationPage();
-                        ApplicationPage publishedAppPage = new ApplicationPage();
-
-                        if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                            unpublishedAppPage.setIsDefault(
-                                StringUtils.equals(
-                                    newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                                )
-                            );
-                            unpublishedAppPage.setId(newPage.getId());
-                            pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                        }
-
-                        if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                            publishedAppPage.setIsDefault(
-                                StringUtils.equals(
-                                    newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                                )
-                            );
-                            publishedAppPage.setId(newPage.getId());
-                            pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                        }
-                        if (unpublishedAppPage.getId() != null) {
-                            applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                        }
-                        if (publishedAppPage.getId() != null) {
-                            applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
-                        }
-                        return applicationPages;
-                    })
-                    .then()
-                    .thenReturn(applicationPages);
+                .map(newPage -> {
+                    ApplicationPage unpublishedAppPage = new ApplicationPage();
+                    ApplicationPage publishedAppPage = new ApplicationPage();
+                    
+                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                        unpublishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                            )
+                        );
+                        unpublishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                    }
+    
+                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                        publishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                            )
+                        );
+                        publishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                    }
+                    if (unpublishedAppPage != null && unpublishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                    }
+                    if (publishedAppPage != null && publishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                    }
+                    return applicationPages;
+                })
+                .then()
+                .thenReturn(applicationPages);
             })
             .flatMap(applicationPageMap -> {
-                assert importedApplication != null;
                 importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
                 importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISHED));
-
-                assert importedNewActionList != null;
+                
                 importedNewActionList.forEach(newAction -> {
                     NewPage parentPage = new NewPage();
                     if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
@@ -524,14 +496,14 @@ public class ImportExportApplicationService {
                         newAction.getUnpublishedAction().setPageId(parentPage.getId());
                         sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
-
+                    
                     if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
                         parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
                         actionIdMap.put(newAction.getPublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getPublishedAction().setPageId(parentPage.getId());
                         sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
-
+                    
                     examplesOrganizationCloner.makePristine(newAction);
                     newAction.setOrganizationId(organizationId);
                     newAction.setApplicationId(importedApplication.getId());
@@ -540,7 +512,7 @@ public class ImportExportApplicationService {
                 });
                 return newActionService.saveAll(importedNewActionList)
                     .map(newAction -> {
-
+                        
                         if (newAction.getUnpublishedAction() != null) {
                             ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                             actionIdMap.put(
@@ -548,7 +520,7 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
-
+    
                         if (newAction.getPublishedAction() != null) {
                             ActionDTO publishedAction = newAction.getPublishedAction();
                             actionIdMap.put(
@@ -556,14 +528,13 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
-
+                        
                         return newAction;
                     })
                     .then(Mono.just(importedApplication));
             })
             .flatMap(ignored -> {
                 //Map layoutOnLoadActions ids with relevant actions
-                assert importedNewPageList != null;
                 importedNewPageList.forEach(page -> mapActionIdWithPageLayout(page, actionIdMap));
                 return Flux.fromIterable(importedNewPageList)
                     .flatMap(newPageService::save)
@@ -581,10 +552,7 @@ public class ImportExportApplicationService {
         if (sourceEntity != null) {
             return sequenceService
                 .getNextAsSuffix(sourceEntity.getClass(), " for organization with _id : " + orgId)
-                .map(sequenceNumber -> {
-                    // sequence number will be empty if no duplicate is found
-                    return sequenceNumber.isEmpty() ? " #1" : " #" + sequenceNumber.trim();
-                });
+                .flatMap(sequenceNumber -> Mono.just(" #" + sequenceNumber.trim()));
         }
         return Mono.just("");
     }
@@ -808,38 +776,45 @@ public class ImportExportApplicationService {
         return null;
     }
 
-    /**
-     * This method will save the complete application in the local repo directory.
-     * @param applicationJson application reference object from which entire application can be rehydrated
-     * @param branchName name of the branch for the current application
-     * @return repo path where the application is stored
-     */
-    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String branchName) {
+    public Mono<String> prettifiedJson(Object sourceEntity) {
 
-        // The repoPath will contain the actual path of branch as we will be using worktree. This decision has been
-        // taken considering the case multiple users can checkout different branches at same time
-        // API reference for worktree : https://git-scm.com/docs/git-worktree
-        String baseRepoPath = commonConfig.gitRepoPath + "/" + applicationJson.getExportedApplication().getName() + "/" + branchName;
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        String prettifiedJson = gson.toJson(sourceEntity);
+        if (prettifiedJson.isEmpty()) {
+            prettifiedJson = sourceEntity.toString();
+        }
+        return Mono.just(prettifiedJson);
+    }
 
-        /*
-        Application will be stored in the following structure :
-        repo
-        --ApplicationName
-        ----Datasource
-            --datasource1Name
-            --datasource2Name
-        ----Actions (Only requirement here is the filename should be unique)
-            --action1_page1
-            --action2_page2
-        ----Pages
-            --page1
-            --page2
-         */
+    private Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson) {
+        return saveApplicationWithinServerDirectory(applicationJson, null);
+    }
 
+    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String repoPath) {
+
+        String baseRepoPath = repoPath != null ? repoPath : "./home/repo/" + applicationJson.getExportedApplication().getName();
+        String pageDir = baseRepoPath + "/Pages/";
+        String actionDir = baseRepoPath + "/Actions/";
+        String datasourceDir = baseRepoPath + "/Datasources/";
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
         // Save application
         saveFile(applicationJson.getExportedApplication(), baseRepoPath + "/application.json", gson);
+
+        // Save miscellaneous fields which includes mongoEscapedWidgets, defaultPages
+        File metadataFile = new File(baseRepoPath + "/metadata.json");
+        try {
+            // Create a file if absent
+            FileUtils.write(metadataFile, "", StandardCharsets.UTF_8);
+            FileWriter fileWriter = new FileWriter(metadataFile);
+            gson.toJson(applicationJson.getPublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getPublishedDefaultPageName(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedDefaultPageName(), fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
 
         // Save pages
         applicationJson.getPageList().forEach(newPage -> {
@@ -849,21 +824,24 @@ public class ImportExportApplicationService {
             } else if (newPage.getPublishedPage() != null) {
                 pageName = newPage.getPublishedPage().getName();
             }
-            saveFile(newPage, baseRepoPath + PAGE_DIRECTORY + pageName + ".json", gson);
+            saveFile(newPage, pageDir + pageName + ".json", gson);
         });
 
         // Save actions
         applicationJson.getActionList().forEach(newAction -> {
-            String prefix = newAction.getUnpublishedAction() != null ?
-                newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
-                : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
-            saveFile(newAction, baseRepoPath + ACTION_DIRECTORY + prefix + ".json", gson);
+            String actionName = "";
+            if (newAction.getUnpublishedAction() != null) {
+                actionName = newAction.getUnpublishedAction().getName();
+            } else if (newAction.getPublishedAction() != null) {
+                actionName = newAction.getPublishedAction().getName();
+            }
+            saveFile(newAction, actionDir + actionName + ".json", gson);
         });
 
         // Save datasources ref
-        applicationJson.getDatasourceList().forEach(
-            datasource -> saveFile(datasource, baseRepoPath + DATASOURCE_DIRECTORY + datasource.getName() + ".json", gson)
-        );
+        applicationJson.getDatasourceList().forEach(datasource -> {
+            saveFile(datasource, datasourceDir + datasource.getName() + ".json", gson);
+        });
 
         return Mono.just(baseRepoPath);
     }
@@ -883,78 +861,70 @@ public class ImportExportApplicationService {
         return false;
     }
 
-    /**
-     * This will reconstruct the application from the repo
-     * @param applicationName path to the actual application
-     * @param branchName for which the application needs to be rehydrate
-     * @return application reference from which entire application can be rehydrated
-     */
-    public ApplicationJson reconstructApplicationFromServerDirectory(String applicationName, String branchName) {
-
-        // For implementing a branching model we are using worktree structure so each branch will have the separate
-        // directory, this decision has been taken considering multiple users can checkout different branches at same
-        // time
-        // API reference for worktree : https://git-scm.com/docs/git-worktree
-
-        String baseRepo = commonConfig.getGitRepoPath() + "/" + applicationName + "/" + branchName;
+    public ApplicationJson reconstructApplicationFromServerDirectory(String repoPath) {
         ApplicationJson applicationJson = new ApplicationJson();
-
-        Gson gson = new GsonBuilder()
-            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-            .create();
-
-        // Extract application data from the json
-        applicationJson.setExportedApplication(
-            (Application) readFile( baseRepo + "/application.json", gson, Application.class)
-        );
-
-        // Extract actions
-        List<NewAction> importedActions = new ArrayList<>();
-        applicationJson.setActionList(
-            (List<NewAction>) readFiles(baseRepo + ACTION_DIRECTORY, gson, importedActions, NewAction.class)
-        );
-
-        // Extract pages
-        List<NewPage> importedPages = new ArrayList<>();
-        applicationJson.setPageList(
-            (List<NewPage>) readFiles(baseRepo + PAGE_DIRECTORY, gson, importedPages, NewPage.class)
-        );
-
-        // Extract datasources
-        List<Datasource> importedDatasources = new ArrayList<>();
-        applicationJson.setDatasourceList(
-            (List<Datasource>) readFiles(baseRepo + DATASOURCE_DIRECTORY, gson, importedDatasources, Datasource.class)
-        );
-
+        Gson gson = new Gson();
+        applicationJson.setExportedApplication((Application) readFile(repoPath + "/application.json", gson));
         return applicationJson;
     }
 
-    private BaseDomain readFile(String filePath, Gson gson, Class<? extends BaseDomain> domain) {
+    private BaseDomain readFile(String filePath, Gson gson) {
         JsonReader reader = null;
         try {
             reader = new JsonReader(new FileReader(filePath));
         } catch (FileNotFoundException e) {
             log.debug(e.getMessage());
         }
-        assert reader != null;
-        return gson.fromJson(reader, domain);
+        BaseDomain data = gson.fromJson(reader, BaseDomain.class);
+        return data;
     }
 
-    private List<? extends BaseDomain> readFiles(String directoryPath,
-                                                 Gson gson,
-                                                 List<? extends BaseDomain> domainList,
-                                                 Class<? extends BaseDomain> domainClass) {
-        File directory = new File(directoryPath);
-        if (directory.isDirectory()) {
-            Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
-                try {
-                    domainList.add(gson.fromJson(new JsonReader(new FileReader(file)), domainClass));
-                } catch (FileNotFoundException e) {
-                    log.debug(e.getMessage());
-                }
-            });
+    /*
+    public WidgetDSLMetadata getWidgetDslMetadata(JSONObject dsl) {
+
+        // 1. Fetch the children of the current node in the DSL and recursively iterate over them
+        // 2. Delete unwanted children and update dsl
+        WidgetDSLMetadata widgetDSLMetadata = new WidgetDSLMetadata();
+
+        if (dsl.get(FieldName.WIDGET_NAME) == null) {
+            // This isn't a valid widget configuration. No need to traverse this.
+            return widgetDSLMetadata;
         }
-        return domainList;
-    }
 
+        // Updates in dynamicBindingPathlist not required as it's updated by FE code
+        // Fetch the children of the current node in the DSL and recursively iterate over them
+        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
+        if (children != null) {
+            for (Object obj : children) {
+                if (!(obj instanceof Map)) {
+                    log.error("Child in DSL is not instanceof Map, {}", obj);
+                    continue;
+                }
+                Map data = (Map) obj;
+                JSONObject object = new JSONObject();
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    JSONObject child =
+                        extractAndUpdateAllWidgetFromDSL(object, mappedColumnsAndTableNames, deletedWidgets);
+                    String widgetType = child.getAsString(FieldName.WIDGET_TYPE);
+                    if (FieldName.TABLE_WIDGET.equals(widgetType)
+                        || FieldName.CONTAINER_WIDGET.equals(widgetType)
+                        || FieldName.CANVAS_WIDGET.equals(widgetType)
+                        || FieldName.FORM_WIDGET.equals(widgetType)
+                        || !child.toString().contains(DELETE_FIELD)
+                    ) {
+                        newChildren.add(child);
+                    } else {
+                        deletedWidgets.add(child.getAsString(FieldName.WIDGET_NAME));
+                    }
+                }
+            }
+            dsl.put(FieldName.CHILDREN, newChildren);
+        }
+
+        return dsl;
+    }
+    */
 }
