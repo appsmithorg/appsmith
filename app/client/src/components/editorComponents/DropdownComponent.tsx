@@ -139,7 +139,6 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       <StyledDropdown
         activeItem={selected}
         filterable={!!autocomplete}
-        {...input}
         itemListRenderer={addItem && this.renderItemList}
         itemPredicate={this.searchItem}
         itemRenderer={this.renderItem}
@@ -148,6 +147,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         noResults={<MenuItem disabled text="No results." />}
         onItemSelect={this.onItemSelect}
         popoverProps={{ minimal: true }}
+        {...input}
       >
         {this.props.toggle || (
           <BaseButton
