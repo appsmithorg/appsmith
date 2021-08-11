@@ -306,7 +306,7 @@ export const getRandomPaletteColor = (colorPalette: string[]) => {
 };
 
 export const isBlobUrl = (url: string) => {
-  return url.startsWith("blob:");
+  return typeof url === "string" && url.startsWith("blob:");
 };
 
 /**
