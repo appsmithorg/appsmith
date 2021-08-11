@@ -130,6 +130,14 @@ export const getWidgetByName = (
   );
 };
 
+export const getWidgetById = (
+  state: AppState,
+  id: string,
+): FlattenedWidgetProps | undefined => {
+  const widgets = state.entities.canvasWidgets;
+  return widgets[id];
+};
+
 export const getAllPageIds = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => page.pageId);
 };
