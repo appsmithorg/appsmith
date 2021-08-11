@@ -38,8 +38,11 @@ import {
   SearchItem,
   algoliaHighlightTag,
   attachKind,
-  SEARCH_CATEGORIES,
+  SEARCH_CATEGORY_ID,
   getEntityId,
+  filterCategories,
+  getFilterCategoryList,
+  SearchCategory,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -54,33 +57,13 @@ import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 
-const filterCategories = [
-  {
-    title: "Navigate",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORIES.NAVIGATION,
-    desc: "Navigate to any page, widget or file across this project.",
-  },
-  // {
-  //   title: "Use Snippets",
-  //   kind: SEARCH_ITEM_TYPES.category,
-  //   id: SEARCH_CATEGORIES.SNIPPETS,
-  //   desc: "Search and Insert code snippets to perform complex actions quickly.",
-  // },
-  {
-    title: "Search Documentation",
-    kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORIES.DOCUMENTATION,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
-  },
-];
-
 const isNavigation = (category: any) =>
-  category.id === SEARCH_CATEGORIES.NAVIGATION;
+  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
 const isDocumentation = (category: any) =>
-  category.id === SEARCH_CATEGORIES.DOCUMENTATION;
-const isSnippet = (category: any) => category.id === SEARCH_CATEGORIES.SNIPPETS;
-const isMenu = (category: any) => category.id === SEARCH_CATEGORIES.INIT;
+  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+const isSnippet = (category: any) =>
+  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
+const isMenu = (category: any) => category.id === SEARCH_CATEGORY_ID.INIT;
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -159,32 +142,29 @@ const getSortedResults = (
   );
 };
 
+const filterCategoryList = getFilterCategoryList();
+
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
-  const [category, setCategory] = useState({ id: SEARCH_CATEGORIES.INIT });
   const [snippets, setSnippetsState] = useState([]);
-  const initCategoryId = useSelector(
+  const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  useEffect(() => {
-    const triggeredCategory = filterCategories.find(
-      (c) => c.id === initCategoryId,
-    );
-    if (triggeredCategory) setCategory(triggeredCategory);
-    return () => {
-      dispatch(
-        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.INIT }),
-      );
-    };
-  }, [initCategoryId]);
+  const setCategory = (category: SearchCategory) =>
+    dispatch(setGlobalSearchFilterContext({ category: category }));
+  const setRefinements = (entityMeta: any) =>
+    dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
+  const refinements = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.refinements,
+  );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
-      setCategory({ id: SEARCH_CATEGORIES.INIT });
+      setCategory(filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION]);
     }
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());
@@ -201,7 +181,7 @@ function GlobalSearch() {
   ] = useState<Array<DocSearchItem>>([]);
 
   const setSearchResults = useCallback((res, categoryId) => {
-    if (categoryId === SEARCH_CATEGORIES.SNIPPETS) setSnippetsState(res);
+    if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);
     else setDocumentationSearchResultsInState(res);
   }, []);
 
@@ -316,10 +296,12 @@ function GlobalSearch() {
   }, [pages, query]);
 
   const searchResults = useMemo(() => {
-    if (category.id === SEARCH_CATEGORIES.INIT && !query) {
-      return filterCategories;
+    if (isMenu(category) && !query) {
+      return filterCategoryList.filter(
+        (cat: SearchCategory) => isDocumentation(cat) || isNavigation(cat),
+      );
     }
-    if (category.id === SEARCH_CATEGORIES.SNIPPETS) {
+    if (isSnippet(category)) {
       return snippets;
     }
 
@@ -441,7 +423,7 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (item: any) => {
-    dispatch(insertSnippet(item.snippet));
+    dispatch(insertSnippet(item.body.snippet));
     toggleShow();
   };
 
@@ -491,9 +473,12 @@ function GlobalSearch() {
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
-          <AlgoliaSearchWrapper query={query}>
+          <AlgoliaSearchWrapper
+            query={query}
+            refinements={refinements}
+            setRefinement={setRefinements}
+          >
             <StyledContainer>
-              {/* <Configure filters="entities:Table" /> */}
               <SearchBox
                 category={category}
                 query={query}
@@ -509,7 +494,9 @@ function GlobalSearch() {
                   <>
                     <SearchResults
                       query={query}
+                      refinements={refinements}
                       searchResults={searchResults}
+                      showFilter={isSnippet(category)}
                     />
                     {(isDocumentation(category) || isSnippet(category)) && (
                       <Description
