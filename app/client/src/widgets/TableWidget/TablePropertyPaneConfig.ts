@@ -882,7 +882,7 @@ export default [
         placeholderText: "Enter total record count",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: VALIDATION_TYPES.NUMBER,
+        validation: { type: ValidationTypes.NUMBER },
         hidden: (props: TableWidgetProps) => {
           return !props.serverSidePaginationEnabled;
         },
