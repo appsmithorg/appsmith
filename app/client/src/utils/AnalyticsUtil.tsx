@@ -1,6 +1,5 @@
 // Events
 import * as log from "loglevel";
-import FeatureFlag from "./featureFlags";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "configs";
 import * as Sentry from "@sentry/react";
@@ -130,6 +129,7 @@ export type EventName =
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
+  | "ADD_MOCK_DATASOURCE_CLICK"
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
   | "GEN_CRUD_PAGE_FORM_SUBMIT"
@@ -137,6 +137,10 @@ export type EventName =
   | "GEN_CRUD_PAGE_SELECT_DATASOURCE"
   | "GEN_CRUD_PAGE_SELECT_TABLE"
   | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "BUILD_FROM_SCRATCH_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_DATA_SOURCE_CLICK"
   | "DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION"
   | "DATASOURCE_CARD_DELETE_ACTION"
   | "DATASOURCE_CARD_EDIT_ACTION"
@@ -278,7 +282,6 @@ class AnalyticsUtil {
     const { segment, smartLook } = getAppsmithConfigs();
     const windowDoc: any = window;
     const userId = userData.username;
-    FeatureFlag.identify(userData);
     if (windowDoc.analytics) {
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
