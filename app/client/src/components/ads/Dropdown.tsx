@@ -309,7 +309,7 @@ const SelectedIcon = styled(Icon)`
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.POMEGRANATE2};
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const ErrorLabel = styled.span`
@@ -320,7 +320,7 @@ const ErrorLabel = styled.span`
 const HelperText = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.GRAY};
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 function DefaultDropDownValueNode({

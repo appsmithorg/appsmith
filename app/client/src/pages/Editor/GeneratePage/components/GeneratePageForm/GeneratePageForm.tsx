@@ -242,7 +242,7 @@ function GeneratePageForm() {
         if (!isGoogleSheetPlugin) {
           const { data } = TableObj;
           const columnIcon: IconName = "column";
-          if (data.columns && Array.isArray(data.columns)) {
+          if (Array.isArray(data.columns)) {
             const newSelectedTableColumnOptions: DropdownOption[] = [];
             data.columns.map((column) => {
               if (

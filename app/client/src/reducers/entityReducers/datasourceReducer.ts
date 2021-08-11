@@ -20,7 +20,6 @@ export interface DatasourceDataState {
   structure: Record<string, DatasourceStructure>;
   isFetchingMockDataSource: false;
   mockDatasourceList: any[];
-  executingDatasourceQuery: boolean;
 }
 
 const initialState: DatasourceDataState = {
@@ -33,7 +32,6 @@ const initialState: DatasourceDataState = {
   structure: {},
   isFetchingMockDataSource: false,
   mockDatasourceList: [],
-  executingDatasourceQuery: false,
 };
 
 const datasourceReducer = createReducer(initialState, {
@@ -98,16 +96,6 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
   ) => {
     return { ...state, isRefreshingStructure: true };
-  },
-  [ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT]: (
-    state: DatasourceDataState,
-  ) => {
-    return { ...state, executingDatasourceQuery: true };
-  },
-  [ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_SUCCESS]: (
-    state: DatasourceDataState,
-  ) => {
-    return { ...state, executingDatasourceQuery: false };
   },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_INIT]: (
     state: DatasourceDataState,
@@ -289,14 +277,6 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       isRefreshingStructure: false,
-    };
-  },
-  [ReduxActionErrorTypes.EXECUTE_DATASOURCE_QUERY_ERROR]: (
-    state: DatasourceDataState,
-  ) => {
-    return {
-      ...state,
-      executingDatasourceQuery: false,
     };
   },
 });
