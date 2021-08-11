@@ -29,7 +29,11 @@ import TreeStructure from "components/utils/TreeStructure";
 import { getWidgets } from "sagas/selectors";
 import { PluginType } from "entities/Action";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+  JS_COLLECTION_ID_URL,
+} from "constants/routes";
 import history from "utils/history";
 import { keyBy } from "lodash";
 import {
@@ -45,6 +49,7 @@ import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import _ from "lodash";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { createNewJSAction } from "actions/jsPaneActions";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 
@@ -349,6 +354,7 @@ function useWidgetOptionTree() {
 
 function getIntegrationOptionsWithChildren(
   pageId: string,
+  applicationId: string,
   plugins: any,
   options: TreeDropdownOption[],
   actions: any[],
@@ -357,6 +363,17 @@ function getIntegrationOptionsWithChildren(
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
 ) {
+  const createJSObject: TreeDropdownOption = {
+    label: "Create New JS Object",
+    value: "JSObject",
+    id: "create",
+    icon: "plus",
+    className: "t--create-js-object-btn",
+    onSelect: () => {
+      dispatch(createNewJSAction(pageId));
+    },
+  };
+
   const queries = actions.filter(
     (action) => action.config.pluginType === PluginType.DB,
   );
@@ -432,7 +449,7 @@ function getIntegrationOptionsWithChildren(
     });
   }
   if (jsOption) {
-    jsOption.children = [createIntegrationOption];
+    jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {
         const jsObject: TreeDropdownOption = {
@@ -445,7 +462,19 @@ function getIntegrationOptionsWithChildren(
           jsObject as TreeDropdownOption,
         );
         if (jsObject) {
-          jsObject.children = [createIntegrationOption];
+          const createJSFunction: TreeDropdownOption = {
+            label: "Create New JS Function",
+            value: "JSFunction",
+            id: "create",
+            icon: "plus",
+            className: "t--create-js-function-btn",
+            onSelect: () => {
+              history.push(
+                JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
+              );
+            },
+          };
+          jsObject.children = [createJSFunction];
           jsAction.config.actions.forEach((js: any) => {
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];
@@ -475,7 +504,7 @@ function getIntegrationOptionsWithChildren(
 
 function useIntegrationsOptionTree() {
   const pageId = useSelector(getCurrentPageId) || "";
-  const applicationId = useSelector(getCurrentApplicationId);
+  const applicationId = useSelector(getCurrentApplicationId) || "";
   const datasources: Datasource[] = useSelector(getDBDatasources);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
@@ -490,6 +519,7 @@ function useIntegrationsOptionTree() {
 
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     pageId,
+    applicationId,
     pluginGroups,
     baseOptions,
     actions,
