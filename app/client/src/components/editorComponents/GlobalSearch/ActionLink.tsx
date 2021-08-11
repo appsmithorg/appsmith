@@ -9,6 +9,12 @@ import { SearchItem } from "./utils";
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
   display: inline-flex;
+  svg {
+    rect,
+    path {
+      stroke: ${(props) => (props.isActiveItem ? "white" : "#484848")};
+    }
+  }
 `;
 
 export const ActionLink = withTheme(

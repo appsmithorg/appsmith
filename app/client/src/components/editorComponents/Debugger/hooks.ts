@@ -12,10 +12,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
-import {
-  getCurrentWidgetId,
-  getIsPropertyPaneVisible,
-} from "selectors/propertyPaneSelectors";
 import { isWidget, isAction } from "workers/evaluationUtils";
 import {
   onApiEditor,
@@ -24,6 +20,7 @@ import {
   doesEntityHaveErrors,
 } from "./helpers";
 import history from "utils/history";
+import { getSelectedWidget } from "selectors/ui";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { isEqual, keyBy } from "lodash";
 import {
@@ -94,10 +91,9 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  const isPropertyPaneVisible = useSelector(getIsPropertyPaneVisible);
-  const selectedWidget = useSelector(getCurrentWidgetId);
+  const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId) && isPropertyPaneVisible) {
+    if (onCanvas(applicationId, currentPageId)) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
