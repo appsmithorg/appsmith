@@ -5,6 +5,21 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { Colors } from "constants/Colors";
 
+const POINTER_COLORS = [
+  Colors.JAFFA,
+  Colors.JUNGLE_GREEN,
+  Colors.JAFFA_DARK,
+  Colors.DANUBE,
+  Colors.GRAY,
+  Colors.PURPLE,
+  Colors.BUTTER_CUP,
+];
+const COLOR_COUNT = 7;
+const POINTER_MARGIN = 12;
+const POINTER_PADDING_X = 15;
+const POINTER_PADDING_Y = 5;
+const PX_PER_CHAR = 8.67;
+
 const Canvas = styled.canvas`
   position: absolute;
   top: 0px;
@@ -16,22 +31,18 @@ const Canvas = styled.canvas`
   pointer-events: none;
 `;
 
-const POINTER_MARGIN = 12;
-const POINTER_PADDING_X = 15;
-const POINTER_PADDING_Y = 5;
-const PX_PER_CHAR = 10;
-
 const drawMousePointer = (
+  idx: number,
   ctx: any,
   x: number,
   y: number,
   width: number,
-  height = 25,
+  height = 24,
   radius = 2,
 ) => {
   if (width < 2 * radius) radius = width / 2;
   if (height < 2 * radius) radius = height / 2;
-  ctx.fillStyle = Colors.GOLD;
+  ctx.fillStyle = POINTER_COLORS[idx % COLOR_COUNT];
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x + POINTER_PADDING_X, y + POINTER_PADDING_Y);
@@ -79,13 +90,14 @@ function CanvasMultiPointerArena({
     ctx.clearRect(0, 0, rect.width, rect.height);
 
     ctx.font = "14px Verdana";
-    Object.keys(pointerData).forEach((socId: string) => {
+    Object.keys(pointerData).forEach((socId: string, idx: number) => {
       const eventData = pointerData[socId];
       drawMousePointer(
+        idx,
         ctx,
         eventData.data.x,
         eventData.data.y,
-        eventData?.user?.email.length * PX_PER_CHAR || 0,
+        eventData?.user?.email.length * PX_PER_CHAR * 1.054 || 0,
       );
       ctx.fillStyle = Colors.BLACK;
       ctx.fillText(
