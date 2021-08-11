@@ -91,7 +91,7 @@
     "toggleVisible": ".t--property-control-visible .t--js-toggle",
     "inputToggleVisible": "div.t--property-control-visible div.CodeMirror-lines",
     "toggleDisable": ".t--property-control-disabled .t--js-toggle",
-    "inputToggleDisable": "div.t--property-control-disabled div.CodeMirror-lines",
+    "inputToggleDisable": "div.t--property-control-disabled div.CodeMirror-code pre span",
     "toggleOnClick": ".t--property-control-onclick .t--js-toggle",
     "toggleChartType": ".t--property-control-charttype .t--js-toggle",
     "inputToggleOnClick": ".t--property-control-onclick div.CodeMirror-lines",

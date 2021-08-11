@@ -30,7 +30,6 @@ su -c "psql --username=postgres --command=\"alter user postgres with password 'p
 PGPASSWORD=postgres psql \
 	--username=postgres \
 	--host=localhost \
-	--single-transaction \
 	--variable=ON_ERROR_STOP=ON \
 	--file="$CODEBUILD_SRC_DIR/app/client/cypress/init-pg-dump-for-test.sql"
 

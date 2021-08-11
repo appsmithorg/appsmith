@@ -13,6 +13,7 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { IconName } from "@blueprintjs/icons";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -87,6 +88,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 expected: {
                   type: "value or Array of values",
                   example: `value1 | ['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
@@ -202,9 +204,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
-    if (this.props.selectedOption) {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+    if (this.props.selectedOptionValue) {
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
+
     if (isChanged) {
       this.props.updateWidgetMetaProperty(
         "defaultValue",
