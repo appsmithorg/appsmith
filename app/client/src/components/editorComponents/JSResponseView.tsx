@@ -22,6 +22,7 @@ import { executeJSFunction } from "actions/jsPaneActions";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import { sortBy } from "lodash";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -128,7 +129,6 @@ type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
     jsObject: JSAction | undefined;
-    onRunClick: () => void;
   };
 
 function JSResponseView(props: Props) {
@@ -139,6 +139,7 @@ function JSResponseView(props: Props) {
   const initialIndex = useSelector(getActionTabsInitialIndex);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const actionList = jsObject?.actions;
+  const sortedActionList = actionList && sortBy(actionList, "name");
   const response =
     selectActionId && !!responses[selectActionId]
       ? responses[selectActionId]
@@ -150,14 +151,14 @@ function JSResponseView(props: Props) {
       title: "Response",
       panelComponent: (
         <ResponseTabWrapper>
-          {actionList && !actionList?.length ? (
+          {sortedActionList && !sortedActionList?.length ? (
             <NoResponseContainer> Create function now! </NoResponseContainer>
           ) : (
             <>
               <ResponseTabActionsList>
-                {actionList &&
-                  actionList?.length > 0 &&
-                  actionList.map((action) => {
+                {sortedActionList &&
+                  sortedActionList?.length > 0 &&
+                  sortedActionList.map((action) => {
                     return (
                       <ResponseTabAction
                         className={action.id === selectActionId ? "active" : ""}

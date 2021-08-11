@@ -179,13 +179,7 @@ function JSEditorForm() {
               ]}
             />
           </TabbedViewContainer>
-          <JSResponseView
-            jsObject={currentJSAction}
-            onRunClick={() => {
-              console.log("hey");
-            }}
-            theme={theme}
-          />
+          <JSResponseView jsObject={currentJSAction} theme={theme} />
         </SecondaryWrapper>
       </Form>
     </>
