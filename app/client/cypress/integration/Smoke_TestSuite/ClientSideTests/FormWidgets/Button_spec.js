@@ -40,7 +40,7 @@ describe("Button Widget Functionality", function() {
     );
 
     //Changing the text on the Button
-    cy.testCodeMirror(this.data.ButtonLabel);
+    cy.testJsontext("label", this.data.ButtonLabel);
     cy.get(commonlocators.evaluatedTypeTitle)
       .first()
       .find("span")
