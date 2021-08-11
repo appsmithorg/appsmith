@@ -14,6 +14,8 @@ import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -94,10 +96,14 @@ public class MockDataServiceImpl implements MockDataService {
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
             String name = mockDataSource.getName();
-            if (mockDataSource.getPackageName().equals("mongo-plugin")) {
-                datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
-            } else {
-                datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
+            try{
+                if (mockDataSource.getPackageName().equals("mongo-plugin")) {
+                    datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
+                } else {
+                    datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE, mockDataSource.getName(), mockDataDTO.getName()));
             }
             Datasource datasource = new Datasource();
             datasource.setOrganizationId(mockDataSource.getOrganizationId());
