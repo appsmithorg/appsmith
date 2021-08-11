@@ -36,9 +36,12 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -49,7 +52,13 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -222,7 +231,7 @@ public class ImportExportApplicationService {
                             .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                     })
                     .collectList()
-                    .map(newActionList -> {
+                    .flatMap(newActionList -> {
                         Set<String> concernedDBNames = new HashSet<>();
                         newActionList.forEach(newAction -> {
                             newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -267,11 +276,14 @@ public class ImportExportApplicationService {
                             }
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
+                        return saveApplicationWithinServerDirectory(applicationJson);
+                    })
+                    .map(repoPath -> {
+                        ApplicationJson app = reconstructApplicationFromServerDirectory(repoPath);
+                        log.debug(app.getExportedApplication().getName());
                         return applicationJson;
                     });
-                })
-                .then()
-                .thenReturn(applicationJson);
+                });
     }
 
     /**
@@ -763,4 +775,156 @@ public class ImportExportApplicationService {
         }
         return null;
     }
+
+    public Mono<String> prettifiedJson(Object sourceEntity) {
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
+        String prettifiedJson = gson.toJson(sourceEntity);
+        if (prettifiedJson.isEmpty()) {
+            prettifiedJson = sourceEntity.toString();
+        }
+        return Mono.just(prettifiedJson);
+    }
+
+    private Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson) {
+        return saveApplicationWithinServerDirectory(applicationJson, null);
+    }
+
+    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String repoPath) {
+
+        String baseRepoPath = repoPath != null ? repoPath : "./home/repo/" + applicationJson.getExportedApplication().getName();
+        String pageDir = baseRepoPath + "/Pages/";
+        String actionDir = baseRepoPath + "/Actions/";
+        String datasourceDir = baseRepoPath + "/Datasources/";
+        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+
+        // Save application
+        saveFile(applicationJson.getExportedApplication(), baseRepoPath + "/application.json", gson);
+
+        // Save miscellaneous fields which includes mongoEscapedWidgets, defaultPages
+        File metadataFile = new File(baseRepoPath + "/metadata.json");
+        try {
+            // Create a file if absent
+            FileUtils.write(metadataFile, "", StandardCharsets.UTF_8);
+            FileWriter fileWriter = new FileWriter(metadataFile);
+            gson.toJson(applicationJson.getPublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getPublishedDefaultPageName(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedDefaultPageName(), fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
+
+        // Save pages
+        applicationJson.getPageList().forEach(newPage -> {
+            String pageName = "";
+            if (newPage.getUnpublishedPage() != null) {
+                pageName = newPage.getUnpublishedPage().getName();
+            } else if (newPage.getPublishedPage() != null) {
+                pageName = newPage.getPublishedPage().getName();
+            }
+            saveFile(newPage, pageDir + pageName + ".json", gson);
+        });
+
+        // Save actions
+        applicationJson.getActionList().forEach(newAction -> {
+            String actionName = "";
+            if (newAction.getUnpublishedAction() != null) {
+                actionName = newAction.getUnpublishedAction().getName();
+            } else if (newAction.getPublishedAction() != null) {
+                actionName = newAction.getPublishedAction().getName();
+            }
+            saveFile(newAction, actionDir + actionName + ".json", gson);
+        });
+
+        // Save datasources ref
+        applicationJson.getDatasourceList().forEach(datasource -> {
+            saveFile(datasource, datasourceDir + datasource.getName() + ".json", gson);
+        });
+
+        return Mono.just(baseRepoPath);
+    }
+
+    private boolean saveFile (BaseDomain sourceEntity, String path, Gson gson) {
+        File file = new File(path);
+        try {
+            // Create a file if absent
+            FileUtils.write(file, "", StandardCharsets.UTF_8);
+            FileWriter fileWriter = new FileWriter(file);
+            gson.toJson(sourceEntity, fileWriter);
+            fileWriter.close();
+            return file.isFile() && file.length() > 0;
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
+        return false;
+    }
+
+    public ApplicationJson reconstructApplicationFromServerDirectory(String repoPath) {
+        ApplicationJson applicationJson = new ApplicationJson();
+        Gson gson = new Gson();
+        applicationJson.setExportedApplication((Application) readFile(repoPath + "/application.json", gson));
+        return applicationJson;
+    }
+
+    private BaseDomain readFile(String filePath, Gson gson) {
+        JsonReader reader = null;
+        try {
+            reader = new JsonReader(new FileReader(filePath));
+        } catch (FileNotFoundException e) {
+            log.debug(e.getMessage());
+        }
+        BaseDomain data = gson.fromJson(reader, BaseDomain.class);
+        return data;
+    }
+
+    /*
+    public WidgetDSLMetadata getWidgetDslMetadata(JSONObject dsl) {
+
+        // 1. Fetch the children of the current node in the DSL and recursively iterate over them
+        // 2. Delete unwanted children and update dsl
+        WidgetDSLMetadata widgetDSLMetadata = new WidgetDSLMetadata();
+
+        if (dsl.get(FieldName.WIDGET_NAME) == null) {
+            // This isn't a valid widget configuration. No need to traverse this.
+            return widgetDSLMetadata;
+        }
+
+        // Updates in dynamicBindingPathlist not required as it's updated by FE code
+        // Fetch the children of the current node in the DSL and recursively iterate over them
+        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
+        ArrayList<Object> newChildren = new ArrayList<>();
+        if (children != null) {
+            for (Object obj : children) {
+                if (!(obj instanceof Map)) {
+                    log.error("Child in DSL is not instanceof Map, {}", obj);
+                    continue;
+                }
+                Map data = (Map) obj;
+                JSONObject object = new JSONObject();
+                // If the children tag exists and there are entries within it
+                if (!CollectionUtils.isEmpty(data)) {
+                    object.putAll(data);
+                    JSONObject child =
+                        extractAndUpdateAllWidgetFromDSL(object, mappedColumnsAndTableNames, deletedWidgets);
+                    String widgetType = child.getAsString(FieldName.WIDGET_TYPE);
+                    if (FieldName.TABLE_WIDGET.equals(widgetType)
+                        || FieldName.CONTAINER_WIDGET.equals(widgetType)
+                        || FieldName.CANVAS_WIDGET.equals(widgetType)
+                        || FieldName.FORM_WIDGET.equals(widgetType)
+                        || !child.toString().contains(DELETE_FIELD)
+                    ) {
+                        newChildren.add(child);
+                    } else {
+                        deletedWidgets.add(child.getAsString(FieldName.WIDGET_NAME));
+                    }
+                }
+            }
+            dsl.put(FieldName.CHILDREN, newChildren);
+        }
+
+        return dsl;
+    }
+    */
 }
