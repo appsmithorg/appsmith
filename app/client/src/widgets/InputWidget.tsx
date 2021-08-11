@@ -390,6 +390,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function(){
+          if (!this.validation) {
+            return false;
+          }
           let parsedRegex = null;
           if (this.regex) {
             /*
@@ -526,10 +529,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   getPageView() {
     const value = this.props.text || "";
     let isInvalid =
-      ("isValid" in this.props &&
-        !this.props.isValid &&
-        !!this.props.isDirty) ||
-      !this.props.validation;
+      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode =
       this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
