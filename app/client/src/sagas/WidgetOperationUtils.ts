@@ -457,7 +457,8 @@ export const groupWidgetsIntoContainer = function*(
       (w) => w.widgetId === copiedWidgetGroup.widgetId,
     ),
   );
-  const parentColumnSpace = copiedWidgetGroups[0].list[0].parentColumnSpace;
+  const parentColumnSpace =
+    copiedWidgetGroups[0].list[0].parentColumnSpace || 1;
 
   const boundary = {
     top: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
@@ -527,8 +528,7 @@ export const groupWidgetsIntoContainer = function*(
     parentColumnSpace: widthPerColumn,
   };
   newCanvasWidget.parentId = newContainerWidget.widgetId;
-  const parentColumSpace = copiedWidgetGroups[0].list[0].parentColumnSpace;
-  const percentageIncrease = parentColumSpace / widthPerColumn;
+  const percentageIncrease = parentColumnSpace / widthPerColumn;
 
   const list = copiedWidgetGroups.map((copiedWidgetGroup) => {
     return [
