@@ -249,6 +249,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             children: {
               params: {
+                required: true,
                 allowedKeys: [
                   {
                     name: "x",
