@@ -66,7 +66,10 @@ describe("DynamicTextFieldControl", () => {
     );
     const createTemplateButton = screen.getByText("Create");
     userEvent.click(createTemplateButton);
-    expect(screen.getByText("test plugin template")).toBeDefined();
+    // Test each word separately because they are in different spans
+    expect(screen.getByText("test")).toBeDefined();
+    expect(screen.getByText("plugin")).toBeDefined();
+    expect(screen.getByText("template")).toBeDefined();
     waitFor(async () => {
       await expect(screen.findByText("Create")).toBeNull();
     });

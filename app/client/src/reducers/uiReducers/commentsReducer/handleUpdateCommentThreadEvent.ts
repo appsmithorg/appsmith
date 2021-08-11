@@ -17,16 +17,15 @@ const handleUpdateCommentThreadEvent = (
     commentThreadInStore?.pinnedState?.active !==
     action.payload?.pinnedState?.active;
 
-  const isNowResolved =
-    !commentThreadInStore?.resolvedState?.active &&
+  const resolvedStateUpdated =
+    commentThreadInStore?.resolvedState?.active !==
     action.payload?.resolvedState?.active;
 
-  const shouldRefreshList = isNowResolved || pinnedStateChanged;
+  const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;
 
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
     ...action.payload,
-    isViewed: commentThreadInStore?.isViewed || action.payload.isViewed, // TODO refactor this
     comments: uniqBy([...existingComments, ...newComments], "id"),
   };
 

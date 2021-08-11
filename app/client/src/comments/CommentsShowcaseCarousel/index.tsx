@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Text, { TextType } from "components/ads/Text";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
 import ProfileForm, { PROFILE_FORM } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
+import ProgressiveImage, {
+  Container as ProgressiveImageContainer,
+} from "components/ads/ProgressiveImage";
 
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -23,40 +26,65 @@ import { updateUserDetails } from "actions/userActions";
 
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import useOrg from "utils/hooks/useOrg";
+import { getCanCreateApplications } from "utils/helpers";
+
+import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
+import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
+
+import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
 
-const introSteps = [
+enum IntroStepsTypesEditor {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
+
+const introStepsEditor = [
   {
     title: "Introducing Live Comments",
     content:
-      "We are introducing live comments. From now on you will be able to comment on your apps, tag other people and exchange thoughts in threads. Click ‘Next’ to learn more about comments and start commenting.",
+      "You can now collaborate with your users to build apps faster. Invite your team to comment on your apps, exchange thoughts & ship your ideas.",
     banner: getBanner(1),
+    bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
-    title: "Give feedback",
+    title: "Give Contextual Feedback",
     content:
-      "Comment on your co-worker’s work and share your thoughts on what works and what needs change.",
+      "Drop a comment on a widget to suggest an improvement. Comments are tagged to the widget and move along with it. Update the widget and iterate your way to shipping your ideas!",
     banner: getBanner(2),
+    bannerThumbnail: stepTwoThumbnail,
+  },
+];
+
+enum IntroStepsTypesViewer {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
+
+const introStepsViewer = [
+  {
+    title: "Introducing Live Comments",
+    content:
+      "You can now collaborate with your developers to build apps faster. Exchange thoughts, leave feedback & ship your ideas.",
+    banner: getBanner(1),
+    bannerThumbnail: stepOneThumbnail,
+    hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
-    title: "Invite other people to your conversations",
+    title: "Give Contextual Feedback",
     content:
-      "When leaving a comment you can tag other people by writing ‘@’ and their name. This way the person you tagged will get a notification and an e-mail that you tagged them in a comment.",
-    banner: getBanner(3),
-  },
-  {
-    title: "Tag a comment to a widget",
-    content:
-      "If you click on a component while in a comment mode you will tag that comment to that widget. This way if the widget is moved the comment will be moved as well. You can disconnect the comment and widget y simply moving the the comment away from the widget.",
-    banner: getBanner(4),
-  },
-  {
-    title: "You are all set!",
-    content:
-      "By clicking on the comments icon in the top right corner you will activate the ‘collaboration mode’ and will be able to start a thread or answer to someone else’s comment.",
-    banner: getBanner(5),
+      "Drop a comment on a widget to suggest an improvement or report an issue. Comments are tagged to the widget, resolve them once the updates are live!",
+    banner: getBanner(2),
+    bannerThumbnail: stepTwoThumbnail,
   },
 ];
 
@@ -64,20 +92,33 @@ const IntroContentContainer = styled.div`
   padding: ${(props) => props.theme.spaces[5]}px;
 `;
 
-const StyledImg = styled.img`
-  width: 100%;
-  object-fit: contain;
+const BannerContainer = styled.div`
+  & ${ProgressiveImageContainer} {
+    width: 100%;
+    height: 284px;
+  }
+  .progressive-image--thumb,
+  progressive-image--full {
+    object-fit: contain;
+  }
 `;
 
 function IntroStep(props: {
   title: string;
   content: string;
   banner: string;
+  bannerThumbnail: any;
   theme: Theme;
+  bannerProps: any;
 }) {
   return (
     <>
-      <StyledImg alt="" src={props.banner} />
+      <BannerContainer>
+        <ProgressiveImage
+          imageSource={props.banner}
+          thumbnailSource={props.bannerThumbnail}
+        />
+      </BannerContainer>
       <IntroContentContainer>
         <div style={{ marginBottom: props.theme.spaces[4] }}>
           <Text
@@ -103,35 +144,51 @@ function IntroStep(props: {
 const IntroStepThemed = withTheme(IntroStep);
 
 const getSteps = (
-  onSubmitProfileForm: any,
   isSubmitProfileFormDisabled: boolean,
-  startTutorial: () => void,
+  finalSubmit: () => void,
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
-) => [
-  ...introSteps.slice(0, 4).map((stepConfig: any) => ({
-    props: stepConfig,
-    component: IntroStepThemed,
-  })),
-  {
-    component: ProfileForm,
-    props: {
-      isSubmitDisabled: isSubmitProfileFormDisabled,
-      onSubmit: onSubmitProfileForm,
-      initialValues: initialProfileFormValues,
-      emailDisabled,
+  showEditorSteps: boolean,
+  onSkip: () => void,
+  isSkipped?: boolean,
+) => {
+  const introSteps = showEditorSteps ? introStepsEditor : introStepsViewer;
+
+  return [
+    ...introSteps.map((stepConfig: any) => ({
+      props: {
+        ...stepConfig,
+        onSkip,
+      },
+      component: IntroStepThemed,
+    })),
+    {
+      component: ProfileForm,
+      props: {
+        isSubmitDisabled: isSubmitProfileFormDisabled,
+        initialValues: initialProfileFormValues,
+        emailDisabled,
+        nextBtnText: isSkipped ? "Submit" : "Start Tutorial",
+        onSubmit: finalSubmit,
+        hideBackBtn: true,
+      },
     },
-  },
-  {
-    component: IntroStepThemed,
-    props: {
-      ...introSteps[4],
-      hideBackBtn: true,
-      nextBtnText: "Start Tutorial",
-      onSubmit: startTutorial,
-    },
-  },
-];
+  ];
+};
+
+const getInitialAndFinalSteps = (canManage: boolean) => {
+  if (canManage) {
+    return [
+      IntroStepsTypesEditor.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesEditor.PROFILE_FORM,
+    ];
+  } else {
+    return [
+      IntroStepsTypesViewer.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesViewer.PROFILE_FORM,
+    ];
+  }
+};
 
 export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
@@ -140,37 +197,69 @@ export default function CommentsShowcaseCarousel() {
   const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
   const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
 
+  const [isSkipped, setIsSkipped] = useState(false);
+
   const currentUser = useSelector(getCurrentUser);
   const { email, name } = currentUser || {};
 
   const initialProfileFormValues = { emailAddress: email, displayName: name };
   const onSubmitProfileForm = () => {
-    const { displayName: name, emailAddress: email } = profileFormValues as {
-      displayName: string;
-      emailAddress: string;
-    };
+    const { displayName: name, emailAddress: email } =
+      (profileFormValues as {
+        displayName: string;
+        emailAddress: string;
+      }) || {};
     dispatch(updateUserDetails({ name, email }));
   };
 
-  const startTutorial = () => {
-    dispatch(setActiveTour(TourType.COMMENTS_TOUR));
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanCreateApplications(currentOrg);
+
+  const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
+
+  const [activeIndex, setActiveIndex] = useState(initialStep);
+
+  const finalSubmit = async () => {
     dispatch(hideCommentsIntroCarousel());
-    setCommentsIntroSeen(true);
+    await setCommentsIntroSeen(true);
+
+    if (!isSkipped) {
+      const tourType = canManage
+        ? TourType.COMMENTS_TOUR_EDIT_MODE
+        : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
+      dispatch(setActiveTour(tourType));
+    } else {
+      setCommentModeInUrl(true);
+    }
+
+    onSubmitProfileForm();
+  };
+
+  const onSkip = () => {
+    setActiveIndex(finalStep);
+    setIsSkipped(true);
   };
 
   const steps = getSteps(
-    onSubmitProfileForm,
     isSubmitDisabled,
-    startTutorial,
+    finalSubmit,
     initialProfileFormValues,
     !!email,
+    canManage,
+    onSkip,
+    isSkipped,
   );
 
-  if (!isIntroCarouselVisible) return null;
+  if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel steps={steps as Steps} />
+      <ShowcaseCarousel
+        activeIndex={activeIndex}
+        setActiveIndex={setActiveIndex}
+        steps={steps as Steps}
+      />
     </CommentsCarouselModal>
   );
 }

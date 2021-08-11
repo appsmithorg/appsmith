@@ -11,6 +11,7 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -279,7 +280,11 @@ const views = {
           <InputText
             additionalAutocomplete={props.additionalAutoComplete}
             evaluatedValue={props.get(props.value, false) as string}
-            expected={"string"}
+            expected={{
+              type: "string",
+              example: "showMessage('Hello World!', 'info')",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            }}
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {
@@ -350,14 +355,18 @@ const fieldConfigs: FieldConfigs = {
     setter: (option: TreeDropdownOption) => {
       const type: ActionType = option.type || option.value;
       let value = option.value;
+      let defaultParams = "";
       switch (type) {
         case ActionType.integration:
           value = `${value}.run`;
           break;
+        case ActionType.navigateTo:
+          defaultParams = `'#', {}`;
+          break;
         default:
           break;
       }
-      return value === "none" ? "" : `{{${value}()}}`;
+      return value === "none" ? "" : `{{${value}(${defaultParams})}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -456,6 +465,9 @@ const fieldConfigs: FieldConfigs = {
       return textGetter(value, 1);
     },
     setter: (value: any, currentValue: string) => {
+      if (value === "") {
+        value = undefined;
+      }
       return textSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -621,7 +633,7 @@ function renderField(props: {
       if (fieldType === FieldType.NAVIGATION_TARGET_FIELD) {
         label = "Target";
         options = NAVIGATION_TARGET_FIELD_OPTIONS;
-        defaultText = "Navigation target";
+        defaultText = NAVIGATION_TARGET_FIELD_OPTIONS[0].label;
       }
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: options,
@@ -667,7 +679,7 @@ function renderField(props: {
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
       } else if (fieldType === FieldType.URL_FIELD) {
-        fieldLabel = "Page Name";
+        fieldLabel = "Page Name or URL";
       } else if (fieldType === FieldType.KEY_TEXT_FIELD) {
         fieldLabel = "Key";
       } else if (fieldType === FieldType.VALUE_TEXT_FIELD) {

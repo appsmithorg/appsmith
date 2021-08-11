@@ -44,10 +44,7 @@ const datasourceReducer = createReducer(initialState, {
     state: DatasourceDataState,
     action: ReduxAction<any>,
   ) => {
-    const mockDatasourceList = Object.keys(action.payload).map((dbKey) => ({
-      ...action.payload[dbKey],
-      name: dbKey,
-    })) as MockDatasource[];
+    const mockDatasourceList = action.payload as MockDatasource[];
     return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
   },
   [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
@@ -140,16 +137,6 @@ const datasourceReducer = createReducer(initialState, {
     };
   },
   [ReduxActionTypes.FETCH_DATASOURCES_SUCCESS]: (
-    state: DatasourceDataState,
-    action: ReduxAction<Datasource[]>,
-  ) => {
-    return {
-      ...state,
-      loading: false,
-      list: action.payload,
-    };
-  },
-  [ReduxActionTypes.PREFILL_DATASOURCE]: (
     state: DatasourceDataState,
     action: ReduxAction<Datasource[]>,
   ) => {

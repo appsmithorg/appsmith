@@ -5,7 +5,7 @@ import ButtonComponent, {
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -34,7 +34,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "buttonStyle",
@@ -55,8 +55,19 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 value: "DANGER_BUTTON",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "PRIMARY_BUTTON",
+                  "SECONDARY_BUTTON",
+                  "DANGER_BUTTON",
+                ],
+              },
+            },
           },
           {
             propertyName: "isVisible",
@@ -66,7 +77,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -76,7 +87,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -86,7 +97,17 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "recaptchaV2",
+            label: "Google reCAPTCHA v2",
+            controlType: "SWITCH",
+            helpText: "Use reCAPTCHA v2",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -132,11 +153,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   clickWithRecaptcha(token: string) {
-    if (this.props.onClick) {
-      this.setState({
-        isLoading: true,
-      });
-    }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
@@ -146,6 +162,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       },
     });
   }
+
+  handleRecaptchaV2Loading = (isLoading: boolean) => {
+    if (this.props.onClick) {
+      this.setState({ isLoading });
+    }
+  };
 
   handleActionComplete = () => {
     this.setState({
@@ -160,9 +182,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         disabled={this.props.isDisabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
+        handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
@@ -188,6 +212,7 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
 }

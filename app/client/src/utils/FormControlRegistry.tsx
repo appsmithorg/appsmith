@@ -76,7 +76,7 @@ class FormControlRegistry {
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_TEXT", {
       buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
-        return <DynamicTextControl {...controlProps} mutedHinting />;
+        return <DynamicTextControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("QUERY_DYNAMIC_INPUT_TEXT", {

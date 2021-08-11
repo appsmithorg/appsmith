@@ -16,12 +16,13 @@ import {
 } from "./ResizableUtils";
 import {
   useShowPropertyPane,
+  useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
-import { omit, get } from "lodash";
+import { omit, get, ceil } from "lodash";
 import { getSnapColumns, isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import {
   VisibilityContainer,
@@ -37,9 +38,12 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
+import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { focusWidget } from "actions/widgetActions";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -51,15 +55,19 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
+  const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const {
+    occupiedSpaces: occupiedSpacesBySiblingWidgets,
+    persistDropTargetRows,
+    updateDropTargetRows,
+  } = useContext(DropTargetContext);
 
   const isCommentMode = useSelector(commentModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   const showPropertyPane = useShowPropertyPane();
+  const showTableFilterPane = useShowTableFilterPane();
   const { selectWidget } = useWidgetSelection();
   const { setIsResizing } = useWidgetDragResize();
   const selectedWidget = useSelector(
@@ -78,11 +86,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  const occupiedSpacesBySiblingWidgets =
-    occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
+  const parentWidgetToSelect = getParentToOpenIfAny(
+    props.widgetId,
+    canvasWidgets,
+  );
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -164,7 +171,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (
       boundingElementClientRect &&
       newRowCols.rightColumn * props.parentColumnSpace >
-        boundingElementClientRect.width
+        ceil(boundingElementClientRect.width)
     ) {
       return true;
     }
@@ -177,7 +184,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       if (
         boundingElementClientRect &&
         newRowCols.bottomRow * props.parentRowSpace >
-          boundingElementClientRect.height
+          ceil(boundingElementClientRect.height)
       ) {
         return true;
       }
@@ -186,6 +193,10 @@ export const ResizableComponent = memo(function ResizableComponent(
         return true;
       }
     }
+
+    // this is required for list widget so that template have no collision
+    if (props.ignoreCollision) return false;
+
     // Check if new row cols are occupied by sibling widgets
     return isDropZoneOccupied(
       {
@@ -235,7 +246,20 @@ export const ResizableComponent = memo(function ResizableComponent(
     // By setting the focus, we enable the control buttons on the widget
     selectWidget &&
       selectedWidget !== props.widgetId &&
+      parentWidgetToSelect?.widgetId !== props.widgetId &&
       selectWidget(props.widgetId);
+
+    if (parentWidgetToSelect) {
+      selectWidget &&
+        selectedWidget !== parentWidgetToSelect.widgetId &&
+        selectWidget(parentWidgetToSelect.widgetId);
+      focusWidget(parentWidgetToSelect.widgetId);
+    } else {
+      selectWidget &&
+        selectedWidget !== props.widgetId &&
+        selectWidget(props.widgetId);
+    }
+
     // Let the propertypane show.
     // The propertypane decides whether to show itself, based on
     // whether it was showing when the widget resize started.
@@ -256,6 +280,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectWidget &&
       selectedWidget !== props.widgetId &&
       selectWidget(props.widgetId);
+    // Make sure that this tableFilterPane should close
+    showTableFilterPane && showTableFilterPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
       widgetName: props.widgetName,
       widgetType: props.type,
@@ -277,7 +303,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props]);
 
   const isEnabled =
-    !isDragging && isWidgetFocused && !props.resizeDisabled && !isCommentMode;
+    !isDragging &&
+    isWidgetFocused &&
+    !props.resizeDisabled &&
+    !isCommentMode &&
+    !isSnipingMode;
 
   return (
     <Resizable
@@ -303,4 +333,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
+
+ResizableComponent.displayName = "ResizableComponent";
+
 export default ResizableComponent;

@@ -20,14 +20,24 @@ import { AppState } from "reducers";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { Popover2 } from "@blueprintjs/popover2";
 
+import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
+import history from "utils/history";
+
 /**
  * The relavent pixel position is bottom right for the comment cursor
  * instead of the top left for the default arrow cursor
  */
-const CommentTriggerContainer = styled.div<{ top: number; left: number }>`
+const CommentTriggerContainer = styled.div<{
+  top: number;
+  left: number;
+  leftPercent: number;
+  topPercent: number;
+  positionAbsolutely: boolean;
+  xOffset: number;
+  yOffset: number;
+}>`
   position: absolute;
-  bottom: calc(${(props) => 100 - props.top}% - 2px);
-  right: calc(${(props) => 100 - props.left}% - 2px);
+  ${(props) => getPosition(props)}
   z-index: 1;
 `;
 
@@ -69,7 +79,7 @@ function Pin({
   return (
     <StyledPinContainer onClick={onClick} unread={unread}>
       <Icon
-        className={`comment-thread-pin-${commentThreadId}`}
+        className={`comment-thread-pin-${commentThreadId} t--inline-comment-pin-trigger-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
         keepColors
         name={unread ? "unread-pin" : "read-pin"}
@@ -111,6 +121,20 @@ const focusThread = (commentThreadId: string) => {
   }
 };
 
+const resetCommentThreadIdInURL = (commentThreadId: string) => {
+  if (!window.location.href) return;
+  const currentURL = new URL(window.location.href);
+  const searchParams = currentURL.searchParams;
+  if (searchParams.get("commentThreadId") === commentThreadId) {
+    searchParams.delete("commentThreadId");
+
+    history.replace({
+      ...window.location,
+      search: searchParams.toString(),
+    });
+  }
+};
+
 /**
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
@@ -123,10 +147,18 @@ function InlineCommentPin({
   focused: boolean;
 }) {
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
-  const { left, top } = get(commentThread, "position", {
-    top: 0,
-    left: 0,
-  });
+  const { left, leftPercent, top, topPercent } = get(
+    commentThread,
+    "position",
+    {
+      left: 0,
+      leftPercent: 0,
+      top: 0,
+      topPercent: 0,
+    },
+  );
+
+  const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
   const dispatch = useDispatch();
 
@@ -164,12 +196,17 @@ function InlineCommentPin({
       data-cy="inline-comment-pin"
       draggable="true"
       left={left}
+      leftPercent={leftPercent}
       onClick={(e: any) => {
         // capture clicks so that create new thread is not triggered
         e.preventDefault();
         e.stopPropagation();
       }}
+      positionAbsolutely={positionAbsolutely}
       top={top}
+      topPercent={topPercent}
+      xOffset={-1}
+      yOffset={-6}
     >
       <Popover2
         autoFocus={false}
@@ -183,7 +220,6 @@ function InlineCommentPin({
           />
         }
         enforceFocus={false}
-        hasBackdrop
         // isOpen is controlled so that newly created threads are set to be visible
         isOpen={!!isCommentThreadVisible}
         minimal
@@ -193,6 +229,7 @@ function InlineCommentPin({
             dispatch(setVisibleThread(commentThreadId));
           } else {
             dispatch(resetVisibleThread(commentThreadId));
+            resetCommentThreadIdInURL(commentThreadId);
           }
         }}
         placement={"right-start"}

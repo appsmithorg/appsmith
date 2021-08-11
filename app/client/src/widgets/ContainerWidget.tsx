@@ -14,8 +14,10 @@ import ContainerComponent, {
 } from "components/designSystems/appsmith/ContainerComponent";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -36,9 +38,10 @@ class ContainerWidget extends BaseWidget<
             propertyName: "backgroundColor",
             label: "Background Color",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -48,7 +51,7 @@ class ContainerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "shouldScrollContents",
@@ -125,6 +128,10 @@ class ContainerWidget extends BaseWidget<
         {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
           <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
         )}
+        <WidgetsMultiSelectBox
+          widgetId={this.props.widgetId}
+          widgetType={this.props.type}
+        />
         {/* without the wrapping div onClick events are triggered twice */}
         <>{this.renderChildren()}</>
       </ContainerComponent>

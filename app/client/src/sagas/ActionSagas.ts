@@ -8,6 +8,8 @@ import {
   all,
   call,
   put,
+  putResolve,
+  race,
   select,
   take,
   takeEvery,
@@ -62,6 +64,7 @@ import {
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
+  BUILDER_PAGE_URL,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
@@ -90,6 +93,11 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -243,7 +251,7 @@ export function* fetchActionsForViewModeSaga(
 }
 
 export function* fetchActionsForPageSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: EvaluationReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
@@ -257,7 +265,9 @@ export function* fetchActionsForPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchActionsForPageSuccess(response.data));
+      yield put(
+        fetchActionsForPageSuccess(response.data, action.postEvalActions),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );
@@ -345,7 +355,9 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
-    const action = yield select(getAction, id);
+    const action: Action | undefined = yield select(getAction, id);
+
+    if (!action) return;
 
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
@@ -401,7 +413,11 @@ export function* deleteActionSaga(
           name: response.data.name,
           id: response.data.id,
         },
+        analytics: {
+          pluginId: action.pluginId,
+        },
       });
+
       yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
@@ -566,6 +582,22 @@ export function* refactorActionName(
       }
     }
   }
+}
+
+function* bindDataOnCanvasSaga(
+  action: ReduxAction<{
+    queryId: string;
+    applicationId: string;
+    pageId: string;
+  }>,
+) {
+  const { applicationId, pageId, queryId } = action.payload;
+  history.push(
+    BUILDER_PAGE_URL(applicationId, pageId, {
+      isSnipingMode: "true",
+      bindTo: queryId,
+    }),
+  );
 }
 
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
@@ -743,7 +775,24 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
-    case "NEW_DATASOURCE":
+    case "NEW_SNIPPET":
+      // const category = get(
+      //   actionPayload.payload,
+      //   "args.category",
+      //   SEARCH_CATEGORIES.INIT,
+      // );
+      yield putResolve(
+        setGlobalSearchFilterContext({ category: SEARCH_CATEGORIES.SNIPPETS }),
+      );
+      yield put(toggleShowGlobalSearchModal());
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(effectRaceResult.success.payload);
+      break;
+    case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
@@ -802,6 +851,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.BIND_DATA_ON_CANVAS, bindDataOnCanvasSaga),
     takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),

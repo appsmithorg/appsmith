@@ -30,6 +30,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
 
 export const renderCell = (
   value: any,
@@ -37,6 +38,8 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  onClick: () => void = noop,
+  isSelected?: boolean,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -67,19 +70,21 @@ export const renderCell = (
             .map((item: string, index: number) => {
               if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
                 return (
-                  <a
+                  <div
                     className="image-cell-wrapper"
-                    href={item}
                     key={index}
-                    onClick={(e) => e.stopPropagation()}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                    onClick={(e) => {
+                      if (isSelected) {
+                        e.stopPropagation();
+                      }
+                      onClick();
+                    }}
                   >
                     <div
                       className="image-cell"
                       style={{ backgroundImage: `url("${item}")` }}
                     />
-                  </a>
+                  </div>
                 );
               } else {
                 return <div key={index}>Invalid Image</div>;
@@ -286,40 +291,42 @@ export const renderEmptyRows = (
         </div>
       );
     });
+  } else {
+    const tableColumns = columns.length
+      ? columns
+      : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+    return (
+      <>
+        {rows.map((row: string, index: number) => {
+          return (
+            <div
+              className="tr"
+              key={index}
+              style={{
+                display: "flex",
+                flex: "1 0 auto",
+              }}
+            >
+              {multiRowSelection && renderCheckBoxCell(false)}
+              {tableColumns.map((column: any, colIndex: number) => {
+                return (
+                  <div
+                    className="td"
+                    key={colIndex}
+                    style={{
+                      width: column.width + "px",
+                      boxSizing: "border-box",
+                      flex: `${column.width} 0 auto`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
+      </>
+    );
   }
-  const tableColumns = columns.length
-    ? columns
-    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
-  return (
-    <>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  className="td"
-                  key={colIndex}
-                  style={{
-                    width: column.width + "px",
-                    boxSizing: "border-box",
-                    flex: `${column.width} 0 auto`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </>
-  );
 };
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
@@ -430,7 +437,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
   };
 
   return columnProps;

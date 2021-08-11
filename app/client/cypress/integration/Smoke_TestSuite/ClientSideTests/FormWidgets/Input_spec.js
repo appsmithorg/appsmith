@@ -41,7 +41,7 @@ describe("Input Widget Functionality", function() {
       .click({ force: true })
       .children()
       .contains("Text")
-      .click();
+      .click({ force: true });
     cy.get(widgetsPage.innertext)
       .click({ force: true })
       .type(this.data.para);
@@ -118,14 +118,14 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(commonlocators.dataType)
       .last()
-      .click();
+      .click({ force: true });
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
     cy.get(".t--dropdown-option")
       .children()
       .contains("Number")
-      .click();
+      .click({ force: true });
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
     cy.get(widgetsPage.innertext)
       .click()
@@ -135,8 +135,34 @@ describe("Input Widget Functionality", function() {
       expect($x).contain("Invalid input");
     });
     cy.get(widgetsPage.innertext)
-      .click()
+      .click({ force: true })
       .clear();
+    cy.closePropertyPane("inputwidget");
+  });
+
+  it("Input Functionality To check currency input type", function() {
+    cy.openPropertyPane("inputwidget");
+    cy.selectDropdownValue(commonlocators.dataType, "Currency");
+    cy.togglebar(commonlocators.allowCurrencyChange);
+    cy.testJsontext("regex", "");
+    cy.selectDropdownValue(commonlocators.currencyType, "EUR - Euro");
+    cy.selectDropdownValue(commonlocators.decimalType, "1");
+
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear()
+      .type("13242.2");
+
+    cy.get(commonlocators.inputCurrencyChangeType)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("€");
+      });
+    cy.get(widgetsPage.innertext)
+      .invoke("attr", "value")
+      .then((text) => {
+        expect(text).to.equal("13,242.2");
+      });
   });
 });
 afterEach(() => {

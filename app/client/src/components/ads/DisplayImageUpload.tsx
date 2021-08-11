@@ -82,7 +82,7 @@ export default function DisplayImageUpload({
       allowMultipleUploads: false,
       restrictions: {
         maxNumberOfFiles: 1,
-        maxFileSize: 250000,
+        maxFileSize: 3145728, // 3 MB
         allowedFileTypes: [".jpg", ".jpeg", ".png"],
       },
       infoTimeout: 5000,
@@ -102,12 +102,14 @@ export default function DisplayImageUpload({
 
     uppy.use(ImageEditor, {
       id: "ImageEditor",
-      quality: 0.8,
+      quality: 0.3,
       cropperOptions: {
         viewMode: 1,
+        aspectRatio: 1,
         background: false,
-        autoCropArea: 1,
         responsive: true,
+        autoCropArea: 0.8,
+        autoCrop: true,
       },
       actions: {
         revert: false,
@@ -153,7 +155,6 @@ export default function DisplayImageUpload({
         canOutsideClickClose
         className="file-picker-dialog"
         isOpen={isModalOpen}
-        maxHeight={"80vh"}
         trigger={
           <div className="view">
             <div className="image-view">
@@ -189,6 +190,7 @@ export default function DisplayImageUpload({
       >
         <Dashboard
           id="uppy-img-upload-dashboard"
+          note="File size must not exceed 3 MB"
           plugins={["ImageEditor"]}
           uppy={uppy}
         />

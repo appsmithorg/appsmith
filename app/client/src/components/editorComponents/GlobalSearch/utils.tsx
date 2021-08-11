@@ -8,6 +8,13 @@ export type RecentEntity = {
   params?: Record<string, string | undefined>;
 };
 
+export enum SEARCH_CATEGORIES {
+  SNIPPETS = "Snippets",
+  DOCUMENTATION = "Documentation",
+  NAVIGATION = "Navigate",
+  INIT = "",
+}
+
 export enum SEARCH_ITEM_TYPES {
   document = "document",
   action = "action",
@@ -16,6 +23,8 @@ export enum SEARCH_ITEM_TYPES {
   page = "page",
   sectionTitle = "sectionTitle",
   placeholder = "placeholder",
+  category = "category",
+  snippet = "snippet",
 }
 
 export type DocSearchItem = {
@@ -39,11 +48,13 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.document ||
     item.kind === SEARCH_ITEM_TYPES.page ||
     item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
-    item.kind === SEARCH_ITEM_TYPES.placeholder
+    item.kind === SEARCH_ITEM_TYPES.placeholder ||
+    item.kind === SEARCH_ITEM_TYPES.category
   )
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
+  else if (item.snippet) type = SEARCH_ITEM_TYPES.snippet;
   else type = SEARCH_ITEM_TYPES.datasource;
 
   return type;
@@ -62,9 +73,25 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.page:
       return item?.pageName;
     case SEARCH_ITEM_TYPES.sectionTitle:
-      return item?.title;
     case SEARCH_ITEM_TYPES.placeholder:
+    case SEARCH_ITEM_TYPES.document:
       return item?.title;
+    case SEARCH_ITEM_TYPES.snippet:
+      return item.title;
+    default:
+      return "";
+  }
+};
+
+export const getItemPage = (item: SearchItem): string => {
+  const type = getItemType(item);
+
+  switch (type) {
+    case SEARCH_ITEM_TYPES.action:
+      return item?.config?.pageId;
+    case SEARCH_ITEM_TYPES.widget:
+    case SEARCH_ITEM_TYPES.page:
+      return item?.pageId;
     default:
       return "";
   }
@@ -127,4 +154,18 @@ export const attachKind = (source: any[], kind: string) => {
     ...s,
     kind,
   }));
+};
+
+export const getEntityId = (entity: any) => {
+  const { entityType } = entity;
+  switch (entityType) {
+    case "page":
+      return entity.pageId;
+    case "datasource":
+      return entity.id;
+    case "widget":
+      return entity.widgetId;
+    case "action":
+      return entity.config?.id;
+  }
 };

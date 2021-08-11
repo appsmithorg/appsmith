@@ -4,11 +4,12 @@ import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
@@ -42,8 +43,6 @@ export function getParentToOpenIfAny(
         continue;
       }
     }
-
-    return widget;
   }
 
   return;
@@ -53,6 +52,7 @@ export const useClickOpenPropPane = () => {
   const showPropertyPane = useShowPropertyPane();
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
+  const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   const selectedWidgetId = useSelector(getCurrentWidgetId);
   const focusedWidgetId = useSelector(
@@ -71,12 +71,15 @@ export const useClickOpenPropPane = () => {
 
   const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
   const openPropertyPane = (e: any, targetWidgetId: string) => {
-    // ignore click captures if the component was resizing or dragging coz it is handled internally in draggable component
+    // ignore click captures
+    // 1. if the component was resizing or dragging coz it is handled internally in draggable component
+    // 2. table filter property pane is open
     if (
       isResizing ||
       isDragging ||
       appMode !== APP_MODE.EDIT ||
-      targetWidgetId !== focusedWidgetId
+      targetWidgetId !== focusedWidgetId ||
+      isTableFilterPaneVisible
     )
       return;
     if (
@@ -87,12 +90,12 @@ export const useClickOpenPropPane = () => {
 
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
-        focusWidget(parentWidgetToOpen.widgetId);
-        showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
+        !isMultiSelect &&
+          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
-        showPropertyPane(focusedWidgetId, undefined, true);
+        !isMultiSelect && showPropertyPane(focusedWidgetId, undefined, true);
       }
 
       if (isMultiSelect) {

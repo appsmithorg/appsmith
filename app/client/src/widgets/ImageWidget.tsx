@@ -2,7 +2,7 @@ import * as React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, RenderModes } from "constants/WidgetConstants";
 import ImageComponent from "components/designSystems/appsmith/ImageComponent";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -24,7 +24,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.IMAGE,
+            validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
             helpText: "Renders the url or Base64 when no image is provided",
@@ -34,7 +34,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             placeholderText: "Enter URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -44,7 +44,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the max zoom of the widget",
@@ -76,7 +76,10 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.NUMBER,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { allowedValues: [1, 2, 4, 8, 16] },
+            },
           },
           {
             helpText:
@@ -84,7 +87,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             propertyName: "objectFit",
             label: "Object Fit",
             controlType: "DROP_DOWN",
-            defaultValue: "cover",
+            defaultValue: "contain",
             options: [
               {
                 label: "Contain",
@@ -102,7 +105,32 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.TEXT,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["contain", "cover", "auto"],
+              },
+            },
+          },
+          {
+            helpText: "Controls if the image is allowed to rotate",
+            propertyName: "enableRotation",
+            label: "Enable Rotation",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Controls if the image is allowed to download",
+            propertyName: "enableDownload",
+            label: "Enable Download",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -132,6 +160,8 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
+        enableDownload={this.props.enableDownload}
+        enableRotation={this.props.enableRotation}
         imageUrl={this.props.image}
         isLoading={this.props.isLoading}
         maxZoomLevel={maxZoomLevel}
@@ -167,6 +197,9 @@ export interface ImageWidgetProps extends WidgetProps {
   imageShape: ImageShape;
   defaultImage: string;
   maxZoomLevel: number;
+  imageRotation?: number;
+  enableDownload?: boolean;
+  enableRotation?: boolean;
   objectFit: string;
   onClick?: string;
 }

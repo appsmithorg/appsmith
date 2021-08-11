@@ -2,8 +2,10 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -20,11 +22,14 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
@@ -40,6 +45,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
+    private final UserRepository userRepository;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -70,23 +76,46 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
-            isFromSignup = ((User) authentication.getPrincipal()).getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            User user = (User) authentication.getPrincipal();
+            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
+            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
+            // as we are not verifying the user emails at first sign up. In future if we implement the email
+            // verification this can be eliminated safely
+            if (user.getPassword() != null) {
+                user.setPassword(null);
+                user.setSource(
+                    LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
+                );
+                // Update the user in separate thread
+                userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+            }
         }
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
                 ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
                 : handleRedirect(webFilterExchange, isFromSignup);
 
+        final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userDataService.ensureViewedCurrentVersionReleaseNotes(user).thenReturn(user))
-                // TODO: Need a better way to identify if this is the user's first-login.
-                .filter(user -> user.getExamplesOrganizationId() == null)
                 .flatMap(user -> {
-                    final boolean isFromInvite = user.getInviteToken() != null;
-                    return Mono.whenDelayError(
-                            analyticsService.sendObjectEvent(AnalyticsEvents.FIRST_LOGIN, user, Map.of("isFromInvite", isFromInvite)),
-                            examplesOrganizationCloner.cloneExamplesOrganization()
-                    );
+                    List<Mono<?>> monos = new ArrayList<>();
+                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(user));
+
+                    if (isFromSignupFinal) {
+                        final boolean isFromInvite = user.getInviteToken() != null;
+                        String modeOfLogin = "FormSignUp";
+                        if(authentication instanceof OAuth2AuthenticationToken) {
+                            modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                        }
+                        monos.add(analyticsService.sendObjectEvent(
+                                AnalyticsEvents.FIRST_LOGIN,
+                                user,
+                                Map.of("isFromInvite", isFromInvite, "modeOfLogin", modeOfLogin)));
+                        monos.add(examplesOrganizationCloner.cloneExamplesOrganization());
+                    }
+
+                    return Mono.whenDelayError(monos);
                 })
                 .then(redirectionMono);
     }

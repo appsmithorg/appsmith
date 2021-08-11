@@ -142,7 +142,7 @@
                     "primaryColumns": {
                       "appsmith_mongo_escape_id": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow._id})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._id ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 4,
                         "isVisible": true,
@@ -157,7 +157,7 @@
                       },
                       "active": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.active})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.active ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 8,
                         "isVisible": true,
@@ -172,7 +172,7 @@
                       },
                       "username": {
                         "isDerived": false,
-                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.username})}}",
+                        "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.username ))}}",
                         "textSize": "PARAGRAPH",
                         "index": 7,
                         "isVisible": true,
@@ -365,6 +365,48 @@
                 "leftColumn": 0,
                 "children": []
               },
+              "new": false
+            }
+          ],
+          "userPermissions": []
+        },
+        "new": true
+      },
+      {
+        "userPermissions": [
+          "read:pages",
+          "manage:pages"
+        ],
+        "applicationId": "valid_application",
+        "unpublishedPage": {
+          "name": "Page2",
+          "layouts": [
+            {
+              "id": "60aca056136c4b7178f67999",
+              "userPermissions": [],
+              "dsl": {
+                "widgetName": "MainContainer",
+                "backgroundColor": "none",
+                "rightColumn": 1280,
+                "snapColumns": 16,
+                "detachFromLayout": true,
+                "widgetId": "0",
+                "topRow": 0,
+                "bottomRow": 800,
+                "containerStyle": "none",
+                "snapRows": 33,
+                "parentRowSpace": 1,
+                "type": "CANVAS_WIDGET",
+                "canExtend": true,
+                "version": 4,
+                "minHeight": 840,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "dynamicBindingPathList": [],
+                "leftColumn": 0,
+                "children": []
+              },
+              "layoutOnLoadActions": [[]],
               "new": false
             }
           ],

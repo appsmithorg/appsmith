@@ -1,18 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { Spinner } from "@blueprintjs/core";
-import { connect } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { createNewQueryName } from "utils/AppsmithUtils";
-import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Datasource } from "entities/Datasource";
-import { createActionRequest } from "actions/actionActions";
-import { QueryAction } from "entities/Action";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import DatasourceCard from "./DatasourceCard";
 import Text, { TextType } from "components/ads/Text";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { keyBy } from "lodash";
+import { createMessage, EMPTY_ACTIVE_DATA_SOURCES } from "constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -45,17 +41,10 @@ const EmptyActiveDatasource = styled.div`
   justify-content: center;
 `;
 
-const LoadingContainer = styled(CenteredWrapper)`
-  height: 50%;
-`;
-
-type ActiveDataSourceProps = {
+type ActiveDataSourcesProps = {
   dataSources: Datasource[];
   applicationId: string;
   pageId: string;
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => void;
-  actions: ActionDataState;
-  isCreating: boolean;
   location: {
     search: string;
   };
@@ -66,81 +55,44 @@ type ActiveDataSourceProps = {
   onCreateNew: () => void;
 };
 
-class ActiveDataSources extends React.Component<ActiveDataSourceProps> {
-  handleCreateNewQuery = (dataSource: Datasource) => {
-    const { actions, pageId } = this.props;
-    if (pageId) {
-      const newQueryName = createNewQueryName(actions, pageId);
+function ActiveDataSources(props: ActiveDataSourcesProps) {
+  const { dataSources } = props;
 
-      this.props.createAction({
-        name: newQueryName,
-        pageId,
-        datasource: {
-          id: dataSource.id,
-        },
-        eventData: {
-          actionType: "Query",
-          from: "datasources",
-          dataSource: dataSource.name,
-        },
-        pluginId: dataSource.pluginId,
-        actionConfiguration: {},
-      });
-    }
-  };
+  const plugins = useSelector((state: AppState) => {
+    return state.entities.plugins.list;
+  });
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
-  render() {
-    const { dataSources, isCreating } = this.props;
-
-    if (isCreating) {
-      return (
-        <LoadingContainer>
-          <Spinner size={30} />
-        </LoadingContainer>
-      );
-    }
-
-    if (dataSources.length === 0) {
-      return (
-        <EmptyActiveDatasource>
-          <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-            No active datasources found.{" "}
-            <CreateButton
-              category={Category.primary}
-              onClick={this.props.onCreateNew}
-              size={Size.medium}
-              tag="button"
-              text="Create New"
-            />
-          </Text>
-        </EmptyActiveDatasource>
-      );
-    }
-
+  if (dataSources.length === 0) {
     return (
-      <QueryHomePage className="t--active-datasource-list">
-        {dataSources.map((datasource, idx) => {
-          return (
-            <DatasourceCard
-              datasource={datasource}
-              key={`${datasource.id}_${idx}`}
-              onCreateQuery={this.handleCreateNewQuery}
-            />
-          );
-        })}
-      </QueryHomePage>
+      <EmptyActiveDatasource>
+        <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
+          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
+          <CreateButton
+            category={Category.primary}
+            onClick={props.onCreateNew}
+            size={Size.medium}
+            tag="button"
+            text="Create New"
+          />
+        </Text>
+      </EmptyActiveDatasource>
     );
   }
+
+  return (
+    <QueryHomePage className="t--active-datasource-list">
+      {dataSources.map((datasource, idx) => {
+        return (
+          <DatasourceCard
+            datasource={datasource}
+            key={`${datasource.id}_${idx}`}
+            plugin={pluginGroups[datasource.pluginId]}
+          />
+        );
+      })}
+    </QueryHomePage>
+  );
 }
 
-const mapStateToProps = (state: AppState) => ({
-  actions: state.entities.actions,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  createAction: (data: Partial<QueryAction> & { eventData: any }) => {
-    dispatch(createActionRequest(data));
-  },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ActiveDataSources);
+export default ActiveDataSources;

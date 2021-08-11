@@ -67,12 +67,16 @@ import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as UpArrow } from "assets/icons/ads/upper_arrow.svg";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
 import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
 import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
 import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
+import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
+import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
+
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -155,6 +159,7 @@ export const IconCollection = [
   "warning",
   "warning-triangle",
   "downArrow",
+  "upArrow",
   "context-menu",
   "duplicate",
   "logout",
@@ -207,6 +212,8 @@ export const IconCollection = [
   "cap-dot",
   "line-dotted",
   "line-dashed",
+  "tables",
+  "column",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -234,19 +241,7 @@ export const IconWrapper = styled.span<IconProps>`
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
-    cursor: pointer;
-    ${(props) =>
-      !props.keepColors
-        ? `
-    path {
-      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
-    }
-    `
-        : ""}
-  }
-
-  &:hover {
-    cursor: pointer;
+    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
     ${(props) =>
       !props.keepColors
         ? `
@@ -267,6 +262,8 @@ export type IconProps = {
   fillColor?: string;
   hoverFillColor?: string;
   keepColors?: boolean;
+  loaderWithIconWrapper?: boolean;
+  clickable?: boolean;
 };
 
 const Icon = forwardRef(
@@ -326,6 +323,9 @@ const Icon = forwardRef(
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
+        break;
+      case "upArrow":
+        returnIcon = <UpArrow />;
         break;
       case "share":
         returnIcon = <ShareIcon />;
@@ -529,13 +529,34 @@ const Icon = forwardRef(
         returnIcon = <LineDashedIcon />;
         break;
 
+      case "tables":
+        returnIcon = <TableIcon />;
+        break;
+
+      case "column":
+        returnIcon = <ColumnIcon />;
+        break;
+
       default:
         returnIcon = null;
         break;
     }
+
+    const clickable = props.clickable === undefined ? true : props.clickable;
+
+    let loader = <Spinner size={props.size} />;
+    if (props.loaderWithIconWrapper) {
+      loader = (
+        <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>
+          <Spinner size={props.size} />
+        </IconWrapper>
+      );
+    }
+
     return returnIcon && !props.isLoading ? (
       <IconWrapper
         className={Classes.ICON}
+        clickable={clickable}
         data-cy={props.cypressSelector}
         ref={ref}
         {...props}
@@ -544,7 +565,7 @@ const Icon = forwardRef(
         {returnIcon}
       </IconWrapper>
     ) : props.isLoading ? (
-      <Spinner size={props.size} />
+      loader
     ) : null;
   },
 );

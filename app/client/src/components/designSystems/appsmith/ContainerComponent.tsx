@@ -29,9 +29,15 @@ const StyledContainerComponent = styled.div<
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
-    props.selected ? "0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
-  z-index: ${(props) => (props.focused ? "3" : props.selected ? "2" : "1")};
-  ${(props) => (props.shouldScrollContents ? scrollContents : "")}
+    props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+  ${(props) =>
+    props.shouldScrollContents === true
+      ? scrollContents
+      : props.shouldScrollContents === false
+      ? css`
+          overflow: hidden;
+        `
+      : ""}
 
   &:hover {
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};

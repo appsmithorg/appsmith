@@ -1,5 +1,5 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
@@ -34,11 +34,12 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
   // Initial height of bottom tabs
-  height: 60%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -151,6 +152,11 @@ const InlineButton = styled(Button)`
   margin: 0 4px;
 `;
 
+const HelpSection = styled.div`
+  margin-bottom: 5px;
+  margin-top: 10px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -206,13 +212,29 @@ function ApiResponseView(props: Props) {
     setSelectedIndex(1);
   }, []);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const onRunClick = () => {
+    props.onRunClick();
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "API_PANE",
+    });
+  };
+
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const messages = response?.messages;
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
+          {messages && (
+            <HelpSection>
+              {messages.map((msg, i) => (
+                <Callout fill key={i} text={msg} variant={Variant.warning} />
+              ))}
+            </HelpSection>
+          )}
           {hasFailed && !isRunning && (
             <StyledCallout
               fill
@@ -235,7 +257,7 @@ function ApiResponseView(props: Props) {
                 {EMPTY_RESPONSE_FIRST_HALF()}
                 <InlineButton
                   isLoading={isRunning}
-                  onClick={props.onRunClick}
+                  onClick={onRunClick}
                   size={Size.medium}
                   tag="button"
                   text="Run"

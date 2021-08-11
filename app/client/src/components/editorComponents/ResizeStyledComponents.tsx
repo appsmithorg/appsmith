@@ -16,7 +16,6 @@ export const VisibilityContainer = styled.div<{
 
 export const EdgeHandleStyles = css`
   position: absolute;
-  z-index: 3;
   width: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   height: ${EDGE_RESIZE_HANDLE_WIDTH}px;
   &::before {
@@ -107,7 +106,7 @@ export const TopLeftHandleStyles = styled.div`
   ${CornerHandleStyles};
   left: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
   top: -${CORNER_RESIZE_HANDLE_WIDTH / 2}px;
-  cursor: ew-resize;
+  cursor: nw-resize;
 `;
 export const TopRightHandleStyles = styled.div`
   ${CornerHandleStyles};
