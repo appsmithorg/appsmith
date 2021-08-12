@@ -44,6 +44,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -58,6 +59,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -74,6 +76,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
+    private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds4
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -235,7 +238,10 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
-            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.LOCAL))
+            // TODO: need to write a JUnit TC for VALIDATION_CHECK_TIMEOUT
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return createAndExecuteQueryFromConnection(finalQuery,
@@ -783,7 +789,9 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Mono.from(connection.validate(ValidationDepth.LOCAL))
+            return Mono.from(connection.validate(ValidationDepth.REMOTE))
+                    .timeout(Duration.ofSeconds(VALIDATION_CHECK_TIMEOUT))
+                    .onErrorMap(TimeoutException.class, error -> new StaleConnectionException())
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return connection.createStatement(COLUMNS_QUERY).execute();
