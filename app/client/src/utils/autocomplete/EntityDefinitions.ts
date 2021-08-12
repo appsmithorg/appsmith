@@ -295,6 +295,12 @@ export const entityDefinitions = {
     isVisible: isVisible,
     label: "string",
   },
+  ICON_BUTTON_WIDGET: {
+    "!doc":
+      "Icon button widget is just an icon, along with all other button properties.",
+    "!url": "https://docs.appsmith.com/widget-reference/icon-button",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {

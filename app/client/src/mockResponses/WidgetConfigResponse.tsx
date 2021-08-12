@@ -1,3 +1,5 @@
+import { IconNames } from "@blueprintjs/icons";
+
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
@@ -6,9 +8,19 @@ import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadowTypes,
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+} from "components/designSystems/appsmith/IconButtonComponent";
+
 /*
  ********************************{Grid Density Migration}*********************************
  */
@@ -55,7 +67,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage: "https://source.unsplash.com/random/1500x600",
+      defaultImage:
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
@@ -262,7 +275,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
         {
           step: "#3",
-          task: "Bind the query using {{fetch_users.data}}",
+          task: "Bind the query using => fetch_users.data",
           status: "--",
           action: "",
         },
@@ -548,6 +561,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       }
                     },
                   },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
                 ],
               },
             },
@@ -774,7 +813,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.LIST_WIDGET]: {
-      backgroundColor: "",
+      backgroundColor: "transparent",
       itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
@@ -799,22 +838,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets } = getDynamicBindings(propertyValue);
-
-            const modifiedAction = jsSnippets.reduce(
-              (prev: string, next: string) => {
-                return `${prev}${next}`;
-              },
-              "",
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
             );
 
-            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
-                return ( ${modifiedAction} );
+                return  ${js};
               })();
             })}}`;
 
-            if (!modifiedAction) {
+            if (!js) {
               value = propertyValue;
             }
 
@@ -925,7 +961,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://source.unsplash.com/random/1500x600",
+                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
@@ -1026,16 +1062,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets } = getDynamicBindings(value);
-
-                      const modifiedAction = jsSnippets.reduce(
-                        (prev: string, next: string) => {
-                          return prev + `${next}`;
-                        },
-                        "",
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
                       );
 
-                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                       childWidget[key] = value;
 
@@ -1181,7 +1217,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       capType: "nc",
       capSide: 0,
       strokeStyle: "solid",
-      dividerColor: "black",
+      dividerColor: Colors.LIGHT_GREY2,
       thickness: 2,
       isVisible: true,
       version: 1,
@@ -1219,6 +1255,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
+    },
+    [WidgetTypes.ICON_BUTTON_WIDGET]: {
+      iconName: IconNames.PLUS,
+      borderRadius: ButtonBorderRadiusTypes.CIRCLE,
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      buttonStyle: ButtonStyleTypes.PRIMARY,
+      buttonVariant: ButtonVariantTypes.SOLID,
+      isDisabled: false,
+      isVisible: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "IconButton",
+      version: 1,
     },
   },
   configVersion: 1,

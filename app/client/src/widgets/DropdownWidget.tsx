@@ -227,9 +227,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
-    if (this.props.selectedOption) {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+    if (this.props.selectedOptionValue) {
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
+
     if (isChanged) {
       this.props.updateWidgetMetaProperty(
         "defaultValue",

@@ -10,7 +10,8 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
 import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
@@ -195,19 +196,6 @@ export type WidgetAddChild = {
   props?: Record<string, any>;
 };
 
-export type WidgetMove = {
-  widgetId: string;
-  leftColumn: number;
-  topRow: number;
-  parentId: string;
-  /*
-    If newParentId is different from what we have in redux store,
-    then we have to delete this,
-    as it has been dropped in another container somewhere.
-  */
-  newParentId: string;
-};
-
 export type WidgetRemoveChild = {
   widgetId: string;
   childWidgetId: string;
@@ -262,7 +250,6 @@ export const updateWidget = (
   payload: any,
 ): ReduxAction<
   | WidgetAddChild
-  | WidgetMove
   | WidgetResize
   | WidgetDelete
   | WidgetAddChildren
