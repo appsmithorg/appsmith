@@ -119,7 +119,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ConfigService configService,
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
-                           UserChangedHandler userChangedHandler, EncryptionService encryptionService) {
+                           UserChangedHandler userChangedHandler,
+                           EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
