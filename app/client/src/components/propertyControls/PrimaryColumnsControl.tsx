@@ -18,7 +18,7 @@ import {
   getDefaultColumnProperties,
   getTableStyles,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
-import { debounce, set } from "lodash";
+import { debounce } from "lodash";
 import { Size, Category } from "components/ads/Button";
 import {
   removeSpecialChars,
@@ -341,7 +341,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
           this.props.widgetProperties.columnOrder,
         )?.index;
         // set additional data
-        set(updatedColumn, "columnIndex", columnIndex);
+        updatedColumn.columnIndex = columnIndex;
         // updated column data with column settings
         this.updateProperty(
           `${this.props.propertyName}.${newColumnId}`,
