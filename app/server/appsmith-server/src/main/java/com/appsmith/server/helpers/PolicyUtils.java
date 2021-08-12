@@ -4,12 +4,14 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -44,6 +46,7 @@ public class PolicyUtils {
     private final NewPageRepository newPageRepository;
     private final NewActionRepository newActionRepository;
     private final CommentThreadRepository commentThreadRepository;
+    private final ActionCollectionRepository actionCollectionRepository;
 
     public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
@@ -276,7 +279,23 @@ public class PolicyUtils {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedActions -> newActionRepository.saveAll(updatedActions));
+                .flatMapMany(newActionRepository::saveAll);
+    }
+
+    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+
+        return actionCollectionRepository
+                .findByApplicationId(applicationId)
+                .switchIfEmpty(Mono.empty())
+                .map(action -> {
+                    if (addPolicyToObject) {
+                        return addPoliciesToExistingObject(newActionPoliciesMap, action);
+                    } else {
+                        return removePoliciesFromExistingObject(newActionPoliciesMap, action);
+                    }
+                })
+                .collectList()
+                .flatMapMany(actionCollectionRepository::saveAll);
     }
 
     public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,

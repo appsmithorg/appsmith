@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Datasource;
@@ -425,11 +426,11 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
         );
         Map<String, Policy> actionPolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
 
-        //Now update the organization policies
+        // Now update the organization policies
         Organization updatedOrganization = policyUtils.addPoliciesToExistingObject(orgPolicyMap, organization);
         updatedOrganization.setUserRoles(userRoles);
 
-        // Update the underlying application/page/action
+        // Update the underlying application/page/action/action collection/comment thread
         Flux<Datasource> updatedDatasourcesFlux = policyUtils.updateWithNewPoliciesToDatasourcesByOrgId(updatedOrganization.getId(), datasourcePolicyMap, true);
         Flux<Application> updatedApplicationsFlux = policyUtils.updateWithNewPoliciesToApplicationsByOrgId(updatedOrganization.getId(), applicationPolicyMap, true)
                 .cache();
@@ -437,6 +438,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<ActionCollection> updatedActionCollectionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, null, true
@@ -446,8 +449,11 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 updatedDatasourcesFlux.collectList(),
                 updatedPagesFlux.collectList(),
                 updatedActionsFlux.collectList(),
+                updatedActionCollectionsFlux.collectList(),
                 updatedThreadsFlux.collectList())
-                //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
+                // By now all the
+                // data sources/applications/pages/actions/action collections/comment threads
+                // have been updated. Just save the organization now
                 .then(organizationRepository.save(updatedOrganization));
     }
 }
