@@ -6,11 +6,13 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+// import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
 // import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
+// import pgsql from "react-syntax-highlighter/dist/esm/languages/hljs/pgsql";
 // import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
 
 // SyntaxHighlighter.registerLanguage("javascript", javascript);
+// SyntaxHighlighter.registerLanguage("postgres", pgsql);
 
 type Props = {
   activeItem: SearchItem;
@@ -210,10 +212,10 @@ const SnippetContainer = styled.div`
 `;
 
 function SnippetDescription(props: any) {
-  //Add type here
   const {
     item: {
-      body: { examples, snippet, summary, title },
+      body: { additionalInfo, examples, snippet, summary, title },
+      // language,
     },
   } = props;
   return (
@@ -223,31 +225,34 @@ function SnippetDescription(props: any) {
         <span className="action-msg">Hit ⏎ to insert</span>
       </div>
       <div className="snippet-desc">{summary}</div>
-      <SyntaxHighlighter language="javascript">{snippet}</SyntaxHighlighter>
-      <div className="snippet-group">
-        <div className="header">Arguments</div>
-        <div className="content">array (Array): The array to concatenate.</div>
-      </div>
-      <div className="snippet-group">
-        <div className="header">Returns</div>
-        <div className="content">
-          (Array): Returns the new concatenated array.
+      {/* <SyntaxHighlighter language={language} style={xcode}> */}
+      <div>{snippet}</div>
+      {/* </SyntaxHighlighter> */}
+      {additionalInfo &&
+        additionalInfo.map(
+          ({ content, header }: { header: string; content: string }) => (
+            <div className="snippet-group" key={header}>
+              <div className="header">{header}</div>
+              <div className="content">{content}</div>
+            </div>
+          ),
+        )}
+      {examples && examples.length && (
+        <div className="snippet-group">
+          <div className="header">Example</div>
+          <div className="content">
+            {examples.map((ex: any) => (
+              <>
+                <p>{ex.title}</p>
+                {/* <SyntaxHighlighter language={language} style={xcode}> */}
+                {ex.code}
+                {/* </SyntaxHighlighter> */}
+                <p>{ex.summary}</p>
+              </>
+            ))}
+          </div>
         </div>
-      </div>
-      {/* <pre>{snippet}</pre> */}
-
-      {/* <SnippetArguments args={args} />
-      <SnippetReturnType type={returnType} /> */}
-      {examples &&
-        examples.map((ex: any) => (
-          <>
-            <p>{ex.title}</p>
-            <SyntaxHighlighter language="javascript">
-              {ex.code}
-            </SyntaxHighlighter>
-            <p>{ex.summary}</p>
-          </>
-        ))}
+      )}
     </SnippetContainer>
   );
 }

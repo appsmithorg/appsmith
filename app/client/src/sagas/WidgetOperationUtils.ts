@@ -9,6 +9,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
+  WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
@@ -28,7 +29,7 @@ import {
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import { getNextWidgetName, createWidgetCopy } from "./WidgetOperationSagas";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -456,7 +457,8 @@ export const groupWidgetsIntoContainer = function*(
       (w) => w.widgetId === copiedWidgetGroup.widgetId,
     ),
   );
-  const parentColumnSpace = copiedWidgetGroups[0].list[0].parentColumnSpace;
+  const parentColumnSpace =
+    copiedWidgetGroups[0].list[0].parentColumnSpace || 1;
 
   const boundary = {
     top: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
@@ -526,8 +528,7 @@ export const groupWidgetsIntoContainer = function*(
     parentColumnSpace: widthPerColumn,
   };
   newCanvasWidget.parentId = newContainerWidget.widgetId;
-  const parentColumSpace = copiedWidgetGroups[0].list[0].parentColumnSpace;
-  const percentageIncrease = parentColumSpace / widthPerColumn;
+  const percentageIncrease = parentColumnSpace / widthPerColumn;
 
   const list = copiedWidgetGroups.map((copiedWidgetGroup) => {
     return [
@@ -683,4 +684,96 @@ export const isSelectedWidgetsColliding = function*(
   }
 
   return isColliding;
+};
+
+/**
+ * get next widget name to be used
+ *
+ * @param widgets
+ * @param type
+ * @param evalTree
+ * @param options
+ * @returns
+ */
+export function getNextWidgetName(
+  widgets: CanvasWidgetsReduxState,
+  type: WidgetType,
+  evalTree: DataTree,
+  options?: Record<string, unknown>,
+) {
+  // Compute the new widget's name
+  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
+  const entityNames = Object.keys(evalTree);
+  let prefix = defaultConfig.widgetName;
+  if (options && options.prefix) {
+    prefix = `${options.prefix}${
+      widgetNames.indexOf(options.prefix as string) > -1 ? "Copy" : ""
+    }`;
+  }
+
+  return getNextEntityName(
+    prefix,
+    [...widgetNames, ...entityNames],
+    options?.startWithoutIndex as boolean,
+  );
+}
+
+/**
+ * creates widget copied groups
+ *
+ * @param widget
+ * @returns
+ */
+export function* createWidgetCopy(widget: FlattenedWidgetProps) {
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
+  return {
+    widgetId: widget.widgetId,
+    list: widgetsToStore,
+    parentId: widget.parentId,
+  };
+}
+
+/**
+ * get all widgets in tree
+ *
+ * @param widgetId
+ * @param canvasWidgets
+ * @returns
+ */
+export const getAllWidgetsInTree = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  const widget = canvasWidgets[widgetId];
+  const widgetList = [widget];
+  if (widget && widget.children) {
+    widget.children
+      .filter(Boolean)
+      .forEach((childWidgetId: string) =>
+        widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
+      );
+  }
+  return widgetList;
+};
+
+export const getParentBottomRowAfterAddingWidget = (
+  stateParent: FlattenedWidgetProps,
+  newWidget: FlattenedWidgetProps,
+) => {
+  const parentRowSpace =
+    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const updateBottomRow =
+    stateParent.type === WidgetTypes.CANVAS_WIDGET &&
+    newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
+  return updateBottomRow
+    ? Math.max(
+        (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+          parentRowSpace,
+        stateParent.bottomRow,
+      )
+    : stateParent.bottomRow;
 };
