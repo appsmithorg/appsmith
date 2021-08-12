@@ -1895,7 +1895,6 @@ Cypress.Commands.add("testCreateApiButton", () => {
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
   // Instead of deleting the last datasource on the active datasources list,
   // we delete the datasource that was just created (identified by its title)
-
   cy.get(datasourceEditor.datasourceTitle)
     .invoke("text")
     .then((datasourceTitle) => {
