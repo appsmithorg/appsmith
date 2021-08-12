@@ -23,7 +23,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 describe("Select all hotkey", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
-  Element.prototype.scrollIntoView = jest.fn();
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
@@ -51,7 +50,7 @@ describe("Select all hotkey", () => {
     }));
   });
 
-  it("Cmd + A - select all widgets on canvas", () => {
+  it("Cmd + A - select all widgets on canvas", async () => {
     const children: any = buildChildren([
       { type: "TABS_WIDGET" },
       { type: "SWITCH_WIDGET" },
@@ -103,9 +102,7 @@ describe("Select all hotkey", () => {
       false,
       true,
     );
-    let selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    let selectedWidgets = component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     dispatchTestKeyboardEventWithCode(
       component.container,
@@ -115,9 +112,7 @@ describe("Select all hotkey", () => {
       false,
       false,
     );
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(0);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -130,9 +125,7 @@ describe("Select all hotkey", () => {
       );
     });
 
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -154,9 +147,7 @@ describe("Select all hotkey", () => {
         true,
       );
     });
-    selectedWidgets = component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
   });
   afterAll(() => jest.resetModules());
@@ -204,9 +195,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    let selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -228,7 +217,8 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByText(children[0].widgetName + "Copy");
+    await component.findByTestId("t--selection-box");
+
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -240,9 +230,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(4);
   });
   it("Should cut and paste all selected widgets with hotkey cmd + x and cmd + v ", async () => {
@@ -288,9 +276,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    let selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    let selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
     act(() => {
       dispatchTestKeyboardEventWithCode(
@@ -303,9 +289,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
     await component.findByTestId("canvas-0");
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     //adding extra time to let cut cmd works
     jest.useFakeTimers();
     setTimeout(() => {
@@ -322,7 +306,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         true,
       );
     });
-    await component.findByText(children[0].widgetName);
+    await component.findByTestId("t--selection-box");
     act(() => {
       dispatchTestKeyboardEventWithCode(
         component.container,
@@ -334,9 +318,7 @@ describe("Cut/Copy/Paste hotkey", () => {
       );
     });
 
-    selectedWidgets = await component.queryAllByTestId(
-      "t--widget-propertypane-toggle",
-    );
+    selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
   });
 });

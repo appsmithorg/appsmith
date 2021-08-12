@@ -2,10 +2,11 @@
 
 set -o nounset
 
-encoded_mongo_root_user="$1"
-encoded_mongo_root_password="$2"
-mongo_host="$3"
-disable_telemetry="$4"
+mongo_database="$1"
+encoded_mongo_root_user="$2"
+encoded_mongo_root_password="$3"
+mongo_host="$4"
+disable_telemetry="$5"
 
 cat << EOF
 # Read our documentation on how to configure these features
@@ -40,7 +41,10 @@ APPSMITH_MAIL_ENABLED=false
 
 # ******** Database *************
 APPSMITH_REDIS_URL=redis://redis:6379
-APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/appsmith?retryWrites=true
+APPSMITH_MONGODB_URI=mongodb://$encoded_mongo_root_user:$encoded_mongo_root_password@$mongo_host/$mongo_database?retryWrites=true
+MONGO_INITDB_DATABASE=$mongo_database
+MONGO_INITDB_ROOT_USERNAME=$encoded_mongo_root_user
+MONGO_INITDB_ROOT_PASSWORD=$encoded_mongo_root_password
 # *******************************
 
 # *** EE Specific Config ********

@@ -1,23 +1,23 @@
 import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WidgetType, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import styled from "styled-components";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
-import { Layers } from "constants/Layers";
+import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "../../../selectors/editorSelectors";
 
-const PositionedWidget = styled.div`
+const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
-    z-index: ${Layers.positionedWidget + 1} !important;
+    z-index: ${(props) => props.zIndexOnHover} !important;
   }
 `;
-type PositionedContainerProps = {
+export type PositionedContainerProps = {
   style: BaseStyle;
   children: ReactNode;
   widgetId: string;
-  widgetType: string;
+  widgetType: WidgetType;
   selected?: boolean;
   focused?: boolean;
   resizeDisabled?: boolean;
@@ -40,6 +40,8 @@ export function PositionedContainer(props: PositionedContainerProps) {
         .toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
+  const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(props);
+
   const containerStyle: CSSProperties = useMemo(() => {
     return {
       position: "absolute",
@@ -48,14 +50,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
       height: props.style.componentHeight + (props.style.heightUnit || "px"),
       width: props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
-      zIndex: props.focused
-        ? Layers.focusedWidget
-        : props.selected
-        ? Layers.selectedWidget
-        : Layers.positionedWidget,
+      zIndex,
       backgroundColor: "inherit",
     };
-  }, [props.style]);
+  }, [props.style, onHoverZIndex, zIndex]);
 
   const onClickFn = useCallback(
     (e) => {
@@ -80,6 +78,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       onClickCapture={onClickFn}
       //Before you remove: This is used by property pane to reference the element
       style={containerStyle}
+      zIndexOnHover={onHoverZIndex}
     >
       {props.children}
     </PositionedWidget>

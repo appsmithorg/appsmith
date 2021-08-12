@@ -38,6 +38,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -55,13 +56,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const {
-    occupiedSpaces: occupiedSpacesBySiblingWidgets,
-    persistDropTargetRows,
-    updateDropTargetRows,
-  } = useContext(DropTargetContext);
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
+    DropTargetContext,
+  );
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -90,6 +90,12 @@ export const ResizableComponent = memo(function ResizableComponent(
     props.widgetId,
     canvasWidgets,
   );
+
+  const occupiedSpacesBySiblingWidgets = useMemo(() => {
+    return occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+      ? occupiedSpaces[props.parentId]
+      : undefined;
+  }, [occupiedSpaces, props.parentId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -140,10 +146,20 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Make sure to calculate collision IF we don't update the main container's rows
     let updated = false;
     if (updateDropTargetRows) {
-      updated = updateDropTargetRows(props.widgetId, bottom);
+      updated = !!updateDropTargetRows(props.widgetId, bottom);
       const el = resizableRef.current;
-      const scrollParent = getNearestParentCanvas(resizableRef.current);
-      scrollElementIntoParentCanvasView(el, scrollParent);
+      if (el) {
+        const { height } = el?.getBoundingClientRect();
+        const scrollParent = getNearestParentCanvas(resizableRef.current);
+        scrollElementIntoParentCanvasView(
+          {
+            top: 40,
+            height,
+          },
+          scrollParent,
+          el,
+        );
+      }
     }
 
     const delta: UIElementSize = {
@@ -304,9 +320,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isCommentMode &&
     !isSnipingMode;
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
 
   return (
     <Resizable
+      allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
@@ -329,7 +350,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-
-ResizableComponent.displayName = "ResizableComponent";
-
 export default ResizableComponent;
