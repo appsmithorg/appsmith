@@ -1,4 +1,5 @@
-import { debounce } from "lodash";
+import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import _, { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
 
@@ -160,4 +161,23 @@ const createDragHandler = (
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
   return dragElement;
+};
+
+export const useIsWidgetActionConnectionPresent = (
+  widgets: any,
+  actions: any,
+  deps: any,
+): boolean => {
+  const actionLables = actions.map((action: any) => action.config.name);
+
+  return !!Object.keys(widgets)
+    .map((key) => widgets[key])
+    .find((widget) => {
+      const depsConnections = getDependenciesFromInverseDependencies(
+        deps,
+        widget.widgetName,
+      );
+      return !!_.intersection(depsConnections?.directDependencies, actionLables)
+        .length;
+    });
 };

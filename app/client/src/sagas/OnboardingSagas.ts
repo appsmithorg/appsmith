@@ -3,6 +3,7 @@ import DatasourcesApi from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import {
+  ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
@@ -28,6 +29,8 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
   getOnboardingState,
+  setEnableFirstTimeUserExperience as storeEnableFirstTimerUserExperience,
+  setFirstTimeUserExperienceApplicationId as storeFirstTimeUserExperienceApplicationId,
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
@@ -561,7 +564,11 @@ function* createApplication() {
   let organization;
 
   if (!currentOrganizationId) {
-    organization = userOrgs[0];
+    if (userOrgs.length) {
+      organization = userOrgs[0];
+    } else {
+      organization = currentUser.organizationIds[0];
+    }
   } else {
     const filteredOrganizations = userOrgs.filter(
       (org: any) => org.organization.id === currentOrganizationId,
@@ -887,6 +894,14 @@ export default function* onboardingSagas() {
   }
 }
 
+function* setEnableFirstTimeUserExperience(action: ReduxAction<boolean>) {
+  yield storeEnableFirstTimerUserExperience(action.payload);
+}
+
+function* setFirstTimeUserExperienceApplicationId(action: ReduxAction<string>) {
+  yield storeFirstTimeUserExperienceApplicationId(action.payload);
+}
+
 function* onboardingActionSagas() {
   yield all([
     takeLatest(
@@ -931,6 +946,14 @@ function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
       createApplication,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      setEnableFirstTimeUserExperience,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      setFirstTimeUserExperienceApplicationId,
     ),
   ]);
 }

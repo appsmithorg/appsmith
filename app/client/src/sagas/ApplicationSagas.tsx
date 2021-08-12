@@ -63,6 +63,10 @@ import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import {
+  getEnableFirstTimeUserExperience,
+  getFirstTimeUserExperienceApplicationId,
+} from "selectors/onboardingSelectors";
 
 const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -455,10 +459,30 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const pageURL = getGenerateTemplateURL(
-          application.id,
-          application.defaultPageId,
+        const isFirstTimeUserExperienceEnabled = yield select(
+          getEnableFirstTimeUserExperience,
         );
+        const FirstTimeUserExperienceApplicationId = yield select(
+          getFirstTimeUserExperienceApplicationId,
+        );
+        let pageURL;
+        console.log(FirstTimeUserExperienceApplicationId);
+        if (
+          isFirstTimeUserExperienceEnabled &&
+          FirstTimeUserExperienceApplicationId == ""
+        ) {
+          yield put({
+            type:
+              ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+            payload: application.id,
+          });
+          pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
+        } else {
+          pageURL = getGenerateTemplateURL(
+            application.id,
+            application.defaultPageId,
+          );
+        }
         history.push(pageURL);
 
         // subscribe to newly created application

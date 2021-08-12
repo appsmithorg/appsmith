@@ -27,6 +27,12 @@ import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
+import OnboardingTasks from "./FirstTimeUserExperience/Tasks";
+import {
+  getIsOnboardingTasksView,
+  getIsOnboardingWidgetSelection,
+} from "selectors/entitiesSelector";
+import { getIsFirstTimeUserExperienceEnabled } from "selectors/onboardingSelectors";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -65,6 +71,13 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+  const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
+  const enableFirstTimeUserExperience = useSelector(
+    getIsFirstTimeUserExperienceEnabled,
+  );
+  const isOnboardingWidgetSelection = useSelector(
+    getIsOnboardingWidgetSelection,
+  );
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -124,14 +137,20 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
-        <MainContainerLayoutControl />
-        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
-          {node}
-        </CanvasContainer>
-        <Debugger />
-        <CrudInfoModal />
-      </EditorWrapper>
+      {enableFirstTimeUserExperience &&
+      showOnboardingTasks &&
+      !isOnboardingWidgetSelection ? (
+        <OnboardingTasks />
+      ) : (
+        <EditorWrapper onClick={handleWrapperClick}>
+          <MainContainerLayoutControl />
+          <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+            {node}
+          </CanvasContainer>
+          <Debugger />
+          <CrudInfoModal />
+        </EditorWrapper>
+      )}
     </EditorContextProvider>
   );
 }

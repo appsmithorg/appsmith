@@ -48,6 +48,10 @@ import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getEnableFirstTimeUserExperience,
+  getFirstTimeUserExperienceApplicationId,
+} from "utils/storage";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -407,6 +411,22 @@ function* fetchFeatureFlags() {
   }
 }
 
+function* updateFirstTimeUserExperienceSage() {
+  const enable = yield getEnableFirstTimeUserExperience();
+
+  if (enable) {
+    const applicationId = yield getFirstTimeUserExperienceApplicationId() || "";
+    yield put({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      payload: true,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      payload: applicationId,
+    });
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -432,6 +452,10 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
     takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      updateFirstTimeUserExperienceSage,
+    ),
   ]);
 }
 

@@ -38,6 +38,7 @@ import {
   PluginFormInputFieldMap,
   PLUGIN_PACKAGE_NAME,
 } from "../constants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const DROPDOWN_DIMENSION = {
   HEIGHT: "36px",
@@ -365,6 +366,14 @@ function GeneratePageForm() {
         mode: currentMode.current,
       }),
     );
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      payload: "",
+    });
   };
 
   const goToEditDatasource = () => {

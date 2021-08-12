@@ -12,6 +12,9 @@ const STORAGE_KEYS: { [id: string]: string } = {
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
+  ENABLE_FIRST_TIME_USER_EXPERIENCE: "ENABLE_FIRST_TIME_USER_EXPERIENCE",
+  FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID:
+    "FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID",
 };
 
 const store = localforage.createInstance({
@@ -226,6 +229,61 @@ export const getOnboardingFormInProgress = async () => {
     return onboardingFormInProgress;
   } catch (error) {
     log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
+  }
+};
+
+export const setEnableFirstTimeUserExperience = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ENABLE_FIRST_TIME_USER_EXPERIENCE, flag);
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting ENABLE_FIRST_TIME_USER_EXPERIENCE",
+    );
+    log.error(error);
+  }
+};
+
+export const getEnableFirstTimeUserExperience = async () => {
+  try {
+    const enableFirstTimeUserExperience = await store.getItem(
+      STORAGE_KEYS.ENABLE_FIRST_TIME_USER_EXPERIENCE,
+    );
+    return enableFirstTimeUserExperience;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching ENABLE_FIRST_TIME_USER_EXPERIENCE",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserExperienceApplicationId = async (id: string) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      id,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserExperienceApplicationId = async () => {
+  try {
+    const id = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+    );
+    return id;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID",
+    );
     log.error(error);
   }
 };
