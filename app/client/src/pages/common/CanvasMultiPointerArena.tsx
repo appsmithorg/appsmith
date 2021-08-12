@@ -22,6 +22,7 @@ const POINTER_MARGIN = 12;
 const POINTER_PADDING_X = 15;
 const POINTER_PADDING_Y = 5;
 const PX_PER_CHAR = 8.67;
+const TWO_MINS = 120000; // in ms
 
 const Canvas = styled.canvas`
   position: absolute;
@@ -72,11 +73,41 @@ function CanvasMultiPointerArena({
   let pointerData: { [s: string]: any } = {};
 
   let selectionCanvas: any;
+
+  // Setup for painting on canvas
   useEffect(() => {
     selectionCanvas = document.getElementById(POINTERS_CANVAS_ID);
+    const drawingInterval = setInterval(() => drawPointers(), 50);
+    const clearPointerDataInterval = setInterval(() => {
+      pointerData = {};
+    }, TWO_MINS);
+    return () => {
+      clearInterval(drawingInterval);
+      clearInterval(clearPointerDataInterval);
+    };
+  }, []);
 
+  // Subscribe to RTS events
+  useEffect(() => {
     pageEditSocket.connect();
     pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
+
+    pageEditSocket.on(
+      APP_COLLAB_EVENTS.SHARE_USER_POINTER,
+      (eventData: {
+        data: { x: number; y: number };
+        socketId: string;
+        user: any;
+      }) => {
+        if (
+          eventData &&
+          selectionCanvas &&
+          pageEditSocket.id !== eventData.socketId
+        ) {
+          pointerData[eventData.socketId] = eventData;
+        }
+      },
+    );
     return () => {
       pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
       pageEditSocket.disconnect();
@@ -110,36 +141,6 @@ function CanvasMultiPointerArena({
       );
     });
   };
-
-  useEffect(() => {
-    const drawingInterval = setInterval(() => drawPointers(), 50);
-    const clearPointerDataInterval = setInterval(() => {
-      pointerData = {};
-    }, 120000);
-    return () => {
-      clearInterval(drawingInterval);
-      clearInterval(clearPointerDataInterval);
-    };
-  }, []);
-
-  useEffect(() => {
-    pageEditSocket.on(
-      APP_COLLAB_EVENTS.SHARE_USER_POINTER,
-      (eventData: {
-        data: { x: number; y: number };
-        socketId: string;
-        user: any;
-      }) => {
-        if (
-          eventData &&
-          selectionCanvas &&
-          pageEditSocket.id !== eventData.socketId
-        ) {
-          pointerData[eventData.socketId] = eventData;
-        }
-      },
-    );
-  }, []);
 
   return <Canvas id={POINTERS_CANVAS_ID} />;
 }
