@@ -21,13 +21,13 @@ interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
 }
 
-const pageLevelSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
+const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
   const shareMousePointer = (e: any) => {
-    if (!!pageLevelSocket) {
+    if (!!pageEditSocket) {
       const selectionCanvas: any = document.getElementById(
         "multiplayer-canvas",
       );
@@ -35,7 +35,7 @@ const Canvas = memo((props: CanvasProps) => {
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      pageLevelSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
+      pageEditSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
         data: { x, y },
         pageId,
       });
@@ -61,7 +61,7 @@ const Canvas = memo((props: CanvasProps) => {
         >
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-          <CanvasMultiPointerArena pageLevelSocket={pageLevelSocket} />
+          <CanvasMultiPointerArena pageEditSocket={pageEditSocket} />
         </ArtBoard>
       </>
     );

@@ -62,9 +62,9 @@ const drawMousePointer = (
 };
 
 function CanvasMultiPointerArena({
-  pageLevelSocket,
+  pageEditSocket,
 }: {
-  pageLevelSocket: Socket;
+  pageEditSocket: Socket;
 }) {
   const { pageId } = useParams<ExplorerURLParams>();
   let pointerData: { [s: string]: any } = {};
@@ -77,11 +77,11 @@ function CanvasMultiPointerArena({
       selectionCanvas.width = rect.width;
       selectionCanvas.height = rect.height;
     }
-    pageLevelSocket.connect();
-    pageLevelSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
+    pageEditSocket.connect();
+    pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
     return () => {
-      pageLevelSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
-      pageLevelSocket.disconnect();
+      pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
+      pageEditSocket.disconnect();
     };
   }, []);
 
@@ -122,7 +122,7 @@ function CanvasMultiPointerArena({
   }, []);
 
   useEffect(() => {
-    pageLevelSocket.on(
+    pageEditSocket.on(
       APP_COLLAB_EVENTS.SHARE_USER_POINTER,
       (eventData: {
         data: { x: number; y: number };
@@ -132,7 +132,7 @@ function CanvasMultiPointerArena({
         if (
           eventData &&
           selectionCanvas &&
-          pageLevelSocket.id !== eventData.socketId
+          pageEditSocket.id !== eventData.socketId
         ) {
           pointerData[eventData.socketId] = eventData;
         }
