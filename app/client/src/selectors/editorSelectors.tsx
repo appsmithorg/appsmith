@@ -331,3 +331,6 @@ const createLoadingWidget = (
     isLoading: true,
   };
 };
+
+export const getApplicationLastDeployedAt = (state: AppState) =>
+  state.ui.applications.currentApplication?.lastDeployedAt;

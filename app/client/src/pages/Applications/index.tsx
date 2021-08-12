@@ -83,6 +83,7 @@ import ImportApplicationModal from "./ImportApplicationModal";
 import { SIGNUP_SUCCESS_URL } from "constants/routes";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -875,7 +876,12 @@ function ApplicationsSection(props: any) {
 }
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  createApplication: (appName: string) => void;
+  createApplication: (
+    applicationName: string,
+    orgId?: string,
+    color?: string,
+    icon?: string,
+  ) => void;
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
@@ -887,6 +893,8 @@ type ApplicationProps = {
   userOrgs: any;
   currentUser?: User;
   searchKeyword: string | undefined;
+  theme: any;
+  EnableFirstTimeUserExperience: (applicationId: string) => void;
 };
 
 const getIsFromSignup = () => {
@@ -919,8 +927,23 @@ class Applications extends Component<
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    const shouldEnableFirstTimeUserExperience = urlObject?.searchParams.get(
+      "enableFirstTimeUserExperience",
+    );
     if (redirectUrl) {
       try {
+        if (
+          window.location.pathname == SIGNUP_SUCCESS_URL &&
+          shouldEnableFirstTimeUserExperience === "true"
+        ) {
+          const applicationIdReg = redirectUrl.match(
+            /\/applications\/(.[^\/]*)\//,
+          );
+          const applicationId = applicationIdReg ? applicationIdReg[1] : null;
+          if (applicationId) {
+            this.props.EnableFirstTimeUserExperience(applicationId);
+          }
+        }
         if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
         }
@@ -958,16 +981,26 @@ const mapStateToProps = (state: AppState) => ({
   userOrgs: getUserApplicationsOrgsList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
+  theme: getCurrentThemeDetails(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () =>
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
-  createApplication: (appName: string) => {
+  getAllApplication: () => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  },
+  createApplication: (
+    applicationName: string,
+    orgId?: string,
+    color?: string,
+    icon?: string,
+  ) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
-        name: appName,
+        applicationName,
+        orgId,
+        icon,
+        color,
       },
     });
   },
@@ -977,6 +1010,20 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: {
         keyword,
       },
+    });
+  },
+  EnableFirstTimeUserExperience: (applicationId: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      payload: applicationId,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
+      payload: true,
     });
   },
 });

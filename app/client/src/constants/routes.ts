@@ -11,6 +11,7 @@ export const PROFILE = "/profile";
 export const USERS_URL = "/users";
 export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
+export const BUILDER_CHECKLIST_URL = `${BUILDER_URL}/checklist`;
 
 export type BuilderRouteParams = {
   applicationId: string;
@@ -217,6 +218,11 @@ export const getGenerateTemplateFormURL = (
     applicationId,
     pageId,
   )}${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`;
+
+export const getOnboardingCheckListUrl = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/checklist`;
 
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;

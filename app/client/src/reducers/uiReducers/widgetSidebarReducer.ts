@@ -10,10 +10,12 @@ import { EditorReduxState } from "./editorReducer";
 
 export interface WidgetSidebarReduxState {
   cards: WidgetCardProps[];
+  forceOpen: boolean;
 }
 
 const initialState: WidgetSidebarReduxState = {
   cards: WidgetSidebarResponse,
+  forceOpen: false,
 };
 
 export const widgetSidebarReducer = createReducer(initialState, {
@@ -22,5 +24,11 @@ export const widgetSidebarReducer = createReducer(initialState, {
     action: ReduxAction<LoadWidgetSidebarPayload>,
   ) => {
     return { ...state, ...action.payload };
+  },
+  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return { ...state, forceOpen: action.payload };
   },
 });

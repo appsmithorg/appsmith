@@ -8,6 +8,12 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { Layers } from "constants/Layers";
+import { useSelector } from "store";
+import {
+  getFirstTimeUserExperienceComplete,
+  getIsFirstTimeUserExperienceEnabled,
+} from "selectors/onboardingSelectors";
+import OnboardingStatusbar from "pages/Editor/FirstTimeUserExperience/Statusbar";
 
 const SidebarWrapper = styled.div`
   background-color: ${Colors.MINE_SHAFT};
@@ -28,12 +34,21 @@ const SidebarWrapper = styled.div`
 const initialPanel = { component: ExplorerSidebar };
 
 export const Sidebar = memo(() => {
+  const enableFirstTimeUserExperience = useSelector(
+    getIsFirstTimeUserExperienceEnabled,
+  );
+  const isFirstTimeUserExperienceComplete = useSelector(
+    getFirstTimeUserExperienceComplete,
+  );
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
   return (
     <SidebarWrapper className="t--sidebar">
+      {(enableFirstTimeUserExperience || isFirstTimeUserExperienceComplete) && (
+        <OnboardingStatusbar />
+      )}
       <PanelStack initialPanel={initialPanel} showPanelHeader={false} />
     </SidebarWrapper>
   );

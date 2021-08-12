@@ -54,6 +54,7 @@ import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 //  ---------- Styles ----------
 
@@ -495,6 +496,14 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      payload: "",
+    });
   };
 
   const handleFormSubmit = () => {
