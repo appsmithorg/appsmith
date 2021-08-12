@@ -833,9 +833,6 @@ const addIsDisabledToButtonColumn = (
         if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
           currentDSL.primaryColumns[key]["isCellVisible"] = true;
         }
-        if (!currentDSL.primaryColumns[key].hasOwnProperty("isColumnVisible")) {
-          currentDSL.primaryColumns[key]["isColumnVisible"] = true;
-        }
       }
     }
   }

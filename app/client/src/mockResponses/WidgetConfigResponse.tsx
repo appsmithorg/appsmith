@@ -204,7 +204,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableSort: true,
           isVisible: true,
           isCellVisible: true,
-          isColumnVisible: true,
           isDerived: false,
           label: "step",
           computedValue:
@@ -222,7 +221,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableSort: true,
           isVisible: true,
           isCellVisible: true,
-          isColumnVisible: true,
           isDerived: false,
           label: "task",
           computedValue:
@@ -240,7 +238,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableSort: true,
           isVisible: true,
           isCellVisible: true,
-          isColumnVisible: true,
           isDerived: false,
           label: "status",
           computedValue:
@@ -258,7 +255,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableSort: true,
           isVisible: true,
           isCellVisible: true,
-          isColumnVisible: true,
           isDisabled: false,
           isDerived: false,
           label: "action",

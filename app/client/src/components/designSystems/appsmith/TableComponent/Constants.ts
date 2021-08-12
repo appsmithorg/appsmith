@@ -151,7 +151,6 @@ export interface ColumnProperties {
   onOptionChange?: string;
   displayText?: string;
   isCellVisible?: boolean;
-  isColumnVisible?: boolean;
 }
 
 export const ConditionFunctions: {

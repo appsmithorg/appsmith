@@ -163,8 +163,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     for (let index = 0; index < allColumnProperties.length; index++) {
       const isAllCellVisible: boolean | boolean[] =
         allColumnProperties[index].isCellVisible;
-      const isColumnVisible: boolean =
-        allColumnProperties[index].isColumnVisible;
       const columnProperties = allColumnProperties[index];
       const isHidden = !columnProperties.isVisible;
       const accessor = columnProperties.id;
@@ -261,20 +259,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       };
 
       // Hide Column when All cells are hidden
-      if (!isColumnVisible) {
-        if (
-          (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
-          (isArray(isAllCellVisible) &&
-            isAllCellVisible.every((v) => v === false)) ||
-          isHidden
-        ) {
-          columnData.isHidden = true;
-          hiddenColumns.push(columnData);
-        } else {
-          totalColumnSizes += columnData.width;
-          columns.push(columnData);
-        }
-      } else if (isHidden) {
+      if (
+        (isBoolean(isAllCellVisible) && !isAllCellVisible) ||
+        (isArray(isAllCellVisible) &&
+          isAllCellVisible.every((v) => v === false)) ||
+        isHidden
+      ) {
         columnData.isHidden = true;
         hiddenColumns.push(columnData);
       } else {

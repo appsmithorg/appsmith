@@ -133,11 +133,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isColumnVisible":
-          EvaluationSubstitutionType.TEMPLATE,
 
-        "primaryColumns.name.isColumnVisible":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -148,8 +144,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.isColumnVisible":
-          EvaluationSubstitutionType.TEMPLATE,
+
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.verticalAlignment":
@@ -204,15 +199,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             default: [],
           },
-        },
-        "primaryColumns.createdAt.isColumnVisible": {
-          type: "BOOLEAN",
-        },
-        "primaryColumns.name.isColumnVisible": {
-          type: "BOOLEAN",
-        },
-        "primaryColumns.status.isColumnVisible": {
-          type: "BOOLEAN",
         },
       },
     };
