@@ -1,7 +1,7 @@
 import http from "http"
 import path from "path"
 import express from "express"
-import { Server, Socket, Namespace } from "socket.io"
+import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
@@ -66,6 +66,12 @@ function main() {
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
+	});
+
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
+			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
+		}
 	});
 
 	watchMongoDB(io)
