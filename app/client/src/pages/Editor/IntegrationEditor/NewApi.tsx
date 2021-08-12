@@ -174,7 +174,8 @@ function NewApiScreen(props: Props) {
         pluginId: authApiPlugin.id,
       });
       AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-        plugin: authApiPlugin,
+        pluginName: authApiPlugin.name,
+        pluginPackageName: authApiPlugin.packageName,
       });
       props.createDatasourceFromForm({
         pluginId: authApiPlugin.id,
@@ -300,7 +301,8 @@ function NewApiScreen(props: Props) {
               key={p.id}
               onClick={() => {
                 AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-                  plugin: p,
+                  pluginName: p.name,
+                  pluginPackageName: p.packageName,
                 });
                 handleOnClick(API_ACTION.CREATE_DATASOURCE_FORM, {
                   pluginId: p.id,

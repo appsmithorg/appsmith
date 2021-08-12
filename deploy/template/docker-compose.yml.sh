@@ -61,10 +61,8 @@ services:
     image: mongo:4.4.6
     expose:
       - "27017"
-    environment:
-      - MONGO_INITDB_DATABASE=$mongo_database
-      - MONGO_INITDB_ROOT_USERNAME=$mongo_root_user
-      - MONGO_INITDB_ROOT_PASSWORD=$mongo_root_password
+    env_file:
+      - ./docker.env
     volumes:
       - ./data/mongo/db:/data/db
       - ./data/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
