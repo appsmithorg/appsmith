@@ -790,12 +790,13 @@ public class CreateDBTablePageSolution {
                     widgetDsl.put(FieldName.PRIMARY_COLUMNS, newPrimaryColumns);
                 }
             } else if (FieldName.DROP_DOWN_WIDGET.equals(widgetDsl.getAsString(FieldName.TYPE))
-                && FieldName.OPTIONS.equals(key)
-                && !(SQL_DEFAULT_DROPDOWN_VALUE.equalsIgnoreCase(defaultDropdownValue)
+                    && !(SQL_DEFAULT_DROPDOWN_VALUE.equalsIgnoreCase(defaultDropdownValue)
                     || MONGO_DEFAULT_DROPDOWN_VALUE.equals(defaultDropdownValue))) {
-                // This will update the options field to include all the column names as label and value
-                // in SelectWidget except for SelectWidget with DefaultOptionValue SQL(DefaultValue : "ASC")
-                // and Mongo(DefaultValue : "1") check template application layout for more details
+
+                if (FieldName.OPTIONS.equals(key)) {
+                    // This will update the options field to include all the column names as label and value
+                    // in SelectWidget except for SelectWidget with DefaultOptionValue SQL(DefaultValue : "ASC")
+                    // and Mongo(DefaultValue : "1") check template application layout for more details
                     List<String> dropdownOptions = new ArrayList<>();
                     mappedColumnsAndTableNames.forEach((colKey, colVal) -> {
                         if (colKey.toLowerCase().contains("col") && !colVal.equals(DELETE_FIELD)) {
@@ -803,6 +804,9 @@ public class CreateDBTablePageSolution {
                         }
                     });
                     widgetDsl.put(FieldName.OPTIONS, dropdownOptions.toString());
+                } else if (FieldName.DEFAULT_OPTION.equals(key)) {
+                    widgetDsl.put(key, mappedColumnsAndTableNames.get(widgetDsl.getAsString(key)));
+                }
             } else {
                 //Get separate words and map to tableColumns from widgetDsl
                 Matcher matcher = WORD_PATTERN.matcher(widgetDsl.getAsString(key));
