@@ -588,14 +588,16 @@ function GeneratePageForm() {
             googleSheetPluginId={selectedDatasourcePluginId}
             renderSubmitButton={({
               disabled,
+              isLoading,
               onSubmit,
             }: {
               onSubmit: () => void;
               disabled: boolean;
+              isLoading: boolean;
             }) => (
               <GeneratePageSubmitBtn
                 disabled={disabled}
-                isLoading={!!isGeneratingTemplatePage}
+                isLoading={!!isGeneratingTemplatePage || isLoading}
                 onSubmit={onSubmit}
                 showSubmitButton={!!showSubmitButton}
               />

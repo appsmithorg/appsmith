@@ -28,10 +28,12 @@ type Props = {
   generatePageAction: (payload: GeneratePagePayload) => void;
   renderSubmitButton: ({
     disabled,
+    isLoading,
     onSubmit,
   }: {
     onSubmit: () => void;
     disabled: boolean;
+    isLoading: boolean;
   }) => ReactElement<any, any>;
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
@@ -59,6 +61,9 @@ const Row = styled.div`
 const ColumnName = styled.span`
   ${(props) => `${getTypographyByKey(props, "p3")}`};
   color: ${Colors.GRAY};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ColumnNameWrapper = styled.div`
@@ -70,6 +75,7 @@ const ColumnNameWrapper = styled.div`
   margin-bottom: 10px;
   width: ${DROPDOWN_DIMENSION.WIDTH};
   overflow: hidden;
+  flex-wrap: wrap;
 `;
 
 const TooltipWrapper = styled.div`
@@ -80,6 +86,14 @@ const RowHeading = styled.p`
   ${(props) => `${getTypographyByKey(props, "p1")}`};
   margin-right: 10px;
 `;
+
+export function isNumberValidator(value: string) {
+  const isValid = /^\d+$/.test(value);
+  return {
+    isValid: isValid,
+    message: !isValid ? "Only numeric value allowed" : "",
+  };
+}
 
 // ---------- GoogleSheetForm Component -------
 
@@ -97,7 +111,11 @@ function GoogleSheetForm(props: Props) {
 
   const { fetchSheetsList, isFetchingSheetsList, sheetsList } = sheetsListProps;
   const { fetchAllSpreadsheets } = spreadSheetsProps;
-  const { columnHeaderList, fetchColumnHeaderList } = sheetColumnsHeaderProps;
+  const {
+    columnHeaderList,
+    fetchColumnHeaderList,
+    isFetchingColumnHeaderList,
+  } = sheetColumnsHeaderProps;
 
   const [tableHeaderIndex, setTableHeaderIndex] = useState<string>("1");
   const [selectedSheet, setSelectedSheet] = useState<DropdownOption>(
@@ -299,29 +317,39 @@ function GoogleSheetForm(props: Props) {
               fill
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
+              validator={isNumberValidator}
             />
           </SelectWrapper>
           <ColumnNameWrapper>
             {columnHeaderList.length ? (
-              columnHeaderList.map((column, index) => (
-                <div key={column.id}>
-                  <ColumnName>{column.label}</ColumnName>
-                  {columnHeaderList.length === index - 1 ? null : (
-                    <ColumnName>,&nbsp;</ColumnName>
-                  )}
-                </div>
-              ))
+              <>
+                {columnHeaderList.slice(0, 3).map((column, index) => (
+                  <div key={column.id}>
+                    <ColumnName>{column.label}</ColumnName>
+                    {columnHeaderList.length === index - 1 ? null : (
+                      <ColumnName>,&nbsp;</ColumnName>
+                    )}
+                  </div>
+                ))}
+                {columnHeaderList.length > 3 ? (
+                  <ColumnName>and more.</ColumnName>
+                ) : (
+                  ""
+                )}
+              </>
             ) : (
-              <div>
-                <ColumnName>No columns found</ColumnName>
-              </div>
+              <ColumnName>No columns found</ColumnName>
             )}
           </ColumnNameWrapper>
         </>
       ) : null}
 
       {selectedSheet.value && columnHeaderList.length
-        ? renderSubmitButton({ onSubmit, disabled: !columnHeaderList.length })
+        ? renderSubmitButton({
+            onSubmit,
+            disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
+            isLoading: isFetchingColumnHeaderList,
+          })
         : null}
     </>
   );
