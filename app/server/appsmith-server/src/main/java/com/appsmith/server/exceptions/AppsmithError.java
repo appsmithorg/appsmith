@@ -15,7 +15,7 @@ public enum AppsmithError {
     DUPLICATE_KEY_USER_ERROR(400, 4005, "{0} already exists. Please use a different {1}", AppsmithErrorAction.DEFAULT, null),
     PAGE_DOESNT_BELONG_TO_USER_ORGANIZATION(400, 4006, "Page {0} does not belong to the current user {1} " +
             "organization", AppsmithErrorAction.LOG_EXTERNALLY, null),
-    UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation, {0}", AppsmithErrorAction.DEFAULT, null),
+    UNSUPPORTED_OPERATION(400, 4007, "Unsupported operation", AppsmithErrorAction.DEFAULT, null),
     USER_DOESNT_BELONG_ANY_ORGANIZATION(400, 4009, "User {0} does not belong to any organization",
             AppsmithErrorAction.LOG_EXTERNALLY, null),
     USER_DOESNT_BELONG_TO_ORGANIZATION(400, 4010, "User {0} does not belong to an organization with id {1}",
@@ -66,6 +66,7 @@ public enum AppsmithError {
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null),
+    INVALID_IMPORTED_FILE_ERROR(400, 4039, "Provided file is from different version, please wait till Appsmith gets auto-updated to latest version. This may take a day or two. We are really sorry for the inconvenience caused", AppsmithErrorAction.DEFAULT, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +

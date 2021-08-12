@@ -357,9 +357,15 @@ public class ImportExportApplicationService {
         
         if(!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
-        } else if(importedDoc.getVersion() != null && !releaseNotesService.getReleasedVersion().equals(importedDoc.getVersion())) {
-            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION, ", provided file is of " +
-                "different version. Please try updating Appsmith to the latest version"));
+        } else if(importedDoc.getVersion() == null) {
+            return Mono.error(
+                new AppsmithException(
+                    AppsmithError.JSON_PROCESSING_ERROR,
+                    ": Unable to find version field in the uploaded file. Can you please try exporting the " +
+                        "application from source Appsmith server and then importing it once again"
+                ));
+        } else if(!releaseNotesService.getReleasedVersion().equals(importedDoc.getVersion())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE_ERROR));
         }
         
         return pluginRepository.findAll()
