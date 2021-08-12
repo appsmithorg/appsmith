@@ -1,13 +1,35 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import {
+  filterCategories,
+  RecentEntity,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
 
 export const setGlobalSearchQuery = (query: string) => ({
   type: ReduxActionTypes.SET_GLOBAL_SEARCH_QUERY,
   payload: query,
 });
 
-export const toggleShowGlobalSearchModal = () => ({
+export const toggleShowGlobalSearchModal = (
+  category: SearchCategory = filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
+) => ({
   type: ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL,
+  payload: category,
+});
+
+export const cancelSnippet = () => ({
+  type: ReduxActionTypes.CANCEL_SNIPPET,
+});
+
+export const insertSnippet = (payload: string) => ({
+  type: ReduxActionTypes.INSERT_SNIPPET,
+  payload,
+});
+
+export const setGlobalSearchFilterContext = (payload: any) => ({
+  type: ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT,
+  payload,
 });
 
 export const updateRecentEntity = (payload: RecentEntity) => ({

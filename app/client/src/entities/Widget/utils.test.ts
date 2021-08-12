@@ -3,6 +3,7 @@ import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -169,6 +170,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: {
           params: {
             expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
               example: "0 | [0, 1]",
               type: "Index of row(s)",
             },
@@ -180,6 +182,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
+          params: {
+            default: [],
+          },
         },
       },
     };
@@ -244,20 +249,30 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         "chartData.random-id.data": {
-          children: {
-            params: {
-              allowedKeys: [
-                {
-                  name: "x",
-                  type: "TEXT",
-                },
-                {
-                  name: "y",
-                  type: "NUMBER",
-                },
-              ],
+          params: {
+            children: {
+              params: {
+                allowedKeys: [
+                  {
+                    name: "x",
+                    type: "TEXT",
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "y",
+                    type: "NUMBER",
+                    params: {
+                      default: 10,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+              type: "OBJECT",
             },
-            type: "OBJECT",
           },
           type: "ARRAY",
         },

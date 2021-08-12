@@ -5,6 +5,7 @@ import {
   migrateToNewLayout,
   migrateInitialValues,
   extractCurrentDSL,
+  migrateToNewMultiSelect,
 } from "./WidgetPropsUtils";
 import {
   buildChildren,
@@ -249,6 +250,7 @@ describe("Initial value migration test", () => {
         {
           widgetName: "Select1",
           rightColumn: 6,
+          selectionType: "SINGLE_SELECT",
           widgetId: "1e3ytl2pl9",
           topRow: 3,
           bottomRow: 4,
@@ -260,7 +262,6 @@ describe("Initial value migration test", () => {
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: RenderModes.CANVAS,
           leftColumn: 1,
@@ -294,12 +295,12 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
+          selectionType: "SINGLE_SELECT",
           type: WidgetTypes.DROP_DOWN_WIDGET,
           version: 1,
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: "CANVAS",
           leftColumn: 1,
@@ -325,6 +326,92 @@ describe("Initial value migration test", () => {
     };
 
     expect(migrateInitialValues(input)).toEqual(output);
+  });
+
+  it("MULTI_SELECT_WIDGET", () => {
+    const input = {
+      ...containerWidget,
+      children: [
+        {
+          widgetName: "Select2",
+          rightColumn: 59,
+          isFilterable: true,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          type: WidgetTypes.DROP_DOWN_WIDGET,
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          selectionType: "MULTI_SELECT",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          renderMode: RenderModes.CANVAS,
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    const output = {
+      ...containerWidget,
+      children: [
+        {
+          renderMode: RenderModes.CANVAS,
+          type: WidgetTypes.MULTI_SELECT_WIDGET,
+          widgetName: "Select2",
+          rightColumn: 59,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(migrateToNewMultiSelect(input)).toEqual(output);
   });
 
   it("DATE_PICKER_WIDGET2", () => {

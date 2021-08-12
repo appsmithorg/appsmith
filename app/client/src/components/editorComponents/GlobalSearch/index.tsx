@@ -24,6 +24,9 @@ import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateTo
 import {
   toggleShowGlobalSearchModal,
   setGlobalSearchQuery,
+  setGlobalSearchFilterContext,
+  cancelSnippet,
+  insertSnippet,
 } from "actions/globalSearchActions";
 import {
   getItemType,
@@ -35,6 +38,11 @@ import {
   SearchItem,
   algoliaHighlightTag,
   attachKind,
+  SEARCH_CATEGORY_ID,
+  getEntityId,
+  filterCategories,
+  getFilterCategoryList,
+  SearchCategory,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -45,15 +53,21 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { keyBy, noop } from "lodash";
-import DocsIcon from "assets/icons/ads/docs.svg";
-import RecentIcon from "assets/icons/ads/recent.svg";
 import Footer from "./Footer";
-
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
+
+const isNavigation = (category: any) =>
+  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
+const isDocumentation = (category: any) =>
+  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+const isSnippet = (category: any) =>
+  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
+const isMenu = (category: any) => category.id === SEARCH_CATEGORY_ID.INIT;
 
 const StyledContainer = styled.div`
-  width: 750px;
-  height: 60vh;
+  width: 785px;
+  height: 530px;
   background: ${(props) => props.theme.colors.globalSearch.containerBackground};
   box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
   display: flex;
@@ -62,20 +76,18 @@ const StyledContainer = styled.div`
     display: flex;
     flex: 1;
     overflow: hidden;
-    background-color: #383838;
+    background-color: ${(props) =>
+      props.theme.colors.globalSearch.mainContainerBackground};
+    padding: ${(props) => props.theme.spaces[4]}px
+      ${(props) => props.theme.spaces[7]}px;
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
   & .search-highlighted {
-    background-color: #6287b0;
+    background-color: transparent;
     font-style: normal;
+    font-weight: bold;
   }
-`;
-
-const Separator = styled.div`
-  margin: ${(props) => props.theme.spaces[3]}px 0;
-  width: 1px;
-  background-color: ${(props) => props.theme.colors.globalSearch.separator};
 `;
 
 const isModalOpenSelector = (state: AppState) =>
@@ -85,12 +97,6 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const isMatching = (text = "", query = "") =>
   text?.toLowerCase().indexOf(query?.toLowerCase()) > -1;
-
-const getSectionTitle = (title: string, icon: any) => ({
-  kind: SEARCH_ITEM_TYPES.sectionTitle,
-  title,
-  icon,
-});
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   if (item.kind === SEARCH_ITEM_TYPES.document) {
@@ -104,50 +110,64 @@ const getQueryIndexForSorting = (item: SearchItem, query: string) => {
 
 const getSortedResults = (
   query: string,
-  filteredActions: Array<any>,
-  filteredWidgets: Array<any>,
-  filteredPages: Array<any>,
-  filteredDatasources: Array<any>,
+  filteredEntities: Array<any>,
   documentationSearchResults: Array<any>,
+  recentEntityIndex: (entity: any) => number,
   currentPageId?: string,
 ) => {
-  return [
-    ...filteredActions,
-    ...filteredWidgets,
-    ...filteredPages,
-    ...filteredDatasources,
-    ...documentationSearchResults,
-  ].sort((a: any, b: any) => {
-    const queryIndexA = getQueryIndexForSorting(a, query);
-    const queryIndexB = getQueryIndexForSorting(b, query);
+  return [...filteredEntities, ...documentationSearchResults].sort(
+    (a: any, b: any) => {
+      const queryIndexA = getQueryIndexForSorting(a, query);
+      const queryIndexB = getQueryIndexForSorting(b, query);
 
-    if (queryIndexA === queryIndexB) {
-      const pageA = getItemPage(a);
-      const pageB = getItemPage(b);
-      const isAInCurrentPage = pageA === currentPageId;
-      const isBInCurrentPage = pageB === currentPageId;
-      if (isAInCurrentPage) return -1;
-      if (isBInCurrentPage) return 1;
-      return 0;
-    } else {
-      if (queryIndexA === -1 && queryIndexB !== -1) return 1;
-      else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
-      else return queryIndexA - queryIndexB;
-    }
-  });
+      if (queryIndexA === queryIndexB) {
+        const idxA = recentEntityIndex(a);
+        const idxB = recentEntityIndex(b);
+        if (idxA > -1 && idxB > -1) return idxA - idxB;
+        if (idxA > -1) return -1;
+        else if (idxB > -1) return 1;
+        const pageA = getItemPage(a);
+        const pageB = getItemPage(b);
+        const isAInCurrentPage = pageA === currentPageId;
+        const isBInCurrentPage = pageB === currentPageId;
+        if (isAInCurrentPage) return -1;
+        if (isBInCurrentPage) return 1;
+        return 0;
+      } else {
+        if (queryIndexA === -1 && queryIndexB !== -1) return 1;
+        else if (queryIndexB === -1 && queryIndexA !== -1) return -1;
+        else return queryIndexA - queryIndexB;
+      }
+    },
+  );
 };
+
+const filterCategoryList = getFilterCategoryList();
 
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
+  const dispatch = useDispatch();
+  const [snippets, setSnippetsState] = useState([]);
+  const category = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.category,
+  );
+  const setCategory = (category: SearchCategory) =>
+    dispatch(setGlobalSearchFilterContext({ category: category }));
+  const setRefinements = (entityMeta: any) =>
+    dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
+  const refinements = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.refinements,
+  );
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
-  const dispatch = useDispatch();
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
+      setCategory(filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION]);
     }
     dispatch(toggleShowGlobalSearchModal());
+    dispatch(cancelSnippet());
   };
   const [query, setQueryInState] = useState("");
   const setQuery = useCallback((query: string) => {
@@ -160,15 +180,25 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
 
-  const setDocumentationSearchResults = useCallback((res) => {
-    setDocumentationSearchResultsInState(res);
+  const setSearchResults = useCallback((res, categoryId) => {
+    if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);
+    else setDocumentationSearchResultsInState(res);
   }, []);
 
-  const [activeItemIndex, setActiveItemIndexInState] = useState(1);
+  const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
     setActiveItemIndexInState(index);
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => document.getElementById("global-search")?.focus());
+    if (isNavigation(category) && recentEntities.length > 1) {
+      setActiveItemIndex(1);
+    } else {
+      setActiveItemIndex(0);
+    }
+  }, [category.id]);
 
   const allWidgets = useSelector(getAllPageWidgets);
 
@@ -201,6 +231,18 @@ function GlobalSearch() {
     );
   }, [reducerDatasources, query]);
   const recentEntities = useRecentEntities();
+  const recentEntityIds = recentEntities
+    .map((r) => getEntityId(r))
+    .filter(Boolean);
+  const recentEntityIndex = useCallback(
+    (entity) => {
+      if (entity.kind === SEARCH_ITEM_TYPES.document) return -1;
+      const id =
+        entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+      return recentEntityIds.indexOf(id);
+    },
+    [recentEntities],
+  );
 
   const resetSearchQuery = useSelector(searchQuerySelector);
   const selectedWidgetId = useSelector(getSelectedWidget);
@@ -212,24 +254,12 @@ function GlobalSearch() {
       setQuery(resetSearchQuery);
     } else {
       dispatch(setGlobalSearchQuery(""));
-      if (!query)
-        recentEntities.length > 1
-          ? setActiveItemIndex(2)
-          : setActiveItemIndex(1);
     }
   }, [modalOpen]);
 
   useEffect(() => {
-    if (query) {
-      setActiveItemIndex(0);
-    } else {
-      if (recentEntities.length > 1) {
-        setActiveItemIndex(2);
-      } else {
-        setActiveItemIndex(1);
-      }
-    }
-  }, [query, recentEntities.length]);
+    if (query) setActiveItemIndex(0);
+  }, [query]);
 
   const filteredWidgets = useMemo(() => {
     if (!query) return searchableWidgets;
@@ -265,33 +295,37 @@ function GlobalSearch() {
     );
   }, [pages, query]);
 
-  const recentsSectionTitle = getSectionTitle("Recent Entities", RecentIcon);
-  const docsSectionTitle = getSectionTitle("Documentation Links", DocsIcon);
-
   const searchResults = useMemo(() => {
-    if (!query) {
-      return [
-        recentsSectionTitle,
-        ...(recentEntities.length > 0
-          ? recentEntities
-          : [
-              {
-                title: "Recents list is empty",
-                kind: SEARCH_ITEM_TYPES.placeholder,
-              },
-            ]),
-        docsSectionTitle,
-        ...defaultDocs,
+    if (isMenu(category) && !query) {
+      return filterCategoryList.filter(
+        (cat: SearchCategory) => isDocumentation(cat) || isNavigation(cat),
+      );
+    }
+    if (isSnippet(category)) {
+      return snippets;
+    }
+
+    let filteredEntities: any = [];
+    let documents: DocSearchItem[] = [];
+    if (isNavigation(category) || isMenu(category)) {
+      filteredEntities = [
+        ...filteredActions,
+        ...filteredWidgets,
+        ...filteredPages,
+        ...filteredDatasources,
       ];
+    }
+    if (isDocumentation(category) || isMenu(category)) {
+      documents = query
+        ? documentationSearchResults
+        : defaultDocs.concat(documentationSearchResults);
     }
 
     return getSortedResults(
       query,
-      filteredActions,
-      filteredWidgets,
-      filteredPages,
-      filteredDatasources,
-      documentationSearchResults,
+      filteredEntities,
+      documents,
+      recentEntityIndex,
       currentPageId,
     );
   }, [
@@ -374,13 +408,23 @@ function GlobalSearch() {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
-      DATA_SOURCES_EDITOR_ID_URL(params.applicationId, item.pageId, item.id),
+      DATA_SOURCES_EDITOR_ID_URL(
+        params.applicationId,
+        item.pageId,
+        item.id,
+        getQueryParams(),
+      ),
     );
   };
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+  };
+
+  const handleSnippetClick = (item: any) => {
+    dispatch(insertSnippet(item.body.snippet));
+    toggleShow();
   };
 
   const itemClickHandlerByType = {
@@ -391,6 +435,8 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.page]: handlePageClick,
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
+    [SEARCH_ITEM_TYPES.category]: setCategory,
+    [SEARCH_ITEM_TYPES.snippet]: handleSnippetClick,
   };
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
@@ -427,32 +473,45 @@ function GlobalSearch() {
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
-          <AlgoliaSearchWrapper query={query}>
+          <AlgoliaSearchWrapper
+            query={query}
+            refinements={refinements}
+            setRefinement={setRefinements}
+          >
             <StyledContainer>
-              <SearchBox query={query} setQuery={setQuery} />
+              <SearchBox
+                category={category}
+                query={query}
+                setCategory={setCategory}
+                setQuery={setQuery}
+              />
               <div className="main">
                 <SetSearchResults
-                  setDocumentationSearchResults={setDocumentationSearchResults}
+                  categoryId={category.id}
+                  setDocumentationSearchResults={setSearchResults}
                 />
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
                       query={query}
+                      refinements={refinements}
                       searchResults={searchResults}
+                      showFilter={isSnippet(category)}
                     />
-                    <Separator />
-                    <Description
-                      activeItem={activeItem}
-                      activeItemType={activeItemType}
-                      query={query}
-                      scrollPositionRef={scrollPositionRef}
-                    />
+                    {(isDocumentation(category) || isSnippet(category)) && (
+                      <Description
+                        activeItem={activeItem}
+                        activeItemType={activeItemType}
+                        query={query}
+                        scrollPositionRef={scrollPositionRef}
+                      />
+                    )}
                   </>
                 ) : (
                   <ResultsNotFound />
                 )}
               </div>
-              {!query && <Footer />}
+              <Footer />
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

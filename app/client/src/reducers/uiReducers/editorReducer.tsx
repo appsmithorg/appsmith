@@ -134,7 +134,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.cloningPageError = false;
     return { ...state };
   },
-  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
     return { ...state };
