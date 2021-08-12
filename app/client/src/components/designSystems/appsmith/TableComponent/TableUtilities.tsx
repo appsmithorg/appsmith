@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
+import { MenuItem, Classes, Button as BButton, Tag } from "@blueprintjs/core";
 import {
   CellWrapper,
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
+  TagWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -28,6 +29,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { TagComponent } from "components/designSystems/blueprint/TagComponent";
 
 export const renderCell = (
   value: any,
@@ -150,6 +152,32 @@ export const renderActions = (
       })}
     </CellWrapper>
   );
+};
+
+export const renderTags = (
+  value: any,
+  cellProperties: CellLayoutProperties,
+) => {
+  const { labelColors } = cellProperties;
+  const labels = value.split(",");
+  if (labels.length > 0 && labels[0].length > 0) {
+    return (
+      <TagWrapper cellProperties={cellProperties}>
+        {labels.map((label: string, labelIdx: number) => {
+          return (
+            <TagComponent
+              color={labelColors && labelColors[label]}
+              key={labelIdx}
+              label={label}
+              tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
+            />
+          );
+        })}
+      </TagWrapper>
+    );
+  } else {
+    return <span />;
+  }
 };
 
 function TableAction(props: {

@@ -75,6 +75,8 @@ const defaultColors: string[] = [
 ];
 
 interface ColorBoardProps {
+  colorList: string[];
+  isDefault: boolean;
   selectColor: (color: string) => void;
   selectedColor: string;
 }
@@ -96,7 +98,7 @@ const EmptyColorIconWrapper = styled.div`
 function ColorBoard(props: ColorBoardProps) {
   return (
     <ColorsWrapper>
-      {defaultColors.map((color: string, index: number) => (
+      {props.colorList.map((color: string, index: number) => (
         <ColorTab
           className={Classes.POPOVER_DISMISS}
           color={color}
@@ -106,11 +108,13 @@ function ColorBoard(props: ColorBoardProps) {
           {props.selectedColor === color && <CheckedIcon />}
         </ColorTab>
       ))}
-      <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
-        <NoColorIcon>
-          <div className="line" />
-        </NoColorIcon>
-      </EmptyColorIconWrapper>
+      {props.isDefault && (
+        <EmptyColorIconWrapper onClick={() => props.selectColor("")}>
+          <NoColorIcon>
+            <div className="line" />
+          </NoColorIcon>
+        </EmptyColorIconWrapper>
+      )}
     </ColorsWrapper>
   );
 }
@@ -145,6 +149,8 @@ const NoColorIcon = styled.div`
 
 interface ColorPickerProps {
   color: string;
+  label?: any;
+  colorList?: string[];
   changeColor: (color: string) => void;
 }
 
@@ -186,9 +192,11 @@ function ColorPickerComponent(props: ColorPickerProps) {
         }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
-        value={color}
+        value={props.label ? props.label : color}
       />
       <ColorBoard
+        colorList={props.colorList ? props.colorList : defaultColors}
+        isDefault={props.colorList ? false : true}
         selectColor={(color) => {
           setColor(color);
           props.changeColor(color);

@@ -196,6 +196,10 @@ export default [
                       label: "Button",
                       value: "button",
                     },
+                    {
+                      label: "Label",
+                      value: "label",
+                    },
                   ],
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: false,
@@ -428,7 +432,6 @@ export default [
                 // const baseProperty = getBasePropertyPath(propertyPath);
                 // console.log("Table log:", { baseProperty }, { propertyPath });
                 const columnType = get(props, `${propertyPath}.columnType`, "");
-
                 return (
                   columnType === "button" ||
                   columnType === "image" ||
@@ -440,6 +443,15 @@ export default [
                   propertyName: "horizontalAlignment",
                   label: "Text Align",
                   controlType: "ICON_TABS",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   options: [
                     {
                       icon: "LEFT_ALIGN",
@@ -467,6 +479,15 @@ export default [
                   controlType: "DROP_DOWN",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   options: [
                     {
                       label: "Heading 1",
@@ -507,6 +528,15 @@ export default [
                   propertyName: "fontStyle",
                   label: "Font Style",
                   controlType: "BUTTON_TABS",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   options: [
                     {
                       icon: "BOLD_FONT",
@@ -527,6 +557,15 @@ export default [
                   propertyName: "verticalAlignment",
                   label: "Vertical Alignment",
                   controlType: "ICON_TABS",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   options: [
                     {
                       icon: "VERTICAL_TOP",
@@ -554,6 +593,15 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   updateHook: updateDerivedColumnsHook,
                   isBindProperty: true,
                   isTriggerProperty: false,
@@ -564,7 +612,86 @@ export default [
                   controlType: "COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType === "label";
+                  },
                   updateHook: updateDerivedColumnsHook,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "tagSize",
+                  label: "Tag Size",
+                  controlType: "DROP_DOWN",
+                  customJSControl: "COMPUTE_VALUE",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "label";
+                  },
+                  options: [
+                    {
+                      label: "Small",
+                      value: "small",
+                    },
+                    {
+                      label: "Large",
+                      value: "large",
+                    },
+                  ],
+                  defaultValue: "Small",
+                  // updateHook: updateDerivedColumnsHook,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                },
+                {
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "label";
+                  },
+                  helpText: "Colored Options",
+                  propertyName: "isColoredOption",
+                  isJSConvertible: true,
+                  label: "Colored Options",
+                  controlType: "SWITCH",
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: VALIDATION_TYPES.BOOLEAN,
+                },
+              ],
+            },
+            {
+              sectionName: "TAG COLORS",
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                const isColoredOption = get(
+                  props,
+                  `${propertyPath}.isColoredOption`,
+                  "",
+                );
+                return !isColoredOption;
+              },
+              children: [
+                {
+                  propertyName: "labelColors",
+                  label: "",
+                  defaultColor: "#EBEBEB",
+                  controlType: "LABEL_COLOR_PICKER",
+                  updateHook: updateColumnStyles,
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },

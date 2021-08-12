@@ -71,6 +71,10 @@ export interface TableStyles {
   verticalAlignment?: VerticalAlignment;
 }
 
+export interface LabelColorType {
+  [key: string]: string;
+}
+
 export type CompactMode = keyof typeof CompactModeTypes;
 export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
@@ -94,6 +98,9 @@ export interface CellLayoutProperties {
   buttonStyle?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
+  tagSize?: string;
+  isColoredOption?: boolean;
+  labelColors?: LabelColorType;
 }
 
 export interface TableColumnMetaProps {
@@ -121,7 +128,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
 
 export interface ColumnProperties {
   id: string;
-  label: string;
+  label?: string;
   columnType: string;
   isVisible: boolean;
   index: number;
@@ -144,6 +151,9 @@ export interface ColumnProperties {
   inputFormat?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
+  tagSize?: string;
+  isColoredOption?: boolean;
+  labelColors?: LabelColorType;
 }
 
 export const ConditionFunctions: {

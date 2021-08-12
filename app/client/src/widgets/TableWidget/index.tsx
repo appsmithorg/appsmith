@@ -8,6 +8,7 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  renderTags,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -118,6 +119,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         true,
       ),
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
+      tagSize: this.getPropertyValue(columnProperties.tagSize, rowIndex),
+      isColoredOption: this.getPropertyValue(
+        columnProperties.isColoredOption,
+        rowIndex,
+      ),
+      labelColors: columnProperties.labelColors,
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
     };
@@ -198,6 +205,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
+          } else if (columnProperties.columnType === "label") {
+            return renderTags(props.cell.value, cellProperties);
           } else {
             return renderCell(
               props.cell.value,
@@ -501,7 +510,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   componentDidUpdate(prevProps: TableWidgetProps) {
     const { primaryColumns = {} } = this.props;
-
+    console.log("a : ", this.props);
     // Bail out if santizedTableData is a string. This signifies an error in evaluations
     // Since, it is an error in evaluations, we should not attempt to process the data
     if (isString(this.props.sanitizedTableData)) return;
