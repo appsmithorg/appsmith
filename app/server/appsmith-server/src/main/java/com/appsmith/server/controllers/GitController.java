@@ -39,4 +39,11 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
                 .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfig.getGitGlobalConfig(), null));
     }
 
+    @PostMapping("/connect")
+    public Mono<ResponseDTO<String>> connectToRemoteRepo() throws IOException {
+        gitService.connectToGitRepo("https://github.com/AnaghHegde/Enigma-Reborn.git");
+        return Mono.empty();
+    }
+
+
 }
