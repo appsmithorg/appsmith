@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
@@ -8,19 +9,26 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -31,6 +39,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -68,6 +78,12 @@ public class UserServiceTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    EncryptionService encryptionService;
+
+    @MockBean
+    PasswordResetTokenRepository passwordResetTokenRepository;
 
     Mono<User> userMono;
 
@@ -470,4 +486,102 @@ public class UserServiceTest {
                 );
     }
 
+    @Test
+    public void forgotPasswordTokenGenerate_AfterTrying3TimesIn24Hours_ThrowsException() {
+        String testEmail = "test-email-for-password-reset";
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setRequestCount(3);
+        passwordResetToken.setFirstRequestTime(Instant.now());
+
+        // mock the passwordResetTokenRepository to return request count 3 in 24 hours
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        ResetUserPasswordDTO resetUserPasswordDTO = new ResetUserPasswordDTO();
+        resetUserPasswordDTO.setEmail("test-email-for-password-reset");
+
+        StepVerifier.create(userService.forgotPasswordTokenGenerate(resetUserPasswordDTO))
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenMalformedToken_ThrowsException() {
+        String encryptedToken = "abcdef"; // malformed token
+        StepVerifier.create(userService.verifyPasswordResetToken(encryptedToken))
+                .verifyError(AppsmithException.class);
+    }
+
+    private String getEncodedToken(String emailAddress, String token) {
+        List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+        nameValuePairs.add(new BasicNameValuePair("email", emailAddress));
+        nameValuePairs.add(new BasicNameValuePair("token", token));
+        String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+        return encryptionService.encryptString(urlParams);
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenDoesNotExist_ThrowsException() {
+        String testEmail = "abc@example.org";
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
+
+        StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, "123456789")))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.EMAIL, testEmail))
+                .verify();
+    }
+
+    private void testResetPasswordTokenMatch(String token1, String token2, boolean expectedResult) {
+        String testEmail = "abc@example.org";
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setTokenHash(passwordEncoder.encode(token1));
+
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, token2)))
+                .expectNext(expectedResult)
+                .verifyComplete();
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenDoesNotMatch_ReturnsFalse() {
+        testResetPasswordTokenMatch("0123456789", "123456789", false); // different tokens
+    }
+
+    @Test
+    public void verifyPasswordResetToken_WhenTokenMatches_ReturnsTrue() {
+        testResetPasswordTokenMatch("0123456789", "0123456789", true); // same token
+    }
+
+    @Test
+    public void resetPasswordAfterForgotPassword_WhenMalformedToken_ThrowsException() {
+        String encryptedToken = "abcdef"; // malformed token
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(encryptedToken, null))
+                .verifyError(AppsmithException.class);
+    }
+
+    @Test
+    public void resetPasswordAfterForgotPassword_WhenTokenDoesNotMatch_ThrowsException() {
+        String testEmail = "abc@example.org";
+        String token = getEncodedToken(testEmail, "123456789");
+
+        // ** check if token is not present in DB ** //
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
+
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
+                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.EMAIL, testEmail))
+                .verify();
+
+        // ** check if token present but hash does not match ** //
+        PasswordResetToken passwordResetToken = new PasswordResetToken();
+        passwordResetToken.setTokenHash(passwordEncoder.encode("abcdef"));
+
+        // mock the passwordResetTokenRepository to return empty
+        Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.just(passwordResetToken));
+
+        StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
+                .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage(FieldName.TOKEN))
+                .verify();
+    }
 }

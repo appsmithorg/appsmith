@@ -290,7 +290,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<Boolean> verifyPasswordResetToken(String encryptedToken) {
-        EmailTokenDTO emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        EmailTokenDTO emailTokenDTO;
+        try {
+            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        } catch (Exception e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
+
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -309,7 +315,13 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      */
     @Override
     public Mono<Boolean> resetPasswordAfterForgotPassword(String encryptedToken, User user) {
-        EmailTokenDTO emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        EmailTokenDTO emailTokenDTO;
+        try {
+            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        } catch (Exception e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
+
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -327,7 +339,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 })
                 .flatMap(emailAddress -> repository
                         .findByEmail(emailAddress)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getEmail())))
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
                             if(!ValidationUtils.validateLoginPassword(user.getPassword())){
                                 return Mono.error(new AppsmithException(
