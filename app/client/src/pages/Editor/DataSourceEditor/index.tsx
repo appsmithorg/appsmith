@@ -16,7 +16,6 @@ import {
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { DATASOURCE_DB_FORM } from "constants/forms";
-import DatasourceHome from "./DatasourceHome";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
@@ -26,6 +25,8 @@ import { ReduxAction } from "constants/ReduxActionConstants";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
+import { redirectToNewIntegrations } from "actions/apiPaneActions";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -70,7 +71,15 @@ class DataSourceEditor extends React.Component<Props> {
   };
 
   handleSave = (formData: Datasource) => {
-    this.props.updateDatasource(formData);
+    const { applicationId, pageId } = this.props.match.params;
+    this.props.updateDatasource(
+      formData,
+      this.props.redirectToNewIntegrations(
+        applicationId,
+        pageId,
+        getQueryParams(),
+      ),
+    );
   };
 
   render() {
@@ -149,6 +158,13 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
   updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => {
     dispatch(updateDatasource(formData, onSuccess));
   },
+  redirectToNewIntegrations: (
+    applicationId: string,
+    pageId: string,
+    params: any,
+  ) => {
+    dispatch(redirectToNewIntegrations(applicationId, pageId, params));
+  },
   testDatasource: (data: Datasource) => dispatch(testDatasource(data)),
   deleteDatasource: (id: string) => dispatch(deleteDatasource({ id })),
   switchDatasource: (id: string) => dispatch(switchDatasource(id)),
@@ -162,12 +178,17 @@ const mapDispatchToProps = (dispatch: any): DatasourcePaneFunctions => ({
 
 export interface DatasourcePaneFunctions {
   submitForm: (name: string) => void;
-  updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) => void;
+  updateDatasource: (formData: any, onSuccess?: any) => void;
   testDatasource: (data: Datasource) => void;
   deleteDatasource: (id: string) => void;
   switchDatasource: (id: string) => void;
   setDatasourceEditorMode: (id: string, viewMode: boolean) => void;
   openOmnibarReadMore: (text: string) => void;
+  redirectToNewIntegrations: (
+    applicationId: string,
+    pageId: string,
+    params: any,
+  ) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props> {
@@ -185,24 +206,14 @@ class DatasourceEditorRouter extends React.Component<Props> {
       pluginId,
       pluginImages,
       pluginPackageName,
+      viewMode,
     } = this.props;
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
     }
-    if (!datasourceId) {
-      return (
-        <DatasourceHome
-          applicationId={applicationId}
-          history={history}
-          isSaving={isSaving}
-          location={location}
-          pageId={pageId}
-        />
-      );
-    }
 
     // Check for specific form types first
-    if (pluginDatasourceForm === "RestAPIDatasourceForm") {
+    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !viewMode) {
       return (
         <RestAPIDatasourceForm
           applicationId={this.props.match.params.applicationId}

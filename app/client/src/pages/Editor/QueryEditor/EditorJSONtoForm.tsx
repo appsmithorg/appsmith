@@ -10,31 +10,28 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
-import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
 import { Colors } from "constants/Colors";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
 import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { addTableWidgetFromQuery } from "actions/widgetActions";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
-import styled, { getTypographyByKey } from "constants/DefaultTheme";
+import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
-import Button from "components/editorComponents/Button";
+import EditorButton from "components/editorComponents/Button";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
@@ -47,7 +44,23 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
+import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { isHidden } from "components/formControls/utils";
+import {
+  createMessage,
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+} from "constants/messages";
+import { useParams } from "react-router";
+import { AppState } from "reducers";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import Button, { Size } from "components/ads/Button";
+import { thinScrollbar } from "constants/DefaultTheme";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
+import { SuggestedWidget } from "api/ActionAPI";
+import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -55,7 +68,10 @@ const QueryFormContainer = styled.form`
   overflow: hidden;
   padding: 20px 0px 0px 0px;
   width: 100%;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(
+    100vh - ${(props) => props.theme.smallHeaderHeight} -
+      ${(props) => props.theme.backBanner}
+  );
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
@@ -82,7 +98,7 @@ const ErrorMessage = styled.p`
 
 const TabbedViewContainer = styled.div`
   ${ResizerCSS}
-  height: 50%;
+  height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
@@ -107,31 +123,15 @@ const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 5px 30px;
+  padding: 16px 30px;
   overflow-y: auto;
   height: 100%;
-`;
-
-const GenerateWidgetButton = styled.a`
-  display: flex;
-  align-items: center;
-  position: absolute;
-  right: 30px;
-  top: 8px;
-  ${(props) => getTypographyByKey(props, "h5")}
-  color: #716e6e;
-  && {
-    margin: 0;
-  }
-  &:hover {
-    text-decoration: none;
-    color: #716e6e;
-  }
+  ${thinScrollbar};
 `;
 
 const ResultsCount = styled.div`
   position: absolute;
-  right: 180px;
+  right: 13px;
   top: 8px;
   color: #716e6e;
 `;
@@ -149,7 +149,8 @@ const DocumentationLink = styled.a`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 50px);
+  flex: 1;
+  overflow: hidden;
 `;
 
 const HelpSection = styled.div``;
@@ -187,7 +188,9 @@ const ErrorContainer = styled.div`
   height: 100%;
   width: 100%;
   display: flex;
+  flex: 1;
   align-items: center;
+  justify-content: center;
   padding-top: 10px;
   flex-direction: column;
   & > .${Classes.ICON} {
@@ -210,7 +213,7 @@ const ErrorDescriptionText = styled(Text)`
 `;
 
 const StyledFormRow = styled(FormRow)`
-  padding: 0px 24px;
+  padding: 0px 20px;
   flex: 0;
 `;
 
@@ -229,6 +232,14 @@ const ActionsWrapper = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
+
+  & > div {
+    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
+  }
+
+  button:last-child {
+    margin-left: ${(props) => props.theme.spaces[7]}px;
+  }
 `;
 
 const DropdownSelect = styled.div`
@@ -267,14 +278,14 @@ const Container = styled.div`
   }
 `;
 
-const ActionButton = styled(BaseButton)`
-  &&&& {
-    min-width: 72px;
-    width: auto;
-    margin: 0 5px;
-    min-height: 30px;
-  }
-`;
+// const ActionButton = styled(BaseButton)`
+//   &&&& {
+//     min-width: 72px;
+//     width: auto;
+//     margin: 0 5px;
+//     min-height: 30px;
+//   }
+// `;
 
 const NoDataSourceContainer = styled.div`
   align-items: center;
@@ -301,6 +312,8 @@ const StyledOpenDocsIcon = styled(Icon)`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
+  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  ${thinScrollbar}
   a {
     font-size: 14px;
     line-height: 20px;
@@ -320,6 +333,24 @@ const TabContainerView = styled.div`
   position: relative;
 `;
 
+const InlineButton = styled(Button)`
+  display: inline-flex;
+  margin: 0 4px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 50px);
+  width: 100%;
+`;
+
+const SidebarWrapper = styled.div<{ show: boolean }>`
+  border: 1px solid #e8e8e8;
+  display: ${(props) => (props.show ? "flex" : "none")};
+  width: ${(props) => props.theme.actionSidePane.width}px;
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -332,6 +363,7 @@ type QueryFormProps = {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
+    suggestedWidgets?: SuggestedWidget[];
   };
   runErrorMessage: string | undefined;
   location: {
@@ -365,10 +397,8 @@ export function EditorJSONtoForm(props: Props) {
     executedQueryData,
     formName,
     handleSubmit,
-    isDeleting,
     isRunning,
     onCreateDatasourceClick,
-    onDeleteClick,
     onRunClick,
     responseType,
     runErrorMessage,
@@ -378,7 +408,21 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const initialIndex = useSelector(getActionTabsInitialIndex);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
+  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+    window.innerHeight,
+  );
+
+  const params = useParams<{ apiId?: string; queryId?: string }>();
+
+  const actions: Action[] = useSelector((state: AppState) =>
+    state.entities.actions.map((action) => action.config),
+  );
+  const currentActionConfig: Action | undefined = actions.find(
+    (action) => action.id === params.apiId || action.id === params.queryId,
+  );
+  const { pageId } = useParams<ExplorerURLParams>();
 
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
@@ -396,9 +440,6 @@ export function EditorJSONtoForm(props: Props) {
   const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
-  const onAddWidget = () => {
-    dispatch(addTableWidgetFromQuery(actionName));
-  };
 
   function MenuList(props: MenuListComponentProps<{ children: Node }>) {
     return (
@@ -459,23 +500,36 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   const renderEachConfig = (formName: string) => (section: any): any => {
-    return section.children.map((formControlOrSection: ControlProps) => {
-      if (isHidden(props.formData, section.hidden)) return null;
-      if ("children" in formControlOrSection) {
-        return renderEachConfig(formName)(formControlOrSection);
-      } else {
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={configProperty}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (isHidden(props.formData, section.hidden)) return null;
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfig(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
         }
-      }
-      return null;
+        return null;
+      },
+    );
+  };
+
+  const responeTabOnRunClick = () => {
+    props.onRunClick();
+
+    AnalyticsUtil.logEvent("RESPONSE_TAB_RUN_ACTION_CLICK", {
+      source: "QUERY_PANE",
     });
   };
 
@@ -522,14 +576,25 @@ export function EditorJSONtoForm(props: Props) {
           )}
           {output &&
             (isTableResponse ? (
-              <Table data={output} />
+              <Table data={output} tableBodyHeight={tableBodyHeight} />
             ) : (
               <JSONViewer src={output} />
             ))}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
-              <Text type={TextType.P1}>Hit Run to get a Response</Text>
+              <Text type={TextType.P1}>
+                🙌 Click on
+                <InlineButton
+                  isLoading={isRunning}
+                  onClick={responeTabOnRunClick}
+                  size={Size.medium}
+                  tag="button"
+                  text="Run"
+                  type="button"
+                />
+                after adding your query
+              </Text>
             </NoResponseContainer>
           )}
         </ResponseContentWrapper>
@@ -537,13 +602,18 @@ export function EditorJSONtoForm(props: Props) {
     },
     {
       key: "ERROR",
-      title: "Errors",
+      title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
       key: "LOGS",
-      title: "Logs",
+      title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
+    },
+    {
+      key: "ENTITY_DEPENDENCIES",
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
     },
   ];
 
@@ -562,148 +632,155 @@ export function EditorJSONtoForm(props: Props) {
   };
 
   return (
-    <QueryFormContainer onSubmit={handleSubmit}>
-      <StyledFormRow>
-        <NameWrapper>
-          <CloseEditor />
-          <ActionNameEditor />
-        </NameWrapper>
-        <ActionsWrapper>
-          <DropdownSelect>
-            <DropdownField
-              className={"t--switch-datasource"}
-              components={{ MenuList, Option: CustomOption, SingleValue }}
-              maxMenuHeight={200}
-              name="datasource.id"
-              options={DATASOURCES_OPTIONS}
-              placeholder="Datasource"
-              width={232}
+    <>
+      <CloseEditor />
+      <QueryFormContainer onSubmit={handleSubmit}>
+        <StyledFormRow>
+          <NameWrapper>
+            <ActionNameEditor />
+          </NameWrapper>
+          <ActionsWrapper>
+            <MoreActionsMenu
+              className="t--more-action-menu"
+              id={currentActionConfig ? currentActionConfig.id : ""}
+              name={currentActionConfig ? currentActionConfig.name : ""}
+              pageId={pageId}
             />
-          </DropdownSelect>
-          <ActionButton
-            accent="error"
-            className="t--delete-query"
-            loading={isDeleting}
-            onClick={onDeleteClick}
-            text="Delete"
-          />
-
-          <OnboardingIndicator
-            step={OnboardingStep.EXAMPLE_DATABASE}
-            width={75}
-          >
-            <ActionButton
-              accent="primary"
-              className="t--run-query"
-              filled
-              loading={isRunning}
-              onClick={onRunClick}
-              text="Run"
-            />
-          </OnboardingIndicator>
-        </ActionsWrapper>
-      </StyledFormRow>
-      <SecondaryWrapper>
-        <TabContainerView>
-          {documentationLink && (
-            <DocumentationLink
-              className="t--datasource-documentation-link"
-              onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+            <DropdownSelect>
+              <DropdownField
+                className={"t--switch-datasource"}
+                components={{ MenuList, Option: CustomOption, SingleValue }}
+                maxMenuHeight={200}
+                name="datasource.id"
+                options={DATASOURCES_OPTIONS}
+                placeholder="Datasource"
+                width={232}
+              />
+            </DropdownSelect>
+            <OnboardingIndicator
+              step={OnboardingStep.EXAMPLE_DATABASE}
+              width={75}
             >
-              {"Documentation "}
-              <StyledOpenDocsIcon icon="document-open" />
-            </DocumentationLink>
-          )}
-
-          <BaseTabbedView
-            tabs={[
-              {
-                key: "query",
-                title: "Query",
-                panelComponent: (
-                  <SettingsWrapper>
-                    {editorConfig && editorConfig.length > 0 ? (
-                      editorConfig.map(renderEachConfig(formName))
-                    ) : (
-                      <>
-                        <ErrorMessage>
-                          An unexpected error occurred
-                        </ErrorMessage>
-                        <Tag
-                          intent="warning"
-                          interactive
-                          minimal
-                          onClick={() => window.location.reload()}
-                          round
-                        >
-                          Refresh
-                        </Tag>
-                      </>
-                    )}
-                    {dataSources.length === 0 && (
-                      <NoDataSourceContainer>
-                        <p className="font18">
-                          Seems like you don’t have any Datasources to create a
-                          query
-                        </p>
-                        <Button
-                          filled
-                          icon="plus"
-                          intent="primary"
-                          onClick={() => onCreateDatasourceClick()}
-                          size="small"
-                          text="Add a Datasource"
+              <Button
+                className="t--run-query"
+                isLoading={isRunning}
+                onClick={onRunClick}
+                size={Size.medium}
+                tag="button"
+                text="Run"
+                type="button"
+              />
+            </OnboardingIndicator>
+          </ActionsWrapper>
+        </StyledFormRow>
+        <Wrapper>
+          <SecondaryWrapper>
+            <TabContainerView>
+              {documentationLink && (
+                <DocumentationLink
+                  className="t--datasource-documentation-link"
+                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+                >
+                  {"Documentation "}
+                  <StyledOpenDocsIcon icon="document-open" />
+                </DocumentationLink>
+              )}
+              <TabComponent
+                tabs={[
+                  {
+                    key: "query",
+                    title: "Query",
+                    panelComponent: (
+                      <SettingsWrapper>
+                        {editorConfig && editorConfig.length > 0 ? (
+                          editorConfig.map(renderEachConfig(formName))
+                        ) : (
+                          <>
+                            <ErrorMessage>
+                              An unexpected error occurred
+                            </ErrorMessage>
+                            <Tag
+                              intent="warning"
+                              interactive
+                              minimal
+                              onClick={() => window.location.reload()}
+                              round
+                            >
+                              Refresh
+                            </Tag>
+                          </>
+                        )}
+                        {dataSources.length === 0 && (
+                          <NoDataSourceContainer>
+                            <p className="font18">
+                              Seems like you don’t have any Datasources to
+                              create a query
+                            </p>
+                            <EditorButton
+                              filled
+                              icon="plus"
+                              intent="primary"
+                              onClick={() => onCreateDatasourceClick()}
+                              size="small"
+                              text="Add a Datasource"
+                            />
+                          </NoDataSourceContainer>
+                        )}
+                      </SettingsWrapper>
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    title: "Settings",
+                    panelComponent: (
+                      <SettingsWrapper>
+                        <ActionSettings
+                          actionSettingsConfig={settingConfig}
+                          formName={formName}
                         />
-                      </NoDataSourceContainer>
-                    )}
-                  </SettingsWrapper>
-                ),
-              },
-              {
-                key: "settings",
-                title: "Settings",
-                panelComponent: (
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={settingConfig}
-                      formName={formName}
-                    />
-                  </SettingsWrapper>
-                ),
-              },
-            ]}
-          />
-        </TabContainerView>
+                      </SettingsWrapper>
+                    ),
+                  },
+                ]}
+              />
+            </TabContainerView>
 
-        <TabbedViewContainer ref={panelRef}>
-          <Resizable panelRef={panelRef} />
-          {output && !!output.length && (
-            <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-              <ResultsCount>
-                <Text type={TextType.P3}>
-                  Result:
-                  <Text type={TextType.H5}>{`${output.length} Record${
-                    output.length > 1 ? "s" : ""
-                  }`}</Text>
-                </Text>
-              </ResultsCount>
-              <GenerateWidgetButton
-                className="t--add-widget"
-                onClick={onAddWidget}
-              >
-                <AdsIcon name="plus" />
-                &nbsp;&nbsp;Generate Widget
-              </GenerateWidgetButton>
-            </Boxed>
-          )}
+            <TabbedViewContainer ref={panelRef}>
+              <Resizable
+                panelRef={panelRef}
+                setContainerDimensions={(height: number) =>
+                  setTableBodyHeightHeight(height)
+                }
+              />
+              {output && !!output.length && (
+                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
+                  <ResultsCount>
+                    <Text type={TextType.P3}>
+                      Result:
+                      <Text type={TextType.H5}>{`${output.length} Record${
+                        output.length > 1 ? "s" : ""
+                      }`}</Text>
+                    </Text>
+                  </ResultsCount>
+                </Boxed>
+              )}
 
-          <TabComponent
-            onSelect={onTabSelect}
-            selectedIndex={selectedIndex}
-            tabs={responseTabs}
-          />
-        </TabbedViewContainer>
-      </SecondaryWrapper>
-    </QueryFormContainer>
+              <TabComponent
+                onSelect={onTabSelect}
+                selectedIndex={selectedIndex}
+                tabs={responseTabs}
+              />
+            </TabbedViewContainer>
+          </SecondaryWrapper>
+          <SidebarWrapper show={!!output}>
+            <ActionRightPane
+              actionName={actionName}
+              hasResponse={!!output}
+              suggestedWidgets={executedQueryData?.suggestedWidgets}
+            />
+          </SidebarWrapper>
+        </Wrapper>
+      </QueryFormContainer>
+    </>
   );
 }

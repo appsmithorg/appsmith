@@ -1,90 +1,105 @@
-import { debuggerLog, errorLog, updateErrorLog } from "actions/debuggerActions";
+import {
+  debuggerLog,
+  errorLog,
+  logDebuggerErrorAnalytics,
+  LogDebuggerErrorAnalyticsPayload,
+  updateErrorLog,
+} from "actions/debuggerActions";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { WidgetTypes } from "constants/WidgetConstants";
-import { LogActionPayload, Message } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  LogActionPayload,
+  Message,
+} from "entities/AppsmithConsole";
 import {
   all,
+  call,
+  fork,
   put,
-  takeEvery,
   select,
   take,
-  fork,
-  call,
+  takeEvery,
 } from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isEmpty, set, get } from "lodash";
+import { get, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getPluginNameFromId,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
-import { isWidget } from "workers/evaluationUtils";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  getDataTree,
+  getEvaluationInverseDependencyMap,
+} from "selectors/dataTreeSelectors";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isWidget,
+} from "workers/evaluationUtils";
+import { getDependencyChain } from "components/editorComponents/Debugger/helpers";
+import {
+  ACTION_CONFIGURATION_UPDATED,
+  createMessage,
+  WIDGET_PROPERTIES_UPDATED,
+} from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Plugin } from "api/PluginApi";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 
-function* onWidgetUpdateSaga(payload: LogActionPayload) {
-  if (!payload.source) return;
-  // Wait for data tree update
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const widget = dataTree[payload.source.name];
-
-  if (!isWidget(widget) || !widget.validationMessages) return;
-
-  // Ignore canvas widget updates
-  if (widget.type === WidgetTypes.CANVAS_WIDGET) {
-    return;
+// Saga to format action request values to be shown in the debugger
+function* formatActionRequestSaga(
+  payload: LogActionPayload,
+  requestPath?: any,
+) {
+  // If there are no headers or body we don't format anything.
+  if (!payload.source || !payload.state || !requestPath) {
+    return payload;
   }
+
+  const request = get(payload, requestPath);
+
   const source = payload.source;
+  const action: Action | undefined = yield select(getAction, source.id);
+  // Only formatting for apis and not queries
+  if (action && action.pluginType === PluginType.API) {
+    // Formatting api headers here
+    if (request.headers) {
+      let formattedHeaders = [];
 
-  // If widget properties no longer have validation errors update the same
-  if (payload.state) {
-    const propertyPath = Object.keys(payload.state)[0];
-
-    const validationMessages = widget.validationMessages;
-    const validationMessage = validationMessages[propertyPath];
-    const errors = yield select(getDebuggerErrors);
-    const errorId = `${source.id}-${propertyPath}`;
-    const widgetErrorLog = errors[errorId];
-    if (!widgetErrorLog) return;
-
-    const noError = isEmpty(validationMessage);
-
-    if (noError) {
-      delete errors[errorId];
-
-      yield put({
-        type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-        payload: errors,
+      // Convert headers from Record<string, array>[] to Record<string, string>[]
+      // for showing in the logs
+      formattedHeaders = Object.keys(request.headers).map((key: string) => {
+        const value = request.headers[key];
+        return {
+          [key]: value[0],
+        };
       });
+
+      set(payload, `${requestPath}.headers`, formattedHeaders);
     }
-  }
-}
 
-function* formatActionRequestSaga(payload: LogActionPayload, request?: any) {
-  if (!payload.source || !payload.state || !request || !request.headers) {
-    return;
-  }
+    // Formatting api body
+    if (request.body) {
+      let body = request.body;
 
-  const headers = request.headers;
+      try {
+        body = JSON.parse(body);
+        set(payload, `${requestPath}.body`, body);
+      } catch (e) {
+        // Nothing to do here, we show the api body as it is if it cannot be shown as
+        // an object
+      }
+    }
 
-  const source = payload.source;
-  const action: Action = yield select(getAction, source.id);
-  if (action.pluginType === PluginType.API) {
-    let formattedHeaders = [];
-
-    // Convert headers from Record<string, array>[] to Record<string, string>[]
-    // for showing in the logs
-    formattedHeaders = Object.keys(headers).map((key: string) => {
-      const value = headers[key];
-      return {
-        [key]: value[0],
-      };
-    });
-
-    return formattedHeaders;
+    // Return the final payload to be logged
+    return payload;
   } else {
-    return;
+    return payload;
   }
 }
 
@@ -95,8 +110,13 @@ function* onEntityDeleteSaga(payload: Message) {
     yield put(debuggerLog(payload));
     return;
   }
+  const currentPageId = yield select(getCurrentPageId);
+  let pluginName: string = yield select(
+    getPluginNameFromId,
+    payload?.analytics?.pluginId,
+  );
 
-  const errors = yield select(getDebuggerErrors);
+  const errors: Record<string, Message> = yield select(getDebuggerErrors);
   const errorIds = Object.keys(errors);
   const updatedErrors: any = {};
 
@@ -105,6 +125,29 @@ function* onEntityDeleteSaga(payload: Message) {
 
     if (!includes) {
       updatedErrors[e] = errors[e];
+    } else {
+      // If the error is being removed here
+      // need to send an analytics event for the same
+      const error = errors[e];
+      pluginName = pluginName.replace(/ /g, "");
+
+      if (source.type === ENTITY_TYPE.ACTION) {
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: pluginName,
+          propertyPath: `${pluginName}.${error.source?.propertyPath ?? ""}`,
+          errorMessages: error.messages,
+          pageId: currentPageId,
+        });
+      } else if (source.type === ENTITY_TYPE.WIDGET) {
+        const widgetType = error?.analytics?.widgetType;
+
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: widgetType,
+          propertyPath: `${widgetType}.${error.source?.propertyPath ?? ""}`,
+          errorMessages: error.messages,
+          pageId: currentPageId,
+        });
+      }
     }
   });
 
@@ -115,14 +158,71 @@ function* onEntityDeleteSaga(payload: Message) {
   yield put(debuggerLog(payload));
 }
 
+function* logDependentEntityProperties(payload: Message) {
+  const { source, state } = payload;
+  if (!state || !source) return;
+
+  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+  const dataTree: DataTree = yield select(getDataTree);
+
+  const propertyPath = `${source.name}.` + payload.source?.propertyPath;
+  const inverseDependencyMap = yield select(getEvaluationInverseDependencyMap);
+  const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
+
+  yield all(
+    finalValue.map((path) => {
+      const entityInfo = getEntityNameAndPropertyPath(path);
+      const entity = dataTree[entityInfo.entityName];
+      let log = {
+        ...payload,
+        state: {
+          [entityInfo.propertyPath]: get(dataTree, path),
+        },
+      };
+
+      if (isAction(entity)) {
+        log = {
+          ...log,
+          text: createMessage(ACTION_CONFIGURATION_UPDATED),
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: entityInfo.entityName,
+            id: entity.actionId,
+          },
+        };
+      } else if (isWidget(entity)) {
+        log = {
+          ...log,
+          text: createMessage(WIDGET_PROPERTIES_UPDATED),
+          source: {
+            type: ENTITY_TYPE.WIDGET,
+            name: entityInfo.entityName,
+            id: entity.widgetId,
+          },
+        };
+      }
+
+      return put(debuggerLog(log));
+    }),
+  );
+}
+
 function* debuggerLogSaga(action: ReduxAction<Message>) {
   const { payload } = action;
+  const debuggerErrors: Record<string, Message> = yield select(
+    getDebuggerErrors,
+  );
 
   switch (payload.logType) {
     case LOG_TYPE.WIDGET_UPDATE:
-      yield call(onWidgetUpdateSaga, payload);
       yield put(debuggerLog(payload));
+      yield call(logDependentEntityProperties, payload);
       return;
+    case LOG_TYPE.ACTION_UPDATE:
+      yield put(debuggerLog(payload));
+      yield call(logDependentEntityProperties, payload);
+      return;
+    case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
@@ -134,21 +234,49 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       break;
     case LOG_TYPE.ACTION_EXECUTION_ERROR:
       {
-        const res = yield call(formatActionRequestSaga, payload, payload.state);
-        const log = { ...payload };
-        res && set(log, "state.headers", res);
-        yield put(errorLog(log));
-        yield put(debuggerLog(log));
+        const formattedLog = yield call(
+          formatActionRequestSaga,
+          payload,
+          "state",
+        );
+        if (!((payload.source?.id as string) in debuggerErrors)) {
+          yield put(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_NEW_ERROR",
+              errorMessages: payload.messages ?? [],
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+            }),
+          );
+        }
+
+        yield put(errorLog(formattedLog));
+        yield put(debuggerLog(formattedLog));
       }
       break;
     case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
       {
-        const res = yield call(
+        const formattedLog = yield call(
           formatActionRequestSaga,
           payload,
-          payload.state?.request ?? {},
+          "state.request",
         );
 
+        if ((payload.source?.id as string) in debuggerErrors) {
+          yield put(
+            logDebuggerErrorAnalytics({
+              eventName: "DEBUGGER_RESOLVED_ERROR",
+              errorMessages:
+                debuggerErrors[payload.source?.id ?? ""].messages ?? [],
+              entityType: ENTITY_TYPE.ACTION,
+              entityId: payload.source?.id ?? "",
+              entityName: payload.source?.name ?? "",
+              propertyPath: "",
+            }),
+          );
+        }
         yield put(
           updateErrorLog({
             ...payload,
@@ -156,9 +284,7 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
           }),
         );
 
-        const log = { ...payload };
-        res && set(log, "state.request.headers", res);
-        yield put(debuggerLog(log));
+        yield put(debuggerLog(formattedLog));
       }
       break;
     case LOG_TYPE.ENTITY_DELETED:
@@ -169,42 +295,55 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
   }
 }
 
-// Pass through error list once after on page load actions executions are complete
-function* onExecutePageActionsCompleteSaga() {
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+// This saga is intended for analytics only
+function* logDebuggerErrorAnalyticsSaga(
+  action: ReduxAction<LogDebuggerErrorAnalyticsPayload>,
+) {
+  try {
+    const { payload } = action;
+    const currentPageId = yield select(getCurrentPageId);
 
-  const dataTree: DataTree = yield select(getDataTree);
-  const errors = yield select(getDebuggerErrors);
-  const updatedErrors = { ...errors };
-  const errorIds = Object.keys(errors);
+    if (payload.entityType === ENTITY_TYPE.WIDGET) {
+      const widget: WidgetProps = yield select(getWidget, payload.entityId);
+      const widgetType = widget.type;
+      const propertyPath = `${widgetType}.${payload.propertyPath}`;
 
-  for (const id of errorIds) {
-    const splits = id.split("-");
-    const entityId = splits[0];
-    const propertyName = splits[1];
-    const widget: WidgetProps | null = yield select(getWidget, entityId);
+      // Sending widget type for widgets
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: widgetType,
+        propertyPath,
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
+      });
+    } else if (payload.entityType === ENTITY_TYPE.ACTION) {
+      const action: Action = yield select(getAction, payload.entityId);
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      const pluginName = plugin.name.replace(/ /g, "");
+      let propertyPath = `${pluginName}`;
 
-    if (widget) {
-      const dataTreeWidget = dataTree[widget.widgetName] as DataTreeWidget;
-
-      if (!get(dataTreeWidget.invalidProps, propertyName, null)) {
-        delete updatedErrors[id];
+      if (payload.propertyPath) {
+        propertyPath += `.${payload.propertyPath}`;
       }
-    }
-  }
 
-  yield put({
-    type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS,
-    payload: updatedErrors,
-  });
+      // Sending plugin name for actions
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: pluginName,
+        propertyPath,
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
+      });
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
     takeEvery(
-      ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS_COMPLETE,
-      onExecutePageActionsCompleteSaga,
+      ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+      logDebuggerErrorAnalyticsSaga,
     ),
   ]);
 }

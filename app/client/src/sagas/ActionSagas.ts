@@ -8,7 +8,10 @@ import {
   all,
   call,
   put,
+  putResolve,
+  race,
   select,
+  take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
@@ -20,6 +23,7 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
+  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -41,6 +45,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
+  getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -55,13 +60,15 @@ import {
   getPlugin,
   getSettingConfig,
   getDatasources,
+  getActions,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
 import {
   API_EDITOR_ID_URL,
-  API_EDITOR_URL,
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
   QUERIES_EDITOR_ID_URL,
-  QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -78,12 +85,24 @@ import {
   ERROR_ACTION_MOVE_FAIL,
   ERROR_ACTION_RENAME_FAIL,
 } from "constants/messages";
-import _, { merge } from "lodash";
+import _, { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { getWidgetById } from "./selectors";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -237,7 +256,7 @@ export function* fetchActionsForViewModeSaga(
 }
 
 export function* fetchActionsForPageSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: EvaluationReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
@@ -251,7 +270,9 @@ export function* fetchActionsForPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchActionsForPageSuccess(response.data));
+      yield put(
+        fetchActionsForPageSuccess(response.data, action.postEvalActions),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );
@@ -330,12 +351,18 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 export function* deleteActionSaga(
-  actionPayload: ReduxAction<{ id: string; name: string }>,
+  actionPayload: ReduxAction<{
+    id: string;
+    name: string;
+    onSuccess?: () => void;
+  }>,
 ) {
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
-    const action = yield select(getAction, id);
+    const action: Action | undefined = yield select(getAction, id);
+
+    if (!action) return;
 
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
@@ -371,14 +398,16 @@ export function* deleteActionSaga(
           queryName: action.name,
         });
       }
-      const applicationId = yield select(getCurrentApplicationId);
-      const pageId = yield select(getCurrentPageId);
-      if (isApi || isSaas) {
-        history.push(API_EDITOR_URL(applicationId, pageId));
-      }
 
-      if (isQuery) {
-        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
+      if (!!actionPayload.payload.onSuccess) {
+        actionPayload.payload.onSuccess();
+      } else {
+        const applicationId = yield select(getCurrentApplicationId);
+        const pageId = yield select(getCurrentPageId);
+
+        history.push(
+          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        );
       }
 
       AppsmithConsole.info({
@@ -389,7 +418,11 @@ export function* deleteActionSaga(
           name: response.data.name,
           id: response.data.id,
         },
+        analytics: {
+          pluginId: action.pluginId,
+        },
       });
+
       yield put(deleteActionSuccess({ id }));
     }
   } catch (error) {
@@ -556,6 +589,22 @@ export function* refactorActionName(
   }
 }
 
+function* bindDataOnCanvasSaga(
+  action: ReduxAction<{
+    queryId: string;
+    applicationId: string;
+    pageId: string;
+  }>,
+) {
+  const { applicationId, pageId, queryId } = action.payload;
+  history.push(
+    BUILDER_PAGE_URL(applicationId, pageId, {
+      isSnipingMode: "true",
+      bindTo: queryId,
+    }),
+  );
+}
+
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
@@ -624,15 +673,21 @@ function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  const fieldToBeUpdated = propertyName.replace(
+    "actionConfiguration",
+    "config",
+  );
   AppsmithConsole.info({
+    logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
       name: actionObj.name,
       id: actionId,
+      propertyPath: fieldToBeUpdated,
     },
     state: {
-      [propertyName]: value,
+      [fieldToBeUpdated]: value,
     },
   });
 
@@ -715,6 +770,118 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* executeCommand(
+  actionPayload: ReduxAction<{
+    actionType: string;
+    callback: (binding: string) => void;
+    args: any;
+  }>,
+) {
+  const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
+  switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      const { entityId, entityType, expectedType, propertyPath } = get(
+        actionPayload,
+        "payload.args",
+      );
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+        propertyPath,
+      );
+      yield putResolve(
+        setGlobalSearchFilterContext({
+          category: filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+          refinements,
+          fieldMeta,
+        }),
+      );
+      yield put(toggleShowGlobalSearchModal());
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(effectRaceResult.success.payload);
+      break;
+    case "NEW_INTEGRATION":
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      break;
+    case "NEW_QUERY":
+      const datasource = get(actionPayload, "payload.args.datasource");
+      const pluginId = get(datasource, "pluginId");
+      const plugin = yield select(getPlugin, pluginId);
+      const actions = yield select(getActions);
+      const pageActions = actions.filter(
+        (a: ActionData) => a.config.pageId === pageId,
+      );
+      const newQueryName =
+        plugin.type === PluginType.DB
+          ? createNewQueryName(actions, pageId)
+          : createNewApiName(pageActions, pageId);
+      const nextPayload: Partial<Action> = {
+        name: newQueryName,
+        pageId,
+        eventData: {
+          actionType: "Query",
+          from: "Quick-Commands",
+          dataSource: datasource.name,
+        },
+        pluginId: datasource.pluginId,
+        actionConfiguration: {},
+      };
+      if (plugin.type === "API") {
+        nextPayload.datasource = datasource;
+        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
+      } else {
+        nextPayload.datasource = {
+          id: datasource.id,
+        };
+      }
+      yield put(createActionRequest(nextPayload));
+      const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
+      break;
+    case "NEW_API":
+      yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
+      const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      break;
+  }
+}
+
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta = {
+    dataType: expectedType,
+    fields: `${propertyPath}<score=2>`,
+  };
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "").toLowerCase().split("-");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = currentEntity.type.toLowerCase().split("_");
+    refinements.entities = type;
+  }
+  return { refinements, fieldMeta };
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -726,6 +893,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.BIND_DATA_ON_CANVAS, bindDataOnCanvasSaga),
     takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
@@ -741,5 +909,6 @@ export function* watchActionSagas() {
       ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
       toggleActionExecuteOnLoadSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommand),
   ]);
 }

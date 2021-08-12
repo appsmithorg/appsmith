@@ -79,7 +79,6 @@ describe("Entity explorer tests related to copy query", function() {
       .find(explorer.collapse)
       .click({ multiple: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(4);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");
       expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
@@ -88,7 +87,7 @@ describe("Entity explorer tests related to copy query", function() {
   });
 
   it("Delete query and rename datasource in explorer", function() {
-    cy.get(commonlocators.entityExplorersearch).clear();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.NavigateToDatasourceEditor();
     cy.GlobalSearchEntity(`${datasourceName}`);
     cy.get(`.t--entity-name:contains(${datasourceName})`)
@@ -101,7 +100,6 @@ describe("Entity explorer tests related to copy query", function() {
       cy.log("sliced id :" + updatedName);
       cy.EditEntityNameByDoubleClick(datasourceName, updatedName);
       cy.SearchEntityandOpen(updatedName);
-      cy.testSaveDatasource();
       cy.hoverAndClick();
       cy.get(apiwidget.delete).click({ force: true });
       //This is check to make sure if a datasource is active 409

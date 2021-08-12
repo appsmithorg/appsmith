@@ -67,7 +67,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.10.7</version>
+            <version>2.9.10.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-mongodb</artifactId>
-            <version>4.2.2</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.querydsl</groupId>
@@ -90,7 +90,7 @@
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
-            <version>4.2.2</version>
+            <version>5.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -118,12 +118,12 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.18.Final</version>
+            <version>6.0.20.Final</version>
         </dependency>
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
-            <version>2.3</version>
+            <version>2.4.7</version>
             <scope>compile</scope>
         </dependency>
 

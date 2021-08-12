@@ -31,12 +31,15 @@ import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
 import AppComments from "comments/AppComments/AppComments";
+import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
+import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 
 import history from "utils/history";
 
 type EditorProps = {
   currentApplicationId?: string;
   currentPageId?: string;
+  currentApplicationName?: string;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
@@ -74,6 +77,7 @@ class Editor extends Component<Props> {
 
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
+      nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
@@ -120,11 +124,15 @@ class Editor extends Component<Props> {
           <div>
             <Helmet>
               <meta charSet="utf-8" />
-              <title>Editor | Appsmith</title>
+              <title>
+                {`${this.props.currentApplicationName} |`} Editor | Appsmith
+              </title>
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
               <AppComments />
+              <AddCommentTourComponent />
+              <CommentShowCaseCarousel />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />
@@ -145,6 +153,7 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
   lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
+  currentApplicationName: state.ui.applications.currentApplication?.name,
 });
 
 const mapDispatchToProps = (dispatch: any) => {

@@ -31,8 +31,12 @@ describe("API Panel Test Functionality", function() {
     cy.contains(".t--datasource-name", datasourceName)
       .find(queryLocators.createQuery)
       .click();
-
     cy.get(queryLocators.templateMenu).click();
+    cy.get(queryLocators.settings).click({ force: true });
+    cy.get(queryLocators.switch)
+      .last()
+      .click({ force: true });
+    cy.get(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
       .focus()
@@ -43,13 +47,14 @@ describe("API Panel Test Functionality", function() {
     cy.WaitAutoSave();
     cy.runQuery();
   });
+
   it("Will pass execution params", function() {
     // Bind the table
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Query1.data}}");
     // Assert 'posts' data (default)
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("Ximenez Kainz");
+      expect(cellData).to.be.equal("Test user 7");
     });
     // Choose static button
     cy.SearchEntityandOpen("StaticButton");
@@ -60,7 +65,7 @@ describe("API Panel Test Functionality", function() {
     // Bind with MultiApi with static value
     cy.testJsontext(
       "onclick",
-      "{{Query1.run(undefined, undefined, { tableName: 'orders' })}}",
+      "{{Query1.run(undefined, undefined, { tableName: 'users' })}}",
     );
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
 
@@ -78,33 +83,46 @@ describe("API Panel Test Functionality", function() {
 
     // Publish the app
     cy.PublishtheApp();
-    cy.wait("@postExecute");
 
     // Assert on load data in table
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("Ximenez Kainz");
+      expect(cellData).to.be.equal("Test user 7");
     });
 
     // Click Static button
     cy.get(publishPage.buttonWidget)
       .first()
       .click();
+
+    //Wait for postExecute to finish
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(5000);
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
-      expect(cellData).to.be.equal("OUT_FOR_DELIVERY");
+      expect(cellData).to.be.equal("Test user 8");
     });
 
     // Click dynamic button
     cy.get(publishPage.buttonWidget)
       .eq(1)
       .click();
+
+    //Wait for postExecute to finish
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(5000);
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "1").then((cellData) => {
-      expect(cellData).to.be.equal("DISCOUNT");
+      expect(cellData).to.be.equal("Test user 7");
     });
   });
 });

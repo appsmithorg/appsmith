@@ -15,8 +15,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CommentThreadRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -42,6 +44,8 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
     private final PolicyUtils policyUtils;
     private final ConfigService configService;
+    private final CommentThreadRepository commentThreadRepository;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -51,10 +55,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   ApplicationRepository repository,
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
-                                  ConfigService configService) {
+                                  ConfigService configService,
+                                  CommentThreadRepository commentThreadRepository, SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
+        this.commentThreadRepository = commentThreadRepository;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -70,7 +77,25 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         return repository.findById(id, READ_APPLICATIONS)
                 .flatMap(this::setTransientFields)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
+                });
+    }
+
+    private Mono<Application> setUnreadCommentCount(Application application, User user) {
+        if(!user.isAnonymous()) {
+            return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
+                    .map(aLong -> {
+                        application.setUnreadCommentThreads(aLong);
+                        return application;
+                    });
+        } else {
+            return Mono.just(application);
+        }
     }
 
     @Override
@@ -127,7 +152,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     public Mono<Application> update(String id, Application application) {
         application.setIsPublic(null);
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
-                .flatMap(analyticsService::sendUpdateEvent);
+            .onErrorResume(error -> {
+                if (error instanceof DuplicateKeyException) {
+                    // Error message : E11000 duplicate key error collection: appsmith.application index:
+                    // organization_application_deleted_compound_index dup key:
+                    // { organizationId: "******", name: "AppName", deletedAt: null }
+                    if (error.getCause().getMessage().contains("name:")) {
+                        return Mono.error(
+                            new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
+                        );
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY, error.getCause().getMessage()));
+                }
+                return Mono.error(error);
+            })
+            .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -135,11 +174,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         return repository.archive(application);
     }
 
-
-
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        return repository
+        Mono<Application> updateApplicationMono = repository
                 .findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 .flatMap(application -> {
@@ -156,6 +193,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     application.setIsPublic(applicationAccessDTO.getPublicAccess());
                     return generateAndSetPoliciesForPublicView(application, applicationAccessDTO.getPublicAccess());
                 });
+
+        //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
+        //  subscriber has cancelled its subscription, the create method will still generates its event.
+        return Mono.create(sink -> updateApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 
     @Override
@@ -169,6 +212,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 .map(application -> {
                     application.setViewMode(true);
                     return application;
+                })
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(objects -> {
+                    Application application = objects.getT1();
+                    User user = objects.getT2();
+                    return setUnreadCommentCount(application, user);
                 });
     }
 
@@ -251,4 +300,5 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     return application;
                 });
     }
+
 }

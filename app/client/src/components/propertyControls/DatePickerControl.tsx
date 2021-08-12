@@ -46,11 +46,11 @@ class DatePickerControl extends BaseControl<
   year = this.now.get("year");
   maxDate: Date = this.now
     .clone()
-    .set({ month: 11, date: 31, year: this.year + 20 })
+    .set({ month: 11, date: 31, year: this.year + 100 })
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 20 })
+    .set({ month: 0, date: 1, year: this.year - 100 })
     .toDate();
 
   constructor(props: DatePickerControlProps) {
@@ -105,14 +105,14 @@ class DatePickerControl extends BaseControl<
    *
    * @param date
    */
-  onDateSelected = (date: Date, isUserChange: boolean): void => {
+  onDateSelected = (date: Date | null, isUserChange: boolean): void => {
     if (isUserChange) {
       const selectedDate = date
         ? this.props.widgetProperties.version === 2
           ? date.toISOString()
           : this.formatDate(date)
         : undefined;
-      const isValid = this.validateDate(date);
+      const isValid = date ? this.validateDate(date) : true;
       if (!isValid) return;
       // if everything is ok, put date in state
       this.setState({ selectedDate: selectedDate });
@@ -137,15 +137,19 @@ class DatePickerControl extends BaseControl<
     return moment(date).format(dateFormat);
   };
 
-  parseDate = (dateStr: string): Date => {
-    const dateFormat =
-      this.props.widgetProperties.version === 2
-        ? ISO_DATE_FORMAT
-        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    const date = moment(dateStr, dateFormat);
+  parseDate = (dateStr: string): Date | null => {
+    if (!dateStr) {
+      return null;
+    } else {
+      const dateFormat =
+        this.props.widgetProperties.version === 2
+          ? ISO_DATE_FORMAT
+          : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+      const date = moment(dateStr, dateFormat);
 
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-    else return moment().toDate();
+      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+      else return moment().toDate();
+    }
   };
 
   static getControlType() {

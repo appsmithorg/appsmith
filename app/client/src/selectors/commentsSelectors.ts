@@ -1,7 +1,9 @@
 import { AppState } from "reducers";
 import { get } from "lodash";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { CommentThread, Comment } from "entities/Comments/CommentsInterfaces";
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import getFeatureFlags from "utils/featureFlags";
 
 export const refCommentThreadsSelector = (
   refId: string,
@@ -21,19 +23,28 @@ export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
 
-export const commentModeSelector = (state: AppState) =>
-  state.ui.comments?.isCommentMode;
+export const commentModeSelector = (state: AppState) => {
+  const pathName = window.location.pathname;
+  const onEditorOrViewerPage =
+    matchBuilderPath(pathName) || matchViewerPath(pathName);
+
+  if ((window as any).isCommentModeForced) return true;
+
+  return (
+    state.ui.comments?.isCommentMode &&
+    !!onEditorOrViewerPage &&
+    areCommentsEnabledForUserAndApp()
+  );
+};
+
+export const isUnsubscribedSelector = (state: AppState) =>
+  state.ui.comments?.unsubscribed;
 
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
 
-export const areCommentsEnabledForUser = (state: AppState) => {
-  const user = getCurrentUser(state);
-  const email = get(user, "email", "");
-  const isAppsmithEmail = email.toLowerCase().indexOf("@appsmith.com") !== -1;
-  return isAppsmithEmail;
-};
+export const areCommentsEnabledForUserAndApp = () => getFeatureFlags().COMMENT;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
@@ -54,18 +65,105 @@ export const getAppCommentThreads = (
 export const allCommentThreadsMap = (state: AppState) =>
   state.ui.comments.commentThreadsMap;
 
-export const getSortedAppCommentThreadIds = (
+const getSortIndexBool = (a: boolean, b: boolean) => {
+  if (a && b) return 0;
+  if (a) return -1;
+  if (b) return 1;
+  else return 0;
+};
+
+const getSortIndexTime = (
+  a: string | number = new Date().toISOString(),
+  b: string | number = new Date().toISOString(),
+) => {
+  const tsA = new Date(a).valueOf();
+  const tsB = new Date(b).valueOf();
+
+  if (tsA === tsB) return 0;
+  else if (tsA > tsB) return -1;
+  else return 1;
+};
+
+const getContainsMyComment = (
+  thread: CommentThread,
+  currentUserUsername?: string,
+) =>
+  thread.comments.some(
+    (comment: Comment) => comment.authorUsername === currentUserUsername,
+  );
+
+export const getSortedAndFilteredAppCommentThreadIds = (
   applicationThreadIds: Array<string>,
   commentThreadsMap: Record<string, CommentThread>,
+  shouldShowResolved: boolean,
+  appCommentsFilter: typeof filterOptions[number]["value"],
+  currentUserUsername?: string,
 ): Array<string> => {
   if (!applicationThreadIds) return [];
-  return applicationThreadIds.sort((a, b) => {
-    const { isPinned: isAPinned } = commentThreadsMap[a];
-    const { isPinned: isBPinned } = commentThreadsMap[b];
+  const result = applicationThreadIds
+    .sort((a, b) => {
+      // TODO verify cases where commentThread can be undefined
+      if (!commentThreadsMap[a] || !commentThreadsMap[b]) return -1;
 
-    if (isAPinned && isBPinned) return -0;
-    if (isAPinned) return -1;
-    if (isBPinned) return 1;
-    else return 0;
-  });
+      const {
+        pinnedState: isAPinned,
+        updationTime: updationTimeA,
+      } = commentThreadsMap[a];
+      const {
+        pinnedState: isBPinned,
+        updationTime: updationTimeB,
+      } = commentThreadsMap[b];
+
+      const sortIdx = getSortIndexBool(
+        !!isAPinned?.active,
+        !!isBPinned?.active,
+      );
+      if (sortIdx !== 0) return sortIdx;
+
+      const result = getSortIndexTime(updationTimeA, updationTimeB);
+
+      return result;
+    })
+    .filter((threadId: string) => {
+      const thread = commentThreadsMap[threadId];
+
+      // Happens during delete thread
+      if (!thread) return false;
+
+      const isResolved = thread.resolvedState?.active;
+      const isPinned = thread.pinnedState?.active;
+
+      switch (appCommentsFilter) {
+        case "show-only-yours": {
+          const containsMyComment = getContainsMyComment(
+            thread,
+            currentUserUsername,
+          );
+          return containsMyComment;
+        }
+        case "show-only-pinned": {
+          return isPinned && (!isResolved || shouldShowResolved);
+        }
+        default: {
+          return shouldShowResolved || !isResolved;
+        }
+      }
+    });
+
+  return result;
 };
+
+export const shouldShowResolved = (state: AppState) =>
+  state.ui.comments.shouldShowResolvedAppCommentThreads;
+
+export const appCommentsFilter = (state: AppState) =>
+  state.ui.comments.appCommentsFilter;
+
+export const showUnreadIndicator = (state: AppState) =>
+  state.ui.comments.unreadCommentThreadsCount > 0;
+
+export const visibleCommentThreadSelector = (state: AppState) =>
+  state.ui.comments.visibleCommentThreadId;
+
+export const isIntroCarouselVisibleSelector = (state: AppState) =>
+  state.ui.comments.isIntroCarouselVisible && areCommentsEnabledForUserAndApp();

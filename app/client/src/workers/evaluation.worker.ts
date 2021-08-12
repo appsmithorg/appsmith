@@ -7,14 +7,18 @@ import {
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
+  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
+  DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import { Diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -47,18 +51,24 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
+        let updates: Diff<DataTree, DataTree>[] = [];
+        let evaluationOrder: string[] = [];
+        let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
-            dataTreeEvaluator.createFirstTree(unevalTree);
-            dataTree = dataTreeEvaluator.evalTree;
+            dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
+            evaluationOrder = dataTreeEvaluator.sortedDependencies;
+            // We need to clean it to remove any possible functions inside the tree.
+            // If functions exist, it will crash the web worker
+            dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
-            dataTree = dataTreeEvaluator.updateDataTree(unevalTree);
+            dataTree = {};
+            const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
+            updates = JSON.parse(JSON.stringify(updateResponse.updates));
+            evaluationOrder = updateResponse.evaluationOrder;
+            unEvalUpdates = updateResponse.unEvalUpdates;
           }
-
-          // We need to clean it to remove any possible functions inside the tree.
-          // If functions exist, it will crash the web worker
-          dataTree = JSON.parse(JSON.stringify(dataTree));
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
@@ -83,7 +93,10 @@ ctx.addEventListener(
           dataTree,
           dependencies,
           errors,
+          evaluationOrder,
           logs,
+          updates,
+          unEvalUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -108,8 +121,15 @@ ctx.addEventListener(
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
-        const evalTree = dataTreeEvaluator.updateDataTree(dataTree);
-        const triggers = dataTreeEvaluator.getDynamicValue(
+        dataTreeEvaluator.updateDataTree(dataTree);
+        const evalTree = dataTreeEvaluator.evalTree;
+        const {
+          errors: evalErrors,
+          triggers,
+        }: {
+          errors: EvaluationError[];
+          triggers: Array<any>;
+        } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
           EvaluationSubstitutionType.TEMPLATE,
@@ -119,16 +139,15 @@ ctx.addEventListener(
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
         // errors occur less, we want to treat it separately
-        const errors = dataTreeEvaluator.errors.map((error) => {
-          if (error.type === EvalErrorTypes.EVAL_ERROR) {
-            return {
-              ...error,
-              type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-            };
-          }
-          return error;
-        });
-        dataTreeEvaluator.clearErrors();
+        const errors = evalErrors
+          .filter(
+            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
+          )
+          .map((error) => ({
+            ...error,
+            message: error.errorMessage,
+            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
+          }));
         return { triggers: cleanTriggers, errors };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
@@ -152,9 +171,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { property, props, validation, value } = requestData;
+        const { props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(property, value, props, validation),
+          validateWidgetProperty(validation, value, props),
         );
       }
       default: {

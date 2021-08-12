@@ -18,6 +18,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxAction,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 
 import {
@@ -28,10 +29,7 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
-} from "actions/metaActions";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
@@ -54,7 +52,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       tabId: "",
     };
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: props,
     });
 
@@ -119,7 +117,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   yield put({
-    type: ReduxActionTypes.SELECT_WIDGET,
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
     payload: { widgetId: action.payload.modalId },
   });
   yield put(focusWidget(action.payload.modalId));
@@ -186,7 +184,6 @@ export function* closeModalSaga(
           widgetIds.map((widgetId: string) => {
             return [
               put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
-              put(resetChildrenMetaProperty(widgetId)),
             ];
           }),
         ),
@@ -203,6 +200,6 @@ export default function* modalSagas() {
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
-    takeLatest(ReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
   ]);
 }

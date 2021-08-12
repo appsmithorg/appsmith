@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
-public class SSLDetails {
+public class SSLDetails implements AppsmithDomain {
 
     public enum AuthType {
         // Default driver configurations
@@ -34,7 +34,20 @@ public class SSLDetails {
         CA_CERTIFICATE, SELF_SIGNED_CERTIFICATE
     }
 
+    public enum CACertificateType {
+        // In case user does not want to provide any certificate
+        NONE,
+
+        // Provide CA Certificate file
+        FILE,
+
+        // Some services provide CA certificate as a base64 encoded string instead of a file.
+        BASE64_STRING
+    }
+
     AuthType authType;
+
+    CACertificateType caCertificateType;
 
     UploadedFile keyFile;
 

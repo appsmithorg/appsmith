@@ -50,6 +50,34 @@ export const hideScrollbar = css`
   }
 `;
 
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${Colors.PORCELAIN};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.PORCELAIN};
+  }
+`;
+
 export const truncateTextUsingEllipsis = css`
   text-overflow: ellipsis;
   overflow: hidden;
@@ -289,6 +317,7 @@ type PropertyPaneTheme = {
   height: number;
   dividerColor: Color;
   titleHeight: number;
+  connectionsHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -316,9 +345,14 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
+  navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -361,6 +395,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -401,6 +436,9 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  actionSidePane: {
+    width: number;
+  };
 };
 
 type IconSizeType = {
@@ -530,8 +568,137 @@ type buttonVariant = {
 };
 
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
+    boxShadow: {
+      default: {
+        variant1: Color;
+        variant2: Color;
+        variant3: Color;
+        variant4: Color;
+        variant5: Color;
+      };
+    };
+    disabled: {
+      bgColor: Color;
+      textColor: Color;
+    };
+    /**
+     * PRIMARY style
+     */
+    primary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * WARNING style
+     */
+    warning: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * DANGER style
+     */
+    danger: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * INFO style
+     */
+    info: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
+    /**
+     * SECONDARY style
+     */
+    secondary: {
+      solid: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      outline: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor: Color;
+      };
+      ghost: {
+        bgColor?: Color;
+        borderColor?: Color;
+        hoverColor: Color;
+        textColor?: Color;
+      };
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -574,6 +741,15 @@ type ColorType = {
       color: string;
       bg: string;
     };
+  };
+  navigationMenu: {
+    contentActive: string;
+    backgroundActive: string;
+    contentInactive: string;
+    backgroundInactive: string;
+    label: string;
+    warning: string;
+    warningBackground: string;
   };
   colorSelector: {
     shadow: ShadeColor;
@@ -862,11 +1038,14 @@ type ColorType = {
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
+    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
+    searchItemAltText: string;
     searchItemText: string;
+    searchItemSubText: string;
     highlightedTextUnderline: string;
     documentationCtaBackground: string;
     documentationCtaText: string;
@@ -880,6 +1059,9 @@ type ColorType = {
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
+    mainContainerBackground: string;
+    filterListBackground: string;
+    filterBtnText: string;
   };
   gif: {
     overlay: string;
@@ -898,11 +1080,15 @@ type ColorType = {
     sendButton: string;
     addCommentInputBackground: string;
     pin: string;
-    commentModeButtonIcon: string;
-    commentModeButtonBackground: string;
+    activeModeBackground: string;
+    activeModeIcon: string;
+    modeIcon: string;
     emojiPicker: string;
     resolved: string;
     unresolved: string;
+    resolvedFill: string;
+    unresolvedFill: string;
+    resolvedPath: string;
     childCommentsIndent: string;
     commentBackground: string;
     contextMenuTrigger: string;
@@ -915,6 +1101,34 @@ type ColorType = {
     contextMenuTitleHover: ShadeColor;
     appCommentsHeaderTitle: ShadeColor;
     appCommentsClose: ShadeColor;
+    viewLatest: string;
+    commentTime: string;
+    pinId: string;
+    commentsFilter: string;
+    appCommentsHeaderBorder: string;
+    unreadIndicator: string;
+    unreadIndicatorCommentCard: string;
+    pinnedByText: string;
+    pinnedThreadBackground: string;
+    visibleThreadBackground: string;
+    cardOptionsIcon: string;
+    appCommentsPlaceholderText: string;
+    cardHoverBackground: string;
+    introTitle: string;
+    introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
+  };
+  mentionSuggestion: {
+    nameText: string;
+    usernameText: string;
+    hover: string;
+  };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
   };
   treeDropdown: {
     targetBg: string;
@@ -950,6 +1164,14 @@ type ColorType = {
     dropdownSelectBg: ShadeColor;
     multiDropdownBoxHoverBg: ShadeColor;
     iconColor: ShadeColor;
+    ctaTextColor: string;
+    ctaBackgroundColor: string;
+    ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
   };
   scrollbar: string;
   scrollbarBG: string;
@@ -960,6 +1182,9 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    inspectElement: {
+      color: string;
+    };
     floatingButton: {
       background: string;
       color: string;
@@ -990,9 +1215,60 @@ type ColorType = {
     background: string;
   };
   mentionsInput: Record<string, string>;
+  showcaseCarousel: Record<string, string>;
+  displayImageUpload: Record<string, string>;
+  notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
+  };
+};
+
+const notifications = {
+  time: "#858282",
+  listHeaderTitle: "#090707",
+  markAllAsReadButtonBackground: "#f0f0f0",
+  markAllAsReadButtonText: "#716E6E",
+  unreadIndicator: "#F86A2B",
+  bellIndicator: "#E22C2C",
+  label: "#858282",
+};
+
+const displayImageUpload = {
+  background: "#AEBAD9",
+  label: "#457AE6",
+};
+
+const showcaseCarousel = {
+  activeStepDot: "#F86A2B",
+  inactiveStepDot: "#FEEDE5",
+};
+
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
+  borderActive: "#BF4109",
+};
+
+const mentionSuggestion = {
+  nameText: "#090707",
+  usernameText: "#716E6E",
+  hover: "#EBEBEB",
 };
 
 const comments = {
+  introTitle: "#090707",
+  introContent: "#716E6E",
+  commentsFilter: "#6A86CE",
   profileUserName: darkShades[11],
   threadTitle: darkShades[8],
   commentBody: darkShades[8],
@@ -1003,11 +1279,13 @@ const comments = {
   sendButton: "#6A86CE",
   addCommentInputBackground: "#FAFAFA",
   pin: "#EF4141",
-  commentModeButtonIcon: "#6A86CE",
-  commentModeButtonBackground: "#262626",
+  activeModeBackground: "#090707",
   emojiPicker: lightShades[5],
-  resolved: Colors.GREEN,
+  resolved: Colors.BLACK,
   unresolved: lightShades[5],
+  resolvedFill: Colors.BLACK,
+  unresolvedFill: "transparent",
+  resolvedPath: Colors.WHITE,
   childCommentsIndent: lightShades[13],
   commentBackground: lightShades[2],
   contextMenuTrigger: darkShades[6],
@@ -1020,6 +1298,22 @@ const comments = {
   contextMenuTitleHover: darkShades[11],
   appCommentsHeaderTitle: darkShades[11],
   appCommentsClose: lightShades[15],
+  viewLatest: "#F86A2B",
+  commentTime: lightShades[7],
+  pinId: lightShades[8],
+  appCommentsHeaderBorder: lightShades[3],
+  unreadIndicator: "#E00D0D",
+  unreadIndicatorCommentCard: "#F86A2B",
+  pinnedByText: lightShades[7],
+  pinnedThreadBackground: "#FFFAE9",
+  visibleThreadBackground: "#FBEED0",
+  cardOptionsIcon: "#777272",
+  appCommentsPlaceholderText: lightShades[8],
+  activeModeIcon: "#F0F0F0",
+  modeIcon: "#6D6D6D",
+  cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -1057,27 +1351,33 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
-  searchInputText: "#fff",
+  activeSearchItemBackground: "#6A86CE",
+  activeCategory: "#6A86CE",
+  searchInputText: "#484848",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
-  searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemAltText: "#fff",
+  searchItemText: "#484848",
+  searchItemSubText: "#A9A7A7",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
-  emptyStateText: "#ABABAB",
+  emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#494949",
-  documentLink: "#54a9fb",
+  codeBackground: "#F0F0F0",
+  documentLink: "#69B5FF",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
-  sectionTitle: "#D4D4D4",
+  sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
+  mainContainerBackground: "#F0F0F0",
+  filterListBackground: lightShades[0],
+  filterBtnText: lightShades[8],
 };
 
 const mentionsInput = {
@@ -1086,13 +1386,38 @@ const mentionsInput = {
   focusedItemBackground: "#cee4e5",
   itemBorderBottom: "#cee4e5",
   mentionBackground: "#cee4e5",
+  mentionsInviteBtnPlusIcon: "#6A86CE",
+};
+
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
+const navigationMenu = {
+  contentActive: "#F0F0F0",
+  backgroundActive: "#222222",
+  contentInactive: "#858282",
+  backgroundInactive: "#090707",
+  label: "#A9A7A7",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
 };
 
 export const dark: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
   comments,
+  navigationMenu,
   selected: darkShades[10],
   header: {
     separator: darkShades[4],
@@ -1109,6 +1434,94 @@ export const dark: ColorType = {
   },
   button: {
     disabledText: darkShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1496,6 +1909,14 @@ export const dark: ColorType = {
     dropdownSelectBg: darkShades[2],
     multiDropdownBoxHoverBg: darkShades[0],
     iconColor: darkShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
   scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
@@ -1515,6 +1936,9 @@ export const dark: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#D4D4D4",
+    },
     blankState: {
       color: "#D4D4D4",
       shortcut: "#D4D4D4",
@@ -1531,16 +1955,32 @@ export const dark: ColorType = {
       backgroundColor: "#291B1D",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
 };
 
 export const light: ColorType = {
+  overlayColor: "#090707cc",
+  notifications,
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
   mentionsInput,
   helpModal,
   globalSearch,
   comments: {
     ...comments,
-    commentModeButtonBackground: "#FAFAFA",
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
   },
+  navigationMenu,
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -1557,6 +1997,94 @@ export const light: ColorType = {
   },
   button: {
     disabledText: lightShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
+        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
   },
   tertiary: {
     main: "#716E6E",
@@ -1945,6 +2473,14 @@ export const light: ColorType = {
     dropdownSelectBg: lightShades[14],
     multiDropdownBoxHoverBg: lightShades[11],
     iconColor: lightShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
   },
   scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
   scrollbarBG: "transparent",
@@ -1964,8 +2500,11 @@ export const light: ColorType = {
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
     },
+    inspectElement: {
+      color: "#090707",
+    },
     blankState: {
-      color: "#716e6e",
+      color: "#090707",
       shortcut: "black",
     },
     info: {
@@ -1980,6 +2519,11 @@ export const light: ColorType = {
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
   },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
 };
 
 export const theme: Theme = {
@@ -2056,7 +2600,7 @@ export const theme: Theme = {
     },
     btnSmall: {
       fontSize: 11,
-      lineHeight: 13,
+      lineHeight: 12,
       letterSpacing: 0.4,
       fontWeight: 600,
     },
@@ -2090,11 +2634,22 @@ export const theme: Theme = {
       fontSize: 28,
       lineHeight: 36,
     },
+    docHeader: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 17,
+    },
     spacedOutP1: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 14,
       lineHeight: 24,
+    },
+    categoryBtn: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.2,
+      fontWeight: 500,
     },
   },
   iconSizes: {
@@ -2110,6 +2665,7 @@ export const theme: Theme = {
   propertyPane: {
     width: 270,
     titleHeight: 40,
+    connectionsHeight: 30,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -2157,6 +2713,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2180,6 +2737,8 @@ export const theme: Theme = {
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
     dropdownIconBg: Colors.ALTO2,
+    welcomeTourStickySidebarColor: Colors.WHITE,
+    welcomeTourStickySidebarBackground: "#F86A2B",
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
@@ -2229,7 +2788,11 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "0 0 200px 0",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
+  canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -2283,6 +2846,8 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
@@ -2334,6 +2899,9 @@ export const theme: Theme = {
         background: "transparent",
       },
     },
+  },
+  actionSidePane: {
+    width: 265,
   },
 };
 

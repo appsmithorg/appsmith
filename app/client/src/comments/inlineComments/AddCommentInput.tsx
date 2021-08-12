@@ -6,35 +6,57 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import Icon, { IconSize } from "components/ads/Icon";
-import styled, { withTheme } from "styled-components";
-import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
 import EmojiPicker from "components/ads/EmojiPicker";
-import MentionsInput from "components/ads/MentionsInput";
-import useOrgUsers from "./useOrgUsers";
-import { MentionData } from "@draft-js-plugins/mention";
-import { OrgUser } from "constants/orgConstants";
-import { IEmojiData } from "emoji-picker-react";
+import MentionsInput, { Trigger } from "components/ads/MentionsInput";
+import Button, { Category } from "components/ads/Button";
 
-import { createMessage, ADD_COMMENT_PLACEHOLDER } from "constants/messages";
+import { BaseEmoji } from "emoji-mart";
+import styled from "styled-components";
+import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
+import { MentionData } from "@draft-js-plugins/mention";
+
+import { OrgUser } from "constants/orgConstants";
+import useOrgUsers from "./useOrgUsers";
+
+import { RawDraftContentState } from "draft-js";
+
+import {
+  createMessage,
+  ADD_COMMENT_PLACEHOLDER,
+  CANCEL,
+  POST,
+  INVALID_EMAIL,
+} from "constants/messages";
+
+import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { useDispatch, useSelector } from "react-redux";
+import { change } from "redux-form";
+
+import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+
+import { isEmail } from "utils/formhelpers";
+import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
+import { TourType } from "entities/Tour";
+import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
+import {
+  commentsTourStepsEditModeTypes,
+  commentsTourStepsPublishedModeTypes,
+} from "comments/tour/commentsTourSteps";
+import { getCurrentAppOrg } from "selectors/organizationSelectors";
+import useOrg from "utils/hooks/useOrg";
+import { getCanCreateApplications } from "utils/helpers";
+
+import { getAppsmithConfigs } from "configs";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+
+const { appsmithSupportEmail } = getAppsmithConfigs();
 
 const StyledInputContainer = styled.div`
-  display: flex;
-  align-items: center;
   width: 100%;
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
-  background: ${(props) =>
-    props.theme.colors.comments.addCommentInputBackground};
-`;
-
-const StyledSendButton = styled.button`
-  display: inline-flex;
-  background: transparent;
-  border: none;
-  align-items: center;
-  position: relative;
-  top: -1px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const StyledEmojiTrigger = styled.div`
@@ -43,9 +65,20 @@ const StyledEmojiTrigger = styled.div`
   margin-right: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const PaddingContainer = styled.div`
+const PaddingContainer = styled.div<{ removePadding?: boolean }>`
   padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[6]}px`};
+    !props.removePadding
+      ? `${props.theme.spaces[7]}px ${props.theme.spaces[5]}px`
+      : 0};
+
+  & .cancel-button {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
+  }
+`;
+
+const Row = styled.div`
+  display: flex;
+  justify-content: space-between;
 `;
 
 const insertCharacter = (
@@ -95,88 +128,230 @@ const resetEditorState = (editorState: EditorState) => {
   return editorState;
 };
 
+const appsmithSupport = {
+  name: "appsmith",
+  user: { username: appsmithSupportEmail, name: "appsmith" },
+  isSupport: true,
+};
+
+const getSortIndex = (a: number, b: number) => {
+  if (a === -1 && b !== -1) return b;
+  if (b === -1 && a !== -1) return a;
+  return a - b;
+};
+
+const sortMentionData = (filter = "") => (a: MentionData, b: MentionData) => {
+  let sortIndex = 0;
+  const nameA = a.name?.toLowerCase() || "";
+  const nameB = b.name?.toLowerCase() || "";
+  const usernameA = a.user?.username?.toLowerCase() || "";
+  const usernameB = b.user?.username?.toLowerCase() || "";
+
+  if (filter) {
+    const nameIndexA = nameA.indexOf(filter);
+    const nameIndexB = nameB.indexOf(filter);
+    sortIndex = getSortIndex(nameIndexA, nameIndexB);
+    if (sortIndex) return sortIndex;
+
+    const usernameIndexA = usernameA.indexOf(filter);
+    const usernameIndexB = usernameB.indexOf(filter);
+    sortIndex = getSortIndex(usernameIndexA, usernameIndexB);
+    if (sortIndex) return sortIndex;
+  }
+
+  sortIndex = nameA.localeCompare(nameB);
+  if (sortIndex) return sortIndex;
+
+  return usernameA.localeCompare(usernameB);
+};
+
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
+  currentUser?: User,
 ) => {
+  const { id } = useSelector(getCurrentAppOrg) || {};
+  const currentOrg = useOrg(id);
+  const canManage = getCanCreateApplications(currentOrg);
+
   useEffect(() => {
-    setSuggestions(users.map((user) => ({ name: user.username })));
-  }, [users]);
+    const result = [] as Array<MentionData>;
+    users.forEach((user) => {
+      if (user?.username !== currentUser?.username)
+        result.push({
+          name: user.name || user.username,
+          user,
+        });
+    });
+
+    result.sort(sortMentionData());
+
+    if (canManage) result.unshift(appsmithSupport);
+
+    setSuggestions(result);
+  }, [users, canManage]);
 };
 
-const AddCommentInput = withTheme(({ onSave, theme }: any) => {
+function AddCommentInput({
+  initialEditorState,
+  onCancel,
+  onSave,
+  removePadding,
+}: {
+  removePadding?: boolean;
+  initialEditorState?: EditorState;
+  onSave: (state: RawDraftContentState) => void;
+  onCancel?: () => void;
+}) {
+  const proceedToNextTourStep = useProceedToNextTourStep({
+    [TourType.COMMENTS_TOUR_EDIT_MODE]:
+      commentsTourStepsEditModeTypes.SAY_HELLO,
+    [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+      commentsTourStepsPublishedModeTypes.SAY_HELLO,
+  });
+
+  const dispatch = useDispatch();
   const users = useOrgUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
-  useUserSuggestions(users, setSuggestions);
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [trigger, setTrigger] = useState<Trigger>();
+  const currentUser = useSelector(getCurrentUser);
+  useUserSuggestions(users, setSuggestions, currentUser);
+  const [editorState, setEditorStateInState] = useState(
+    initialEditorState || EditorState.createEmpty(),
+  );
+
+  const setEditorState = useCallback((editorState: EditorState) => {
+    setEditorStateInState(editorState);
+  }, []);
+
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
+
+  const clearEditor = useCallback(() => {
+    setEditorState(resetEditorState(editorState));
+  }, [editorState]);
+
+  const _onCancel = () => {
+    clearEditor();
+    if (onCancel) onCancel();
+  };
 
   const onSaveComment = useCallback(
     (editorStateArg?: EditorState) => {
       const latestEditorState = editorStateArg || editorState;
+      const plainText = latestEditorState.getCurrentContent().getPlainText();
 
-      if (!latestEditorState.getCurrentContent().hasText()) return;
+      if (!plainText || plainText.trim().length === 0) return;
 
       const contentState = latestEditorState.getCurrentContent();
       const rawContent = convertToRaw(contentState);
+      clearEditor();
       onSave(rawContent);
-      setEditorState(resetEditorState(latestEditorState));
+      proceedToNextTourStep();
     },
     [editorState],
   );
   const handleSubmit = useCallback(() => onSaveComment(), [editorState]);
 
   const handleEmojiClick = useCallback(
-    (e: React.MouseEvent, emojiObject: IEmojiData) => {
-      const newEditorState = insertCharacter(emojiObject.emoji, editorState);
+    (e: React.MouseEvent, emojiObject: BaseEmoji) => {
+      const newEditorState = insertCharacter(emojiObject.native, editorState);
       setEditorState(newEditorState);
     },
     [editorState],
   );
 
   const onSearchChange = useCallback(
-    ({ value }: { value: string }) => {
+    ({ trigger, value }: { trigger: string; value: string }) => {
       setSuggestionsQuery(value);
+      setTrigger(trigger as Trigger);
     },
     [suggestions],
   );
 
   const filteredSuggestions = useMemo(() => {
-    if (!suggestionsQuery) return suggestions;
+    let suggestionResults = suggestions;
+    if (!suggestionsQuery) return suggestionResults;
     else {
-      return suggestions.filter((suggestion) => {
-        const str = suggestion.name.toLowerCase();
-        const filter = suggestionsQuery.toLowerCase();
-        return str.indexOf(filter) !== -1;
+      const filter = suggestionsQuery.toLowerCase();
+      suggestionResults = suggestions
+        .filter((suggestion) => {
+          const name = suggestion.name.toLowerCase();
+          const username = suggestion.user?.username.toLowerCase() || "";
+          return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
+        })
+        .sort(sortMentionData(filter));
+    }
+
+    if (suggestionResults.length !== 0) return suggestionResults;
+
+    return [{ name: suggestionsQuery, isInviteTrigger: true }];
+  }, [suggestionsQuery, suggestions, trigger]);
+
+  const onAddMention = (mention: MentionData) => {
+    if (
+      (isEmail(mention.name) && mention.isInviteTrigger) ||
+      mention.isSupport
+    ) {
+      const email = mention.isSupport ? mention.user?.username : mention.name;
+      dispatch(setShowAppInviteUsersDialog(true));
+      dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", email));
+    } else if (mention.isInviteTrigger && !isEmail(mention.name)) {
+      Toaster.show({
+        text: createMessage(INVALID_EMAIL),
+        variant: Variant.danger,
       });
     }
-  }, [suggestionsQuery, suggestions]);
+  };
 
   return (
-    <PaddingContainer>
-      <StyledInputContainer>
-        <MentionsInput
-          autoFocus
-          editorState={editorState}
-          onSearchSuggestions={onSearchChange}
-          onSubmit={onSaveComment}
-          placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
-          setEditorState={setEditorState}
-          suggestions={filteredSuggestions}
-        />
-        <StyledEmojiTrigger>
-          <EmojiPicker onSelectEmoji={handleEmojiClick} />
-        </StyledEmojiTrigger>
-        <StyledSendButton data-cy="add-comment-submit" onClick={handleSubmit}>
-          <Icon
-            fillColor={theme.colors.comments.sendButton}
-            name="send-button"
-            size={IconSize.XL}
-          />
-        </StyledSendButton>
-      </StyledInputContainer>
-    </PaddingContainer>
+    <TourTooltipWrapper
+      activeStepConfig={{
+        [TourType.COMMENTS_TOUR_EDIT_MODE]:
+          commentsTourStepsEditModeTypes.SAY_HELLO,
+        [TourType.COMMENTS_TOUR_PUBLISHED_MODE]:
+          commentsTourStepsPublishedModeTypes.SAY_HELLO,
+      }}
+    >
+      <PaddingContainer removePadding={removePadding}>
+        <Row>
+          <StyledInputContainer>
+            <MentionsInput
+              autoFocus
+              editorState={editorState}
+              onAddMention={onAddMention}
+              onSearchSuggestions={onSearchChange}
+              onSubmit={onSaveComment}
+              placeholder={createMessage(ADD_COMMENT_PLACEHOLDER)}
+              setEditorState={setEditorState}
+              suggestions={filteredSuggestions}
+            />
+          </StyledInputContainer>
+        </Row>
+        <Row>
+          <StyledEmojiTrigger>
+            <EmojiPicker onSelectEmoji={handleEmojiClick} />
+          </StyledEmojiTrigger>
+          <Row>
+            <Button
+              category={Category.tertiary}
+              className={"cancel-button"}
+              onClick={_onCancel}
+              text={createMessage(CANCEL)}
+              type="button"
+            />
+            <Button
+              category={Category.primary}
+              data-cy="add-comment-submit"
+              disabled={!editorState.getCurrentContent().hasText()}
+              onClick={handleSubmit}
+              text={createMessage(POST)}
+              type="button"
+            />
+          </Row>
+        </Row>
+      </PaddingContainer>
+    </TourTooltipWrapper>
   );
-});
+}
 
 export default AddCommentInput;

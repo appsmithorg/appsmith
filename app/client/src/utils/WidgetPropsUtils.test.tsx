@@ -4,9 +4,12 @@ import {
   migrateChartDataFromArrayToObject,
   migrateToNewLayout,
   migrateInitialValues,
+  extractCurrentDSL,
+  migrateToNewMultiSelect,
 } from "./WidgetPropsUtils";
 import {
   buildChildren,
+  widgetCanvasFactory,
   buildDslWithChildren,
 } from "test/factories/WidgetFactoryUtils";
 import { cloneDeep } from "lodash";
@@ -247,6 +250,7 @@ describe("Initial value migration test", () => {
         {
           widgetName: "Select1",
           rightColumn: 6,
+          selectionType: "SINGLE_SELECT",
           widgetId: "1e3ytl2pl9",
           topRow: 3,
           bottomRow: 4,
@@ -258,7 +262,6 @@ describe("Initial value migration test", () => {
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: RenderModes.CANVAS,
           leftColumn: 1,
@@ -292,12 +295,12 @@ describe("Initial value migration test", () => {
           parentRowSpace: 40,
           isVisible: true,
           label: "",
+          selectionType: "SINGLE_SELECT",
           type: WidgetTypes.DROP_DOWN_WIDGET,
           version: 1,
           parentId: "0",
           isLoading: false,
           defaultOptionValue: "GREEN",
-          selectionType: "SINGLE_SELECT",
           parentColumnSpace: 67.375,
           renderMode: "CANVAS",
           leftColumn: 1,
@@ -323,6 +326,92 @@ describe("Initial value migration test", () => {
     };
 
     expect(migrateInitialValues(input)).toEqual(output);
+  });
+
+  it("MULTI_SELECT_WIDGET", () => {
+    const input = {
+      ...containerWidget,
+      children: [
+        {
+          widgetName: "Select2",
+          rightColumn: 59,
+          isFilterable: true,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          type: WidgetTypes.DROP_DOWN_WIDGET,
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          selectionType: "MULTI_SELECT",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          renderMode: RenderModes.CANVAS,
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    const output = {
+      ...containerWidget,
+      children: [
+        {
+          renderMode: RenderModes.CANVAS,
+          type: WidgetTypes.MULTI_SELECT_WIDGET,
+          widgetName: "Select2",
+          rightColumn: 59,
+          widgetId: "zvgz9h4fh4",
+          topRow: 10,
+          bottomRow: 14,
+          parentRowSpace: 10,
+          isVisible: true,
+          label: "",
+          version: 1,
+          parentId: "0y8sg136kg",
+          isLoading: false,
+          defaultOptionValue: "GREEN",
+          parentColumnSpace: 8.35546875,
+          dynamicTriggerPathList: [],
+          leftColumn: 39,
+          dynamicBindingPathList: [],
+          options: [
+            {
+              label: "Blue",
+              value: "BLUE",
+            },
+            {
+              label: "Green",
+              value: "GREEN",
+            },
+            {
+              label: "Red",
+              value: "RED",
+            },
+          ],
+        },
+      ],
+    };
+
+    expect(migrateToNewMultiSelect(input)).toEqual(output);
   });
 
   it("DATE_PICKER_WIDGET2", () => {
@@ -693,5 +782,49 @@ describe("Initial value migration test", () => {
     };
 
     expect(migrateInitialValues(input)).toEqual(output);
+  });
+  it("", () => {
+    const tabsWidgetDSL: any = (version = 1) => {
+      const children: any = buildChildren([
+        {
+          version,
+          type: "TABS_WIDGET",
+          children: [
+            {
+              type: "CANVAS_WIDGET",
+              tabId: "tab1212332",
+              tabName: "Newly Added Tab",
+              widgetId: "o9ody00ep7",
+              parentId: "jd83uvbkmp",
+              detachFromLayout: true,
+              children: [],
+              parentRowSpace: 1,
+              parentColumnSpace: 1,
+              // leftColumn: 0,
+              // rightColumn: 592, // Commenting these coz they are not provided for a newly added tab in the Tabs widget version 2
+              // bottomRow: 280,
+              topRow: 0,
+              isLoading: false,
+              widgetName: "Canvas1",
+              renderMode: "CANVAS",
+            },
+          ],
+        },
+      ]);
+      const dsl: any = widgetCanvasFactory.build({
+        children,
+      });
+      return {
+        data: {
+          layouts: [{ dsl }],
+        },
+      };
+    };
+    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL());
+    expect(migratedDslV2.children[0].children[0].leftColumn).toBeNaN();
+    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2));
+    expect(migratedDslV3.children[0].version).toBe(3);
+    expect(migratedDslV3.children[0].children[0].leftColumn).not.toBeNaN();
+    expect(migratedDslV3.children[0].children[0].leftColumn).toBe(0);
   });
 });

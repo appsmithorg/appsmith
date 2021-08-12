@@ -24,13 +24,16 @@ import {
   setAppMode,
   updateAppPersistentStore,
 } from "actions/pageActions";
-import { fetchDatasources } from "actions/datasourceActions";
+import {
+  fetchDatasources,
+  fetchMockDatasources,
+} from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { getPersistentAppStore } from "constants/AppConstants";
 import { getDefaultPageId } from "./selectors";
 import { populatePageDSLsSaga } from "./PageSagas";
@@ -41,12 +44,12 @@ import {
   restoreRecentEntitiesRequest,
 } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { initCommentThreads } from "actions/commentActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { executePageLoadActions } from "actions/widgetActions";
-import { resetDebuggerState } from "actions/debuggerActions";
+import { getIsEditorInitialized } from "selectors/editorSelectors";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -97,7 +100,7 @@ function* initializeEditorSaga(
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
         fetchPageList(applicationId, APP_MODE.EDIT),
-        fetchPage(pageId),
+        fetchPage(pageId, true),
         fetchApplication(applicationId, APP_MODE.EDIT),
       ],
       [
@@ -114,14 +117,16 @@ function* initializeEditorSaga(
     if (!applicationAndLayoutCalls) return;
 
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
-      [fetchPlugins(), fetchDatasources()],
+      [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
       [
         ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
         ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+        ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
         ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+        ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ],
     );
     if (!pluginsAndDatasourcesCalls) return;
@@ -152,9 +157,6 @@ function* initializeEditorSaga(
       appId: appId,
       appName: appName,
     });
-
-    // todo remove (for dev)
-    yield put(initCommentThreads());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -248,9 +250,6 @@ export function* initializeAppViewerSaga(
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
 
-    // todo remove (for dev)
-    yield put(initCommentThreads());
-
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
@@ -268,7 +267,17 @@ export function* initializeAppViewerSaga(
 function* resetEditorSaga() {
   yield put(resetEditorSuccess());
   yield put(resetRecentEntities());
-  yield put(resetDebuggerState());
+}
+
+export function* waitForInit() {
+  const isEditorInitialised = yield select(getIsEditorInitialized);
+  const isViewerInitialized = yield select(getIsViewerInitialized);
+  if (!isEditorInitialised && !isViewerInitialized) {
+    yield take([
+      ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+      ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+    ]);
+  }
 }
 
 export default function* watchInitSagas() {

@@ -1,4 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import {
   CodeEditorBorder,
   EditorSize,
@@ -6,167 +6,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Skin, Theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-
-export const HintStyles = createGlobalStyle<{
-  editorTheme: EditorTheme;
-  theme: Theme;
-}>`
-  .CodeMirror-hints {
-    position: absolute;
-    z-index: 20;
-    overflow: hidden;
-    list-style: none;
-    margin-top: ${(props) => props.theme.spaces[3]}px;
-    padding: 0px 0px;
-    font-size: 90%;
-    font-family: monospace;
-    max-height: 20em;
-    overflow-y: auto;
-    background: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#FAFAFA" : "#262626"};
-    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-    border-radius: 0px;
-  }
-
-  .CodeMirror-hint {
-    height: 24px;
-    color: ${(props) =>
-      props.editorTheme === EditorTheme.LIGHT ? "#090707" : "#FFFFFF"};
-    cursor: pointer;
-    display: flex;
-    width: 220px;
-    align-items: center;
-    font-size: 12px;
-    line-height: 15px;
-    letter-spacing: -0.24px;
-    &:hover {
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
-      border-radius: 0px;
-      color: #fff;
-      &:after {
-        color: #fff;
-      }
-    }
-  }
-
-  .datasource-hint {
-    padding: 10px;
-    display: block;
-    width: 500px;
-    height: 32px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    &.invalid {
-      color: ${(props) => props.theme.colors.errorMessage};
-    }
-  }
-  .CodeMirror-Tern-completion {
-    padding-left: ${(props) => props.theme.spaces[11]}px !important;
-    &:hover{
-      background: ${(props) =>
-        props.editorTheme === EditorTheme.LIGHT ? "#6A86CE" : "#157A96"};
-    }
-  }
-  .CodeMirror-Tern-completion:before {
-    left: 7px;
-    bottom: 6px;
-    height: 12px;
-    width: 12px;
-    border-radius: 0;
-    font-size: 10px;
-    line-height: 12px;
-    font-weight: normal;
-    text-align: center;
-    color: ${(props) => props.theme.colors.codeMirror.dataType.shortForm};
-    margin-right: ${(props) => props.theme.spaces[13]}px;
-  }
-  .CodeMirror-Tern-completion-fn:before {
-    background: ${(props) => props.theme.colors.dataTypeBg.function};
-  }
-  .CodeMirror-Tern-completion-object:before {
-    background: ${(props) => props.theme.colors.dataTypeBg.object};
-  }
-  .CodeMirror-Tern-completion-unknown:before {
-    background: ${(props) => props.theme.colors.dataTypeBg.unknown};
-  }
-  .CodeMirror-Tern-completion-array:before {
-    background: ${(props) => props.theme.colors.dataTypeBg.array};
-  }
-  .CodeMirror-Tern-completion-number:before, .CodeMirror-Tern-completion-string:before, .CodeMirror-Tern-completion-bool:before {
-    background: ${(props) => props.theme.colors.dataTypeBg.number};
-  }
-  .CodeMirror-Tern-completion:after {
-    position: absolute;
-    right: 8px;
-    bottom: 6px;
-    font-style: italic;
-    font-weight: normal;
-    font-size: 10px;
-    line-height: 13px;
-    letter-spacing: -0.24px;
-    color: ${(props) => props.theme.colors.codeMirror.dataType.fullForm};
-  }
-  .CodeMirror-Tern-completion-fn:after {
-    content: "Function";
-  }
-  .CodeMirror-Tern-completion-object:after {
-    content: "Object";
-  }
-  .CodeMirror-Tern-completion-unknown:after {
-    content: "Unknown";
-  }
-  .CodeMirror-Tern-completion-array:after {
-    content: "Array";
-  }
-  .CodeMirror-Tern-completion-number:after {
-    content: "Number";
-  }
-  .CodeMirror-Tern-completion-string:after {
-    content: "String";
-  }
-  .CodeMirror-Tern-completion-bool:after {
-    content: "Boolean";
-  }
-  .CodeMirror-Tern-tooltip {
-    z-index: 20 !important;
-  }
-  li.CodeMirror-hint-active {
-    background: ${(props) =>
-      props.theme.colors.codeMirror.background.hoverState};
-    border-radius: 0px;
-    color: #fff;
-    &:after {
-      color: #fff;
-    }
-  }
-  .CodeMirror-Tern-hint-doc {
-    display: none;
-    &.visible {
-      display: block;
-      background-color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"} !important;
-      color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#F4F4F4"
-          : "#1E242B"} !important;
-      max-height: 150px;
-      width: 250px;
-      font-size: 12px;
-      padding: 5px !important;
-      border: 1px solid !important;
-      border-color: ${(props) =>
-        props.editorTheme === EditorTheme.DARK
-          ? "#23292e"
-          : "#DEDEDE"} !important;
-      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
-      overflow: scroll;
-    }
-
-  }
-`;
 
 const getBorderStyle = (
   props: { theme: Theme } & {
@@ -391,6 +230,28 @@ export const EditorWrapper = styled.div<{
     text-shadow: none;
     font: inherit;
   }
+  .CodeEditorTarget {
+    width: 100%;
+    ${(props) =>
+      props.size === EditorSize.COMPACT
+        ? `
+        position: absolute;
+        left: 0;
+        right: 0;
+      `
+        : `
+          position: relative;
+        `}
+    ${(props) => (props.isFocused ? `z-index: 3;` : `z-index: 0;`)}
+
+    ${(props) => {
+      let height = props.height || "auto";
+      if (props.size === EditorSize.COMPACT && !props.isFocused) {
+        height = props.height || "32px";
+      }
+      return `height: ${height}`;
+    }}
+  }
 `;
 
 export const IconContainer = styled.div`
@@ -443,9 +304,33 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
+    .commands-button {
+      display: flex;
+    }
   }
   border-radius: 0px;
   .lightning-menu {
     z-index: 1 !important;
+  }
+  .commands-button {
+    z-index: 2;
+    width: 20px;
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    height: 20px;
+    background: transparent;
+    display: none;
+    color: #f86a2b;
+    border: none;
+    font-weight: bold;
+    font-size: 14px;
+    font-style: italic;
+    padding: 0 0 3px;
+    margin: 0 !important;
+    &:hover {
+      background: #f86a2b;
+      color: white;
+    }
   }
 `;

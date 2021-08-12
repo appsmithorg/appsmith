@@ -37,7 +37,7 @@ const WrappedToastContainer = styled.div`
     margin-bottom: ${(props) => props.theme.spaces[4]}px;
   }
   .Toastify__toast-container--top-right {
-    top: 4em;
+    top: 8em;
   }
 `;
 export function StyledToastContainer(props: ToastOptions) {
@@ -60,6 +60,9 @@ const ToastBody = styled.div<{
   display: flex;
   align-items: center;
   justify-content: space-between;
+  // Using word-break here, as overflow-wrap: anywhere
+  // has no effect in safari
+  word-break: break-word;
   overflow-wrap: anywhere;
 
   div > .${Classes.ICON} {
@@ -97,6 +100,7 @@ const ToastBody = styled.div<{
       color: ${props.theme.colors.toast.undo};
       line-height: 18px;
       font-weight: 600;
+      white-space: nowrap
     }
     `
       : null}

@@ -1,6 +1,9 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APP_MODE } from "../reducers/entityReducers/appReducer";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import { APP_MODE } from "entities/App";
+import {
+  UpdateApplicationPayload,
+  ImportApplicationRequest,
+} from "api/ApplicationApi";
 
 export const setDefaultApplicationPageSuccess = (
   pageId: string,
@@ -77,6 +80,13 @@ export const duplicateApplication = (applicationId: string) => {
   };
 };
 
+export const importApplication = (appDetails: ImportApplicationRequest) => {
+  return {
+    type: ReduxActionTypes.IMPORT_APPLICATION_INIT,
+    payload: appDetails,
+  };
+};
+
 export const getAllApplications = () => {
   return {
     type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
@@ -88,3 +98,8 @@ export const resetCurrentApplication = () => {
     type: ReduxActionTypes.RESET_CURRENT_APPLICATION,
   };
 };
+
+export const setShowAppInviteUsersDialog = (payload: boolean) => ({
+  type: ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL,
+  payload,
+});

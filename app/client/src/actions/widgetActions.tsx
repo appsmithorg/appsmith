@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
   ExecuteActionPayload,
@@ -12,6 +13,7 @@ import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { WidgetProps } from "widgets/BaseWidget";
 
 export const executeAction = (
   payload: ExecuteActionPayload,
@@ -63,29 +65,6 @@ export const focusWidget = (
   payload: { widgetId },
 });
 
-export const selectWidget = (
-  widgetId?: string,
-  isMultiSelect?: boolean,
-): ReduxAction<{ widgetId?: string; isMultiSelect?: boolean }> => ({
-  type: ReduxActionTypes.SELECT_WIDGET,
-  payload: { widgetId, isMultiSelect },
-});
-
-export const selectAllWidgets = (
-  widgetIds?: string[],
-): ReduxAction<{ widgetIds?: string[] }> => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS,
-    payload: { widgetIds },
-  };
-};
-
-export const selectAllWidgetsInit = () => {
-  return {
-    type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
-  };
-};
-
 export const showModal = (id: string) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,
@@ -124,6 +103,15 @@ export const closePropertyPane = () => {
   };
 };
 
+export const closeTableFilterPane = () => {
+  return {
+    type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+    payload: {
+      force: false,
+    },
+  };
+};
+
 export const copyWidget = (isShortcut: boolean) => {
   return {
     type: ReduxActionTypes.COPY_SELECTED_WIDGET_INIT,
@@ -144,7 +132,7 @@ export const deleteSelectedWidget = (
   disallowUndo = false,
 ) => {
   return {
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       isShortcut,
       disallowUndo,
@@ -158,9 +146,9 @@ export const cutWidget = () => {
   };
 };
 
-export const addTableWidgetFromQuery = (queryName: string) => {
+export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
-    type: ReduxActionTypes.ADD_TABLE_WIDGET_FROM_QUERY,
-    payload: queryName,
+    type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
+    payload,
   };
 };

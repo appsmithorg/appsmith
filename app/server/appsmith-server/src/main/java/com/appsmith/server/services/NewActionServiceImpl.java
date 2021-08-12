@@ -77,6 +77,7 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -131,7 +132,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.objectMapper = new ObjectMapper();
     }
 
-    private Boolean validateActionName(String name) {
+    @Override
+    public Boolean validateActionName(String name) {
         boolean isValidName = SourceVersion.isName(name);
         String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
         boolean doesPatternMatch = name.matches(pattern);
@@ -653,7 +655,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
                     return Mono.just(result);
                 })
-                .map(result -> addDataTypes(result));
+                .map(result -> addDataTypesAndSetSuggestedWidget(result, executeActionDTO.getViewMode()));
     }
 
     /*
@@ -680,16 +682,23 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         result.getRequest().setRequestParams(transformedParams);
     }
 
-    private ActionExecutionResult addDataTypes(ActionExecutionResult result) {
+    private ActionExecutionResult addDataTypesAndSetSuggestedWidget(ActionExecutionResult result, Boolean viewMode) {
+
+        if(FALSE.equals(viewMode)) {
+            result.setSuggestedWidgets(getSuggestedWidgets(result.getBody()));
+        }
+
         /*
          * - Do not process if data types are already present.
          * - It means that data types have been added by specific plugin.
          */
+
         if (!CollectionUtils.isEmpty(result.getDataTypes())) {
             return result;
         }
 
         result.setDataTypes(getDisplayDataTypes(result.getBody()));
+
         return result;
     }
 
@@ -756,12 +765,14 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                 .flatMap(application -> Mono.zip(
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
-                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode)
+                        newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
+                        pluginService.getById(action.getPluginId())
                 ))
                 .map(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
+                    final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
                     final Map<String, Object> data = new HashMap<>();
@@ -769,6 +780,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     data.putAll(Map.of(
                             "username", user.getUsername(),
                             "type", pluginType,
+                            "pluginName", plugin.getName(),
                             "name", actionDTO.getName(),
                             "datasource", Map.of(
                                     "name", datasource.getName()
@@ -777,11 +789,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                             "appId", action.getApplicationId(),
                             "appMode", TRUE.equals(viewMode) ? "view" : "edit",
                             "appName", application.getName(),
-                            "isExampleApp", application.isAppIsExample(),
-                            "request", request
+                            "isExampleApp", application.isAppIsExample()
                     ));
 
                     data.putAll(Map.of(
+                            "request", request,
                             "pageId", ObjectUtils.defaultIfNull(actionDTO.getPageId(), ""),
                             "pageName", pageName,
                             "isSuccessfulExecution", ObjectUtils.defaultIfNull(actionExecutionResult.getIsExecutionSuccess(), false),

@@ -3,6 +3,7 @@ import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
+import { ReactComponent as ExpandMore } from "assets/icons/ads/expand-more.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
@@ -39,6 +40,7 @@ import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.s
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
 import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
 import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
 import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
@@ -53,8 +55,28 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
 import { ReactComponent as ContextMenu } from "assets/icons/ads/context-menu.svg";
 import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
-import { ReactComponent as Pin2 } from "assets/icons/comments/pin_2.svg";
+import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
+import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
 import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
+import { ReactComponent as CommentContextMenu } from "assets/icons/comments/context-menu.svg";
+import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
+import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
+import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
+import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
+import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
+import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
+import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
+import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
+import { ReactComponent as UpArrow } from "assets/icons/ads/upper_arrow.svg";
+import { ReactComponent as Download } from "assets/icons/ads/download.svg";
+import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
+import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
+import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
+import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dotted.svg";
+import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
+import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
+import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
+
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
 import { noop } from "lodash";
@@ -108,11 +130,14 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
+  "upload",
+  "download",
   "book",
   "bug",
   "cancel",
   "cross",
   "delete",
+  "expand-more",
   "open",
   "user",
   "general",
@@ -134,6 +159,7 @@ export const IconCollection = [
   "warning",
   "warning-triangle",
   "downArrow",
+  "upArrow",
   "context-menu",
   "duplicate",
   "logout",
@@ -149,6 +175,7 @@ export const IconCollection = [
   "lightning",
   "add-more",
   "right-arrow",
+  "trending-flat",
   "datasource",
   "play",
   "desktop",
@@ -168,9 +195,25 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "context-menu",
   "trash",
-  "pin-2",
   "link-2",
   "close-x",
+  "comment-context-menu",
+  "down-arrow-2",
+  "read-pin",
+  "unread-pin",
+  "filter",
+  "chat",
+  "pin-3",
+  "unpin",
+  "reaction",
+  "reaction-2",
+  "arrow-forward",
+  "cap-solid",
+  "cap-dot",
+  "line-dotted",
+  "line-dashed",
+  "tables",
+  "column",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -198,22 +241,15 @@ export const IconWrapper = styled.span<IconProps>`
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
 
   &:hover {
-    cursor: pointer;
+    cursor: ${(props) => (props.clickable ? "pointer" : "default")};
     ${(props) =>
       !props.keepColors
         ? `
     path {
-      fill: ${props.theme.colors.icon.hover};
+      fill: ${props.hoverFillColor || props.theme.colors.icon.hover};
     }
     `
         : ""}
-  }
-
-  &:active {
-    cursor: pointer;
-    path {
-      fill: ${(props) => props.theme.colors.icon.active};
-    }
   }
 `;
 
@@ -224,7 +260,10 @@ export type IconProps = {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   fillColor?: string;
+  hoverFillColor?: string;
   keepColors?: boolean;
+  loaderWithIconWrapper?: boolean;
+  clickable?: boolean;
 };
 
 const Icon = forwardRef(
@@ -245,6 +284,9 @@ const Icon = forwardRef(
         break;
       case "delete":
         returnIcon = <DeleteIcon />;
+        break;
+      case "expand-more":
+        returnIcon = <ExpandMore />;
         break;
       case "open":
         returnIcon = <OpenIcon />;
@@ -281,6 +323,9 @@ const Icon = forwardRef(
         break;
       case "downArrow":
         returnIcon = <DownArrow />;
+        break;
+      case "upArrow":
+        returnIcon = <UpArrow />;
         break;
       case "share":
         returnIcon = <ShareIcon />;
@@ -358,6 +403,9 @@ const Icon = forwardRef(
       case "right-arrow":
         returnIcon = <RightArrowIcon />;
         break;
+      case "trending-flat":
+        returnIcon = <TrendingFlat />;
+        break;
       case "datasource":
         returnIcon = <DatasourceIcon />;
         break;
@@ -405,8 +453,12 @@ const Icon = forwardRef(
         returnIcon = <ContextMenu />;
         break;
 
-      case "pin-2":
-        returnIcon = <Pin2 />;
+      case "read-pin":
+        returnIcon = <ReadPin />;
+        break;
+
+      case "unread-pin":
+        returnIcon = <UnreadPin />;
         break;
 
       case "link-2":
@@ -417,13 +469,94 @@ const Icon = forwardRef(
         returnIcon = <Trash />;
         break;
 
+      case "comment-context-menu":
+        returnIcon = <CommentContextMenu />;
+        break;
+
+      case "down-arrow-2":
+        returnIcon = <DownArrow2 />;
+        break;
+
+      case "filter":
+        returnIcon = <Filter />;
+        break;
+
+      case "chat":
+        returnIcon = <Chat />;
+        break;
+
+      case "pin-3":
+        returnIcon = <Pin3 />;
+        break;
+
+      case "unpin":
+        returnIcon = <Unpin />;
+        break;
+
+      case "reaction":
+        returnIcon = <Reaction />;
+        break;
+
+      case "reaction-2":
+        returnIcon = <Reaction2 />;
+        break;
+
+      case "upload":
+        returnIcon = <Upload />;
+        break;
+
+      case "download":
+        returnIcon = <Download />;
+        break;
+
+      case "arrow-forward":
+        returnIcon = <ArrowForwardIcon />;
+        break;
+
+      case "cap-solid":
+        returnIcon = <CapSolidIcon />;
+        break;
+
+      case "cap-dot":
+        returnIcon = <CapDotIcon />;
+        break;
+
+      case "line-dotted":
+        returnIcon = <LineDottedIcon />;
+        break;
+
+      case "line-dashed":
+        returnIcon = <LineDashedIcon />;
+        break;
+
+      case "tables":
+        returnIcon = <TableIcon />;
+        break;
+
+      case "column":
+        returnIcon = <ColumnIcon />;
+        break;
+
       default:
         returnIcon = null;
         break;
     }
+
+    const clickable = props.clickable === undefined ? true : props.clickable;
+
+    let loader = <Spinner size={props.size} />;
+    if (props.loaderWithIconWrapper) {
+      loader = (
+        <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>
+          <Spinner size={props.size} />
+        </IconWrapper>
+      );
+    }
+
     return returnIcon && !props.isLoading ? (
       <IconWrapper
         className={Classes.ICON}
+        clickable={clickable}
         data-cy={props.cypressSelector}
         ref={ref}
         {...props}
@@ -432,7 +565,7 @@ const Icon = forwardRef(
         {returnIcon}
       </IconWrapper>
     ) : props.isLoading ? (
-      <Spinner size={props.size} />
+      loader
     ) : null;
   },
 );

@@ -33,6 +33,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -90,6 +91,12 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 
+    @PutMapping("/leaveOrganization/{orgId}")
+    public Mono<ResponseDTO<User>> leaveOrganization(@PathVariable String orgId) {
+        return userOrganizationService.leaveOrganization(orgId)
+                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+    }
+
     /**
      * This function initiates the process to reset a user's password. We require the Origin header from the request
      * in order to construct client facing URLs that will be sent to the user over email.
@@ -130,11 +137,12 @@ public class UserController extends BaseController<UserService, User, String> {
      * in order to construct client facing URLs that will be sent to the users via email.
      *
      * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
-     * @param originHeader Origin header in the request
+     * @param originHeader   Origin header in the request
      * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
-    public Mono<ResponseDTO<List<User>>> inviteUsers(@RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+    public Mono<ResponseDTO<List<User>>> inviteUsers(@RequestBody InviteUsersDTO inviteUsersDTO,
+                                                     @RequestHeader("Origin") String originHeader) {
         return service.inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
@@ -174,6 +182,12 @@ public class UserController extends BaseController<UserService, User, String> {
                 .switchIfEmpty(Mono.fromRunnable(() -> {
                     exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
                 }));
+    }
+
+    @GetMapping("/features")
+    public Mono<ResponseDTO<Map<String, Boolean>>> getFeatureFlags() {
+        return userDataService.getFeatureFlagsForCurrentUser()
+                .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
 }

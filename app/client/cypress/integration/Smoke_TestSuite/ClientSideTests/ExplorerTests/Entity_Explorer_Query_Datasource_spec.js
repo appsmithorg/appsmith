@@ -5,6 +5,7 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const pages = require("../../../../locators/Pages.json");
 
 const pageid = "MyPage";
 let datasourceName;
@@ -59,11 +60,9 @@ describe("Entity explorer tests related to query and datasource", function() {
 
     /* eslint-disable */
     cy.wait(2000);
-    cy.go("back");
+    cy.NavigateToQueryEditor();
 
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(queryLocators.editDatasourceButton)
-      .click();
+    cy.contains(".t--datasource-name", datasourceName).click();
 
     cy.get(".t--edit-datasource-name").click();
     cy.get(".t--edit-datasource-name input")
@@ -121,10 +120,13 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.runQuery();
 
     cy.deleteQuery();
-
-    cy.contains(".t--datasource-name", datasourceName)
-      .find(".t--edit-datasource")
-      .click();
+    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
+    cy.wait(500);
+    cy.NavigateToQueryEditor();
+    cy.get(pages.integrationActiveTab)
+      .should("be.visible")
+      .click({ force: true });
+    cy.contains(".t--datasource-name", datasourceName).click();
     cy.get(".t--delete-datasource").click();
     cy.wait("@deleteDatasource").should(
       "have.nested.property",

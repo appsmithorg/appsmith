@@ -10,128 +10,43 @@ import {
 import {
   EvaluationReduxAction,
   ReduxAction,
-  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
-import {
-  EVAL_WORKER_ACTIONS,
-  EvalError,
-  EvalErrorTypes,
-} from "utils/DynamicBindingUtils";
+import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
-import _ from "lodash";
 import {
-  createMessage,
-  ERROR_EVAL_ERROR_GENERIC,
-  ERROR_EVAL_TRIGGER,
-} from "constants/messages";
-import AppsmithConsole from "utils/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+  EVALUATE_REDUX_ACTIONS,
+  FIRST_EVAL_REDUX_ACTIONS,
+  setDependencyMap,
+  setEvaluatedTree,
+  shouldProcessBatchedAction,
+} from "actions/evaluationActions";
+import {
+  evalErrorHandler,
+  logSuccessfulBindings,
+  postEvalActionDispatcher,
+  updateTernDefinitions,
+} from "./PostEvaluationSagas";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
-
-const evalErrorHandler = (errors: EvalError[]) => {
-  if (!errors) return;
-  errors.forEach((error) => {
-    switch (error.type) {
-      case EvalErrorTypes.DEPENDENCY_ERROR: {
-        if (error.context) {
-          // Add more info about node for the toast
-          const { entityType, node } = error.context;
-          Toaster.show({
-            text: `${error.message} Node was: ${node}`,
-            variant: Variant.danger,
-          });
-          AppsmithConsole.error({
-            text: `${error.message} Node was: ${node}`,
-          });
-          // Send the generic error message to sentry for better grouping
-          Sentry.captureException(new Error(error.message), {
-            tags: {
-              node,
-              entityType,
-            },
-            // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
-          });
-          // Log an analytics event for cyclical dep errors
-          AnalyticsUtil.logEvent("CYCLICAL_DEPENDENCY_ERROR", {
-            node,
-            entityType,
-            // Level is warning because it could be a user error
-            level: Sentry.Severity.Warning,
-          });
-        }
-
-        break;
-      }
-      case EvalErrorTypes.EVAL_TREE_ERROR: {
-        Toaster.show({
-          text: createMessage(ERROR_EVAL_ERROR_GENERIC),
-          variant: Variant.danger,
-        });
-        break;
-      }
-      case EvalErrorTypes.BAD_UNEVAL_TREE_ERROR: {
-        Sentry.captureException(error);
-        break;
-      }
-      case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
-        log.debug(error);
-        Toaster.show({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
-          variant: Variant.danger,
-          showDebugButton: true,
-        });
-        AppsmithConsole.error({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
-        });
-        break;
-      }
-      case EvalErrorTypes.EVAL_ERROR: {
-        log.debug(error);
-        break;
-      }
-      case EvalErrorTypes.WIDGET_PROPERTY_VALIDATION_ERROR: {
-        AppsmithConsole.error({
-          logType: LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR,
-          text: `The value at ${error.context?.source.propertyPath} is invalid`,
-          message: error.message,
-          source: error.context?.source,
-        });
-        break;
-      }
-      default: {
-        Sentry.captureException(error);
-        log.debug(error);
-      }
-    }
-  });
-};
-
-function* postEvalActionDispatcher(
-  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-) {
-  for (const action of actions) {
-    yield put(action);
-  }
-}
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -149,27 +64,44 @@ function* evaluateTreeSaga(
       widgetTypeConfigMap,
     },
   );
-  const { dataTree, dependencies, errors, logs } = workerResponse;
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  evalErrorHandler(errors);
+  const {
+    dataTree,
+    dependencies,
+    errors,
+    evaluationOrder,
+    logs,
+    unEvalUpdates,
+    updates,
+  } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: dataTree,
-  });
+  yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
-    payload: { inverseDependencyMap: dependencies },
-  });
+
+  const updatedDataTree = yield select(getDataTree);
+
+  log.debug({ dataTree: updatedDataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  const appMode = yield select(getAppMode);
+  if (appMode !== APP_MODE.PUBLISHED) {
+    yield fork(
+      logSuccessfulBindings,
+      unevalTree,
+      updatedDataTree,
+      evaluationOrder,
+    );
+
+    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  }
+
+  yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
@@ -190,7 +122,7 @@ export function* evaluateActionBindings(
 
   const { errors, values } = workerResponse;
 
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return values;
 }
 
@@ -207,7 +139,7 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return triggers;
 }
 
@@ -253,63 +185,6 @@ export function* validateProperty(
   });
 }
 
-const FIRST_EVAL_REDUX_ACTIONS = [
-  // Pages
-  ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-];
-
-const EVALUATE_REDUX_ACTIONS = [
-  ...FIRST_EVAL_REDUX_ACTIONS,
-  // Actions
-  ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-  ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS,
-  ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-  ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-  ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-  ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
-  ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
-  ReduxActionTypes.CREATE_ACTION_SUCCESS,
-  ReduxActionTypes.UPDATE_ACTION_PROPERTY,
-  ReduxActionTypes.DELETE_ACTION_SUCCESS,
-  ReduxActionTypes.COPY_ACTION_SUCCESS,
-  ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-  // App Data
-  ReduxActionTypes.SET_APP_MODE,
-  ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
-  ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
-  // Widgets
-  ReduxActionTypes.UPDATE_LAYOUT,
-  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
-  // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
-  ReduxActionTypes.RESET_WIDGET_META,
-  // Batches
-  ReduxActionTypes.BATCH_UPDATES_SUCCESS,
-];
-
-const shouldProcessAction = (action: ReduxAction<unknown>) => {
-  // debugger;
-  if (
-    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
-    Array.isArray(action.payload)
-  ) {
-    const batchedActionTypes = action.payload.map(
-      (batchedAction) => batchedAction.type,
-    );
-    return (
-      _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length > 0
-    );
-  }
-  return true;
-};
-
 function evalQueueBuffer() {
   let canTake = false;
   let postEvalActions: any = [];
@@ -330,7 +205,7 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessAction(action)) {
+    if (!shouldProcessBatchedAction(action)) {
       return;
     }
     canTake = true;
@@ -366,11 +241,10 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    if (shouldProcessAction(action)) {
+    if (shouldProcessBatchedAction(action)) {
       yield call(evaluateTreeSaga, action.postEvalActions);
     }
   }
-  // TODO(hetu) need an action to stop listening and evaluate (exit app)
 }
 
 export default function* evaluationSagaListeners() {

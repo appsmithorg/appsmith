@@ -101,6 +101,7 @@ export interface CellLayoutProperties {
   tagSize?: string;
   isColoredOption?: boolean;
   labelColors?: LabelColorType;
+  displayText?: string;
 }
 
 export interface TableColumnMetaProps {
@@ -154,6 +155,7 @@ export interface ColumnProperties {
   tagSize?: string;
   isColoredOption?: boolean;
   labelColors?: LabelColorType;
+  displayText?: string;
 }
 
 export const ConditionFunctions: {
@@ -214,7 +216,7 @@ export const ConditionFunctions: {
   },
   endsWith: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
-      return a.length === a.indexOf(b) + b.length;
+      return a.length === a.lastIndexOf(b) + b.length;
     }
     return false;
   },

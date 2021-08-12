@@ -115,6 +115,30 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
+  MULTI_SELECT_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
+  RATE_WIDGET: {
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
+  MENU_BUTTON_WIDGET: {
+    path: "/widget-reference/menu-button",
+    searchKey: "Menu Button",
+  },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

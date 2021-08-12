@@ -10,6 +10,7 @@ import {
   ExecuteActionPayload,
   ExecuteActionPayloadEvent,
   PageAction,
+  RESP_HEADER_DATATYPE,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
 import {
@@ -37,10 +38,17 @@ import _, { get, isString } from "lodash";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import history from "utils/history";
 import {
+  API_EDITOR_ID_URL,
+  API_EDITOR_URL,
+  API_EDITOR_URL_WITH_SELECTED_PAGE_ID,
   BUILDER_PAGE_URL,
   convertToQueryParams,
   getApplicationViewerPageURL,
+  QUERIES_EDITOR_ID_URL,
+  QUERIES_EDITOR_URL,
+  INTEGRATION_EDITOR_URL,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
@@ -74,13 +82,14 @@ import {
 } from "actions/pageActions";
 import { getAppStoreName } from "constants/AppConstants";
 import downloadjs from "downloadjs";
-import { getType, Types } from "utils/TypeHelpers";
+import Axios from "axios";
+import { getType, isURL, Types } from "utils/TypeHelpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import {
   getAppMode,
   getCurrentApplication,
@@ -91,7 +100,6 @@ import {
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 import {
-  ACTION_RUN_SUCCESS,
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_API_EXECUTE,
@@ -109,6 +117,12 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { matchPath } from "react-router";
+import { setDataUrl } from "./PageSagas";
+
+enum ActionResponseDataTypes {
+  BINARY = "BINARY",
+}
 
 export enum NavigationTargetType {
   SAME_WINDOW = "SAME_WINDOW",
@@ -148,6 +162,7 @@ function* navigateActionSaga(
     (page: Page) => page.pageName === pageNameOrUrl,
   );
   if (page) {
+    const currentPageId = yield select(getCurrentPageId);
     AnalyticsUtil.logEvent("NAVIGATE", {
       pageName: pageNameOrUrl,
       pageParams: params,
@@ -159,6 +174,9 @@ function* navigateActionSaga(
         : getApplicationViewerPageURL(applicationId, page.pageId, params);
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
+      if (currentPageId === page.pageId) {
+        yield call(setDataUrl);
+      }
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
@@ -200,7 +218,7 @@ function* storeValueLocally(
       const parsedStore = JSON.parse(existingStore);
       parsedStore[action.key] = action.value;
       const storeString = JSON.stringify(parsedStore);
-      yield localStorage.setItem(appStoreName, storeString);
+      localStorage.setItem(appStoreName, storeString);
       yield put(updateAppPersistentStore(parsedStore));
       AppsmithConsole.info({
         text: `store('${action.key}', '${action.value}', true)`,
@@ -231,26 +249,38 @@ async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {
+  const displayWidgetDownloadError = (message: any) => {
+    return Toaster.show({
+      text: createMessage(ERROR_WIDGET_DOWNLOAD, message),
+      variant: Variant.danger,
+    });
+  };
+
   try {
     const { data, name, type } = action;
-    if (!name) {
-      Toaster.show({
-        text: createMessage(
-          ERROR_WIDGET_DOWNLOAD,
-          "File name was not provided",
-        ),
-        variant: Variant.danger,
-      });
 
+    if (!name) {
+      displayWidgetDownloadError("File name was not provided");
       if (event.callback) event.callback({ success: false });
       return;
     }
     const dataType = getType(data);
+
     if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
       const jsonString = JSON.stringify(data, null, 2);
       downloadjs(jsonString, name, type);
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
+      });
+    } else if (dataType === Types.STRING && isURL(data)) {
+      // In the event that a url string is supplied, we need to fetch the image with the response type arraybuffer.
+      // This also covers the case where the file to be downloaded is Binary.
+
+      Axios.get(data, { responseType: "arraybuffer" }).then((res) => {
+        downloadjs(res.data, name, type);
+        AppsmithConsole.info({
+          text: `download('${data}', '${name}', '${type}') was triggered`,
+        });
       });
     } else {
       downloadjs(data, name, type);
@@ -258,12 +288,11 @@ async function downloadSaga(
         text: `download('${data}', '${name}', '${type}') was triggered`,
       });
     }
+
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
-      variant: Variant.danger,
-    });
+    log.error(err);
+    displayWidgetDownloadError(err);
     if (event.callback) event.callback({ success: false });
   }
 }
@@ -383,10 +412,27 @@ export const getActionTimeout = (
 };
 const createActionExecutionResponse = (
   response: ActionExecutionResponse,
-): ActionResponse => ({
-  ...response.data,
-  ...response.clientMeta,
-});
+): ActionResponse => {
+  const payload = response.data;
+  if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
+    const respHeaders = payload.headers;
+    if (
+      respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+      respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
+      respHeaders[RESP_HEADER_DATATYPE][0] === ActionResponseDataTypes.BINARY &&
+      getType(payload.body) === Types.STRING
+    ) {
+      // Decoding from base64 to handle the binary files because direct
+      // conversion of binary files to string causes corruption in the final output
+      // this is to only handle the download of binary files
+      payload.body = atob(payload.body as string);
+    }
+  }
+  return {
+    ...payload,
+    ...response.clientMeta,
+  };
+};
 const isErrorResponse = (response: ActionExecutionResponse) => {
   return !response.data.isExecutionSuccess;
 };
@@ -528,7 +574,7 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        message: payload.body as string,
+        messages: [{ message: payload.body as string }],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -704,6 +750,43 @@ function* executeAppAction(action: ReduxAction<ExecuteActionPayload>) {
   }
 }
 
+function* runActionShortcutSaga() {
+  const location = window.location.pathname;
+  const match: any = matchPath(location, {
+    path: [
+      API_EDITOR_URL(),
+      API_EDITOR_ID_URL(),
+      QUERIES_EDITOR_URL(),
+      QUERIES_EDITOR_ID_URL(),
+      API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
+      INTEGRATION_EDITOR_URL(),
+      SAAS_EDITOR_API_ID_URL(),
+    ],
+    exact: true,
+    strict: false,
+  });
+  if (!match || !match.params) return;
+  const { apiId, pageId, queryId } = match.params;
+  const actionId = apiId || queryId;
+  if (!actionId) return;
+  const trackerId = apiId
+    ? PerformanceTransactionName.RUN_API_SHORTCUT
+    : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
+  PerformanceTracker.startTracking(trackerId, {
+    actionId,
+    pageId,
+  });
+  AnalyticsUtil.logEvent(trackerId as EventName, {
+    actionId,
+  });
+  yield put({
+    type: ReduxActionTypes.RUN_ACTION_INIT,
+    payload: {
+      id: actionId,
+    },
+  });
+}
+
 function* runActionInitSaga(
   reduxAction: ReduxAction<{
     id: string;
@@ -818,10 +901,6 @@ function* runActionSaga(
             request: response.data.request,
           },
         });
-        Toaster.show({
-          text: createMessage(ACTION_RUN_SUCCESS),
-          variant: Variant.success,
-        });
       } else {
         AppsmithConsole.error({
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
@@ -831,9 +910,13 @@ function* runActionSaga(
             name: actionObject.name,
             id: actionId,
           },
-          message: !isString(payload.body)
-            ? JSON.stringify(payload.body)
-            : payload.body,
+          messages: [
+            {
+              message: !isString(payload.body)
+                ? JSON.stringify(payload.body)
+                : payload.body,
+            },
+          ],
           state: response.data?.request ?? null,
         });
 
@@ -933,6 +1016,18 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
+      AppsmithConsole.error({
+        logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+        text: `Execution failed with status ${response.data.statusCode}`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          name: pageAction.name,
+          id: pageAction.id,
+        },
+        state: response.data?.request ?? null,
+        messages: [{ message: JSON.stringify(body) }],
+      });
+
       yield put(
         executeActionError({
           actionId: pageAction.id,
@@ -1017,6 +1112,10 @@ export function* watchActionExecutionSagas() {
     takeEvery(ReduxActionTypes.EXECUTE_ACTION, executeAppAction),
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
     takeLatest(ReduxActionTypes.RUN_ACTION_INIT, runActionInitSaga),
+    takeLatest(
+      ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
+      runActionShortcutSaga,
+    ),
     takeLatest(
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,

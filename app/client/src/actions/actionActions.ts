@@ -47,17 +47,38 @@ export const fetchActionsForView = (
   };
 };
 
-export const fetchActionsForPage = (pageId: string) => {
+export const fetchActionsForPage = (
+  pageId: string,
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload> = [],
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
+    postEvalActions,
   };
 };
 
-export const fetchActionsForPageSuccess = (actions: Action[]) => {
+export const fetchActionsForPageSuccess = (
+  actions: Action[],
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
+    postEvalActions,
+  };
+};
+
+export const setActionTabsInitialIndex = (index: number) => {
+  return {
+    type: ReduxActionTypes.SET_ACTION_TABS_INITIAL_INDEX,
+    payload: index,
+  };
+};
+
+export const runActionViaShortcut = () => {
+  return {
+    type: ReduxActionTypes.RUN_ACTION_SHORTCUT_REQUEST,
   };
 };
 
@@ -117,7 +138,11 @@ export const updateActionSuccess = (payload: { data: Action }) => {
   };
 };
 
-export const deleteAction = (payload: { id: string; name: string }) => {
+export const deleteAction = (payload: {
+  id: string;
+  name: string;
+  onSuccess?: () => void;
+}) => {
   return {
     type: ReduxActionTypes.DELETE_ACTION_INIT,
     payload,
@@ -252,6 +277,17 @@ export const setActionsToExecuteOnPageLoad = (
   };
 };
 
+export const bindDataOnCanvas = (payload: {
+  queryId: string;
+  applicationId: string;
+  pageId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.BIND_DATA_ON_CANVAS,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,
@@ -260,4 +296,5 @@ export default {
   deleteActionSuccess,
   updateAction,
   updateActionSuccess,
+  bindDataOnCanvas,
 };

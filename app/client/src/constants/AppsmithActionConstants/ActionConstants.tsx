@@ -56,6 +56,7 @@ export enum EventType {
   ON_HOVER = "ON_HOVER",
   ON_TOGGLE = "ON_TOGGLE",
   ON_LOAD = "ON_LOAD",
+  ON_MODAL_CLOSE = "ON_MODAL_CLOSE",
   ON_TEXT_CHANGE = "ON_TEXT_CHANGE",
   ON_SUBMIT = "ON_SUBMIT",
   ON_CHECK_CHANGE = "ON_CHECK_CHANGE",
@@ -71,6 +72,9 @@ export enum EventType {
   ON_VIDEO_END = "ON_VIDEO_END",
   ON_VIDEO_PLAY = "ON_VIDEO_PLAY",
   ON_VIDEO_PAUSE = "ON_VIDEO_PAUSE",
+  ON_RATE_CHANGED = "ON_RATE_CHANGED",
+  ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
+  ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
 }
 
 export type ActionType =
@@ -106,6 +110,7 @@ export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;
 
+export const RESP_HEADER_DATATYPE = "X-APPSMITH-DATATYPE";
 export const API_REQUEST_HEADERS: APIHeaders = {
   "Content-Type": "application/json",
 };

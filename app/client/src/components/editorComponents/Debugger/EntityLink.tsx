@@ -2,7 +2,7 @@ import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
 import { PluginType } from "entities/Action";
 import { ENTITY_TYPE, SourceEntity } from "entities/AppsmithConsole";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -18,6 +18,7 @@ import {
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 
 function ActionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -28,7 +29,8 @@ function ActionLink(props: EntityLinkProps) {
       const { id, pageId, pluginType } = action;
       const actionConfig = getActionConfig(pluginType);
       const url =
-        applicationId && actionConfig?.getURL(applicationId, pageId, id);
+        applicationId &&
+        actionConfig?.getURL(applicationId, pageId, id, pluginType);
 
       if (url) {
         history.push(url);
@@ -71,7 +73,7 @@ function WidgetLink(props: EntityLinkProps) {
     AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
       entityType: "WIDGET",
     });
-  }, []);
+  }, [navigateToWidget]);
 
   return (
     <Link
@@ -92,7 +94,14 @@ function DatasourceLink(props: EntityLinkProps) {
 
   const onClick = () => {
     if (datasource) {
-      history.push(DATA_SOURCES_EDITOR_ID_URL(appId, pageId, datasource.id));
+      history.push(
+        DATA_SOURCES_EDITOR_ID_URL(
+          appId,
+          pageId,
+          datasource.id,
+          getQueryParams(),
+        ),
+      );
       AnalyticsUtil.logEvent("DEBUGGER_ENTITY_NAVIGATION", {
         entityType: "DATASOURCE",
       });

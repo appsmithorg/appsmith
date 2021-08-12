@@ -1,7 +1,9 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -14,7 +16,7 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/ActionCreator";
+} from "components/editorComponents/ActionCreator/Fields";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -32,10 +34,8 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
@@ -44,10 +44,8 @@ export function InputText(props: {
   const {
     additionalDynamicData,
     dataTreePath,
-    errorMessage,
     evaluatedValue,
     expected,
-    isValid,
     onChange,
     placeholder,
     theme,
@@ -63,10 +61,6 @@ export function InputText(props: {
         input={{
           value: value,
           onChange: onChange,
-        }}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
         }}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
@@ -93,11 +87,9 @@ class ComputeTablePropertyControl extends BaseControl<
       dataTreePath,
       defaultValue,
       expected,
-      isValid,
       label,
       propertyValue,
       theme,
-      validationMessage,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
     const value =
@@ -121,9 +113,7 @@ class ComputeTablePropertyControl extends BaseControl<
           currentRow,
         }}
         dataTreePath={dataTreePath}
-        errorMessage={validationMessage}
         expected={expected}
-        isValid={isValid}
         label={label}
         onChange={this.onTextChange}
         theme={theme}
@@ -134,7 +124,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.sanitizedTableData.map((currentRow) => { return `.length,
+      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -144,7 +134,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.sanitizedTableData.map((currentRow) => { return ${stringToEvaluate}})}}`;
+    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

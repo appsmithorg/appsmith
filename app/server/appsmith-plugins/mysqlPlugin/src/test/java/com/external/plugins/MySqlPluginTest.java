@@ -27,12 +27,14 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.MySQLR2DBCDatabaseContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,14 +56,16 @@ public class MySqlPluginTest {
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
-    public static MySQLContainer mySQLContainer = new MySQLContainer("mysql:5.7")
+    public static MySQLContainer mySQLContainer = new MySQLContainer(
+            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db");
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
-    public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer()
+    public static MySQLContainer mySQLContainerWithInvalidTimezone = (MySQLContainer) new MySQLContainer(
+            DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
             .withDatabaseName("test_db")
@@ -90,7 +94,7 @@ public class MySqlPluginTest {
                 .map(connection -> {
                     return connection.createBatch()
                             .add("create table users (\n" +
-                                    "    id int primary key,\n" +
+                                    "    id int auto_increment primary key,\n" +
                                     "    username varchar (250) unique not null,\n" +
                                     "    password varchar (250) not null,\n" +
                                     "    email varchar (250) unique not null,\n" +
@@ -296,7 +300,7 @@ public class MySqlPluginTest {
                      */
                     List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
-                            actionConfiguration.getBody(), null, null, null));
+                            actionConfiguration.getBody(), null, null, new HashMap<>()));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -612,11 +616,11 @@ public class MySqlPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int", null),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int", null),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
+                                    new DatasourceStructure.Column("id", "int", null, false),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int", null, false),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -656,16 +660,16 @@ public class MySqlPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int", null),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null),
-                                    new DatasourceStructure.Column("email", "varchar", null),
-                                    new DatasourceStructure.Column("spouse_dob", "date", null),
-                                    new DatasourceStructure.Column("dob", "date", null),
-                                    new DatasourceStructure.Column("yob", "year", null),
-                                    new DatasourceStructure.Column("time1", "time", null),
-                                    new DatasourceStructure.Column("created_on", "timestamp", null),
-                                    new DatasourceStructure.Column("updated_on", "datetime", null),
+                                    new DatasourceStructure.Column("id", "int", null, true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false),
+                                    new DatasourceStructure.Column("email", "varchar", null, false),
+                                    new DatasourceStructure.Column("spouse_dob", "date", null, false),
+                                    new DatasourceStructure.Column("dob", "date", null, false),
+                                    new DatasourceStructure.Column("yob", "year", null, false),
+                                    new DatasourceStructure.Column("time1", "time", null, false),
+                                    new DatasourceStructure.Column("created_on", "timestamp", null, false),
+                                    new DatasourceStructure.Column("updated_on", "datetime", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -764,7 +768,7 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
                             body.toString());
                 })
                 .verifyComplete();
@@ -788,7 +792,7 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
                             body.toString());
                 })
                 .verifyComplete();
@@ -812,7 +816,7 @@ public class MySqlPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     Object body = result.getBody();
                     assertNotNull(body);
-                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-SHA\"}]",
+                    assertEquals("[{\"Variable_name\":\"Ssl_cipher\",\"Value\":\"ECDHE-RSA-AES128-GCM-SHA256\"}]",
                             body.toString());
                 })
                 .verifyComplete();

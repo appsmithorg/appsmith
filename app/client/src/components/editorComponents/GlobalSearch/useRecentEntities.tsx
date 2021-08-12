@@ -6,7 +6,7 @@ import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 
 const recentEntitiesSelector = (state: AppState) =>
-  state.ui.globalSearch.recentEntities;
+  state.ui.globalSearch.recentEntities || [];
 
 const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
@@ -18,7 +18,7 @@ const useResentEntities = () => {
 
   const pages = useSelector(getPageList) || [];
 
-  const populatedRecentEntities = recentEntities
+  const populatedRecentEntities = (recentEntities || [])
     .map((entity) => {
       const { id, params, type } = entity;
       if (type === "page") {
@@ -26,6 +26,7 @@ const useResentEntities = () => {
         if (result) {
           return {
             ...result,
+            entityType: type,
             kind: SEARCH_ITEM_TYPES.page,
           };
         } else {
@@ -38,13 +39,17 @@ const useResentEntities = () => {
         return (
           datasource && {
             ...datasource,
+            entityType: type,
             pageId: params?.pageId,
           }
         );
       } else if (type === "action")
-        return actions.find((action) => action?.config?.id === id);
+        return {
+          ...actions.find((action) => action?.config?.id === id),
+          entityType: type,
+        };
       else if (type === "widget") {
-        return get(widgetsMap, id, null);
+        return { ...get(widgetsMap, id, null), entityType: type };
       }
     })
     .filter(Boolean);

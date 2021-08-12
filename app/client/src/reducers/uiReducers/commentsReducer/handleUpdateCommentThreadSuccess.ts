@@ -11,11 +11,33 @@ const handleUpdateCommentThreadSuccess = (
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
 
+  if (!commentThreadInStore) return state;
+
+  const pinnedStateChanged =
+    commentThreadInStore?.pinnedState?.active !==
+    action.payload?.pinnedState?.active;
+
+  const isNowResolved =
+    !commentThreadInStore?.resolvedState?.active &&
+    action.payload?.resolvedState?.active;
+
+  const shouldRefreshList = isNowResolved || pinnedStateChanged;
+
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
     comments: existingComments,
   };
+
+  if (shouldRefreshList) {
+    state.applicationCommentThreadsByRef[
+      action.payload.applicationId as string
+    ] = {
+      ...state.applicationCommentThreadsByRef[
+        action.payload.applicationId as string
+      ],
+    };
+  }
 
   return {
     ...state,

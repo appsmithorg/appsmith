@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -18,22 +19,20 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsPageSaving,
   getIsPublishingApplication,
-  getPageSavingError,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { HeaderIcons } from "icons/HeaderIcons";
-import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
+  showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
-import EditableAppName from "./EditableAppName";
+import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
@@ -50,7 +49,13 @@ import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton from "comments/ToggleCommentModeButton";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import { Colors } from "constants/Colors";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { useLocation } from "react-router";
+import RealtimeAppEditors from "./RealtimeAppEditors";
+import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -90,16 +95,21 @@ const HeaderSection = styled.div`
   top: -1px;
   display: flex;
   flex: 1;
-  overflow: hidden;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
     justify-content: center;
   }
   :nth-child(3) {
     justify-content: flex-end;
+  }
+  > .${Popover2Classes.POPOVER2_TARGET} {
+    max-width: calc(100% - 50px);
+    min-width: 100px;
   }
 `;
 
@@ -108,14 +118,6 @@ const AppsmithLogoImg = styled.img`
   height: 24px;
 `;
 
-const SaveStatusContainer = styled.div`
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 const DeploySection = styled.div`
   display: flex;
 `;
@@ -130,6 +132,29 @@ const StyledDeployButton = styled(Button)`
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
+const BindingBanner = styled.div`
+  position: fixed;
+  width: 199px;
+  height: 36px;
+  left: 50%;
+  top: ${(props) => props.theme.smallHeaderHeight};
+  transform: translate(-50%, 0);
+  text-align: center;
+  background: ${Colors.DANUBE};
+
+  color: ${Colors.WHITE};
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  /* Depth: 01 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -142,6 +167,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   darkTheme: any;
+  lastUpdatedTime?: number;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -149,17 +175,28 @@ export function EditorHeader(props: EditorHeaderProps) {
     applicationId,
     currentApplication,
     isPublishing,
-    isSaving,
     orgId,
     pageId,
-    pageSaveError,
     publishApplication,
   } = props;
-
+  const location = useLocation();
   const dispatch = useDispatch();
+  const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    if (window.location.href) {
+      const searchParams = new URL(window.location.href).searchParams;
+      const isSnipingMode = searchParams.get("isSnipingMode");
+      const updatedIsSnipingMode = isSnipingMode === "true";
+      dispatch(setSnipingModeAction(updatedIsSnipingMode));
+    }
+  }, [location]);
+
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -173,37 +210,16 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   };
 
-  let saveStatusIcon: React.ReactNode;
-  if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
-  } else {
-    if (!pageSaveError) {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_SUCCESS
-          className="t--save-status-success"
-          color={"#36AB80"}
-          height={20}
-          width={20}
-        />
-      );
-    } else {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE
-          className={"t--save-status-error"}
-          color={"#F69D2C"}
-          height={20}
-          width={20}
-        />
-      );
-    }
-  }
-
   const updateApplicationDispatch = (
     id: string,
     data: { name: string; currentApp: boolean },
   ) => {
     dispatch(updateApplication(id, data));
   };
+
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
 
   return (
     <ThemeProvider theme={props.darkTheme}>
@@ -217,27 +233,35 @@ export function EditorHeader(props: EditorHeaderProps) {
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            {currentApplication && (
-              <EditableAppName
-                className="t--application-name editable-application-name"
-                defaultValue={currentApplication.name || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                fill
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-              />
-            )}
+            <EditorAppName
+              applicationId={applicationId}
+              className="t--application-name editable-application-name"
+              currentDeployLink={getApplicationViewerPageURL(
+                applicationId,
+                pageId,
+              )}
+              defaultSavingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              defaultValue={currentApplication?.name || ""}
+              deploy={handlePublish}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              isPopoverOpen={isPopoverOpen}
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              setIsPopoverOpen={setIsPopoverOpen}
+            />
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
@@ -245,15 +269,14 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HelpButton />
         </HeaderSection>
         <HeaderSection>
+          <EditorSaveIndicator />
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
-            <ToggleCommentModeButton />
-            <SaveStatusContainer className={"t--save-status-container"}>
-              {saveStatusIcon}
-            </SaveStatusContainer>
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
               canOutsideClickClose
+              isOpen={showAppInviteUsersDialog}
               orgId={orgId}
               title={
                 currentApplication
@@ -282,7 +305,6 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
-                  fill
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}
@@ -310,6 +332,11 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <OnboardingHelper />
         <GlobalSearch />
+        {isSnipingMode && (
+          <BindingBanner className="t--sniping-mode-banner">
+            Select a widget to bind
+          </BindingBanner>
+        )}
       </HeaderWrapper>
     </ThemeProvider>
   );
@@ -317,8 +344,6 @@ export function EditorHeader(props: EditorHeaderProps) {
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
-  isSaving: getIsPageSaving(state),
-  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,

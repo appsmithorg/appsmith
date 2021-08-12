@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.services.ApplicationService;
@@ -21,7 +22,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
-    public static final String DEFAULT_REDIRECT_ORIGIN = "https://app.appsmith.com";
+    public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
     private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
@@ -134,7 +135,7 @@ public class RedirectHelper {
      */
     public String getRedirectDomain(HttpHeaders httpHeaders) {
         // This is the failsafe for when nothing could be identified
-        String redirectOrigin = DEFAULT_REDIRECT_ORIGIN;
+        String redirectOrigin = Appsmith.DEFAULT_ORIGIN_HEADER;
 
         if (!StringUtils.isEmpty(httpHeaders.getOrigin())) {
             // For PUT/POST requests or CORS?

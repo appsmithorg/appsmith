@@ -33,6 +33,11 @@
   <!-- End Google Tag Manager (noscript) -->
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="loader" style="width: 30vw;"></div>
+  <!--
+    To keep zIndex for tooltips higher than app comments, todo remove when migrating to Tooltip2
+    Currently the className does not apply to the portal root, so we're unable to work with z-indexes based on that
+  -->
+  <div id="tooltip-root"></div>
   <div id="header-root"></div>
   <div id="root"></div>
   <script type="text/javascript">
@@ -75,7 +80,7 @@
         return window.localStorage.setItem(key, value);
       }
     };
-    
+
     // Note: The following handler is necessary for when we have a new deployment.
 
     // What happens?
@@ -98,7 +103,7 @@
       const regex = /\/static\/js\/(\w.+).js$/;
       const chunkLoadErrorMessage = "Unexpected token '<'"
       if(regex.test(url) && url.indexOf(window.location.host) > -1 && message.includes(chunkLoadErrorMessage)) {
-        console.log("chunk load failed!", url);
+        console.error("chunk load failed!", url);
         // First check if we've set the flag to not reload on chunk load fail
         const donotReload = localStorageUtil.getItem("donotReloadOnChunkLoadFail");
           if(!donotReload){
@@ -126,7 +131,7 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
           navigator.serviceWorker.register("/pageService.js").catch(error => {
-            console.log("Service Worker Registration failed: " + error);
+            console.error("Service Worker Registration failed: " + error);
           });
         });
       }
@@ -137,7 +142,7 @@
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
     const parseConfig = (config) => {
-      if (config.indexOf("__") === 0 || config.indexOf("$") === 0)
+      if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
         return "";
 
       const result = config.trim();
@@ -152,13 +157,13 @@
     const LOG_LEVELS = ["debug", "error"];
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
-    const APP_ID = parseConfig("__APPSMITH_INTERCOM_APP_ID__");
+    const INTERCOM_APP_ID = parseConfig("%REACT_APP_INTERCOM_APP_ID%") || parseConfig("__APPSMITH_INTERCOM_APP_ID__");
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const DISABLE_TELEMETRY = parseConfig("__APPSMITH_DISABLE_TELEMETRY__");
 
     // Initialize the Intercom library
-    if (APP_ID.length && APP_ID[0] !== "%" && CLOUD_HOSTING) {
-      (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/' + APP_ID; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
+    if (INTERCOM_APP_ID.length) {
+      (function () { var w = window; var ic = w.Intercom; if (typeof ic === "function") { ic('reattach_activator'); ic('update', w.intercomSettings); } else { var d = document; var i = function () { i.c(arguments); }; i.q = []; i.c = function (args) { i.q.push(args); }; w.Intercom = i; var l = function () { var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://widget.intercom.io/widget/' + INTERCOM_APP_ID; var x = d.getElementsByTagName('script')[0]; x.parentNode.insertBefore(s, x); }; if (document.readyState === 'complete') { l(); } else if (w.attachEvent) { w.attachEvent('onload', l); } else { w.addEventListener('load', l, false); } } })();
     }
 
     window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
@@ -196,10 +201,11 @@
         id: parseConfig("__APPSMITH_VERSION_ID__"),
         releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__")
       },
-      intercomAppID: APP_ID,
+      intercomAppID: INTERCOM_APP_ID,
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
       disableTelemetry: DISABLE_TELEMETRY === "" || DISABLE_TELEMETRY,
-      cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com"
+      cloudServicesBaseUrl: parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") || "https://cs.appsmith.com",
+      googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
     };
 
   </script>

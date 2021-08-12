@@ -1,19 +1,19 @@
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-
-import { AppState } from "reducers";
-import ContextMenuTrigger from "../ContextMenuTrigger";
-
 import {
-  moveActionRequest,
   copyActionRequest,
   deleteAction,
+  moveActionRequest,
 } from "actions/actionActions";
-
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ContextMenuPopoverModifiers } from "../helpers";
+import { BUILDER_PAGE_URL } from "constants/routes";
 import { noop } from "lodash";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { getPageListAsOptions } from "selectors/entitiesSelector";
+import history from "utils/history";
+import ContextMenuTrigger from "../ContextMenuTrigger";
+import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
 import { useNewActionName } from "./helpers";
 
 type EntityContextMenuProps = {
@@ -24,7 +24,7 @@ type EntityContextMenuProps = {
 };
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const nextEntityName = useNewActionName();
-
+  const params = useParams<ExplorerURLParams>();
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
@@ -50,18 +50,12 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteAction({ id: actionId, name: actionName })),
+    (actionId: string, actionName: string, onSuccess?: () => void) =>
+      dispatch(deleteAction({ id: actionId, name: actionName, onSuccess })),
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageListAsOptions);
 
   const editActionName = useCallback(
     () => dispatch(initExplorerEntityNameEdit(props.id)),
@@ -110,9 +104,14 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         },
         {
           value: "delete",
-          onSelect: () => deleteActionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
+          onSelect: () =>
+            deleteActionFromPage(props.id, props.name, () => {
+              history.push(
+                BUILDER_PAGE_URL(params.applicationId, params.pageId),
+              );
+            }),
         },
       ]}
       selectedValue=""

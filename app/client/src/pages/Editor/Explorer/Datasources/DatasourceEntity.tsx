@@ -16,6 +16,7 @@ import {
   fetchDatasourceStructure,
   saveDatasourceName,
   expandDatasourceEntity,
+  setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
@@ -23,6 +24,7 @@ import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { getAction } from "selectors/entitiesSelector";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import { getQueryParams } from "../../../../utils/AppsmithUtils";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -44,14 +46,21 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
           params.pageId,
           props.plugin.packageName,
           props.datasource.id,
+          {
+            viewMode: true,
+          },
         ),
       );
     } else {
+      dispatch(
+        setDatsourceEditorMode({ id: props.datasource.id, viewMode: true }),
+      );
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
           params.applicationId,
           params.pageId,
           props.datasource.id,
+          getQueryParams(),
         ),
       );
     }

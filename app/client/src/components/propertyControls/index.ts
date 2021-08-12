@@ -42,10 +42,14 @@ import ButtonTabControl, {
 import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
-import CustomFusionChartControl from "./CustomFusionChartControl";
 import LabelColorPickerControl, {
   LabelColorPickerControlProps,
 } from "./LabelColorPickerControl";
+import MenuItemsControl from "./MenuItemsControl";
+import IconSelectControl from "./IconSelectControl";
+import IconAlignControl from "./IconAlignControl";
+import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
+import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -59,7 +63,6 @@ export const PropertyControls = {
   ColumnActionSelectorControl,
   MultiSwitchControl,
   ChartDataControl,
-  CustomFusionChartControl,
   LocationSearchControl,
   StepControl,
   TabControl,
@@ -69,6 +72,11 @@ export const PropertyControls = {
   ButtonTabControl,
   ComputeTablePropertyControl,
   LabelColorPickerControl,
+  MenuItemsControl,
+  IconSelectControl,
+  IconAlignControl,
+  BorderRadiusOptionsControl,
+  BoxShadowOptionsControl,
 };
 
 export type PropertyControlPropsType =

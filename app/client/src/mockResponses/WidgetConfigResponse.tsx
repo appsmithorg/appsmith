@@ -1,14 +1,26 @@
+import { IconNames } from "@blueprintjs/icons";
+
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import moment from "moment-timezone";
-import { cloneDeep, get, indexOf, isString } from "lodash";
+import { cloneDeep, get, indexOf, isString, set } from "lodash";
 import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonBoxShadowTypes,
+  ButtonStyleTypes,
+  ButtonVariantTypes,
+} from "components/designSystems/appsmith/IconButtonComponent";
+
 /*
  ********************************{Grid Density Migration}*********************************
  */
@@ -28,6 +40,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
       isVisible: true,
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     TEXT_WIDGET: {
@@ -47,6 +60,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isDisabled: false,
       isVisible: true,
+      isRequired: false,
       widgetName: "RichTextEditor",
       isDefaultClickDisabled: true,
       inputType: "html",
@@ -57,6 +71,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
+      enableRotation: false,
+      enableDownload: false,
+      objectFit: "contain",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -73,6 +90,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       resetOnSubmit: true,
       isRequired: false,
       isDisabled: false,
+      allowCurrencyChange: false,
     },
     SWITCH_WIDGET: {
       label: "Label",
@@ -133,10 +151,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
-      minDate: "2001-01-01 00:00",
-      maxDate: "2041-12-31 23:59",
+      minDate: "1920-12-31T18:30:00.000Z",
+      maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
       isRequired: false,
+      closeOnSelection: false,
+      shortcuts: false,
     },
     VIDEO_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
@@ -148,13 +168,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       label: "Data",
       widgetName: "Table",
       searchKey: "",
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
+      totalRecordCount: 0,
+      defaultPageSize: 0,
       dynamicBindingPathList: [
         {
           key: "primaryColumns.step.computedValue",
@@ -184,7 +206,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "step",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.step})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.step))}}",
         },
         task: {
           index: 1,
@@ -200,7 +222,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "task",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.task})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.task))}}",
         },
         status: {
           index: 2,
@@ -216,7 +238,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           isDerived: false,
           label: "status",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.status})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.status))}}",
         },
         action: {
           index: 3,
@@ -234,7 +256,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           onClick:
             "{{currentRow.step === '#1' ? showAlert('Done', 'success') : currentRow.step === '#2' ? navigateTo('https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases/querying-a-database',undefined,'NEW_WINDOW') : navigateTo('https://docs.appsmith.com/core-concepts/displaying-data-read/display-data-tables',undefined,'NEW_WINDOW')}}",
           computedValue:
-            "{{Table1.sanitizedTableData.map((currentRow) => { return currentRow.action})}}",
+            "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
         },
       },
       derivedColumns: {},
@@ -253,7 +275,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
         {
           step: "#3",
-          task: "Bind the query using {{fetch_users.data}}",
+          task: "Bind the query using => fetch_users.data",
           status: "--",
           action: "",
         },
@@ -263,11 +285,42 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         step: 62,
         status: 75,
       },
+      blueprint: {
+        operations: [
+          {
+            type: BlueprintOperationTypes.MODIFY_PROPS,
+            fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+              const primaryColumns = cloneDeep(widget.primaryColumns);
+              const columnIds = Object.keys(primaryColumns);
+              columnIds.forEach((columnId) => {
+                set(
+                  primaryColumns,
+                  `${columnId}.computedValue`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
+                );
+              });
+              const updatePropertyMap = [
+                {
+                  widgetId: widget.widgetId,
+                  propertyName: "primaryColumns",
+                  propertyValue: primaryColumns,
+                },
+              ];
+              return updatePropertyMap;
+            },
+          },
+        ],
+      },
+      isVisibleSearch: true,
+      isVisibleFilters: true,
+      isVisibleDownload: true,
+      isVisibleCompactMode: true,
+      isVisiblePagination: true,
       version: 1,
     },
     DROP_DOWN_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      columns: 5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       selectionType: "SINGLE_SELECT",
       options: [
@@ -278,8 +331,29 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
+      isFilterable: true,
       isRequired: false,
       isDisabled: false,
+    },
+    MULTI_SELECT_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      label: "",
+      options: [
+        { label: "Hashirama Senju", value: "First" },
+        { label: "Tobirama Senju", value: "Second" },
+        { label: "Hiruzen Sarutobi", value: "Third" },
+        { label: "Minato Namikaze", value: "Fourth" },
+        { label: "Tsunade Senju", value: "Fifth" },
+        { label: "Kakashi Hatake", value: "Sixth" },
+        { label: "Naruto Uzumaki", value: "Seventh" },
+      ],
+      widgetName: "MultiSelect",
+      defaultOptionValue: ["First", "Seventh"],
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+      placeholderText: "select option(s)",
     },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -309,6 +383,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     FILE_PICKER_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
+      selectedFiles: [],
+      defaultSelectedFiles: [],
       allowedFileTypes: [],
       label: "Select Files",
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
@@ -368,7 +444,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
         ],
       },
-      version: 2,
+      version: 3,
     },
     MODAL_WIDGET: {
       rows: 6 * GRID_DENSITY_MIGRATION_V1,
@@ -483,6 +559,32 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       }
                     },
                   },
+                  {
+                    type: BlueprintOperationTypes.MODIFY_PROPS,
+                    fn: (
+                      widget: WidgetProps & { children?: WidgetProps[] },
+                      widgets: { [widgetId: string]: FlattenedWidgetProps },
+                      parent?: WidgetProps & { children?: WidgetProps[] },
+                    ) => {
+                      const cancelBtnChild =
+                        widget.children &&
+                        widget.children.find(
+                          (child) =>
+                            child.type === "BUTTON_WIDGET" &&
+                            child.text === "Cancel",
+                        );
+
+                      if (cancelBtnChild && parent) {
+                        return [
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "onClick",
+                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                          },
+                        ];
+                      }
+                    },
+                  },
                 ],
               },
             },
@@ -541,6 +643,58 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      customFusionChartConfig: {
+        type: "column2d",
+        dataSource: {
+          chart: {
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
+            theme: "fusion",
+          },
+          data: [
+            {
+              label: "Mon",
+              value: 10000,
+            },
+            {
+              label: "Tue",
+              value: 12000,
+            },
+            {
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 14000,
+            },
+            {
+              label: "Sat",
+              value: 19000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
+            },
+          ],
+          trendlines: [
+            {
+              line: [
+                {
+                  startvalue: "38000",
+                  valueOnRight: "1",
+                  displayvalue: "Weekly Target",
+                },
+              ],
+            },
+          ],
+        },
+      },
     },
     FORM_BUTTON_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -548,6 +702,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "FormButton",
       text: "Submit",
       isDefaultClickDisabled: true,
+      recaptchaV2: false,
       version: 1,
     },
     FORM_WIDGET: {
@@ -597,6 +752,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "PRIMARY_BUTTON",
                       disabledWhenInvalid: true,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
@@ -615,6 +771,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       buttonStyle: "SECONDARY_BUTTON",
                       disabledWhenInvalid: false,
                       resetFormOnClick: true,
+                      recaptchaV2: false,
                       version: 1,
                     },
                   },
@@ -654,21 +811,24 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.LIST_WIDGET]: {
-      backgroundColor: "",
-      itemBackgroundColor: "white",
+      backgroundColor: "transparent",
+      itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       gridType: "vertical",
+      template: {},
       enhancements: {
         child: {
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
-          hideEvaluatedValue: () => true,
+          updateDataTreePath: (parentProps: any, dataTreePath: string) => {
+            return `${parentProps.widgetName}.template.${dataTreePath}`;
+          },
           propertyUpdateHook: (
             parentProps: any,
             widgetName: string,
-            propertyPath: string, // onClick
+            propertyPath: string,
             propertyValue: string,
             isTriggerProperty: boolean,
           ) => {
@@ -676,16 +836,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets } = getDynamicBindings(propertyValue);
-
-            const modifiedAction = jsSnippets.reduce(
-              (prev: string, next: string) => {
-                return `${prev}${next}`;
-              },
-              "",
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
             );
 
-            value = `{{${parentProps.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
+              return (function(){
+                return  ${js};
+              })();
+            })}}`;
+
+            if (!js) {
+              value = propertyValue;
+            }
+
             const path = `template.${widgetName}.${propertyPath}`;
 
             return [
@@ -700,7 +866,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         },
       },
       gridGap: 0,
-      items: [
+      listData: [
         {
           id: 1,
           num: "001",
@@ -750,6 +916,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canExtend: false,
               detachFromLayout: true,
               dropDisabled: true,
+              openParentPropertyPane: true,
               noPad: true,
               children: [],
               blueprint: {
@@ -768,6 +935,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       isDeletable: false,
                       disallowCopy: true,
                       disablePropertyPane: true,
+                      openParentPropertyPane: true,
                       children: [],
                       blueprint: {
                         view: [
@@ -868,6 +1036,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
@@ -883,6 +1052,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
                   const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 
                   for (let i = 0; i < keys.length; i++) {
@@ -890,16 +1060,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets } = getDynamicBindings(value);
-
-                      const modifiedAction = jsSnippets.reduce(
-                        (prev: string, next: string) => {
-                          return prev + `${next}`;
-                        },
-                        "",
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
                       );
 
-                      value = `{{${widget.widgetName}.items.map((currentItem) => ${modifiedAction})}}`;
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                       childWidget[key] = value;
 
@@ -908,6 +1078,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       });
                     }
                   }
+
+                  Object.keys(childWidget).map((key) => {
+                    logBlackList[key] = true;
+                  });
+
+                  logBlackListMap[childWidget.widgetId] = logBlackList;
 
                   template = {
                     ...template,
@@ -927,6 +1103,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   propertyValue: template,
                 },
               ];
+
+              // add logBlackList to updateProperyMap for all children
+              updatePropertyMap = updatePropertyMap.concat(
+                Object.keys(logBlackListMap).map((logBlackListMapKey) => {
+                  return {
+                    widgetId: logBlackListMapKey,
+                    propertyName: "logBlackList",
+                    propertyValue: logBlackListMap[logBlackListMapKey],
+                  };
+                }),
+              );
+
               return updatePropertyMap;
             },
           },
@@ -936,20 +1124,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
               widgetId: string,
               parentId: string,
-              widgetPropertyMaps: {
-                defaultPropertyMap: Record<string, string>;
-              },
             ) => {
               if (!parentId) return { widgets };
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
+              const logBlackList: { [key: string]: boolean } = {};
 
-              const disallowedWidgets = [WidgetTypes.FILE_PICKER_WIDGET];
+              const disallowedWidgets = [
+                WidgetTypes.TABLE_WIDGET,
+                WidgetTypes.LIST_WIDGET,
+                WidgetTypes.TABS_WIDGET,
+                WidgetTypes.FORM_WIDGET,
+                WidgetTypes.CONTAINER_WIDGET,
+              ];
 
-              if (
-                Object.keys(widgetPropertyMaps.defaultPropertyMap).length > 0 ||
-                indexOf(disallowedWidgets, widget.type) > -1
-              ) {
+              if (indexOf(disallowedWidgets, widget.type) > -1) {
                 const widget = widgets[widgetId];
                 if (widget.children && widget.children.length > 0) {
                   widget.children.forEach((childId: string) => {
@@ -969,7 +1158,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   widgets,
                   message: `${
                     WidgetConfigResponse.config[widget.type].widgetName
-                  } widgets cannot be used inside the list widget right now.`,
+                  } widgets cannot be used inside the list widget.`,
                 };
               }
 
@@ -980,13 +1169,103 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
               parent.template = template;
 
+              // add logBlackList for the children being added
+              Object.keys(widget).map((key) => {
+                logBlackList[key] = true;
+              });
+
+              widget.logBlackList = logBlackList;
+
               widgets[parentId] = parent;
+              widgets[widgetId] = widget;
 
               return { widgets };
             },
           },
         ],
       },
+    },
+    RATE_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
+      maxCount: 5,
+      defaultRate: 5,
+      activeColor: Colors.RATE_ACTIVE,
+      inactiveColor: Colors.RATE_INACTIVE,
+      size: "MEDIUM",
+      isRequired: false,
+      isAllowHalf: false,
+      isDisabled: false,
+      widgetName: "Rating",
+    },
+    [WidgetTypes.IFRAME_WIDGET]: {
+      source: "https://www.wikipedia.org/",
+      borderOpacity: 100,
+      borderWidth: 1,
+      rows: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Iframe",
+      version: 1,
+    },
+    DIVIDER_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Divider",
+      orientation: "horizontal",
+      capType: "nc",
+      capSide: 0,
+      strokeStyle: "solid",
+      dividerColor: Colors.LIGHT_GREY2,
+      thickness: 2,
+      isVisible: true,
+      version: 1,
+    },
+    [WidgetTypes.MENU_BUTTON_WIDGET]: {
+      label: "Open Menu",
+      isDisabled: false,
+      isCompact: false,
+      menuItems: {
+        menuItem1: {
+          label: "First Menu Item",
+          id: "menuItem1",
+          widgetId: "",
+          isVisible: true,
+          isDisabled: false,
+          index: 0,
+        },
+        menuItem2: {
+          label: "Second Menu Item",
+          id: "menuItem2",
+          widgetId: "",
+          isVisible: true,
+          isDisabled: false,
+          index: 1,
+        },
+        menuItem3: {
+          label: "Third Menu Item",
+          id: "menuItem3",
+          widgetId: "",
+          isVisible: true,
+          isDisabled: false,
+          index: 1,
+        },
+      },
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "MenuButton",
+    },
+    [WidgetTypes.ICON_BUTTON_WIDGET]: {
+      iconName: IconNames.PLUS,
+      borderRadius: ButtonBorderRadiusTypes.CIRCLE,
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      buttonStyle: ButtonStyleTypes.PRIMARY,
+      buttonVariant: ButtonVariantTypes.SOLID,
+      isDisabled: false,
+      isVisible: true,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "IconButton",
+      version: 1,
     },
   },
   configVersion: 1,

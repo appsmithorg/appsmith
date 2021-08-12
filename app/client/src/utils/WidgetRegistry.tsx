@@ -100,9 +100,34 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import DividerWidget, {
+  ProfiledDividerWidget,
+  DividerWidgetProps,
+} from "widgets/DividerWidget";
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import MultiSelectWidget, {
+  MultiSelectWidgetProps,
+  ProfiledMultiSelectWidget,
+} from "widgets/MultiSelectWidget";
+import RateWidget, {
+  RateWidgetProps,
+  ProfiledRateWidget,
+} from "widgets/RateWidget";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  MenuButtonWidgetProps,
+  ProfiledMenuButtonWidget,
+} from "widgets/MenuButtonWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -453,6 +478,82 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getDefaultPropertiesMap(),
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: MultiSelectWidgetProps): JSX.Element {
+          return <ProfiledMultiSelectWidget {...widgetData} />;
+        },
+      },
+      MultiSelectWidget.getDerivedPropertiesMap(),
+      MultiSelectWidget.getDefaultPropertiesMap(),
+      MultiSelectWidget.getMetaPropertiesMap(),
+      MultiSelectWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "RATE_WIDGET",
+      {
+        buildWidget(widgetData: RateWidgetProps): JSX.Element {
+          return <ProfiledRateWidget {...widgetData} />;
+        },
+      },
+      RateWidget.getDerivedPropertiesMap(),
+      RateWidget.getDefaultPropertiesMap(),
+      RateWidget.getMetaPropertiesMap(),
+      RateWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.DIVIDER_WIDGET,
+      {
+        buildWidget(widgetProps: DividerWidgetProps): JSX.Element {
+          return <ProfiledDividerWidget {...widgetProps} />;
+        },
+      },
+      DividerWidget.getDerivedPropertiesMap(),
+      DividerWidget.getDefaultPropertiesMap(),
+      DividerWidget.getMetaPropertiesMap(),
+      DividerWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MENU_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: MenuButtonWidgetProps): JSX.Element {
+          return <ProfiledMenuButtonWidget {...widgetData} />;
+        },
+      },
+      MenuButtonWidget.getDerivedPropertiesMap(),
+      MenuButtonWidget.getDefaultPropertiesMap(),
+      MenuButtonWidget.getMetaPropertiesMap(),
+      MenuButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
     );
   }
 }

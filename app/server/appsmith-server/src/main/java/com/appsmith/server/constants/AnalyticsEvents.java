@@ -10,6 +10,8 @@ public enum AnalyticsEvents {
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
+    FORK,
+    GENERATE_CRUD_PAGE("generate_CRUD_PAGE")
     ;
 
     private final String eventName;

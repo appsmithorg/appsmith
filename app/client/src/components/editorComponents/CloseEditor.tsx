@@ -1,73 +1,87 @@
-import TooltipComponent from "components/ads/Tooltip";
-import { BUILDER_PAGE_URL } from "constants/routes";
 import React from "react";
-import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 import Text, { TextType } from "components/ads/Text";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon } from "@blueprintjs/core";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import {
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+  getGenerateTemplateFormURL,
+} from "../../constants/routes";
+import { useSelector } from "react-redux";
+import { getQueryParams } from "../../utils/AppsmithUtils";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "../../selectors/editorSelectors";
 
 const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
+  //width: 100%;
+  height: 30px;
   display: flex;
-  margin-right: 16px;
-  justify-content: center;
   align-items: center;
   cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
-    }
-  }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-  }
+  padding-left: 16px;
+  /* background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg}; */
 `;
 
 function CloseEditor() {
+  const history = useHistory();
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const params: string = location.search;
 
-  const history = useHistory();
+  const searchParamsInstance = new URLSearchParams(params);
+  const redirectTo = searchParamsInstance.get("from");
+
+  const isGeneratePageInitiator = getIsGeneratePageInitiator();
+  let integrationTab = INTEGRATION_TABS.ACTIVE;
+
+  if (isGeneratePageInitiator) {
+    // When users routes to Integrations page via generate CRUD page form
+    // the INTEGRATION_TABS.ACTIVE is hidden and
+    // hence when routing back, user should go back to INTEGRATION_TABS.NEW tab.
+    integrationTab = INTEGRATION_TABS.NEW;
+  }
+  // if it is a generate CRUD page flow from which user came here
+  // then route user back to `/generate-page/form`
+  // else go back to BUILDER_PAGE
+  const redirectURL = isGeneratePageInitiator
+    ? getGenerateTemplateFormURL(applicationId, pageId)
+    : BUILDER_PAGE_URL(applicationId, pageId);
+
   const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
     );
     e.stopPropagation();
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+
+    const URL =
+      redirectTo === "datasources"
+        ? INTEGRATION_EDITOR_URL(
+            applicationId,
+            pageId,
+            integrationTab,
+            "",
+            getQueryParams(),
+          )
+        : redirectURL;
+    history.push(URL);
   };
 
   return (
-    <TooltipComponent
-      content={
-        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-          Close
-        </Text>
-      }
-      minWidth="auto !important"
-      minimal
-      position={Position.BOTTOM_LEFT}
-    >
-      <IconContainer onClick={handleClose}>
-        <Icon
-          className="close-modal-icon"
-          name="close-modal"
-          size={IconSize.LARGE}
-        />
-      </IconContainer>
-    </TooltipComponent>
+    <IconContainer onClick={handleClose}>
+      <Icon icon="chevron-left" iconSize={16} />
+      <Text style={{ color: "#0c0000", lineHeight: "14px" }} type={TextType.P1}>
+        Back
+      </Text>
+    </IconContainer>
   );
 }
 

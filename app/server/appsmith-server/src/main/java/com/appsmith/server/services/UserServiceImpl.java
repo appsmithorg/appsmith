@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
@@ -21,6 +22,7 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -58,6 +60,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -85,8 +89,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
-    // We default the origin header to the production deployment of the client's URL
-    private static final String DEFAULT_ORIGIN_HEADER = "https://app.appsmith.com";
 
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
@@ -292,6 +294,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(userFromDb -> {
                     if (!userFromDb.getPasswordResetInitiated()) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET));
+                    } else if(!ValidationUtils.validateLoginPassword(user.getPassword())){
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
+                        );
                     }
 
                     //User has verified via the forgot password token verfication route. Allow the user to set new password.
@@ -421,7 +427,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
-            originHeader = DEFAULT_ORIGIN_HEADER;
+            originHeader = Appsmith.DEFAULT_ORIGIN_HEADER;
         }
 
         final String finalOriginHeader = originHeader;
@@ -435,7 +441,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         }
 
         // If the user doesn't exist, create the user. If the user exists, return a duplicate key exception
-        return repository.findByEmail(user.getUsername())
+        return repository.findByCaseInsensitiveEmail(user.getUsername())
                 .flatMap(savedUser -> {
                     if (!savedUser.isEnabled()) {
                         // First enable the user
@@ -445,7 +451,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser);
                     }
-                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, user.getUsername()));
+                    return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
@@ -623,7 +629,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .flatMap(tuple -> {
                     List<User> invitedUsers = tuple.getT1();
                     Organization organization = tuple.getT2();
-
                     return userOrganizationService.bulkAddUsersToOrganization(organization, invitedUsers, inviteUsersDTO.getRoleName());
                 });
 

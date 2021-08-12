@@ -7,6 +7,7 @@ import handleFetchApplicationCommentsSuccess from "./handleFetchApplicationComme
 import handleNewCommentThreadEvent from "./handleNewCommentThreadEvent";
 import handleUpdateCommentThreadSuccess from "./handleUpdateCommentThreadSuccess";
 import handleUpdateCommentThreadEvent from "./handleUpdateCommentThreadEvent";
+import handleUpdateCommentEvent from "./handleUpdateCommentEvent";
 
 import { CommentsReduxState } from "./interfaces";
 import {
@@ -15,7 +16,10 @@ import {
   CreateCommentThreadRequest,
   NewCommentEventPayload,
   NewCommentThreadPayload,
+  Comment,
 } from "entities/Comments/CommentsInterfaces";
+
+import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
@@ -24,6 +28,12 @@ const initialState: CommentsReduxState = {
   isCommentMode: false,
   creatingNewThread: false,
   creatingNewThreadComment: false,
+  appCommentsFilter: filterOptions[0].value,
+  shouldShowResolvedAppCommentThreads: false,
+  unreadCommentThreadsCount: 0,
+  visibleCommentThreadId: "",
+  isIntroCarouselVisible: false,
+  unsubscribed: false,
 };
 
 /**
@@ -31,14 +41,6 @@ const initialState: CommentsReduxState = {
  * They are handled separately
  */
 const commentsReducer = createReducer(initialState, {
-  // todo: remove (for dev)
-  [ReduxActionTypes.SET_COMMENT_THREADS_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<any>,
-  ) => ({
-    ...state,
-    ...action.payload,
-  }),
   // Only one unpublished comment threads exists at a time
   [ReduxActionTypes.CREATE_UNPUBLISHED_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -72,17 +74,6 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     isCommentMode: action.payload,
   }),
-  [ReduxActionTypes.SET_IS_COMMENT_THREAD_VISIBLE]: (
-    state: CommentsReduxState,
-    action: ReduxAction<{ isVisible: boolean; commentThreadId: string }>,
-  ) => {
-    state.commentThreadsMap[action.payload.commentThreadId] = {
-      ...state.commentThreadsMap[action.payload.commentThreadId],
-      isVisible: action.payload.isVisible,
-    };
-
-    return { ...state };
-  },
   [ReduxActionTypes.CREATE_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
   ) => ({
@@ -107,6 +98,12 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleNewCommentThreadEvent(state, action);
   },
+  [ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    unsubscribed: true,
+  }),
   [ReduxActionTypes.NEW_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<NewCommentEventPayload>,
@@ -137,22 +134,6 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
   },
-  [ReduxActionTypes.PIN_COMMENT_THREAD_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<{ threadId: string; applicationId: string }>,
-  ) => {
-    const { applicationId, threadId } = action.payload;
-    state.commentThreadsMap[threadId] = {
-      ...state.commentThreadsMap[threadId],
-      isPinned: true,
-    };
-    // so that changes are propagated to app comments
-    state.applicationCommentThreadsByRef[applicationId] = {
-      ...state.applicationCommentThreadsByRef[applicationId],
-    };
-
-    return { ...state };
-  },
   [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
     state: CommentsReduxState,
     action: ReduxAction<{
@@ -172,6 +153,115 @@ const commentsReducer = createReducer(initialState, {
 
     return { ...state };
   },
+  [ReduxActionTypes.SET_SHOULD_SHOW_RESOLVED_COMMENTS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    shouldShowResolvedAppCommentThreads: action.payload,
+  }),
+  [ReduxActionTypes.RESET_VISIBLE_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    /**
+     * To solve race cond, explicitly hide a visible thread using it's id
+     * so that we don't accidently hide another thread
+     */
+    visibleCommentThreadId:
+      action.payload === state.visibleCommentThreadId
+        ? ""
+        : state.visibleCommentThreadId,
+  }),
+  [ReduxActionTypes.SET_VISIBLE_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<string>,
+  ) => ({
+    ...state,
+    visibleCommentThreadId: action.payload,
+  }),
+  [ReduxActionTypes.SET_APP_COMMENTS_FILTER]: (
+    state: CommentsReduxState,
+    action: ReduxAction<typeof filterOptions[number]["value"]>,
+  ) => ({
+    ...state,
+    appCommentsFilter: action.payload,
+  }),
+  [ReduxActionTypes.EDIT_COMMENT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ comment: Comment; commentThreadId: string }>,
+  ) => {
+    const { comment, commentThreadId } = action.payload;
+    const { id: commentId } = comment;
+    const commentThread = state.commentThreadsMap[commentThreadId];
+
+    if (!commentThread) return state;
+
+    const commentIdx = commentThread.comments.findIndex(
+      (comment: Comment) => comment.id === commentId,
+    );
+
+    commentThread.comments.splice(commentIdx, 1, comment);
+
+    // propagate changes
+    state.commentThreadsMap[commentThreadId] = {
+      ...state.commentThreadsMap[commentThreadId],
+    };
+
+    return { ...state };
+  },
+  [ReduxActionTypes.DELETE_THREAD_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ commentThreadId: string; appId: string }>,
+  ) => {
+    const { appId, commentThreadId } = action.payload;
+    if (!state.applicationCommentThreadsByRef[appId]) return false;
+
+    const { refId } = state.commentThreadsMap[commentThreadId];
+
+    let refComments = state.applicationCommentThreadsByRef[appId][refId];
+    if (refComments) {
+      refComments = refComments.filter(
+        (threadId: string) => threadId !== commentThreadId,
+      );
+    }
+
+    delete state.commentThreadsMap[commentThreadId];
+
+    state.commentThreadsMap = { ...state.commentThreadsMap };
+
+    state.applicationCommentThreadsByRef[appId as string] = {
+      ...state.applicationCommentThreadsByRef[appId as string],
+    };
+
+    return { ...state };
+  },
+  [ReduxActionTypes.SHOW_COMMENTS_INTRO_CAROUSEL]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    isIntroCarouselVisible: true,
+  }),
+  [ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    isIntroCarouselVisible: false,
+  }),
+  [ReduxActionTypes.UPDATE_COMMENT_EVENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<Comment>,
+  ) => {
+    return handleUpdateCommentEvent(state, action);
+  },
+  [ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS]: (
+    state: CommentsReduxState,
+    action: ReduxAction<number>,
+  ) => ({
+    ...state,
+    unreadCommentThreadsCount: Math.max(action.payload, 0),
+  }),
 });
 
 export default commentsReducer;

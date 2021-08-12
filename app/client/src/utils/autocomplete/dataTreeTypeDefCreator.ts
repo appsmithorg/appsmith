@@ -1,44 +1,69 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { generateReactKey } from "utils/generators";
-import {
-  entityDefinitions,
-  GLOBAL_DEFS,
-  GLOBAL_FUNCTIONS,
-} from "utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
+import { Def } from "tern";
+import {
+  isAction,
+  isAppsmithEntity,
+  isTrueObject,
+  isWidget,
+} from "workers/evaluationUtils";
+import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
 
+// When there is a complex data type, we store it in extra def and refer to it
+// in the def
 let extraDefs: any = {};
 
-export const dataTreeTypeDefCreator = (dataTree: DataTree) => {
+// Def names are encoded with information about the entity
+// This so that we have more info about them
+// when sorting results in autocomplete
+// DATA_TREE.{entityType}.{entitySubType}.{entityName}
+// eg DATA_TREE.WIDGET.TABLE_WIDGET.Table1
+// or DATA_TREE.ACTION.ACTION.Api1
+export const dataTreeTypeDefCreator = (
+  dataTree: DataTree,
+): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
   const def: any = {
-    "!name": "dataTree",
+    "!name": "DATA_TREE",
   };
-  Object.keys(dataTree).forEach((entityName) => {
-    const entity = dataTree[entityName];
-    if (entity && "ENTITY_TYPE" in entity) {
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET) {
-        const widgetType = entity.type;
-        if (widgetType in entityDefinitions) {
-          const definition = _.get(entityDefinitions, widgetType);
-          if (_.isFunction(definition)) {
-            def[entityName] = definition(entity);
-          } else {
-            def[entityName] = definition;
-          }
+  const entityMap: Map<string, DataTreeDefEntityInformation> = new Map();
+  Object.entries(dataTree).forEach(([entityName, entity]) => {
+    if (isWidget(entity)) {
+      const widgetType = entity.type;
+      if (widgetType in entityDefinitions) {
+        const definition = _.get(entityDefinitions, widgetType);
+        if (_.isFunction(definition)) {
+          def[entityName] = definition(entity);
+        } else {
+          def[entityName] = definition;
         }
+        flattenDef(def, entityName);
+        entityMap.set(entityName, {
+          type: ENTITY_TYPE.WIDGET,
+          subType: widgetType,
+        });
       }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION) {
-        def[entityName] = entityDefinitions.ACTION(entity);
-      }
-      if (entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH) {
-        def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
-      }
+    } else if (isAction(entity)) {
+      def[entityName] = entityDefinitions.ACTION(entity);
+      flattenDef(def, entityName);
+      entityMap.set(entityName, {
+        type: ENTITY_TYPE.ACTION,
+        subType: "ACTION",
+      });
+    } else if (isAppsmithEntity(entity)) {
+      def.appsmith = generateTypeDef(_.omit(entity, "ENTITY_TYPE"));
+      entityMap.set("appsmith", {
+        type: ENTITY_TYPE.APPSMITH,
+        subType: ENTITY_TYPE.APPSMITH,
+      });
+    }
+    if (Object.keys(extraDefs)) {
+      def["!define"] = { ...extraDefs };
+      extraDefs = {};
     }
   });
-  def["!define"] = { ...GLOBAL_DEFS, ...extraDefs };
-  extraDefs = {};
-  return { ...def, ...GLOBAL_FUNCTIONS };
+  return { def, entityInfo: entityMap };
 };
 
 export function generateTypeDef(
@@ -47,10 +72,8 @@ export function generateTypeDef(
   const type = getType(obj);
   switch (type) {
     case Types.ARRAY: {
-      const arrayType = generateTypeDef(obj[0]);
-      const name = generateReactKey();
-      extraDefs[name] = arrayType;
-      return `[${name}]`;
+      const arrayType = getType(obj[0]);
+      return `[${arrayType}]`;
     }
     case Types.OBJECT: {
       const objType: Record<string, string | Record<string, unknown>> = {};
@@ -72,3 +95,22 @@ export function generateTypeDef(
       return "?";
   }
 }
+
+export const flattenDef = (def: Def, entityName: string): Def => {
+  const flattenedDef = def;
+  if (isTrueObject(def[entityName])) {
+    Object.entries(def[entityName]).forEach(([key, value]) => {
+      if (!key.startsWith("!")) {
+        flattenedDef[`${entityName}.${key}`] = value;
+        if (isTrueObject(value)) {
+          Object.entries(value).forEach(([subKey, subValue]) => {
+            if (!subKey.startsWith("!")) {
+              flattenedDef[`${entityName}.${key}.${subKey}`] = subValue;
+            }
+          });
+        }
+      }
+    });
+  }
+  return flattenedDef;
+};

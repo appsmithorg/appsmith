@@ -83,7 +83,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             // Authentication will already be valid at this point
             final OAuth2 oauth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-            assert (!oauth2.getIsEncrypted() && oauth2.getAuthenticationResponse() != null);
+            assert (oauth2.getAuthenticationResponse() != null);
 
             // Triggering the actual REST API call
             return method.executePrerequisites(methodConfig, oauth2)
@@ -182,6 +182,14 @@ public class GoogleSheetsPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             // This plugin would not have the option to test
             return Mono.just(new DatasourceTestResult());
+        }
+
+        @Override
+        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
+                                                                 DatasourceConfiguration datasourceConfiguration) {
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return execute(null, datasourceConfiguration, actionConfiguration);
         }
     }
 }

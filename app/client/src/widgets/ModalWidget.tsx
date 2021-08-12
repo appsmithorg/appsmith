@@ -3,6 +3,7 @@ import React, { ReactNode } from "react";
 import { connect } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import {
@@ -16,6 +17,7 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickOpenPropPane";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -70,6 +72,20 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the modal is closed",
+            propertyName: "onClose",
+            label: "onClose",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
   static defaultProps = {
@@ -90,13 +106,25 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
+      ? Math.max(childWidgetData.bottomRow, MODAL_SIZE[this.props.size].height)
       : MODAL_SIZE[this.props.size].height;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
     childWidgetData.rightColumn = this.getModalWidth();
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+  };
+
+  onModalClose = () => {
+    if (this.props.onClose) {
+      super.executeAction({
+        triggerPropertyName: "onClose",
+        dynamicString: this.props.onClose,
+        event: {
+          type: EventType.ON_MODAL_CLOSE,
+        },
+      });
+    }
   };
 
   closeModal = (e: any) => {
@@ -115,6 +143,15 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   }
 
+  makeModalSelectable(content: ReactNode): ReactNode {
+    // substitute coz the widget lacks draggable and position containers.
+    return (
+      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
+        {content}
+      </ClickContentToOpenPropPane>
+    );
+  }
+
   makeModalComponent(content: ReactNode) {
     return (
       <ModalComponent
@@ -124,6 +161,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         height={MODAL_SIZE[this.props.size].height}
         isOpen={!!this.props.isVisible}
         onClose={this.closeModal}
+        onModalClose={this.onModalClose}
         scrollContents={!!this.props.shouldScrollContents}
         width={this.getModalWidth()}
       >
@@ -134,6 +172,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   getCanvasView() {
     let children = this.getChildren();
+    children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
     return this.makeModalComponent(children);
   }
@@ -159,6 +198,7 @@ export interface ModalWidgetProps extends WidgetProps, WithMeta {
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
   size: string;
+  onClose: string;
   mainContainer: WidgetProps;
 }
 

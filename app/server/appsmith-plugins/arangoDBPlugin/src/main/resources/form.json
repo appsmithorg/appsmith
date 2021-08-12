@@ -1,0 +1,134 @@
+{
+  "form": [
+    {
+      "sectionName": "Connection",
+      "id": 1,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Host Address",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$"
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY"
+            }
+          ]
+        },
+        {
+          "label": "Database Name",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "default"
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Username",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
+            },
+            {
+              "label": "Password",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password",
+              "encrypted": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "sectionName": "SSL (optional)",
+      "children": [
+        {
+          "label": "SSL Mode",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "DEFAULT",
+          "options": [
+            {
+              "label": "Default",
+              "value": "DEFAULT"
+            },
+            {
+              "label": "Enabled",
+              "value": "ENABLED"
+            },
+            {
+              "label": "Disabled",
+              "value": "DISABLED"
+            }
+          ]
+        },
+        {
+          "label": "Use CA Certificate",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NONE",
+          "options": [
+            {
+              "label": "Disabled",
+              "value": "NONE"
+            },
+            {
+              "label": "Upload File",
+              "value": "FILE"
+            },
+            {
+              "label": "Base64 String",
+              "value": "BASE64_STRING"
+            }
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.connection.ssl.authType",
+            "comparison": "NOT_EQUALS",
+            "value": "ENABLED"
+          }
+        },
+        {
+          "label": "CA Certificate File",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
+          "controlType": "FILE_PICKER",
+          "encrypted": true,
+          "hidden": {
+            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+            "comparison": "NOT_EQUALS",
+            "value": "FILE"
+          }
+        },
+        {
+          "label": "Base64 Encoded CA Certificate String",
+          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "encrypted": true,
+          "hidden": {
+            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+            "comparison": "NOT_EQUALS",
+            "value": "BASE64_STRING"
+          }
+        }
+      ]
+    }
+  ]
+}

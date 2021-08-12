@@ -1,5 +1,7 @@
 import { COMMENT_EVENTS } from "constants/CommentConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { RawDraftContentState } from "draft-js";
+import { APP_MODE } from "entities/App";
 
 // export enum CommentThreadParentTypes {
 //   widget = "widget",
@@ -15,29 +17,64 @@ import { RawDraftContentState } from "draft-js";
 
 export type CreateCommentRequest = {
   body: RawDraftContentState;
+  mode?: APP_MODE;
 };
 
 export type CreateCommentThreadRequest = {
   applicationId: string;
+  pageId: string;
   refId: string; // could be an id to refer any parent based on parent type
   tabId?: string;
-  position: { top: number; left: number }; // used as a percentage value
+  position: {
+    top: number;
+    left: number;
+    leftPercent: number;
+    topPercent: number;
+  };
   comments: Array<CreateCommentRequest>;
-  resolved?: boolean;
-  isPinned?: boolean;
+  resolvedState?: {
+    active: boolean;
+  };
+  pinnedState?: {
+    active: boolean;
+    authorName?: string;
+    authorUsername?: string;
+    updationTime?: {
+      epochSecond: number;
+      nano: number;
+    };
+  };
+  isViewed?: boolean;
+  mode?: APP_MODE;
+  widgetType?: WidgetType;
+};
+
+export type Reaction = {
+  byName: string;
+  byUsername: string;
+  createdAt: string;
+  emoji: string;
 };
 
 export type Comment = CreateCommentRequest & {
   id: string;
   authorName?: string;
-};
+  authorUsername?: string;
+  updationTime?: string;
+  creationTime?: string;
+  reactions?: Array<Reaction>;
+  threadId?: string;
+} & { _id: string };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   id: string;
   comments: Array<Comment>;
-  isVisible?: boolean;
   userPermissions?: string[];
   new?: boolean;
+  sequenceId?: string;
+  updationTime?: string;
+  creationTime?: string;
+  viewedByUsers?: Array<string>;
 };
 
 export type CommentEventPayload = {

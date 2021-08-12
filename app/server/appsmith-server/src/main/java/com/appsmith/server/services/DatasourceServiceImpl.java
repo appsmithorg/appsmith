@@ -7,7 +7,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
@@ -48,6 +47,9 @@ import static com.appsmith.server.acl.AclPermission.ORGANIZATION_READ_APPLICATIO
 @Service
 public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceService {
 
+    private static final String LOCALHOST_STRING = "localhost";
+    private static final String LOCALHOST_IP = "127.0.0.1";
+
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
@@ -55,7 +57,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
     private final NewActionRepository newActionRepository;
-    private final EncryptionService encryptionService;
+
 
     @Autowired
     public DatasourceServiceImpl(Scheduler scheduler,
@@ -70,8 +72,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                                  PluginExecutorHelper pluginExecutorHelper,
                                  PolicyGenerator policyGenerator,
                                  SequenceService sequenceService,
-                                 NewActionRepository newActionRepository,
-                                 EncryptionService encryptionService) {
+                                 NewActionRepository newActionRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -80,7 +81,6 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         this.policyGenerator = policyGenerator;
         this.sequenceService = sequenceService;
         this.newActionRepository = newActionRepository;
-        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -134,6 +134,19 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                 });
     }
 
+    private boolean endpointContainsLocalhost(Endpoint endpoint) {
+        if (endpoint == null || StringUtils.isEmpty(endpoint.getHost())) {
+            return false;
+        }
+
+        String host = endpoint.getHost().toLowerCase();
+        if (host.contains(LOCALHOST_STRING) || host.contains(LOCALHOST_IP)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public Mono<Datasource> populateHintMessages(Datasource datasource) {
 
         if(datasource == null) {
@@ -157,7 +170,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
                         .getDatasourceConfiguration()
                         .getEndpoints()
                         .stream()
-                        .anyMatch(endpoint -> endpoint.getHost().contains("localhost"));
+                        .anyMatch(endpoint -> endpointContainsLocalhost(endpoint));
             }
 
             if(usingLocalhostUrl) {
@@ -327,8 +340,8 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
     }
 
     @Override
-    public Mono<Datasource> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission);
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission permission) {
+        return repository.findByNameAndOrganizationId(name, organizationId, permission);
     }
 
     @Override

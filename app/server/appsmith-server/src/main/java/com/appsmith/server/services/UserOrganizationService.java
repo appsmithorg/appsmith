@@ -10,15 +10,11 @@ import java.util.List;
 public interface UserOrganizationService {
     Mono<User> addUserToOrganization(String orgId, User user);
 
-    Mono<User> saveUser(User user);
-
     Mono<Organization> addUserRoleToOrganization(String orgId, UserRole userRole);
 
     Mono<Organization> addUserToOrganizationGivenUserObject(Organization organization, User user, UserRole userRole);
 
-    Mono<Organization> removeUserRoleFromOrganization(String orgId, UserRole userRole);
-
-    Mono<Organization> removeUserRoleFromOrganizationGivenUserObject(Organization organization, User user);
+    Mono<User> leaveOrganization(String orgId);
 
     Mono<UserRole> updateRoleForMember(String orgId, UserRole userRole, String originHeader);
 
