@@ -35,13 +35,25 @@ function typeIntoDraftEditor(selector, text) {
 const newCommentText1 = "new comment text 1";
 let commentThreadId;
 let appName;
+let orgName;
 
 describe("Comments", function() {
   before(() => {
     return cy.wrap(null).then(async () => {
-      cy.addDsl(dsl);
-      appName = localStorage.getItem("AppName");
       await setFlagForTour();
+      cy.NavigateToHome();
+
+      cy.generateUUID().then((uid) => {
+        appName = uid;
+        orgName = uid;
+        cy.createOrg();
+        cy.wait("@createOrg").then((interception) => {
+          const newOrganizationName = interception.response.body.data.name;
+          cy.renameOrg(newOrganizationName, orgName);
+        });
+        cy.CreateAppForOrg(orgName, appName);
+        cy.addDsl(dsl);
+      });
     });
   });
 
@@ -58,7 +70,11 @@ describe("Comments", function() {
       // wait for the page to load
       cy.get(commonLocators.canvas);
       cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
+
+      // wait for comment mode to be set
+      cy.wait(1000);
       cy.get(commonLocators.canvas).click(50, 50);
+
       typeIntoDraftEditor(commentsLocators.mentionsInput, newCommentText1);
       cy.get(commentsLocators.mentionsInput).type("{enter}");
       await cy.wait("@createNewThread");
