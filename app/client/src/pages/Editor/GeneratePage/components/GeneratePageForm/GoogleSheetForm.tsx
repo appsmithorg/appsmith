@@ -20,6 +20,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
+import Text, { TextType } from "components/ads/Text";
 
 type Props = {
   googleSheetPluginId: string;
@@ -61,12 +62,13 @@ const Row = styled.div`
 const ColumnName = styled.span`
   ${(props) => `${getTypographyByKey(props, "p3")}`};
   color: ${Colors.GRAY};
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-const ColumnNameWrapper = styled.div`
+const ColumnInfoWrapper = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -78,6 +80,10 @@ const ColumnNameWrapper = styled.div`
   flex-wrap: wrap;
 `;
 
+const ColumnNameWrapper = styled.div`
+  display: flex;
+`;
+
 const TooltipWrapper = styled.div`
   margin-top: 2px;
 `;
@@ -87,6 +93,8 @@ const RowHeading = styled.p`
   margin-right: 10px;
 `;
 
+// As TextInput with dataType as number allows `e` as input, hence adding a number validator
+// to check for only whole numbers.
 export function isNumberValidator(value: string) {
   const isValid = /^\d+$/.test(value);
   return {
@@ -94,6 +102,10 @@ export function isNumberValidator(value: string) {
     message: !isValid ? "Only numeric value allowed" : "",
   };
 }
+
+// constants
+
+const MAX_COLUMNS_VISIBLE = 3;
 
 // ---------- GoogleSheetForm Component -------
 
@@ -320,19 +332,24 @@ function GoogleSheetForm(props: Props) {
               validator={isNumberValidator}
             />
           </SelectWrapper>
-          <ColumnNameWrapper>
+          <ColumnInfoWrapper>
             {columnHeaderList.length ? (
               <>
-                {columnHeaderList.slice(0, 3).map((column, index) => (
-                  <div key={column.id}>
-                    <ColumnName>{column.label}</ColumnName>
-                    {columnHeaderList.length === index - 1 ? null : (
-                      <ColumnName>,&nbsp;</ColumnName>
-                    )}
-                  </div>
-                ))}
-                {columnHeaderList.length > 3 ? (
-                  <ColumnName>and more.</ColumnName>
+                <Text type={TextType.P3}>Column Headers fetched :&nbsp; </Text>
+                {columnHeaderList
+                  .slice(0, MAX_COLUMNS_VISIBLE)
+                  .map((column, index) => (
+                    <ColumnNameWrapper key={column.id}>
+                      <ColumnName>{column.label}</ColumnName>
+                      {columnHeaderList.length === index - 1 ? null : (
+                        <ColumnName>,&nbsp;</ColumnName>
+                      )}
+                    </ColumnNameWrapper>
+                  ))}
+                {columnHeaderList.length > MAX_COLUMNS_VISIBLE ? (
+                  <ColumnName>
+                    and +{columnHeaderList.length - MAX_COLUMNS_VISIBLE} more.
+                  </ColumnName>
                 ) : (
                   ""
                 )}
@@ -340,7 +357,7 @@ function GoogleSheetForm(props: Props) {
             ) : (
               <ColumnName>No columns found</ColumnName>
             )}
-          </ColumnNameWrapper>
+          </ColumnInfoWrapper>
         </>
       ) : null}
 
