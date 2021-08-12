@@ -1,4 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+  useRef,
+} from "react";
 import styled from "styled-components";
 import { Button, Icon } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
@@ -10,15 +16,25 @@ import { ReactComponent as RecorderRecordingIcon } from "assets/icons/widget/rec
 import { ReactComponent as RecorderPauseIcon } from "assets/icons/widget/recorder/recorder_pause.svg";
 import { ReactComponent as RecorderCompleteIcon } from "assets/icons/widget/recorder/recorder_complete.svg";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { hexToRgb } from "components/ads/common";
 
 export enum RecorderStatusTypes {
   DEFAULT = "DEFAULT",
   RECORDING = "RECORDING",
   PAUSE = "PAUSE",
   COMPLETE = "COMPLETE",
+  SAVED = "SAVED",
 }
 
 export type RecorderStatus = keyof typeof RecorderStatusTypes;
+
+export enum PlayerStatusTypes {
+  DEFAULT = "DEFAULT",
+  PLAY = "PLAY",
+  PAUSE = "PAUSE",
+}
+
+export type PlayerStatus = keyof typeof PlayerStatusTypes;
 
 interface RecorderContainerProps {
   isDisabled: boolean;
@@ -26,30 +42,63 @@ interface RecorderContainerProps {
 
 const RecorderContainer = styled.div<RecorderContainerProps>`
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-evenly;
   width: 100%;
   height: 100%;
+  overflow: auto;
 `;
 
 interface RecorderLeftButtonStyleProps {
   backgroundColor: string;
   dimension: number;
   iconColor: string;
+  status: RecorderStatus;
 }
+
+const getRgbaColor = (color: string, alpha: number) => {
+  const rgb = hexToRgb(color);
+
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+};
 
 const StyledRecorderLeftButton = styled(Button)<RecorderLeftButtonStyleProps>`
   background-image: none !important;
-  background-color: ${({ backgroundColor }) => backgroundColor} !important;
   border-radius: 50%;
-  height: ${({ dimension }) => `${dimension}px`};
-  width: ${({ dimension }) => `${dimension}px`};
 
   & > svg {
     flex: 1;
     height: 50%;
     path {
-      fill: ${({ iconColor }) => iconColor};
+      ${({ iconColor }) =>
+        iconColor &&
+        `
+        fill: ${iconColor};
+      `}
+    }
+    circle {
+      ${({ iconColor }) =>
+        iconColor &&
+        `
+        fill: ${iconColor};
+      `}
     }
   }
+
+  ${({ backgroundColor, dimension, status }) => `
+    background: ${backgroundColor ? backgroundColor : "none"} !important;
+    height: ${
+      status === RecorderStatusTypes.RECORDING ? dimension - 8 : dimension
+    }px;
+    width: ${
+      status === RecorderStatusTypes.RECORDING ? dimension - 8 : dimension
+    }px;
+    ${status === RecorderStatusTypes.RECORDING &&
+      `
+      box-shadow: 0 0 0 4px ${getRgbaColor(backgroundColor, 0.121)} !important;
+    `}
+  `}
 `;
 
 const renderRecorderIcon = (
@@ -75,23 +124,38 @@ interface RecorderLeftProps {
   backgroundColor: string;
   dimension: number;
   iconColor: string;
-  recorderStatus?: RecorderStatus;
+  status: RecorderStatus;
+  onClick: () => void;
 }
 
 function RecorderLeft(props: RecorderLeftProps) {
-  const { backgroundColor, dimension, iconColor, recorderStatus } = props;
+  const { backgroundColor, dimension, iconColor, onClick, status } = props;
+
+  const handleClick = () => {
+    onClick();
+  };
+
   return (
     <StyledRecorderLeftButton
       backgroundColor={backgroundColor}
       dimension={dimension}
-      icon={renderRecorderIcon(recorderStatus)}
+      icon={renderRecorderIcon(status)}
       iconColor={iconColor}
+      onClick={handleClick}
+      status={status}
     />
   );
 }
 
-function StopButton() {
-  return <Button icon="symbol-square" minimal outlined small />;
+export interface PlayerButtonProps {
+  onClick: () => void;
+}
+
+function StopButton(props: PlayerButtonProps) {
+  const { onClick } = props;
+  return (
+    <Button icon="symbol-square" minimal onClick={onClick} outlined small />
+  );
 }
 
 function ClearButton() {
@@ -99,18 +163,25 @@ function ClearButton() {
 }
 
 interface RecorderRightProps {
-  status: StatusMessages;
+  blobUrl: string | null;
+  onStopRecording: () => void;
+  statusMessage: string;
 }
 
 function RecorderRight(props: RecorderRightProps) {
-  const { status } = props;
+  const { blobUrl, onStopRecording, statusMessage } = props;
+
+  const handleStopRecording = () => {
+    onStopRecording();
+  };
+
   return (
     <div className="rightContainer">
-      <div className="status">{status}</div>
+      <div className="status">{statusMessage}</div>
       <div className="controls">
         <div className="counter">01:10</div>
         <div className="stop">
-          <StopButton />
+          <StopButton onClick={handleStopRecording} />
         </div>
         <div className="clear">
           <ClearButton />
@@ -131,24 +202,76 @@ export interface RecorderComponentProps extends ComponentProps {
 function RecorderComponent(props: RecorderComponentProps) {
   const { backgroundColor, height, iconColor, isDisabled, width } = props;
 
-  const dimension = useMemo(() => {
-    if (width > height) {
-      return height - WIDGET_PADDING * 2;
-    }
+  const recorderContainerRef = useRef<HTMLDivElement>(null);
 
-    return width - WIDGET_PADDING * 2;
-  }, [height, width]);
+  const [containerWidth, setContainerWidth] = useState(
+    width - WIDGET_PADDING * 2,
+  );
+  const [recorderStatus, setRecorderStatus] = useState(
+    RecorderStatusTypes.DEFAULT,
+  );
+  const [playerStatus, setPlayerStatus] = useState(PlayerStatusTypes.DEFAULT);
+  const [statusMessage, setStatusMessage] = useState(
+    "Press to start recording",
+  );
+
+  useEffect(() => {
+    const recorderContainerElement = recorderContainerRef.current;
+    if (recorderContainerElement) {
+      setContainerWidth(recorderContainerElement.clientWidth);
+    }
+  }, [width, height]);
 
   const {
     mediaBlobUrl,
     pauseRecording,
+    resumeRecording,
     startRecording,
     status,
     stopRecording,
   } = useReactMediaRecorder({});
 
+  const dimension = useMemo(() => {
+    if (containerWidth > height) {
+      return height - WIDGET_PADDING * 2;
+    }
+
+    return containerWidth;
+  }, [containerWidth, height, width]);
+
+  const handleRecorderClick = () => {
+    switch (recorderStatus) {
+      case RecorderStatusTypes.RECORDING:
+        pauseRecording();
+        setRecorderStatus(RecorderStatusTypes.PAUSE);
+        setStatusMessage("Recording paused");
+        break;
+      case RecorderStatusTypes.PAUSE:
+        resumeRecording();
+        setRecorderStatus(RecorderStatusTypes.RECORDING);
+        setStatusMessage("Recording...");
+        break;
+      case RecorderStatusTypes.COMPLETE:
+        setRecorderStatus(RecorderStatusTypes.DEFAULT);
+        setStatusMessage("Recording saved");
+        break;
+
+      default:
+        startRecording();
+        setRecorderStatus(RecorderStatusTypes.RECORDING);
+        setStatusMessage("Recording...");
+        break;
+    }
+  };
+
+  const handleStop = () => {
+    stopRecording();
+    setRecorderStatus(RecorderStatusTypes.COMPLETE);
+    setStatusMessage("Recording complete");
+  };
+
   return (
-    <RecorderContainer isDisabled={isDisabled}>
+    <RecorderContainer isDisabled={isDisabled} ref={recorderContainerRef}>
       {/* <p>{status}</p>
       <button onClick={startRecording}>Start Recording</button>
       <button onClick={stopRecording}>Stop Recording</button>
@@ -157,9 +280,14 @@ function RecorderComponent(props: RecorderComponentProps) {
         backgroundColor={backgroundColor}
         dimension={dimension}
         iconColor={iconColor}
-        recorderStatus={RecorderStatusTypes.PAUSE}
+        onClick={handleRecorderClick}
+        status={recorderStatus}
       />
-      <RecorderRight status={status} />
+      <RecorderRight
+        blobUrl={mediaBlobUrl}
+        onStopRecording={handleStop}
+        statusMessage={statusMessage}
+      />
     </RecorderContainer>
   );
 }
