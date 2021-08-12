@@ -555,9 +555,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
     //handle selected pageNo does not exist due to change of totalRecordsCount
-    if (this.props.serverSidePaginationEnabled && this.props.totalRecordCount) {
+    if (
+      this.props.serverSidePaginationEnabled &&
+      this.props.totalRecordsCount
+    ) {
       const maxAllowedPageNumber = Math.ceil(
-        this.props.totalRecordCount / this.props.pageSize,
+        this.props.totalRecordsCount / this.props.pageSize,
       );
       if (this.props.pageNo > maxAllowedPageNumber) {
         this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);

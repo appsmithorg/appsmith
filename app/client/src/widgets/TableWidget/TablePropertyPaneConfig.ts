@@ -883,9 +883,9 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.NUMBER },
-        hidden: (props: TableWidgetProps) => {
-          return !props.serverSidePaginationEnabled;
-        },
+        hidden: (props: TableWidgetProps) =>
+          !!!props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Controls the visibility of the widget",
