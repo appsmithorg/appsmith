@@ -108,6 +108,15 @@ function CanvasMultiPointerArena({
         }
       },
     );
+
+    pageEditSocket.on(
+      APP_COLLAB_EVENTS.STOP_EDITING_APP,
+      (socketId: string) => {
+        // hide pointer of users that leave the page
+        delete pointerData[socketId];
+      },
+    );
+
     return () => {
       pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
       pageEditSocket.disconnect();
