@@ -3709,6 +3709,11 @@
   dependencies:
     jest-diff "^24.3.0"
 
+"@types/js-beautify@^1.13.2":
+  version "1.13.2"
+  resolved "https://registry.yarnpkg.com/@types/js-beautify/-/js-beautify-1.13.2.tgz#49783f6c6c68558738139e612b64b4f1a275383e"
+  integrity sha512-crV/441NhrynLIclg94i1wV6nX/6rU9ByUyn4muCrsL0HPd3nBzrt6kpQ9MQOB+HeYgLcRARteNJcbnYkp5OwA==
+
 "@types/js-levenshtein@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@types/js-levenshtein/-/js-levenshtein-1.1.0.tgz"
@@ -6542,6 +6547,14 @@ concat-stream@^1.5.0, concat-stream@^1.6.2:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
+config-chain@^1.1.12:
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/config-chain/-/config-chain-1.1.13.tgz#fad0795aa6a6cdaff9ed1b68e9dff94372c232f4"
+  integrity sha512-qj+f8APARXHrM0hraqXYb2/bOVSV4PvJQlNZ/DVj0QrmNM2q2euizkeuVckQ57J+W0mRH6Hvi+k50M4Jul2VRQ==
+  dependencies:
+    ini "^1.3.4"
+    proto-list "~1.2.1"
+
 confusing-browser-globals@^1.0.10:
   version "1.0.10"
   resolved "https://registry.npmjs.org/confusing-browser-globals/-/confusing-browser-globals-1.0.10.tgz"
@@ -7616,6 +7629,16 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
+
+editorconfig@^0.15.3:
+  version "0.15.3"
+  resolved "https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.3.tgz#bef84c4e75fb8dcb0ce5cee8efd51c15999befc5"
+  integrity sha512-M9wIMFx96vq0R4F+gRpY3o2exzb8hEj/n9S8unZtHSvYjibBp/iMufSzvmOcV/laG0ZtuTVGtiJggPOSW2r93g==
+  dependencies:
+    commander "^2.19.0"
+    lru-cache "^4.1.5"
+    semver "^5.6.0"
+    sigmund "^1.0.1"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -9785,7 +9808,7 @@ inherits@2.0.3:
   version "2.0.3"
   resolved "https://registry.npmjs.org/inherits/-/inherits-2.0.3.tgz"
 
-ini@^1.3.5:
+ini@^1.3.4, ini@^1.3.5:
   version "1.3.8"
   resolved "https://registry.npmjs.org/ini/-/ini-1.3.8.tgz"
 
@@ -10923,6 +10946,16 @@ jest@26.6.0:
 js-base64@^2.1.8:
   version "2.6.4"
   resolved "https://registry.npmjs.org/js-base64/-/js-base64-2.6.4.tgz"
+
+js-beautify@^1.14.0:
+  version "1.14.0"
+  resolved "https://registry.yarnpkg.com/js-beautify/-/js-beautify-1.14.0.tgz#2ce790c555d53ce1e3d7363227acf5dc69024c2d"
+  integrity sha512-yuck9KirNSCAwyNJbqW+BxJqJ0NLJ4PwBUzQQACl5O3qHMBXVkXb/rD0ilh/Lat/tn88zSZ+CAHOlk0DsY7GuQ==
+  dependencies:
+    config-chain "^1.1.12"
+    editorconfig "^0.15.3"
+    glob "^7.1.3"
+    nopt "^5.0.0"
 
 js-levenshtein@^1.1.6:
   version "1.1.6"
@@ -13920,6 +13953,11 @@ property-information@^5.0.0, property-information@^5.3.0:
   dependencies:
     xtend "^4.0.0"
 
+proto-list@~1.2.1:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/proto-list/-/proto-list-1.2.4.tgz#212d5bfe1318306a420f6402b8e26ff39647a849"
+  integrity sha1-IS1b/hMYMGpCD2QCuOJv85ZHqEk=
+
 proxy-addr@~2.0.5:
   version "2.0.6"
   resolved "https://registry.npmjs.org/proxy-addr/-/proxy-addr-2.0.6.tgz"
@@ -15977,6 +16015,11 @@ side-channel@^1.0.2:
   dependencies:
     es-abstract "^1.18.0-next.0"
     object-inspect "^1.8.0"
+
+sigmund@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sigmund/-/sigmund-1.0.1.tgz#3ff21f198cad2175f9f3b781853fd94d0d19b590"
+  integrity sha1-P/IfGYytIXX587eBhT/ZTQ0ZtZA=
 
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.3"
