@@ -1,8 +1,4 @@
-import {
-  getKeyPositionInString,
-  getLintAnnotations,
-  getAllOccurences,
-} from "./lintHelpers";
+import { getKeyPositionInString, getAllOccurences } from "./lintHelpers";
 
 describe("getAllOccurences()", function() {
   it("should get all the indexes", () => {
