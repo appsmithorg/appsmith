@@ -219,7 +219,8 @@ class CheckboxGroupWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
     if (
-      this.props.options &&
+      Array.isArray(prevProps.options) &&
+      Array.isArray(this.props.options) &&
       this.props.options.length !== prevProps.options.length
     ) {
       const prevOptions = prevProps.options.map(

@@ -111,11 +111,17 @@ function validateArray(
         const allowedKeyValues = valueWithType.map(
           (item) => item[allowedKeyConfig.name],
         );
+        const normalizedValues = valueWithType.map((item) =>
+          item[allowedKeyConfig.name].toLowerCase(),
+        );
         // Check if value is duplicated
         _messages.push(
           ...allowedKeyValues.reduce(
             (acc: string[], currentValue, currentIndex) => {
-              if (allowedKeyValues.indexOf(currentValue) !== currentIndex) {
+              if (
+                normalizedValues.indexOf(currentValue.toLowerCase()) !==
+                currentIndex
+              ) {
                 acc.push(
                   `Duplicated entry at index: ${currentIndex + 1}, key: ${
                     allowedKeyConfig.name
