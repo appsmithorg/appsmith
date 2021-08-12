@@ -201,6 +201,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
+          params: {
+            default: [],
+          },
         },
         "primaryColumns.createdAt.isColumnVisible": {
           type: "BOOLEAN",

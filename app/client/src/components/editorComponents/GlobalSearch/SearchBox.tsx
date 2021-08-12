@@ -13,7 +13,7 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "constants/messages";
-import { SEARCH_CATEGORIES } from "./utils";
+import { SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
 const Container = styled.div`
@@ -54,13 +54,13 @@ const CategoryDisplay = styled.div`
   }
 `;
 
-const getPlaceHolder = (categoryId: SEARCH_CATEGORIES) => {
+const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
   switch (categoryId) {
-    case SEARCH_CATEGORIES.SNIPPETS:
+    case SEARCH_CATEGORY_ID.SNIPPETS:
       return OMNIBAR_PLACEHOLDER_SNIPPETS;
-    case SEARCH_CATEGORIES.DOCUMENTATION:
+    case SEARCH_CATEGORY_ID.DOCUMENTATION:
       return OMNIBAR_PLACEHOLDER_DOC;
-    case SEARCH_CATEGORIES.NAVIGATION:
+    case SEARCH_CATEGORY_ID.NAVIGATION:
       return OMNIBAR_PLACEHOLDER_NAV;
   }
   return OMNIBAR_PLACEHOLDER;
@@ -114,7 +114,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           <CategoryDisplay>
             {category.id}
             <CloseIcon
-              onClick={() => setCategory({ id: SEARCH_CATEGORIES.INIT })}
+              onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}
             />
           </CategoryDisplay>
         )}
@@ -127,7 +127,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onKeyDown={(e) => {
             handleKeyDown(e);
             if (e.key === "Backspace" && !query)
-              setCategory({ id: SEARCH_CATEGORIES.INIT });
+              setCategory({ id: SEARCH_CATEGORY_ID.INIT });
           }}
           placeholder={createMessage(getPlaceHolder(category.id))}
           value={query}
