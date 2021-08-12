@@ -1660,15 +1660,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           }
           // Generate a new unique widget name
           if (!shouldGroup) {
-            widget.widgetName = getNextWidgetName(
-              widgets,
-              widget.type,
-              evalTree,
-              {
-                prefix: oldWidgetName,
-                startWithoutIndex: true,
-              },
-            );
+            widget.widgetName = newWidgetName;
           }
 
           widgetNameMap[oldWidgetName] = widget.widgetName;
