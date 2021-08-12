@@ -180,6 +180,8 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, true));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, true));
+        Flux<ActionCollection> updatedActionCollectionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(application.getId(), commentThreadPolicyMap, user.getUsername(), true));
 
@@ -187,12 +189,13 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 updatedDatasourcesFlux.collectList(),
                 updatedPagesFlux.collectList(),
                 updatedActionsFlux.collectList(),
+                updatedActionCollectionsFlux.collectList(),
                 Mono.just(updatedOrganization),
                 updatedThreadsFlux.collectList()
         )
         .flatMap(tuple -> {
             //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-            Organization updatedOrgBeforeSave = tuple.getT4();
+            Organization updatedOrgBeforeSave = tuple.getT5();
             return organizationRepository.save(updatedOrgBeforeSave);
         });
     }
@@ -262,20 +265,23 @@ public class UserOrganizationServiceImpl implements UserOrganizationService {
                 .flatMap(application -> policyUtils.updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, false));
         Flux<NewAction> updatedActionsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, false));
+        Flux<ActionCollection> updatedActionCollectionsFlux = updatedApplicationsFlux
+                .flatMap(application -> policyUtils.updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, true));
         Flux<CommentThread> updatedThreadsFlux = updatedApplicationsFlux
                 .flatMap(application -> policyUtils.updateCommentThreadPermissions(
                         application.getId(), commentThreadPolicyMap, user.getUsername(), false
-                        ));
+                ));
 
         return Mono.zip(
                 updatedDatasourcesFlux.collectList(),
                 updatedPagesFlux.collectList(),
                 updatedActionsFlux.collectList(),
+                updatedActionCollectionsFlux.collectList(),
                 updatedThreadsFlux.collectList(),
                 Mono.just(updatedOrganization)
         ).flatMap(tuple -> {
                 //By now all the datasources/applications/pages/actions have been updated. Just save the organization now
-                Organization updatedOrgBeforeSave = tuple.getT5();
+            Organization updatedOrgBeforeSave = tuple.getT6();
                 return organizationRepository.save(updatedOrgBeforeSave);
         });
     }
