@@ -1,8 +1,9 @@
 import { uniq, without } from "lodash";
 import { ColumnProperties } from "./Constants";
+import * as customEncode from "utils/EncodeUtils";
 
-const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\W+/;
+export const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\s/;
   return value
     .split(separatorRegex)
     .join("_")
@@ -18,7 +19,9 @@ export const getAllTableColumnKeys = (
       const row = tableData[i];
       for (const key in row) {
         // Replace all special characters to _, limit key length to 200 characters.
-        const sanitizedKey = removeSpecialChars(key, 200);
+        const sanitizedKey = customEncode.btoaCustom(
+          removeSpecialChars(key, 200),
+        );
         if (!columnKeys.includes(sanitizedKey)) {
           columnKeys.push(sanitizedKey);
         }

@@ -174,6 +174,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[func] = undefined;
     });
+
     try {
       result = eval(script);
       if (isTriggerBased) {

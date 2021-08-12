@@ -76,7 +76,7 @@ export default {
   },
   //
   getSanitizedTableData: (props, moment, _) => {
-    const separatorRegex = /\W+/;
+    const separatorRegex = /\s/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
       return props.tableData.map((entry) => {
@@ -173,7 +173,7 @@ export default {
     for (let index = 0; index < allColumnProperties.length; index++) {
       const columnProperties = { ...allColumnProperties[index] };
       columnProperties.isAscOrder =
-        columnProperties.id === sortColumn ? sortOrder : undefined;
+        columnProperties.label === sortColumn ? sortOrder : undefined;
       const columnData = columnProperties;
       columns.push(columnData);
     }

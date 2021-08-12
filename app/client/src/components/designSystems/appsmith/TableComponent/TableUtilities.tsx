@@ -30,6 +30,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import * as customEncode from "utils/EncodeUtils";
 import { noop } from "utils/AppsmithUtils";
 
 export const renderCell = (
@@ -420,10 +421,12 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
 ): ColumnProperties {
+  const id = isDerived ? customEncode.btoaCustom(accessor) : accessor;
+  const label = isDerived ? accessor : customEncode.atobCustom(accessor);
   const columnProps = {
     index: index,
     width: 150,
-    id: accessor,
+    id: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
@@ -434,10 +437,10 @@ export function getDefaultColumnProperties(
     enableSort: true,
     isVisible: true,
     isDerived: !!isDerived,
-    label: accessor,
+    label: label,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${label}))}}`,
   };
 
   return columnProps;

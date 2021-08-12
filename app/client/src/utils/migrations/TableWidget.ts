@@ -69,6 +69,11 @@ export const tableWidgetPropertyPaneMigrations = (
         if (columnType === "currency") {
           columnType = ColumnTypes.TEXT;
         }
+
+        const label =
+          columnNameMap && columnNameMap[accessor]
+            ? columnNameMap[accessor]
+            : accessor;
         // Get a full set of column properties
         const column: ColumnProperties = {
           index, // Use to maintain order of columns
@@ -99,12 +104,9 @@ export const tableWidgetPropertyPaneMigrations = (
           isDerived: false,
           // Use renamed names from the map
           // or use the newly generated name
-          label:
-            columnNameMap && columnNameMap[accessor]
-              ? columnNameMap[accessor]
-              : accessor,
+          label: label,
           // Generate computed value
-          computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor})}}`,
+          computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${label})}}`,
         };
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {
@@ -168,7 +170,7 @@ export const tableWidgetPropertyPaneMigrations = (
 };
 
 const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\W+/;
+  const separatorRegex = /\s/;
   return value
     .split(separatorRegex)
     .join("_")

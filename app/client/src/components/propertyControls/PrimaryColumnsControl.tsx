@@ -266,7 +266,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps> {
   updateItems = (items: Array<Record<string, unknown>>) => {
     this.updateProperty(
       "columnOrder",
-      items.map(({ id }) => id),
+      items.map(({ label }) => label),
     );
   };
 
