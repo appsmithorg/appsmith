@@ -82,6 +82,7 @@ jobs:
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
           REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
           REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
+          REACT_APP_INTERCOM_APP_ID: '${{ secrets.APPSMITH_INTERCOM_ID }}'
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build

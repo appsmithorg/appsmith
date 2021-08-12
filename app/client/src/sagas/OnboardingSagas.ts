@@ -5,6 +5,7 @@ import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import {
@@ -92,6 +93,7 @@ import {
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+
 import {
   EVAL_ERROR_PATH,
   EvaluationError,
@@ -438,8 +440,7 @@ function* listenForCreateAction() {
     setHelperConfig({
       ...helperConfig,
       image: {
-        src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
+        src: "https://assets.appsmith.com/Run.gif",
       },
     }),
   );
@@ -673,7 +674,7 @@ function* addWidget(widgetConfig: any) {
     };
 
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
 
