@@ -811,10 +811,15 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    helper: ShadeColor;
+    icon: ShadeColor;
     readOnly: {
       bg: ShadeColor;
       border: ShadeColor;
       text: ShadeColor;
+    };
+    hover: {
+      bg: ShadeColor;
     };
   };
   menuBorder: ShadeColor;
@@ -1644,10 +1649,15 @@ export const dark: ColorType = {
       text: darkShades[7],
     },
     placeholder: darkShades[5],
+    helper: darkShades[5],
+    icon: darkShades[7],
     readOnly: {
       bg: darkShades[0],
       border: darkShades[0],
       text: darkShades[7],
+    },
+    hover: {
+      bg: darkShades[0],
     },
   },
   menuBorder: darkShades[4],
@@ -2197,20 +2207,25 @@ export const light: ColorType = {
   },
   textInput: {
     disable: {
-      bg: lightShades[1],
-      text: darkShades[6],
-      border: lightShades[1],
-    },
-    normal: {
       bg: lightShades[2],
-      text: lightShades[9],
+      text: darkShades[5],
       border: lightShades[2],
     },
-    placeholder: lightShades[7],
+    normal: {
+      bg: lightShades[11],
+      text: lightShades[10],
+      border: lightShades[13],
+    },
+    placeholder: lightShades[5],
+    helper: lightShades[15],
+    icon: lightShades[7],
     readOnly: {
       bg: lightShades[2],
       border: lightShades[2],
       text: lightShades[7],
+    },
+    hover: {
+      bg: lightShades[0],
     },
   },
   menuBorder: lightShades[3],
