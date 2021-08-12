@@ -1,8 +1,10 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
+  filterCategories,
   RecentEntity,
-  SEARCH_CATEGORIES,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
 const initialState: GlobalSearchReduxState = {
@@ -11,7 +13,9 @@ const initialState: GlobalSearchReduxState = {
   recentEntities: [],
   recentEntitiesRestored: false,
   filterContext: {
-    category: SEARCH_CATEGORIES.INIT,
+    category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
+    fieldMeta: {},
+    refinements: {},
   },
 };
 
@@ -22,13 +26,21 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({ ...state, query: action.payload }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
-  ) => ({ ...state, modalOpen: !state.modalOpen }),
+    action: any,
+  ) => ({
+    ...state,
+    modalOpen: !state.modalOpen,
+    filterContext: { ...state.filterContext, category: action.payload },
+  }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
     action: any,
   ) => ({
     ...state,
-    filterContext: action.payload,
+    filterContext: {
+      ...state.filterContext,
+      ...action.payload,
+    },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
     state: GlobalSearchReduxState,
@@ -51,14 +63,20 @@ const globalSearchReducer = createReducer(initialState, {
     recentEntitiesRestored: true,
   }),
 });
-
 export interface GlobalSearchReduxState {
   query: string;
   modalOpen: boolean;
   recentEntities: Array<RecentEntity>;
   recentEntitiesRestored: boolean;
   filterContext: {
-    category: SEARCH_CATEGORIES;
+    category: SearchCategory;
+    refinements: {
+      entities?: [string];
+    };
+    fieldMeta?: {
+      dataType?: string;
+      field?: string;
+    };
   };
 }
 
