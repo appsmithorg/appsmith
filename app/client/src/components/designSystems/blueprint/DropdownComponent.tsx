@@ -171,7 +171,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             className={this.props.isLoading ? Classes.SKELETON : ""}
             disabled={this.props.disabled}
             filterable={this.props.isFilterable}
-            itemListPredicate={this.itemListPredicate}
+            itemListPredicate={
+              !this.props.serverSideFiltering
+                ? this.itemListPredicate
+                : undefined
+            }
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             onItemSelect={this.onItemSelect}
