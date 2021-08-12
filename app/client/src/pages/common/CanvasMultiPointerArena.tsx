@@ -6,6 +6,8 @@ import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { Colors } from "constants/Colors";
 import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
 
+export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
+
 const POINTER_COLORS = [
   Colors.JAFFA,
   Colors.SLATE_GRAY,
@@ -71,12 +73,8 @@ function CanvasMultiPointerArena({
 
   let selectionCanvas: any;
   useEffect(() => {
-    selectionCanvas = document.getElementById("multiplayer-canvas");
-    const rect = selectionCanvas.getBoundingClientRect();
-    if (!!selectionCanvas) {
-      selectionCanvas.width = rect.width;
-      selectionCanvas.height = rect.height;
-    }
+    selectionCanvas = document.getElementById(POINTERS_CANVAS_ID);
+
     pageEditSocket.connect();
     pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
     return () => {
@@ -88,8 +86,11 @@ function CanvasMultiPointerArena({
   const drawPointers = async () => {
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();
+    if (!!selectionCanvas) {
+      selectionCanvas.width = rect.width;
+      selectionCanvas.height = rect.height;
+    }
     ctx.clearRect(0, 0, rect.width, rect.height);
-
     ctx.font = "14px Verdana";
     Object.keys(pointerData).forEach((socId: string, idx: number) => {
       const eventData = pointerData[socId];
@@ -140,7 +141,7 @@ function CanvasMultiPointerArena({
     );
   }, []);
 
-  return <Canvas id="multiplayer-canvas" />;
+  return <Canvas id={POINTERS_CANVAS_ID} />;
 }
 
 export default CanvasMultiPointerArena;

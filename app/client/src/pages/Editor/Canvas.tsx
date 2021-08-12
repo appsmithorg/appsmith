@@ -7,7 +7,9 @@ import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import CanvasMultiPointerArena from "../common/CanvasMultiPointerArena";
+import CanvasMultiPointerArena, {
+  POINTERS_CANVAS_ID,
+} from "../common/CanvasMultiPointerArena";
 import { throttle } from "lodash";
 import { io } from "socket.io-client";
 import { useParams } from "react-router";
@@ -28,9 +30,7 @@ const Canvas = memo((props: CanvasProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
   const shareMousePointer = (e: any) => {
     if (!!pageEditSocket) {
-      const selectionCanvas: any = document.getElementById(
-        "multiplayer-canvas",
-      );
+      const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
       const rect = selectionCanvas.getBoundingClientRect();
 
       const x = e.clientX - rect.left;
