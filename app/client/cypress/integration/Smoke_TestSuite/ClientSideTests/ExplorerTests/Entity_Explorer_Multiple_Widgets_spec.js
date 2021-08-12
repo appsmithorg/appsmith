@@ -38,7 +38,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
       .last()
       .click({ force: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(8);
+      expect($lis).to.have.length(9);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1.selectedRows}}");
       expect($lis.eq(2)).to.contain("{{Table1.selectedRowIndex}}");
