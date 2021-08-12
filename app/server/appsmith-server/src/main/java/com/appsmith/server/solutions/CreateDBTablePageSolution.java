@@ -807,8 +807,10 @@ public class CreateDBTablePageSolution {
                 //Get separate words and map to tableColumns from widgetDsl
                 Matcher matcher = WORD_PATTERN.matcher(widgetDsl.getAsString(key));
                 widgetDsl.put(key, matcher.replaceAll(field ->
+                    // Replace any special characters with "_" as all the special characters are replaced with "_" in
+                    // table column widget
                     mappedColumnsAndTableNames.get(field.group()) == null ?
-                        field.group() : mappedColumnsAndTableNames.get(field.group())
+                        field.group() : mappedColumnsAndTableNames.get(field.group()).replaceAll("\\W+", "_")
                 ));
             }
         }
