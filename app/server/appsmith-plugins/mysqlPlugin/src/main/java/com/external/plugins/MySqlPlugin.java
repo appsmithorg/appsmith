@@ -76,7 +76,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATE_COLUMN_TYPE_NAME = "date";
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
-    private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds4
+    private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
 
     /**
      * Example output for COLUMNS_QUERY:
