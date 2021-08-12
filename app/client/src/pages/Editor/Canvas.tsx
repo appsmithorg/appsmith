@@ -12,12 +12,16 @@ import { throttle } from "lodash";
 import { io } from "socket.io-client";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "./Explorer/helpers";
+import {
+  APP_COLLAB_EVENTS,
+  NAMESPACE_COLLAB_PAGE_EDIT,
+} from "constants/AppCollabConstants";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
 }
 
-const pageLevelSocket = io("/page/edit");
+const pageLevelSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
@@ -31,7 +35,7 @@ const Canvas = memo((props: CanvasProps) => {
 
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      pageLevelSocket.emit("collab:mouse_pointer", {
+      pageLevelSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
         data: { x, y },
         pageId,
       });

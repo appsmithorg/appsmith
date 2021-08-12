@@ -4,6 +4,7 @@ import { Socket } from "socket.io-client";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { Colors } from "constants/Colors";
+import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
 
 const POINTER_COLORS = [
   Colors.JAFFA,
@@ -22,8 +23,8 @@ const PX_PER_CHAR = 8.67;
 
 const Canvas = styled.canvas`
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   height: calc(100% + ${(props) => props.theme.canvasBottomPadding}px);
   width: 100%;
   overflow-y: auto;
@@ -77,9 +78,9 @@ function CanvasMultiPointerArena({
       selectionCanvas.height = rect.height;
     }
     pageLevelSocket.connect();
-    pageLevelSocket.emit("collab:start_edit", pageId);
+    pageLevelSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
     return () => {
-      pageLevelSocket.emit("collab:leave_edit");
+      pageLevelSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
       pageLevelSocket.disconnect();
     };
   }, []);
@@ -122,7 +123,7 @@ function CanvasMultiPointerArena({
 
   useEffect(() => {
     pageLevelSocket.on(
-      "collab:mouse_pointer",
+      APP_COLLAB_EVENTS.SHARE_USER_POINTER,
       (eventData: {
         data: { x: number; y: number };
         socketId: string;
