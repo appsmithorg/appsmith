@@ -5,7 +5,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 
-const getAllOccurences = (str: string, key: string) => {
+export const getAllOccurences = (str: string, key: string) => {
   const indicies = [];
   const keylen = key.length;
   let index, startIndex;
