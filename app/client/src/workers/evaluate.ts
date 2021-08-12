@@ -104,6 +104,7 @@ const getLintingErrors = (
       errorSegment: lintError.evidence,
       originalBinding,
       variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+      code: lintError.code,
     };
   });
 };

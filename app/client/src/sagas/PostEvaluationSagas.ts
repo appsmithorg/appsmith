@@ -46,6 +46,8 @@ import store from "../store";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
+const errorCodesToIgnoreInDebugger = ["W117"];
+
 function getLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Message>,
   dataTree: DataTree,
@@ -111,9 +113,11 @@ function getLatestEvalPropertyErrors(
           // TODO Rank and set the most critical error
           const error = errors[0];
           const { errorType, severity } = error;
-          const errorMessages = errors.map((e) => ({
-            message: e.errorMessage,
-          }));
+          const errorMessages = errors
+            .filter((e) => !errorCodesToIgnoreInDebugger.includes(e.code || ""))
+            .map((e) => ({
+              message: e.errorMessage,
+            }));
 
           if (!isWarning && !(debuggerKey in updatedDebuggerErrors)) {
             store.dispatch(
