@@ -20,7 +20,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import { ISDCodeDropdownOptions } from "components/ads/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "components/ads/CurrencyCodeDropdown";
 import { isNil, isNumber, isObject, isString } from "lodash";
-import { VALIDATORS } from "workers/validations";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function isNumberInputType(inputType: string) {
   return (
@@ -207,6 +207,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 expected: {
                   type: "string or number",
                   example: `value1 | 123`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
