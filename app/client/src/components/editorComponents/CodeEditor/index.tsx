@@ -4,7 +4,6 @@ import { AppState } from "reducers";
 import CodeMirror, {
   Annotation,
   EditorConfiguration,
-  Position,
   UpdateLintingCallback,
 } from "codemirror";
 import "codemirror/lib/codemirror.css";
@@ -78,6 +77,7 @@ import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { getLintAnnotations } from "./lintHelpers";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -146,38 +146,6 @@ type State = {
   hinterOpen: boolean;
 };
 
-const getAllOccurences = (str: string, key: string) => {
-  const indicies = [];
-  const keylen = key.length;
-  let index, startIndex;
-  index = str.indexOf(key, startIndex);
-  while (index > -1) {
-    indicies.push(index);
-    startIndex = index + keylen;
-    index = str.indexOf(key, startIndex);
-  }
-
-  return indicies;
-};
-
-const getKeyPositionInString = (str: string, key: string): Position[] => {
-  const indicies = getAllOccurences(str, key);
-  let positions: Position[] = [];
-  if (str.includes("\n")) {
-    for (const index of indicies) {
-      const substr = str.substr(0, index);
-      const substrLines = substr.split("\n");
-      const ch = _.last(substrLines)?.length || 0;
-      const line = substrLines.length - 1;
-
-      positions.push({ line, ch });
-    }
-  } else {
-    positions = indicies.map((index) => ({ line: 0, ch: index }));
-  }
-  return positions;
-};
-
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -214,64 +182,10 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    const annotations: Annotation[] = [];
-
-    const lintErrors = errors.filter(
-      (error) => error.errorType === PropertyEvaluationErrorType.LINT,
-    );
+    let annotations: Annotation[] = [];
 
     if (this.editor) {
-      const value = this.editor.getValue();
-      lintErrors.forEach((error) => {
-        const { errorMessage, originalBinding, severity, variables } = error;
-
-        if (!originalBinding) {
-          return annotations;
-        }
-
-        // We find the location of binding in the editor value and then
-        // we find locations of jshint variabls (a, b, c, d) in the binding and highlight them
-        const bindingPositions = getKeyPositionInString(value, originalBinding);
-
-        for (const bindingLocation of bindingPositions) {
-          if (variables) {
-            for (const variable of variables) {
-              if (variable && originalBinding.includes(variable)) {
-                const variableLocations = getKeyPositionInString(
-                  originalBinding,
-                  variable,
-                );
-
-                for (const variableLocation of variableLocations) {
-                  const from = {
-                    line: bindingLocation.line + variableLocation.line,
-                    // if the binding is a multiline function we need to
-                    // use jshint variable position as the starting point
-                    ch:
-                      variableLocation.line > 0
-                        ? variableLocation.ch
-                        : variableLocation.ch + bindingLocation.ch,
-                  };
-
-                  const to = {
-                    line: from.line,
-                    ch: from.ch + variable.length,
-                  };
-
-                  const annotation = {
-                    from,
-                    to,
-                    message: errorMessage,
-                    severity: severity,
-                  };
-
-                  annotations.push(annotation);
-                }
-              }
-            }
-          }
-        }
-      });
+      annotations = getLintAnnotations(this.editor.getValue(), errors);
     }
 
     this.updateLintingCallback(this.editor, annotations);
