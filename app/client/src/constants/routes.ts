@@ -234,6 +234,6 @@ export const matchApiPath = match(API_EDITOR_ID_URL());
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
 export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
 export const matchBuilderPath = match(BUILDER_URL);
+export const matchJSObjectPath = match(JS_COLLECTION_ID_URL());
 
-export const matchJsFunctionPath = match(JS_COLLECTION_ID_URL());
 export const matchViewerPath = match(getApplicationViewerPageURL());

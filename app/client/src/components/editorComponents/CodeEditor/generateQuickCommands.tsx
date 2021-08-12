@@ -9,6 +9,7 @@ import { ReactComponent as JsIcon } from "assets/icons/menu/js.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -50,7 +51,12 @@ export const generateQuickCommands = (
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
     const name = suggestion.name || suggestion.widgetName;
     return {
-      text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
+      text:
+        suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
+          ? `{{${name}.data}}`
+          : suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+          ? `{{${name}.}}`
+          : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,

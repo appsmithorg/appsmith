@@ -41,6 +41,7 @@ export const generateDataTreeJSAction = (
   result = {
     ...result,
     name: js.config.name,
+    actionId: js.config.id,
     pluginType: js.config.pluginType,
     data: data ? data : {},
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,

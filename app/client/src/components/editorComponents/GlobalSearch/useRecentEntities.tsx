@@ -1,7 +1,11 @@
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getPageList } from "selectors/editorSelectors";
-import { getActions, getAllWidgetsMap } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getAllWidgetsMap,
+  getJSActions,
+} from "selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
 
@@ -12,6 +16,7 @@ const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
+  const jsActions = useSelector(getJSActions);
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
@@ -43,6 +48,8 @@ const useResentEntities = () => {
         );
       } else if (type === "action")
         return actions.find((action) => action?.config?.id === id);
+      else if (type === "jsAction")
+        return jsActions.find((js) => js?.config?.id === id);
       else if (type === "widget") {
         return get(widgetsMap, id, null);
       }
