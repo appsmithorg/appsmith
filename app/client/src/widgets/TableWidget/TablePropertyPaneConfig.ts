@@ -993,6 +993,7 @@ export default [
           type: ValidationTypes.TEXT,
         },
         hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
+        dependencies: ["isVisibleDownload"],
       },
     ],
   },

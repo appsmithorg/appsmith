@@ -30,6 +30,7 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimeterProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -806,6 +807,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
+    currentDSL.version = 30;
+  }
+
+  if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimeterProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
