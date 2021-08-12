@@ -1,4 +1,5 @@
 import { WidgetType } from "constants/WidgetConstants";
+import { WidgetProps } from "./BaseWidget";
 import ContainerWidget from "widgets/ContainerWidget";
 import { ContainerComponentProps } from "components/designSystems/appsmith/ContainerComponent";
 import * as Sentry from "@sentry/react";
@@ -37,13 +38,24 @@ class StatboxWidget extends ContainerWidget {
     ];
   }
 
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+    if (childWidgetData.children) {
+      childWidgetData.children.forEach((grandChild: WidgetProps) => {
+        if (grandChild.type === "ICON_BUTTON_WIDGET" && !!grandChild.onClick) {
+          grandChild.boxShadow = "VARIANT1";
+        }
+      });
+    }
+    return super.renderChildWidget(childWidgetData);
+  }
+
   getWidgetType(): WidgetType {
     return "STATBOX_WIDGET";
   }
 }
 
 export interface StatboxWidgetProps extends ContainerComponentProps {
-  name: string;
+  backgroundColor: string;
 }
 
 export default StatboxWidget;
