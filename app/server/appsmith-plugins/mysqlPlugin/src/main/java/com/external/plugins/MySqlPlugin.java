@@ -235,7 +235,7 @@ public class MySqlPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
                     transformedQuery, null, null, psParams));
 
-            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.REMOTE))
+            Flux<Result> resultFlux = Mono.from(connection.validate(ValidationDepth.LOCAL))
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return createAndExecuteQueryFromConnection(finalQuery,
@@ -783,7 +783,7 @@ public class MySqlPlugin extends BasePlugin {
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
 
-            return Mono.from(connection.validate(ValidationDepth.REMOTE))
+            return Mono.from(connection.validate(ValidationDepth.LOCAL))
                     .flatMapMany(isValid -> {
                         if (isValid) {
                             return connection.createStatement(COLUMNS_QUERY).execute();
