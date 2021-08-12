@@ -72,8 +72,7 @@ export const entityDefinitions = {
     searchText: "string",
     sortOrder: {
       column: "string",
-      asc: "bool",
-      order: "string",
+      order: ["asc", "desc"],
     },
   }),
   VIDEO_WIDGET: {
