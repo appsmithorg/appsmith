@@ -1232,6 +1232,9 @@ type ColorType = {
   pagesEditor: {
     iconColor: string;
   };
+  numberedStep: {
+    line: string;
+  };
 };
 
 const notifications = {
@@ -1413,7 +1416,13 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: "#E0DEDE",
+  number: "#000",
+};
+
 export const dark: ColorType = {
+  numberedStep,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1971,6 +1980,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  numberedStep,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
