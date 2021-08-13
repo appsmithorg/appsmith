@@ -21,9 +21,8 @@ describe("Image Widget Functionality", function() {
       viewWidgetsPage.imageWidget,
       viewWidgetsPage.imagecontainer,
     );
-    cy.get(viewWidgetsPage.defaultImage)
-      .click({ force: true })
-      .type(this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.wait(1000);
     /**
      * @param{URL} ImageUrl
      */
