@@ -101,7 +101,7 @@ const SnippetContainer = styled.div`
   }
 `;
 
-function getSnippet(snippet: string, args: any, removeBinding = true) {
+const getSnippet = (snippet: string, args: any) => {
   const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
     const substitution = (args[capture] || "")
@@ -109,7 +109,7 @@ function getSnippet(snippet: string, args: any, removeBinding = true) {
       .replace("}}", "");
     return substitution || capture;
   });
-}
+};
 
 export default function SnippetDescription(props: any) {
   const {
