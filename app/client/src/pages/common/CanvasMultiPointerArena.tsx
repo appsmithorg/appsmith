@@ -64,13 +64,23 @@ const drawMousePointer = (
   ctx.fill();
 };
 
+type PointerDataType = {
+  [s: string]: any;
+};
+
+type PointerEventDataType = {
+  data: { x: number; y: number };
+  socketId: string;
+  user: any;
+};
+
 function CanvasMultiPointerArena({
   pageEditSocket,
 }: {
   pageEditSocket: Socket;
 }) {
   const { pageId } = useParams<ExplorerURLParams>();
-  let pointerData: { [s: string]: any } = {};
+  let pointerData: PointerDataType = {};
 
   let selectionCanvas: any;
 
@@ -94,11 +104,7 @@ function CanvasMultiPointerArena({
 
     pageEditSocket.on(
       APP_COLLAB_EVENTS.SHARE_USER_POINTER,
-      (eventData: {
-        data: { x: number; y: number };
-        socketId: string;
-        user: any;
-      }) => {
+      (eventData: PointerEventDataType) => {
         if (
           eventData &&
           selectionCanvas &&
