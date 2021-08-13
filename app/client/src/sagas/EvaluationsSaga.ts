@@ -252,12 +252,18 @@ function* evaluationChangeListenerSaga() {
 
 export function* evaluateSnippetSaga(action: any) {
   try {
+    let { expression } = action.payload;
+    const { dataType, isTrigger } = action.payload;
+    if (isTrigger) {
+      expression = `function() { ${expression} }`;
+    }
     const workerResponse = yield call(
       worker.request,
       EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
       {
-        expression: action.payload.expression,
-        dataType: action.payload.dataType,
+        expression,
+        dataType,
+        isTrigger,
       },
     );
     const { result, triggers } = workerResponse;

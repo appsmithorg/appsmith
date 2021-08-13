@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import prism from "react-syntax-highlighter/dist/esm/styles/prism/prism";
+import { prism } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/Form";
 import { TabComponent } from "components/ads/Tabs";
 import {
@@ -114,7 +114,15 @@ function getSnippet(snippet: string, args: any, removeBinding = true) {
 export default function SnippetDescription(props: any) {
   const {
     item: {
-      body: { additionalInfo, args, examples, snippet, summary, title },
+      body: {
+        additionalInfo,
+        args,
+        examples,
+        isTrigger,
+        snippet,
+        summary,
+        title,
+      },
       language,
       returnType,
     },
@@ -130,6 +138,7 @@ export default function SnippetDescription(props: any) {
   const evaluatedSnippet = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
   );
+  const [copySnippetBtnText, setCopySnippetBtnText] = useState("Copy Snippet");
   const tabs = [
     {
       key: "Snippet",
@@ -211,11 +220,9 @@ export default function SnippetDescription(props: any) {
                   onClick={() => {
                     dispatch(
                       evaluateSnippet({
-                        expression: `function() { ${getSnippet(
-                          snippet,
-                          selectedArgs,
-                        )} }`,
+                        expression: getSnippet(snippet, selectedArgs),
                         dataType: returnType,
+                        isTrigger,
                       }),
                     );
                   }}
@@ -228,10 +235,14 @@ export default function SnippetDescription(props: any) {
                   className="copy-snippet-btn"
                   onClick={() => {
                     copy(getSnippet(snippet, selectedArgs));
+                    setCopySnippetBtnText("Copied");
+                    setTimeout(() => {
+                      setCopySnippetBtnText("Copy Snippet");
+                    }, 1000);
                   }}
                   size={Size.medium}
                   tag="button"
-                  text="Copy Snippet"
+                  text={copySnippetBtnText}
                   type="button"
                 />
               </div>

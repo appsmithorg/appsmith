@@ -178,10 +178,12 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
-        const { expression } = requestData;
+        const { expression, isTrigger } = requestData;
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
-        return evaluate(expression, evalTree);
+        return isTrigger
+          ? evaluate(expression, evalTree, [], true)
+          : evaluate(expression, evalTree);
       default: {
         console.error("Action not registered on worker", method);
       }
