@@ -91,8 +91,6 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
 
-    private Boolean isUsersEmptyValue = null;
-
     @Autowired
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -795,12 +793,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<Boolean> isUsersEmpty() {
-        if (isUsersEmptyValue != null) {
-            return Mono.just(isUsersEmptyValue);
-        }
-
-        return repository.isUsersEmpty()
-                .doOnSuccess(value -> isUsersEmptyValue = value);
+        return repository.isUsersEmpty();
     }
 
     @Override

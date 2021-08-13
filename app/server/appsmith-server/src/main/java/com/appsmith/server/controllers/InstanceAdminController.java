@@ -29,7 +29,7 @@ public class InstanceAdminController {
     ) {
         log.debug("Applying env updates {}", changes);
         return envManager.applyChanges(changes)
-                .map(isSaved -> new ResponseDTO<>(HttpStatus.OK.value(), isSaved, null));
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
 }

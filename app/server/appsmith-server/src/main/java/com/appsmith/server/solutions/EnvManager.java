@@ -75,7 +75,7 @@ public class EnvManager {
                 .collect(Collectors.toList());
     }
 
-    public Mono<Boolean> applyChanges(Map<String, String> changes) {
+    public Mono<Void> applyChanges(Map<String, String> changes) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .filter(user -> policyUtils.isPermissionPresentForUser(
@@ -99,10 +99,10 @@ public class EnvManager {
                         Files.write(Path.of(envFilePath), changedContent);
                     } catch (IOException e) {
                         log.error("Unable to write to env file " + envFilePath, e);
-                        return Mono.just(false);
+                        return Mono.error(e);
                     }
 
-                    return Mono.just(true);
+                    return Mono.empty();
                 });
     }
 
