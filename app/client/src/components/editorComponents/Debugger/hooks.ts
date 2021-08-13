@@ -28,10 +28,6 @@ import {
   getWidgetIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { isStoredDatasource } from "entities/Action";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getAppsmithConfigs } from "configs";
-
-const { intercomAppID } = getAppsmithConfigs();
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -205,20 +201,4 @@ export const useGetEntityInfo = (name: string) => {
   }, [name]);
 
   return getEntityInfo;
-};
-
-export const useBootIntercom = () => {
-  const user = useSelector(getCurrentUser);
-
-  useEffect(() => {
-    if (intercomAppID && window.Intercom) {
-      console.log("Intercom booted");
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-  }, []);
 };

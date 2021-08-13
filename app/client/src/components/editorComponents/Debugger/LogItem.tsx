@@ -195,7 +195,7 @@ function LogItem(props: LogItemProps) {
   const showToggleIcon = props.state || props.messages;
   const dispatch = useDispatch();
 
-  const openHelpModal = useCallback((e, error?: Message) => {
+  const onLogClick = useCallback((e, error?: Message) => {
     e.stopPropagation();
 
     // If the error message was clicked we use that, else if the wand icon is clicked
@@ -277,7 +277,7 @@ function LogItem(props: LogItemProps) {
               className={Classes.ICON}
               fillColor={props.iconColor}
               name={"wand"}
-              onClick={openHelpModal}
+              onClick={onLogClick}
               size={IconSize.MEDIUM}
             />
           </TooltipComponent>
@@ -290,7 +290,7 @@ function LogItem(props: LogItemProps) {
                 <MessageWrapper key={e.message}>
                   <span
                     className="debugger-message"
-                    onClick={(event) => openHelpModal(event, e)}
+                    onClick={(event) => onLogClick(event, e)}
                   >
                     {e.message}
                   </span>
