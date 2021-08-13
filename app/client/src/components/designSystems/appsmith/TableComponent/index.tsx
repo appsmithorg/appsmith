@@ -8,7 +8,7 @@ import { Row } from "react-table";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { clamp } from "lodash-es";
 import swap from "lodash-move";
-import { useDrag, useGesture } from "react-use-gesture";
+import { useGesture } from "react-use-gesture";
 import { useSprings, animated, interpolate } from "react-spring";
 import styled from "styled-components";
 import { debounce } from "lodash";
