@@ -115,7 +115,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERRORS } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
@@ -576,7 +576,10 @@ export function* executeActionSaga(
         },
         state: response.data?.request ?? null,
         messages: [
-          { message: payload.body as string, type: "PLUGIN_EXECUTION" },
+          {
+            message: payload.body as string,
+            type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
+          },
         ],
       });
       PerformanceTracker.stopAsyncTracking(
@@ -919,7 +922,7 @@ function* runActionSaga(
               message: !isString(payload.body)
                 ? JSON.stringify(payload.body)
                 : payload.body,
-              type: "PLUGIN_EXECUTION",
+              type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
             },
           ],
           state: response.data?.request ?? null,
@@ -1032,7 +1035,12 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: JSON.stringify(body), type: "PLUGIN_EXECUTION" }],
+        messages: [
+          {
+            message: JSON.stringify(body),
+            type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
+          },
+        ],
       });
 
       yield put(
