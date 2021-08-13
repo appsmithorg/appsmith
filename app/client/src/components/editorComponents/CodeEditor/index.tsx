@@ -57,7 +57,12 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
+import {
+  getInputValue,
+  isActionEntity,
+  isWidgetEntity,
+  removeNewLineChars,
+} from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
@@ -374,7 +379,9 @@ class CodeEditor extends Component<Props, State> {
       expectedType: expected?.autocompleteDataType,
     };
     if (dataTreePath) {
-      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
       if (entity && "ENTITY_TYPE" in entity) {
@@ -386,6 +393,9 @@ class CodeEditor extends Component<Props, State> {
           entityInformation.entityType = entityType;
         }
       }
+      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
+      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
+      entityInformation.propertyPath = propertyPath;
     }
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {

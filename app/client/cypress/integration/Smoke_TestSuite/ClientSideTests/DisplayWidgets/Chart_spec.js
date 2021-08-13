@@ -293,14 +293,14 @@ describe("Chart Widget Functionality", function() {
   it("Toggle JS - Chart-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("Toggle JS - Chart-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
