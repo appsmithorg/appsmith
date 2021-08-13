@@ -128,7 +128,11 @@ export default class DataTreeEvaluator {
 
   updateDataTree(
     unEvalTree: DataTree,
-  ): { updates: Diff<DataTree, DataTree>[]; evaluationOrder: string[] } {
+  ): {
+    updates: Diff<DataTree, DataTree>[];
+    evaluationOrder: string[];
+    unEvalUpdates: DataTreeDiff[];
+  } {
     const oldEvalTree = _.cloneDeep(this.evalTree);
     const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
     const totalStart = performance.now();
@@ -142,17 +146,19 @@ export default class DataTreeEvaluator {
       return {
         updates: [],
         evaluationOrder: [],
+        unEvalUpdates: [],
       };
     }
-    const diffCheckTimeStop = performance.now();
-    // Check if dependencies have changed
-    const updateDependenciesStart = performance.now();
-
     const translatedDiffs = _.flatten(
       differences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+    this.logs.push({ differences, translatedDiffs });
+    const diffCheckTimeStop = performance.now();
+    // Check if dependencies have changed
+    const updateDependenciesStart = performance.now();
+
     this.logs.push({ differences: _.cloneDeep(differences), translatedDiffs });
 
     // Find all the paths that have changed as part of the difference and update the
@@ -233,6 +239,7 @@ export default class DataTreeEvaluator {
     return {
       updates: evaluationChanges || [],
       evaluationOrder,
+      unEvalUpdates: translatedDiffs,
     };
   }
 
@@ -698,13 +705,13 @@ export default class DataTreeEvaluator {
       valueToValidate = triggers;
     }
     const validation = widget.validationPaths[propertyPath];
+
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
-      propertyPath,
+      validation,
       valueToValidate,
       widget,
-      validation,
-      currentTree,
     );
+
     const evaluatedValue = isValid
       ? parsed
       : _.isUndefined(transformed)
@@ -807,7 +814,7 @@ export default class DataTreeEvaluator {
                 "this",
                 entity.name,
               );
-              const { result } = evaluate(newUnEvalValue, {});
+              const { result } = evaluate(unEvalValue, {});
               _.set(this.evalTree, `${entityName}.${unEvalFunc}`, result);
             }
           });
@@ -817,7 +824,7 @@ export default class DataTreeEvaluator {
           const unEvalValue = _.get(entity, propertyPath);
           if (typeof unEvalValue === "string") {
             const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
-            const { result } = evaluate(newUnEvalValue, this.evalTree);
+            const { result } = evaluate(unEvalValue, this.evalTree);
             _.set(this.evalTree, `${entityName}.${propertyPath}`, result);
           }
         }
@@ -826,7 +833,7 @@ export default class DataTreeEvaluator {
         const unEvalValue = _.get(entity, propertyPath);
         if (typeof unEvalValue === "string") {
           const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
-          const { result } = evaluate(newUnEvalValue, this.evalTree);
+          const { result } = evaluate(unEvalValue, this.evalTree);
           _.set(this.evalTree, diff.payload.propertyPath, result);
         }
       }
@@ -837,7 +844,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDependencyMap(
-    differences: DataTreeDiff[],
+    translatedDiffs: Array<DataTreeDiff>,
     unEvalDataTree: DataTree,
   ): {
     dependenciesOfRemovedPaths: Array<string>;
@@ -853,7 +860,7 @@ export default class DataTreeEvaluator {
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
     // Transform the diff library events to Appsmith evaluator events
-    differences.forEach((dataTreeDiff) => {
+    translatedDiffs.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
       let entity = unEvalDataTree[entityName];
       if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
@@ -1063,7 +1070,7 @@ export default class DataTreeEvaluator {
       // This is being called purely to test for new circular dependencies that might have been added
       this.sortedDependencies = this.sortDependencies(
         this.dependencyMap,
-        differences,
+        translatedDiffs,
       );
       this.inverseDependencyMap = this.getInverseDependencyTree();
     }

@@ -97,6 +97,21 @@ export const getDynamicBindings = (
   return { stringSegments: stringSegments, jsSnippets: paths };
 };
 
+export const combineDynamicBindings = (
+  jsSnippets: string[],
+  stringSegments: string[],
+) => {
+  return stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `'${segment}'`;
+      }
+    })
+    .join(" + ");
+};
+
 export enum EvalErrorTypes {
   CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
   EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
@@ -267,6 +282,10 @@ export const unsafeFunctionForEval = [
   "fetch",
   "setInterval",
   "Promise",
+  "setImmediate",
+  "XMLHttpRequest",
+  "importScripts",
+  "Navigator",
 ];
 
 export const isChildPropertyPath = (

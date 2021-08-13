@@ -1,8 +1,8 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import Button, { Category } from "components/ads/Button";
-import React, { useCallback, useMemo, useState } from "react";
-import { isNil, keyBy } from "lodash";
+import React, { useCallback } from "react";
+import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
 import { useParams } from "react-router";
@@ -14,16 +14,34 @@ import {
 import styled from "styled-components";
 import { AppState } from "reducers";
 import history from "utils/history";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  DATA_SOURCES_EDITOR_ID_URL,
+  getGenerateTemplateFormURL,
+} from "constants/routes";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
+import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "../SaaSEditor/constants";
+import Menu from "components/ads/Menu";
+import { IconSize } from "../../../components/ads/Icon";
+import Icon from "components/ads/Icon";
+import MenuItem from "components/ads/MenuItem";
+import { deleteDatasource } from "../../../actions/datasourceActions";
+import {
+  getGenerateCRUDEnabledPluginMap,
+  getIsDeletingDatasource,
+} from "../../../selectors/entitiesSelector";
+import TooltipComponent from "components/ads/Tooltip";
+import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import NewActionButton from "../DataSourceEditor/NewActionButton";
 
 const Wrapper = styled.div`
   padding: 18px;
   /* margin-top: 18px; */
-
+  cursor: pointer;
   &:hover {
     background: ${Colors.Gallery};
     .bp3-collapse-body {
@@ -32,16 +50,20 @@ const Wrapper = styled.div`
   }
 `;
 
-const ActionButton = styled(Button)`
-  padding: 10px 20px;
-  &&&& {
-    height: 36px;
-    //max-width: 120px;
-    width: auto;
-  }
-  span > svg > path {
-    stroke: white;
-  }
+const DatasourceCardMainBody = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  width: 100%;
+`;
+
+const MenuComponent = styled(Menu)`
+  flex: 0;
+`;
+
+const MenuWrapper = styled.div`
+  display: flex;
+  margin: 8px 0px;
 `;
 
 const DatasourceImage = styled.img`
@@ -49,11 +71,11 @@ const DatasourceImage = styled.img`
   width: auto;
 `;
 
-const EditDatasourceButton = styled(Button)`
+const GenerateTemplateButton = styled(Button)`
   padding: 10px 20px;
   &&&& {
     height: 36px;
-    max-width: 160px;
+    max-width: 200px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
   }
@@ -66,8 +88,10 @@ const DatasourceName = styled.span`
 `;
 
 const DatasourceCardHeader = styled.div`
+  flex: 1;
   justify-content: space-between;
   display: flex;
+  cursor: pointer;
 `;
 
 const DatasourceNameWrapper = styled.div`
@@ -92,18 +116,38 @@ const ButtonsWrapper = styled.div`
   gap: 10px;
 `;
 
+const MoreOptionsContainer = styled.div`
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const CollapseComponentWrapper = styled.div`
+  display: flex;
+  width: fit-content;
+`;
+
 type DatasourceCardProps = {
   datasource: Datasource;
-  onCreateQuery: (datasource: Datasource, pluginType: PluginType) => void;
-  isCreating?: boolean;
+  plugin: Plugin;
 };
 
 function DatasourceCard(props: DatasourceCardProps) {
   const dispatch = useDispatch();
-  const [isSelected, setIsSelected] = useState(false);
   const pluginImages = useSelector(getPluginImages);
+
+  const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
+    getGenerateCRUDEnabledPluginMap,
+  );
+
   const params = useParams<{ applicationId: string; pageId: string }>();
-  const { datasource, isCreating } = props;
+  const { datasource, plugin } = props;
+  const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
+    datasource.pluginId
+  ];
+
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
   );
@@ -115,15 +159,14 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
+  const isDeletingDatasource = useSelector(getIsDeletingDatasource);
+
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  });
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+
   const editDatasource = useCallback(() => {
-    const plugin = pluginGroups[datasource.pluginId];
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
@@ -133,6 +176,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasource.id,
           {
             from: "datasources",
+            ...getQueryParams(),
           },
         ),
       );
@@ -145,58 +189,127 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasource.id,
           {
             from: "datasources",
+            ...getQueryParams(),
           },
         ),
       );
     }
-  }, [datasource.id, params]);
+  }, [datasource.id, params, plugin]);
 
-  const onCreateNewQuery = useCallback(() => {
-    setIsSelected(true);
-    const plugin = pluginGroups[datasource.pluginId];
-    props.onCreateQuery(datasource, plugin.type);
-  }, []);
+  const routeToGeneratePage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!supportTemplateGeneration) {
+      // disable button when it doesn't support page generation
+      return;
+    }
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
+    history.push(
+      `${getGenerateTemplateFormURL(
+        params.applicationId,
+        params.pageId,
+      )}?datasourceId=${datasource.id}&new_page=true`,
+    );
+  };
+
+  const deleteAction = () => {
+    AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
+    dispatch(deleteDatasource({ id: datasource.id }));
+  };
 
   return (
-    <Wrapper className="t--datasource">
-      <DatasourceCardHeader className="t--datasource-name">
-        <div style={{ flex: 1 }}>
-          <DatasourceNameWrapper>
-            <DatasourceImage
-              alt="Datasource"
-              className="dataSourceImage"
-              src={pluginImages[datasource.pluginId]}
+    <Wrapper
+      className="t--datasource"
+      key={datasource.id}
+      onClick={editDatasource}
+    >
+      <DatasourceCardMainBody>
+        <DatasourceCardHeader className="t--datasource-name">
+          <div style={{ flex: 1 }}>
+            <DatasourceNameWrapper>
+              <DatasourceImage
+                alt="Datasource"
+                className="dataSourceImage"
+                src={pluginImages[datasource.pluginId]}
+              />
+              <DatasourceName>{datasource.name}</DatasourceName>
+            </DatasourceNameWrapper>
+            <Queries>
+              {queriesWithThisDatasource
+                ? `${queriesWithThisDatasource} ${QUERY} on this page`
+                : "No query is using this datasource"}
+            </Queries>
+          </div>
+          <ButtonsWrapper className="action-wrapper">
+            <TooltipComponent
+              boundary={"viewport"}
+              content="Currently not supported for page generation"
+              disabled={!!supportTemplateGeneration}
+              hoverOpenDelay={200}
+              position={Position.BOTTOM}
+            >
+              <GenerateTemplateButton
+                category={Category.tertiary}
+                className="t--generate-template"
+                disabled={!supportTemplateGeneration}
+                onClick={routeToGeneratePage}
+                text="GENERATE NEW PAGE"
+              />
+            </TooltipComponent>
+
+            <NewActionButton
+              datasource={datasource}
+              eventFrom="active-datasources"
+              pluginType={plugin?.type}
             />
-            <DatasourceName>{datasource.name}</DatasourceName>
-          </DatasourceNameWrapper>
-          <Queries>
-            {queriesWithThisDatasource
-              ? `${queriesWithThisDatasource} ${QUERY} on this page`
-              : "No query is using this datasource"}
-          </Queries>
-        </div>
-        <ButtonsWrapper className="action-wrapper">
-          <EditDatasourceButton
-            category={Category.tertiary}
-            className="t--edit-datasource"
-            onClick={editDatasource}
-            text="Edit"
-          />
-          <ActionButton
-            className="t--create-query"
-            icon="plus"
-            isLoading={isCreating && isSelected}
-            onClick={onCreateNewQuery}
-            text="New Query"
-          />
-        </ButtonsWrapper>
-      </DatasourceCardHeader>
+            <MenuWrapper
+              className="t--datasource-menu-option"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <MenuComponent
+                menuItemWrapperWidth="140px"
+                position={Position.LEFT_TOP}
+                target={
+                  <MoreOptionsContainer>
+                    <Icon
+                      fillColor={Colors.GRAY2}
+                      name="comment-context-menu"
+                      size={IconSize.XXXL}
+                    />
+                  </MoreOptionsContainer>
+                }
+              >
+                <MenuItem
+                  className="t--datasource-option-delete"
+                  icon="delete"
+                  isLoading={isDeletingDatasource}
+                  onSelect={deleteAction}
+                  text="Delete"
+                />
+                <MenuItem
+                  className="t--datasource-option-edit"
+                  icon="edit"
+                  onSelect={editDatasource}
+                  text="Edit"
+                />
+              </MenuComponent>
+            </MenuWrapper>
+          </ButtonsWrapper>
+        </DatasourceCardHeader>
+      </DatasourceCardMainBody>
       {!isNil(currentFormConfig) && (
-        <CollapseComponent title="Show More">
-          <DatasourceInfo>
-            {renderDatasourceSection(currentFormConfig[0], datasource)}
-          </DatasourceInfo>
-        </CollapseComponent>
+        <CollapseComponentWrapper
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
+            <DatasourceInfo>
+              {renderDatasourceSection(currentFormConfig[0], datasource)}
+            </DatasourceInfo>
+          </CollapseComponent>
+        </CollapseComponentWrapper>
       )}
     </Wrapper>
   );

@@ -11,10 +11,14 @@ describe("Page Load tests", () => {
       .next()
       .next()
       .click();
+
+    cy.skipGenerateCRUDPage();
+
     cy.get("h2").contains("Drag and drop a widget here");
-    cy.addDsl(dsl);
   });
   it("Published page loads correctly", () => {
+    //add page within page
+    cy.addDsl(dsl);
     // Update the text to be asserted later
     cy.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");

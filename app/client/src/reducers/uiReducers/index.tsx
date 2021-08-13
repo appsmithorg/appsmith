@@ -33,6 +33,7 @@ import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import jsPaneReducer from "./jsPaneReducer";
 import notificationsReducer from "./notificationsReducer";
+import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
 
@@ -73,6 +74,7 @@ const uiReducer = combineReducers({
   jsPane: jsPaneReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
+  appCollab: appCollabReducer,
 });
 
 export default uiReducer;

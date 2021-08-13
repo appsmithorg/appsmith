@@ -52,6 +52,7 @@ import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
+import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -101,6 +102,7 @@ export interface AppState {
     notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
     jsObjectName: JSObjectNameReduxState;
+    appCollab: AppCollabReducerState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

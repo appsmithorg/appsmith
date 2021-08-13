@@ -59,6 +59,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
       .type(this.data.command)
+      .click({ force: true })
       .type(this.data.ylabel);
 
     //Close edit prop
@@ -292,14 +293,14 @@ describe("Chart Widget Functionality", function() {
   it("Toggle JS - Chart-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("Toggle JS - Chart-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
@@ -339,9 +340,6 @@ describe("Chart Widget Functionality", function() {
         .eq(k)
         .should("have.text", labels[k]);
     });
-
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });
 

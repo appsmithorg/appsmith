@@ -8,8 +8,7 @@ import {
   isDynamicValue,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { VALIDATORS } from "./validations";
+import { validate } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
@@ -21,8 +20,8 @@ import {
   DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { variable } from "entities/JSAction";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -334,20 +333,17 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export function validateWidgetProperty(
-  property: string,
-  value: any,
-  props: WidgetProps,
-  validation?: VALIDATION_TYPES,
-  dataTree?: DataTree,
+  config: ValidationConfig,
+  value: unknown,
+  props: Record<string, unknown>,
 ) {
-  if (!validation) {
-    return { isValid: true, parsed: value };
+  if (!config) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
   }
-  const validator = VALIDATORS[validation];
-  if (!validator) {
-    return { isValid: true, parsed: value };
-  }
-  return validator(value, props, dataTree);
+  return validate(config, value, props);
 }
 
 export function getValidatedTree(tree: DataTree) {
@@ -361,11 +357,9 @@ export function getValidatedTree(tree: DataTree) {
       const value = _.get(entity, property);
       // Pass it through parse
       const { isValid, message, parsed, transformed } = validateWidgetProperty(
-        property,
+        validation,
         value,
         entity,
-        validation,
-        tree,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -567,13 +561,7 @@ export function getSafeToRenderDataTree(
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
       // Pass it through parse
-      const { parsed } = validateWidgetProperty(
-        property,
-        value,
-        entity,
-        validation,
-        tree,
-      );
+      const { parsed } = validateWidgetProperty(validation, value, entity);
       _.set(safeToRenderEntity, property, parsed);
     });
     // Set derived values to undefined or else they would go as bindings

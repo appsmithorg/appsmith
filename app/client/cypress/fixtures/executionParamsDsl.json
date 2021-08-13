@@ -114,7 +114,7 @@
                 "inputType": "TEXT",
                 "label": "Endpoint",
                 "widgetName": "EndpointInput",
-                "defaultText": "offers",
+                "defaultText": "users",
                 "type": "INPUT_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,

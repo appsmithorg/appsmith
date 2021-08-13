@@ -791,19 +791,44 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 26) {
     currentDSL = migrateDatePickerMinMaxDate(currentDSL);
-  }
-  if (currentDSL.version === 27) {
-    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = 27;
   }
+
   if (currentDSL.version === 27) {
+    currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
+    currentDSL.version = 28;
+  }
+
+  if (currentDSL.version === 28) {
     currentDSL = migrateTablePrimaryColumnsComputedValue(currentDSL);
+    currentDSL.version = 29;
+  }
+
+  if (currentDSL.version === 29) {
+    currentDSL = migrateToNewMultiSelect(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
 };
 
+export const migrateToNewMultiSelect = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "DROP_DOWN_WIDGET") {
+    if (currentDSL.selectionType === "MULTI_SELECT") {
+      currentDSL.type = "MULTI_SELECT_WIDGET";
+      delete currentDSL.isFilterable;
+    }
+    delete currentDSL.selectionType;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateToNewMultiSelect(child),
+    );
+  }
+  return currentDSL;
+};
 const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -1074,16 +1099,19 @@ export const noCollision = (
   clientOffset: XYCoord,
   colWidth: number,
   rowHeight: number,
-  widget: WidgetProps & Partial<WidgetConfigProps>,
   dropTargetOffset: XYCoord,
+  widgetWidth: number,
+  widgetHeight: number,
+  widgetId: string,
   occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
+  detachFromLayout = false,
 ): boolean => {
-  if (clientOffset && dropTargetOffset && widget) {
-    if (widget.detachFromLayout) {
-      return true;
-    }
+  if (detachFromLayout) {
+    return true;
+  }
+  if (clientOffset && dropTargetOffset) {
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
@@ -1093,12 +1121,6 @@ export const noCollision = (
     if (left < 0 || top < 0) {
       return false;
     }
-    const widgetWidth = widget.columns
-      ? widget.columns
-      : widget.rightColumn - widget.leftColumn;
-    const widgetHeight = widget.rows
-      ? widget.rows
-      : widget.bottomRow - widget.topRow;
     const currentOffset = {
       left,
       right: left + widgetWidth,
@@ -1106,7 +1128,7 @@ export const noCollision = (
       bottom: top + widgetHeight,
     };
     return (
-      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isDropZoneOccupied(currentOffset, widgetId, occupiedSpaces) &&
       !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
     );
   }

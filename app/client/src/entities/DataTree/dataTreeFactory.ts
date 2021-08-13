@@ -13,8 +13,8 @@ import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { ValidationConfig } from "constants/PropertyControlConstants";
 
 export type ActionDescription<T> = {
   type: string;
@@ -78,7 +78,7 @@ export interface DataTreeJSAction {
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
-  validationPaths: Record<string, VALIDATION_TYPES>;
+  validationPaths: Record<string, ValidationConfig>;
   ENTITY_TYPE: ENTITY_TYPE.WIDGET;
   logBlackList: Record<string, true>;
 }

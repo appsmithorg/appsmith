@@ -1,13 +1,14 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { ThemeProp } from "components/ads/common";
-import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
+import {
+  setCommentModeInUrl,
+  useHideComments,
+} from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
@@ -26,10 +27,9 @@ export const GetNavigationMenuData = ({
   currentDeployLink,
   deploy,
   editMode,
-  theme,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
-  const commentsEnabled = useSelector(areCommentsEnabledForUserAndApp);
+  const isHideComments = useHideComments();
   const history = useHistory();
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
@@ -67,11 +67,11 @@ export const GetNavigationMenuData = ({
     {
       text: "View Modes",
       type: MenuTypes.PARENT,
-      isVisible: !!commentsEnabled,
+      isVisible: !isHideComments,
       children: [
         {
           text: "Edit Mode",
-          label: "E",
+          label: "V",
           onClick: () => setCommentModeInUrl(false),
           type: MenuTypes.MENU,
           isVisible: true,
@@ -107,12 +107,6 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Shortcuts",
-      onClick: () => dispatch(toggleShowGlobalSearchModal()),
-      type: MenuTypes.MENU,
-      isVisible: true,
-    },
-    {
       text: "Help",
       type: MenuTypes.PARENT,
       isVisible: true,
@@ -126,7 +120,7 @@ export const GetNavigationMenuData = ({
         },
         {
           text: "Discord Channel",
-          onClick: () => openExternalLink("https://discord.gg/9deFW7q4kB"),
+          onClick: () => openExternalLink("https://discord.gg/rBTTVJp"),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
@@ -154,7 +148,6 @@ export const GetNavigationMenuData = ({
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
       isVisible: isApplicationIdPresent,
-      style: { color: theme.colors.navigationMenu.warning },
     },
   ];
 };

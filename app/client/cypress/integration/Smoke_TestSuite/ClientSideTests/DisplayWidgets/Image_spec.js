@@ -21,9 +21,8 @@ describe("Image Widget Functionality", function() {
       viewWidgetsPage.imageWidget,
       viewWidgetsPage.imagecontainer,
     );
-    cy.get(viewWidgetsPage.defaultImage)
-      .click({ force: true })
-      .type(this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.wait(1000);
     /**
      * @param{URL} ImageUrl
      */
@@ -34,28 +33,14 @@ describe("Image Widget Functionality", function() {
     cy.closePropertyPane();
   });
 
-  it("Zoom-in functionality check", function() {
+  it("No Zoom functionality check", function() {
     cy.openPropertyPane("imagewidget");
     //Zoom validation
-    cy.changeZoomLevel("2x");
+    cy.changeZoomLevel("1x (No Zoom)");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(commonlocators.imgWidget)
       .invoke("attr", "style")
-      .should("contain", "zoom-in");
-    cy.get(commonlocators.imgWidget).click({ force: true });
-    cy.get(commonlocators.imgWidget).click({ force: true });
-    cy.get(commonlocators.imgWidget).click({ force: true });
-    cy.get(commonlocators.imgWidget).click({ force: true });
-    cy.get(commonlocators.imgWidget)
-      .invoke("attr", "style")
       .should("not.contain", "zoom-in");
-    cy.get(commonlocators.imgWidget)
-      .invoke("attr", "style")
-      .should("contain", "zoom-out");
-    cy.get(commonlocators.imgWidget).click({ force: true });
-    cy.get(commonlocators.imgWidget)
-      .invoke("attr", "style")
-      .should("contain", "zoom-in");
     cy.PublishtheApp();
   });
 

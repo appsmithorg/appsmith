@@ -5,12 +5,16 @@ import {
   ReduxActionTypes,
   ReduxActionWithoutPayload,
   UpdateCanvasPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { GenerateTemplatePageRequest } from "../api/PageApi";
+import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -192,19 +196,6 @@ export type WidgetAddChild = {
   props?: Record<string, any>;
 };
 
-export type WidgetMove = {
-  widgetId: string;
-  leftColumn: number;
-  topRow: number;
-  parentId: string;
-  /*
-    If newParentId is different from what we have in redux store,
-    then we have to delete this,
-    as it has been dropped in another container somewhere.
-  */
-  newParentId: string;
-};
-
 export type WidgetRemoveChild = {
   widgetId: string;
   childWidgetId: string;
@@ -259,14 +250,13 @@ export const updateWidget = (
   payload: any,
 ): ReduxAction<
   | WidgetAddChild
-  | WidgetMove
   | WidgetResize
   | WidgetDelete
   | WidgetAddChildren
   | WidgetUpdateProperty
 > => {
   return {
-    type: ReduxActionTypes["WIDGET_" + operation],
+    type: WidgetReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
   };
 };
@@ -300,5 +290,62 @@ export const updateAppPersistentStore = (
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+  };
+};
+
+export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
+  extraParams: Record<any, any>;
+}
+
+export const generateTemplateSuccess = ({
+  isNewPage,
+  layoutId,
+  pageId,
+  pageName,
+}: {
+  layoutId: string;
+  pageId: string;
+  pageName: string;
+  isNewPage: boolean;
+}) => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
+    payload: {
+      layoutId,
+      pageId,
+      pageName,
+      isNewPage,
+    },
+  };
+};
+
+export const generateTemplateError = () => {
+  return {
+    type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
+  };
+};
+
+export const generateTemplateToUpdatePage = ({
+  applicationId,
+  columns,
+  datasourceId,
+  mode,
+  pageId,
+  searchColumn,
+  tableName,
+}: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
+    payload: {
+      pageId,
+      tableName,
+      datasourceId,
+      applicationId,
+      columns,
+      searchColumn,
+    },
+    extraParams: {
+      mode,
+    },
   };
 };

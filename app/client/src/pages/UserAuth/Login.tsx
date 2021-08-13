@@ -16,7 +16,6 @@ import {
   LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
-  FORM_VALIDATION_INVALID_PASSWORD,
   LOGIN_PAGE_LOGIN_BUTTON_TEXT,
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
@@ -30,7 +29,7 @@ import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
+import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -49,6 +48,7 @@ import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getIsSafeRedirectURL } from "utils/helpers";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -58,10 +58,6 @@ const validate = (values: LoginFormValues) => {
   if (!password || isEmptyString(password)) {
     errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = createMessage(
       FORM_VALIDATION_EMPTY_PASSWORD,
-    );
-  } else if (!isStrongPassword(password)) {
-    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = createMessage(
-      FORM_VALIDATION_INVALID_PASSWORD,
     );
   }
   if (!isEmptyString(email) && !isEmail(email)) {
@@ -94,11 +90,12 @@ export function Login(props: LoginFormProps) {
   if (queryParams.get("error")) {
     showError = true;
   }
+  const errorMsg = showError && queryParams.get("message");
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
   const redirectUrl = queryParams.get("redirectUrl");
-  if (redirectUrl != null) {
+  if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
     const encodedRedirectUrl = encodeURIComponent(redirectUrl);
     loginURL += `?redirectUrl=${encodedRedirectUrl}`;
     signupURL += `?redirectUrl=${encodedRedirectUrl}`;
@@ -125,17 +122,25 @@ export function Login(props: LoginFormProps) {
       </SignUpLinkSection>
       {showError && (
         <FormMessage
-          actions={[
-            {
-              url: FORGOT_PASSWORD_URL,
-              text: createMessage(
-                LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
-              ),
-              intent: "success",
-            },
-          ]}
+          actions={
+            !!errorMsg
+              ? []
+              : [
+                  {
+                    url: FORGOT_PASSWORD_URL,
+                    text: createMessage(
+                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    ),
+                    intent: "success",
+                  },
+                ]
+          }
           intent="warning"
-          message={createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
+          message={
+            !!errorMsg
+              ? errorMsg
+              : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
+          }
         />
       )}
       {SocialLoginList.length > 0 && (

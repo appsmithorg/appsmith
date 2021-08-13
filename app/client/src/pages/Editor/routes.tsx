@@ -12,6 +12,7 @@ import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
 import JSEditor from "./JSEditor";
 
+import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
 import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
@@ -26,6 +27,8 @@ import {
   getProviderTemplatesURL,
   JS_COLLECTION_EDITOR_URL,
   JS_COLLECTION_ID_URL,
+  getGenerateTemplateURL,
+  getGenerateTemplateFormURL,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -175,6 +178,16 @@ class EditorsRouter extends React.Component<
               component={ProviderTemplates}
               exact
               path={getProviderTemplatesURL()}
+            />
+            <SentryRoute
+              component={GeneratePage}
+              exact
+              path={getGenerateTemplateURL()}
+            />
+            <SentryRoute
+              component={GeneratePage}
+              exact
+              path={getGenerateTemplateFormURL()}
             />
           </Switch>
         </PaneDrawer>

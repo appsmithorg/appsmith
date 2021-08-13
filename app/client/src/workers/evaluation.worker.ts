@@ -12,6 +12,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
+  DataTreeDiff,
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
@@ -54,6 +55,7 @@ ctx.addEventListener(
         let dependencies: DependencyMap = {};
         let updates: Diff<DataTree, DataTree>[] = [];
         let evaluationOrder: string[] = [];
+        let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
@@ -67,6 +69,7 @@ ctx.addEventListener(
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
+            unEvalUpdates = updateResponse.unEvalUpdates;
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -95,6 +98,7 @@ ctx.addEventListener(
           evaluationOrder,
           logs,
           updates,
+          unEvalUpdates,
         };
       }
       case EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS: {
@@ -169,9 +173,9 @@ ctx.addEventListener(
         return true;
       }
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
-        const { property, props, validation, value } = requestData;
+        const { props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(property, value, props, validation),
+          validateWidgetProperty(validation, value, props),
         );
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {

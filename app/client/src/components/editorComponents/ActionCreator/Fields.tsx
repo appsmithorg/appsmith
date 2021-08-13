@@ -11,6 +11,8 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 
@@ -281,7 +283,11 @@ const views = {
           <InputText
             additionalAutocomplete={props.additionalAutoComplete}
             evaluatedValue={props.get(props.value, false) as string}
-            expected={"string"}
+            expected={{
+              type: "string",
+              example: "showMessage('Hello World!', 'info')",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            }}
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {
