@@ -36,6 +36,9 @@ function warning(ev: LogActionPayload) {
   });
 }
 
+// This is used to show a log as an error
+// NOTE: These logs won't appear in the errors tab
+// To add errors to the errors tab use the addError method.
 function error(ev: LogActionPayload) {
   log({
     ...ev,
@@ -44,6 +47,7 @@ function error(ev: LogActionPayload) {
   });
 }
 
+// This is used to add an error to the errors tab
 function addError(payload: LogActionPayload) {
   dispatchAction(
     addErrorLogInit({
@@ -54,6 +58,7 @@ function addError(payload: LogActionPayload) {
   );
 }
 
+// This is used to remove an error from the errors tab
 function deleteError(id: string, analytics?: Log["analytics"]) {
   dispatchAction(deleteErrorLogInit(id, analytics));
 }

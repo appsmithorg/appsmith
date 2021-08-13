@@ -1,6 +1,7 @@
 import {
   addErrorLog,
   debuggerLog,
+  debuggerLogInit,
   deleteErrorLog,
   LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
@@ -182,7 +183,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
-          yield put(debuggerLog(payload));
+          yield put(addErrorLog(payload));
         }
       }
       break;
@@ -193,7 +194,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
           payload,
           "state",
         );
-        AppsmithConsole.addError(formattedLog);
+        yield put(addErrorLog(formattedLog));
         yield put(debuggerLog(formattedLog));
       }
       break;
@@ -275,6 +276,8 @@ function* logDebuggerErrorAnalyticsSaga(
 function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
+
+  yield put(debuggerLogInit(payload));
 
   if (!payload.source || !payload.id) return;
 
@@ -364,8 +367,6 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
       }),
     );
   }
-
-  yield put(addErrorLog(payload));
 }
 
 function* deleteDebuggerErrorLogSaga(
