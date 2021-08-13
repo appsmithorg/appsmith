@@ -800,7 +800,8 @@ public class CreateDBTablePageSolution {
                     List<String> dropdownOptions = new ArrayList<>();
                     mappedColumnsAndTableNames.forEach((colKey, colVal) -> {
                         if (colKey.toLowerCase().contains("col") && !colVal.equals(DELETE_FIELD)) {
-                            dropdownOptions.add("\n{\n\t\"label\": \"" + colVal + "\",\n\t\"value\": \"" + colVal + "\"\n}");
+                            dropdownOptions.add("\n{\n\t\"label\": \"" + colVal.replaceAll("\\W+", "_")
+                                + "\",\n\t\"value\": \"" + colVal + "\"\n}");
                         }
                     });
                     widgetDsl.put(FieldName.OPTIONS, dropdownOptions.toString());
