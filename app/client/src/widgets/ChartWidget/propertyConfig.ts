@@ -249,7 +249,7 @@ export default [
       },
       {
         propertyName: "setAdaptiveYMin",
-        label: "Y-axis Minimum",
+        label: "Y-axis Adaptive",
         helpText: "Define the minimum scale for Y axis",
         controlType: "SWITCH",
         isBindProperty: true,
