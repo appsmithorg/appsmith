@@ -28,6 +28,7 @@ import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 
 /* eslint-disable react/display-name */
 
@@ -181,7 +182,7 @@ export const WidgetIcons: {
   ),
   STATBOX_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <IconButtonIcon />
+      <StatboxIcon />
     </IconWrapper>
   ),
 };
