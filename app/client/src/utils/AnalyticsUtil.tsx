@@ -153,7 +153,8 @@ export type EventName =
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
-  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK";
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "CLOSE_GEN_PAGE_INFO_MODAL";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

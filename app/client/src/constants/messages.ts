@@ -388,6 +388,11 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+
+export const GEN_CRUD_INFO_MODAL_TITLE = () => "How it works?";
+export const GEN_CRUD_INFO_MODAL_SUBTITLE = () =>
+  "Search through your data in the table and update it using the form.";
+
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
