@@ -26,6 +26,8 @@ import java.io.IOException;
 public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, String> implements GitDataService {
 
     private final UserService userService;
+
+    private final String path = "/Users/anaghhegde/workspace/project";
     @Autowired
     public GitDataServiceImpl(Scheduler scheduler,
                               Validator validator,
@@ -40,16 +42,17 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
 
     @Override
     public Mono<User> saveGitConfigData(GitGlobalConfigDTO gitConfig) {
-        return userService.findByEmail(gitConfig.getUserEmail())
+        /*return userService.findByEmail(gitConfig.getUserEmail())
                 .flatMap(user -> {
                     user.setGitGlobalConfig(gitConfig.getGitGlobalConfig());
                     return userService.update(user.getId(), user);
-                });
+                });*/
+        return Mono.empty();
     }
 
     @Override
     public Repository connectToGitRepo(String url) throws IOException {
-        File localPath = File.createTempFile("TestGitRepository", "");
+        File localPath = File.createTempFile("name","name", new File(path));
         if(!localPath.delete()) {
             throw new IOException("Could not delete temporary file " + localPath);
         }

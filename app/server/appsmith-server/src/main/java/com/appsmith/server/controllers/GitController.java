@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,14 +36,14 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
     @PostMapping("/user")
     public Mono<ResponseDTO<GitGlobalConfig>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
         //update the user field in db with git config data
-        return gitService.saveGitConfigData(gitGlobalConfigDTO)
-                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfig.getGitGlobalConfig(), null));
+        /*return gitService.saveGitConfigData(gitGlobalConfigDTO)
+                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfig.getGitGlobalConfig(), null));*/
+        return Mono.empty();
     }
 
     @PostMapping("/connect")
-    public Mono<ResponseDTO<String>> connectToRemoteRepo() throws IOException {
-        gitService.connectToGitRepo("https://github.com/AnaghHegde/Enigma-Reborn.git");
-        return Mono.empty();
+    public Repository connectToRemoteRepo(@RequestBody String url) throws IOException {
+        return gitService.connectToGitRepo(url);
     }
 
 
