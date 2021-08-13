@@ -161,7 +161,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonStyle":
           EvaluationSubstitutionType.TEMPLATE,
-        // "primaryColumns.status.isVisible": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
