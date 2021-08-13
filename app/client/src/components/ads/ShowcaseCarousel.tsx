@@ -4,6 +4,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import styled from "styled-components";
 import { createMessage, NEXT, BACK, SKIP } from "constants/messages";
 import { useTransition, animated } from "react-spring";
+import Icon from "./Icon";
 
 const Container = styled.div`
   box-shadow: 1px 0px 10px 5px rgba(0, 0, 0, 0.15);
@@ -38,6 +39,12 @@ const Buttons = styled.div`
     margin-left: ${(props) => props.theme.spaces[1]}px;
 `;
 
+const CloseBtnContainer = styled.div`
+  position: absolute;
+  right: ${(props) => props.theme.spaces[6]}px;
+  top: ${(props) => props.theme.spaces[6]}px;
+`;
+
 type Step = {
   component: any;
   props: any;
@@ -48,6 +55,8 @@ export type Steps = Array<Step>;
 type Props = {
   steps: Steps;
   activeIndex: number;
+  setActiveIndex: (index: number) => void;
+  onClose: () => void;
 };
 
 type DotsProps = {
@@ -157,6 +166,9 @@ export default function ShowcaseCarousel(props: Props) {
           />
         </Buttons>
       </Footer>
+      <CloseBtnContainer>
+        <Icon name="close-modal" onClick={props.onClose} />
+      </CloseBtnContainer>
     </Container>
   );
 }
