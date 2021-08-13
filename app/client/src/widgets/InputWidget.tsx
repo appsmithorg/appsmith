@@ -19,63 +19,60 @@ import withMeta, { WithMeta } from "./MetaHOC";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import { ISDCodeDropdownOptions } from "components/ads/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "components/ads/CurrencyCodeDropdown";
-import { isNil, isNumber, isObject, isString } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-
-function isNumberInputType(inputType: string) {
-  return (
-    inputType === "INTEGER" ||
-    inputType === "NUMBER" ||
-    inputType === "CURRENCY" ||
-    inputType === "PHONE_NUMBER"
-  );
-}
 
 function defaultValueValidation(
   value: unknown,
   props: InputWidgetProps,
+  _?: any,
 ): ValidationResponse {
-  if (isNumberInputType(props.inputType)) {
-    if (isNil(value) || value === "") {
+  const { inputType } = props;
+  if (
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
+  ) {
+    if (_.isNil(value) || value === "") {
       return {
         isValid: true,
         parsed: 0,
+        message: "",
       };
     }
-    const isValid = isNumber(value) && Number.isFinite(value);
-    if (!isValid) {
+    if (!Number.isFinite(value) && !_.isString(value)) {
       return {
         isValid: false,
         parsed: 0,
         message: "This value must be a number",
       };
     }
-    const parsed = Number(value);
     return {
-      isValid,
-      parsed,
-    };
-  } else {
-    if (isObject(value)) {
-      return {
-        isValid: false,
-        parsed: JSON.stringify(value, null, 2),
-        message: "This value must be string",
-      };
-    }
-    const isValid = isString(value);
-    if (!isValid) {
-      return {
-        isValid: false,
-        parsed: "",
-        message: "This value must be string",
-      };
-    }
-    return {
-      isValid,
-      parsed: value,
+      isValid: true,
+      parsed: Number(value),
+      message: "",
     };
   }
+  if (_.isObject(value)) {
+    return {
+      isValid: false,
+      parsed: JSON.stringify(value, null, 2),
+      message: "This value must be string",
+    };
+  }
+  const isValid = _.isString(value);
+  if (!isValid) {
+    return {
+      isValid: false,
+      parsed: "",
+      message: "This value must be string",
+    };
+  }
+  return {
+    isValid,
+    parsed: value,
+    message: "",
+  };
 }
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
@@ -211,6 +208,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 },
               },
             },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Sets a placeholder text for the input",
