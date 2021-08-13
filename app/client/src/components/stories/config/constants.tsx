@@ -9,6 +9,10 @@ export const storyName = {
         PATH: "Platform/Form/Radio",
         NAME: "Radio",
       },
+      textInput: {
+        PATH: "Platform/Form/TextInput",
+        NAME: "TextInput",
+      },
     },
   },
 };

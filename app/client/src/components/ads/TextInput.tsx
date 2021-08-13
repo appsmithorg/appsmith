@@ -8,7 +8,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
-import Icon, { IconName, IconSize } from "./Icon";
+import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
@@ -110,6 +110,7 @@ const StyledInput = styled((props) => {
 
   ${(props) =>
     props.leftIcon &&
+    IconCollection.includes(props.leftIcon) &&
     `
   padding-left: 35px;`};
 

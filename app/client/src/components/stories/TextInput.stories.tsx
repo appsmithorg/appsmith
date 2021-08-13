@@ -1,143 +1,79 @@
 import React from "react";
-import { withKnobs, boolean, text } from "@storybook/addon-knobs";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
-import { IconCollection } from "components/ads/Icon";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "components/ads/common";
-import {
-  Title,
-  Subtitle,
-  Description,
-  Primary,
-  ArgsTable,
-  Stories,
-  PRIMARY_STORY,
-} from "@storybook/addon-docs";
-import { Meta, Story } from "@storybook/react";
-
-const docDefine = () => (
-  <>
-    <Title />
-    <Subtitle />
-    <Description />
-    <Primary />
-    <ArgsTable story={PRIMARY_STORY} />
-    <Stories />
-  </>
-);
-docDefine.displayName = "DocDefine";
+import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { withDesign } from "storybook-addon-designs";
+import { IconCollection, IconName } from "components/ads/Icon";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Text Input",
+  title: storyName.platform.form.textInput.PATH,
   component: TextInput,
-  decorators: [withKnobs],
-  argTypes: {
-    leftIcon: {
-      options: [undefined, ...IconCollection],
-      control: { type: "select" },
-    },
-  },
+  decorators: [withDesign],
   parameters: {
-    docs: {
-      page: docDefine,
+    status: {
+      type: statusType.STABLE,
     },
   },
-} as Meta;
-
-// valid of validator
-const callValid = () => {
-  return {
-    isValid: true,
-    message: "",
-  };
 };
 
-// invalid of validator
-const callInvalid = () => {
-  return {
-    isValid: false,
-    message: "This is a warning text for the above field.",
-  };
-};
+export function Primary(args: TextInputProps) {
+  return <TextInput {...args} onChange={action("value changed")} />;
+}
 
-const Template: Story<TextInputProps> = (args) => (
-  <StoryWrapper>
-    <TextInput
-      {...args}
-      onChange={action("input value changed")}
-      validator={() => callValid()}
-    />
-  </StoryWrapper>
-);
-
-const ErrorTemplate: Story<TextInputProps> = (args) => {
-  return (
-    <StoryWrapper>
-      <TextInput
-        {...args}
-        onChange={action("input value changed")}
-        validator={() => callInvalid()}
-      />
-    </StoryWrapper>
-  );
-};
-
-//Normal Text Input
-export const Default = Template.bind({});
-Default.args = {
+Primary.args = {
   placeholder: "Placeholder",
   fill: false,
   defaultValue: "",
   readOnly: false,
+  dataType: "text",
+  leftIcon: undefined,
   helperText: "",
   disabled: false,
-  leftIcon: undefined,
 };
 
-// export const ErrorTextInput = ErrorTemplate.bind({});
-// ErrorTextInput.args = {
-//   placeholder: "Placeholder",
-//   fill: false,
-//   defaultValue: "",
-//   readOnly: false,
-//   helperText: "",
-//   disabled: false,
-//   leftIcon: undefined,
-// };
+Primary.argTypes = {
+  defaultValue: {
+    control: controlType.TEXT,
+    description: "string",
+    defaultValue: "",
+  },
+  placeholder: {
+    control: controlType.TEXT,
+    description: "string",
+    defaultValue: "Placeholder",
+  },
+  disabled: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  fill: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  leftIcon: {
+    control: controlType.SELECT,
+    options: ["Select icon" as IconName, ...IconCollection],
+    description: "Icon",
+    defaultValue: undefined,
+  },
+  readOnly: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  dataType: {
+    control: controlType.SELECT,
+    options: ["text", "email", "number", "password", "url"],
+    description: ["text", "email", "number", "password", "url"].join(", "),
+    defaultValue: "text",
+  },
+  helperText: {
+    control: controlType.TEXT,
+    description: "string",
+  },
+};
 
-// export const Secondary = Template.bind({});
-// Secondary.args = { ...Primary.args, label: "😄👍😍💯" };
-
-// export const Tertiary = Template.bind({});
-// Tertiary.args = { ...Primary.args, label: "📚📕📈🤓" };
-
-export function ErrorTextInputStory() {
-  return (
-    <StoryWrapper>
-      <TextInput
-        defaultValue={text("defaultValue", "This is valid")}
-        disabled={boolean("disabled", false)}
-        fill={boolean("fill", true)}
-        onChange={action("input value changed")}
-        placeholder={text("placeholder", "Your name")}
-        validator={() => callInvalid()}
-      />
-    </StoryWrapper>
-  );
-}
-
-export function ErrorTextInputWithIconStory() {
-  return (
-    <StoryWrapper>
-      <TextInput
-        defaultValue={text("defaultValue", "This is valid")}
-        disabled={boolean("disabled", false)}
-        fill={boolean("fill", true)}
-        leftIcon="book"
-        onChange={action("input value changed")}
-        placeholder={text("placeholder", "Your name")}
-        validator={() => callInvalid()}
-      />
-    </StoryWrapper>
-  );
-}
+Primary.storyName = storyName.platform.form.textInput.NAME;
