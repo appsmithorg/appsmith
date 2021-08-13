@@ -5,15 +5,29 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 
-export const getAllOccurences = (str: string, key: string) => {
+export const getIndexOfRegex = (
+  str: string,
+  regex: RegExp,
+  start = 0,
+): number => {
+  const pos = str.substr(start).search(regex);
+  return pos > -1 ? pos + start : pos;
+};
+
+const buildBoundaryRegex = (key: string) => {
+  return key.replace("$", "\\$").replace(/[A-z]+/g, "\\b$&\\b");
+};
+
+export const getAllWordOccurences = (str: string, key: string) => {
   const indicies = [];
   const keylen = key.length;
   let index, startIndex;
-  index = str.indexOf(key, startIndex);
+  const regex = new RegExp(buildBoundaryRegex(key));
+  index = getIndexOfRegex(str, regex, startIndex);
   while (index > -1) {
     indicies.push(index);
     startIndex = index + keylen;
-    index = str.indexOf(key, startIndex);
+    index = getIndexOfRegex(str, regex, startIndex);
   }
 
   return indicies;
@@ -23,7 +37,7 @@ export const getKeyPositionInString = (
   str: string,
   key: string,
 ): Position[] => {
-  const indicies = getAllOccurences(str, key);
+  const indicies = getAllWordOccurences(str, key);
   let positions: Position[] = [];
   if (str.includes("\n")) {
     for (const index of indicies) {
@@ -61,7 +75,7 @@ export const getLintAnnotations = (
     const bindingPositions = getKeyPositionInString(value, originalBinding);
 
     for (const bindingLocation of bindingPositions) {
-      if (variables) {
+      if (variables?.filter((v) => v).length) {
         for (const variable of variables) {
           if (variable && originalBinding.includes(variable)) {
             const variableLocations = getKeyPositionInString(
@@ -89,13 +103,23 @@ export const getLintAnnotations = (
                 from,
                 to,
                 message: errorMessage,
-                severity: severity,
+                severity,
               };
 
               annotations.push(annotation);
             }
           }
         }
+      } else {
+        const from = bindingLocation;
+        const to = { line: from.line, ch: from.ch + 3 };
+        const annotation = {
+          from,
+          to,
+          errorMessage,
+          severity,
+        };
+        annotations.push(annotation);
       }
     }
   });
