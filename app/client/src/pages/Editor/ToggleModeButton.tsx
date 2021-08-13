@@ -38,8 +38,6 @@ import {
   matchViewerPath,
 } from "constants/routes";
 
-import { createMessage, UNREAD_MESSAGE } from "constants/messages";
-
 import localStorage from "utils/localStorage";
 
 import { getAppMode } from "selectors/applicationSelectors";
@@ -395,19 +393,14 @@ function ToggleCommentModeButton({
           >
             <ViewOrEditMode mode={mode} />
           </ModeButton>
-          <TooltipComponent
-            content={createMessage(UNREAD_MESSAGE)}
-            isOpen={showCommentButtonDiscoveryTooltip}
-          >
-            <CommentModeBtn
-              {...{
-                handleSetCommentModeButton,
-                isCommentMode: isCommentMode || isTourStepActive, // Highlight the button during the tour
-                showUnreadIndicator,
-                showSelectedMode,
-              }}
-            />
-          </TooltipComponent>
+          <CommentModeBtn
+            {...{
+              handleSetCommentModeButton,
+              isCommentMode: isCommentMode || isTourStepActive, // Highlight the button during the tour
+              showUnreadIndicator,
+              showSelectedMode,
+            }}
+          />
         </div>
       </TourTooltipWrapper>
     </Container>
