@@ -2298,14 +2298,14 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
         expect(someText).to.equal(response.response.body.data.name);
       });
   });
-
-  cy.get(ApiEditor.dataSourceField)
-    .click({ force: true })
-    .type(url, { parseSpecialCharSequences: false }, { force: true });
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
-    .type(parameters, { parseSpecialCharSequences: false }, { force: true });
+    .type(
+      url + parameters,
+      { parseSpecialCharSequences: false },
+      { force: true },
+    );
   cy.WaitAutoSave();
   cy.get(ApiEditor.formActionButtons).should("be.visible");
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
