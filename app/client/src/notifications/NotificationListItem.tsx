@@ -106,6 +106,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     comment,
     createdAt,
     creationTime,
+    event,
     id,
     isRead,
   } = props.notification;
@@ -123,6 +124,12 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
 
   const _createdAt = createdAt || creationTime;
   const displayName = authorName || authorUsername;
+  let eventName = event;
+  if (!event || event == "CREATED") {
+    eventName = "left";
+  } else if (event == "TAGGED") {
+    eventName = "mentioned you in";
+  }
 
   const handleClick = async () => {
     const modeFromRole = await getModeFromUserRole(orgId);
@@ -154,7 +161,8 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
+          <b>{displayName}</b> {eventName.toLowerCase()} a comment on
+          <b> {applicationName}</b>
         </div>
         <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
@@ -171,6 +179,7 @@ function CommentThreadNotification(props: {
     commentThread,
     createdAt,
     creationTime,
+    event,
     id: notificationId,
     isRead,
   } = props.notification;
@@ -215,6 +224,7 @@ function CommentThreadNotification(props: {
 
   const _createdAt = createdAt || creationTime;
   const displayName = authorName || authorUsername;
+  const eventName = event || "updated";
 
   return (
     <FlexContainer onClick={handleClick}>
@@ -228,7 +238,8 @@ function CommentThreadNotification(props: {
       </ProfileImageContainer>
       <NotificationBodyContainer>
         <div>
-          <b>{displayName}</b> left a comment on <b>{applicationName}</b>
+          <b>{displayName}</b> {eventName.toLowerCase()} a thread on
+          <b> {applicationName}</b>
         </div>
         <Time>{moment(_createdAt).fromNow()}</Time>
       </NotificationBodyContainer>
