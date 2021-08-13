@@ -362,8 +362,13 @@ export function TableHeaderCell(props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
+  orgLeft: number;
+  orgTop: number;
+  provided: any;
+  snapshot: any;
+  setOrgPosition: (left: number, top: number) => void;
 }) {
-  const { column } = props;
+  const { column, provided, snapshot } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -375,11 +380,47 @@ export function TableHeaderCell(props: {
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
+  const handleMouseDown = (e: any) => {
+    const colElem = e.target.closest(".th.header-reorder");
+    const tblWrap = e.target.closest(".tableWrap");
+    if (colElem && tblWrap) {
+      const rectArea = colElem.getBoundingClientRect();
+      const rectTbl = tblWrap.getBoundingClientRect();
+      const offsetX = rectArea.left - rectTbl.left;
+      const offsetY = rectArea.top - rectTbl.top + 40;
+      props.setOrgPosition(offsetX, offsetY);
+    }
+  };
+
+  const getItemStyle = () => {
+    const { isDragging, isDropAnimating } = snapshot;
+    return {
+      ...provided.draggableProps.style,
+      ...(isDropAnimating && { transitionDuration: "0.001s" }),
+      left: props.orgLeft,
+      top: props.orgTop,
+      width: "100%",
+      ...(isDragging && {
+        background: "#efefef",
+        borderRadius: "4px",
+        zIndex: 100,
+        width: column.width,
+        textOverflow: "none",
+        overflow: "none",
+        opacity: 0.6,
+      }),
+      ...(!isDragging && {
+        transform: "none",
+      }),
+    };
+  };
+
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
       onClick={handleSortColumn}
+      onMouseDown={handleMouseDown}
     >
       {props.isAscOrder !== undefined ? (
         <SortIconWrapper>
@@ -391,6 +432,8 @@ export function TableHeaderCell(props: {
         </SortIconWrapper>
       ) : null}
       <DraggableHeaderWrapper
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
         className={
           !props.isHidden
             ? `draggable-header ${
@@ -399,9 +442,29 @@ export function TableHeaderCell(props: {
             : "hidden-header"
         }
         horizontalAlignment={column.columnProperties.horizontalAlignment}
+        ref={provided.innerRef}
+        style={{
+          ...getItemStyle(),
+          // position: "absolute",
+          // width: "100%",
+        }}
       >
         {props.columnName}
       </DraggableHeaderWrapper>
+      {props.snapshot.isDragging ? (
+        <DraggableHeaderWrapper
+          className={
+            !props.isHidden
+              ? `draggable-header ${
+                  props.isAscOrder !== undefined ? "sorted" : ""
+                }`
+              : "hidden-header"
+          }
+          horizontalAlignment={column.columnProperties.horizontalAlignment}
+        >
+          {props.columnName}
+        </DraggableHeaderWrapper>
+      ) : null}
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}

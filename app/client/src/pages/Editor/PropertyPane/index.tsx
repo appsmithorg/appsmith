@@ -183,7 +183,7 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
-      <PropertyPaneBodyWrapper>
+      <PropertyPaneBodyWrapper className="t--property-pane-content-section">
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
