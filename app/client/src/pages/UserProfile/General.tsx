@@ -102,7 +102,7 @@ function General() {
               cypressSelector="t--display-name"
               defaultValue={user?.name}
               fill={false}
-              helperText="Please add name."
+              helperText="Please add a name"
               leftIcon="book"
               onChange={onNameChange}
               placeholder="Display name"
