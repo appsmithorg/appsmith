@@ -25,6 +25,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentRowSpace: 40,
       tableData: "{{getUsers.data}}",
       isVisible: true,
+      isVisibleDownload: true,
       label: "Data",
       searchKey: "",
       type: WidgetTypes.TABLE_WIDGET,
