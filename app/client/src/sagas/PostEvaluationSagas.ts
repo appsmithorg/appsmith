@@ -239,11 +239,12 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        Toaster.show({
-          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
-          variant: Variant.danger,
-          showDebugButton: false,
-        });
+        //TO DO push to debugger
+        // Toaster.show({
+        //   text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
+        //   variant: Variant.danger,
+        //   showDebugButton: false,
+        // });
         break;
       }
       default: {

@@ -775,7 +775,8 @@ export default class DataTreeEvaluator {
       Object.keys(entity.meta).forEach((unEvalFunc) => {
         const unEvalValue = _.get(entity, unEvalFunc);
         if (typeof unEvalValue === "string") {
-          const { result } = evaluate(unEvalValue, {});
+          const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
+          const { result } = evaluate(newUnEvalValue, {});
           _.set(unEvalDataTree, `${entityName}.${unEvalFunc}`, result);
         }
       });
@@ -802,7 +803,11 @@ export default class DataTreeEvaluator {
           Object.keys(entity.meta).forEach((unEvalFunc) => {
             const unEvalValue = _.get(entity, unEvalFunc);
             if (typeof unEvalValue === "string") {
-              const { result } = evaluate(unEvalValue, {});
+              const newUnEvalValue = unEvalValue.replaceAll(
+                "this",
+                entity.name,
+              );
+              const { result } = evaluate(newUnEvalValue, {});
               _.set(this.evalTree, `${entityName}.${unEvalFunc}`, result);
             }
           });
@@ -811,7 +816,8 @@ export default class DataTreeEvaluator {
           //// resolve that function
           const unEvalValue = _.get(entity, propertyPath);
           if (typeof unEvalValue === "string") {
-            const { result } = evaluate(unEvalValue, this.evalTree);
+            const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
+            const { result } = evaluate(newUnEvalValue, this.evalTree);
             _.set(this.evalTree, `${entityName}.${propertyPath}`, result);
           }
         }
@@ -819,7 +825,8 @@ export default class DataTreeEvaluator {
       if (diff.event === DataTreeDiffEvent.EDIT) {
         const unEvalValue = _.get(entity, propertyPath);
         if (typeof unEvalValue === "string") {
-          const { result } = evaluate(unEvalValue, this.evalTree);
+          const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
+          const { result } = evaluate(newUnEvalValue, this.evalTree);
           _.set(this.evalTree, diff.payload.propertyPath, result);
         }
       }
