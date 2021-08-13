@@ -821,7 +821,7 @@ export const migrateTableDefaultSelectedRow = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = 0;
+    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
   }
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
