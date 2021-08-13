@@ -677,7 +677,7 @@ export function* executeActionSaga(
   }
 }
 
-function* executeActionTriggers(
+export function* executeActionTriggers(
   trigger: ActionDescription<any>,
   event: ExecuteActionPayloadEvent,
 ) {

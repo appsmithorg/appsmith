@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import vs from "react-syntax-highlighter/dist/esm/styles/prism/vs";
+import prism from "react-syntax-highlighter/dist/esm/styles/prism/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/Form";
 import { TabComponent } from "components/ads/Tabs";
 import {
@@ -13,12 +13,17 @@ import {
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
 import Button, { Size } from "components/ads/Button";
-import { evaluateSnippet } from "actions/globalSearchActions";
+import {
+  evaluateSnippet,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { js_beautify } from "js-beautify";
+import { useEffect } from "react";
+import { useRef } from "react";
 
 const SnippetContainer = styled.div`
   display: flex;
@@ -97,16 +102,11 @@ const SnippetContainer = styled.div`
 `;
 
 function getSnippet(snippet: string, args: any, removeBinding = true) {
-  const regex = /\${(.*?)}/g;
+  const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
-    const substitution = args[capture] || "";
-    if (
-      removeBinding &&
-      substitution.startsWith("{{") &&
-      substitution.endsWith("}}")
-    ) {
-      return substitution.substring(2, substitution.length - 2);
-    }
+    const substitution = (args[capture] || "")
+      .replace("{{", "")
+      .replace("}}", "");
     return substitution || capture;
   });
 }
@@ -120,6 +120,11 @@ export default function SnippetDescription(props: any) {
     },
   } = props;
   const [selectedIndex, setSelectedIndex] = useState(0);
+  useEffect(() => {
+    setSelectedIndex(0);
+    setGlobalSearchFilterContext({ evaluateSnippet: "" });
+  }, [title]);
+  const ref = useRef<HTMLDivElement>(null);
   const [selectedArgs, setSelectedArgs] = useState<any>({});
   const dispatch = useDispatch();
   const evaluatedSnippet = useSelector(
@@ -131,7 +136,7 @@ export default function SnippetDescription(props: any) {
       title: "Snippet",
       panelComponent: (
         <>
-          <SyntaxHighlighter language={language} style={vs} wrapLongLines>
+          <SyntaxHighlighter language={language} style={prism} wrapLongLines>
             {js_beautify(getSnippet(snippet, selectedArgs), { indent_size: 2 })}
           </SyntaxHighlighter>
           {examples && examples.length ? (
@@ -143,7 +148,7 @@ export default function SnippetDescription(props: any) {
                     <p>{ex.title}</p>
                     <SyntaxHighlighter
                       language={language}
-                      style={vs}
+                      style={prism}
                       wrapLongLines
                     >
                       {js_beautify(ex.code, { indent_size: 2 })}
@@ -167,7 +172,7 @@ export default function SnippetDescription(props: any) {
       panelComponent:
         args && args.length > 0 ? (
           <>
-            <SyntaxHighlighter language={language} style={vs} wrapLongLines>
+            <SyntaxHighlighter language={language} style={prism} wrapLongLines>
               {js_beautify(getSnippet(snippet, selectedArgs), {
                 indent_size: 2,
               })}
@@ -177,7 +182,7 @@ export default function SnippetDescription(props: any) {
                 <div
                   className="argument"
                   key={arg.name}
-                  onKeyDown={(e) => e.stopPropagation}
+                  onKeyDown={(e) => e.stopPropagation()}
                 >
                   <span>{arg.name}</span>
                   <CodeEditor
@@ -206,7 +211,10 @@ export default function SnippetDescription(props: any) {
                   onClick={() => {
                     dispatch(
                       evaluateSnippet({
-                        expression: getSnippet(snippet, selectedArgs),
+                        expression: `function() { ${getSnippet(
+                          snippet,
+                          selectedArgs,
+                        )} }`,
                         dataType: returnType,
                       }),
                     );
@@ -247,7 +255,7 @@ export default function SnippetDescription(props: any) {
     });
   }
   return (
-    <SnippetContainer>
+    <SnippetContainer ref={ref}>
       <div className="snippet-title">
         <span>{title}</span>
         <span className="action-msg">Hit ⏎ to insert</span>
@@ -255,7 +263,9 @@ export default function SnippetDescription(props: any) {
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">
         <TabComponent
-          onSelect={setSelectedIndex}
+          onSelect={(index: number) => {
+            setSelectedIndex(index);
+          }}
           selectedIndex={selectedIndex}
           tabs={tabs}
         />

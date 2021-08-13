@@ -44,6 +44,8 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { setEvaluatedSnippet } from "actions/globalSearchActions";
+import { executeActionTriggers } from "./ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -258,8 +260,14 @@ export function* evaluateSnippetSaga(action: any) {
         dataType: action.payload.dataType,
       },
     );
-    const { result } = workerResponse;
-    yield put(setEvaluatedSnippet(result));
+    const { result, triggers } = workerResponse;
+    if (triggers && triggers.length > 0) {
+      yield call(executeActionTriggers, triggers[0], {
+        type: EventType.ON_SNIPPET_EXECUTE,
+      });
+    } else {
+      yield put(setEvaluatedSnippet(result));
+    }
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
