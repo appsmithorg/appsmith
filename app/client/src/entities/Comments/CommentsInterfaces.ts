@@ -75,7 +75,7 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   updationTime?: string;
   creationTime?: string;
   viewedByUsers?: Array<string>;
-};
+} & { _id: string };
 
 export type CommentEventPayload = {
   type: typeof COMMENT_EVENTS[keyof typeof COMMENT_EVENTS];
