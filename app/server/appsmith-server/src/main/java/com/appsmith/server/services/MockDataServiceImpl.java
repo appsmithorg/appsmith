@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -125,12 +126,12 @@ public class MockDataServiceImpl implements MockDataService {
         List<Property> listProperty = new ArrayList<>();
         SSLDetails sslDetails = new SSLDetails();
 
-        List<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).collect(Collectors.toList());
-        if(credentialsList.size() == 0) {
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
             return datasourceConfiguration;
         }
 
-        MockDataCredentials credentials = credentialsList.get(0);
+        MockDataCredentials credentials = credentialsList.get();
         property.setKey("Use Mongo Connection String URI");
         property.setValue("Yes");
         listProperty.add(property);
@@ -164,12 +165,12 @@ public class MockDataServiceImpl implements MockDataService {
         Endpoint endpoint = new Endpoint();
         List<Endpoint> endpointList = new ArrayList<>();
 
-        List<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).collect(Collectors.toList());
-        if(credentialsList.size() == 0) {
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
             return datasourceConfiguration;
         }
 
-        MockDataCredentials credentials = credentialsList.get(0);
+        MockDataCredentials credentials = credentialsList.get();
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
         connection.setSsl(sslDetails);
         connection.setMode(Connection.Mode.READ_WRITE);
