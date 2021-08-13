@@ -82,18 +82,19 @@ function CanvasMultiPointerArena({
 }) {
   const { pageId } = useParams<ExplorerURLParams>();
   let pointerData: PointerDataType = {};
-
+  let animationStepId: number;
   let selectionCanvas: any;
 
   // Setup for painting on canvas
   useEffect(() => {
     selectionCanvas = document.getElementById(POINTERS_CANVAS_ID);
-    const drawingInterval = setInterval(() => drawPointers(), 50);
+
+    animationStepId = window.requestAnimationFrame(drawPointers);
     const clearPointerDataInterval = setInterval(() => {
       pointerData = {};
     }, TWO_MINS);
     return () => {
-      clearInterval(drawingInterval);
+      window.cancelAnimationFrame(animationStepId);
       clearInterval(clearPointerDataInterval);
     };
   }, []);
@@ -156,6 +157,7 @@ function CanvasMultiPointerArena({
         eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
     });
+    animationStepId = window.requestAnimationFrame(drawPointers);
   };
 
   return <Canvas id={POINTERS_CANVAS_ID} />;
