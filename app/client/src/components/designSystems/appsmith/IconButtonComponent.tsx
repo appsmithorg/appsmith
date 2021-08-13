@@ -22,13 +22,13 @@ export interface ButtonStyleProps {
   boxShadowColor?: string;
   buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
-  dimension: number;
+  dimension?: number;
 }
 
-const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+export const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
   background-image: none !important;
-  height: ${({ dimension }) => `${dimension}px`};
-  width: ${({ dimension }) => `${dimension}px`};
+  height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
+  width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   ${({ buttonStyle, buttonVariant, theme }) => `
     &:enabled {
       background: ${

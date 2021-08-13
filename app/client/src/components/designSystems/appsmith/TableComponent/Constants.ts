@@ -1,6 +1,13 @@
 import { isString } from "lodash";
 import moment from "moment";
 import { TextSize } from "constants/WidgetConstants";
+import { IconName } from "@blueprintjs/icons";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonStyle,
+  ButtonVariant,
+} from "../IconButtonComponent";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -95,6 +102,12 @@ export interface CellLayoutProperties {
   buttonLabelColor?: string;
   buttonLabel?: string;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  iconButtonStyle: ButtonStyle;
 }
 
 export interface TableColumnMetaProps {
@@ -122,7 +135,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
 
 export interface ColumnProperties {
   id: string;
-  label: string;
+  label?: string;
   columnType: string;
   isVisible: boolean;
   index: number;
@@ -146,6 +159,12 @@ export interface ColumnProperties {
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant?: ButtonVariant;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconButtonStyle?: ButtonStyle;
 }
 
 export const ConditionFunctions: {

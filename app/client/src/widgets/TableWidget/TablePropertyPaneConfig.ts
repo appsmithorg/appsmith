@@ -788,6 +788,56 @@ export default [
                     "columnOrder",
                   ],
                   controlType: "ICON_SELECT",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  validation: { type: ValidationTypes.TEXT },
+                },
+                {
+                  propertyName: "iconButtonStyle",
+                  label: "Button Color",
+                  controlType: "DROP_DOWN",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  helpText: "Sets the style of the icon button",
+                  options: [
+                    {
+                      label: "Primary",
+                      value: "PRIMARY",
+                    },
+                    {
+                      label: "Warning",
+                      value: "WARNING",
+                    },
+                    {
+                      label: "Danger",
+                      value: "DANGER",
+                    },
+                    {
+                      label: "Info",
+                      value: "INFO",
+                    },
+                    {
+                      label: "Secondary",
+                      value: "SECONDARY",
+                    },
+                  ],
+
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "iconButton";
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: false,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.TEXT },
@@ -824,6 +874,15 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const baseProperty = getBasePropertyPath(propertyPath);
+                    const columnType = get(
+                      props,
+                      `${baseProperty}.columnType`,
+                      "",
+                    );
+                    return columnType !== "button";
+                  },
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -836,6 +895,8 @@ export default [
                   propertyName: "buttonVariant",
                   label: "Button Variant",
                   controlType: "DROP_DOWN",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   helpText: "Sets the variant of the icon button",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
@@ -871,6 +932,8 @@ export default [
                 {
                   propertyName: "borderRadius",
                   label: "Border Radius",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   helpText:
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BORDER_RADIUS_OPTIONS",
@@ -903,6 +966,8 @@ export default [
                   helpText:
                     "Enables you to cast a drop shadow from the frame of the widget",
                   controlType: "BOX_SHADOW_OPTIONS",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
                     const columnType = get(
@@ -938,6 +1003,8 @@ export default [
                   helpText: "Sets the shadow color of the widget",
                   label: "Shadow Color",
                   controlType: "COLOR_PICKER",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     const baseProperty = getBasePropertyPath(propertyPath);
                     const columnType = get(

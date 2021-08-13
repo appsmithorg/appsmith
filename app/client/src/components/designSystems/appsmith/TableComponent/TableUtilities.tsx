@@ -27,10 +27,17 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { IconNames } from "@blueprintjs/icons";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonStyle,
+  ButtonVariant,
+  StyledButton,
+} from "../IconButtonComponent";
 
 export const renderCell = (
   value: any,
@@ -131,6 +138,86 @@ export const renderCell = (
       );
   }
 };
+
+interface RenderIconButtonProps {
+  isSelected: boolean;
+  columnActions?: ColumnAction[];
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  buttonStyle: ButtonStyle;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+}
+export const renderIconButton = (
+  props: RenderIconButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  if (!props.columnActions)
+    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+
+  return (
+    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+      {props.columnActions.map((action: ColumnAction, index: number) => {
+        return (
+          <IconButton
+            action={action}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
+            buttonStyle={props.buttonStyle}
+            buttonVariant={props.buttonVariant}
+            iconName={props.iconName}
+            isSelected={props.isSelected}
+            key={index}
+            onCommandClick={props.onCommandClick}
+          />
+        );
+      })}
+    </CellWrapper>
+  );
+};
+function IconButton(props: {
+  iconName?: IconName;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isSelected: boolean;
+  action: ColumnAction;
+  buttonStyle: ButtonStyle;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+}): JSX.Element {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  return (
+    <div
+      onClick={(e) => {
+        if (props.isSelected) {
+          e.stopPropagation();
+        }
+      }}
+    >
+      <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
+        buttonStyle={props.buttonStyle}
+        buttonVariant={props.buttonVariant}
+        icon={props.iconName}
+        loading={loading}
+        onClick={() => {
+          setLoading(true);
+          props.onCommandClick(props.action.dynamicTrigger, onComplete);
+        }}
+      />
+    </div>
+  );
+}
 
 interface RenderActionProps {
   isSelected: boolean;
