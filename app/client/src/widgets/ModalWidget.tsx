@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { createRef, ReactNode } from "react";
 
 import { connect } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
@@ -18,6 +18,7 @@ import withMeta, { WithMeta } from "./MetaHOC";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import styled from "styled-components";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -32,7 +33,31 @@ const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   },
 };
 
+const ResizableDiv = styled.div`
+  z-index: 1000;
+  resize: both;
+  border: 1px solid orange;
+  overflow: auto;
+`;
+
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
+  private modal: React.RefObject<HTMLDivElement>;
+  constructor(props: any) {
+    super(props);
+    this.modal = createRef<HTMLDivElement>();
+  }
+
+  componentDidMount() {
+    if (this.modal.current) {
+      const resizeObserver = new ResizeObserver(function() {
+        () => {
+          console.log("I have resized");
+        };
+      });
+      resizeObserver.observe(this.modal.current);
+    }
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -165,7 +190,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         scrollContents={!!this.props.shouldScrollContents}
         width={this.getModalWidth()}
       >
-        {content}
+        <ResizableDiv ref={this.modal}>{content}</ResizableDiv>
       </ModalComponent>
     );
   }
@@ -189,6 +214,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
 export interface ModalWidgetProps extends WidgetProps, WithMeta {
   renderMode: RenderMode;
+  modal: HTMLDivElement;
   isOpen?: boolean;
   children?: WidgetProps[];
   canOutsideClickClose?: boolean;
