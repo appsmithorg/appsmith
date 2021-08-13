@@ -3,6 +3,7 @@ import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: CanvasSelectionState = {
   isDraggingForSelection: false,
+  widgetId: "",
 };
 
 export const canvasSelectionReducer = createImmerReducer(initialState, {
@@ -15,6 +16,7 @@ export const canvasSelectionReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.STOP_CANVAS_SELECTION]: (state: CanvasSelectionState) => {
     state.isDraggingForSelection = false;
+    state.widgetId = "";
   },
 });
 

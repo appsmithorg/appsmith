@@ -1,7 +1,15 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgetImmediateChildren, getWidgets } from "./selectors";
+import {
+  DroppableWidgets,
+  WidgetTypes,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  getWidgetImmediateChildren,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
 import log from "loglevel";
 import {
   deselectMultipleWidgetsAction,
@@ -14,7 +22,11 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgetChildren } from "./WidgetOperationUtils";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -23,7 +35,7 @@ function* selectedWidgetAncestrySaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   try {
-    const canvasWidgets = yield select(getWidgets);
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgetIdsExpandList = [];
     const { isMultiSelect, widgetId: selectedWidget } = action.payload;
 
@@ -34,7 +46,7 @@ function* selectedWidgetAncestrySaga(
     // If there is a parentId for the selectedWidget
     if (widgetId) {
       // Keep including the parent until we reach the main container
-      while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+      while (widgetId && widgetId !== MAIN_CONTAINER_WIDGET_ID) {
         widgetIdsExpandList.push(widgetId);
         if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
           widgetId = canvasWidgets[widgetId].parentId;
@@ -60,21 +72,110 @@ function* selectedWidgetAncestrySaga(
   }
 }
 
-function* selectAllWidgetsInCanvasSaga(
-  action: ReduxAction<{ canvasId: string }>,
-) {
-  const { canvasId } = action.payload;
-  const allWidgetsOnCanvas: string[] = yield select(
-    getWidgetImmediateChildren,
-    canvasId,
-  );
-  if (allWidgetsOnCanvas && allWidgetsOnCanvas.length) {
-    yield put(selectMultipleWidgetsAction(allWidgetsOnCanvas));
-    Toaster.show({
-      text: createMessage(SELECT_ALL_WIDGETS_MSG),
-      variant: Variant.info,
-      duration: 3000,
+function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
+  if (DroppableWidgets.includes(widgetLastSelected.type)) {
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const childWidgets: string[] = yield select(
+      getWidgetImmediateChildren,
+      widgetLastSelected.widgetId,
+    );
+    const firstCanvas = childWidgets.find((each) => {
+      const widget = canvasWidgets[each];
+      return widget.type === WidgetTypes.CANVAS_WIDGET;
     });
+    if (widgetLastSelected.type === WidgetTypes.TABS_WIDGET) {
+      const tabMetaProps: Record<string, unknown> = yield select(
+        getWidgetMetaProps,
+        widgetLastSelected.widgetId,
+      );
+      return tabMetaProps.selectedTabWidgetId;
+    }
+    if (firstCanvas) {
+      return firstCanvas;
+    }
+  }
+  return widgetLastSelected.parentId;
+}
+
+function* getLastSelectedCanvas() {
+  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetLastSelected = canvasWidgets[lastSelectedWidget];
+  if (widgetLastSelected) {
+    const canvasToSelect: string = yield call(
+      getDroppingCanvasOfWidget,
+      widgetLastSelected,
+    );
+    return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
+  }
+  return MAIN_CONTAINER_WIDGET_ID;
+}
+
+// used for List widget cases
+const isChildOfDropDisabledCanvas = (
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) => {
+  const widget = canvasWidgets[widgetId];
+  const parentId = widget.parentId || MAIN_CONTAINER_WIDGET_ID;
+  const parent = canvasWidgets[parentId];
+  return !!parent.dropDisabled;
+};
+
+function* getAllSelectableChildren() {
+  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetLastSelected = canvasWidgets[lastSelectedWidget];
+  const canvasId: string = yield call(getLastSelectedCanvas);
+  let allChildren: string[] = [];
+  const selectGrandChildren: boolean = lastSelectedWidget
+    ? widgetLastSelected.type === WidgetTypes.LIST_WIDGET
+    : false;
+  if (selectGrandChildren) {
+    allChildren = yield call(
+      getWidgetChildren,
+      canvasWidgets,
+      lastSelectedWidget,
+    );
+  } else {
+    allChildren = yield select(getWidgetImmediateChildren, canvasId);
+  }
+  if (allChildren && allChildren.length) {
+    const selectableChildren = allChildren.filter((each) => {
+      const isCanvasWidget =
+        each &&
+        canvasWidgets[each] &&
+        canvasWidgets[each].type === WidgetTypes.CANVAS_WIDGET;
+      const isImmovableWidget = isChildOfDropDisabledCanvas(
+        canvasWidgets,
+        each,
+      );
+      return !(isCanvasWidget || isImmovableWidget);
+    });
+    return selectableChildren;
+  }
+  return [];
+}
+
+function* selectAllWidgetsInCanvasSaga() {
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allSelectableChildren: string[] = yield call(getAllSelectableChildren);
+  if (allSelectableChildren && allSelectableChildren.length) {
+    yield put(selectMultipleWidgetsAction(allSelectableChildren));
+    const isAnyModalSelected = allSelectableChildren.some((each) => {
+      return (
+        each &&
+        canvasWidgets[each] &&
+        canvasWidgets[each].type === WidgetTypes.MODAL_WIDGET
+      );
+    });
+    if (isAnyModalSelected) {
+      Toaster.show({
+        text: createMessage(SELECT_ALL_WIDGETS_MSG),
+        variant: Variant.info,
+        duration: 3000,
+      });
+    }
   }
 }
 

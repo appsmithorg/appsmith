@@ -3,7 +3,7 @@ import {
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
 import { throttle } from "lodash";
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { APP_MODE } from "entities/App";
@@ -59,6 +59,9 @@ export function CanvasSelectionArena({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
   const mainContainer = useSelector((state: AppState) =>
     getWidget(state, widgetId),
   );
@@ -99,6 +102,10 @@ export function CanvasSelectionArena({
   const isCurrentWidgetDrawing = useSelector((state: AppState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });
+  const drawOnEnter = useRef(false);
+  useEffect(() => {
+    drawOnEnter.current = isDraggingForSelection && isCurrentWidgetDrawing;
+  }, [isDraggingForSelection, isCurrentWidgetDrawing]);
   useCanvasDragToScroll(
     canvasRef,
     isCurrentWidgetDrawing,
@@ -112,6 +119,7 @@ export function CanvasSelectionArena({
       // as of today (Pixels rendered by canvas) ∝ (Application height) so as height increases will run into to dead renders.
       // https://on690.codesandbox.io/ to check the number of pixels limit supported for a canvas
       // const { devicePixelRatio: scale = 1 } = window;
+
       const scale = 1;
       const scrollParent: Element | null = getNearestParentCanvas(
         canvasRef.current,
@@ -209,7 +217,11 @@ export function CanvasSelectionArena({
         document.body.addEventListener("click", onClick, false);
       };
 
-      const onMouseEnter = () => {
+      const onMouseEnter = (e: any) => {
+        if (canvasRef.current && !isDragging && drawOnEnter.current) {
+          firstDraw(e);
+          drawOnEnter.current = false;
+        }
         document.body.removeEventListener("mouseup", onMouseUp);
         document.body.removeEventListener("click", onClick);
       };
@@ -228,17 +240,38 @@ export function CanvasSelectionArena({
         }
       };
 
-      const onMouseDown = (e: any) => {
-        if (canvasRef.current && (!draggableParent || e.ctrlKey || e.metaKey)) {
+      const determineDirection = (pos: any) => {
+        if (canvasRef.current) {
+          const bounds = canvasRef.current.getBoundingClientRect();
+          const w = bounds.width,
+            h = bounds.height,
+            x = (pos.x - bounds.left - w / 2) * (w > h ? h / w : 1),
+            y = (pos.y - bounds.top - h / 2) * (h > w ? w / h : 1);
+
+          return (
+            Math.round((Math.atan2(y, x) * (180 / Math.PI) + 180) / 90 + 3) % 4
+          );
+        }
+      };
+
+      const firstDraw = (e: any) => {
+        if (canvasRef.current) {
+          console.log(determineDirection({ x: e.clientX, y: e.clientY }));
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
           selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;
           selectionRectangle.width = 0;
           selectionRectangle.height = 0;
           isDragging = true;
-          dispatch(setCanvasSelectionStateAction(true, widgetId));
           // bring the canvas to the top layer
           canvasRef.current.style.zIndex = "2";
+        }
+      };
+
+      const onMouseDown = (e: any) => {
+        if (canvasRef.current && (!draggableParent || e.ctrlKey || e.metaKey)) {
+          dispatch(setCanvasSelectionStateAction(true, widgetId));
+          firstDraw(e);
         }
       };
       const onMouseUp = () => {
@@ -310,7 +343,7 @@ export function CanvasSelectionArena({
     }
   }, [appLayout, currentPageId, mainContainer, isDragging, snapRows]);
 
-  return appMode === APP_MODE.EDIT && !isDragging ? (
+  return appMode === APP_MODE.EDIT && !(isDragging || isResizing) ? (
     <StyledSelectionCanvas
       data-testid={`canvas-${widgetId}`}
       id={`canvas-${widgetId}`}

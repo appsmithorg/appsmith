@@ -1,5 +1,4 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const selectWidgetAction = (
   widgetId?: string,
@@ -44,14 +43,9 @@ export const deselectMultipleWidgetsAction = (
   };
 };
 
-export const selectAllWidgetsInCanvasInitAction = (
-  canvasId = MAIN_CONTAINER_WIDGET_ID,
-): ReduxAction<{ canvasId: string }> => {
+export const selectAllWidgetsInCanvasInitAction = () => {
   return {
     type: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
-    payload: {
-      canvasId,
-    },
   };
 };
 

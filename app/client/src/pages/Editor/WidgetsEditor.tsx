@@ -26,6 +26,8 @@ import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { setCanvasSelectionStateAction } from "actions/canvasSelectionActions";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -103,6 +105,7 @@ function WidgetsEditor() {
     deselectAll && deselectAll();
     dispatch(closePropertyPane());
     dispatch(closeTableFilterPane());
+    dispatch(setCanvasSelectionStateAction(false, MAIN_CONTAINER_WIDGET_ID));
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (
@@ -118,12 +121,21 @@ function WidgetsEditor() {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} />;
   }
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(setCanvasSelectionStateAction(true, MAIN_CONTAINER_WIDGET_ID));
+  };
 
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
+      <EditorWrapper
+        draggable
+        onClick={handleWrapperClick}
+        onDragStart={onDragStart}
+      >
         <MainContainerLayoutControl />
         <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
