@@ -13,7 +13,7 @@ describe("Binding the multiple widgets and validating default data", function() 
 
   it("Input widget test with default value from table widget", function() {
     cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
+    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
