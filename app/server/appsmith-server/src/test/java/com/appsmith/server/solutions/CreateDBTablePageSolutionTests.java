@@ -192,6 +192,31 @@ public class CreateDBTablePageSolutionTests {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createPageWithInvalidDatasourceTest() {
+
+        Datasource invalidDatasource = new Datasource();
+        invalidDatasource.setOrganizationId(testOrg.getId());
+        invalidDatasource.setName("invalid_datasource");
+        invalidDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        resource.setDatasourceId(invalidDatasource.getId());
+        Mono<PageDTO> resultMono = datasourceService.create(invalidDatasource)
+            .flatMap(datasource -> {
+                resource.setApplicationId(testApp.getId());
+                resource.setDatasourceId(datasource.getId());
+                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+            });
+
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_DATASOURCE.getMessage(FieldName.DATASOURCE, invalidDatasource.getId())))
+            .verify();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createPageWithInvalidRequestBodyTest() {
         Mono<PageDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO());
 
