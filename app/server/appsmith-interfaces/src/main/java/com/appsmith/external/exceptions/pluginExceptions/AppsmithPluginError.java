@@ -9,28 +9,28 @@ import java.text.MessageFormat;
 @Getter
 public enum AppsmithPluginError {
 
-    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error", ErrorType.CONNECTIVITY_ERROR),
+    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error", ErrorType.INTERNAL_ERROR),
     PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "{0}", AppsmithErrorAction.DEFAULT, "Failed to get datasource " +
-            "structure", ErrorType.CONNECTIVITY_ERROR),
+            "structure", ErrorType.INTERNAL_ERROR),
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
             "Please increase timeout. This can be found in Settings tab of {0}.", AppsmithErrorAction.DEFAULT, "Timed" +
             " out on query execution", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_MAX_RESULT_SIZE_EXCEEDED(504, 5009, "Result size exceeded the supported"
             + " size in Appsmith. Please limit the number of data points returned.",
-            AppsmithErrorAction.DEFAULT, "Large Result Set Not Supported", null),
+            AppsmithErrorAction.DEFAULT, "Large Result Set Not Supported", ErrorType.INTERNAL_ERROR),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Timed out when fetching" +
             " datasource structure", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_DATASOURCE_ARGUMENT_ERROR(500, 5004, "{0}", AppsmithErrorAction.DEFAULT, "Datasource configuration is " +
-            "invalid", ErrorType.CONNECTIVITY_ERROR),
-    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT, "Query configuration is invalid", ErrorType.CONNECTIVITY_ERROR),
+            "invalid", ErrorType.ARGUMENT_ERROR),
+    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT, "Query configuration is invalid", ErrorType.ARGUMENT_ERROR),
     PLUGIN_JSON_PARSE_ERROR(500, 5006, "Plugin failed to parse JSON \"{0}\" with error: {1}",
-            AppsmithErrorAction.DEFAULT, "Invalid JSON found", ErrorType.CONNECTIVITY_ERROR),
+            AppsmithErrorAction.DEFAULT, "Invalid JSON found", ErrorType.INTERNAL_ERROR),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid", ErrorType.CONFIGURATION_ERROR),
+            AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid", ErrorType.INTERNAL_ERROR),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when connecting to " +
             "datasource", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_AUTHENTICATION_ERROR(401, 4000, "Invalid authentication credentials. Please check datasource configuration.",
-            AppsmithErrorAction.DEFAULT, "Datasource authentication error", ErrorType.CONNECTIVITY_ERROR),
+            AppsmithErrorAction.DEFAULT, "Datasource authentication error", ErrorType.AUTHENTICATION_ERROR),
     ;
 
     private final Integer httpErrorCode;
