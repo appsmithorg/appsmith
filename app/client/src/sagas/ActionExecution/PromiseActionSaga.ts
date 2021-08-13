@@ -9,7 +9,6 @@ import log from "loglevel";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { Toaster } from "components/ads/Toast";
-import { createMessage, ERROR_PLUGIN_ACTION_EXECUTE } from "constants/messages";
 import { Variant } from "components/ads/common";
 
 export class TriggerFailureError extends Error {
