@@ -71,7 +71,7 @@ export const GetNavigationMenuData = ({
       children: [
         {
           text: "Edit Mode",
-          label: "E",
+          label: "V",
           onClick: () => setCommentModeInUrl(false),
           type: MenuTypes.MENU,
           isVisible: true,

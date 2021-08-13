@@ -18,7 +18,10 @@
   "datasourceCardMenu": ".t--datasource-menu-option",
   "datasourceMenuOptionEdit": "t--datasource-option-edit",
   "datasourceMenuOptionDelete":"t--datasource-option-delete",
+  "editDatasource": ".t--edit-datasource",
+  "datasourceTitle": ".t--edit-datasource-name .bp3-editable-text-content",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
+  "datasourceConfigurationProperty":"input[name='datasourceConfiguration.properties[0]']",
   "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']",
   "Mysql": ".t--plugin-name:contains('Mysql')",
   "ElasticSearch": ".t--plugin-name:contains('ElasticSearch')",
@@ -42,5 +45,7 @@
   "saveAndAuthorize": "button:contains('Save and Authorize')",
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
-  "basicPassword": "input[name='authentication.password']"
+  "basicPassword": "input[name='authentication.password']",
+  "mockUserDatabase":"div[id='mock-database'] span:contains('users')",
+  "mockUserDatasources":".t--datasource-name:contains('USERS - Mock')"
 }
