@@ -345,7 +345,7 @@
         "dataType": "string",
         "body": {
             "title": "Binding an object onto the text widget",
-            "snippet": "let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;",
+            "snippet": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\n\");return my_string;})()",
             "isTrigger": false,
             "args": [
                 {
@@ -357,7 +357,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;",
+                    "code": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\n\");return my_string;})()",
                     "summary": ""
                 }
             ]

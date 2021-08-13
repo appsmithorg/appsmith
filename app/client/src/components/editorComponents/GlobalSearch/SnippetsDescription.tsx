@@ -25,7 +25,7 @@ import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
 import { useRef } from "react";
 
-const SnippetContainer = styled.div`
+const SnippetContainer = styled.div<{ isCopied?: boolean }>`
   display: flex;
   flex-direction: column;
   .snippet-title {
@@ -84,9 +84,11 @@ const SnippetContainer = styled.div`
           margin-right: 5px;
         }
         .copy-snippet-btn {
-          border: 2px solid #a9a7a7;
-          color: #a9a7a7;
+          border: 2px solid
+            ${(props) => (props.isCopied ? "#f86a2b" : "#a9a7a7")};
+          color: ${(props) => (props.isCopied ? "#f86a2b" : "#a9a7a7")};
           background: white;
+          transition: 0.5s;
         }
       }
     }
@@ -101,7 +103,7 @@ const SnippetContainer = styled.div`
   }
 `;
 
-const getSnippet = (snippet: string, args: any) => {
+export const getSnippet = (snippet: string, args: any) => {
   const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
     const substitution = (args[capture] || "")
@@ -138,7 +140,7 @@ export default function SnippetDescription(props: any) {
   const evaluatedSnippet = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
   );
-  const [copySnippetBtnText, setCopySnippetBtnText] = useState("Copy Snippet");
+  const [isCopied, setIsCopied] = useState(false);
   const tabs = [
     {
       key: "Snippet",
@@ -235,14 +237,14 @@ export default function SnippetDescription(props: any) {
                   className="copy-snippet-btn"
                   onClick={() => {
                     copy(getSnippet(snippet, selectedArgs));
-                    setCopySnippetBtnText("Copied");
+                    setIsCopied(true);
                     setTimeout(() => {
-                      setCopySnippetBtnText("Copy Snippet");
-                    }, 1000);
+                      setIsCopied(false);
+                    }, 3000);
                   }}
                   size={Size.medium}
                   tag="button"
-                  text={copySnippetBtnText}
+                  text={isCopied ? "Copied" : "Copy Snippet"}
                   type="button"
                 />
               </div>
@@ -266,7 +268,7 @@ export default function SnippetDescription(props: any) {
     });
   }
   return (
-    <SnippetContainer ref={ref}>
+    <SnippetContainer isCopied={isCopied} ref={ref}>
       <div className="snippet-title">
         <span>{title}</span>
         <span className="action-msg">Hit ⏎ to insert</span>

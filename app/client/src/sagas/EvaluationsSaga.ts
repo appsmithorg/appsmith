@@ -266,13 +266,17 @@ export function* evaluateSnippetSaga(action: any) {
         isTrigger,
       },
     );
-    const { result, triggers } = workerResponse;
+    const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {
       yield call(executeActionTriggers, triggers[0], {
         type: EventType.ON_SNIPPET_EXECUTE,
       });
     } else {
-      yield put(setEvaluatedSnippet(result));
+      yield put(
+        errors && errors.length
+          ? setEvaluatedSnippet(JSON.stringify(errors))
+          : setEvaluatedSnippet(result),
+      );
     }
   } catch (e) {
     log.error(e);

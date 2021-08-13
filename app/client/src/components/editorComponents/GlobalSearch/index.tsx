@@ -420,7 +420,11 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (item: any) => {
-    dispatch(insertSnippet(item.body.snippet));
+    dispatch(
+      insertSnippet(
+        item.body.snippet.replaceAll("{{", "").replaceAll("}}", ""),
+      ),
+    );
     toggleShow();
   };
 
