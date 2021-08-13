@@ -15,12 +15,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @Document
 public class PasswordResetToken extends BaseDomain {
-
     String tokenHash;
-
-    //Password Reset Token should be valid only for a specified amount of time.
     String email;
-
     int requestCount; // number of requests in last 24 hours
-    Instant firstRequestTime; // first time request was generated in last 24 hours
+    Instant firstRequestTime; // when a request was first generated in last 24 hours
 }

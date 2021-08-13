@@ -526,7 +526,7 @@ public class UserServiceTest {
         Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
 
         StepVerifier.create(userService.verifyPasswordResetToken(getEncodedToken(testEmail, "123456789")))
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.EMAIL, testEmail))
+                .expectErrorMessage(AppsmithError.INVALID_PASSWORD_RESET.getMessage())
                 .verify();
     }
 
@@ -570,7 +570,7 @@ public class UserServiceTest {
         Mockito.when(passwordResetTokenRepository.findByEmail(testEmail)).thenReturn(Mono.empty());
 
         StepVerifier.create(userService.resetPasswordAfterForgotPassword(token, null))
-                .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.EMAIL, testEmail))
+                .expectErrorMessage(AppsmithError.INVALID_PASSWORD_RESET.getMessage())
                 .verify();
 
         // ** check if token present but hash does not match ** //
