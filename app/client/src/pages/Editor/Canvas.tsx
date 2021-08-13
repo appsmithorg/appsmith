@@ -25,24 +25,26 @@ interface CanvasProps {
 
 const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
 
+const shareMousePointer = (e: any, pageId: string) => {
+  if (pageEditSocket) {
+    const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
+    const rect = selectionCanvas.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    pageEditSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
+      data: { x, y },
+      pageId,
+    });
+  }
+};
+
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
-  const shareMousePointer = (e: any) => {
-    if (!!pageEditSocket) {
-      const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
-      const rect = selectionCanvas.getBoundingClientRect();
 
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      pageEditSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
-        data: { x, y },
-        pageId,
-      });
-    }
-  };
   const delayedShareMousePointer = useCallback(
-    throttle((e) => shareMousePointer(e), 50, { trailing: false }),
+    throttle((e) => shareMousePointer(e, pageId), 50, { trailing: false }),
     [shareMousePointer],
   );
   try {
