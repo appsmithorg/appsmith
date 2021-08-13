@@ -1,6 +1,6 @@
-import { DataType } from "utils/autocomplete/TernServer";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-const RULES: Record<DataType, Array<string>> = {
+const RULES: Record<AutocompleteDataType, Array<string>> = {
   STRING: [
     "INPUT_WIDGET.text",
     "RICH_TEXT_EDITOR_WIDGET.text",
