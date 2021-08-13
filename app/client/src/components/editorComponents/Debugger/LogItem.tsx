@@ -197,6 +197,10 @@ function LogItem(props: LogItemProps) {
 
   const openHelpModal = useCallback((e, error?: Message) => {
     e.stopPropagation();
+
+    // If the error message was clicked we use that, else if the wand icon is clicked
+    // we use the first error "Message" in the list
+    // This is of type Message { message: string; type?: ErrorType; }
     const focusedError =
       error ||
       (props.messages && props.messages.length ? props.messages[0] : undefined);
