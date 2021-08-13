@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MenuItem, Classes, Button as BButton, Tag } from "@blueprintjs/core";
+import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
   CellCheckboxWrapper,

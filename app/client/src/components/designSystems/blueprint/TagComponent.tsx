@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { Tag } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 
