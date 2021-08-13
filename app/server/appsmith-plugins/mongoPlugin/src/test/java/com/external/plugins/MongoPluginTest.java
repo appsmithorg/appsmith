@@ -994,7 +994,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1028,7 +1027,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1072,7 +1070,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1118,7 +1115,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1154,7 +1150,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1200,7 +1195,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1247,7 +1241,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1277,7 +1270,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1308,7 +1300,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1338,7 +1329,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1369,7 +1359,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
