@@ -16,6 +16,8 @@ import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
 import { Colors } from "constants/Colors";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { MULTI_PART_DROPDOWN_OPTIONS } from "constants/ApiEditorConstants";
 
 enum MultiPartOptionTypes {
   TEXT = "Text",
