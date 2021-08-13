@@ -188,6 +188,11 @@ function ColorPickerComponent(props: ColorPickerProps) {
           )
         }
         onBlur={() => {
+          // Case 1
+          // On Tab key press Input loses focus and onKeyUp handler is not called
+          // To handle Tab key press onBlur event is used instead
+          // As input will lose focus on Tab press
+          // Case 2
           // if user clicks on ColorBoard blur is called first and color is not updated
           // to prevent that make sure to wait for color update before onBlur
           setTimeout(() => {
