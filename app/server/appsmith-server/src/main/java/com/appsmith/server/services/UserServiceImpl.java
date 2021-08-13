@@ -294,7 +294,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
@@ -317,7 +317,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         EmailTokenDTO emailTokenDTO;
         try {
             emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
