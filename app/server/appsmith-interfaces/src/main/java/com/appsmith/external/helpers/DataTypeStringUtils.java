@@ -244,7 +244,7 @@ public class DataTypeStringUtils {
                 try {
                     replacement = escapeSpecialCharacters(replacement);
                     String valueAsString = objectMapper.writeValueAsString(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(valueAsString);
+                    input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
