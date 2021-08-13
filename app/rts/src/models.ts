@@ -42,4 +42,5 @@ export interface Comment {
     updatedAt: string
     creationTime: string
     updationTime: string
+    deleted: boolean
 }

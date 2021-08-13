@@ -180,7 +180,6 @@ async function watchMongoDB(io) {
 			{
 				$unset: [
 					"deletedAt",
-					"deleted",
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
@@ -189,7 +188,13 @@ async function watchMongoDB(io) {
 	);
 
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
+		let eventName = event.operationType + ":" + event.ns.coll
+
 		const comment: Comment = event.fullDocument
+		if(comment.deleted) {
+			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
+		}
+		
 		const { applicationId }: CommentThread = await threadCollection.findOne(
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
@@ -197,8 +202,10 @@ async function watchMongoDB(io) {
 
 		comment.creationTime = comment.createdAt
 		comment.updationTime = comment.updatedAt
+		
 		delete comment.createdAt
 		delete comment.updatedAt
+		delete comment.deleted
 
 		let target = io
 		let shouldEmit = false
@@ -209,7 +216,6 @@ async function watchMongoDB(io) {
 		}
 
 		if (shouldEmit) {
-			const eventName = event.operationType + ":" + event.ns.coll
 			target.emit(eventName, { comment })
 		}
 	})
@@ -220,7 +226,6 @@ async function watchMongoDB(io) {
 			{
 				$unset: [
 					"deletedAt",
-					"deleted",
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
@@ -229,7 +234,13 @@ async function watchMongoDB(io) {
 	);
 
 	threadChangeStream.on("change", async (event: mongodb.ChangeEventCR) => {
+		let eventName = event.operationType + ":" + event.ns.coll
+		
 		const thread = event.fullDocument
+		if(thread.deleted) {
+			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
+		}
+		
 		if (thread == null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			console.error("Null document recieved for comment change event", event)
@@ -238,8 +249,11 @@ async function watchMongoDB(io) {
 
 		thread.creationTime = thread.createdAt
 		thread.updationTime = thread.updatedAt
+		
 		delete thread.createdAt
 		delete thread.updatedAt
+		delete thread.deleted
+
 		thread.isViewed = false
 
 		let target = io
@@ -251,7 +265,6 @@ async function watchMongoDB(io) {
 		}
 
 		if (shouldEmit) {
-			const eventName = event.operationType + ":" + event.ns.coll
 			target.emit(eventName, { thread })
 		}
 	})
