@@ -98,7 +98,7 @@ public class EnvManager {
                     try {
                         Files.write(Path.of(envFilePath), changedContent);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("Unable to write to env file " + envFilePath, e);
                         return Mono.just(false);
                     }
 
