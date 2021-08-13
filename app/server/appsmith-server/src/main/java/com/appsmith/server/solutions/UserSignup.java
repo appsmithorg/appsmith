@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
@@ -126,7 +127,10 @@ public class UserSignup {
                 .flatMap(user -> signupAndLogin(user, exchange))
                 .then()
                 .onErrorResume(error -> {
-                    final String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer == null) {
+                        referer = DEFAULT_ORIGIN_HEADER;
+                    }
                     final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
                     URI redirectUri;
                     try {
