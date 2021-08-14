@@ -76,6 +76,11 @@ const SnippetContainer = styled.div`
       overflow: hidden;
       margin-top: 2px;
       border-top: 1px solid #f0f0f0;
+      code {
+        .token.arrow {
+          background: transparent !important;
+        }
+      }
       .actions-container {
         display: flex;
         margin: 15px 0;
