@@ -56,10 +56,7 @@ export const generateQuickCommands = (
           entityType: currentEntityType,
           expectedType: expectedType,
           entityId: entityId,
-          propertyPath: propertyPath
-            .split(".")
-            .slice(-1)
-            .pop(),
+          propertyPath: propertyPath,
         },
       }),
   });

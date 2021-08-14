@@ -92,7 +92,11 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  createNewQueryName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
   toggleShowGlobalSearchModal,
@@ -102,7 +106,11 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetById } from "./selectors";
+import {
+  onApiEditor,
+  onQueryEditor,
+} from "components/editorComponents/Debugger/helpers";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -779,12 +787,20 @@ function* executeCommand(
 ) {
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
+  const params: any = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      const { entityId, entityType, expectedType, propertyPath } = get(
-        actionPayload,
-        "payload.args",
-      );
+      let { entityId, entityType } = get(actionPayload, "payload.args");
+      const { expectedType, propertyPath } = get(actionPayload, "payload.args");
+      if (!entityId) {
+        const currentEntity = yield getCurrentEntity(
+          applicationId,
+          pageId,
+          params,
+        );
+        entityId = currentEntity.entityId;
+        entityType = currentEntity.entityType;
+      }
       const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
@@ -859,6 +875,25 @@ function* executeCommand(
   }
 }
 
+function* getCurrentEntity(applicationId: string, pageId: string, params: any) {
+  let entityId = "",
+    entityType = "";
+  if (
+    onApiEditor(applicationId, pageId) ||
+    onQueryEditor(applicationId, pageId)
+  ) {
+    const id = params.apiId || params.queryId;
+    const action = yield select(getAction, id);
+    entityId = action.actionId;
+    entityType = ENTITY_TYPE.ACTION;
+  } else {
+    const widget = yield select(getSelectedWidget);
+    entityId = widget.widgetId;
+    entityType = ENTITY_TYPE.WIDGET;
+  }
+  return { entityId, entityType };
+}
+
 function* buildMetaForSnippets(
   entityId: any,
   entityType: string,
@@ -866,23 +901,33 @@ function* buildMetaForSnippets(
   propertyPath: string,
 ) {
   const refinements: any = {};
-  const fieldMeta = {
+  const fieldMeta: any = {
     dataType: expectedType,
-    fields: `${propertyPath}<score=2>`,
   };
+  if (propertyPath) {
+    const relevantField = propertyPath
+      .split(".")
+      .slice(-1)
+      .pop();
+    fieldMeta.fields = `${relevantField}<score=2>`;
+  }
   let currentEntity, type;
-  if (entityType === ENTITY_TYPE.ACTION) {
+  if (entityType === ENTITY_TYPE.ACTION && entityId) {
     currentEntity = yield select(getActionById, {
       match: { params: { apiId: entityId } },
     });
     const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "").toLowerCase().split("-");
+    type = (plugin.packageName || "").toLowercase().split("-")[0];
     refinements.entities = [entityType.toLowerCase()].concat(type);
   }
-  if (entityType === ENTITY_TYPE.WIDGET) {
+  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     currentEntity = yield select(getWidgetById, entityId);
-    type = currentEntity.type.toLowerCase().split("_");
-    refinements.entities = type;
+    type = (currentEntity.type || "")
+      .replace("_WIDGET", "")
+      .toLowerCase()
+      .split("_")
+      .join("");
+    refinements.entities = [type];
   }
   return { refinements, fieldMeta };
 }

@@ -5,7 +5,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "array",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
             "snippet": "{{data}}.filter((item) => {return item.{{key}} === {{value}};});",
@@ -119,7 +119,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "array",
         "body": {
             "title": "Merge multiple objects from queries into a single array",
             "snippet": "{{Var1}}.concat({{Var2}}, {{Var3}});",
@@ -161,7 +161,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "array",
         "body": {
             "title": "Removing duplicate values from an array",
             "snippet": "(function(){let JSONObject = {{your_array}}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;})()",
@@ -184,10 +184,10 @@
     },
     {
         "entities": [
-            "select"
+            "dropdown"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "array",
         "body": {
             "title": "Creating a select widget options list from a query",
             "snippet": "{{arg1}}.map((item) => { return { label: item.{{arg2}}, value: item.{{arg2}} }; });",
@@ -214,11 +214,11 @@
     },
     {
         "entities": [
-            "select",
+            "dropdown",
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Updating queries when options are changed from the select widget",
             "snippet": "if( {{selectBox}}.selectedOptionValue === {{selectOption}}) { {{QueryOne}}.run();} else { {{QueryTwo}}.run();}",
@@ -395,7 +395,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Configuring multiple actions on button click",
             "snippet": "{{query1}}.run(() => {showAlert({{successMessage}}, \"info\");storeValue({{key}}, {{queryData}});navigateTo({{pageName}});});",
@@ -438,7 +438,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Open a modal and run a query on button click",
             "snippet": "showModal({{modalName}});{{query}}.run();",
@@ -469,7 +469,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Run an API, close modal and show alert",
             "snippet": "{{query}}.run(() => {closeModal({{modalName}});showAlert({{alertMessage}});})",
@@ -505,7 +505,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Running multiple queries in series",
             "snippet": "{{query1}}.run(() => {{query2}}.run(() => {{query3}}.run()));",
@@ -541,7 +541,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Running multiple queries in parallel",
             "snippet": "{{query1}}.run();{{query2}}.run();",
@@ -572,7 +572,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "function",
         "body": {
             "title": "Displaying alerts for workflows",
             "snippet": "{{query1}}.run(() => {{{query2}}.run(() => {showAlert({{successMessage}}); },() => showAlert({{errorMessage}}) );},() => showAlert({{errorMessage}}, \"error\"));",
