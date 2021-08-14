@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Spinner from "./Spinner";
 
-type ToggleProps = CommonComponentProps & {
+export type ToggleProps = CommonComponentProps & {
   onToggle: (value: boolean) => void;
   value: boolean;
 };
@@ -29,7 +29,7 @@ const StyledToggle = styled.label<{
     left: 0;
     background-color: ${(props) =>
       props.isLoading
-        ? props.theme.colors.toggle.disable.off
+        ? props.theme.colors.toggle.spinnerBg
         : props.theme.colors.toggle.bg};
     transition: 0.4s;
     width: 46px;
@@ -74,11 +74,11 @@ const StyledToggle = styled.label<{
   }
 
   input:focus + .slider:before {
-    ${(props) => (props.value ? "opacity: 0.6" : "opacity: 0.7")};
+    "opacity: 0.67";
   }
 
   input:disabled + .slider:before {
-    ${(props) => (props.value ? "opacity: 0.24" : "opacity: 1")};
+    "opacity: 0.78";
   }
 
   input:checked + .slider:before {
@@ -100,9 +100,11 @@ const StyledToggle = styled.label<{
   input:disabled + .slider {
     cursor: not-allowed;
     background-color: ${(props) =>
-      props.value && !props.isLoading
-        ? props.theme.colors.toggle.disable.on
-        : props.theme.colors.toggle.disable.off};
+      !props.isLoading
+        ? props.value
+          ? props.theme.colors.toggle.disable.on
+          : props.theme.colors.toggle.disable.off
+        : props.theme.colors.toggle.spinnerBg};
   }
 
   .${Classes.SPINNER} {

@@ -798,6 +798,7 @@ type ColorType = {
       off: ShadeColor;
     };
     spinner: ShadeColor;
+    spinnerBg: ShadeColor;
   };
   textInput: {
     disable: {
@@ -1636,6 +1637,7 @@ export const dark: ColorType = {
       off: darkShades[5],
     },
     spinner: darkShades[6],
+    spinnerBg: darkShades[4],
   },
   textInput: {
     disable: {
@@ -2190,20 +2192,21 @@ export const light: ColorType = {
     icon: lightShades[7],
   },
   toggle: {
-    bg: lightShades[4],
+    bg: lightShades[13],
     hover: {
-      on: "#E4500E",
+      on: "#BF4109",
       off: lightShades[5],
     },
     disable: {
-      on: "#FDE0D2",
-      off: lightShades[3],
+      on: "#FEEDE5",
+      off: lightShades[13],
     },
     disabledSlider: {
       off: lightShades[11],
       on: lightShades[11],
     },
-    spinner: lightShades[6],
+    spinner: lightShades[5],
+    spinnerBg: lightShades[3],
   },
   textInput: {
     disable: {

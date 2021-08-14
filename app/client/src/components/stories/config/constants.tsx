@@ -13,6 +13,10 @@ export const storyName = {
         PATH: "Platform/Form/TextInput",
         NAME: "TextInput",
       },
+      toggle: {
+        PATH: "Platform/Form/Toggle",
+        NAME: "Toggle",
+      },
     },
   },
 };
