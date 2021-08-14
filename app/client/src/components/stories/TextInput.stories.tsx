@@ -18,7 +18,21 @@ export default {
 };
 
 export function Primary(args: TextInputProps) {
-  return <TextInput {...args} onChange={action("value changed")} />;
+  const validator = () => {
+    return args.validator
+      ? { isValid: true, message: "" }
+      : {
+          isValid: false,
+          message: "This is a warning text for the above field.",
+        };
+  };
+  return (
+    <TextInput
+      {...args}
+      onChange={action("value changed")}
+      validator={validator}
+    />
+  );
 }
 
 Primary.args = {
@@ -30,6 +44,7 @@ Primary.args = {
   leftIcon: undefined,
   helperText: "",
   disabled: false,
+  validator: true,
 };
 
 Primary.argTypes = {
@@ -73,6 +88,11 @@ Primary.argTypes = {
   helperText: {
     control: controlType.TEXT,
     description: "string",
+  },
+  validator: {
+    control: controlType.BOOLEAN,
+    description: "function",
+    defaultValue: true,
   },
 };
 
