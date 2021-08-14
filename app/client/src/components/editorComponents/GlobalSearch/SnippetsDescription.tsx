@@ -15,6 +15,7 @@ import CodeEditor from "../CodeEditor";
 import Button, { Size } from "components/ads/Button";
 import {
   evaluateSnippet,
+  setEvaluatedSnippet,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
 import { useSelector } from "store";
@@ -73,7 +74,7 @@ const SnippetContainer = styled.div`
     .react-tabs__tab-panel {
       background: white !important;
       height: auto !important;
-      overflow: hidden;
+      overflow: clip;
       margin-top: 2px;
       border-top: 1px solid #f0f0f0;
       code {
@@ -133,18 +134,30 @@ export default function SnippetDescription(props: any) {
       returnType,
     },
   } = props;
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0),
+    [selectedArgs, setSelectedArgs] = useState<any>({}),
+    dispatch = useDispatch(),
+    evaluatedSnippet = useSelector(
+      (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
+    ),
+    [isCopied, setIsCopied] = useState(false),
+    executionInProgress = useSelector(
+      (state: AppState) =>
+        state.ui.globalSearch.filterContext.executionInProgress,
+    );
+
+  useEffect(() => {
+    document
+      .querySelector("#snippet-evaluator")
+      ?.scrollIntoView({ behavior: "smooth" });
+  }, [evaluatedSnippet]);
+
   useEffect(() => {
     setSelectedIndex(0);
-    setGlobalSearchFilterContext({ evaluatedSnippet: "" });
+    setEvaluatedSnippet("");
     setSelectedArgs({});
   }, [objectID]);
-  const [selectedArgs, setSelectedArgs] = useState<any>({});
-  const dispatch = useDispatch();
-  const evaluatedSnippet = useSelector(
-    (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
-  );
-  const [isCopied, setIsCopied] = useState(false);
+
   const tabs = [
     {
       key: "Snippet",
@@ -223,7 +236,13 @@ export default function SnippetDescription(props: any) {
               <div className="actions-container">
                 <Button
                   className="t--apiFormRunBtn"
+                  disabled={executionInProgress}
                   onClick={() => {
+                    dispatch(
+                      setGlobalSearchFilterContext({
+                        executionInProgress: true,
+                      }),
+                    );
                     dispatch(
                       evaluateSnippet({
                         expression: getSnippet(snippet, selectedArgs),
@@ -252,18 +271,20 @@ export default function SnippetDescription(props: any) {
                   type="button"
                 />
               </div>
-              {evaluatedSnippet && (
-                <div className="snippet-group">
-                  <div className="header">Evaluated Snippet</div>
-                  <div className="content">
-                    <ReadOnlyEditor
-                      folding
-                      height="300px"
-                      input={{ value: evaluatedSnippet }}
-                    />
+              <div id="snippet-evaluator">
+                {evaluatedSnippet && (
+                  <div className="snippet-group">
+                    <div className="header">Evaluated Snippet</div>
+                    <div className="content">
+                      <ReadOnlyEditor
+                        folding
+                        height="300px"
+                        input={{ value: evaluatedSnippet }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </>
         ) : (

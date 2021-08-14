@@ -17,6 +17,7 @@ const initialState: GlobalSearchReduxState = {
     fieldMeta: {},
     refinements: {},
     evaluatedSnippet: "",
+    executionInProgress: false,
   },
 };
 
@@ -89,6 +90,7 @@ export interface GlobalSearchReduxState {
       field?: string;
     };
     evaluatedSnippet: string;
+    executionInProgress: boolean;
   };
 }
 

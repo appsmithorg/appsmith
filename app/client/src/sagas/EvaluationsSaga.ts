@@ -43,9 +43,19 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { setEvaluatedSnippet } from "actions/globalSearchActions";
+import {
+  setEvaluatedSnippet,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
 import { executeActionTriggers } from "./ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  SNIPPET_EXECUTION_FAILED,
+  SNIPPET_EXECUTION_SUCCESS,
+} from "constants/messages";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -274,11 +284,29 @@ export function* evaluateSnippetSaga(action: any) {
     } else {
       yield put(
         errors && errors.length
-          ? setEvaluatedSnippet(JSON.stringify(errors))
-          : setEvaluatedSnippet(result),
+          ? setEvaluatedSnippet(JSON.stringify(errors, null, 2))
+          : setEvaluatedSnippet(JSON.stringify(result, null, 2)),
       );
     }
+    Toaster.show({
+      text: createMessage(
+        errors && errors.length
+          ? SNIPPET_EXECUTION_FAILED
+          : SNIPPET_EXECUTION_SUCCESS,
+      ),
+      variant: errors && errors.length ? Variant.danger : Variant.success,
+    });
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
   } catch (e) {
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
     log.error(e);
     Sentry.captureException(e);
   }
