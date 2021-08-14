@@ -20,7 +20,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
-import Text, { TextType } from "components/ads/Text";
+import Text, { TextType, FontWeight } from "components/ads/Text";
 
 type Props = {
   googleSheetPluginId: string;
@@ -335,13 +335,15 @@ function GoogleSheetForm(props: Props) {
           <ColumnInfoWrapper>
             {columnHeaderList.length ? (
               <>
-                <Text type={TextType.P3}>Column Headers fetched :&nbsp; </Text>
+                <Text type={TextType.P3} weight={FontWeight.BOLD}>
+                  Column Headers fetched :&nbsp;{" "}
+                </Text>
                 {columnHeaderList
                   .slice(0, MAX_COLUMNS_VISIBLE)
                   .map((column, index) => (
                     <ColumnNameWrapper key={column.id}>
                       <ColumnName>{column.label}</ColumnName>
-                      {columnHeaderList.length === index - 1 ? null : (
+                      {columnHeaderList.length - 1 === index ? null : (
                         <ColumnName>,&nbsp;</ColumnName>
                       )}
                     </ColumnNameWrapper>
