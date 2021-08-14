@@ -495,7 +495,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const widgetAddButton = allAddEntityButtons[1];
     act(() => {
       fireEvent.click(widgetAddButton);
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     const containerButton: any = component.queryByText("Container");
 
