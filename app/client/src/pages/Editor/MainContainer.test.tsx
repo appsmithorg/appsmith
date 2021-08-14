@@ -134,7 +134,7 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -230,7 +230,7 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -333,7 +333,7 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -393,7 +393,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     act(() => {
       fireEvent.dragStart(tabsWidget);
-      //   jest.runAllTimers();
+      //   // jest.runAllTimers();
     });
 
     const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
@@ -431,7 +431,7 @@ describe("Drag and Drop widgets into Main container", () => {
           },
         ),
       );
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     let updatedDropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
@@ -455,7 +455,7 @@ describe("Drag and Drop widgets into Main container", () => {
           },
         ),
       );
-      jest.runAllTimers();
+      // jest.runAllTimers();
     });
     updatedDropTarget = component.container.getElementsByClassName(
       "t--drop-target",
@@ -495,7 +495,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const widgetAddButton = allAddEntityButtons[1];
     act(() => {
       fireEvent.click(widgetAddButton);
-      // jest.runAllTimers();
+      // // jest.runAllTimers();
     });
     const containerButton: any = component.queryByText("Container");
 
