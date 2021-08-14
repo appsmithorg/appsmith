@@ -48,6 +48,7 @@ import {
   QUERIES_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
@@ -88,7 +89,7 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import {
   getAppMode,
   getCurrentApplication,
@@ -759,6 +760,7 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
       INTEGRATION_EDITOR_URL(),
+      SAAS_EDITOR_API_ID_URL(),
     ],
     exact: true,
     strict: false,

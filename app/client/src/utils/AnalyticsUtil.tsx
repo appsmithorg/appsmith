@@ -137,6 +137,10 @@ export type EventName =
   | "GEN_CRUD_PAGE_SELECT_DATASOURCE"
   | "GEN_CRUD_PAGE_SELECT_TABLE"
   | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
+  | "BUILD_FROM_SCRATCH_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_ACTION_CARD_CLICK"
+  | "GEN_CRUD_PAGE_DATA_SOURCE_CLICK"
   | "DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION"
   | "DATASOURCE_CARD_DELETE_ACTION"
   | "DATASOURCE_CARD_EDIT_ACTION"
@@ -149,7 +153,8 @@ export type EventName =
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
-  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK";
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "PAGES_LIST_LOAD";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -236,17 +241,12 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
-      const app = (userData.applications || []).find(
-        (app: any) => app.id === appId,
-      );
       let user: any = {};
       if (segment.enabled && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
           appId: appId,
-          appName: app ? app.name : undefined,
           source: "cloud",
         };
       } else {
