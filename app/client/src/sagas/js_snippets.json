@@ -190,15 +190,19 @@
         "dataType": "array",
         "body": {
             "title": "Creating a select widget options list from a query",
-            "snippet": "{{arg1}}.map((item) => { return { label: item.{{arg2}}, value: item.{{arg2}} }; });",
+            "snippet": "{{query}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute1}} }; });",
             "isTrigger": false,
             "args": [
                 {
-                    "name": "arg1",
+                    "name": "query",
                     "type": "array"
                 },
                 {
-                    "name": "arg2",
+                    "name": "attribute1",
+                    "type": "string"
+                },
+                {
+                    "name": "attribute2",
                     "type": "string"
                 }
             ],
