@@ -23,9 +23,8 @@ import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
-import { useRef } from "react";
 
-const SnippetContainer = styled.div<{ isCopied?: boolean }>`
+const SnippetContainer = styled.div`
   display: flex;
   flex-direction: column;
   .snippet-title {
@@ -84,9 +83,8 @@ const SnippetContainer = styled.div<{ isCopied?: boolean }>`
           margin-right: 5px;
         }
         .copy-snippet-btn {
-          border: 2px solid
-            ${(props) => (props.isCopied ? "#f86a2b" : "#a9a7a7")};
-          color: ${(props) => (props.isCopied ? "#f86a2b" : "#a9a7a7")};
+          border: 2px solid #a9a7a7;
+          color: #a9a7a7;
           background: white;
           transition: 0.5s;
         }
@@ -126,15 +124,16 @@ export default function SnippetDescription(props: any) {
         title,
       },
       language,
+      objectID,
       returnType,
     },
   } = props;
   const [selectedIndex, setSelectedIndex] = useState(0);
   useEffect(() => {
     setSelectedIndex(0);
-    setGlobalSearchFilterContext({ evaluateSnippet: "" });
-  }, [title]);
-  const ref = useRef<HTMLDivElement>(null);
+    setGlobalSearchFilterContext({ evaluatedSnippet: "" });
+    setSelectedArgs({});
+  }, [objectID]);
   const [selectedArgs, setSelectedArgs] = useState<any>({});
   const dispatch = useDispatch();
   const evaluatedSnippet = useSelector(
@@ -236,7 +235,7 @@ export default function SnippetDescription(props: any) {
                 <Button
                   className="copy-snippet-btn"
                   onClick={() => {
-                    copy(getSnippet(snippet, selectedArgs));
+                    copy(`{{ ${getSnippet(snippet, selectedArgs)} }}`);
                     setIsCopied(true);
                     setTimeout(() => {
                       setIsCopied(false);
@@ -268,7 +267,7 @@ export default function SnippetDescription(props: any) {
     });
   }
   return (
-    <SnippetContainer isCopied={isCopied} ref={ref}>
+    <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
         <span className="action-msg">Hit ⏎ to insert</span>
