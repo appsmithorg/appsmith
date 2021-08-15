@@ -22,7 +22,7 @@ ff4j:
       enable: true
       description: Enable this feature based on email ID of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: requiredKey
-            value: requiredValue
+          - name: emailDomains
+            value: appsmith.com,wazirx.com,pharmeasy.in,allround.club
