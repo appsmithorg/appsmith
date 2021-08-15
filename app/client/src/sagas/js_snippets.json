@@ -13,16 +13,16 @@
             "args": [
                 {
                     "name": "data",
-                    "type": "array",
+                    "type": "OBJECT_ARRAY",
                     "defaultValue": "Table1.tableData"
                 },
                 {
                     "name": "key",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "value",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "Merge data from two entities into a single response",
@@ -43,16 +43,16 @@
         "language": "javascript",
         "dataType": "string",
         "body": {
-            "title": "Access arrays in a nested data",
-            "snippet": "{{your_array}}.{{key}}",
+            "title": "Access attributes from a nested data",
+            "snippet": "{{your_object}}.{{key}}",
             "args": [
                 {
-                    "name": "your_array",
-                    "type": "string"
+                    "name": "your_object",
+                    "type": "OBJECT"
                 },
                 {
                     "name": "key",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "isTrigger": false,
@@ -80,27 +80,27 @@
             "args": [
                 {
                     "name": "columnValue1",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "color1",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "columnValue2",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "color2",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "tableName",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "columnName",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "You can have custom styles such as colours and backgrounds in your table widget on a particular column. Choose the column you want, open the column settings and use the following snippet in Cell Background or Text Color property.",
@@ -122,7 +122,13 @@
         "dataType": "array",
         "body": {
             "title": "Merge multiple objects from queries into a single array",
-            "snippet": "{{Var1}}.concat({{Var2}}, {{Var3}});",
+            "snippet": "{{your_array}}.concat({{Var2}}, {{Var3}});",
+            "args": [
+                {
+                    "type": "ARRAY",
+                    "name": "your_array"
+                }
+            ],
             "isTrigger": false,
             "summary": "If you have multiple objects from Queries with the same key\"s and want to bind them in a list or table widget, you can use the concat() method.",
             "examples": [
@@ -169,7 +175,7 @@
             "args": [
                 {
                     "name": "your_array",
-                    "type": "array"
+                    "type": "ARRAY"
                 }
             ],
             "summary": "When binding array data into a table widget or list widget, you may encounter duplicate values. You can use the following snippet to only bind unique values.",
@@ -190,20 +196,20 @@
         "dataType": "array",
         "body": {
             "title": "Creating a select widget options list from a query",
-            "snippet": "{{query}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute1}} }; });",
+            "snippet": "{{queryData}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute2}} }; });",
             "isTrigger": false,
             "args": [
                 {
-                    "name": "query",
-                    "type": "array"
+                    "name": "queryData",
+                    "type": "OBJECT_ARRAY"
                 },
                 {
                     "name": "attribute1",
-                    "type": "string"
+                    "type": "STRING"
                 },
                 {
                     "name": "attribute2",
-                    "type": "string"
+                    "type": "STRING"
                 }
             ],
             "summary": "When you want to create an option list from an API or DB Query, which contains an array of object\"s you can use the `map()` function and return the options in an array in the following format:`Array<{ label: string, value: string }>`",
@@ -225,7 +231,7 @@
         "dataType": "function",
         "body": {
             "title": "Updating queries when options are changed from the select widget",
-            "snippet": "if( {{selectBox}}.selectedOptionValue === {{selectOption}}) { {{QueryOne}}.run();} else { {{QueryTwo}}.run();}",
+            "snippet": "if( {{selectBox}}.selectedOptionValue === {{value}}) { {{QueryOne}}.run();} else { {{QueryTwo}}.run();}",
             "args": [
                 {
                     "type": "string",
@@ -233,7 +239,7 @@
                 },
                 {
                     "type": "string",
-                    "name": "selectOption"
+                    "name": "value"
                 },
                 {
                     "type": "string",
@@ -268,7 +274,7 @@
             "args": [
                 {
                     "name": "query",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "key",
@@ -310,11 +316,11 @@
             "args": [
                 {
                     "name": "date",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "dateFormat",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "isTrigger": false,
@@ -354,7 +360,7 @@
             "args": [
                 {
                     "name": "my_object",
-                    "type": "string"
+                    "type": "OBJECT"
                 }
             ],
             "summary": "Text Widget allows you to bind data from the APIs. When they are strings, we could directly bind them using the dot operator, but when you need the entire object with key-value pairs listed on the text widget you\"ll need to use the Object.entries method.",
@@ -380,7 +386,7 @@
             "args": [
                 {
                     "name": "your_text",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "When you want any variable onto the text widget, you can use the template literals in JavaScript.",
@@ -407,15 +413,15 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "successMessage",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "key",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "queryData",
@@ -423,7 +429,7 @@
                 },
                 {
                     "name": "pageName",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "You can configure multiple actions for buttons in Appsmith. For this, you\"ll need to use javascript in the onClick property and use the necessary methods. The following snippet does the following when clicked.",
@@ -450,11 +456,11 @@
             "args": [
                 {
                     "name": "modalName",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "query",
-                    "type": "string"
+                    "type": "OBJECT"
                 }
             ],
             "summary": "To open a new Modal on button click and run a query, you can use javascript in the onClick property. This can be handy when you want to render any data on the Modal.",
@@ -481,15 +487,15 @@
             "args": [
                 {
                     "name": "query",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "modalName",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "alertMessage",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "",
@@ -517,15 +523,15 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "query2",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "query3",
-                    "type": "string"
+                    "type": "OBJECT"
                 }
             ],
             "summary": "If you want to run two APIs in series on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
@@ -553,11 +559,11 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "query2",
-                    "type": "string"
+                    "type": "OBJECT"
                 }
             ],
             "summary": "If you want to run two APIs in parallel on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
@@ -584,19 +590,19 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "query2",
-                    "type": "string"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "successMessage",
-                    "type": "string"
+                    "type": "TEXT"
                 },
                 {
                     "name": "errorMessage",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "You might often want to notify users with alerts, after executing queries or when performing certain actions on Appsmith. To do this, you can use showAlert method with javascript.",

@@ -44,6 +44,7 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
+  setEvaluatedArgument,
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
@@ -307,6 +308,27 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateArgumentSaga(action: any) {
+  const { name, type, value } = action.payload;
+  try {
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression: value,
+      },
+    );
+    yield put(
+      setEvaluatedArgument({
+        [name]: { type, value: workerResponse.result, name },
+      }),
+    );
+  } catch (e) {
     log.error(e);
     Sentry.captureException(e);
   }

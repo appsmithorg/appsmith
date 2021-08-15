@@ -31,9 +31,27 @@ export const evaluateSnippet = (payload: {
   payload,
 });
 
+export const evaluateArgument = (payload: {
+  name: string;
+  type: string;
+  value: string;
+}) => ({
+  type: ReduxActionTypes.EVALUATE_ARGUMENT,
+  payload,
+});
+
 export const setEvaluatedSnippet = (payload: any) => ({
   type: ReduxActionTypes.SET_EVALUATED_SNIPPET,
   payload,
+});
+
+export const setEvaluatedArgument = (payload: any) => ({
+  type: ReduxActionTypes.SET_EVALUATED_ARGUMENT,
+  payload,
+});
+
+export const unsetEvaluatedArgument = () => ({
+  type: ReduxActionTypes.UNSET_EVALUATED_ARGUMENT,
 });
 
 export const insertSnippet = (payload: string) => ({

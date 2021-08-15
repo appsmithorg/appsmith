@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
@@ -14,9 +14,11 @@ import {
 import CodeEditor from "../CodeEditor";
 import Button, { Size } from "components/ads/Button";
 import {
+  evaluateArgument,
   evaluateSnippet,
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
+  unsetEvaluatedArgument,
 } from "actions/globalSearchActions";
 import { useSelector } from "store";
 import { AppState } from "reducers";
@@ -24,6 +26,13 @@ import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
+import { validate } from "workers/validations";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+import { debounce } from "lodash";
+import { bindingHint } from "../CodeEditor/hintHelpers";
 
 const SnippetContainer = styled.div`
   display: flex;
@@ -68,6 +77,10 @@ const SnippetContainer = styled.div`
         border: none;
       }
     }
+    .danger {
+      color: red;
+      font-size: 12px;
+    }
   }
   .tab-container {
     border-top: none;
@@ -107,6 +120,13 @@ const SnippetContainer = styled.div`
   }
 `;
 
+const removeDynamicBinding = (value: string) => {
+  const regex = /{{(.*?)}}/g;
+  return value.replace(regex, function(match, capture) {
+    return capture;
+  });
+};
+
 export const getSnippet = (snippet: string, args: any) => {
   const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
@@ -144,7 +164,50 @@ export default function SnippetDescription(props: any) {
     executionInProgress = useSelector(
       (state: AppState) =>
         state.ui.globalSearch.filterContext.executionInProgress,
+    ),
+    [validations, setValidations] = useState<
+      Record<string, ValidationResponse>
+    >(),
+    evaluatedArguments = useSelector(
+      (state: AppState) =>
+        state.ui.globalSearch.filterContext.evaluatedArguments,
     );
+
+  const handleArgsValidation = useCallback(
+    debounce((value, arg) => {
+      const { name, type } = arg;
+      dispatch(
+        evaluateArgument({
+          name,
+          value: removeDynamicBinding(value),
+          type,
+        }),
+      );
+    }, 500),
+    [validations],
+  );
+
+  const handleArgChange = useCallback(
+    (value, arg) => {
+      setSelectedArgs({
+        ...selectedArgs,
+        [arg.name]: value,
+      });
+      if (arg.type && Object.values(ValidationTypes).includes(arg.type))
+        handleArgsValidation(value, arg);
+    },
+    [selectedArgs],
+  );
+
+  useEffect(() => {
+    const validations: any = Object.values(evaluatedArguments);
+    setValidations(
+      validations.reduce((acc: any, arg: any) => {
+        acc[arg.name] = validate({ type: arg.type }, arg.value, {});
+        return acc;
+      }, {}),
+    );
+  }, [evaluatedArguments]);
 
   useEffect(() => {
     document
@@ -156,6 +219,7 @@ export default function SnippetDescription(props: any) {
     setSelectedIndex(0);
     setEvaluatedSnippet("");
     setSelectedArgs({});
+    unsetEvaluatedArgument();
   }, [objectID]);
 
   const tabs = [
@@ -165,7 +229,7 @@ export default function SnippetDescription(props: any) {
       panelComponent: (
         <>
           <SyntaxHighlighter language={language} style={prism} wrapLongLines>
-            {js_beautify(getSnippet(snippet, selectedArgs), { indent_size: 2 })}
+            {js_beautify(getSnippet(snippet, {}), { indent_size: 2 })}
           </SyntaxHighlighter>
           {examples && examples.length ? (
             <div className="snippet-group">
@@ -216,14 +280,10 @@ export default function SnippetDescription(props: any) {
                   <CodeEditor
                     expected={arg.type}
                     hideEvaluatedValue
+                    hinting={[bindingHint]}
                     input={{
                       value: selectedArgs[arg.name],
-                      onChange: (value: any) => {
-                        setSelectedArgs({
-                          ...selectedArgs,
-                          [arg.name]: value,
-                        });
-                      },
+                      onChange: (value: any) => handleArgChange(value, arg),
                     }}
                     mode={EditorModes.TEXT_WITH_BINDING}
                     showLightningMenu={false}
@@ -231,6 +291,11 @@ export default function SnippetDescription(props: any) {
                     tabBehaviour={TabBehaviour.INDENT}
                     theme={EditorTheme.LIGHT}
                   />
+                  {validations && (
+                    <span className="danger">
+                      {validations[arg.name]?.message}
+                    </span>
+                  )}
                 </div>
               ))}
               <div className="actions-container">

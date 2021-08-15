@@ -18,6 +18,7 @@ const initialState: GlobalSearchReduxState = {
     refinements: {},
     evaluatedSnippet: "",
     executionInProgress: false,
+    evaluatedArguments: {},
   },
 };
 
@@ -52,6 +53,28 @@ const globalSearchReducer = createReducer(initialState, {
     filterContext: {
       ...state.filterContext,
       evaluatedSnippet: action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+    action: any,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {
+        ...state.filterContext.evaluatedArguments,
+        ...action.payload,
+      },
+    },
+  }),
+  [ReduxActionTypes.UNSET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {},
     },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
@@ -91,6 +114,7 @@ export interface GlobalSearchReduxState {
     };
     evaluatedSnippet: string;
     executionInProgress: boolean;
+    evaluatedArguments: any;
   };
 }
 

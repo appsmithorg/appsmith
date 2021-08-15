@@ -98,6 +98,7 @@ import {
   evaluateDynamicTrigger,
   evaluateActionBindings,
   evaluateSnippetSaga,
+  evaluateArgumentSaga,
 } from "./EvaluationsSaga";
 import copy from "copy-to-clipboard";
 import {
@@ -1122,5 +1123,6 @@ export function* watchActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
     takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
+    takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
   ]);
 }
