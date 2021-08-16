@@ -5,6 +5,7 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { Colors } from "constants/Colors";
 import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
+import { useRef } from "react";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 
@@ -82,19 +83,19 @@ function CanvasMultiPointerArena({
 }) {
   const { pageId } = useParams<ExplorerURLParams>();
   let pointerData: PointerDataType = {};
-  let animationStepId: number;
+  const animationStepIdRef = useRef<number>(0);
   let selectionCanvas: any;
 
   // Setup for painting on canvas
   useEffect(() => {
     selectionCanvas = document.getElementById(POINTERS_CANVAS_ID);
 
-    animationStepId = window.requestAnimationFrame(drawPointers);
+    animationStepIdRef.current = window.requestAnimationFrame(drawPointers);
     const clearPointerDataInterval = setInterval(() => {
       pointerData = {};
     }, TWO_MINS);
     return () => {
-      window.cancelAnimationFrame(animationStepId);
+      window.cancelAnimationFrame(animationStepIdRef.current);
       clearInterval(clearPointerDataInterval);
     };
   }, []);
@@ -171,7 +172,7 @@ function CanvasMultiPointerArena({
         eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
     });
-    animationStepId = window.requestAnimationFrame(drawPointers);
+    animationStepIdRef.current = window.requestAnimationFrame(drawPointers);
   };
 
   return <Canvas id={POINTERS_CANVAS_ID} />;
