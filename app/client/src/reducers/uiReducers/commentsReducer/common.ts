@@ -35,6 +35,9 @@ export const deleteCommentFromState = (
   threadId: string,
 ) => {
   const commentThread = state.commentThreadsMap[threadId];
+
+  if (!commentThread) return state;
+
   state.commentThreadsMap[threadId] = {
     ...commentThread,
     comments: commentThread.comments.filter(

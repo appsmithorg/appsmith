@@ -42,6 +42,7 @@ const initialState: CommentsReduxState = {
 /**
  * Action constants with suffix as `EVENT` are a result of socket updates
  * They are handled separately
+ * TODO: look into merging `_EVENT` handlers (for socket events) and local actions
  */
 const commentsReducer = createReducer(initialState, {
   // Only one unpublished comment threads exists at a time
@@ -213,7 +214,6 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<{ commentThreadId: string; appId: string }>,
   ) => {
     const { appId, commentThreadId } = action.payload;
-    if (!state.applicationCommentThreadsByRef[appId]) return state;
 
     const updatedState = deleteCommentThreadFromState(
       state,

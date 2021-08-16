@@ -63,7 +63,7 @@ export type Comment = CreateCommentRequest & {
   updationTime?: string;
   creationTime?: string;
   reactions?: Array<Reaction>;
-  threadId?: string;
+  threadId: string;
 } & { _id: string };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {

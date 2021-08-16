@@ -9,8 +9,6 @@ const handleDeleteCommentEvent = (
 ) => {
   const { _id: commentId, threadId } = action.payload;
 
-  if (!threadId) return state;
-
   const updatedState = deleteCommentFromState(state, commentId, threadId);
 
   return { ...updatedState };
