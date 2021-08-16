@@ -405,6 +405,8 @@ describe("Validate Validators", () => {
       `[{"label": 123, "value": 234}]`,
       [{ labels: 123, value: 234 }],
       [{ label: "abcd", value: 234 }],
+      [{}],
+      [],
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -453,6 +455,17 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type "number"`,
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "Invalid entry at index: 0. Missing required key: label Missing required key: value",
+      },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
       },
     ];
     inputs.forEach((input, index) => {
