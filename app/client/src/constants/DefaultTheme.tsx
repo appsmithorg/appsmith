@@ -1237,6 +1237,9 @@ type ColorType = {
   pagesEditor: {
     iconColor: string;
   };
+  numberedStep: {
+    line: string;
+  };
 };
 
 const tabItemBackgroundFill = {
@@ -1424,8 +1427,14 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: "#E0DEDE",
+  number: "#000",
+};
+
 export const dark: ColorType = {
   tabItemBackgroundFill,
+  numberedStep,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1984,6 +1993,7 @@ export const dark: ColorType = {
 
 export const light: ColorType = {
   tabItemBackgroundFill,
+  numberedStep,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
