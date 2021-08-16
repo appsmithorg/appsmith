@@ -43,6 +43,7 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { UndoRedoPayload } from "./ReplaySaga";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -147,6 +148,19 @@ export function* clearEvalCache() {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
 
   return true;
+}
+
+export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
+  const workerResponse = yield call(
+    worker.request,
+    action.payload.operation,
+    {},
+  );
+
+  // step 1: send the new widgets
+  const canvasWidgets = workerResponse;
+  console.log({ canvasWidgets });
+  // yield put(updateAndSaveLayout(canvasWidgets));
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {

@@ -367,6 +367,22 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   }
 }
 
+// Page load -> DSL -> unevalTree -> yjs structure
+// Widget Update -> paths to update -> applyUpdates on yjs structure
+// undo -> yjs undomanger undoes -> paths to update -> canvasWidgetsReducer
+
+// pageload -> creates the undo-able dsl (new replayDSL)
+
+// Widgets -> yjsoperations
+// yjs -> widget update paths
+
+// widgetOperation -> replayDSL.update(args);
+
+// PROPERTY UPDATES -> BATCH UPDATE PROPERTY
+// DELETE  -> ATOMIC
+// PASTE -> ATOMIC
+// ADD, MOVE, RESIZE -> NOT ATOMIC AS THEY UPDATE THE CANVAS HEIGHT AS WELL INDEPENDENTLY
+
 // This is different from addChildSaga
 // It does not go through the blueprint based creation
 // It simply uses the provided widget props to create widgets

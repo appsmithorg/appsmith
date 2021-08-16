@@ -35,6 +35,7 @@ import {
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { redoAction, undoAction } from "actions/pageActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -54,6 +55,8 @@ type Props = {
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  undo: () => void;
+  redo: () => void;
 };
 
 @HotkeysTarget
@@ -235,6 +238,22 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
+        <Hotkey
+          combo="mod + z"
+          global
+          label="Undo change in canvas"
+          onKeyDown={this.props.undo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + shift + z"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
+          preventDefault
+          stopPropagation
+        />
       </Hotkeys>
     );
   }
@@ -267,6 +286,8 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     setGlobalSearchFilterContext: (payload: { category: any }) =>
       dispatch(setGlobalSearchFilterContext(payload)),
+    undo: () => dispatch(undoAction()),
+    redo: () => dispatch(redoAction()),
   };
 };
 

@@ -15,6 +15,7 @@ import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
 import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
+import { ReplayOperation } from "workers/dslReplay.worker";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -363,3 +364,21 @@ export const generateTemplateToUpdatePage = ({
     },
   };
 };
+
+export function undoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayOperation.UNDO,
+    },
+  };
+}
+
+export function redoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayOperation.REDO,
+    },
+  };
+}

@@ -18,11 +18,13 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import ReplayDSL from "workers/ReplayDSL";
 import { Diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
+let replayDSL: ReplayDSL | undefined;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -56,6 +58,7 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
+            replayDSL = new ReplayDSL(unevalTree);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -176,9 +179,17 @@ ctx.addEventListener(
           validateWidgetProperty(validation, value, props),
         );
       }
+      case EVAL_WORKER_ACTIONS.UNDO: {
+        return replayDSL?.undo();
+      }
+      case EVAL_WORKER_ACTIONS.REDO: {
+        return replayDSL?.redo();
+      }
       default: {
         console.error("Action not registered on worker", method);
       }
     }
   }),
 );
+
+export default ctx;
