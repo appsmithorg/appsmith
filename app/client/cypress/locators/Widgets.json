@@ -108,5 +108,10 @@
     "switchWidgetInactive": ".t--switch-widget-inactive",
     "switchWidgetLoading": ".t--switch-widget-loading",
     "chartPlotGroup": "g.raphael-group-63-plot-group",
-    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator",
+    "formWidget": ".t--draggable-formwidget",
+    "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
+    "widgetRelatedDocument": "div.main > div:nth-child(1) > div:nth-child(1)",
+    "header":"#header-root"
+
 }
