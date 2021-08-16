@@ -11,9 +11,10 @@ import { Colors } from "constants/Colors";
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
+import { GEN_CRUD_INFO_DIALOG_HEADING } from "../../../../constants/messages";
 import {
-  GEN_CRUD_INFO_MODAL_SUBTITLE,
-  GEN_CRUD_INFO_MODAL_TITLE,
+  GEN_CRUD_INFO_DIALOG_SUBTITLE,
+  GEN_CRUD_INFO_DIALOG_TITLE,
 } from "constants/messages";
 
 type Props = {
@@ -91,7 +92,7 @@ const ImageWrapper = styled.div`
 function Header() {
   return (
     <HeaderContents>
-      <Heading> Hurray! Your application is ready to use.</Heading>
+      <Heading> {GEN_CRUD_INFO_DIALOG_HEADING()}</Heading>
     </HeaderContents>
   );
 }
@@ -120,11 +121,11 @@ function GenCRUDSuccessModal(props: Props) {
         <Header />
         <Content>
           <Text className="info-title" type={TextType.H4}>
-            {GEN_CRUD_INFO_MODAL_TITLE()}
+            {GEN_CRUD_INFO_DIALOG_TITLE()}
           </Text>
 
           <Text className="info-subtitle" type={TextType.P1}>
-            {GEN_CRUD_INFO_MODAL_SUBTITLE()}
+            {GEN_CRUD_INFO_DIALOG_SUBTITLE()}
           </Text>
           <ImageWrapper>
             <InfoImage alt="CRUD Info" src={getInfoImage()} />
