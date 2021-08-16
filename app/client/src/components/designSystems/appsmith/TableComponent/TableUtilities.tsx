@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Classes,
+  Button as BButton,
+  Position,
+} from "@blueprintjs/core";
 import {
   CellWrapper,
   CellCheckboxWrapper,
@@ -33,6 +38,7 @@ import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { TagComponent } from "components/designSystems/blueprint/TagComponent";
 import { noop } from "utils/AppsmithUtils";
+import TooltipComponent from "components/ads/Tooltip";
 
 export const renderCell = (
   value: any,
@@ -173,20 +179,36 @@ export const renderTags = (
   cellProperties: CellLayoutProperties,
 ) => {
   const { labelColors } = cellProperties;
-  const labels = value.split(",");
+  const labels = value.split(",").filter((value: string) => value !== "");
   if (labels.length > 0 && labels[0].length > 0) {
     return (
       <TagWrapper cellProperties={cellProperties}>
         {labels.map((label: string, labelIdx: number) => {
-          return (
-            <TagComponent
-              color={labelColors && labelColors[label]}
-              key={labelIdx}
-              label={label}
-              tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
-            />
-          );
+          const trimmedLabel = label.trim();
+          if (labelIdx < 2) {
+            return (
+              <TagComponent
+                color={labelColors && labelColors[trimmedLabel]}
+                key={labelIdx}
+                label={trimmedLabel}
+                tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
+              />
+            );
+          }
         })}
+        {labels.length > 2 && (
+          <TooltipComponent
+            content={labels.slice(2).join(", ")}
+            position={Position.TOP}
+          >
+            <TagComponent
+              color={"transparent"}
+              label={`+${labels.length - 2}`}
+              tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
+              type="HELP"
+            />
+          </TooltipComponent>
+        )}
       </TagWrapper>
     );
   } else {

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Tag } from "@blueprintjs/core";
+import { Tag, Icon } from "@blueprintjs/core";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 
 const fontColor: { [key: string]: string } = {
@@ -41,6 +41,9 @@ export class TagComponent extends React.Component<TagComponentProps> {
     return (
       <TagContainer color={this.props.color} size={this.props.tagSize}>
         <Tag large={this.props.tagSize === "LARGE"} round>
+          {this.props.type === "HELP" && (
+            <Icon color="#343434" icon="help" iconSize={11} />
+          )}{" "}
           {this.props.label}
         </Tag>
       </TagContainer>
@@ -52,4 +55,5 @@ export interface TagComponentProps {
   tagSize?: string;
   color?: string;
   label?: string;
+  type?: "COMMON" | "HELP";
 }

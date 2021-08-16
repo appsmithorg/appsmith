@@ -581,5 +581,9 @@ export const TagWrapper = styled.div<{
   cellProperties: CellLayoutProperties;
 }>`
   padding: 0px 10px;
+  display: flex;
   ${TableStyles}
+  span.bp3-popover-target {
+    display: inline-block;
+  }
 `;
