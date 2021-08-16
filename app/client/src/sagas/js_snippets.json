@@ -18,11 +18,11 @@
                 },
                 {
                     "name": "key",
-                    "type": "TEXT"
+                    "type": "var"
                 },
                 {
                     "name": "value",
-                    "type": "TEXT"
+                    "type": "var"
                 }
             ],
             "summary": "Merge data from two entities into a single response",
@@ -52,7 +52,7 @@
                 },
                 {
                     "name": "key",
-                    "type": "TEXT"
+                    "type": "var"
                 }
             ],
             "isTrigger": false,
