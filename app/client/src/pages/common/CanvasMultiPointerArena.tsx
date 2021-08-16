@@ -146,7 +146,10 @@ function CanvasMultiPointerArena({
     };
   }, []);
 
-  const drawPointers = async () => {
+  const previousAnimationStep = useRef<number>();
+
+  const drawPointers = (animationStep: number) => {
+    if (previousAnimationStep.current === animationStep) return;
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();
     if (!!selectionCanvas) {
@@ -172,6 +175,7 @@ function CanvasMultiPointerArena({
         eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
     });
+    previousAnimationStep.current = animationStep;
     animationStepIdRef.current = window.requestAnimationFrame(drawPointers);
   };
 
