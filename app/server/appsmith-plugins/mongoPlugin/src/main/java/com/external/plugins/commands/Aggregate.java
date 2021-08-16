@@ -8,10 +8,11 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.json.JsonParseException;
 import org.pf4j.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,14 +57,14 @@ public class Aggregate extends MongoCommand {
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.pipeline);
         if (dataType.equals(DataType.ARRAY)) {
             try {
-                List arrayListFromInput = objectMapper.readValue(this.pipeline, List.class);
+                BsonArray arrayListFromInput = BsonArray.parse(this.pipeline);
                 if (arrayListFromInput.isEmpty()) {
                     commandDocument.put("pipeline", "[]");
                 } else {
                     commandDocument.put("pipeline", arrayListFromInput);
                 }
-            } catch (IOException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Array of Pipelines could not be parsed into expected JSON Array format.");
+            } catch (JsonParseException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Array of Pipelines could not be parsed into expected Mongo BSON Array format.");
             }
         } else {
             // The command expects the pipelines to be sent in an array. Parse and create a single element array
