@@ -1,7 +1,5 @@
 import React, { SyntheticEvent } from "react";
-import DocumentationSearch, {
-  bootIntercom,
-} from "components/designSystems/appsmith/help/DocumentationSearch";
+import DocumentationSearch from "components/designSystems/appsmith/help/DocumentationSearch";
 import { getHelpModalOpen } from "selectors/helpSelectors";
 import {
   setHelpDefaultRefinement,
@@ -19,7 +17,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-const { intercomAppID } = getAppsmithConfigs();
+import { bootIntercom } from "utils/helpers";
 
 const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -70,12 +68,12 @@ class HelpModal extends React.Component<Props> {
   static contextType = LayersContext;
   componentDidMount() {
     const { user } = this.props;
-    bootIntercom(intercomAppID, user);
+    bootIntercom(user);
   }
   componentDidUpdate(prevProps: Props) {
     const { user } = this.props;
     if (user?.email && prevProps.user?.email !== user?.email) {
-      bootIntercom(intercomAppID, user);
+      bootIntercom(user);
     }
   }
   /**
