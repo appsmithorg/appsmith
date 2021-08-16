@@ -409,3 +409,6 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
 export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
+
+export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;

@@ -155,9 +155,6 @@ function GlobalSearch() {
   const refinements = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.refinements,
   );
-  useEffect(() => {
-    setActiveItemIndex(0);
-  }, [refinements]);
   const defaultDocs = useDefaultDocumentationResults(modalOpen);
   const params = useParams<ExplorerURLParams>();
   const toggleShow = () => {
@@ -198,6 +195,10 @@ function GlobalSearch() {
       setActiveItemIndex(0);
     }
   }, [category.id]);
+
+  useEffect(() => {
+    setActiveItemIndex(0);
+  }, [refinements]);
 
   const allWidgets = useSelector(getAllPageWidgets);
 

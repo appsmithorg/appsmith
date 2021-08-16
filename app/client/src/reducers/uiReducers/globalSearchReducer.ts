@@ -29,7 +29,7 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({ ...state, query: action.payload }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<SearchCategory>,
   ) => ({
     ...state,
     modalOpen: !state.modalOpen,
@@ -37,7 +37,7 @@ const globalSearchReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
   ) => ({
     ...state,
     filterContext: {
@@ -47,7 +47,7 @@ const globalSearchReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_EVALUATED_SNIPPET]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
   ) => ({
     ...state,
     filterContext: {
@@ -57,7 +57,7 @@ const globalSearchReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_EVALUATED_ARGUMENT]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
   ) => ({
     ...state,
     filterContext: {

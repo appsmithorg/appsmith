@@ -24,7 +24,7 @@ export const cancelSnippet = () => ({
 
 export const evaluateSnippet = (payload: {
   expression: string;
-  dataType: string;
+  dataType?: string;
   isTrigger?: boolean;
 }) => ({
   type: ReduxActionTypes.EVALUATE_SNIPPET,

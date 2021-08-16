@@ -28,6 +28,7 @@ import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import SnippetsFilter from "./SnippetsFilter";
+import { APPLY_SEARCH_CATEGORY, createMessage } from "constants/messages";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -385,7 +386,11 @@ function CategoryItem({
           <span className="category-title">{item.title}</span>
           <span className="category-desc">{item.desc}</span>
         </div>
-        {isActiveItem && <div className="action-msg">Hit ⏎ to insert</div>}
+        {isActiveItem && (
+          <div className="action-msg">
+            {createMessage(APPLY_SEARCH_CATEGORY)}
+          </div>
+        )}
       </CategoryListItem>
     </CategoryContainer>
   );

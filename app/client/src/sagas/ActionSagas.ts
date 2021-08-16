@@ -778,6 +778,71 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta: { dataType: string; fields?: string } = {
+    dataType: expectedType,
+  };
+  if (propertyPath) {
+    const relevantField = propertyPath
+      .split(".")
+      .slice(-1)
+      .pop();
+    fieldMeta.fields = `${relevantField}<score=2>`;
+  }
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION && entityId) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "")
+      .toLowerCase()
+      .replace("-plugin", "")
+      .split("-")
+      .join(" ");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = (currentEntity.type || "")
+      .replace("_WIDGET", "")
+      .toLowerCase()
+      .split("_")
+      .join("");
+    refinements.entities = [type];
+  }
+  return { refinements, fieldMeta };
+}
+
+function* getCurrentEntity(
+  applicationId: string,
+  pageId: string,
+  params: Record<string, string>,
+) {
+  let entityId = "",
+    entityType = "";
+  if (
+    onApiEditor(applicationId, pageId) ||
+    onQueryEditor(applicationId, pageId)
+  ) {
+    const id = params.apiId || params.queryId;
+    const action = yield select(getAction, id);
+    entityId = action.actionId;
+    entityType = ENTITY_TYPE.ACTION;
+  } else {
+    const widget = yield select(getSelectedWidget);
+    entityId = widget.widgetId;
+    entityType = ENTITY_TYPE.WIDGET;
+  }
+  return { entityId, entityType };
+}
+
 function* executeCommand(
   actionPayload: ReduxAction<{
     actionType: string;
@@ -787,7 +852,7 @@ function* executeCommand(
 ) {
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
-  const params: any = getQueryParams();
+  const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
       let { entityId, entityType } = get(actionPayload, "payload.args");
@@ -873,67 +938,6 @@ function* executeCommand(
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
       break;
   }
-}
-
-function* getCurrentEntity(applicationId: string, pageId: string, params: any) {
-  let entityId = "",
-    entityType = "";
-  if (
-    onApiEditor(applicationId, pageId) ||
-    onQueryEditor(applicationId, pageId)
-  ) {
-    const id = params.apiId || params.queryId;
-    const action = yield select(getAction, id);
-    entityId = action.actionId;
-    entityType = ENTITY_TYPE.ACTION;
-  } else {
-    const widget = yield select(getSelectedWidget);
-    entityId = widget.widgetId;
-    entityType = ENTITY_TYPE.WIDGET;
-  }
-  return { entityId, entityType };
-}
-
-function* buildMetaForSnippets(
-  entityId: any,
-  entityType: string,
-  expectedType: string,
-  propertyPath: string,
-) {
-  const refinements: any = {};
-  const fieldMeta: any = {
-    dataType: expectedType,
-  };
-  if (propertyPath) {
-    const relevantField = propertyPath
-      .split(".")
-      .slice(-1)
-      .pop();
-    fieldMeta.fields = `${relevantField}<score=2>`;
-  }
-  let currentEntity, type;
-  if (entityType === ENTITY_TYPE.ACTION && entityId) {
-    currentEntity = yield select(getActionById, {
-      match: { params: { apiId: entityId } },
-    });
-    const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "")
-      .toLowerCase()
-      .replace("-plugin", "")
-      .split("-")
-      .join(" ");
-    refinements.entities = [entityType.toLowerCase()].concat(type);
-  }
-  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
-    currentEntity = yield select(getWidgetById, entityId);
-    type = (currentEntity.type || "")
-      .replace("_WIDGET", "")
-      .toLowerCase()
-      .split("_")
-      .join("");
-    refinements.entities = [type];
-  }
-  return { refinements, fieldMeta };
 }
 
 export function* watchActionSagas() {

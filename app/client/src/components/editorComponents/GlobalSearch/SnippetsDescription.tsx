@@ -34,6 +34,9 @@ import {
 } from "constants/WidgetValidation";
 import { debounce } from "lodash";
 import { bindingHint } from "../CodeEditor/hintHelpers";
+import { Snippet, SnippetArgument, SnippetExample } from "./utils";
+import { createMessage, SEARCH_ITEM_SELECT } from "constants/messages";
+import { getExpectedValue } from "utils/validation/common";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -140,23 +143,27 @@ export const getSnippet = (snippet: string, args: any) => {
   });
 };
 
-export default function SnippetDescription(props: any) {
+const getArgValidationType = (type: string) => {
+  if (type === "STRING") {
+    return ValidationTypes.TEXT;
+  }
+  return type as ValidationTypes;
+};
+
+export default function SnippetDescription({ item }: { item: Snippet }) {
   const {
-    item: {
-      body: {
-        additionalInfo,
-        args,
-        examples,
-        isTrigger,
-        snippet,
-        summary,
-        title,
-      },
-      language,
-      objectID,
-      returnType,
+    body: {
+      additionalInfo,
+      args,
+      examples,
+      isTrigger,
+      snippet,
+      summary,
+      title,
     },
-  } = props;
+    dataType,
+    language,
+  } = item;
   const [selectedIndex, setSelectedIndex] = useState(0),
     [selectedArgs, setSelectedArgs] = useState<any>({}),
     dispatch = useDispatch(),
@@ -190,15 +197,15 @@ export default function SnippetDescription(props: any) {
     [validations],
   );
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     copy(`{{ ${getSnippet(snippet, selectedArgs)} }}`);
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
     }, 3000);
-  };
+  }, [snippet, selectedArgs]);
 
-  const handleRun = () => {
+  const handleRun = useCallback(() => {
     dispatch(
       setGlobalSearchFilterContext({
         executionInProgress: true,
@@ -207,11 +214,11 @@ export default function SnippetDescription(props: any) {
     dispatch(
       evaluateSnippet({
         expression: getSnippet(snippet, selectedArgs),
-        dataType: returnType,
+        dataType: dataType,
         isTrigger,
       }),
     );
-  };
+  }, [snippet, selectedArgs, dataType]);
 
   const handleArgChange = useCallback(
     (value, arg) => {
@@ -228,10 +235,17 @@ export default function SnippetDescription(props: any) {
   useEffect(() => {
     const validations: any = Object.values(evaluatedArguments);
     setValidations(
-      validations.reduce((acc: any, arg: any) => {
-        acc[arg.name] = validate({ type: arg.type }, arg.value, {});
-        return acc;
-      }, {}),
+      validations.reduce(
+        (acc: any, arg: SnippetArgument & { value: string }) => {
+          acc[arg.name] = validate(
+            { type: getArgValidationType(arg.type) },
+            arg.value,
+            {},
+          );
+          return acc;
+        },
+        {},
+      ),
     );
   }, [evaluatedArguments]);
 
@@ -246,7 +260,7 @@ export default function SnippetDescription(props: any) {
     setEvaluatedSnippet("");
     setSelectedArgs({});
     unsetEvaluatedArgument();
-  }, [objectID]);
+  }, [title]);
 
   const tabs = [
     {
@@ -261,7 +275,7 @@ export default function SnippetDescription(props: any) {
             <div className="snippet-group">
               <div className="header">Example</div>
               <div className="content">
-                {examples.map((ex: any) => (
+                {examples.map((ex: SnippetExample) => (
                   <>
                     <p>{ex.title}</p>
                     <SyntaxHighlighter
@@ -296,7 +310,7 @@ export default function SnippetDescription(props: any) {
               })}
             </SyntaxHighlighter>
             <div className="snippet-group">
-              {args.map((arg: any) => (
+              {args.map((arg: SnippetArgument) => (
                 <div
                   className="argument"
                   key={arg.name}
@@ -304,7 +318,7 @@ export default function SnippetDescription(props: any) {
                 >
                   <span>{arg.name}</span>
                   <CodeEditor
-                    expected={arg.type}
+                    expected={getExpectedValue({ type: arg.type })}
                     hideEvaluatedValue
                     hinting={[bindingHint]}
                     input={{
@@ -368,7 +382,7 @@ export default function SnippetDescription(props: any) {
     <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
-        <span className="action-msg">Hit ⏎ to insert</span>
+        <span className="action-msg">{createMessage(SEARCH_ITEM_SELECT)}</span>
       </div>
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">
@@ -379,14 +393,12 @@ export default function SnippetDescription(props: any) {
         />
       </TabbedViewContainer>
       {additionalInfo &&
-        additionalInfo.map(
-          ({ content, header }: { header: string; content: string }) => (
-            <div className="snippet-group" key={header}>
-              <div className="header">{header}</div>
-              <div className="content">{content}</div>
-            </div>
-          ),
-        )}
+        additionalInfo.map(({ content, header }) => (
+          <div className="snippet-group" key={header}>
+            <div className="header">{header}</div>
+            <div className="content">{content}</div>
+          </div>
+        ))}
     </SnippetContainer>
   );
 }

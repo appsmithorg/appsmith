@@ -1,3 +1,4 @@
+import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
@@ -36,6 +37,40 @@ export type DocSearchItem = {
   };
   kind: string;
   path: string;
+};
+
+export type Snippet = {
+  entities?: [string];
+  fields?: [string];
+  dataType?: string;
+  language: string;
+  body: SnippetBody;
+};
+
+export type SnippetBody = {
+  title: string;
+  snippet: string;
+  isTrigger?: boolean;
+  args: [SnippetArgument];
+  summary: string;
+  examples: [SnippetExample];
+  additionalInfo?: [
+    {
+      header: string;
+      content: string;
+    },
+  ];
+};
+
+export type SnippetArgument = {
+  name: string;
+  type: ValidationTypes;
+};
+
+export type SnippetExample = {
+  title?: string;
+  code: string;
+  summary?: string;
 };
 
 export type SearchCategory = {
