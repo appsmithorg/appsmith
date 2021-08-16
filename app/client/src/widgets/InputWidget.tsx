@@ -60,17 +60,22 @@ function defaultValueValidation(
       message: "This value must be string",
     };
   }
-  const isValid = _.isString(value);
+  let parsed = value;
+  const isValid = _.isString(parsed);
   if (!isValid) {
-    return {
-      isValid: false,
-      parsed: "",
-      message: "This value must be string",
-    };
+    try {
+      parsed = _.toString(parsed);
+    } catch (e) {
+      return {
+        isValid: false,
+        parsed: "",
+        message: "This value must be string",
+      };
+    }
   }
   return {
     isValid,
-    parsed: value,
+    parsed: parsed,
     message: "",
   };
 }
