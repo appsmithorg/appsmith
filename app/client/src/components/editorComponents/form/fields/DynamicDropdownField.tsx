@@ -8,6 +8,7 @@ interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
   accent?: ButtonStyleName;
   filled?: boolean;
+  width?: string;
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;

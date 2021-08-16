@@ -17,7 +17,10 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";
 import { Colors } from "constants/Colors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { MULTI_PART_DROPDOWN_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
+  MULTI_PART_DROPDOWN_OPTIONS,
+} from "constants/ApiEditorConstants";
 
 enum MultiPartOptionTypes {
   TEXT = "Text",
@@ -197,6 +200,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           filled
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
+                          width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
                         />
                       </DynamicDropdownFieldWrapper>
                     </DynamicTextFieldWithDropdownWrapper>

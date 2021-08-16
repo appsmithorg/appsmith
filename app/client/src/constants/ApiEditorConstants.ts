@@ -95,3 +95,5 @@ export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
     value: "FILE",
   },
 ];
+
+export const DEFAULT_MULTI_PART_DROPDOWN_WIDTH = "75px";
