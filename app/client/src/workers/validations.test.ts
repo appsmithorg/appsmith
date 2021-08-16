@@ -499,12 +499,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: defaultDate,
-        message: "This value does not evaluate to type: ISO 8601 date string",
+        message: "Value does not match: ISO 8601 date string",
       },
       {
         isValid: false,
         parsed: defaultDate,
-        message: "This value does not evaluate to type: ISO 8601 date string",
+        message: "Value does not match: ISO 8601 date string",
       },
     ];
 
