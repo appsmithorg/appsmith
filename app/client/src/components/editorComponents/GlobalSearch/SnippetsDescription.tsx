@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism-light";
+import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
 import { prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/Form";
 import { TabComponent } from "components/ads/Tabs";
@@ -33,6 +34,8 @@ import {
 } from "constants/WidgetValidation";
 import { debounce } from "lodash";
 import { bindingHint } from "../CodeEditor/hintHelpers";
+
+SyntaxHighlighter.registerLanguage("sql", sql);
 
 const SnippetContainer = styled.div`
   display: flex;
