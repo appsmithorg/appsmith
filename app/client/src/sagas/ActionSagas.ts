@@ -917,7 +917,7 @@ function* buildMetaForSnippets(
       match: { params: { apiId: entityId } },
     });
     const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "").toLowercase().split("-")[0];
+    type = (plugin.packageName || "").toLowerCase().split("-")[0];
     refinements.entities = [entityType.toLowerCase()].concat(type);
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
