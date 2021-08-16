@@ -154,6 +154,7 @@ export type EventName =
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
   | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "PAGES_LIST_LOAD"
   | "WIDGET_GROUP";
 
 function getApplicationId(location: Location) {
@@ -241,17 +242,12 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
-      const app = (userData.applications || []).find(
-        (app: any) => app.id === appId,
-      );
       let user: any = {};
       if (segment.enabled && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
           appId: appId,
-          appName: app ? app.name : undefined,
           source: "cloud",
         };
       } else {

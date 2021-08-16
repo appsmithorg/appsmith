@@ -127,6 +127,7 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("password", authentication.getPassword());
             properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+            properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
 
             return Mono
                     .fromCallable(() -> {
