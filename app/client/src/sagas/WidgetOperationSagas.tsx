@@ -1412,20 +1412,16 @@ function* getEntityNames() {
  */
 function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   let copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
-
-  // to avoid invoking old copied widgets
-  if (!Array.isArray(copiedWidgetGroups)) return;
+  const shouldGroup: boolean = action.payload.groupWidgets;
 
   const newlyCreatedWidgetIds: string[] = [];
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
   const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
-  const shouldGroup: boolean = action.payload.groupWidgets;
 
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
-
     selectedWidget,
   );
 
@@ -1453,6 +1449,9 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
       pastingIntoWidgetId,
     );
   }
+
+  // to avoid invoking old copied widgets
+  if (!Array.isArray(copiedWidgetGroups)) return;
 
   const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
     copiedWidgetGroups,
