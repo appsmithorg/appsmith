@@ -244,10 +244,10 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams.widgetId,
         updateWidgetParams.payload,
       );
-    selectWidget(updateWidgetParams.payload.newWidgetId);
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
+      selectWidget(updateWidgetParams.payload.newWidgetId);
       showPropertyPane(updateWidgetParams.payload.newWidgetId);
     }, 100);
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
