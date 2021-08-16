@@ -12,8 +12,8 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import {
+  deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
-  selectMultipleWidgetsAction,
 } from "actions/widgetSelectionActions";
 import {
   setGlobalSearchFilterContext,
@@ -263,7 +263,7 @@ const mapDispatchToProps = (dispatch: any) => {
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
+    deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
     setGlobalSearchFilterContext: (payload: { category: any }) =>
       dispatch(setGlobalSearchFilterContext(payload)),
