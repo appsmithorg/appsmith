@@ -103,6 +103,7 @@ const getLintingErrors = (
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
       originalBinding,
+      // By keeping track of these variables we can highlight the exact text that caused the error.
       variables: [lintError.a, lintError.b, lintError.c, lintError.d],
       code: lintError.code,
     };
