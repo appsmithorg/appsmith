@@ -156,6 +156,7 @@ export type EventName =
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
   | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "CLOSE_GEN_PAGE_INFO_MODAL"
   | "PAGES_LIST_LOAD";
 
 function getApplicationId(location: Location) {
