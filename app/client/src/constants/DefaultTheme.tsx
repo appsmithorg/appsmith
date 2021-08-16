@@ -1060,6 +1060,8 @@ type ColorType = {
     sectionTitle: string;
     navigateToEntityEnterkey: string;
     mainContainerBackground: string;
+    filterListBackground: string;
+    filterBtnText: string;
   };
   gif: {
     overlay: string;
@@ -1227,6 +1229,9 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  pagesEditor: {
+    iconColor: string;
+  };
 };
 
 const notifications = {
@@ -1261,6 +1266,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1374,6 +1383,8 @@ const globalSearch = {
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
   mainContainerBackground: "#F0F0F0",
+  filterListBackground: lightShades[0],
+  filterBtnText: lightShades[8],
 };
 
 const mentionsInput = {
@@ -1956,6 +1967,7 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
@@ -2520,6 +2532,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2693,6 +2706,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2709,6 +2723,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2734,6 +2749,8 @@ export const theme: Theme = {
     dropdownIconBg: Colors.ALTO2,
     welcomeTourStickySidebarColor: Colors.WHITE,
     welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

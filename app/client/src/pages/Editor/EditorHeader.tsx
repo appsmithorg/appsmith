@@ -54,6 +54,7 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 const HeaderWrapper = styled(StyledHeader)`
@@ -268,8 +269,9 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HelpButton />
         </HeaderSection>
         <HeaderSection>
+          <EditorSaveIndicator />
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
-            <EditorSaveIndicator />
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}

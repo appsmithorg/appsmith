@@ -11,6 +11,8 @@ import {
   CANVAS_CLASSNAME,
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
+import debounce from "lodash/debounce";
+import { Classes } from "@blueprintjs/core";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
@@ -26,15 +28,21 @@ export interface MultiSelectProps
   mode?: "multiple" | "tags";
   value: string[];
   onChange: (value: DefaultValueType) => void;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
+
+const DEBOUNCE_TIMEOUT = 800;
 
 function MultiSelectComponent({
   disabled,
   dropdownStyle,
   loading,
   onChange,
+  onFilterChange,
   options,
   placeholder,
+  serverSideFiltering,
   value,
 }: MultiSelectProps): JSX.Element {
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -76,7 +84,7 @@ function MultiSelectComponent({
     (
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
-      <>
+      <div className={loading ? Classes.SKELETON : ""}>
         {options.length ? (
           <StyledCheckbox
             alignIndicator="left"
@@ -86,9 +94,9 @@ function MultiSelectComponent({
           />
         ) : null}
         {menu}
-      </>
+      </div>
     ),
-    [isSelectAll, options],
+    [isSelectAll, options, loading],
   );
 
   const filterOption = useCallback(
@@ -97,6 +105,16 @@ function MultiSelectComponent({
       option?.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0,
     [],
   );
+
+  const onClose = useCallback((open) => !open && onFilterChange(""), []);
+
+  const serverSideSearch = React.useMemo(() => {
+    const updateFilter = (filterValue: string) => {
+      onFilterChange(filterValue);
+    };
+    return debounce(updateFilter, DEBOUNCE_TIMEOUT);
+  }, []);
+
   return (
     <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
       <DropdownStyles />
@@ -120,6 +138,8 @@ function MultiSelectComponent({
         mode="multiple"
         notFoundContent="No item Found"
         onChange={onChange}
+        onDropdownVisibleChange={onClose}
+        onSearch={serverSideSearch}
         options={options}
         placeholder={placeholder || "select option(s)"}
         showArrow

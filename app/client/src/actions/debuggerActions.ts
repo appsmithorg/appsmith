@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { Message, ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
 
 export interface LogDebuggerErrorAnalyticsPayload {
@@ -8,15 +8,18 @@ export interface LogDebuggerErrorAnalyticsPayload {
   entityType: ENTITY_TYPE;
   eventName: EventName;
   propertyPath: string;
-  errorMessages: { message: string }[];
+  errorMessages?: Message[];
+  errorMessage?: Message["message"];
+  errorType?: Message["type"];
+  analytics?: Log["analytics"];
 }
 
-export const debuggerLogInit = (payload: Message) => ({
+export const debuggerLogInit = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_LOG_INIT,
   payload,
 });
 
-export const debuggerLog = (payload: Message) => ({
+export const debuggerLog = (payload: Log) => ({
   type: ReduxActionTypes.DEBUGGER_LOG,
   payload,
 });
@@ -30,14 +33,31 @@ export const showDebugger = (payload?: boolean) => ({
   payload,
 });
 
-export const errorLog = (payload: Message) => ({
-  type: ReduxActionTypes.DEBUGGER_ERROR_LOG,
+// Add an error
+export const addErrorLogInit = (payload: Log) => ({
+  type: ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG_INIT,
   payload,
 });
 
-export const updateErrorLog = (payload: Message) => ({
-  type: ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG,
+export const addErrorLog = (payload: Log) => ({
+  type: ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG,
   payload,
+});
+
+export const deleteErrorLogInit = (
+  id: string,
+  analytics?: Log["analytics"],
+) => ({
+  type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
+  payload: {
+    id,
+    analytics,
+  },
+});
+
+export const deleteErrorLog = (id: string) => ({
+  type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG,
+  payload: id,
 });
 
 // Only used for analytics
