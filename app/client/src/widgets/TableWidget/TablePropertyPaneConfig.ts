@@ -849,6 +849,29 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
+        propertyName: "compactMode",
+        helpText: "Selects row height",
+        label: "Select Compact mode",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "SHORT",
+            value: "SHORT",
+          },
+          {
+            label: "DEFAULT",
+            value: "DEFAULT",
+          },
+          {
+            label: "TALL",
+            value: "TALL",
+          },
+        ],
+      },
+      {
         helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",

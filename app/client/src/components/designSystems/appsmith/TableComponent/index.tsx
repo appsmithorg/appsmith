@@ -68,7 +68,6 @@ interface ReactTableComponentProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
@@ -110,7 +109,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     tableData,
     triggerRowSelection,
     unSelectAllRow,
-    updateCompactMode,
     updatePageNo,
     widgetId,
     widgetName,
@@ -276,7 +274,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
       triggerRowSelection={triggerRowSelection}
-      updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
       widgetId={widgetId}
       widgetName={widgetName}
@@ -313,7 +310,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
     prev.triggerRowSelection === next.triggerRowSelection &&
-    prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&

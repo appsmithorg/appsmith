@@ -29,7 +29,6 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
-  CompactMode,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -693,7 +692,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           tableData={transformedData}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
-          updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -702,14 +700,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
-
-  handleCompactModeChange = (compactMode: CompactMode) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("compactMode", compactMode);
-    } else {
-      this.props.updateWidgetMetaProperty("compactMode", compactMode);
-    }
-  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
