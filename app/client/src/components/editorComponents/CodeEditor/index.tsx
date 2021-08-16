@@ -169,28 +169,6 @@ class CodeEditor extends Component<Props, State> {
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 
-  lintCode() {
-    const { dataTreePath, dynamicData } = this.props;
-
-    if (!dataTreePath || !this.updateLintingCallback) {
-      return;
-    }
-
-    const errors = _.get(
-      dynamicData,
-      getEvalErrorPath(dataTreePath),
-      [],
-    ) as EvaluationError[];
-
-    let annotations: Annotation[] = [];
-
-    if (this.editor) {
-      annotations = getLintAnnotations(this.editor.getValue(), errors);
-    }
-
-    this.updateLintingCallback(this.editor, annotations);
-  }
-
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
@@ -351,8 +329,7 @@ class CodeEditor extends Component<Props, State> {
     if (!this.props.input.onChange || this.props.disabled) {
       return;
     }
-    const cursor = cm.getCursor();
-    const mode = cm.getModeAt(cursor);
+    const mode = cm.getModeAt(cm.getCursor());
     if (
       mode &&
       [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
@@ -463,6 +440,28 @@ class CodeEditor extends Component<Props, State> {
       cm.closeHint();
     }
   };
+
+  lintCode() {
+    const { dataTreePath, dynamicData } = this.props;
+
+    if (!dataTreePath || !this.updateLintingCallback) {
+      return;
+    }
+
+    const errors = _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+
+    let annotations: Annotation[] = [];
+
+    if (this.editor) {
+      annotations = getLintAnnotations(this.editor.getValue(), errors);
+    }
+
+    this.updateLintingCallback(this.editor, annotations);
+  }
 
   static updateMarkings = (
     editor: CodeMirror.Editor,

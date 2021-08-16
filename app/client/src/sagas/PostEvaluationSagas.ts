@@ -46,6 +46,13 @@ import store from "../store";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 
+/**
+ * Errors in this array will not be shown in the debugger.
+ * We do this to avoid same error showing multiple times.
+ *
+ * Errors ignored:
+ * W117: `x` is undefined
+ */
 const errorCodesToIgnoreInDebugger = ["W117"];
 
 function getLatestEvalPropertyErrors(
