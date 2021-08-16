@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
+import { ComponentProps } from "widgets/BaseComponent";
+import { AppState } from "reducers";
+import { useSelector } from "store";
+import { RenderMode, RenderModes } from "constants/WidgetConstants";
+
 interface IframeContainerProps {
   borderColor?: string;
   borderOpacity?: number;
@@ -9,6 +14,7 @@ interface IframeContainerProps {
 }
 
 export const IframeContainer = styled.div<IframeContainerProps>`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +38,16 @@ export const IframeContainer = styled.div<IframeContainerProps>`
   }
 `;
 
-export interface IframeComponentProps {
+const OverlayDiv = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
+export interface IframeComponentProps extends ComponentProps {
+  renderMode: RenderMode;
   source: string;
   title?: string;
   onURLChanged: (url: string) => void;
@@ -49,8 +64,10 @@ function IframeComponent(props: IframeComponentProps) {
     borderWidth,
     onMessageReceived,
     onURLChanged,
+    renderMode,
     source,
     title,
+    widgetId,
   } = props;
 
   const [message, setMessage] = useState("");
@@ -72,12 +89,24 @@ function IframeComponent(props: IframeComponentProps) {
     }
   }, [source]);
 
+  const isPropertyPaneVisible = useSelector(
+    (state: AppState) => state.ui.propertyPane.isVisible,
+  );
+  const selectedWidgetId = useSelector(
+    (state: AppState) => state.ui.propertyPane.widgetId,
+  );
+
   return (
     <IframeContainer
       borderColor={borderColor}
       borderOpacity={borderOpacity}
       borderWidth={borderWidth}
     >
+      {renderMode === RenderModes.CANVAS &&
+        !(isPropertyPaneVisible && widgetId === selectedWidgetId) && (
+          <OverlayDiv />
+        )}
+
       {message ? message : <iframe src={source} title={title} />}
     </IframeContainer>
   );

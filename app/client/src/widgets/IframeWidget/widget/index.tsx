@@ -137,8 +137,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderColor,
       borderOpacity,
       borderWidth,
+      renderMode,
       source,
       title,
+      widgetId,
     } = this.props;
 
     return (
@@ -148,8 +150,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderWidth={borderWidth}
         onMessageReceived={this.messageReceivedHandler}
         onURLChanged={this.urlChangedHandler}
+        renderMode={renderMode}
         source={source}
         title={title}
+        widgetId={widgetId}
       />
     );
   }

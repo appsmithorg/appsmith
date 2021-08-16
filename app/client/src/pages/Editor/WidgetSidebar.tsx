@@ -16,9 +16,14 @@ import produce from "immer";
 import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import {
+  getCurrentStep,
+  getCurrentSubStep,
+  inOnboarding,
+} from "sagas/OnboardingSagas";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { useLocation } from "react-router";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -85,6 +90,7 @@ const Info = styled.div`
 `;
 
 function WidgetSidebar(props: IPanelProps) {
+  const location = useLocation();
   const cards = useSelector(getWidgetCards);
   console.log("Cards", { cards });
   const [filteredCards, setFilteredCards] = useState(cards);
@@ -110,6 +116,7 @@ function WidgetSidebar(props: IPanelProps) {
   };
 
   // For onboarding
+  const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -117,10 +124,13 @@ function WidgetSidebar(props: IPanelProps) {
   const onCanvas =
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
   useEffect(() => {
-    if (currentStep === OnboardingStep.DEPLOY && !onCanvas) {
+    if (
+      (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+      !onCanvas
+    ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas]);
+  }, [currentStep, onCanvas, isInOnboarding, location]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());

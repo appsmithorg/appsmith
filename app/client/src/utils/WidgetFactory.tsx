@@ -159,7 +159,6 @@ class WidgetFactory {
       isVisible: true,
       ...widgetData,
     };
-    console.log("Created key", widgetData.widgetId);
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here

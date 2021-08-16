@@ -5,12 +5,12 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
 import { debounce } from "lodash";
 import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import {

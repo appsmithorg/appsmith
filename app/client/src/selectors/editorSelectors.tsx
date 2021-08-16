@@ -22,7 +22,7 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { getDataTree, getLoadingEntities } from "./dataTreeSelectors";
 import { find, pick } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;

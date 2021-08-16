@@ -18,6 +18,9 @@ import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
 
+import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import produce from "immer";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -100,26 +103,27 @@ class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
+  renderChildWidget(childProps: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+    if (childProps.detachFromLayout && !childProps.isVisible) {
       return null;
     }
 
     const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const childWidgetProps = produce(childProps, (childWidgetData) => {
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.bottomRow = this.props.shouldScrollContents
+        ? childWidgetData.bottomRow
+        : componentHeight;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.shouldScrollContents = false;
+      childWidgetData.canExtend = this.props.shouldScrollContents;
 
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
-      : componentHeight;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+      childWidgetData.parentId = this.props.widgetId;
+    });
 
-    childWidgetData.parentId = this.props.widgetId;
-
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetProps);
   }
 
   renderChildren = () => {
@@ -133,12 +137,30 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
-        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
-          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        {props.type === "CANVAS_WIDGET" && (
+          <>
+            <CanvasDraggingArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              dropDisabled={!!props.dropDisabled}
+              noPad={this.props.noPad}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+            <CanvasSelectionArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              parentId={props.parentId}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+          </>
         )}
         <WidgetsMultiSelectBox
+          {...this.getSnapSpaces()}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />

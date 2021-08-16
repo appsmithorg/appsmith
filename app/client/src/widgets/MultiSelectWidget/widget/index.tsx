@@ -150,6 +150,16 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Enables server side filtering of the data",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -159,6 +169,18 @@ class MultiSelectWidget extends BaseWidget<
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: MultiSelectWidgetProps) =>
+              !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -181,12 +203,14 @@ class MultiSelectWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptionValueArr: "defaultOptionValue",
+      filterText: "",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptionValueArr: undefined,
+      filterText: "",
     };
   }
 
@@ -195,7 +219,6 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
-
     return (
       <MultiSelectComponent
         disabled={this.props.isDisabled ?? false}
@@ -204,8 +227,10 @@ class MultiSelectWidget extends BaseWidget<
         }}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
+        onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        serverSideFiltering={this.props.serverSideFiltering}
         value={values}
       />
     );
@@ -217,6 +242,21 @@ class MultiSelectWidget extends BaseWidget<
       dynamicString: this.props.onOptionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+
+    // Empty filter after Selection
+    this.onFilterChange("");
+  };
+
+  onFilterChange = (value: string) => {
+    this.props.updateWidgetMetaProperty("filterText", value);
+
+    this.props.executeAction({
+      triggerPropertyName: "onFilterUpdate",
+      dynamicString: this.props.onFilterUpdate,
+      event: {
+        type: EventType.ON_FILTER_UPDATE,
       },
     });
   };
@@ -239,12 +279,16 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   selectedOption: DropdownOption;
   options?: DropdownOption[];
   onOptionChange: string;
+  onFilterChange: string;
   defaultOptionValue: string | string[];
   isRequired: boolean;
   isLoading: boolean;
   selectedOptionValueArr: string[];
+  filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];
+  serverSideFiltering: boolean;
+  onFilterUpdate: string;
 }
 
 export default MultiSelectWidget;

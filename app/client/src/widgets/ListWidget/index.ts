@@ -15,6 +15,7 @@ export const CONFIG = {
   name: "List",
   iconSVG: IconSVG,
   needsMeta: true,
+  isCanvas: true,
   defaults: {
     needsChildrenDSL: true,
     backgroundColor: "",

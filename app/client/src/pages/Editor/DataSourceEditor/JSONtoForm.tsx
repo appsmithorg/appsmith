@@ -10,6 +10,7 @@ import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { getType, Types } from "utils/TypeHelpers";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -151,6 +152,7 @@ export class JSONtoForm<
 
   normalizeValues = () => {
     let { formData } = this.props;
+
     const checked: Record<string, any> = {};
     const configProperties = Object.keys(this.configDetails);
 
@@ -205,6 +207,24 @@ export class JSONtoForm<
       }
     }
 
+    return formData;
+  };
+
+  getTrimmedData = (formData: any) => {
+    const dataType = getType(formData);
+    const isArrayorObject = (type: ReturnType<typeof getType>) =>
+      type === Types.ARRAY || type === Types.OBJECT;
+
+    if (isArrayorObject(dataType)) {
+      Object.keys(formData).map((key) => {
+        const valueType = getType(formData[key]);
+        if (isArrayorObject(valueType)) {
+          this.getTrimmedData(formData[key]);
+        } else if (valueType === Types.STRING) {
+          formData[key] = formData[key].trim();
+        }
+      });
+    }
     return formData;
   };
 
@@ -281,7 +301,7 @@ export class JSONtoForm<
           // If the section is hidden, skip rendering
           if (isHidden(this.props.formData, section.hidden)) return null;
           if ("children" in propertyControlOrSection) {
-            const { children } = propertyControlOrSection;
+            const { children } = propertyControlOrSection as any;
             if (this.isKVArray(children)) {
               return this.renderKVArray(children);
             }

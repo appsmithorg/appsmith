@@ -27,6 +27,7 @@ import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
 import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
 import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "../src/sagas/DraggingCanvasSagas";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -58,4 +59,5 @@ export const sagasToRunForTests = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  draggingCanvasSagas,
 ];

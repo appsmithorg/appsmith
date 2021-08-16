@@ -12,6 +12,7 @@ export const CONFIG = {
   name: "Tabs",
   iconSVG: IconSVG,
   needsMeta: true,
+  isCanvas: true,
   defaults: {
     rows: 7 * GRID_DENSITY_MIGRATION_V1,
     columns: 8 * GRID_DENSITY_MIGRATION_V1,

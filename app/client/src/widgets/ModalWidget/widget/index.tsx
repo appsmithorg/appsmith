@@ -12,6 +12,8 @@ import {
 import { generateClassName } from "utils/generators";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
     width: 456,
@@ -99,7 +101,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
     childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
+      ? Math.max(childWidgetData.bottomRow, MODAL_SIZE[this.props.size].height)
       : MODAL_SIZE[this.props.size].height;
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
@@ -137,6 +139,15 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   }
 
+  makeModalSelectable(content: ReactNode): ReactNode {
+    // substitute coz the widget lacks draggable and position containers.
+    return (
+      <ClickContentToOpenPropPane widgetId={this.props.widgetId}>
+        {content}
+      </ClickContentToOpenPropPane>
+    );
+  }
+
   makeModalComponent(content: ReactNode) {
     return (
       <ModalComponent
@@ -157,6 +168,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   render() {
     let children = this.getChildren();
     if (this.props.renderMode === RenderModes.CANVAS) {
+      children = this.makeModalSelectable(children);
       children = (
         <>
           <WidgetNameComponent
@@ -172,7 +184,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         </>
       );
     }
-
     return this.makeModalComponent(children);
   }
 

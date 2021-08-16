@@ -8,6 +8,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import produce from "immer";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -41,20 +42,21 @@ class CanvasWidget extends ContainerWidget {
     );
   }
 
-  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    if (!childWidgetData) return null;
+  renderChildWidget(childProps: WidgetProps): React.ReactNode {
+    if (!childProps) return null;
     // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
+    if (childProps.detachFromLayout && !childProps.isVisible) {
       return null;
     }
     const snapSpaces = this.getSnapSpaces();
+    const childWidgetProps = produce(childProps, (childWidgetData) => {
+      childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
+      childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
+      if (this.props.noPad) childWidgetData.noContainerOffset = true;
+      childWidgetData.parentId = this.props.widgetId;
+    });
 
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
-
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetProps);
   }
 
   render() {

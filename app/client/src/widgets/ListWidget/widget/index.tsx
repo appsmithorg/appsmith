@@ -6,10 +6,11 @@ import {
   set,
   xor,
   isNumber,
-  round,
   range,
   toString,
   isBoolean,
+  omit,
+  floor,
 } from "lodash";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -31,7 +32,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { getWidgetDimensions } from "widgets/WidgetUtils";
+import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import produce from "immer";
 
+const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -56,6 +60,43 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     // generate childMetaPropertyMap
     this.generateChildrenDefaultPropertiesMap(this.props);
     this.generateChildrenMetaPropertiesMap(this.props);
+    this.generateChildrenEntityDefinitions(this.props);
+  }
+
+  /**
+   * generates the children entity definitions for children
+   *
+   * by entity definition we mean properties that will be open for users for autocomplete
+   *
+   * @param props
+   */
+  generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
+    const template = props.template;
+    const childrenEntityDefinitions: Record<string, any> = {};
+
+    if (template) {
+      Object.keys(template).map((key: string) => {
+        const currentTemplate = template[key];
+        const widgetType = currentTemplate.type;
+
+        childrenEntityDefinitions[widgetType] = Object.keys(
+          omit(
+            get(entityDefinitions, `${widgetType}`, {}) as Record<
+              string,
+              unknown
+            >,
+            ["!doc", "!url"],
+          ),
+        );
+      });
+    }
+
+    if (this.props.updateWidgetMetaProperty) {
+      this.props.updateWidgetMetaProperty(
+        "childrenEntityDefinitions",
+        childrenEntityDefinitions,
+      );
+    }
   }
 
   generateChildrenDefaultPropertiesMap = (
@@ -120,11 +161,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
     if (
-      xor(Object.keys(prevProps.template), Object.keys(this.props.template))
-        .length > 0
+      xor(
+        Object.keys(get(prevProps, "template", {})),
+        Object.keys(get(this.props, "template", {})),
+      ).length > 0
     ) {
       this.generateChildrenDefaultPropertiesMap(this.props);
       this.generateChildrenMetaPropertiesMap(this.props);
+      this.generateChildrenEntityDefinitions(this.props);
     }
   }
 
@@ -156,6 +200,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           type: EventType.ON_ROW_SELECTED,
         },
       });
+    } else {
+      this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
     }
 
     if (!action) return;
@@ -179,25 +225,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  renderChild = (childWidgetData: WidgetProps) => {
+  renderChild = (childProps: WidgetProps) => {
     const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const { shouldPaginate } = this.shouldPaginate();
 
-    childWidgetData.parentId = this.props.widgetId;
-    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
-    childWidgetData.canExtend =
-      childWidgetData.virtualizedEnabled && false
-        ? true
-        : this.props.shouldScrollContents;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.noPad = true;
-    childWidgetData.bottomRow =
-      this.props.bottomRow * this.props.parentRowSpace - 45;
-    childWidgetData.shouldScrollContents = false;
+    const childWidgetProps = produce(childProps, (childWidgetData) => {
+      childWidgetData.parentId = this.props.widgetId;
+      // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+      childWidgetData.canExtend = undefined;
+      childWidgetData.isVisible = this.props.isVisible;
+      childWidgetData.minHeight = componentHeight;
+      childWidgetData.rightColumn = componentWidth;
+      childWidgetData.noPad = true;
+      childWidgetData.bottomRow = shouldPaginate
+        ? componentHeight - LIST_WIDGEY_PAGINATION_HEIGHT
+        : componentHeight;
+    });
 
-    console.log({ childWidgetData });
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetProps);
   };
 
   /**
@@ -209,7 +254,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   updatePosition = (children: DSLWidget[]): DSLWidget[] => {
     const gridGap = this.props.gridGap || 0;
     return children.map((child: DSLWidget, index) => {
-      const gap = gridGap - 8;
+      const gap = gridGap;
 
       return {
         ...child,
@@ -262,9 +307,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           const validationPath = get(widget, `validationPaths`)[path];
 
           if (
-            (validationPath.type === ValidationTypes.BOOLEAN &&
+            (validationPath?.type === ValidationTypes.BOOLEAN &&
               isBoolean(evaluatedValue)) ||
-            validationPath.type === ValidationTypes.OBJECT
+            validationPath?.type === ValidationTypes.OBJECT
           ) {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
@@ -329,6 +374,27 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentItem) => { ${next}})(JSON.parse('${JSON.stringify(
                     listItem,
                   )}'))}}`
+                );
+              }
+              return prev + `{{${next}}}`;
+            },
+            "",
+          );
+          set(widget, path, newPropertyValue);
+        }
+
+        if (
+          propertyValue.indexOf("currentIndex") > -1 &&
+          propertyValue.indexOf("{{((currentIndex) => {") === -1
+        ) {
+          const { jsSnippets } = getDynamicBindings(propertyValue);
+
+          const newPropertyValue = jsSnippets.reduce(
+            (prev: string, next: string) => {
+              if (next.indexOf("currentIndex") > -1) {
+                return (
+                  prev +
+                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
                 );
               }
               return prev + `{{${next}}}`;
@@ -441,6 +507,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "bottomLeft",
         ]);
 
+        set(updatedListItemContainer, "ignoreCollision", true);
+        set(updatedListItemContainer, "shouldScrollContents", undefined);
+
         return updatedListItemContainer;
       },
     );
@@ -552,13 +621,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         parseInt(gridGap) * (listData.length - 1) >
       componentHeight;
 
-    const totalSpaceAvailable = componentHeight - (110 + WIDGET_PADDING * 2);
+    const totalSpaceAvailable =
+      componentHeight - (LIST_WIDGEY_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer =
       templateHeight + (gridGap * (listData.length - 1)) / listData.length;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;
 
-    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : round(perPage) };
+    return { shouldPaginate, perPage: isNaN(perPage) ? 0 : floor(perPage) };
   };
 
   /**

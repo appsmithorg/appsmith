@@ -29,6 +29,8 @@ export interface WidgetConfig
   hideCard: boolean;
   displayName: string;
   key: string;
+  isCanvas?: boolean;
+  needsMeta?: boolean;
 }
 
 export interface WidgetConfigReducerState {

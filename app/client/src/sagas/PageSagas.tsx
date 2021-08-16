@@ -22,6 +22,8 @@ import {
   updateAndSaveLayout,
   saveLayout,
   setLastUpdatedTime,
+  ClonePageActionPayload,
+  CreatePageActionPayload,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -34,6 +36,7 @@ import PageApi, {
   FetchPublishedPageResponse,
   PageLayout,
   SavePageResponse,
+  SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
@@ -73,7 +76,8 @@ import {
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
 } from "actions/actionActions";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
@@ -478,7 +482,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 }
 
 export function* createPageSaga(
-  createPageAction: ReduxAction<CreatePageRequest>,
+  createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
     const request: CreatePageRequest = createPageAction.payload;
@@ -502,12 +506,14 @@ export function* createPageSaga(
         },
       });
       // route to generate template for new page created
-      history.push(
-        getGenerateTemplateURL(
-          createPageAction.payload.applicationId,
-          response.data.id,
-        ),
-      );
+      if (!createPageAction.payload.blockNavigation) {
+        history.push(
+          getGenerateTemplateURL(
+            createPageAction.payload.applicationId,
+            response.data.id,
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -582,7 +588,9 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
-export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
+export function* clonePageSaga(
+  clonePageAction: ReduxAction<ClonePageActionPayload>,
+) {
   try {
     const request: ClonePageRequest = clonePageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
@@ -609,7 +617,9 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
 
       yield put(fetchActionsForPage(response.data.id));
 
-      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      if (!clonePageAction.payload.blockNavigation) {
+        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      }
     }
   } catch (error) {
     yield put({
@@ -851,6 +861,34 @@ export function* populatePageDSLsSaga() {
   }
 }
 
+/**
+ * saga to update the page order
+ *
+ * @param action
+ */
+export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
+  try {
+    const request: SetPageOrderRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.setPageOrder, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
+        payload: {
+          pages: response.data.pages,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_PAGE_ORDER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
 export function* generateTemplatePageSaga(
   action: ReduxAction<GenerateTemplatePageRequest>,
 ) {
@@ -918,5 +956,6 @@ export default function* pageSagas() {
       ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
       generateTemplatePageSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
   ]);
 }

@@ -29,15 +29,14 @@ export default {
 
     let updatedItems = [];
 
-    for (let i = 0; i < props.listData.length; i++) {
-      updatedItems[i] = JSON.parse(JSON.stringify(item));
-    }
-
-    updatedItems.map((currentItem, itemIndex) => {
+    for (let itemIndex = 0; itemIndex < props.listData.length; itemIndex++) {
+      let currentItem = JSON.parse(JSON.stringify(item));
       const widgetKeys = Object.keys(currentItem);
 
-      widgetKeys.map((currentWidgetName) => {
-        const currentWidget = currentItem[currentWidgetName];
+      for (var i = 0; i < widgetKeys.length; i++) {
+        const currentWidgetName = widgetKeys[i];
+        let currentWidget = currentItem[currentWidgetName];
+        const filteredWidget = {};
 
         const dynamicPaths = _.compact(
           currentWidget.dynamicBindingPathList?.map((path) => path.key),
@@ -100,8 +99,15 @@ export default {
             _.set(currentWidget, key, metaPropertyValue);
           }
         });
-      });
-    });
+
+        currentItem[currentWidgetName] = _.pick(
+          currentWidget,
+          props.childrenEntityDefinitions[currentWidget.type],
+        );
+      }
+
+      updatedItems[itemIndex] = currentItem;
+    }
 
     return updatedItems;
   },
@@ -116,7 +122,7 @@ export default {
             })),
           )
         : {};
-    return { currentItem: structure };
+    return { currentItem: structure, currentIndex: "" };
   },
   //
 };

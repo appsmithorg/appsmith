@@ -283,7 +283,10 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  "Search Widgets, Queries, Documentation";
+  `Search Widgets, Queries, Documentation`;
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search Snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search Widgets and Queries";
+export const OMNIBAR_PLACEHOLDER_DOC = () => "Search Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -346,11 +349,15 @@ export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const VALUE_IS_INVALID = (propertyPath: string) =>
+  `The value at ${propertyPath} is invalid`;
 export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
+export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
+  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
@@ -360,6 +367,9 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+//Editor Page
+export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
 // Generate page from DB Messages
 

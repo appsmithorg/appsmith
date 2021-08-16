@@ -48,6 +48,7 @@ import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
+import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -94,6 +95,7 @@ export interface AppState {
     tour: TourReducerState;
     notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
+    appCollab: AppCollabReducerState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;

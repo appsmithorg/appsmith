@@ -32,9 +32,10 @@ import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./SelectionCanvasSagas";
+import draggingCanvasSagas from "./DraggingCanvasSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-
 const sagas = [
   initSagas,
   pageSagas,
@@ -69,6 +70,7 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  draggingCanvasSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

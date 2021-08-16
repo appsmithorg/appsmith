@@ -2,7 +2,6 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Colors } from "constants/Colors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 import React, {
   forwardRef,
@@ -24,8 +23,8 @@ import { removeSpecialChars } from "utils/helpers";
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
-const searchHighlightSpanClassName = "token";
-const searchTokenizationDelimiter = "!!";
+export const searchHighlightSpanClassName = "token";
+export const searchTokenizationDelimiter = "!!";
 
 const Wrapper = styled.div`
   overflow: hidden;
@@ -39,7 +38,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const replace = (
+export const replace = (
   str: string,
   delimiter: string,
   className = "token",
@@ -74,6 +73,8 @@ export interface EntityNameProps {
   entityId: string;
   searchKeyword?: string;
   className?: string;
+  enterEditMode: () => void;
+  exitEditMode: () => void;
   nameTransformFn?: (input: string, limit?: number) => string;
 }
 
@@ -175,28 +176,11 @@ export const EntityName = forwardRef(
       return updatedName;
     }, [searchKeyword, updatedName]);
 
-    const exitEditMode = useCallback(() => {
-      dispatch({
-        type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
-      });
-    }, [dispatch]);
-
-    const enterEditMode = useCallback(
-      () =>
-        dispatch({
-          type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
-          payload: {
-            id: props.entityId,
-          },
-        }),
-      [dispatch, props.entityId],
-    );
-
     if (!props.isEditing)
       return (
         <Wrapper
           className={props.className}
-          onDoubleClick={enterEditMode}
+          onDoubleClick={props.enterEditMode}
           ref={ref}
         >
           {searchHighlightedName}
@@ -211,7 +195,7 @@ export const EntityName = forwardRef(
           isEditingDefault
           isInvalid={isInvalidName}
           minimal
-          onBlur={exitEditMode}
+          onBlur={props.exitEditMode}
           onTextChanged={handleAPINameChange}
           placeholder="Name"
           type="text"

@@ -1,11 +1,17 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { cloneDeep, get, isString, filter, set } from "lodash";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetMetaProps } from "./selectors";
 
@@ -73,16 +79,11 @@ export const handleIfParentIsListWidgetWhilePasting = (
         let value = currentWidget[key];
 
         if (isString(value) && value.indexOf("currentItem") > -1) {
-          const { jsSnippets } = getDynamicBindings(value);
+          const { jsSnippets, stringSegments } = getDynamicBindings(value);
 
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return prev + `${next}`;
-            },
-            "",
-          );
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+          value = `{{${listWidget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
           currentWidget[key] = value;
 
@@ -317,7 +318,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget.type === "LIST_WIDGET") {
+      if (copiedWidget?.type === "LIST_WIDGET") {
         return selectedWidget;
       }
     }
@@ -325,4 +326,22 @@ export const checkIfPastingIntoListWidget = function(
     return get(canvasWidgets, firstChildId);
   }
   return selectedWidget;
+};
+
+export const getParentBottomRowAfterAddingWidget = (
+  stateParent: FlattenedWidgetProps,
+  newWidget: FlattenedWidgetProps,
+) => {
+  const parentRowSpace =
+    newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const updateBottomRow =
+    stateParent.type === "CANVAS_WIDGET" &&
+    newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
+  return updateBottomRow
+    ? Math.max(
+        (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+          parentRowSpace,
+        stateParent.bottomRow,
+      )
+    : stateParent.bottomRow;
 };

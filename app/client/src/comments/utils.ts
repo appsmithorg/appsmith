@@ -3,7 +3,7 @@ import {
   BUILDER_PAGE_URL,
   getApplicationViewerPageURL,
 } from "constants/routes";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;

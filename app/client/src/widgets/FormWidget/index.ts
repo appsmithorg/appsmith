@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "Form",
   iconSVG: IconSVG,
   needsMeta: true,
+  isCanvas: true,
   defaults: {
     rows: 13 * GRID_DENSITY_MIGRATION_V1,
     columns: 7 * GRID_DENSITY_MIGRATION_V1,

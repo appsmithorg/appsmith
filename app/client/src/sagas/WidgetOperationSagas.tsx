@@ -10,7 +10,6 @@ import {
   WidgetAddChild,
   WidgetAddChildren,
   WidgetDelete,
-  WidgetMove,
   WidgetResize,
 } from "actions/pageActions";
 import {
@@ -23,10 +22,7 @@ import {
   getWidget,
   getWidgets,
 } from "./selectors";
-import {
-  generateWidgetProps,
-  updateWidgetPosition,
-} from "utils/WidgetPropsUtils";
+import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import {
   all,
   call,
@@ -130,6 +126,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   checkIfPastingIntoListWidget,
   doesTriggerPathsContainPropertyPath,
+  getParentBottomRowAfterAddingWidget,
   getParentWidgetIdForPasting,
   getWidgetChildren,
   handleSpecificCasesWhilePasting,
@@ -325,10 +322,18 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       addChildAction.payload,
       widgets,
     );
+    const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
+
+    const parentBottomRow = getParentBottomRowAfterAddingWidget(
+      stateParent,
+      newWidget,
+    );
+
     // Update widgets to put back in the canvasWidgetsReducer
     // TODO(abhinav): This won't work if dont already have an empty children: []
     const parent = {
       ...stateParent,
+      bottomRow: parentBottomRow,
       children: [...(stateParent.children || []), childWidgetPayload.widgetId],
     };
 
@@ -439,7 +444,7 @@ const getAllWidgetsInTree = (
   canvasWidgets: CanvasWidgetsReduxState,
 ) => {
   const widget = canvasWidgets[widgetId];
-  const widgetList = [widget];
+  const widgetList = widget ? [widget] : [];
   if (widget && widget.children) {
     widget.children
       .filter(Boolean)
@@ -555,6 +560,9 @@ export function* deleteAllSelectedWidgetsSaga(
                 name: widget.widgetName,
                 type: ENTITY_TYPE.WIDGET,
                 id: widget.widgetId,
+              },
+              analytics: {
+                widgetType: widget.type,
               },
             });
           });
@@ -680,6 +688,9 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
                   type: ENTITY_TYPE.WIDGET,
                   id: widget.widgetId,
                 },
+                analytics: {
+                  widgetType: widget.type,
+                },
               });
             });
           }
@@ -758,14 +769,18 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
   const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
     action.payload.widgetId,
   );
+  const stateWidgets = yield select(getWidgets);
   const deletedWidgetIds = action.payload.widgetId.split(",");
-  if (deletedWidgets && Array.isArray(deletedWidgets)) {
+  if (
+    deletedWidgets &&
+    Array.isArray(deletedWidgets) &&
+    deletedWidgets.length
+  ) {
     // Get the current list of widgets from reducer
     const formTree = deletedWidgets.reduce((widgetTree, each) => {
       widgetTree[each.widgetId] = each;
       return widgetTree;
     }, {} as CanvasWidgetsReduxState);
-    const stateWidgets = yield select(getWidgets);
     const deletedWidgetGroups = deletedWidgetIds.map((each) => ({
       widget: formTree[each],
       widgetsToRestore: getAllWidgetsInTree(each, formTree),
@@ -797,7 +812,8 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
             if (
               widget.tabId &&
               widget.type === WidgetTypes.CANVAS_WIDGET &&
-              widget.parentId
+              widget.parentId &&
+              widgets[widget.parentId]
             ) {
               const parent = cloneDeep(widgets[widget.parentId]);
               if (parent.tabsObj) {
@@ -833,13 +849,13 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               }
             }
             let newChildren = [widget.widgetId];
-            if (widget.parentId && widgets[widget.parentId].children) {
-              // Concatenate the list of parents children with the current widgetId
-              newChildren = newChildren.concat(
-                widgets[widget.parentId].children,
-              );
-            }
-            if (widget.parentId) {
+            if (widget.parentId && widgets[widget.parentId]) {
+              if (widgets[widget.parentId].children) {
+                // Concatenate the list of parents children with the current widgetId
+                newChildren = newChildren.concat(
+                  widgets[widget.parentId].children,
+                );
+              }
               widgets = {
                 ...widgets,
                 [widget.parentId]: {
@@ -867,70 +883,6 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
       yield put(forceOpenPropertyPane(action.payload.widgetId));
     }
     yield flushDeletedWidgets(action.payload.widgetId);
-  }
-}
-
-export function* moveSaga(moveAction: ReduxAction<WidgetMove>) {
-  try {
-    Toaster.clear();
-    const start = performance.now();
-    const {
-      leftColumn,
-      newParentId,
-      parentId,
-      topRow,
-      widgetId,
-    } = moveAction.payload;
-    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    let widget = Object.assign({}, stateWidget);
-    // Get all widgets from DSL/Redux Store
-    const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const widgets = Object.assign({}, stateWidgets);
-    // Get parent from DSL/Redux Store
-    const stateParent: FlattenedWidgetProps = yield select(getWidget, parentId);
-    const parent = {
-      ...stateParent,
-      children: [...(stateParent.children || [])],
-    };
-    // Update position of widget
-    const updatedPosition = updateWidgetPosition(widget, leftColumn, topRow);
-    widget = { ...widget, ...updatedPosition };
-
-    // Replace widget with update widget props
-    widgets[widgetId] = widget;
-    // If the parent has changed i.e parentWidgetId is not parent.widgetId
-    if (parent.widgetId !== newParentId && widgetId !== newParentId) {
-      // Remove from the previous parent
-
-      if (parent.children && Array.isArray(parent.children)) {
-        const indexOfChild = parent.children.indexOf(widgetId);
-        if (indexOfChild > -1) delete parent.children[indexOfChild];
-        parent.children = parent.children.filter(Boolean);
-      }
-
-      // Add to new parent
-
-      widgets[parent.widgetId] = parent;
-      const newParent = {
-        ...widgets[newParentId],
-        children: widgets[newParentId].children
-          ? [...(widgets[newParentId].children || []), widgetId]
-          : [widgetId],
-      };
-      widgets[widgetId].parentId = newParentId;
-      widgets[newParentId] = newParent;
-    }
-    log.debug("move computations took", performance.now() - start, "ms");
-
-    yield put(updateAndSaveLayout(widgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: WidgetReduxActionTypes.WIDGET_MOVE,
-        error,
-      },
-    });
   }
 }
 
@@ -1413,7 +1365,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   }
 
   const allAllowedToCopy = selectedWidgets.some((each) => {
-    return !allWidgets[each].disallowCopy;
+    return allWidgets[each] && !allWidgets[each].disallowCopy;
   });
 
   if (!allAllowedToCopy) {
@@ -1701,18 +1653,16 @@ function* pasteWidgetSaga() {
                 // Add the new child to existing children
                 parentChildren = parentChildren.concat(widgetChildren);
               }
-              const updateBottomRow =
-                widget.bottomRow * widget.parentRowSpace >
-                widgets[pastingIntoWidgetId].bottomRow;
+              const parentBottomRow = getParentBottomRowAfterAddingWidget(
+                widgets[pastingIntoWidgetId],
+                widget,
+              );
+
               widgets = {
                 ...widgets,
                 [pastingIntoWidgetId]: {
                   ...widgets[pastingIntoWidgetId],
-                  ...(updateBottomRow
-                    ? {
-                        bottomRow: widget.bottomRow * widget.parentRowSpace,
-                      }
-                    : {}),
+                  bottomRow: parentBottomRow,
                   children: parentChildren,
                 },
               };
@@ -1867,6 +1817,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       topRow,
       rightColumn,
       bottomRow,
+      parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     };
 
     yield put({
@@ -1903,7 +1854,7 @@ export default function* widgetOperationSagas() {
       WidgetReduxActionTypes.WIDGET_BULK_DELETE,
       deleteAllSelectedWidgetsSaga,
     ),
-    takeLatest(WidgetReduxActionTypes.WIDGET_MOVE, moveSaga),
+
     takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
