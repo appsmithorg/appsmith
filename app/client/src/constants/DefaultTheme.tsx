@@ -1240,6 +1240,13 @@ type ColorType = {
   numberedStep: {
     line: string;
   };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: "#FAFAFA",
 };
 
 const tabItemBackgroundFill = {
@@ -1433,6 +1440,7 @@ const numberedStep = {
 };
 
 export const dark: ColorType = {
+  gitSyncModal,
   tabItemBackgroundFill,
   numberedStep,
   overlayColor: "#090707cc",
@@ -1992,6 +2000,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  gitSyncModal,
   tabItemBackgroundFill,
   numberedStep,
   overlayColor: "#090707cc",

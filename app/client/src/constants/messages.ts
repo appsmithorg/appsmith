@@ -416,3 +416,10 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Git sync
+export const GIT_CONNECTION = () => "GIT Connection";
+export const DEPLOY = () => "Deploy";
+export const MERGE = () => "Merge";
+export const SHARE_APPLICATION = () => "Share Application";
+export const SETTINGS = () => "Settings";
