@@ -75,7 +75,7 @@ export type DataTreeEntity =
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
-} & { actionPaths?: string[] };
+};
 
 type DataTreeSeed = {
   actions: ActionDataState;
