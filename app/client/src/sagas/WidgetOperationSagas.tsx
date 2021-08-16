@@ -1528,6 +1528,14 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
         for (let i = 0; i < newWidgetList.length; i++) {
           const widget = newWidgetList[i];
           const oldWidgetName = widget.widgetName;
+          let newWidgetName = oldWidgetName;
+
+          if (!shouldGroup) {
+            newWidgetName = getNextWidgetName(widgets, widget.type, evalTree, {
+              prefix: oldWidgetName,
+              startWithoutIndex: true,
+            });
+          }
 
           // Update the children widgetIds if it has children
           if (widget.children && widget.children.length > 0) {
@@ -1557,12 +1565,6 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           // Update the table widget column properties
           if (widget.type === WidgetTypes.TABLE_WIDGET) {
             try {
-              const oldWidgetName = widget.widgetName;
-              const newWidgetName = getNextWidgetName(
-                widgets,
-                widget.type,
-                evalTree,
-              );
               // If the primaryColumns of the table exist
               if (widget.primaryColumns) {
                 // For each column
@@ -1657,15 +1659,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           }
           // Generate a new unique widget name
           if (!shouldGroup) {
-            widget.widgetName = getNextWidgetName(
-              widgets,
-              widget.type,
-              evalTree,
-              {
-                prefix: oldWidgetName,
-                startWithoutIndex: true,
-              },
-            );
+            widget.widgetName = newWidgetName;
           }
 
           widgetNameMap[oldWidgetName] = widget.widgetName;
