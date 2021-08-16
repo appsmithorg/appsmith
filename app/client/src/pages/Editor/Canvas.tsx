@@ -23,10 +23,11 @@ interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
 }
 
+// This auto connects the socket
 const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
 
 const shareMousePointer = (e: any, pageId: string) => {
-  if (pageEditSocket) {
+  if (pageEditSocket && pageEditSocket.connected) {
     const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
     const rect = selectionCanvas.getBoundingClientRect();
 
@@ -36,6 +37,8 @@ const shareMousePointer = (e: any, pageId: string) => {
       data: { x, y },
       pageId,
     });
+  } else {
+    pageEditSocket && pageEditSocket.connect();
   }
 };
 

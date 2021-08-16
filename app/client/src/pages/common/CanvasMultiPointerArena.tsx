@@ -99,10 +99,25 @@ function CanvasMultiPointerArena({
     };
   }, []);
 
+  // Initialize the page editing events to share pointer.
+  useEffect(() => {
+    if (pageEditSocket.connected) {
+      pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
+    } else {
+      pageEditSocket.connect(); // try to connect manually
+    }
+    return () => {
+      pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
+    };
+  }, [pageEditSocket.connected]);
+
   // Subscribe to RTS events
   useEffect(() => {
-    pageEditSocket.connect();
-    pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
+    // if the component is not unmounted and the socket disconnects,
+    // will try to reconnect
+    pageEditSocket.on(APP_COLLAB_EVENTS.DISCONNECT, () => {
+      pageEditSocket.connect();
+    });
 
     pageEditSocket.on(
       APP_COLLAB_EVENTS.SHARE_USER_POINTER,
@@ -126,7 +141,6 @@ function CanvasMultiPointerArena({
     );
 
     return () => {
-      pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
       pageEditSocket.disconnect();
     };
   }, []);
