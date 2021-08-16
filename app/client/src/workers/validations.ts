@@ -542,7 +542,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || moment().toISOString(true),
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
+      message: `Value does not match: ${getExpectedType(config)}`,
     };
     if (value === undefined || value === null || !isString(value)) {
       if (!config.params?.required) {
