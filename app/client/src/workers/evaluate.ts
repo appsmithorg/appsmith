@@ -102,6 +102,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export default function evaluate(
   js: string,
   data: DataTree,
+  resolvedFunctions: Record<string, any>,
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
@@ -114,6 +115,7 @@ export default function evaluate(
     let errors: EvaluationError[] = [];
     let result;
     let triggers: any[] = [];
+    // debugger;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
@@ -154,6 +156,14 @@ export default function evaluate(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
+
+    Object.keys(resolvedFunctions).forEach((datum) => {
+      const resolvedObject = resolvedFunctions[datum];
+      Object.keys(resolvedObject).forEach((key) => {
+        GLOBAL_DATA[datum][key] = resolvedObject[key];
+      });
+    });
+
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available

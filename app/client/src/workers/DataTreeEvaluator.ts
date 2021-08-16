@@ -65,6 +65,7 @@ export default class DataTreeEvaluator {
   allKeys: Record<string, true> = {};
   oldUnEvalTree: DataTree = {};
   errors: EvalError[] = [];
+  resolvedFunctions: Record<string, any> = {};
   parsedValueCache: Map<
     string,
     {
@@ -92,10 +93,12 @@ export default class DataTreeEvaluator {
     this.inverseDependencyMap = this.getInverseDependencyTree();
     // Evaluate
     const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
-    const resolvedDataTree = this.resolveJSActionsFirstTree(localUnEvalTree);
+    // this.resolvedFunctions = {};
+    this.resolveJSActionsFirstTree(localUnEvalTree);
     const evaluateStart = performance.now();
     const evaluatedTree = this.evaluateTree(
-      resolvedDataTree,
+      unEvalTree,
+      this.resolvedFunctions,
       this.sortedDependencies,
     );
     const evaluateEnd = performance.now();
@@ -209,7 +212,11 @@ export default class DataTreeEvaluator {
     removedPaths.forEach((removedPath) => {
       _.unset(this.evalTree, removedPath);
     });
-    const newEvalTree = this.evaluateTree(this.evalTree, evaluationOrder);
+    const newEvalTree = this.evaluateTree(
+      this.evalTree,
+      this.resolvedFunctions,
+      evaluationOrder,
+    );
     const evalStop = performance.now();
 
     const evalTreeDiffsStart = performance.now();
@@ -419,6 +426,7 @@ export default class DataTreeEvaluator {
 
   evaluateTree(
     oldUnevalTree: DataTree,
+    resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
   ): DataTree {
     const tree = _.cloneDeep(oldUnevalTree);
@@ -452,6 +460,7 @@ export default class DataTreeEvaluator {
               evalPropertyValue = this.getDynamicValue(
                 unEvalPropertyValue,
                 currentTree,
+                resolvedFunctions,
                 evaluationSubstitutionType,
                 false,
                 undefined,
@@ -485,6 +494,7 @@ export default class DataTreeEvaluator {
                 fullPropertyPath,
                 widgetEntity,
                 currentTree,
+                resolvedFunctions,
                 evalPropertyValue,
                 unEvalPropertyValue,
                 isDefaultProperty,
@@ -611,6 +621,7 @@ export default class DataTreeEvaluator {
   getDynamicValue(
     dynamicBinding: string,
     data: DataTree,
+    resolvedFunctions: Record<string, any>,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     returnTriggers: boolean,
     callBackData?: Array<any>,
@@ -622,6 +633,7 @@ export default class DataTreeEvaluator {
       return this.evaluateDynamicBoundValue(
         jsSnippets[0],
         data,
+        resolvedFunctions,
         callBackData,
         returnTriggers,
       );
@@ -633,6 +645,7 @@ export default class DataTreeEvaluator {
           const result = this.evaluateDynamicBoundValue(
             jsSnippet,
             data,
+            resolvedFunctions,
             callBackData,
           );
           if (fullPropertyPath && result.errors.length) {
@@ -662,11 +675,18 @@ export default class DataTreeEvaluator {
   evaluateDynamicBoundValue(
     js: string,
     data: DataTree,
+    resolvedFunctions: Record<string, any>,
     callbackData?: Array<any>,
     isTriggerBased = false,
   ): EvalResult {
     try {
-      return evaluate(js, data, callbackData, isTriggerBased);
+      return evaluate(
+        js,
+        data,
+        resolvedFunctions,
+        callbackData,
+        isTriggerBased,
+      );
     } catch (e) {
       return {
         result: undefined,
@@ -687,6 +707,7 @@ export default class DataTreeEvaluator {
     fullPropertyPath: string,
     widget: DataTreeWidget,
     currentTree: DataTree,
+    resolvedFunctions: Record<string, any>,
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     isDefaultProperty: boolean,
@@ -697,6 +718,7 @@ export default class DataTreeEvaluator {
       const { triggers } = this.getDynamicValue(
         unEvalPropertyValue,
         currentTree,
+        resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         true,
         undefined,
@@ -782,16 +804,18 @@ export default class DataTreeEvaluator {
       Object.keys(entity.meta).forEach((unEvalFunc) => {
         const unEvalValue = _.get(entity, unEvalFunc);
         if (typeof unEvalValue === "string") {
-          const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
-          const { result } = evaluate(newUnEvalValue, {});
-          _.set(unEvalDataTree, `${entityName}.${unEvalFunc}`, result);
+          const newUnEvalValue = unEvalValue.replace(
+            /this\./g,
+            entity.name + ".",
+          );
+          const { result } = evaluate(newUnEvalValue, {}, {});
+          _.set(this.resolvedFunctions, `${entityName}.${unEvalFunc}`, result);
         }
       });
     });
-    return unEvalDataTree;
   }
-
   resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
+    const reg = /this\./g;
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
@@ -810,12 +834,17 @@ export default class DataTreeEvaluator {
           Object.keys(entity.meta).forEach((unEvalFunc) => {
             const unEvalValue = _.get(entity, unEvalFunc);
             if (typeof unEvalValue === "string") {
+              // const reg = /this./;
               const newUnEvalValue = unEvalValue.replaceAll(
-                "this",
-                entity.name,
+                reg,
+                entity.name + ".",
               );
-              const { result } = evaluate(unEvalValue, {});
-              _.set(this.evalTree, `${entityName}.${unEvalFunc}`, result);
+              const { result } = evaluate(newUnEvalValue, {}, {});
+              _.set(
+                this.resolvedFunctions,
+                `${entityName}.${unEvalFunc}`,
+                result,
+              );
             }
           });
           // Check if it is a new JS action function
@@ -823,18 +852,32 @@ export default class DataTreeEvaluator {
           //// resolve that function
           const unEvalValue = _.get(entity, propertyPath);
           if (typeof unEvalValue === "string") {
-            const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
-            const { result } = evaluate(unEvalValue, this.evalTree);
-            _.set(this.evalTree, `${entityName}.${propertyPath}`, result);
+            const newUnEvalValue = unEvalValue.replaceAll(
+              reg,
+              entity.name + ".",
+            );
+            const { result } = evaluate(newUnEvalValue, this.evalTree, {});
+            _.set(
+              this.resolvedFunctions,
+              `${entityName}.${propertyPath}`,
+              result,
+            );
           }
         }
       }
       if (diff.event === DataTreeDiffEvent.EDIT) {
         const unEvalValue = _.get(entity, propertyPath);
         if (typeof unEvalValue === "string") {
-          const newUnEvalValue = unEvalValue.replaceAll("this", entity.name);
-          const { result } = evaluate(unEvalValue, this.evalTree);
-          _.set(this.evalTree, diff.payload.propertyPath, result);
+          const newUnEvalValue = unEvalValue.replaceAll(reg, entity.name + ".");
+          const { result } = evaluate(newUnEvalValue, this.evalTree, {});
+          _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
+        }
+      }
+
+      if (diff.event === DataTreeDiffEvent.DELETE) {
+        const unEvalValue = _.get(entity, propertyPath);
+        if (this.resolvedFunctions && this.resolvedFunctions[unEvalValue]) {
+          delete this.resolvedFunctions[unEvalValue];
         }
       }
       // TODO
@@ -1223,6 +1266,7 @@ export default class DataTreeEvaluator {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
+        this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         false,
       );
@@ -1242,6 +1286,7 @@ export default class DataTreeEvaluator {
       this.getDynamicValue(
         `{{${binding}}}`,
         dataTreeWithExecutionParams,
+        this.resolvedFunctions,
         EvaluationSubstitutionType.TEMPLATE,
         false,
       ),

@@ -115,12 +115,10 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
     if (data.updateActions.length > 0) {
       let changedActions = [];
       for (let i = 0; i < data.updateActions.length; i++) {
-        changedActions = jsActionTobeUpdated.actions.map((js: any) => {
-          if (js.id === data.updateActions[i].id) {
-            return data.updateActions[i];
-          }
-          return js;
-        });
+        changedActions = jsActionTobeUpdated.actions.map(
+          (js: any) =>
+            data.updateActions.find((update: any) => update.id === js.id) || js,
+        );
       }
       jsActionTobeUpdated.actions = changedActions;
       yield put(

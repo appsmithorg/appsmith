@@ -125,6 +125,7 @@ ctx.addEventListener(
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
+        const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
         const {
           errors: evalErrors,
           triggers,
@@ -134,6 +135,7 @@ ctx.addEventListener(
         } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
+          resolvedFunctions,
           EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
@@ -229,8 +231,9 @@ ctx.addEventListener(
           return true;
         }
         const evalTree = dataTreeEvaluator.evalTree;
+        const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
         const path = collectionName + "." + action.name + "()";
-        const { result } = evaluate(path, evalTree);
+        const { result } = evaluate(path, evalTree, resolvedFunctions);
         return result;
       }
       default: {
