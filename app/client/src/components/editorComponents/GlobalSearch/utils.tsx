@@ -2,15 +2,6 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 
-export const isNavigation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
-export const isDocumentation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
-export const isSnippet = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
-export const isMenu = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.INIT;
-
 export type RecentEntity = {
   type: string;
   id: string;
@@ -77,6 +68,15 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     id: SEARCH_CATEGORY_ID.INIT,
   },
 };
+
+export const isNavigation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
+export const isDocumentation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+export const isSnippet = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
+export const isMenu = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.INIT;
 
 export const getFilterCategoryList = () => Object.values(filterCategories);
 

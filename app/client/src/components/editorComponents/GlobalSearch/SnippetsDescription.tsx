@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism-light";
 import { prism } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { TabbedViewContainer } from "pages/Editor/APIEditor/Form";
 import { TabComponent } from "components/ads/Tabs";
@@ -187,6 +187,29 @@ export default function SnippetDescription(props: any) {
     [validations],
   );
 
+  const handleCopy = () => {
+    copy(`{{ ${getSnippet(snippet, selectedArgs)} }}`);
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 3000);
+  };
+
+  const handleRun = () => {
+    dispatch(
+      setGlobalSearchFilterContext({
+        executionInProgress: true,
+      }),
+    );
+    dispatch(
+      evaluateSnippet({
+        expression: getSnippet(snippet, selectedArgs),
+        dataType: returnType,
+        isTrigger,
+      }),
+    );
+  };
+
   const handleArgChange = useCallback(
     (value, arg) => {
       setSelectedArgs({
@@ -302,20 +325,7 @@ export default function SnippetDescription(props: any) {
                 <Button
                   className="t--apiFormRunBtn"
                   disabled={executionInProgress}
-                  onClick={() => {
-                    dispatch(
-                      setGlobalSearchFilterContext({
-                        executionInProgress: true,
-                      }),
-                    );
-                    dispatch(
-                      evaluateSnippet({
-                        expression: getSnippet(snippet, selectedArgs),
-                        dataType: returnType,
-                        isTrigger,
-                      }),
-                    );
-                  }}
+                  onClick={handleRun}
                   size={Size.medium}
                   tag="button"
                   text="Run"
@@ -323,13 +333,7 @@ export default function SnippetDescription(props: any) {
                 />
                 <Button
                   className="copy-snippet-btn"
-                  onClick={() => {
-                    copy(`{{ ${getSnippet(snippet, selectedArgs)} }}`);
-                    setIsCopied(true);
-                    setTimeout(() => {
-                      setIsCopied(false);
-                    }, 3000);
-                  }}
+                  onClick={handleCopy}
                   size={Size.medium}
                   tag="button"
                   text={isCopied ? "Copied" : "Copy Snippet"}
@@ -366,9 +370,7 @@ export default function SnippetDescription(props: any) {
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">
         <TabComponent
-          onSelect={(index: number) => {
-            setSelectedIndex(index);
-          }}
+          onSelect={setSelectedIndex}
           selectedIndex={selectedIndex}
           tabs={tabs}
         />

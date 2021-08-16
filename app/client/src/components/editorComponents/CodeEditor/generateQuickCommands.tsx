@@ -18,6 +18,98 @@ enum Shortcuts {
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
 }
+
+const matchingCommands = (
+  list: any,
+  searchText: string,
+  recentEntities: string[] = [],
+  limit = 5,
+) => {
+  list = list.filter((action: any) => {
+    return action.displayText
+      .toLowerCase()
+      .startsWith(searchText.toLowerCase());
+  });
+  list = sortBy(list, (a: any) => {
+    return (
+      (a.data.ENTITY_TYPE === "WIDGET"
+        ? recentEntities.indexOf(a.data.widgetId)
+        : recentEntities.indexOf(a.data.actionId)) * -1
+    );
+  });
+  return list.slice(0, limit);
+};
+
+const commandsHeader = (
+  displayText: string,
+  text = "",
+): CommandsCompletion => ({
+  text: text,
+  displayText: displayText,
+  className: "CodeMirror-command-header",
+  data: { doc: "" },
+  origin: "",
+  type: AutocompleteDataType.UNKNOWN,
+  isHeader: true,
+  shortcut: "",
+});
+
+const generateCreateNewCommand = ({
+  action,
+  displayText,
+  shortcut,
+  text,
+}: any): CommandsCompletion => ({
+  text: text,
+  displayText: displayText,
+  data: { doc: "" },
+  origin: "",
+  type: AutocompleteDataType.UNKNOWN,
+  className: "CodeMirror-commands",
+  shortcut: shortcut,
+  action: action,
+  render: (element: HTMLElement, self: any, data: any) => {
+    ReactDOM.render(
+      <Command
+        customText={data.customText}
+        name={data.displayText}
+        shortcut={data.shortcut}
+      />,
+      element,
+    );
+  },
+});
+
+const iconsByType = {
+  [Shortcuts.BINDING]: <Binding />,
+  [Shortcuts.PLUS]: <NewPlus />,
+  [Shortcuts.FUNCTION]: <Function />,
+};
+
+function Command(props: {
+  pluginType?: PluginType;
+  imgSrc?: string;
+  name: string;
+  shortcut: Shortcuts;
+  customText?: string;
+}) {
+  return (
+    <div className="command-container">
+      <div className="command">
+        {props.pluginType &&
+          {
+            DB: <DataSourcesColoredIcon />,
+            API: <ApisIcon />,
+            SAAS: <DataSourcesColoredIcon />,
+          }[props.pluginType]}
+        {props.imgSrc && <img src={props.imgSrc} />}
+        {props.shortcut && iconsByType[props.shortcut]}
+        <span>{props.name}</span>
+      </div>
+    </div>
+  );
+}
+
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
   currentEntityType: string,
@@ -146,94 +238,3 @@ export const generateQuickCommands = (
   }
   return list;
 };
-
-const matchingCommands = (
-  list: any,
-  searchText: string,
-  recentEntities: string[] = [],
-  limit = 5,
-) => {
-  list = list.filter((action: any) => {
-    return action.displayText
-      .toLowerCase()
-      .startsWith(searchText.toLowerCase());
-  });
-  list = sortBy(list, (a: any) => {
-    return (
-      (a.data.ENTITY_TYPE === "WIDGET"
-        ? recentEntities.indexOf(a.data.widgetId)
-        : recentEntities.indexOf(a.data.actionId)) * -1
-    );
-  });
-  return list.slice(0, limit);
-};
-
-const commandsHeader = (
-  displayText: string,
-  text = "",
-): CommandsCompletion => ({
-  text: text,
-  displayText: displayText,
-  className: "CodeMirror-command-header",
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
-  isHeader: true,
-  shortcut: "",
-});
-
-const generateCreateNewCommand = ({
-  action,
-  displayText,
-  shortcut,
-  text,
-}: any): CommandsCompletion => ({
-  text: text,
-  displayText: displayText,
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
-  className: "CodeMirror-commands",
-  shortcut: shortcut,
-  action: action,
-  render: (element: HTMLElement, self: any, data: any) => {
-    ReactDOM.render(
-      <Command
-        customText={data.customText}
-        name={data.displayText}
-        shortcut={data.shortcut}
-      />,
-      element,
-    );
-  },
-});
-
-const iconsByType = {
-  [Shortcuts.BINDING]: <Binding />,
-  [Shortcuts.PLUS]: <NewPlus />,
-  [Shortcuts.FUNCTION]: <Function />,
-};
-
-function Command(props: {
-  pluginType?: PluginType;
-  imgSrc?: string;
-  name: string;
-  shortcut: Shortcuts;
-  customText?: string;
-}) {
-  return (
-    <div className="command-container">
-      <div className="command">
-        {props.pluginType &&
-          {
-            DB: <DataSourcesColoredIcon />,
-            API: <ApisIcon />,
-            SAAS: <DataSourcesColoredIcon />,
-          }[props.pluginType]}
-        {props.imgSrc && <img src={props.imgSrc} />}
-        {props.shortcut && iconsByType[props.shortcut]}
-        <span>{props.name}</span>
-      </div>
-    </div>
-  );
-}
