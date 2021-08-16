@@ -59,7 +59,7 @@ const Log = styled.div<{ collapsed: boolean }>`
     display: inline-block;
     margin-left: 7px;
     overflow-wrap: anywhere;
-
+    word-break: break-word;
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
     }
