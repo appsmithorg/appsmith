@@ -67,9 +67,14 @@ public class CustomCommentThreadRepositoryImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Mono<Long> countUnreadThreads(String applicationId, String userEmail) {
+        String resolvedActiveFieldKey = String.format("%s.%s",
+                fieldName(QCommentThread.commentThread.resolvedState),
+                fieldName(QCommentThread.commentThread.resolvedState.active)
+        );
         List<Criteria> criteriaList = List.of(
-            where(fieldName(QCommentThread.commentThread.viewedByUsers)).ne(userEmail),
-            where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId)
+                where(fieldName(QCommentThread.commentThread.viewedByUsers)).ne(userEmail),
+                where(fieldName(QCommentThread.commentThread.applicationId)).is(applicationId),
+                where(resolvedActiveFieldKey).is(false)
         );
         return count(criteriaList, AclPermission.READ_THREAD);
     }

@@ -48,6 +48,7 @@ import {
   QUERIES_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
 } from "constants/routes";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
@@ -88,7 +89,7 @@ import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { APP_MODE } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import {
   getAppMode,
   getCurrentApplication,
@@ -114,7 +115,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
@@ -248,62 +249,50 @@ async function downloadSaga(
   action: { data: any; name: string; type: string },
   event: ExecuteActionPayloadEvent,
 ) {
+  const displayWidgetDownloadError = (message: any) => {
+    return Toaster.show({
+      text: createMessage(ERROR_WIDGET_DOWNLOAD, message),
+      variant: Variant.danger,
+    });
+  };
+
   try {
     const { data, name, type } = action;
-    if (!name) {
-      Toaster.show({
-        text: createMessage(
-          ERROR_WIDGET_DOWNLOAD,
-          "File name was not provided",
-        ),
-        variant: Variant.danger,
-      });
 
+    if (!name) {
+      displayWidgetDownloadError("File name was not provided");
       if (event.callback) event.callback({ success: false });
       return;
     }
     const dataType = getType(data);
+
     if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
       const jsonString = JSON.stringify(data, null, 2);
       downloadjs(jsonString, name, type);
       AppsmithConsole.info({
         text: `download('${jsonString}', '${name}', '${type}') was triggered`,
       });
-    } else if (
-      dataType === Types.STRING &&
-      isURL(data) &&
-      type === "application/x-binary"
-    ) {
-      // Requires a special handling for the use case when the user is trying to download a binary file from a URL
-      // due to incompatibility in the downloadjs library. In this case we are going to fetch the file from the URL
-      // using axios with the arraybuffer header and then pass it to the downloadjs library.
-      Axios.get(data, { responseType: "arraybuffer" })
-        .then((res) => {
-          downloadjs(res.data, name, type);
-          AppsmithConsole.info({
-            text: `download('${data}', '${name}', '${type}') was triggered`,
-          });
-        })
-        .catch((error) => {
-          log.error(error);
-          Toaster.show({
-            text: createMessage(ERROR_WIDGET_DOWNLOAD, error),
-            variant: Variant.danger,
-          });
-          if (event.callback) event.callback({ success: false });
+    } else if (dataType === Types.STRING && isURL(data)) {
+      // In the event that a url string is supplied, we need to fetch the image with the response type arraybuffer.
+      // This also covers the case where the file to be downloaded is Binary.
+
+      Axios.get(data, { responseType: "arraybuffer" }).then((res) => {
+        downloadjs(res.data, name, type);
+        AppsmithConsole.info({
+          text: `download('${data}', '${name}', '${type}') was triggered`,
         });
+      });
     } else {
       downloadjs(data, name, type);
       AppsmithConsole.info({
         text: `download('${data}', '${name}', '${type}') was triggered`,
       });
     }
+
     if (event.callback) event.callback({ success: true });
   } catch (err) {
-    Toaster.show({
-      text: createMessage(ERROR_WIDGET_DOWNLOAD, err),
-      variant: Variant.danger,
-    });
+    log.error(err);
+    displayWidgetDownloadError(err);
     if (event.callback) event.callback({ success: false });
   }
 }
@@ -576,7 +565,8 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -585,7 +575,12 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: payload.body as string }],
+        messages: [
+          {
+            message: payload.body as string,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          },
+        ],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -771,6 +766,7 @@ function* runActionShortcutSaga() {
       QUERIES_EDITOR_ID_URL(),
       API_EDITOR_URL_WITH_SELECTED_PAGE_ID(),
       INTEGRATION_EDITOR_URL(),
+      SAAS_EDITOR_API_ID_URL(),
     ],
     exact: true,
     strict: false,
@@ -912,7 +908,8 @@ function* runActionSaga(
           },
         });
       } else {
-        AppsmithConsole.error({
+        AppsmithConsole.addError({
+          id: actionId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${response.data.statusCode}`,
           source: {
@@ -925,6 +922,7 @@ function* runActionSaga(
               message: !isString(payload.body)
                 ? JSON.stringify(payload.body)
                 : payload.body,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },
           ],
           state: response.data?.request ?? null,
@@ -941,7 +939,8 @@ function* runActionSaga(
         error = response.data.body.toString();
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode} `,
         source: {
@@ -1026,7 +1025,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: pageAction.id,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -1035,7 +1035,12 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: JSON.stringify(body) }],
+        messages: [
+          {
+            message: JSON.stringify(body),
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          },
+        ],
       });
 
       yield put(

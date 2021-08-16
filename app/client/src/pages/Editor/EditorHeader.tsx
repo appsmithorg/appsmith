@@ -19,14 +19,10 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsPageSaving,
   getIsPublishingApplication,
-  getPageSavingError,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { HeaderIcons } from "icons/HeaderIcons";
-import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
 import { updateApplication } from "actions/applicationActions";
@@ -54,13 +50,13 @@ import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import TooltipComponent from "components/ads/Tooltip";
-import moment from "moment/moment";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import RealtimeAppEditors from "./RealtimeAppEditors";
+import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -123,14 +119,6 @@ const AppsmithLogoImg = styled.img`
   height: 24px;
 `;
 
-const SaveStatusContainer = styled.div`
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 const DeploySection = styled.div`
   display: flex;
 `;
@@ -188,11 +176,8 @@ export function EditorHeader(props: EditorHeaderProps) {
     applicationId,
     currentApplication,
     isPublishing,
-    isSaving,
-    lastUpdatedTime,
     orgId,
     pageId,
-    pageSaveError,
     publishApplication,
   } = props;
   const location = useLocation();
@@ -202,9 +187,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-  const [lastUpdatedTimeMessage, setLastUpdatedTimeMessage] = useState<string>(
-    "",
-  );
 
   useEffect(() => {
     if (window.location.href) {
@@ -214,25 +196,6 @@ export function EditorHeader(props: EditorHeaderProps) {
       dispatch(setSnipingModeAction(updatedIsSnipingMode));
     }
   }, [location]);
-
-  const findLastUpdatedTimeMessage = () => {
-    setLastUpdatedTimeMessage(
-      lastUpdatedTime
-        ? `Saved ${moment(lastUpdatedTime * 1000).fromNow()}`
-        : "",
-    );
-  };
-
-  useEffect(() => {
-    findLastUpdatedTimeMessage();
-    const interval = setInterval(
-      findLastUpdatedTimeMessage,
-      (moment.relativeTimeThreshold("ss") as number) * 1000,
-    );
-    return () => {
-      clearInterval(interval);
-    };
-  }, [lastUpdatedTime]);
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -247,33 +210,6 @@ export function EditorHeader(props: EditorHeaderProps) {
       });
     }
   };
-
-  let saveStatusIcon: React.ReactNode;
-  if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
-  } else {
-    if (!pageSaveError) {
-      saveStatusIcon = (
-        <TooltipComponent content={lastUpdatedTimeMessage} hoverOpenDelay={200}>
-          <HeaderIcons.SAVE_SUCCESS
-            className="t--save-status-success"
-            color={"#36AB80"}
-            height={20}
-            width={20}
-          />
-        </TooltipComponent>
-      );
-    } else {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE
-          className={"t--save-status-error"}
-          color={"#F69D2C"}
-          height={20}
-          width={20}
-        />
-      );
-    }
-  }
 
   const updateApplicationDispatch = (
     id: string,
@@ -339,10 +275,9 @@ export function EditorHeader(props: EditorHeaderProps) {
           <HelpButton />
         </HeaderSection>
         <HeaderSection>
+          <EditorSaveIndicator />
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
-            <SaveStatusContainer className={"t--save-status-container"}>
-              {saveStatusIcon}
-            </SaveStatusContainer>
             <FormDialogComponent
               Form={AppInviteUsersForm}
               applicationId={applicationId}
@@ -414,10 +349,7 @@ export function EditorHeader(props: EditorHeaderProps) {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  lastUpdatedTime: state.ui.editor.lastUpdatedTime,
   pageName: state.ui.editor.currentPageName,
-  isSaving: getIsPageSaving(state),
-  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,
