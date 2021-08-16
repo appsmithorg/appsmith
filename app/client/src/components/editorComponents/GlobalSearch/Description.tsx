@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
@@ -6,7 +6,11 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
-import SnippetDescription from "./SnippetsDescription";
+import { retryPromise } from "utils/AppsmithUtils";
+
+const SnippetDescription = lazy(() =>
+  retryPromise(() => import("./SnippetsDescription")),
+);
 
 type Props = {
   activeItem: SearchItem;
@@ -174,6 +178,14 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
+function LazySnippetDescription(props: any) {
+  return (
+    <Suspense fallback={<div>Loading</div>}>
+      <SnippetDescription {...props} />
+    </Suspense>
+  );
+}
+
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
@@ -183,7 +195,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
   [SEARCH_ITEM_TYPES.category]: () => null,
-  [SEARCH_ITEM_TYPES.snippet]: SnippetDescription,
+  [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 
 function Description(props: Props) {
