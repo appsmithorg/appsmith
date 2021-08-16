@@ -40,6 +40,7 @@ export const Colors = {
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
+  FOAM: "#D9FDED",
   GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
