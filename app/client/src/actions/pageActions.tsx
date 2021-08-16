@@ -21,6 +21,18 @@ export interface FetchPageListPayload {
   mode: APP_MODE;
 }
 
+export interface ClonePageActionPayload {
+  id: string;
+  blockNavigation?: boolean;
+}
+
+export interface CreatePageActionPayload {
+  applicationId: string;
+  name: string;
+  layouts: Partial<PageLayout>[];
+  blockNavigation?: boolean;
+}
+
 export const fetchPageList = (
   applicationId: string,
   mode: APP_MODE,
@@ -132,6 +144,7 @@ export const createPage = (
   applicationId: string,
   pageName: string,
   layouts: Partial<PageLayout>[],
+  blockNavigation?: boolean,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
@@ -142,15 +155,24 @@ export const createPage = (
       applicationId,
       name: pageName,
       layouts,
+      blockNavigation,
     },
   };
 };
 
-export const clonePageInit = (pageId: string) => {
+/**
+ * action to clone page
+ *
+ * @param pageId
+ * @param blockNavigation
+ * @returns
+ */
+export const clonePageInit = (pageId: string, blockNavigation?: boolean) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_INIT,
     payload: {
       id: pageId,
+      blockNavigation,
     },
   };
 };
@@ -346,6 +368,61 @@ export const generateTemplateToUpdatePage = ({
     },
     extraParams: {
       mode,
+    },
+  };
+};
+
+/**
+ * action for delete page
+ *
+ * @param pageId
+ * @param pageName
+ * @returns
+ */
+export const deletePage = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.DELETE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
+/**
+ * action for set page as default
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageAsDefault = (pageId: string, applicationId?: string) => {
+  return {
+    type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+    payload: {
+      id: pageId,
+      applicationId,
+    },
+  };
+};
+
+/**
+ * action for updating order of a page
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageOrder = (
+  applicationId: string,
+  pageId: string,
+  order: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_PAGE_ORDER_INIT,
+    payload: {
+      pageId: pageId,
+      order: order,
+      applicationId,
     },
   };
 };

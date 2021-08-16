@@ -1229,6 +1229,9 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  pagesEditor: {
+    iconColor: string;
+  };
 };
 
 const notifications = {
@@ -1263,6 +1266,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1960,6 +1967,7 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
@@ -2524,6 +2532,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
