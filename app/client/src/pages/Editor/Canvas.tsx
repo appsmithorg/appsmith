@@ -20,12 +20,18 @@ import {
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
   pageId: string;
+  isBeingEditedRealtime: boolean;
 }
 
 // This auto connects the socket
 const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
 
-const shareMousePointer = (e: any, pageId: string) => {
+const shareMousePointer = (
+  e: any,
+  pageId: string,
+  shouldEmitPointerEvent: boolean,
+) => {
+  if (!shouldEmitPointerEvent) return;
   if (pageEditSocket && pageEditSocket.connected) {
     const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
     const rect = selectionCanvas.getBoundingClientRect();
@@ -43,10 +49,12 @@ const shareMousePointer = (e: any, pageId: string) => {
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
-  const { pageId } = props;
+  const { isBeingEditedRealtime, pageId } = props;
   const delayedShareMousePointer = useCallback(
-    throttle((e) => shareMousePointer(e, pageId), 50, { trailing: false }),
-    [shareMousePointer, pageId],
+    throttle((e) => shareMousePointer(e, pageId, isBeingEditedRealtime), 50, {
+      trailing: false,
+    }),
+    [shareMousePointer, pageId, isBeingEditedRealtime],
   );
   try {
     return (
