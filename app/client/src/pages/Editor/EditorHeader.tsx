@@ -286,6 +286,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  // eslint-disable-next-line
   const showGitSyncModal = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(true));
   }, []);
@@ -376,7 +377,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <StyledDeployButton
                   className="t--application-publish-btn"
                   isLoading={isPublishing}
-                  onClick={showGitSyncModal}
+                  onClick={handlePublish}
                   size={Size.small}
                   text={"Deploy"}
                 />

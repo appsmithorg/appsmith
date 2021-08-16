@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: GitSyncReducerState = {
-  isGitSyncModalOpen: true,
+  isGitSyncModalOpen: false,
 };
 
 const tourReducer = createReducer(initialState, {
