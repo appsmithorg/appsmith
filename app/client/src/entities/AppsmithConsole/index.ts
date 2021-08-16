@@ -8,11 +8,11 @@ export enum ENTITY_TYPE {
   WIDGET = "WIDGET",
 }
 
-export enum PLATFORM_ERRORS {
+export enum PLATFORM_ERROR {
   PLUGIN_EXECUTION = "PLUGIN_EXECUTION",
 }
 
-export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERRORS;
+export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
