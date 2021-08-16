@@ -115,7 +115,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERRORS } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
@@ -578,7 +578,7 @@ export function* executeActionSaga(
         messages: [
           {
             message: payload.body as string,
-            type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
           },
         ],
       });
@@ -922,7 +922,7 @@ function* runActionSaga(
               message: !isString(payload.body)
                 ? JSON.stringify(payload.body)
                 : payload.body,
-              type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },
           ],
           state: response.data?.request ?? null,
@@ -1038,7 +1038,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         messages: [
           {
             message: JSON.stringify(body),
-            type: PLATFORM_ERRORS.PLUGIN_EXECUTION,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
           },
         ],
       });
