@@ -49,24 +49,18 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .should("contain", this.data.para);
     //cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput)
-      .type(this.data.command)
-      .type(this.data.defaultdata);
+    cy.testJsontext("defaulttext", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
-    cy.get(widgetsPage.placeholder)
-      .type(this.data.command)
-      .type(this.data.placeholder);
+    cy.testJsontext("placeholder", this.data.placeholder);
     /**
      * @param{Widget} Widget InnerCss
      */
     cy.get(widgetsPage.innertext)
       .invoke("attr", "placeholder")
       .should("contain", this.data.placeholder);
-    cy.get(widgetsPage.Regex)
-      .click()
-      .type(this.data.regex);
+    cy.testJsontext("regex", this.data.regex);
     /**
      * @param{Show Alert} Css for InputChange
      */
