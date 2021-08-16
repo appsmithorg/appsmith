@@ -48,7 +48,6 @@ describe("Checkbox Group Widget Functionality", function() {
      * @param{Show Alert} Css for InputChange
      */
     cy.getAlert(commonlocators.optionchangeRadioselect);
-    cy.get(formWidgetsPage.defaultSelectValues);
     cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
       .get(commonlocators.dropdownSelectButton)
       .click({ force: true })
@@ -67,7 +66,9 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.openPropertyPane("checkboxgroupwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
-    cy.get(publish.checkboxGroupWidget + " " + "input").should("be.checked");
+    cy.get(publish.checkboxGroupWidget + " " + "input")
+      .eq(0)
+      .should("exist");
   });
   it("Checkbox Group Functionality To Button Text", function() {
     cy.get(publish.checkboxGroupWidget + " " + "label")
