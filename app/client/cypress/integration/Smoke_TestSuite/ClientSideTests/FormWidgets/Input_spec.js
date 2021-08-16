@@ -41,7 +41,7 @@ describe("Input Widget Functionality", function() {
       .click({ force: true })
       .children()
       .contains("Text")
-      .click();
+      .click({ force: true });
     cy.get(widgetsPage.innertext)
       .click({ force: true })
       .type(this.data.para);
@@ -49,24 +49,18 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .should("contain", this.data.para);
     //cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput)
-      .type(this.data.command)
-      .type(this.data.defaultdata);
+    cy.testJsontext("defaulttext", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
-    cy.get(widgetsPage.placeholder)
-      .type(this.data.command)
-      .type(this.data.placeholder);
+    cy.testJsontext("placeholder", this.data.placeholder);
     /**
      * @param{Widget} Widget InnerCss
      */
     cy.get(widgetsPage.innertext)
       .invoke("attr", "placeholder")
       .should("contain", this.data.placeholder);
-    cy.get(widgetsPage.Regex)
-      .click()
-      .type(this.data.regex);
+    cy.testJsontext("regex", this.data.regex);
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -118,14 +112,14 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(commonlocators.dataType)
       .last()
-      .click();
+      .click({ force: true });
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
     cy.get(".t--dropdown-option")
       .children()
       .contains("Number")
-      .click();
+      .click({ force: true });
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
     cy.get(widgetsPage.innertext)
       .click()
@@ -135,7 +129,7 @@ describe("Input Widget Functionality", function() {
       expect($x).contain("Invalid input");
     });
     cy.get(widgetsPage.innertext)
-      .click()
+      .click({ force: true })
       .clear();
     cy.closePropertyPane("inputwidget");
   });

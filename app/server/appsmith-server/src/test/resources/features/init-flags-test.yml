@@ -1,0 +1,37 @@
+# Check sample file at: https://github.com/ff4j/ff4j-samples/blob/master/spring-boot-2x/ff4j-sample-springboot2x/src/main/resources/ff4j-init-dataset.yml
+
+# -----------------------------
+# Core FF4J configuration for testing. DO NOT USE THIS IN PRODUCTION
+# -----------------------------
+ff4j:
+  autocreate: false
+  audit: false
+
+  features:
+
+    - uid: TEST_FEATURE_1
+      enable: true
+      description: The test feature should only be visible to Appsmith users
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        param:
+          - name: requiredKey
+            value: requiredValue
+
+    - uid: TEST_FEATURE_2
+      enable: true
+      description: Enable this feature based on weight. It's randomized.
+      flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
+
+    - uid: TEST_FEATURE_3
+      enable: true
+      description: The test feature should only be visible to certain  users
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: test@example.com

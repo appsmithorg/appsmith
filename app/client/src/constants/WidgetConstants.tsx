@@ -10,6 +10,7 @@ export enum WidgetTypes {
   DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
   TABLE_WIDGET = "TABLE_WIDGET",
   DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
+  MULTI_SELECT_WIDGET = "MULTI_SELECT_WIDGET",
   CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET = "RADIO_GROUP_WIDGET",
   TABS_WIDGET = "TABS_WIDGET",
@@ -31,6 +32,7 @@ export enum WidgetTypes {
   IFRAME_WIDGET = "IFRAME_WIDGET",
   DIVIDER_WIDGET = "DIVIDER_WIDGET",
   MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
+  ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -100,7 +102,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 27;
+export const LATEST_PAGE_VERSION = 30;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -110,6 +112,13 @@ export const GridDefaults = {
   DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
 };
+
+export const DroppableWidgets: WidgetType[] = [
+  WidgetTypes.CONTAINER_WIDGET,
+  WidgetTypes.FORM_WIDGET,
+  WidgetTypes.LIST_WIDGET,
+  WidgetTypes.TABS_WIDGET,
+];
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionaly so it take cares of itselves).
@@ -122,6 +131,8 @@ export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const CANVAS_CLASSNAME = "appsmith_widget_0";
 
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 

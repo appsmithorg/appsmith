@@ -1,6 +1,9 @@
 import { Datasource } from "entities/Datasource";
 import React from "react";
-import { CommandsCompletion } from "utils/autocomplete/TernServer";
+import {
+  AutocompleteDataType,
+  CommandsCompletion,
+} from "utils/autocomplete/TernServer";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType } from "entities/Action";
@@ -8,10 +11,12 @@ import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
+import { ReactComponent as Function } from "assets/icons/menu/function.svg";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
+  FUNCTION = "FUNCTION",
 }
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
@@ -28,101 +33,124 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
   },
-) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
-  recentEntities.reverse();
-  const newBinding: CommandsCompletion = generateCreateNewCommand({
-    text: "{{}}",
-    displayText: "New Binding",
-    shortcut: Shortcuts.BINDING,
-  });
-  const newIntegration: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "New Datasource",
-    action: () =>
-      executeCommand({
-        actionType: "NEW_INTEGRATION",
-      }),
-    shortcut: Shortcuts.PLUS,
-  });
-  const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
-    return {
-      text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
-      displayText: `${name}`,
-      className: "CodeMirror-commands",
-      data: suggestion,
-      render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
-        ReactDOM.render(
-          <Command
-            name={data.displayText}
-            pluginType={pluginType}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const datasourceCommands = datasources.map((action: any) => {
-    return {
+) =>
+  // expectedType: string,
+  // entityId: any,
+  // propertyPath: any,
+  {
+    const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
+    const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+    recentEntities.reverse();
+    const newBinding: CommandsCompletion = generateCreateNewCommand({
+      text: "{{}}",
+      displayText: "New Binding",
+      shortcut: Shortcuts.BINDING,
+    });
+    // let insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    //   text: "",
+    //   displayText: "Insert Snippet",
+    //   shortcut: Shortcuts.FUNCTION,
+    //   action: () =>
+    //     executeCommand({
+    //       actionType: "NEW_SNIPPET",
+    //       args: {
+    //         entityType: currentEntityType,
+    //         expectedType: expectedType,
+    //         entityId: entityId,
+    //         propertyPath: propertyPath
+    //           .split(".")
+    //           .slice(-1)
+    //           .pop(),
+    //       },
+    //     }),
+    // });
+    const newIntegration: CommandsCompletion = generateCreateNewCommand({
       text: "",
-      displayText: `${action.name}`,
-      className: "CodeMirror-commands",
-      data: action,
+      displayText: "New Datasource",
       action: () =>
         executeCommand({
-          actionType: "NEW_QUERY",
-          args: { datasource: action },
+          actionType: "NEW_INTEGRATION",
         }),
-      render: (element: HTMLElement, self: any, data: any) => {
-        ReactDOM.render(
-          <Command
-            imgSrc={pluginIdToImageLocation[data.data.pluginId]}
-            name={data.displayText}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const suggestionsMatchingSearchText = matchingCommands(
-    suggestions,
-    searchText,
-    recentEntities,
-    5,
-  );
-  suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []),
-  );
-  let createNewCommands: any = [];
-  if (currentEntityType === "WIDGET") {
-    createNewCommands = [...datasourceCommands];
-  }
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    [],
-    3,
-  );
-  if (currentEntityType === "WIDGET") {
-    createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText, []),
+      shortcut: Shortcuts.PLUS,
+    });
+    const suggestions = entitiesForSuggestions.map((suggestion: any) => {
+      const name = suggestion.name || suggestion.widgetName;
+      return {
+        text:
+          currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
+        displayText: `${name}`,
+        className: "CodeMirror-commands",
+        data: suggestion,
+        render: (element: HTMLElement, self: any, data: any) => {
+          const pluginType = data.data.pluginType as PluginType;
+          ReactDOM.render(
+            <Command
+              name={data.displayText}
+              pluginType={pluginType}
+              shortcut={data.shortcut}
+            />,
+            element,
+          );
+        },
+      };
+    });
+    const datasourceCommands = datasources.map((action: any) => {
+      return {
+        text: "",
+        displayText: `${action.name}`,
+        className: "CodeMirror-commands",
+        data: action,
+        action: () =>
+          executeCommand({
+            actionType: "NEW_QUERY",
+            args: { datasource: action },
+          }),
+        render: (element: HTMLElement, self: any, data: any) => {
+          ReactDOM.render(
+            <Command
+              imgSrc={pluginIdToImageLocation[data.data.pluginId]}
+              name={data.displayText}
+              shortcut={data.shortcut}
+            />,
+            element,
+          );
+        },
+      };
+    });
+    const suggestionsMatchingSearchText = matchingCommands(
+      suggestions,
+      searchText,
+      recentEntities,
+      5,
     );
-  }
-  let list: CommandsCompletion[] = [];
-  if (suggestionsMatchingSearchText.length) {
-    list = [suggestionsHeader, ...suggestionsMatchingSearchText];
-  }
+    suggestionsMatchingSearchText.push(
+      ...matchingCommands([newBinding], searchText, []), //insertSnippet
+    );
+    let createNewCommands: any = [];
+    if (currentEntityType === "WIDGET") {
+      createNewCommands = [...datasourceCommands];
+    }
+    const createNewCommandsMatchingSearchText = matchingCommands(
+      createNewCommands,
+      searchText,
+      [],
+      3,
+    );
+    if (currentEntityType === "WIDGET") {
+      createNewCommandsMatchingSearchText.push(
+        ...matchingCommands([newIntegration], searchText, []),
+      );
+    }
+    let list: CommandsCompletion[] = [];
+    if (suggestionsMatchingSearchText.length) {
+      list = [suggestionsHeader, ...suggestionsMatchingSearchText];
+    }
 
-  if (createNewCommandsMatchingSearchText.length) {
-    list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
-  }
-  return list;
-};
+    if (createNewCommandsMatchingSearchText.length) {
+      list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
+    }
+    return list;
+  };
 
 const matchingCommands = (
   list: any,
@@ -154,7 +182,7 @@ const commandsHeader = (
   className: "CodeMirror-command-header",
   data: { doc: "" },
   origin: "",
-  type: "UNKNOWN",
+  type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
   shortcut: "",
 });
@@ -169,7 +197,7 @@ const generateCreateNewCommand = ({
   displayText: displayText,
   data: { doc: "" },
   origin: "",
-  type: "UNKNOWN",
+  type: AutocompleteDataType.UNKNOWN,
   className: "CodeMirror-commands",
   shortcut: shortcut,
   action: action,
@@ -184,6 +212,12 @@ const generateCreateNewCommand = ({
     );
   },
 });
+
+const iconsByType = {
+  [Shortcuts.BINDING]: <Binding />,
+  [Shortcuts.PLUS]: <NewPlus />,
+  [Shortcuts.FUNCTION]: <Function />,
+};
 
 function Command(props: {
   pluginType?: PluginType;
@@ -202,10 +236,7 @@ function Command(props: {
             SAAS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
-        {props.shortcut &&
-          { [Shortcuts.BINDING]: <Binding />, [Shortcuts.PLUS]: <NewPlus /> }[
-            props.shortcut
-          ]}
+        {props.shortcut && iconsByType[props.shortcut]}
         <span>{props.name}</span>
       </div>
     </div>

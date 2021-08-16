@@ -1,13 +1,16 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { sortBy } from "lodash";
 import {
   ReduxAction,
   ReduxActionTypes,
   PageListPayload,
   ClonePageSuccessPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
+import { createReducer } from "utils/AppsmithUtils";
 
 const initialState: PageListReduxState = {
   pages: [],
+  isGeneratingTemplatePage: false,
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -101,7 +104,57 @@ export const pageListReducer = createReducer(initialState, {
       updatedPage.pageName = action.payload.name;
       updatedPage.isHidden = !!action.payload.isHidden;
     }
+
     return { ...state, pages };
+  },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: true };
+  },
+  [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{
+      pageName: string;
+      pageId: string;
+      layoutId: string;
+      isDefault: boolean;
+      isNewPage: boolean;
+    }>,
+  ) => {
+    const _state = state;
+    if (action.payload.isNewPage) {
+      _state.pages = state.pages.map((page) => ({ ...page, latest: false }));
+      const newPage = {
+        pageName: action.payload.pageName,
+        pageId: action.payload.pageId,
+        layoutId: action.payload.layoutId,
+        isDefault: action.payload.isDefault,
+      };
+      _state.pages.push({ ...newPage, latest: true });
+    }
+
+    return { ..._state, isGeneratingTemplatePage: false };
+  },
+  [ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
+    state: PageListReduxState,
+  ) => {
+    return { ...state, isGeneratingTemplatePage: false };
+  },
+  [ReduxActionTypes.SET_PAGE_ORDER_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{
+      pages: {
+        id: string;
+      }[];
+    }>,
+  ) => {
+    const sortingOrder = action.payload.pages.map((page) => page.id);
+    const sortedPages = sortBy(state.pages, (page) => {
+      return sortingOrder.indexOf(page.pageId);
+    });
+
+    return { ...state, pages: sortedPages };
   },
 });
 
@@ -121,6 +174,7 @@ export interface PageListReduxState {
   defaultPageId?: string;
   currentPageId?: string;
   appLayout?: AppLayoutConfig;
+  isGeneratingTemplatePage?: boolean;
 }
 
 export default pageListReducer;

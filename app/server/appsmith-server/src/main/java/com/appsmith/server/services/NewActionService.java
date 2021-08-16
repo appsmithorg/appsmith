@@ -19,6 +19,8 @@ import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
 
+    Boolean validateActionName(String name);
+
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);

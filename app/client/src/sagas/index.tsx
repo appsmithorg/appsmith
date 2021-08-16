@@ -15,6 +15,7 @@ import orgSagas from "./OrgSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
+import snipingModeSagas from "./SnipingModeSagas";
 import queryPaneSagas from "./QueryPaneSagas";
 import modalSagas from "./ModalSagas";
 import batchSagas from "./BatchSagas";
@@ -32,9 +33,10 @@ import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./SelectionCanvasSagas";
+import draggingCanvasSagas from "./DraggingCanvasSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-
 const sagas = [
   initSagas,
   pageSagas,
@@ -52,6 +54,7 @@ const sagas = [
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
+  snipingModeSagas,
   queryPaneSagas,
   modalSagas,
   batchSagas,
@@ -69,6 +72,7 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  draggingCanvasSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

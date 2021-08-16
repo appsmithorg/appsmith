@@ -6,6 +6,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -33,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(Url.USER_URL)
@@ -70,6 +72,12 @@ public class UserController extends BaseController<UserService, User, String> {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
         return userSignup.signupAndLoginFromFormData(exchange);
+    }
+
+    @PostMapping("/super")
+    public Mono<ResponseDTO<User>> createSuperUser(@Valid @RequestBody User resource, ServerWebExchange exchange) {
+        return userSignup.signupAndLoginSuper(resource, exchange)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PutMapping()
@@ -124,11 +132,11 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @Deprecated
     @GetMapping("/me")
-    public Mono<ResponseDTO<User>> getUserProfile() {
+    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
         return sessionUserService.getCurrentUser()
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+                .flatMap(service::buildUserProfileDTO)
+                .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
     /**
@@ -136,7 +144,7 @@ public class UserController extends BaseController<UserService, User, String> {
      * in order to construct client facing URLs that will be sent to the users via email.
      *
      * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith organization
-     * @param originHeader Origin header in the request
+     * @param originHeader   Origin header in the request
      * @return List of new users who have been created/existing users who have been added to the organization.
      */
     @PostMapping("/invite")
@@ -181,6 +189,12 @@ public class UserController extends BaseController<UserService, User, String> {
                 .switchIfEmpty(Mono.fromRunnable(() -> {
                     exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
                 }));
+    }
+
+    @GetMapping("/features")
+    public Mono<ResponseDTO<Map<String, Boolean>>> getFeatureFlags() {
+        return userDataService.getFeatureFlagsForCurrentUser()
+                .map(map -> new ResponseDTO<>(HttpStatus.OK.value(), map, null));
     }
 
 }

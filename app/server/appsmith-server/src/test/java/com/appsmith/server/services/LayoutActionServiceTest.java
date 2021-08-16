@@ -357,6 +357,52 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testRefactorActionName_withInvalidName_throwsError() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("beforeNameChange");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        dsl.put("dynamicBindingPathList", temp);
+        dsl.put("testField", "{{ beforeNameChange.data }}");
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+        layout.setPublishedDsl(dsl);
+
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        refactorActionNameDTO.setPageId(testPage.getId());
+        assert firstLayout != null;
+        refactorActionNameDTO.setLayoutId(firstLayout.getId());
+        refactorActionNameDTO.setOldName("beforeNameChange");
+        refactorActionNameDTO.setNewName("!PostNameChange");
+        assert createdAction != null;
+        refactorActionNameDTO.setActionId(createdAction.getId());
+
+        final Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
+
+        StepVerifier
+                .create(layoutDTOMono)
+                .expectErrorMatches(e -> e instanceof AppsmithException &&
+                        AppsmithError.INVALID_ACTION_NAME.getMessage().equalsIgnoreCase(e.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void actionExecuteOnLoadChangeOnUpdateLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
