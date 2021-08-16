@@ -341,17 +341,6 @@ if (intercomAppID) {
   });
 }
 
-export function bootIntercom(intercomAppID: string, user?: User) {
-  if (intercomAppID && window.Intercom) {
-    window.Intercom("boot", {
-      app_id: intercomAppID,
-      user_id: user?.username,
-      name: user?.name,
-      email: user?.email,
-    });
-  }
-}
-
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);

@@ -23,6 +23,7 @@ export const Colors = {
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
   CODE_GRAY: "#090707",
+  DIESEL: "#0C0000",
   SHARK: "#21282C",
   SHARK2: "#232324",
   MINE_SHAFT: "#262626",
@@ -39,6 +40,7 @@ export const Colors = {
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
+  FOAM: "#D9FDED",
   GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
