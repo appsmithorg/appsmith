@@ -20,6 +20,7 @@ const TabsWrapper = styled.div<{
 }>`
   border-radius: 0px;
   height: 100%;
+  overflow: hidden;
   .react-tabs {
     height: 100%;
   }
