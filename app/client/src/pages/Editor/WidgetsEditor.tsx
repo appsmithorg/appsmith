@@ -116,7 +116,7 @@ function WidgetsEditor() {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+    node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
 
   log.debug("Canvas rendered");

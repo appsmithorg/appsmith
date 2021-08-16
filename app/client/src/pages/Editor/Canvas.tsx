@@ -12,8 +12,6 @@ import CanvasMultiPointerArena, {
 } from "../common/CanvasMultiPointerArena";
 import { throttle } from "lodash";
 import { io } from "socket.io-client";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "./Explorer/helpers";
 import {
   APP_COLLAB_EVENTS,
   NAMESPACE_COLLAB_PAGE_EDIT,
@@ -21,6 +19,7 @@ import {
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
+  pageId: string;
 }
 
 // This auto connects the socket
@@ -44,11 +43,10 @@ const shareMousePointer = (e: any, pageId: string) => {
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
-  const { pageId } = useParams<ExplorerURLParams>();
-
+  const { pageId } = props;
   const delayedShareMousePointer = useCallback(
     throttle((e) => shareMousePointer(e, pageId), 50, { trailing: false }),
-    [shareMousePointer],
+    [shareMousePointer, pageId],
   );
   try {
     return (
@@ -66,7 +64,10 @@ const Canvas = memo((props: CanvasProps) => {
         >
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-          <CanvasMultiPointerArena pageEditSocket={pageEditSocket} />
+          <CanvasMultiPointerArena
+            pageEditSocket={pageEditSocket}
+            pageId={pageId}
+          />
         </ArtBoard>
       </>
     );

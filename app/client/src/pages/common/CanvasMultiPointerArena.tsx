@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Socket } from "socket.io-client";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../Editor/Explorer/helpers";
 import { Colors } from "constants/Colors";
 import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
 import { useRef } from "react";
@@ -78,10 +76,11 @@ type PointerEventDataType = {
 
 function CanvasMultiPointerArena({
   pageEditSocket,
+  pageId,
 }: {
   pageEditSocket: Socket;
+  pageId: string;
 }) {
-  const { pageId } = useParams<ExplorerURLParams>();
   let pointerData: PointerDataType = {};
   const animationStepIdRef = useRef<number>(0);
   let selectionCanvas: any;
