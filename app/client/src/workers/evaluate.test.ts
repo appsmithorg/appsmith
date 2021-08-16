@@ -104,10 +104,18 @@ describe("evaluate", () => {
     expect(response.result).toBe(undefined);
     expect(response.triggers).toStrictEqual([
       {
-        type: "SHOW_ALERT",
+        type: "PROMISE",
         payload: {
-          message: "message",
-          style: "info",
+          executor: [
+            {
+              type: "SHOW_ALERT",
+              payload: {
+                message: "message",
+                style: "info",
+              },
+            },
+          ],
+          then: [],
         },
       },
     ]);

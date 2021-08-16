@@ -63,8 +63,7 @@ describe("Add functions", () => {
       },
     };
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
-    expect(dataTreeWithFunctions.actionPaths).toStrictEqual([
-      "action1.run",
+    expect(window.actionPaths).toStrictEqual([
       "navigateTo",
       "showAlert",
       "showModal",
@@ -73,6 +72,7 @@ describe("Add functions", () => {
       "download",
       "copyToClipboard",
       "resetWidget",
+      "action1.run",
     ]);
 
     // Action run
@@ -86,13 +86,20 @@ describe("Add functions", () => {
       onError,
       actionParams,
     );
-    expect(actionRunResponse).toStrictEqual({
-      type: "RUN_ACTION",
+    expect(actionRunResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        actionId: "123",
-        onSuccess: `{{${onSuccess}}}`,
-        onError: `{{${onError}}}`,
-        params: actionParams,
+        executor: [
+          {
+            type: "PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: "{ param1: value1 }",
+            },
+          },
+        ],
+        then: ["{{ new Promise(() => {successRun()}) }}"],
+        catch: "{{ new Promise(() => {failureRun()}) }}",
       },
     });
 
@@ -107,12 +114,20 @@ describe("Add functions", () => {
       params,
       target,
     );
-    expect(navigateToResponse).toStrictEqual({
-      type: "NAVIGATE_TO",
+    expect(navigateToResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        pageNameOrUrl,
-        params,
-        target,
+        executor: [
+          {
+            type: "NAVIGATE_TO",
+            payload: {
+              pageNameOrUrl,
+              params,
+              target,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -122,11 +137,19 @@ describe("Add functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const showAlertResponse = dataTreeWithFunctions.showAlert(message, style);
-    expect(showAlertResponse).toStrictEqual({
-      type: "SHOW_ALERT",
+    expect(showAlertResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        message,
-        style,
+        executor: [
+          {
+            type: "SHOW_ALERT",
+            payload: {
+              message,
+              style,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -135,10 +158,18 @@ describe("Add functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const showModalResponse = dataTreeWithFunctions.showModal(modalName);
-    expect(showModalResponse).toStrictEqual({
-      type: "SHOW_MODAL_BY_NAME",
+    expect(showModalResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        modalName,
+        executor: [
+          {
+            type: "SHOW_MODAL_BY_NAME",
+            payload: {
+              modalName,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -146,10 +177,18 @@ describe("Add functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const closeModalResponse = dataTreeWithFunctions.closeModal(modalName);
-    expect(closeModalResponse).toStrictEqual({
-      type: "CLOSE_MODAL",
+    expect(closeModalResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        modalName,
+        executor: [
+          {
+            type: "CLOSE_MODAL",
+            payload: {
+              modalName,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -164,12 +203,20 @@ describe("Add functions", () => {
       value,
       persist,
     );
-    expect(storeValueResponse).toStrictEqual({
-      type: "STORE_VALUE",
+    expect(storeValueResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        key,
-        value,
-        persist,
+        executor: [
+          {
+            type: "STORE_VALUE",
+            payload: {
+              key,
+              value,
+              persist,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -180,12 +227,20 @@ describe("Add functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const downloadResponse = dataTreeWithFunctions.download(data, name, type);
-    expect(downloadResponse).toStrictEqual({
-      type: "DOWNLOAD",
+    expect(downloadResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        data,
-        name,
-        type,
+        executor: [
+          {
+            type: "DOWNLOAD",
+            payload: {
+              data,
+              name,
+              type,
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -193,11 +248,19 @@ describe("Add functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const copyToClipboardResponse = dataTreeWithFunctions.copyToClipboard(data);
-    expect(copyToClipboardResponse).toStrictEqual({
-      type: "COPY_TO_CLIPBOARD",
+    expect(copyToClipboardResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        data,
-        options: { debug: undefined, format: undefined },
+        executor: [
+          {
+            type: "COPY_TO_CLIPBOARD",
+            payload: {
+              data,
+              options: { debug: undefined, format: undefined },
+            },
+          },
+        ],
+        then: [],
       },
     });
 
@@ -210,11 +273,19 @@ describe("Add functions", () => {
       widgetName,
       resetChildren,
     );
-    expect(resetWidgetResponse).toStrictEqual({
-      type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+    expect(resetWidgetResponse.action).toStrictEqual({
+      type: "PROMISE",
       payload: {
-        widgetName,
-        resetChildren,
+        executor: [
+          {
+            type: "RESET_WIDGET_META_RECURSIVE_BY_NAME",
+            payload: {
+              widgetName,
+              resetChildren,
+            },
+          },
+        ],
+        then: [],
       },
     });
   });
