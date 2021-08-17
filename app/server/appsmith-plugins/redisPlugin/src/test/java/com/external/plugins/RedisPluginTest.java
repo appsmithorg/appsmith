@@ -241,12 +241,13 @@ public class RedisPluginTest {
                             expectedRequestParams.toString());
                 }).verifyComplete();
 
-        // Setting a key
-        ActionConfiguration setActionConfiguration = new ActionConfiguration();
-        setActionConfiguration.setBody("SET key \"my value\"");
+        // Set keys
+        ActionConfiguration setActionConfigurationManyKeys = new ActionConfiguration();
+        setActionConfigurationManyKeys.setBody("mset key1 value key2 \"value\" key3 \"my value\" key4 'value' key5 'my " +
+                "value' key6 '{\"a\":\"b\"}'");
         actionExecutionResultMono = jedisPoolMono
                 .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
-                        setActionConfiguration));
+                        setActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
@@ -255,16 +256,23 @@ public class RedisPluginTest {
                     Assert.assertEquals("OK", node.get("result").asText());
                 }).verifyComplete();
 
-        // Getting the key
+        // Verify the keys
+        ActionConfiguration getActionConfigurationManyKeys = new ActionConfiguration();
+        getActionConfigurationManyKeys.setBody("mget key1 key2 key3 key4 key5 key6");
         actionExecutionResultMono = jedisPoolMono
                 .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
-                        getActionConfiguration));
+                        getActionConfigurationManyKeys));
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(actionExecutionResult -> {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
-                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals("\"my value\"", node.get("result").asText());
+                    final JsonNode node = ((ArrayNode) actionExecutionResult.getBody());
+                    Assert.assertEquals("value", node.get(0).get("result").asText());
+                    Assert.assertEquals("\"value\"", node.get(1).get("result").asText());
+                    Assert.assertEquals("\"my value\"", node.get(2).get("result").asText());
+                    Assert.assertEquals("'value'", node.get(3).get("result").asText());
+                    Assert.assertEquals("'my value'", node.get(4).get("result").asText());
+                    Assert.assertEquals("'{\"a\":\"b\"}'", node.get(5).get("result").asText());
                 }).verifyComplete();
     }
 

@@ -74,7 +74,7 @@ public class RedisPlugin extends BasePlugin {
                 }
 
                 Map cmdAndArgs = getCommandAndArgs(query.trim());
-                if (!isQueryFormatValid(cmdAndArgs)) {
+                if (!cmdAndArgs.containsKey(CMD_KEY)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -138,19 +138,19 @@ public class RedisPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private boolean isQueryFormatValid(Map cmdAndArgs) {
-            return cmdAndArgs.containsKey(CMD_KEY);
-        }
-
         private Map getCommandAndArgs(String query) {
             /**
-             * - This regex matches either a whole word, or anything inside double quotes.
-             * - e.g. if the query string is: set key "my val", then the regex matches the following:
+             * - This regex matches either a whole word, or anything inside double quotes. If something is inside
+             * single quotes then it gets matched like a whole word
+             * - e.g. if the query string is: set key 'test match' "my val" '{"a":"b"}', then the regex matches the following:
              * (1) set
              * (2) key
-             * (3) "my val"
+             * (3) 'test match'
+             * (4) "my val"
+             * (5) '{"a":"b"}'
+             * Please note that the above example string is not a valid redis cmd and is only mentioned here for info.
              */
-            String redisCmdRegex = "\\\"[^\\\"]+\\\"|[\\S]+";
+            String redisCmdRegex = "\\\"[^\\\"]+\\\"|'[^']+'|[\\S]+";
             Pattern pattern = Pattern.compile(redisCmdRegex);
             Matcher matcher = pattern.matcher(query);
             Map<String, Object> cmdAndArgs = new HashMap<>();
