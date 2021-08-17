@@ -17,6 +17,7 @@ import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { XYCoord } from "react-dnd";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -109,10 +110,27 @@ export function CanvasSelectionArena({
   const isCurrentWidgetDrawing = useSelector((state: AppState) => {
     return state.ui.canvasSelection.widgetId === widgetId;
   });
-  const drawOnEnter = useRef(false);
+  const outOfCanvasStartPositions = useSelector((state: AppState) => {
+    return state.ui.canvasSelection.outOfCanvasStartPositions;
+  });
+  const defaultDrawOnObj = {
+    canDraw: false,
+    startPoints: undefined,
+  };
+  const drawOnEnterObj = useRef<{
+    canDraw: boolean;
+    startPoints?: XYCoord;
+  }>(defaultDrawOnObj);
   useEffect(() => {
-    drawOnEnter.current = isDraggingForSelection && isCurrentWidgetDrawing;
-  }, [isDraggingForSelection, isCurrentWidgetDrawing]);
+    drawOnEnterObj.current = {
+      canDraw: isDraggingForSelection && isCurrentWidgetDrawing,
+      startPoints: outOfCanvasStartPositions,
+    };
+  }, [
+    isDraggingForSelection,
+    isCurrentWidgetDrawing,
+    outOfCanvasStartPositions,
+  ]);
   useCanvasDragToScroll(
     canvasRef,
     isCurrentWidgetDrawing,
@@ -225,9 +243,12 @@ export function CanvasSelectionArena({
       };
 
       const onMouseEnter = (e: any) => {
-        if (canvasRef.current && !isDragging && drawOnEnter.current) {
-          firstDraw(e);
-          drawOnEnter.current = false;
+        if (
+          canvasRef.current &&
+          !isDragging &&
+          drawOnEnterObj?.current.canDraw
+        ) {
+          firstRender(e, true);
         }
         document.body.removeEventListener("mouseup", onMouseUp);
         document.body.removeEventListener("click", onClick);
@@ -247,28 +268,58 @@ export function CanvasSelectionArena({
         }
       };
 
-      const determineDirection = (pos: any) => {
-        if (canvasRef.current) {
-          const bounds = canvasRef.current.getBoundingClientRect();
-          const w = bounds.width,
-            h = bounds.height,
-            x = (pos.x - bounds.left - w / 2) * (w > h ? h / w : 1),
-            y = (pos.y - bounds.top - h / 2) * (h > w ? w / h : 1);
-
-          return (
-            Math.round((Math.atan2(y, x) * (180 / Math.PI) + 180) / 90 + 3) % 4
-          );
+      const startPositionsForOutCanvasSelection = () => {
+        const startPoints = drawOnEnterObj.current.startPoints;
+        const startPositions = {
+          top: 0,
+          left: 0,
+        };
+        if (canvasRef.current && startPoints) {
+          const {
+            height,
+            left,
+            top,
+            width,
+          } = canvasRef.current.getBoundingClientRect();
+          const outOfMaxBounds = {
+            x: startPoints.x < left + width,
+            y: startPoints.y < top + height,
+          };
+          const outOfMinBounds = {
+            x: startPoints.x > left,
+            y: startPoints.y > top,
+          };
+          const xInRange = outOfMaxBounds.x && outOfMinBounds.x;
+          const yInRange = outOfMaxBounds.y && outOfMinBounds.y;
+          const bufferFromBoundary = 2;
+          startPositions.left = xInRange
+            ? startPoints.x - left
+            : outOfMinBounds.x
+            ? width - bufferFromBoundary
+            : bufferFromBoundary;
+          startPositions.top = yInRange
+            ? startPoints.y - top
+            : outOfMinBounds.y
+            ? height - bufferFromBoundary
+            : bufferFromBoundary;
         }
+        return startPositions;
       };
 
-      const firstDraw = (e: any) => {
+      const firstRender = (e: any, fromOuterCanvas = false) => {
         if (canvasRef.current) {
-          console.log(determineDirection({ x: e.clientX, y: e.clientY }));
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
-          selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
-          selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;
+          if (fromOuterCanvas) {
+            const { left, top } = startPositionsForOutCanvasSelection();
+            selectionRectangle.left = left;
+            selectionRectangle.top = top;
+          } else {
+            selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
+            selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;
+          }
           selectionRectangle.width = 0;
           selectionRectangle.height = 0;
+
           isDragging = true;
           // bring the canvas to the top layer
           canvasRef.current.style.zIndex = "2";
@@ -281,7 +332,7 @@ export function CanvasSelectionArena({
           (!isDraggableParent || e.ctrlKey || e.metaKey)
         ) {
           dispatch(setCanvasSelectionStateAction(true, widgetId));
-          firstDraw(e);
+          firstRender(e);
         }
       };
       const onMouseUp = () => {
@@ -298,7 +349,11 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseMove = (e: any) => {
-        if (isDragging && canvasRef.current) {
+        if (
+          isDragging &&
+          canvasRef.current &&
+          !drawOnEnterObj.current.canDraw
+        ) {
           selectionRectangle.width =
             e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
           selectionRectangle.height =
@@ -315,6 +370,9 @@ export function CanvasSelectionArena({
           scrollObj.lastMouseMoveEvent = e;
           scrollObj.lastScrollTop = scrollParent?.scrollTop;
           scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
+        }
+        if (drawOnEnterObj.current.canDraw) {
+          drawOnEnterObj.current = defaultDrawOnObj;
         }
       };
       const onScroll = () => {

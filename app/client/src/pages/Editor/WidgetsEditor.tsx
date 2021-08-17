@@ -26,8 +26,7 @@ import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { setCanvasSelectionStateAction } from "actions/canvasSelectionActions";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 
 const EditorWrapper = styled.div`
@@ -106,7 +105,7 @@ function WidgetsEditor() {
     deselectAll && deselectAll();
     dispatch(closePropertyPane());
     dispatch(closeTableFilterPane());
-    dispatch(setCanvasSelectionStateAction(false, MAIN_CONTAINER_WIDGET_ID));
+    dispatch(setCanvasSelectionFromEditor(false));
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (
@@ -125,7 +124,11 @@ function WidgetsEditor() {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(setCanvasSelectionStateAction(true, MAIN_CONTAINER_WIDGET_ID));
+    const startPoints = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+    dispatch(setCanvasSelectionFromEditor(true, startPoints));
   };
 
   log.debug("Canvas rendered");

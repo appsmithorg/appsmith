@@ -1,6 +1,7 @@
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import { OccupiedSpace } from "constants/editorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
 import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
@@ -102,10 +103,8 @@ function* startCanvasSelectionSaga(
   actionPayload: ReduxAction<{ widgetId: string }>,
 ) {
   const lastSelectedWidgets: string[] = yield select(getSelectedWidgets);
-  const mainContainer: WidgetProps = yield select(
-    getWidget,
-    actionPayload.payload.widgetId,
-  );
+  const widgetId = actionPayload.payload.widgetId || MAIN_CONTAINER_WIDGET_ID;
+  const mainContainer: WidgetProps = yield select(getWidget, widgetId);
   const lastSelectedWidgetsWithoutParent = lastSelectedWidgets.filter(
     (each) => each !== mainContainer.parentId,
   );
@@ -131,6 +130,10 @@ export default function* selectionCanvasSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.START_CANVAS_SELECTION,
+      startCanvasSelectionSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.START_CANVAS_SELECTION_FROM_EDITOR,
       startCanvasSelectionSaga,
     ),
   ]);
