@@ -1246,7 +1246,7 @@ type ColorType = {
 };
 
 const gitSyncModal = {
-  menuBackgroundColor: Colors.ALABASTER,
+  menuBackgroundColor: Colors.ALABASTER_ALT,
 };
 
 const tabItemBackgroundFill = {
