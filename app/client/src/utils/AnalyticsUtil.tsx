@@ -129,6 +129,8 @@ export type EventName =
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
   | "DEBUGGER_RESOLVED_ERROR"
+  | "DEBUGGER_NEW_ERROR_MESSAGE"
+  | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
   | "ADD_MOCK_DATASOURCE_CLICK"
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
@@ -153,7 +155,9 @@ export type EventName =
   | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
-  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK";
+  | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "CLOSE_GEN_PAGE_INFO_MODAL"
+  | "PAGES_LIST_LOAD";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -240,17 +244,12 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     if (userData) {
       const { segment } = getAppsmithConfigs();
-      const app = (userData.applications || []).find(
-        (app: any) => app.id === appId,
-      );
       let user: any = {};
       if (segment.enabled && segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
-          currentOrgId: userData.currentOrganizationId,
           appId: appId,
-          appName: app ? app.name : undefined,
           source: "cloud",
         };
       } else {

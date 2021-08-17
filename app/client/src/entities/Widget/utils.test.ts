@@ -183,6 +183,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
+          params: {
+            default: [],
+          },
         },
       },
     };

@@ -43,6 +43,7 @@
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
   "apiFormDataBodyType": "x-www-form-urlencoded",
+  "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
   "sortedColumn": "{{Table1.sortOrder.column",

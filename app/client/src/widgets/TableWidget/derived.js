@@ -238,7 +238,7 @@ export default {
       const column = columns.find((column) => column.id === sortedColumn);
       const columnType =
         column && column.columnType ? column.columnType : "text";
-
+      const inputFormat = column.inputFormat;
       sortedTableData = derivedTableData.sort((a, b) => {
         if (
           _.isPlainObject(a) &&
@@ -258,10 +258,14 @@ export default {
             case "date":
               try {
                 return sortOrder
-                  ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
+                  ? moment(a[sortedColumn], inputFormat).isAfter(
+                      moment(b[sortedColumn], inputFormat),
+                    )
                     ? 1
                     : -1
-                  : moment(b[sortedColumn]).isAfter(a[sortedColumn])
+                  : moment(b[sortedColumn], inputFormat).isAfter(
+                      moment(a[sortedColumn], inputFormat),
+                    )
                   ? 1
                   : -1;
               } catch (e) {

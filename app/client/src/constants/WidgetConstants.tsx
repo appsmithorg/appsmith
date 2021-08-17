@@ -33,6 +33,7 @@ export enum WidgetTypes {
   DIVIDER_WIDGET = "DIVIDER_WIDGET",
   MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
   ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
+  CHECKBOX_GROUP_WIDGET = "CHECKBOX_GROUP_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -112,6 +113,13 @@ export const GridDefaults = {
   DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
 };
+
+export const DroppableWidgets: WidgetType[] = [
+  WidgetTypes.CONTAINER_WIDGET,
+  WidgetTypes.FORM_WIDGET,
+  WidgetTypes.LIST_WIDGET,
+  WidgetTypes.TABS_WIDGET,
+];
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
 // which wud allow the user to place elements centered inside a container(columns are rendered proportionaly so it take cares of itselves).

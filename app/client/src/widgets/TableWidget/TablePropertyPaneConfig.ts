@@ -225,7 +225,12 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.OBJECT_ARRAY },
+        validation: {
+          type: ValidationTypes.OBJECT_ARRAY,
+          params: {
+            default: [],
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
