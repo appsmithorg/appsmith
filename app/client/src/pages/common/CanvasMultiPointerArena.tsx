@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Socket } from "socket.io-client";
 import { Colors } from "constants/Colors";
@@ -83,6 +83,9 @@ function CanvasMultiPointerArena({
 }) {
   let pointerData: PointerDataType = {};
   const animationStepIdRef = useRef<number>(0);
+  const [isPageEditSocketConnected, setIsPageEditSocketConnected] = useState<
+    boolean
+  >(pageEditSocket.connected);
   let selectionCanvas: any;
 
   // Setup for painting on canvas
@@ -101,7 +104,7 @@ function CanvasMultiPointerArena({
 
   // Initialize the page editing events to share pointer.
   useEffect(() => {
-    if (pageEditSocket.connected) {
+    if (isPageEditSocketConnected) {
       pageEditSocket.emit(APP_COLLAB_EVENTS.START_EDITING_APP, pageId);
     } else {
       pageEditSocket.connect(); // try to connect manually
@@ -109,10 +112,16 @@ function CanvasMultiPointerArena({
     return () => {
       pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
     };
-  }, [pageEditSocket.connected, pageId]);
+  }, [isPageEditSocketConnected, pageId]);
 
   // Subscribe to RTS events
   useEffect(() => {
+    pageEditSocket.on(APP_COLLAB_EVENTS.CONNECT, () => {
+      setIsPageEditSocketConnected(true);
+    });
+    pageEditSocket.on(APP_COLLAB_EVENTS.DISCONNECT, () => {
+      setIsPageEditSocketConnected(false);
+    });
     pageEditSocket.on(
       APP_COLLAB_EVENTS.SHARE_USER_POINTER,
       (eventData: PointerEventDataType) => {
