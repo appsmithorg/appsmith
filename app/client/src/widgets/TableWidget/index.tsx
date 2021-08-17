@@ -633,7 +633,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
-      delimeter,
+      delimiter,
       pageSize,
       filteredTableData = [],
       isVisibleCompactMode,
@@ -659,7 +659,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columnSizeMap={this.props.columnSizeMap}
           columns={tableColumns}
           compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          delimeter={delimeter}
+          delimiter={delimiter}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           filters={this.props.filters}

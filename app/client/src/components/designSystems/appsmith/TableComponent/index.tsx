@@ -74,7 +74,7 @@ interface ReactTableComponentProps {
   isVisibleDownload?: boolean;
   isVisibleCompactMode?: boolean;
   isVisiblePagination?: boolean;
-  delimeter: string;
+  delimiter: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -83,7 +83,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
-    delimeter,
+    delimiter,
     disableDrag,
     editMode,
     filters,
@@ -248,7 +248,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
-      delimeter={delimeter}
+      delimiter={delimiter}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -292,7 +292,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
-    prev.delimeter === next.delimeter &&
+    prev.delimiter === next.delimiter &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&

@@ -252,16 +252,16 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
   return currentDSL;
 };
 
-export const migrateTableWidgetDelimeterProperties = (
+export const migrateTableWidgetDelimiterProperties = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TABLE_WIDGET) {
-      if (!child.delimeter) {
-        child.delimeter = ",";
+      if (!child.delimiter) {
+        child.delimiter = ",";
       }
     } else if (child.children && child.children.length > 0) {
-      child = migrateTableWidgetDelimeterProperties(child);
+      child = migrateTableWidgetDelimiterProperties(child);
     }
     return child;
   });

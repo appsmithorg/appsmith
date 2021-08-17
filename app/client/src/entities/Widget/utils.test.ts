@@ -121,7 +121,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
-        delimeter: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -169,7 +169,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: {
           type: "TEXT",
         },
-        delimeter: {
+        delimiter: {
           type: "TEXT",
         },
         defaultSelectedRow: {

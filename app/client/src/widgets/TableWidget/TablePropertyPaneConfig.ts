@@ -981,7 +981,7 @@ export default [
         isTriggerProperty: false,
       },
       {
-        propertyName: "delimeter",
+        propertyName: "delimiter",
         label: "CSV Separator",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter CSV separator",
