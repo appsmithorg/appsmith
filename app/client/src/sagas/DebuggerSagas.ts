@@ -373,6 +373,9 @@ function* deleteDebuggerErrorLogSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }>,
 ) {
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
+  // If no error exists with this id
+  if (!(action.payload.id in errors)) return;
+
   const error = errors[action.payload.id];
 
   if (!error.source) return;
