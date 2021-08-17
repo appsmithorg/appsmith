@@ -1,0 +1,390 @@
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
+        {
+          "label": "Command",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "FIND",
+          "options": [
+            {
+              "label": "Insert Document(s)",
+              "value": "INSERT"
+            },
+            {
+              "label": "Find Document(s)",
+              "value": "FIND"
+            },
+            {
+              "label": "Update Document(s)",
+              "value": "UPDATE"
+            },
+            {
+              "label": "Delete Document(s)",
+              "value": "DELETE"
+            },
+            {
+              "label": "Count",
+              "value": "COUNT"
+            },
+            {
+              "label": "Distinct",
+              "value": "DISTINCT"
+            },
+            {
+              "label": "Aggregate",
+              "value": "AGGREGATE"
+            },
+            {
+              "label": "Raw",
+              "value": "RAW"
+            }
+          ],
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+            "comparison": "EQUALS",
+            "value": "RAW"
+          }
+        },
+        {
+          "label": "Collection Name",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[19].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+            "comparison": "EQUALS",
+            "value": "RAW"
+          }
+        },
+        {
+          "sectionName": "",
+          "id": 2,
+          "serverLabel": "findCommandForm",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "FIND"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Sort",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{name : 1}"
+            },
+            {
+              "label": "Projection",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{name : 1}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "10"
+            },
+            {
+              "label": "Skip",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "0"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 3,
+          "serverLabel": "updateOne",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "UPDATE_ONE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Sort",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{name : 1}"
+            },
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{ $inc: { score: 1 } }"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 4,
+          "serverLabel": "updateMany",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "UPDATE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{ $inc: { score: 1 } }"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[21].value",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 5,
+          "serverLabel": "delete",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "DELETE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[20].value",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single Document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All Matching Documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 6,
+          "serverLabel": "count",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "COUNT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[14].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 7,
+          "serverLabel": "distinct",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "DISTINCT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[15].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "{rating : {$gte : 9}}"
+            },
+            {
+              "label": "Key",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[16].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "name"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 8,
+          "serverLabel": "aggregate",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "AGGREGATE"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Array of Pipelines",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[17].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
+            }
+          ]
+        },
+        {
+          "sectionName": "",
+          "id": 9,
+          "serverLabel": "insert",
+          "hidden" : {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "INSERT"
+              }
+            ]
+          },
+          "children": [
+            {
+              "label": "Documents",
+              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[18].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText" : "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+            }
+          ]
+        },
+        {
+          "label": "",
+          "internalLabel": "Query",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "RAW"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            ]
+          }
+        },
+        {
+          "label": "",
+          "configProperty": "actionConfiguration.body",
+          "internalLabel": "Query",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+                "comparison": "NOT_EQUALS",
+                "value": "RAW"
+              },
+              {
+                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+                "comparison": "EQUALS",
+                "value": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

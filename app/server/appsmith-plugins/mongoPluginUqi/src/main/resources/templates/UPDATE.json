@@ -1,0 +1,11 @@
+{
+  "update": "users",
+  "updates": [
+    {
+      "q": {
+        "id": 10
+      },
+      "u": { "$set": { "status": "{{ statusDropdown.selectedOptionValue }}" } }
+    }
+  ]
+}

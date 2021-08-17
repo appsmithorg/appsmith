@@ -1,0 +1,11 @@
+{
+  "delete": "users",
+  "deletes": [
+    {
+      "q": {
+        "id": "{{ usersTable.selectedRow.id }}"
+      },
+      "limit": 1
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "find": "users",
+  "filter": {
+    "status": "{{ statusDropdown.selectedOptionValue }}"
+  },
+  "sort": {
+    "id": 1
+  },
+  "limit": 10
+}

@@ -1,0 +1,10 @@
+{
+  "insert": "users",
+  "documents": [
+    {
+      "name": "{{ nameInput.text }}",
+      "email": "{{ emailInput.text }}",
+      "gender": "{{ genderDropdown.selectedOptionValue }}"
+    }
+  ]
+}
