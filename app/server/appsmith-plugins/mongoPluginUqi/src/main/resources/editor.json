@@ -42,15 +42,7 @@
               "label": "Raw",
               "value": "RAW"
             }
-          ],
-          "conditionals": {
-            "hide": "{{actionConfiguration.formData.initVal === 'RAW'}}"
-          },
-          "_hidden": {
-            "path": "actionConfiguration.formData.initVal",
-            "comparison": "EQUALS",
-            "value": "RAW"
-          }
+          ]
         },
         {
           "label": "Collection Name",
@@ -59,11 +51,6 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {
             "hide": "{{actionConfiguration.formData.command === 'RAW'}}"
-          },
-          "_hidden": {
-            "path": "actionConfiguration.formData.command",
-            "comparison": "EQUALS",
-            "value": "RAW"
           }
         },
         {
@@ -71,17 +58,7 @@
           "id": 2,
           "serverLabel": "findCommandForm",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'FIND'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "FIND"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'FIND'}}"
           },
           "children": [
             {
@@ -123,61 +100,10 @@
         },
         {
           "sectionName": "",
-          "id": 3,
-          "serverLabel": "updateOne",
-          "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'UPDATE_ONE'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "UPDATE_ONE"
-              }
-            ]
-          },
-          "children": [
-            {
-              "label": "Query",
-              "configProperty": "actionConfiguration.formData.updateOne.query",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "evaluationSubstitutionType": "TEMPLATE",
-              "placeholderText": "{rating : {$gte : 9}}"
-            },
-            {
-              "label": "Sort",
-              "configProperty": "actionConfiguration.formData.updateOne.sort",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "evaluationSubstitutionType": "TEMPLATE",
-              "placeholderText": "{name : 1}"
-            },
-            {
-              "label": "Update",
-              "configProperty": "actionConfiguration.formData.updateOne.update",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "evaluationSubstitutionType": "TEMPLATE",
-              "placeholderText": "{ $inc: { score: 1 } }"
-            }
-          ]
-        },
-        {
-          "sectionName": "",
           "id": 4,
           "serverLabel": "updateMany",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'UPDATE'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "UPDATE"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'UPDATE'}}"
           },
           "children": [
             {
@@ -217,17 +143,7 @@
           "id": 5,
           "serverLabel": "delete",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'DELETE'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "DELETE"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'DELETE'}}"
           },
           "children": [
             {
@@ -260,17 +176,7 @@
           "id": 6,
           "serverLabel": "count",
           "_conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'COUNT'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "COUNT"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'COUNT'}}"
           },
           "children": [
             {
@@ -287,17 +193,7 @@
           "id": 7,
           "serverLabel": "distinct",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command === 'DISTINCT'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "DISTINCT"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'DISTINCT'}}"
           },
           "children": [
             {
@@ -321,17 +217,7 @@
           "id": 8,
           "serverLabel": "aggregate",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'AGGREGATE'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "AGGREGATE"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'AGGREGATE'}}"
           },
           "children": [
             {
@@ -348,17 +234,7 @@
           "id": 9,
           "serverLabel": "insert",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'INSERT'}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "INSERT"
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'INSERT'}}"
           },
           "children": [
             {
@@ -377,22 +253,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'RAW' || actionConfiguration.formData.smartSubstitutions === false}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "RAW"
-              },
-              {
-                "path": "actionConfiguration.formData.smartSubstitutions",
-                "comparison": "EQUALS",
-                "value": false
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitutions === true}}"
           }
         },
         {
@@ -402,22 +263,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {
-            "hide": "{{actionConfiguration.formData.command !== 'RAW' || actionConfiguration.formData.smartSubstitutions === true}}"
-          },
-          "_hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.formData.command",
-                "comparison": "NOT_EQUALS",
-                "value": "RAW"
-              },
-              {
-                "path": "actionConfiguration.formData.smartSubstitutions",
-                "comparison": "EQUALS",
-                "value": true
-              }
-            ]
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitutions === false}}"
           }
         }
       ]
