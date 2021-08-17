@@ -66,23 +66,22 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
 import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.MongoPluginUtils.setValueSafely;
 import static com.external.plugins.MongoPluginUtils.urlEncode;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_ONE_UPDATE;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.DELETE_QUERY;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
+import static com.external.plugins.constants.FieldName.FIND_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_SORT;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -143,7 +142,7 @@ public class MongoPlugin extends BasePlugin {
 
     private static final Integer MONGO_COMMAND_EXCEPTION_UNAUTHORIZED_ERROR_CODE = 13;
 
-    private static final Set<Integer> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
+    private static final Set<String> bsonFields = new HashSet<>(Arrays.asList(AGGREGATE_PIPELINE,
             COUNT_QUERY,
             DELETE_QUERY,
             DISTINCT_QUERY,
@@ -152,10 +151,7 @@ public class MongoPlugin extends BasePlugin {
             FIND_PROJECTION,
             INSERT_DOCUMENT,
             UPDATE_QUERY,
-            UPDATE_UPDATE,
-            UPDATE_ONE_QUERY,
-            UPDATE_ONE_SORT,
-            UPDATE_ONE_UPDATE
+            UPDATE_UPDATE
     ));
 
     public MongoPlugin(PluginWrapper wrapper) {
@@ -186,37 +182,19 @@ public class MongoPlugin extends BasePlugin {
                                                                 DatasourceConfiguration datasourceConfiguration,
                                                                 ActionConfiguration actionConfiguration) {
 
-            Boolean smartBsonSubstitution;
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+
+            final Map<String, Object> properties = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // Default smart substitution to true
-            if (CollectionUtils.isEmpty(properties)) {
-
-                smartBsonSubstitution = true;
-
-                // Since properties is not empty, we are guaranteed to find the first property.
-            } else if (properties.get(SMART_BSON_SUBSTITUTION) != null) {
-                Object ssubValue = properties.get(SMART_BSON_SUBSTITUTION).getValue();
-                if (ssubValue instanceof Boolean) {
-                    smartBsonSubstitution = (Boolean) ssubValue;
-                } else if (ssubValue instanceof String) {
-                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
-                } else {
-                    smartBsonSubstitution = true;
-                }
-            } else {
-                smartBsonSubstitution = true;
-            }
+            Boolean smartBsonSubstitution = (Boolean) properties.getOrDefault(SMART_SUBSTITUTION, TRUE);
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 // If not raw, then it must be form input.
-                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
-                    List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
+                if (!isRawCommand(actionConfiguration.getFormData())) {
+                    smartSubstituteFormCommand(actionConfiguration.getFormData(),
                             executeActionDTO.getParams(), parameters);
-                    actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
                 } else {
                     // For raw queries do smart replacements in BSON body
                     if (actionConfiguration.getBody() != null) {
@@ -421,19 +399,17 @@ public class MongoPlugin extends BasePlugin {
             return updatedQuery;
         }
 
-        private List<Property> smartSubstituteFormCommand(List<Property> templates,
+        private void smartSubstituteFormCommand(Map<String, Object> formData,
                                                           List<Param> params,
                                                           List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
-            for (int i = 0; i < templates.size(); i++) {
-                if (validConfigurationPresent(templates, i) && bsonFields.contains(i)) {
-                    Property configuration = templates.get(i);
-                    // Do Smart Substitution for each BSON field
-                    configuration.setValue(smartSubstituteBSON((String) configuration.getValue(), params, parameters));
+            for (String bsonField : bsonFields) {
+                if (validConfigurationPresent(formData, bsonField)) {
+                    String preSmartSubValue = (String) getValueSafely(formData, bsonField);
+                    String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
+                    setValueSafely(formData, bsonField, postSmartSubValue);
                 }
             }
-
-            return templates;
         }
 
         @Override

@@ -22,14 +22,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
+import static com.external.plugins.MongoPluginUtils.setValueSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 
 @Getter
 @Setter
@@ -40,10 +40,10 @@ public class Insert extends MongoCommand {
     public Insert(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, INSERT_DOCUMENT)) {
-            this.documents = (String) pluginSpecifiedTemplates.get(INSERT_DOCUMENT).getValue();
+        if (validConfigurationPresent(formData, INSERT_DOCUMENT)) {
+            this.documents = (String) getValueSafely(formData, INSERT_DOCUMENT);
         }
     }
 
@@ -99,15 +99,12 @@ public class Insert extends MongoCommand {
                 .sorted()
                 .collect(Collectors.joining(""));
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
-        configMap.put(COLLECTION, collectionName);
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "INSERT");
+        setValueSafely(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
+        setValueSafely(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"insert\": \"" + collectionName + "\",\n" +
@@ -121,7 +118,7 @@ public class Insert extends MongoCommand {
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Insert",
                 rawQuery,
-                pluginSpecifiedTemplates
+                configMap
         ));
     }
 }

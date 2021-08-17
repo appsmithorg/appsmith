@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Property;
 import com.external.plugins.commands.Aggregate;
 import com.external.plugins.commands.Count;
 import com.external.plugins.commands.Delete;
@@ -15,7 +14,6 @@ import com.external.plugins.commands.Find;
 import com.external.plugins.commands.Insert;
 import com.external.plugins.commands.MongoCommand;
 import com.external.plugins.commands.UpdateMany;
-import com.external.plugins.commands.UpdateOne;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
 import org.bson.types.Decimal128;
@@ -25,33 +23,71 @@ import org.springframework.util.StringUtils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.MAX_SIZE;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.RAW;
 
 public class MongoPluginUtils {
 
-    public static Boolean validConfigurationPresent(List<Property> pluginSpecifiedTemplates, int index) {
-        if (pluginSpecifiedTemplates != null) {
-            if (pluginSpecifiedTemplates.size() > index) {
-                if (pluginSpecifiedTemplates.get(index) != null) {
-                    if (pluginSpecifiedTemplates.get(index).getValue() != null) {
-                        return Boolean.TRUE;
-                    }
-                }
-            }
+    public static Boolean validConfigurationPresent(Map<String, Object> formData, String field) {
+        if (formData != null && !formData.isEmpty()) {
+            return getValueSafely(formData, field) != null;
         }
 
         return Boolean.FALSE;
+    }
+
+    public static Object getValueSafely(Map<String, Object> formData, String field) {
+        if (formData != null && !formData.isEmpty()) {
+            // This field value contains nesting
+            if (field.contains("\\.")) {
+
+                String[] fieldNames = field.split(".");
+
+                Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+                String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+                String nestedFieldName = String.join(".", trimmedFieldNames);
+
+                // Now get the value from the new nested map using trimmed field name (without the parent key)
+                return getValueSafely(nestedMap, nestedFieldName);
+            } else {
+                // This is a top level field. Return the value
+                return formData.getOrDefault(field, null);
+            }
+        }
+
+        return null;
+    }
+
+    public static void setValueSafely(Map<String, Object> formData, String field, Object value) {
+
+            // This field value contains nesting
+            if (field.contains("\\.")) {
+
+                String[] fieldNames = field.split(".");
+
+                // In case the parent key does not exist in the map, create one
+                formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
+
+                Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+                String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+                String nestedFieldName = String.join(".", trimmedFieldNames);
+
+                // Now set the value from the new nested map using trimmed field name (without the parent key)
+                setValueSafely(nestedMap, nestedFieldName, value);
+            } else {
+                // This is a top level field. Set the value
+                formData.put(field, value);
+            }
     }
 
     public static Document parseSafely(String fieldName, String input) {
@@ -62,36 +98,32 @@ public class MongoPluginUtils {
         }
     }
 
-    public static List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
-        List<Property> templates = new ArrayList<>();
-        for (int i = 0; i < MAX_SIZE; i++) {
-            Property template = new Property();
-            if (configuration.containsKey(i)) {
-                template.setValue(configuration.get(i));
-            }
-            templates.add(template);
-        }
-        return templates;
-    }
+//    public static List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
+//        List<Property> templates = new ArrayList<>();
+//        for (int i = 0; i < MAX_SIZE; i++) {
+//            Property template = new Property();
+//            if (configuration.containsKey(i)) {
+//                template.setValue(configuration.get(i));
+//            }
+//            templates.add(template);
+//        }
+//        return templates;
+//    }
 
-    public static Boolean isRawCommand(List<Property> templates) {
-        if ((templates.size() >= (1 + COMMAND)) &&
-                (templates.get(COMMAND) != null) &&
-                ("RAW".equals(templates.get(COMMAND).getValue()))) {
-            return TRUE;
-        }
-        return FALSE;
+    public static Boolean isRawCommand(Map<String, Object> formData) {
+        String command = (String) formData.getOrDefault(COMMAND, null);
+        return RAW.equals(command);
     }
 
     public static String convertMongoFormInputToRawCommand(ActionConfiguration actionConfiguration) {
-        List<Property> templates = actionConfiguration.getPluginSpecifiedTemplates();
-        if (templates != null) {
+        Map<String, Object> formData = actionConfiguration.getFormData();
+        if (formData != null && !formData.isEmpty()) {
             // If its not raw command, then it must be one of the mongo form commands
-            if (!isRawCommand(templates)) {
+            if (!isRawCommand(formData)) {
 
                 // Parse the commands into raw appropriately
                 MongoCommand command = null;
-                switch ((String) templates.get(COMMAND).getValue()) {
+                switch ((String) formData.getOrDefault(COMMAND, "")) {
                     case "INSERT":
                         command = new Insert(actionConfiguration);
                         break;
@@ -100,9 +132,6 @@ public class MongoPluginUtils {
                         break;
                     case "UPDATE":
                         command = new UpdateMany(actionConfiguration);
-                        break;
-                    case "UPDATE_ONE":
-                        command = new UpdateOne(actionConfiguration);
                         break;
                     case "DELETE":
                         command = new Delete(actionConfiguration);
@@ -146,9 +175,9 @@ public class MongoPluginUtils {
     }
 
     public static void generateTemplatesAndStructureForACollection(String collectionName,
-                                                                    Document document,
-                                                                    ArrayList<DatasourceStructure.Column> columns,
-                                                                    ArrayList<DatasourceStructure.Template> templates) {
+                                                                   Document document,
+                                                                   ArrayList<DatasourceStructure.Column> columns,
+                                                                   ArrayList<DatasourceStructure.Template> templates) {
         String filterFieldName = null;
         String filterFieldValue = null;
         Map<String, String> sampleInsertValues = new LinkedHashMap<>();
