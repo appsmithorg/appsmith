@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
+import static com.external.plugins.MongoPluginUtils.setValueSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -101,12 +102,12 @@ public class UpdateMany extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(SMART_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(COMMAND, "UPDATE");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-        configMap.put(UPDATE_UPDATE, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
-        configMap.put(UPDATE_LIMIT, "ALL");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "UPDATE");
+        setValueSafely(configMap, COLLECTION, collectionName);
+        setValueSafely(configMap, UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+        setValueSafely(configMap, UPDATE_UPDATE, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
+        setValueSafely(configMap, UPDATE_LIMIT, "ALL");
 
         String rawQuery = "{\n" +
                 "  \"update\": \"" + collectionName + "\",\n" +

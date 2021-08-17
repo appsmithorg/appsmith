@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
+import static com.external.plugins.MongoPluginUtils.setValueSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
@@ -123,15 +124,15 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
         Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(SMART_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(COMMAND, "FIND");
-        configMap.put(COLLECTION, collectionName);
-        configMap.put(FIND_SORT, "{\"_id\": 1}");
-        configMap.put(FIND_LIMIT, "10");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "FIND");
+        setValueSafely(configMap, COLLECTION, collectionName);
+        setValueSafely(configMap, FIND_SORT, "{\"_id\": 1}");
+        setValueSafely(configMap, FIND_LIMIT, "10");
 
         String query = filterFieldName == null ? "{}" :
                 "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
-        configMap.put(FIND_QUERY, query);
+        setValueSafely(configMap, FIND_QUERY, query);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +
@@ -157,10 +158,10 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
         Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(SMART_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(COMMAND, "FIND");
-        configMap.put(FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
-        configMap.put(COLLECTION, collectionName);
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "FIND");
+        setValueSafely(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
+        setValueSafely(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +

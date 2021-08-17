@@ -47,25 +47,25 @@ import java.util.concurrent.CompletableFuture;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.DisplayDataType.JSON;
 import static com.appsmith.external.constants.DisplayDataType.RAW;
-import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
-import static com.external.plugins.constants.ConfigurationIndex.AGGREGATE_PIPELINE;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.DELETE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_PROJECTION;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.FIND_SORT;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
-import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.external.plugins.MongoPluginUtils.setValueSafely;
+import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
+import static com.external.plugins.constants.FieldName.DELETE_QUERY;
+import static com.external.plugins.constants.FieldName.DISTINCT_KEY;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_LIMIT;
+import static com.external.plugins.constants.FieldName.FIND_PROJECTION;
+import static com.external.plugins.constants.FieldName.FIND_QUERY;
+import static com.external.plugins.constants.FieldName.FIND_SORT;
+import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -234,11 +234,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -279,11 +279,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -325,11 +325,12 @@ public class MongoPluginTest {
                 "        },\n" +
                 "      ],\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -346,15 +347,14 @@ public class MongoPluginTest {
                 .verifyComplete();
 
         // Clean up this newly inserted value
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DELETE_QUERY, "{\"name\": \"John Smith\"}");
-        configMap.put(DELETE_LIMIT, "SINGLE");
+        configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DELETE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DELETE_QUERY, "{\"name\": \"John Smith\"}");
+        setValueSafely(configMap, DELETE_LIMIT, "SINGLE");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
         // Run the delete command
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
@@ -373,11 +373,12 @@ public class MongoPluginTest {
                 " },\n" +
                 "  update: { $set: { gender: \"F\" }}\n" +
                 "}");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
+
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
         StepVerifier.create(executeMono)
@@ -409,11 +410,11 @@ public class MongoPluginTest {
                 "      find: \"users\",\n" +
                 "      limit: 1,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
 
@@ -485,9 +486,12 @@ public class MongoPluginTest {
                             "  },\n" +
                             "  \"limit\": 10\n" +
                             "}\n");
-                    assertEquals(findTemplate.getConfiguration().get(COMMAND).getValue(), "FIND");
-                    assertEquals(findTemplate.getConfiguration().get(FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
-                    assertEquals(findTemplate.getConfiguration().get(FIND_SORT).getValue(), "{\"_id\": 1}");
+                    assertEquals( ((Map<String, Object>) findTemplate.getConfiguration()).get(COMMAND), "FIND");
+
+                    assertEquals(getValueSafely((Map<String, Object>) findTemplate.getConfiguration(), FIND_QUERY),
+                            "{ \"gender\": \"F\"}");
+                    assertEquals(getValueSafely((Map<String, Object>) findTemplate.getConfiguration(), FIND_SORT),
+                            "{\"_id\": 1}");
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -498,8 +502,9 @@ public class MongoPluginTest {
                             "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                             "  }\n" +
                             "}\n");
-                    assertEquals(findByIdTemplate.getConfiguration().get(COMMAND).getValue(), "FIND");
-                    assertEquals(findByIdTemplate.getConfiguration().get(FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
+                    assertEquals( ((Map<String, Object>) findByIdTemplate.getConfiguration()).get(COMMAND), "FIND");
+                    assertEquals(getValueSafely((Map<String, Object>) findByIdTemplate.getConfiguration(), FIND_QUERY),
+                            "{\"_id\": ObjectId(\"id_to_query_with\")}");
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -519,8 +524,8 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(insertTemplate.getConfiguration().get(COMMAND).getValue(), "INSERT");
-                    assertEquals(insertTemplate.getConfiguration().get(INSERT_DOCUMENT).getValue(),
+                    assertEquals(((Map<String, Object>) insertTemplate.getConfiguration()).get(COMMAND), "INSERT");
+                    assertEquals(getValueSafely((Map<String, Object>) insertTemplate.getConfiguration(), INSERT_DOCUMENT),
                             "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
                                     "      \"dob\": new Date(\"2019-07-01\"),\n" +
@@ -545,9 +550,11 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(updateTemplate.getConfiguration().get(COMMAND).getValue(), "UPDATE");
-                    assertEquals(updateTemplate.getConfiguration().get(UPDATE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(updateTemplate.getConfiguration().get(UPDATE_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
+                    assertEquals(((Map<String, Object>) updateTemplate.getConfiguration()).get(COMMAND), "UPDATE");
+                    assertEquals(getValueSafely((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY),
+                            "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+                    assertEquals(getValueSafely((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_UPDATE),
+                            "{ \"$set\": { \"gender\": \"new value\" } }");
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -563,9 +570,11 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(deleteTemplate.getConfiguration().get(COMMAND).getValue(), "DELETE");
-                    assertEquals(deleteTemplate.getConfiguration().get(DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-                    assertEquals(deleteTemplate.getConfiguration().get(DELETE_LIMIT).getValue(), "SINGLE");
+                    assertEquals(((Map<String, Object>) deleteTemplate.getConfiguration()).get(COMMAND), "DELETE");
+                    assertEquals(getValueSafely((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_QUERY),
+                            "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+                    assertEquals(getValueSafely((Map<String, Object>) deleteTemplate.getConfiguration(), DELETE_LIMIT),
+                            "SINGLE");
                 })
                 .verifyComplete();
     }
@@ -759,11 +768,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -798,11 +807,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -837,11 +846,11 @@ public class MongoPluginTest {
                 "      sort: { id: 1 },\n" +
                 "      limit: 10,\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
         Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
@@ -872,11 +881,11 @@ public class MongoPluginTest {
                 "      sort: { id: {{Input2.text}} },\n" +
                 "      limit: {{Input3.text}}\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
@@ -963,11 +972,11 @@ public class MongoPluginTest {
                 "      sort: { id: {{Input2.text}} },\n" +
                 "      limit: {{Input3.text}}\n" +
                 "    }");
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        pluginSpecifiedTemplates.add(null);
-        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
-        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "RAW");
+        actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
@@ -1070,15 +1079,14 @@ public class MongoPluginTest {
     public void testFindFormCommand() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "FIND");
-        configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
-        configMap.put(FIND_SORT, "{ id: 1 }");
-        configMap.put(COLLECTION, "users");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "FIND");
+        setValueSafely(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        setValueSafely(configMap, FIND_SORT, "{ id: 1 }");
+        setValueSafely(configMap, COLLECTION, "users");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1102,16 +1110,15 @@ public class MongoPluginTest {
     public void testInsertFormCommandArrayDocuments() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : \"F\", age : 40, tag : \"test\"}," +
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "INSERT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : \"F\", age : 40, tag : \"test\"}," +
                 "{name : \"ZZZ Insert Form Array Test 2\", gender : \"F\", age : 40, tag : \"test\"}" +
                 "]");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1131,14 +1138,13 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DELETE_QUERY, "{\"tag\" : \"test\"}");
-        configMap.put(DELETE_LIMIT, "ALL");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DELETE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setValueSafely(configMap, DELETE_LIMIT, "ALL");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
         // Run the delete command
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
@@ -1147,14 +1153,13 @@ public class MongoPluginTest {
     public void testInsertFormCommandSingleDocument() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "INSERT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, INSERT_DOCUMENT, "{\"name\" : \"ZZZ Insert Form Single Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1174,14 +1179,14 @@ public class MongoPluginTest {
 
         // Clean up this newly inserted value
         configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DELETE_QUERY, "{\"tag\" : \"test\"}");
-        configMap.put(DELETE_LIMIT, "ALL");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DELETE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DELETE_QUERY, "{\"tag\" : \"test\"}");
+        setValueSafely(configMap, DELETE_LIMIT, "ALL");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
+
         // Run the delete command
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
     }
@@ -1190,16 +1195,15 @@ public class MongoPluginTest {
     public void testUpdateOneFormCommand() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "UPDATE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
-        configMap.put(UPDATE_UPDATE, "{ $set: { age: 31 }}}");
-        configMap.put(UPDATE_LIMIT, "SINGLE");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "UPDATE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
+        setValueSafely(configMap, UPDATE_UPDATE, "{ $set: { age: 31 }}}");
+        setValueSafely(configMap, UPDATE_LIMIT, "SINGLE");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1224,17 +1228,16 @@ public class MongoPluginTest {
     public void testUpdateManyFormCommand() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "UPDATE");
-        configMap.put(COLLECTION, "users");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "UPDATE");
+        setValueSafely(configMap, COLLECTION, "users");
         // Query for all the documents in the collection
-        configMap.put(UPDATE_QUERY, "{}");
-        configMap.put(UPDATE_UPDATE, "{ $set: { updatedByCommand: true }}}");
-        configMap.put(UPDATE_LIMIT, "ALL");
+        setValueSafely(configMap, UPDATE_QUERY, "{}");
+        setValueSafely(configMap, UPDATE_UPDATE, "{ $set: { updatedByCommand: true }}}");
+        setValueSafely(configMap, UPDATE_LIMIT, "ALL");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1262,26 +1265,26 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "INSERT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
+
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete one of them
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DELETE_QUERY, "{tag : \"delete\"}");
-        configMap.put(DELETE_LIMIT, "SINGLE");
+        configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DELETE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DELETE_QUERY, "{tag : \"delete\"}");
+        setValueSafely(configMap, DELETE_LIMIT, "SINGLE");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1308,26 +1311,26 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
         // Insert multiple documents which would match the delete criterion
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "INSERT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "INSERT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, INSERT_DOCUMENT, "[{\"name\" : \"To Delete1\", \"tag\" : \"delete\"}, {\"name\" : \"To Delete2\", \"tag\" : \"delete\"}]");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
+
         dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
 
         // Now that the documents have been inserted, lets delete both of them
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DELETE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DELETE_QUERY, "{tag : \"delete\"}");
-        configMap.put(DELETE_LIMIT, "ALL");
+        configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DELETE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DELETE_QUERY, "{tag : \"delete\"}");
+        setValueSafely(configMap, DELETE_LIMIT, "ALL");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1349,14 +1352,13 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "COUNT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(COUNT_QUERY, "{}");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "COUNT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, COUNT_QUERY, "{}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1378,15 +1380,14 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "DISTINCT");
-        configMap.put(COLLECTION, "users");
-        configMap.put(DISTINCT_QUERY, "{}");
-        configMap.put(DISTINCT_KEY, "name");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "DISTINCT");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, DISTINCT_QUERY, "{}");
+        setValueSafely(configMap, DISTINCT_KEY, "name");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1408,14 +1409,13 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "AGGREGATE");
-        configMap.put(COLLECTION, "users");
-        configMap.put(AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "AGGREGATE");
+        setValueSafely(configMap, COLLECTION, "users");
+        setValueSafely(configMap, AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
@@ -1434,16 +1434,15 @@ public class MongoPluginTest {
     public void testFindCommandProjection() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "FIND");
-        configMap.put(FIND_QUERY, "{ age: { \"$gte\": 30 } }");
-        configMap.put(FIND_SORT, "{ id: 1 }");
-        configMap.put(FIND_PROJECTION, "{ name: 1 }");
-        configMap.put(COLLECTION, "users");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setValueSafely(configMap, COMMAND, "FIND");
+        setValueSafely(configMap, FIND_QUERY, "{ age: { \"$gte\": 30 } }");
+        setValueSafely(configMap, FIND_SORT, "{ id: 1 }");
+        setValueSafely(configMap, FIND_PROJECTION, "{ name: 1 }");
+        setValueSafely(configMap, COLLECTION, "users");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -1467,16 +1466,15 @@ public class MongoPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        Map<Integer, Object> configMap = new HashMap<>();
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(INPUT_TYPE, "FORM");
-        configMap.put(COMMAND, "FIND");
-        configMap.put(FIND_QUERY, "\"{{Input1.text}}\"");
-        configMap.put(FIND_SORT, "{ id: {{Input2.text}} }");
-        configMap.put(FIND_LIMIT, "{{Input3.text}}");
-        configMap.put(COLLECTION, "{{Input4.text}}");
+        Map<String, Object> configMap = new HashMap<>();
+        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafely(configMap, COMMAND, "FIND");
+        setValueSafely(configMap, FIND_QUERY, "\"{{Input1.text}}\"");
+        setValueSafely(configMap, FIND_SORT, "{ id: {{Input2.text}} }");
+        setValueSafely(configMap, FIND_LIMIT, "{{Input3.text}}");
+        setValueSafely(configMap, COLLECTION, "{{Input4.text}}");
 
-        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        actionConfiguration.setFormData(configMap);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();

@@ -47,9 +47,9 @@ public class MongoPluginUtils {
     public static Object getValueSafely(Map<String, Object> formData, String field) {
         if (formData != null && !formData.isEmpty()) {
             // This field value contains nesting
-            if (field.contains("\\.")) {
+            if (field.contains(".")) {
 
-                String[] fieldNames = field.split(".");
+                String[] fieldNames = field.split("\\.");
 
                 Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
 
@@ -70,9 +70,9 @@ public class MongoPluginUtils {
     public static void setValueSafely(Map<String, Object> formData, String field, Object value) {
 
             // This field value contains nesting
-            if (field.contains("\\.")) {
+            if (field.contains(".")) {
 
-                String[] fieldNames = field.split(".");
+                String[] fieldNames = field.split("\\.");
 
                 // In case the parent key does not exist in the map, create one
                 formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
@@ -97,18 +97,6 @@ public class MongoPluginUtils {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, fieldName + " could not be parsed into expected JSON format.");
         }
     }
-
-//    public static List<Property> generateMongoFormConfigTemplates(Map<Integer, Object> configuration) {
-//        List<Property> templates = new ArrayList<>();
-//        for (int i = 0; i < MAX_SIZE; i++) {
-//            Property template = new Property();
-//            if (configuration.containsKey(i)) {
-//                template.setValue(configuration.get(i));
-//            }
-//            templates.add(template);
-//        }
-//        return templates;
-//    }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
         String command = (String) formData.getOrDefault(COMMAND, null);
