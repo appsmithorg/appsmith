@@ -49,11 +49,27 @@ import {
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-
+import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
+import Icon from "components/ads/Icon";
 
 //  ---------- Styles ----------
+
+const RoundBg = styled.div`
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  background-color: ${Colors.GRAY};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const TooltipWrapper = styled.div`
+  margin-top: 2px;
+  margin-left: 6px;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -93,6 +109,12 @@ const Title = styled.p`
   font-weight: 500;
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
+`;
+
+const Row = styled.p`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
 `;
 
 // Constants
@@ -553,19 +575,34 @@ function GeneratePageForm() {
           <>
             {showSearchableColumn && (
               <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-                <Label>
+                <Row>
                   Select a searchable {pluginField.COLUMN} from
-                  <Bold> {selectedTable.label} </Bold>
-                </Label>
+                  <Bold> &nbsp;{selectedTable.label} </Bold>
+                  <TooltipWrapper>
+                    <Tooltip
+                      content="Only string values are allowed for searchable column"
+                      hoverOpenDelay={200}
+                    >
+                      <RoundBg>
+                        <Icon
+                          fillColor={Colors.WHITE}
+                          hoverFillColor={Colors.WHITE}
+                          name="help"
+                          size={IconSize.XXS}
+                        />
+                      </RoundBg>
+                    </Tooltip>
+                  </TooltipWrapper>
+                </Row>
                 <Dropdown
                   cypressSelector="t--searchColumn-dropdown"
                   disabled={selectedTableColumnOptions.length === 0}
                   dropdownMaxHeight={"300px"}
-                  // helperText={
-                  //   selectedTableColumnOptions.length === 0
-                  //     ? `No searchable ${pluginField.COLUMN} to select`
-                  //     : "* Optional"
-                  // }
+                  helperText={
+                    selectedTableColumnOptions.length === 0
+                      ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
+                      : "* Optional"
+                  }
                   onSelect={onSelectColumn}
                   optionWidth={DROPDOWN_DIMENSION.WIDTH}
                   options={selectedTableColumnOptions}
