@@ -253,7 +253,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "SMART_SUBSTITUTE",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitutions === true}}"
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitution === true}}"
           }
         },
         {
@@ -263,7 +263,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {
-            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitutions === false}}"
+            "show": "{{actionConfiguration.formData.command === 'RAW' && actionConfiguration.formData.smartSubstitution === false}}"
           }
         }
       ]
