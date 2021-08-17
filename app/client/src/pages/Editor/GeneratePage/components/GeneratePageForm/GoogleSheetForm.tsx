@@ -96,7 +96,7 @@ const RowHeading = styled.p`
 // As TextInput with dataType as number allows `e` as input, hence adding a number validator
 // to check for only whole numbers.
 export function isNumberValidator(value: string) {
-  const isValid = (/^\d+$/.test(value) || value === "") && Number(value) > 0;
+  const isValid = (/^\d+$/.test(value) && Number(value) > 0) || value === "";
   return {
     isValid: isValid,
     message: !isValid ? "Only numeric value allowed" : "",
