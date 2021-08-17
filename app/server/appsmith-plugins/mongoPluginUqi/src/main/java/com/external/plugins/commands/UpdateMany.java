@@ -2,7 +2,6 @@ package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,16 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
-import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
-import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_LIMIT;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_QUERY;
-import static com.external.plugins.constants.ConfigurationIndex.UPDATE_UPDATE;
+import static com.external.plugins.constants.FieldName.COLLECTION;
+import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
+import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
 
 @Getter
 @Setter
@@ -37,19 +35,19 @@ public class UpdateMany extends MongoCommand {
     public UpdateMany(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, UPDATE_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(UPDATE_QUERY).getValue();
+        if (validConfigurationPresent(formData, UPDATE_QUERY)) {
+            this.query = (String) getValueSafely(formData, UPDATE_QUERY);
         }
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, UPDATE_UPDATE)) {
-            this.update = (String) pluginSpecifiedTemplates.get(UPDATE_UPDATE).getValue();
+        if (validConfigurationPresent(formData, UPDATE_UPDATE)) {
+            this.update = (String) getValueSafely(formData, UPDATE_UPDATE);
         }
 
         // Default for this is 1 to indicate updating only one document at a time.
-        if (validConfigurationPresent(pluginSpecifiedTemplates, UPDATE_LIMIT)) {
-            String limitOption = (String) pluginSpecifiedTemplates.get(UPDATE_LIMIT).getValue();
+        if (validConfigurationPresent(formData, UPDATE_LIMIT)) {
+            String limitOption = (String) getValueSafely(formData, UPDATE_LIMIT);
             if ("ALL".equals(limitOption)) {
                 this.multi = Boolean.TRUE;
             }
@@ -101,17 +99,14 @@ public class UpdateMany extends MongoCommand {
         String collectionName = (String) templateConfiguration.get("collectionName");
         String filterFieldName = (String) templateConfiguration.get("filterFieldName");
 
-        Map<Integer, Object> configMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
 
-        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
-        configMap.put(INPUT_TYPE, "FORM");
+        configMap.put(SMART_SUBSTITUTION, Boolean.TRUE);
         configMap.put(COMMAND, "UPDATE");
         configMap.put(COLLECTION, collectionName);
         configMap.put(UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
         configMap.put(UPDATE_UPDATE, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
         configMap.put(UPDATE_LIMIT, "ALL");
-
-        List<Property> pluginSpecifiedTemplates = generateMongoFormConfigTemplates(configMap);
 
         String rawQuery = "{\n" +
                 "  \"update\": \"" + collectionName + "\",\n" +
@@ -128,7 +123,7 @@ public class UpdateMany extends MongoCommand {
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Update",
                 rawQuery,
-                pluginSpecifiedTemplates
+                configMap
         ));
     }
 }

@@ -1,17 +1,17 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
-import java.util.List;
+import java.util.Map;
 
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.COUNT_QUERY;
+import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 
 @Getter
 @Setter
@@ -21,10 +21,10 @@ public class Count extends MongoCommand {
     public Count(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, COUNT_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(COUNT_QUERY).getValue();
+        if (validConfigurationPresent(formData, COUNT_QUERY)) {
+            this.query = (String) getValueSafely(formData, COUNT_QUERY);
         }
     }
 

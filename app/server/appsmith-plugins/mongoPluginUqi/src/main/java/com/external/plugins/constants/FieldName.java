@@ -27,6 +27,7 @@ public class FieldName {
     public static final String AGGREGATE_PIPELINE = AGGREGATE + "." + "arrayPipelines";
     public static final String COUNT_QUERY = COUNT + "." + QUERY;
     public static final String DELETE_QUERY = DELETE + "." + QUERY;
+    public static final String DELETE_LIMIT = DELETE + "." + LIMIT;
     public static final String DISTINCT_QUERY = DISTINCT + "." + QUERY;
     public static final String FIND_QUERY = FIND + "." + QUERY;
     public static final String FIND_SORT = FIND + "." + SORT;
@@ -34,6 +35,10 @@ public class FieldName {
     public static final String INSERT_DOCUMENT = INSERT + "." + DOCUMENTS;
     public static final String UPDATE_QUERY = UPDATE_MANY + "." + QUERY;
     public static final String UPDATE_UPDATE = UPDATE_MANY + "." + UPDATE;
+    public static final String DISTINCT_KEY = DISTINCT + "." + KEY;
+    public static final String FIND_LIMIT = FIND + "." + LIMIT;
+    public static final String FIND_SKIP = FIND + "." + SKIP;
+    public static final String UPDATE_LIMIT = UPDATE + "." + LIMIT;
 
 
     public static final String RAW = "RAW";
