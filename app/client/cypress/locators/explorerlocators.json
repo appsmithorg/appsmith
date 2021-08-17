@@ -23,7 +23,7 @@
     "editEntityField": ".bp3-editable-text-input",
     "entity":".t--entity-name",
     "addWidget":".widgets .t--entity-add-btn",
-    "dropHere":".appsmith_widget_0",
+    "dropHere":"#canvas-dragging-0",
     "closeWidgets":".t--close-widgets-sidebar",
     "addDBQueryEntity": ".datasources .t--entity-add-btn",
     "editEntity": ".t--entity-name input"

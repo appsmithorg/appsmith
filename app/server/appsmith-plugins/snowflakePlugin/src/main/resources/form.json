@@ -33,6 +33,12 @@
               "configProperty": "datasourceConfiguration.properties[2].value",
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "initialValue": "PUBLIC"
+            },
+            {
+              "label": "Role",
+              "configProperty": "datasourceConfiguration.properties[3].value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": "PUBLIC"
             }
           ]
         }

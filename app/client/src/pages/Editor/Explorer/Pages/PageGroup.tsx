@@ -1,10 +1,10 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
-import { pageGroupIcon } from "../ExplorerIcons";
+import { pageGroupIcon, settingsIcon } from "../ExplorerIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
@@ -13,6 +13,7 @@ import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer"
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -37,6 +38,7 @@ const pageGroupEqualityCheck = (
 };
 
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
@@ -80,12 +82,21 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
+      action={() =>
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
+      }
+      alwaysShowRightIcon
       className="group pages"
+      disabled
       entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded
       name="Pages"
+      onClickRightIcon={() => {
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+      }}
       onCreate={createPageCallback}
+      rightIcon={settingsIcon}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >
