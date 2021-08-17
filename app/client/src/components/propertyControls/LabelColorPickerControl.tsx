@@ -43,9 +43,9 @@ class LabelColorPickerControl extends BaseControl<
   }
 
   getLabels = () => {
-    const { tableData } = this.props.widgetProperties.evaluatedValues;
+    const { tableData } = this.props.widgetProperties;
     const columnName = this.props.propertyName.split(".")[1];
-    const labelsArray = tableData.map((row: any) => {
+    const labelsArray = tableData?.map((row: any) => {
       return row[columnName].split(",");
     });
     const labelColors: any = {};

@@ -826,6 +826,11 @@ export default [
                     );
                     return columnType !== "label";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   options: [
                     {
                       label: "Small",
@@ -851,6 +856,11 @@ export default [
                     );
                     return columnType !== "label";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   helpText: "Colored Options",
                   propertyName: "isColoredOption",
                   isJSConvertible: true,
@@ -874,6 +884,7 @@ export default [
                 );
                 return !isColoredOption;
               },
+              dependencies: ["primaryColumns", "derivedColumns", "columnOrder"],
               children: [
                 {
                   propertyName: "labelColors",
