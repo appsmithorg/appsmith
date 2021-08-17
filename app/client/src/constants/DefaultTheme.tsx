@@ -1417,8 +1417,8 @@ const navigationMenu = {
 };
 
 const numberedStep = {
-  line: "#E0DEDE",
-  number: "#000",
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
 };
 
 export const dark: ColorType = {
