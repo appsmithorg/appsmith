@@ -96,7 +96,7 @@ const RowHeading = styled.p`
 // As TextInput with dataType as number allows `e` as input, hence adding a number validator
 // to check for only whole numbers.
 export function isNumberValidator(value: string) {
-  const isValid = /^\d+$/.test(value);
+  const isValid = (/^\d+$/.test(value) || value === "") && Number(value) > 0;
   return {
     isValid: isValid,
     message: !isValid ? "Only numeric value allowed" : "",
@@ -273,7 +273,7 @@ function GoogleSheetForm(props: Props) {
   );
 
   const tableHeaderIndexChangeHandler = (value: string) => {
-    if (value !== "0" && value) {
+    if (isNumberValidator(value).isValid) {
       setTableHeaderIndex(value);
       debouncedFetchColumns(value);
     }
@@ -325,11 +325,10 @@ function GoogleSheetForm(props: Props) {
 
             <TextInput
               dataType="number"
-              defaultValue={tableHeaderIndex}
               fill
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
-              validator={isNumberValidator}
+              value={tableHeaderIndex}
             />
           </SelectWrapper>
           <ColumnInfoWrapper>
