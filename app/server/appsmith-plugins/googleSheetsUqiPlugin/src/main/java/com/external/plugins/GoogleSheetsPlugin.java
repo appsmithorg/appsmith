@@ -13,6 +13,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
+import com.external.constants.GoogleSheets;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class GoogleSheetsPlugin extends BasePlugin {
@@ -57,10 +59,10 @@ public class GoogleSheetsPlugin extends BasePlugin {
             errorResult.setIsExecutionSuccess(false);
 
             // Check if method is defined
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            final Map<String, Object> properties = actionConfiguration.getFormData();
             final Method method = CollectionUtils.isEmpty(properties)
                     ? null
-                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(0).getValue(), objectMapper);
+                    : GoogleSheetsMethodStrategy.getMethod((String) properties.get(GoogleSheets.METHOD), objectMapper);
 
             if (method == null) {
                 return Mono.error(new AppsmithPluginException(
