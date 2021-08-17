@@ -582,6 +582,7 @@ export const TagWrapper = styled.div<{
 }>`
   padding: 0px 10px;
   display: flex;
+  overflow: hidden;
   ${TableStyles}
   span.bp3-popover-target {
     display: inline-block;
