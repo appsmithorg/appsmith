@@ -15,7 +15,7 @@
         <java.version>11</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <plugin.id>mongo-plugin</plugin.id>
+        <plugin.id>mongo-uqi-plugin</plugin.id>
         <plugin.class>com.external.plugins.MongoPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
         <plugin.provider>tech@appsmith.com</plugin.provider>
