@@ -113,12 +113,6 @@ function CanvasMultiPointerArena({
 
   // Subscribe to RTS events
   useEffect(() => {
-    // if the component is not unmounted and the socket disconnects,
-    // will try to reconnect
-    pageEditSocket.on(APP_COLLAB_EVENTS.DISCONNECT, () => {
-      pageEditSocket.connect();
-    });
-
     pageEditSocket.on(
       APP_COLLAB_EVENTS.SHARE_USER_POINTER,
       (eventData: PointerEventDataType) => {
