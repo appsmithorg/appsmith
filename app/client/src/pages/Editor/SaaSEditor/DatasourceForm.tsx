@@ -62,6 +62,10 @@ interface DispatchFunctions {
   redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
+interface DatasourceSaasEditorState {
+  isAuthorized: boolean;
+}
+
 type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
@@ -91,7 +95,17 @@ const EditDatasourceButton = styled(AdsButton)`
   }
 `;
 
-class DatasourceSaaSEditor extends JSONtoForm<Props> {
+class DatasourceSaaSEditor extends JSONtoForm<
+  Props,
+  DatasourceSaasEditorState
+> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isAuthorized: false,
+    };
+  }
+
   componentDidMount() {
     super.componentDidMount();
     const search = new URLSearchParams(this.props.location.search);
@@ -108,6 +122,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
         }
         Toaster.show({ text: display_message || message, variant });
       } else {
+        // set authorization status
+        this.setState({
+          isAuthorized: true,
+        });
+
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
@@ -152,6 +171,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
+
           {viewMode && (
             <EditDatasourceButton
               category={Category.tertiary}
@@ -215,7 +235,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   );
                 }}
                 size="small"
-                text="Continue"
+                text={this.state.isAuthorized ? "Re-authorize" : "Authorize"}
               />
             </SaveButtonContainer>
           </>
