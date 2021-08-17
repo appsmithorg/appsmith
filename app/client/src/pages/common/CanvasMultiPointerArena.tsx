@@ -109,7 +109,7 @@ function CanvasMultiPointerArena({
     return () => {
       pageEditSocket.emit(APP_COLLAB_EVENTS.STOP_EDITING_APP);
     };
-  }, [pageEditSocket.connected]);
+  }, [pageEditSocket.connected, pageId]);
 
   // Subscribe to RTS events
   useEffect(() => {
