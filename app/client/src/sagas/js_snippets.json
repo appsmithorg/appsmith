@@ -8,7 +8,7 @@
         "dataType": "array",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
-            "snippet": "{{data}}.filter((item) => {return item.{{key}} === {{value}};});",
+            "snippet": "{{data}}.filter((item) => {return item[{{key}}] === {{value}};});",
             "isTrigger": false,
             "args": [
                 {
@@ -18,11 +18,11 @@
                 },
                 {
                     "name": "key",
-                    "type": "var"
+                    "type": "STRING"
                 },
                 {
                     "name": "value",
-                    "type": "var"
+                    "type": "VAR"
                 }
             ],
             "summary": "Merge data from two entities into a single response",
@@ -52,7 +52,7 @@
                 },
                 {
                     "name": "key",
-                    "type": "var"
+                    "type": "VAR"
                 }
             ],
             "isTrigger": false,
@@ -106,8 +106,8 @@
             "summary": "You can have custom styles such as colours and backgrounds in your table widget on a particular column. Choose the column you want, open the column settings and use the following snippet in Cell Background or Text Color property.",
             "examples": [
                 {
-                    "title": "javascript for Cell Background or Text Color property",
-                    "code": "(function columnColor() {let colors = {\"True\": \"green\",\"False\": \"Red\"};return colors[currentRow[\"status\"]];})()",
+                    "title": "",
+                    "code": "//Javascript for Cell Background or Text Color property\n(function columnColor() {let colors = {\"True\": \"green\",\"False\": \"Red\"};return colors[currentRow[\"status\"]];})()",
                     "summary": ""
                 }
             ]
@@ -122,11 +122,19 @@
         "dataType": "array",
         "body": {
             "title": "Merge multiple objects from queries into a single array",
-            "snippet": "{{your_array}}.concat({{Var2}}, {{Var3}});",
+            "snippet": "{{your_array}}.concat({{Obj1}}, {{Obj2}});",
             "args": [
                 {
                     "type": "ARRAY",
                     "name": "your_array"
+                },
+                {
+                    "type": "Obj1",
+                    "name": "VAR"
+                },
+                {
+                    "type": "Obj2",
+                    "name": "VAR"
                 }
             ],
             "isTrigger": false,
@@ -134,7 +142,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "/* Query #1 Data: avengers [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] Query #2 Data: justice_league [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);",
+                    "code": "/* Query #1 Data: \navengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);",
                     "summary": ""
                 }
             ]
@@ -274,11 +282,11 @@
             "args": [
                 {
                     "name": "query",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "key",
-                    "type": "string"
+                    "type": "TEXT"
                 }
             ],
             "summary": "To configure the default value of the checkbox widget with a particular query, you can use javascript and return the state of the checkbox.",
@@ -298,8 +306,13 @@
         "language": "javascript",
         "dataType": "string",
         "body": {
-            "title": "Select current data in the date picker widget",
+            "title": "Select current date in the date picker widget",
             "snippet": "moment.now()",
+            "examples": [{
+               "title": "",
+               "code": "moment.now()",
+               "summary": ""
+            }],
             "isTrigger": false,
             "summary": "By default, if you want to assign the date picker value to the current date, you can use moment.now() method. "
         }
@@ -355,7 +368,7 @@
         "dataType": "string",
         "body": {
             "title": "Binding an object onto the text widget",
-            "snippet": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\n\");return my_string;})()",
+            "snippet": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
             "isTrigger": false,
             "args": [
                 {
@@ -367,7 +380,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\n\");return my_string;})()",
+                    "code": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
                     "summary": ""
                 }
             ]
@@ -425,7 +438,7 @@
                 },
                 {
                     "name": "queryData",
-                    "type": "string"
+                    "type": "VAR"
                 },
                 {
                     "name": "pageName",
@@ -460,7 +473,7 @@
                 },
                 {
                     "name": "query",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 }
             ],
             "summary": "To open a new Modal on button click and run a query, you can use javascript in the onClick property. This can be handy when you want to render any data on the Modal.",
@@ -487,7 +500,7 @@
             "args": [
                 {
                     "name": "query",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "modalName",
@@ -523,15 +536,15 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "query2",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "query3",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 }
             ],
             "summary": "If you want to run two APIs in series on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
@@ -559,11 +572,11 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "query2",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 }
             ],
             "summary": "If you want to run two APIs in parallel on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
@@ -590,11 +603,11 @@
             "args": [
                 {
                     "name": "query1",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "query2",
-                    "type": "OBJECT"
+                    "type": "VAR"
                 },
                 {
                     "name": "successMessage",
@@ -625,6 +638,13 @@
         "body": {
             "title": "Query data from Postgres table",
             "snippet": "SELECT * FROM {{table_name}}",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT * FROM table_name",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
@@ -645,6 +665,13 @@
         "body": {
             "title": "PostgreSQL SELECT statement to query data from multiple columns",
             "snippet": "SELECT {{column1}}, {{column2}}, {{column3}} FROM {{table_name}}",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, column2, column3 FROM table_name",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
@@ -677,6 +704,13 @@
         "body": {
             "title": "PostgreSQL SELECT statement to query data from one column",
             "snippet": "SELECT {{column_name}} FROM {{table_name}}",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column_name FROM table_name",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
@@ -701,6 +735,13 @@
         "body": {
             "title": "Ordering table data in ascending order",
             "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} ASC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, column2 FROM table_name ORDER BY column1 ASC;",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
@@ -729,6 +770,13 @@
         "body": {
             "title": "Ordering table data in descending order",
             "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} DESC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, column2 FROM table_name ORDER BY column1 DESC;",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
@@ -757,6 +805,13 @@
         "body": {
             "title": "Ordering table data based on the length of column value",
             "snippet": "SELECT {{column1}}, LENGTH(column1) len FROM {{table_name}} ORDER BY len DESC;",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "SELECT column1, LENGTH(column1) len FROM table_name ORDER BY len DESC;",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "args": [
                 {
