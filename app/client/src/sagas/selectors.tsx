@@ -152,6 +152,10 @@ export const getPluginIdOfPackageName = (
   return undefined;
 };
 
+export const getDragDetails = (state: AppState) => {
+  return state.ui.widgetDragResize.dragDetails;
+};
+
 export const getSelectedWidget = (state: AppState) => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;

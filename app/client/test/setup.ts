@@ -3,6 +3,8 @@ import { handlers } from "./__mocks__/apiHandlers";
 export const server = setupServer(...handlers);
 
 window.scrollTo = jest.fn();
+Element.prototype.scrollIntoView = jest.fn();
+Element.prototype.scrollBy = jest.fn();
 
 // establish API mocking before all tests
 beforeAll(() => server.listen());
