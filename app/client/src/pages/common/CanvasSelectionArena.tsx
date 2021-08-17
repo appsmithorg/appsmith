@@ -134,12 +134,8 @@ export function CanvasSelectionArena({
       canDraw: canDrawOnEnter,
       startPoints: canDrawOnEnter ? outOfCanvasStartPositions : undefined,
     };
-    if (canvasRef.current) {
-      if (canDrawOnEnter) {
-        canvasRef.current.style.zIndex = "2";
-      } else {
-        canvasRef.current.style.zIndex = "";
-      }
+    if (canvasRef.current && canDrawOnEnter) {
+      canvasRef.current.style.zIndex = "2";
     }
   }, [
     isDraggingForSelection,

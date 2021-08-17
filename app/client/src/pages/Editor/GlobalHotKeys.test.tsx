@@ -52,8 +52,8 @@ describe("Select all hotkey", () => {
 
   it("Cmd + A - select all widgets on canvas", async () => {
     const children: any = buildChildren([
-      { type: "TABS_WIDGET" },
-      { type: "SWITCH_WIDGET" },
+      { type: "TABS_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
+      { type: "SWITCH_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children,
@@ -156,6 +156,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 30,
         leftColumn: 5,
         rightColumn: 30,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
       {
         type: "SWITCH_WIDGET",
@@ -163,6 +164,7 @@ describe("Cut/Copy/Paste hotkey", () => {
         bottomRow: 10,
         leftColumn: 40,
         rightColumn: 48,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({

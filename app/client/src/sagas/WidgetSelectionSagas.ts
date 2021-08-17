@@ -101,7 +101,8 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
 function* getLastSelectedCanvas() {
   const lastSelectedWidget: string = yield select(getSelectedWidget);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const widgetLastSelected = canvasWidgets[lastSelectedWidget];
+  const widgetLastSelected =
+    lastSelectedWidget && canvasWidgets[lastSelectedWidget];
   if (widgetLastSelected) {
     const canvasToSelect: string = yield call(
       getDroppingCanvasOfWidget,
