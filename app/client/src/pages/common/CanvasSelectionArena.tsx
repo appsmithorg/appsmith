@@ -18,6 +18,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCoord } from "react-dnd";
+import { theme } from "constants/DefaultTheme";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -121,6 +122,8 @@ export function CanvasSelectionArena({
     canDraw: boolean;
     startPoints?: XYCoord;
   }>(defaultDrawOnObj);
+
+  // start main container selection from widget editor
   useEffect(() => {
     const canDrawOnEnter =
       isDraggingForSelection &&
@@ -131,11 +134,19 @@ export function CanvasSelectionArena({
       canDraw: canDrawOnEnter,
       startPoints: canDrawOnEnter ? outOfCanvasStartPositions : undefined,
     };
+    if (canvasRef.current) {
+      if (canDrawOnEnter) {
+        canvasRef.current.style.zIndex = "2";
+      } else {
+        canvasRef.current.style.zIndex = "";
+      }
+    }
   }, [
     isDraggingForSelection,
     isCurrentWidgetDrawing,
     outOfCanvasStartPositions,
   ]);
+
   useCanvasDragToScroll(
     canvasRef,
     isCurrentWidgetDrawing,
@@ -402,7 +413,11 @@ export function CanvasSelectionArena({
           if (height && width) {
             canvasRef.current.width = width * scale;
             canvasRef.current.height =
-              (snapRows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
+              (snapRows * snapRowSpace +
+                (widgetId === MAIN_CONTAINER_WIDGET_ID
+                  ? theme.canvasBottomPadding
+                  : 0)) *
+              scale;
           }
           canvasCtx = canvasRef.current.getContext("2d");
           canvasCtx.scale(scale, scale);
