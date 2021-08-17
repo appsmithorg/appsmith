@@ -102,7 +102,7 @@ export function CanvasSelectionArena({
         trailing: true,
       },
     ),
-    [widgetId],
+    [widgetId, snapColumnSpace, snapRowSpace],
   );
   const isDraggingForSelection = useSelector((state: AppState) => {
     return state.ui.canvasSelection.isDraggingForSelection;
@@ -122,9 +122,14 @@ export function CanvasSelectionArena({
     startPoints?: XYCoord;
   }>(defaultDrawOnObj);
   useEffect(() => {
+    const canDrawOnEnter =
+      isDraggingForSelection &&
+      isCurrentWidgetDrawing &&
+      !!outOfCanvasStartPositions;
+
     drawOnEnterObj.current = {
-      canDraw: isDraggingForSelection && isCurrentWidgetDrawing,
-      startPoints: outOfCanvasStartPositions,
+      canDraw: canDrawOnEnter,
+      startPoints: canDrawOnEnter ? outOfCanvasStartPositions : undefined,
     };
   }, [
     isDraggingForSelection,
@@ -150,7 +155,6 @@ export function CanvasSelectionArena({
         canvasRef.current,
       );
       const scrollObj: any = {};
-
       let canvasCtx: any = canvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
         top: 0,
@@ -161,26 +165,6 @@ export function CanvasSelectionArena({
       let selectionRectangle: SelectedArenaDimensions = initRectangle();
       let isMultiSelect = false;
       let isDragging = false;
-
-      const init = () => {
-        if (canvasRef.current) {
-          const { height, width } = canvasRef.current.getBoundingClientRect();
-          if (height && width) {
-            canvasRef.current.width = width * scale;
-            canvasRef.current.height =
-              (snapRows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
-          }
-          canvasCtx = canvasRef.current.getContext("2d");
-          canvasCtx.scale(scale, scale);
-          canvasRef.current.addEventListener("click", onClick, false);
-          canvasRef.current.addEventListener("mousedown", onMouseDown, false);
-          canvasRef.current.addEventListener("mouseup", onMouseUp, false);
-          canvasRef.current.addEventListener("mousemove", onMouseMove, false);
-          canvasRef.current.addEventListener("mouseleave", onMouseLeave, false);
-          canvasRef.current.addEventListener("mouseenter", onMouseEnter, false);
-          scrollParent?.addEventListener("scroll", onScroll, false);
-        }
-      };
 
       const getSelectionDimensions = () => {
         return {
@@ -238,8 +222,10 @@ export function CanvasSelectionArena({
       };
 
       const onMouseLeave = () => {
-        document.body.addEventListener("mouseup", onMouseUp, false);
-        document.body.addEventListener("click", onClick, false);
+        if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+          document.body.addEventListener("mouseup", onMouseUp, false);
+          document.body.addEventListener("click", onClick, false);
+        }
       };
 
       const onMouseEnter = (e: any) => {
@@ -249,9 +235,11 @@ export function CanvasSelectionArena({
           drawOnEnterObj?.current.canDraw
         ) {
           firstRender(e, true);
+          drawOnEnterObj.current = defaultDrawOnObj;
+        } else if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
+          document.body.removeEventListener("mouseup", onMouseUp);
+          document.body.removeEventListener("click", onClick);
         }
-        document.body.removeEventListener("mouseup", onMouseUp);
-        document.body.removeEventListener("click", onClick);
       };
 
       const onClick = (e: any) => {
@@ -307,7 +295,7 @@ export function CanvasSelectionArena({
       };
 
       const firstRender = (e: any, fromOuterCanvas = false) => {
-        if (canvasRef.current) {
+        if (canvasRef.current && !isDragging) {
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           if (fromOuterCanvas) {
             const { left, top } = startPositionsForOutCanvasSelection();
@@ -349,11 +337,7 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseMove = (e: any) => {
-        if (
-          isDragging &&
-          canvasRef.current &&
-          !drawOnEnterObj.current.canDraw
-        ) {
+        if (isDragging && canvasRef.current) {
           selectionRectangle.width =
             e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
           selectionRectangle.height =
@@ -370,9 +354,6 @@ export function CanvasSelectionArena({
           scrollObj.lastMouseMoveEvent = e;
           scrollObj.lastScrollTop = scrollParent?.scrollTop;
           scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
-        }
-        if (drawOnEnterObj.current.canDraw) {
-          drawOnEnterObj.current = defaultDrawOnObj;
         }
       };
       const onScroll = () => {
@@ -397,10 +378,17 @@ export function CanvasSelectionArena({
           });
         }
       };
-      if (appMode === APP_MODE.EDIT) {
-        init();
-      }
-      return () => {
+
+      const addEventListeners = () => {
+        canvasRef.current?.addEventListener("click", onClick, false);
+        canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
+        canvasRef.current?.addEventListener("mouseup", onMouseUp, false);
+        canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
+        canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
+        canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
+        scrollParent?.addEventListener("scroll", onScroll, false);
+      };
+      const removeEventListeners = () => {
         canvasRef.current?.removeEventListener("mousedown", onMouseDown);
         canvasRef.current?.removeEventListener("mouseup", onMouseUp);
         canvasRef.current?.removeEventListener("mousemove", onMouseMove);
@@ -408,8 +396,36 @@ export function CanvasSelectionArena({
         canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
         canvasRef.current?.removeEventListener("click", onClick);
       };
+      const init = () => {
+        if (canvasRef.current) {
+          const { height, width } = canvasRef.current.getBoundingClientRect();
+          if (height && width) {
+            canvasRef.current.width = width * scale;
+            canvasRef.current.height =
+              (snapRows * snapRowSpace + (widgetId === "0" ? 200 : 0)) * scale;
+          }
+          canvasCtx = canvasRef.current.getContext("2d");
+          canvasCtx.scale(scale, scale);
+          removeEventListeners();
+          addEventListeners();
+        }
+      };
+      if (appMode === APP_MODE.EDIT) {
+        init();
+      }
+      return () => {
+        removeEventListeners();
+      };
     }
-  }, [appLayout, currentPageId, mainContainer, isDragging, snapRows]);
+  }, [
+    appLayout,
+    currentPageId,
+    mainContainer,
+    isDragging,
+    snapRows,
+    snapColumnSpace,
+    snapRowSpace,
+  ]);
 
   return appMode === APP_MODE.EDIT && !(isDragging || isResizing) ? (
     <StyledSelectionCanvas
