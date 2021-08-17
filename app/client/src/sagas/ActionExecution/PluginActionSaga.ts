@@ -8,10 +8,10 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  executePluginActionRequest,
-  executePluginActionSuccess,
   executePageLoadActionsComplete,
   executePluginActionError,
+  executePluginActionRequest,
+  executePluginActionSuccess,
   runAction,
   showRunActionConfirmModal,
   updateAction,
@@ -41,7 +41,7 @@ import {
 } from "selectors/applicationSelectors";
 import _, { get, isString } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
 import AnalyticsUtil, { EventName } from "utils/AnalyticsUtil";
 import { Action, PluginType } from "entities/Action";
@@ -50,8 +50,8 @@ import { Toaster } from "components/ads/Toast";
 import {
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
-  ERROR_PLUGIN_ACTION_EXECUTE,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
+  ERROR_PLUGIN_ACTION_EXECUTE,
 } from "constants/messages";
 import { Variant } from "components/ads/common";
 import {
@@ -265,7 +265,8 @@ export default function* executePluginActionTriggerSaga(
   }
 
   if (isError) {
-    AppsmithConsole.error({
+    AppsmithConsole.addError({
+      id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
       text: `Execution failed with status ${payload.statusCode}`,
       source: {
@@ -274,7 +275,12 @@ export default function* executePluginActionTriggerSaga(
         id: actionId,
       },
       state: payload.request,
-      messages: [{ message: payload.body as string }],
+      messages: [
+        {
+          message: payload.body as string,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        },
+      ],
     });
     Toaster.show({
       text: createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
@@ -401,7 +407,8 @@ function* runActionSaga(
         error = "An unexpected error occurred";
       }
     }
-    AppsmithConsole.error({
+    AppsmithConsole.addError({
+      id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
       text: `Execution failed${
         payload.statusCode ? ` with status ${payload.statusCode}` : ""
@@ -414,6 +421,7 @@ function* runActionSaga(
       messages: [
         {
           message: error,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
         },
       ],
       state: payload.request,
@@ -509,7 +517,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         : (error += `\nERROR: "${payload.body}"`);
     }
 
-    AppsmithConsole.error({
+    AppsmithConsole.addError({
+      id: pageAction.id,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
       text: `Execution failed with status ${payload.statusCode}`,
       source: {
@@ -518,7 +527,7 @@ function* executePageLoadAction(pageAction: PageAction) {
         id: pageAction.id,
       },
       state: payload.request,
-      messages: [{ message: error }],
+      messages: [{ message: error, type: PLATFORM_ERROR.PLUGIN_EXECUTION }],
     });
 
     yield put(

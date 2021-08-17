@@ -43,22 +43,22 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "{}",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "[]",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: true,
@@ -108,7 +108,7 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed:
           "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 string or data uri or URL`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 encoded image | data uri | image url`,
       },
     ];
 
@@ -152,12 +152,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: 150,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
       },
       {
         isValid: false,
         parsed: 150,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} number Min: 100 Max: 200 Required`,
       },
       {
         isValid: true,
@@ -182,12 +182,12 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
         parsed: false,
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
         parsed: false,
       },
       {
@@ -200,12 +200,12 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
         parsed: false,
       },
       {
         isValid: false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} boolean`,
         parsed: false,
       },
       {
@@ -277,22 +277,22 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key1 is invalid: This value does not evaluate to type \"number\"`,
+        message: `Value of key: key1 is invalid: This value does not evaluate to type number Required`,
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key2 is invalid: This value does not evaluate to type "string"`,
+        message: `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
       },
       {
         isValid: false,
@@ -358,7 +358,8 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        message: "This value does not evaluate to type Array",
+        message:
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: false,
@@ -375,7 +376,8 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        message: "This value does not evaluate to type Array",
+        message:
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: true,
@@ -385,7 +387,8 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [],
-        message: "This value does not evaluate to type Array",
+        message:
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: false,
@@ -452,7 +455,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [{ label: 0, value: 234 }],
-        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type "number"`,
+        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type number Required`,
       },
     ];
     inputs.forEach((input, index) => {
@@ -496,12 +499,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: defaultDate,
-        message: "This value does not evaluate to type: ISO 8601 date string",
+        message: "Value does not match: ISO 8601 date string",
       },
       {
         isValid: false,
         parsed: defaultDate,
-        message: "This value does not evaluate to type: ISO 8601 date string",
+        message: "Value does not match: ISO 8601 date string",
       },
     ];
 
@@ -551,32 +554,32 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
       {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
-        message: "This value does not evaluate to type Array of objects",
+        message: "This value does not evaluate to type Array<Object>",
       },
     ];
 

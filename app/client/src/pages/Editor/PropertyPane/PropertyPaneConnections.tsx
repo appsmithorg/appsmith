@@ -21,7 +21,7 @@ import {
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
 import { setActionTabsInitialIndex } from "actions/pluginActionActions";
@@ -179,7 +179,7 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
 
 const doConnectionsHaveErrors = (
   options: DropdownOption[],
-  debuggerErrors: Record<string, Message>,
+  debuggerErrors: Record<string, Log>,
 ) => {
   return options.some((option) =>
     doesEntityHaveErrors(option.value as string, debuggerErrors),
