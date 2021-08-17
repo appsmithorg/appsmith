@@ -3,15 +3,19 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.CaptchaService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,10 +51,11 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 public class UserSignup {
 
     private final UserService userService;
+    private final UserDataService userDataService;
     private final CaptchaService captchaService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final ConfigService configService;
     private final PolicyUtils policyUtils;
-    private final UserRepository userRepository;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -151,19 +156,35 @@ public class UserSignup {
                 });
     }
 
-    public Mono<User> signupAndLoginSuper(User user, ServerWebExchange exchange) {
+    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
         return userService.isUsersEmpty()
                 .flatMap(isEmpty -> {
                     if (!isEmpty) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
+                    final User user = new User();
+                    user.setEmail(userFromRequest.getEmail());
+                    user.setName(userFromRequest.getName());
+                    user.setSource(userFromRequest.getSource());
+                    user.setState(userFromRequest.getState());
+                    user.setIsEnabled(userFromRequest.isEnabled());
+                    user.setPassword(userFromRequest.getPassword());
+
                     policyUtils.addPoliciesToExistingObject(Map.of(
                             AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_ENV.getValue()).users(Set.of(user.getUsername())).build()
+                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_ENV.getValue()).users(Set.of(user.getEmail())).build()
                     ), user);
 
                     return signupAndLogin(user, exchange);
+                })
+                .flatMap(user -> {
+                    final UserData userData = new UserData();
+                    userData.setRole(userFromRequest.getRole());
+                    return Mono.when(
+                            userDataService.updateForUser(user, userData),
+                            configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName()))
+                    ).thenReturn(user);
                 });
     }
 
