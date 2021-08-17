@@ -46,7 +46,7 @@ export type TextInputProps = CommonComponentProps & {
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
-  rightSideComponent?: typeof React.Component;
+  rightSideComponent?: React.ReactNode;
 };
 
 type boxReturnType = {
@@ -148,7 +148,7 @@ const StyledInput = styled((props) => {
       : null};
 `;
 
-const InputWrapper = styled.div`
+export const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -165,6 +165,7 @@ const RightSideContainer = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
+  display: flex;
 `;
 
 const ErrorWrapper = styled.div`
@@ -222,8 +223,6 @@ const TextInput = forwardRef(
       </ErrorWrapper>
     );
 
-    const RightSideComponent = props.rightSideComponent || (() => null);
-
     return (
       <InputWrapper>
         <StyledInput
@@ -242,7 +241,7 @@ const TextInput = forwardRef(
         />
         {ErrorMessage}
         <RightSideContainer ref={setRightSideRef}>
-          <RightSideComponent />
+          {props.rightSideComponent}
         </RightSideContainer>
       </InputWrapper>
     );
