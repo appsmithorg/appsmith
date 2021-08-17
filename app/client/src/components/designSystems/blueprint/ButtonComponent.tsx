@@ -102,10 +102,7 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
         props.accent
           ? props.theme.colors[AccentColorMap[props.accent]]
           : props.theme.colors.primary};
-    color: ${(props) =>
-      props.accent === "grey"
-        ? props.theme.colors.textOnGreyBG
-        : props.theme.colors.textOnDarkBG};
+
     border-radius: 0;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     outline: none;
