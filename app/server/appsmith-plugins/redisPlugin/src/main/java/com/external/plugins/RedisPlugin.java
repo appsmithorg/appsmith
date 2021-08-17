@@ -78,8 +78,8 @@ public class RedisPlugin extends BasePlugin {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                    "Appsmith server has failed to parse Redis query. Please check if the Redis query" +
-                                            " has correct format."
+                                    "Appsmith server has failed to parse your Redis query. Are you sure it's" +
+                                            " been formatted correctly."
                             )
                     );
                 }
