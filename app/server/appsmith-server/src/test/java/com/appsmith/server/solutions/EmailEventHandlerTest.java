@@ -5,13 +5,16 @@ import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,6 +49,8 @@ public class EmailEventHandlerTest {
     @MockBean
     private ApplicationRepository applicationRepository;
     @MockBean
+    private NewPageRepository newPageRepository;
+    @MockBean
     private EmailConfig emailConfig;
 
     @MockBean
@@ -64,7 +69,13 @@ public class EmailEventHandlerTest {
     @Before
     public void setUp() {
         emailEventHandler = new EmailEventHandler(
-                applicationEventPublisher, emailSender, organizationRepository, applicationRepository, policyUtils, emailConfig
+                applicationEventPublisher,
+                emailSender,
+                organizationRepository,
+                applicationRepository,
+                newPageRepository,
+                policyUtils,
+                emailConfig
         );
         application = new Application();
         application.setName("Test application for comment");
@@ -79,14 +90,20 @@ public class EmailEventHandlerTest {
 
         Mockito.when(applicationRepository.findById(applicationId)).thenReturn(Mono.just(application));
         Mockito.when(organizationRepository.findById(organizationId)).thenReturn(Mono.just(organization));
+
+        NewPage newPage = new NewPage();
+        newPage.setUnpublishedPage(new PageDTO());
+        newPage.getUnpublishedPage().setName("Page1");
+        Mockito.when(newPageRepository.findById(anyString())).thenReturn(Mono.just(newPage));
     }
 
     @Test
     public void publish_CommentProvidedWithSubscriber_ReturnsTrue() {
         Comment comment = new Comment();
+        comment.setPageId("page-id");
         Set<String> subscribers = Set.of("dummy-username1");
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, comment, subscribers
+                organization, application, originHeader, comment, subscribers, "Page1"
         );
 
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentAddedEvent);
@@ -123,7 +140,7 @@ public class EmailEventHandlerTest {
     public void publish_WhenCommentThreadHasNoPublishersProvided_ReturnsFalse() {
         CommentThread commentThread = new CommentThread();
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
         );
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
 
@@ -136,9 +153,10 @@ public class EmailEventHandlerTest {
     @Test
     public void publish_WhenCommentThreadHasPublishersProvided_ReturnsTrue() {
         CommentThread commentThread = new CommentThread();
+        commentThread.setPageId("page-id");
         commentThread.setSubscribers(Set.of("abc"));
         CommentThreadClosedEvent commentThreadClosedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
         );
         Mockito.doNothing().when(applicationEventPublisher).publishEvent(commentThreadClosedEvent);
 
@@ -158,7 +176,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment, subscribers
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -180,7 +198,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment, subscribers
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -230,7 +248,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentAddedEvent commentAddedEvent = new CommentAddedEvent(
-                authorUserName, organization, application, originHeader, sampleComment, subscribers
+                organization, application, originHeader, sampleComment, subscribers, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 
@@ -259,7 +277,7 @@ public class EmailEventHandlerTest {
 
         // send the event
         CommentThreadClosedEvent commentAddedEvent = new CommentThreadClosedEvent(
-                authorUserName, organization, application, originHeader, commentThread
+                authorUserName, organization, application, originHeader, commentThread, "Page1"
         );
         emailEventHandler.handle(commentAddedEvent);
 

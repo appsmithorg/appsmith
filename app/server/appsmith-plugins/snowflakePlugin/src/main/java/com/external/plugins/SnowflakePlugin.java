@@ -14,6 +14,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -88,6 +89,9 @@ public class SnowflakePlugin extends BasePlugin {
                                 rowsList.add(row);
                             }
                         } catch (SQLException e) {
+                            if (e instanceof SnowflakeReauthenticationRequest) {
+                                throw new StaleConnectionException();
+                            }
                             e.printStackTrace();
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
                         } finally {
