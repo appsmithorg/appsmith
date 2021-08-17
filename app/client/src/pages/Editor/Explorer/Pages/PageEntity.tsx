@@ -19,6 +19,7 @@ import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import ExplorerJSActionGroup from "../JSActions/JSActionGroup";
 import { JSAction } from "entities/JSAction";
+import getFeatureFlags from "utils/featureFlags";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -45,6 +46,8 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
       history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
     }
   }, [props.page.pageId, params.applicationId]);
+
+  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 
   const contextMenu = (
     <PageContextMenu
@@ -101,12 +104,14 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
         props.searchKeyword,
       )}
 
-      <ExplorerJSActionGroup
-        jsActions={props.jsActions}
-        pageId={props.page.pageId}
-        searchKeyword={props.searchKeyword}
-        step={props.step + 1}
-      />
+      {isJSEditorEnabled && (
+        <ExplorerJSActionGroup
+          jsActions={props.jsActions}
+          pageId={props.page.pageId}
+          searchKeyword={props.searchKeyword}
+          step={props.step + 1}
+        />
+      )}
     </Entity>
   );
 }

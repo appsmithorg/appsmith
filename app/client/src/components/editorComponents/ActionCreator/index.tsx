@@ -51,9 +51,10 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import _ from "lodash";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSAction } from "actions/jsPaneActions";
+import getFeatureFlags from "utils/featureFlags";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
-
+const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 const baseOptions: any = [
   {
     label: "No Action",
@@ -62,10 +63,6 @@ const baseOptions: any = [
   {
     label: "Execute a Query",
     value: ActionType.integration,
-  },
-  {
-    label: "Execute JS Function",
-    value: ActionType.jsFunction,
   },
   {
     label: "Navigate To",
@@ -98,6 +95,10 @@ const baseOptions: any = [
   {
     label: "Reset Widget",
     value: ActionType.resetWidget,
+  },
+  isJSEditorEnabled && {
+    label: "Execute a JS Function",
+    value: ActionType.jsFunction,
   },
 ];
 
@@ -343,6 +344,7 @@ function getIntegrationOptionsWithChildren(
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
 ) {
+  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
   const createJSObject: TreeDropdownOption = {
     label: "Create New JS Object",
     value: "JSObject",
@@ -353,7 +355,6 @@ function getIntegrationOptionsWithChildren(
       dispatch(createNewJSAction(pageId));
     },
   };
-
   const queries = actions.filter(
     (action) => action.config.pluginType === PluginType.DB,
   );
@@ -428,7 +429,7 @@ function getIntegrationOptionsWithChildren(
       } as TreeDropdownOption);
     });
   }
-  if (jsOption) {
+  if (isJSEditorEnabled && jsOption) {
     jsOption.children = [createJSObject];
     jsActions.forEach((jsAction) => {
       if (jsAction.config.actions && jsAction.config.actions.length > 0) {

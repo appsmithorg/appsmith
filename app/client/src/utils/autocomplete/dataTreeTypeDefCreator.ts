@@ -11,6 +11,7 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
+import getFeatureFlags from "utils/featureFlags";
 
 // When there is a complex data type, we store it in extra def and refer to it
 // in the def
@@ -42,6 +43,7 @@ export const dataTreeTypeDefCreator = (
     "!name": "DATA_TREE",
   };
   const entityMap: Map<string, DataTreeDefEntityInformation> = new Map();
+  const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
@@ -71,7 +73,7 @@ export const dataTreeTypeDefCreator = (
         type: ENTITY_TYPE.APPSMITH,
         subType: ENTITY_TYPE.APPSMITH,
       });
-    } else if (isJSAction(entity)) {
+    } else if (isJSAction(entity) && isJSEditorEnabled) {
       const result: any = _.omit(entity, skipJSProps);
       const metaObj: any = entity.meta;
       const jsOptions: any = {};
