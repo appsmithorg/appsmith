@@ -54,6 +54,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
     };
   }
 
@@ -722,10 +726,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.resetSelectedRowIndex();
     const sortOrderProps =
       column === ""
-        ? undefined
+        ? {
+            column: "",
+            order: null,
+          }
         : {
             column: column,
-            asc: asc,
             order: asc ? SortOrderTypes.asc : SortOrderTypes.desc,
           };
     this.props.updateWidgetMetaProperty("sortOrder", sortOrderProps, {

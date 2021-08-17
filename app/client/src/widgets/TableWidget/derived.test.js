@@ -6,7 +6,10 @@ describe("Validates Derived Properties", () => {
     const { getTableColumns } = derivedProperty;
     const input = {
       sanitizedTableData: [],
-      sortOrder: undefined,
+      sortOrder: {
+        column: "",
+        order: null,
+      },
       columnOrder: ["id", "another"],
     };
     const expected = [];
@@ -14,7 +17,16 @@ describe("Validates Derived Properties", () => {
     let result = getTableColumns(input, moment, _);
     expect(result).toStrictEqual(expected);
 
-    let result = getTableColumns({}, moment, _);
+    let result = getTableColumns(
+      {
+        sortOrder: {
+          column: "",
+          order: null,
+        },
+      },
+      moment,
+      _,
+    );
     expect(result).toStrictEqual(expected);
   });
 
@@ -25,7 +37,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
     };
     const expected = [
@@ -77,7 +89,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -168,7 +180,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -276,7 +288,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -403,7 +415,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -531,7 +543,7 @@ describe("Validates Derived Properties", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
       sanitizedTableData: [],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {},
       columns: [],
@@ -550,7 +562,7 @@ describe("Validates Derived Properties", () => {
         { id: 123, name: "John Doe" },
         { id: 234, name: "Jane Doe" },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {
@@ -691,7 +703,7 @@ describe("Validates Derived Properties", () => {
           operator: "OR",
         },
       ],
-      sortOrder: { column: "id", asc: false },
+      sortOrder: { column: "id", order: "desc" },
       columnOrder: ["name", "id"],
       primaryColumns: {
         id: {

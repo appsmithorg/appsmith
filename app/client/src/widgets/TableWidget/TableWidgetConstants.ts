@@ -36,10 +36,9 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   compactMode?: CompactMode;
   primaryColumns: Record<string, ColumnProperties>;
   derivedColumns: Record<string, ColumnProperties>;
-  sortOrder?: {
+  sortOrder: {
     column: string;
-    asc: boolean;
-    order: SortOrderTypes;
+    order: SortOrderTypes | null;
   };
 }
 
