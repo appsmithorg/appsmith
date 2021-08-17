@@ -1269,6 +1269,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "IconButton",
       version: 1,
     },
+    [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
+      options: [
+        { label: "Apple", value: "apple" },
+        { label: "Orange", value: "orange" },
+        { label: "Lemon", value: "lemon" },
+      ],
+      defaultSelectedValues: "apple",
+      isDisabled: false,
+      isRequired: false,
+      isVisible: true,
+      widgetName: "CheckboxGroup",
+      version: 1,
+    },
   },
   configVersion: 1,
 };
