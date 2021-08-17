@@ -201,6 +201,8 @@ public class ImportExportApplicationServiceTests {
 
                     NewPage defaultPage = pageList.get(0);
 
+                    assertThat(applicationJson.getAppsmithVersion()).isNotNull();
+
                     assertThat(exportedApp.getId()).isNull();
                     assertThat(exportedApp.getOrganizationId()).isNull();
                     assertThat(exportedApp.getPages()).isNull();
@@ -522,7 +524,29 @@ public class ImportExportApplicationServiceTests {
             })
             .verifyComplete();
     }
-    
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplicationWithoutVersionTest() {
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-file-without-version.json");
+
+        Organization newOrganization = new Organization();
+        newOrganization.setName("Template Organization");
+
+        final Mono<Application> resultMono = organizationService
+            .create(newOrganization)
+            .flatMap(organization -> importExportApplicationService
+                .extractFileAndSaveApplication(organization.getId(), filePart)
+            );
+
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().contains(AppsmithError.JSON_PROCESSING_ERROR.getMessage(": Unable to find version field in the uploaded file.")))
+            .verify();
+    }
+
     private FilePart createFilePart(String filePath) {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils

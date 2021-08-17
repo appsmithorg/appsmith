@@ -274,6 +274,38 @@
                 "parentId": "e3tq9qwta6",
                 "widgetId": "2uvezzlkn5",
                 "dynamicBindingPathList": []
+              },
+              {
+                "isVisible": true,
+                "options": [
+                  {
+                    "label": "Apple",
+                    "value": "apple"
+                  },
+                  {
+                    "label": "Orange",
+                    "value": "orange"
+                  },
+                  {
+                    "label": "Lemon",
+                    "value": "lemon"
+                  }
+                ],
+                "defaultSelectedValues": "apple",
+                "isDisabled": false,
+                "isRequired": false,
+                "widgetName": "CheckboxGroup1",
+                "version": 1,
+                "type": "CHECKBOX_GROUP_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 7.852001953124999,
+                "parentRowSpace": 10,
+                "leftColumn": 6,
+                "rightColumn": 18,
+                "topRow": 9,
+                "bottomRow": 17,
+                "parentId": "kipfh779n5",
+                "widgetId": "zbzrlbiose"
               }
             ],
             "widgetId": "e3tq9qwta6",
