@@ -217,6 +217,8 @@ const DATA_TREE_FUNCTIONS: Record<
     ]);
   },
   storeValue: function(key: string, value: string, persist = true) {
+    // momentarily store this value in local state to support loops
+    _.set(self, `appsmith.store[${key}]`, value);
     return new AppsmithPromise([
       {
         type: ActionTriggerType.STORE_VALUE,
@@ -260,7 +262,7 @@ const DATA_TREE_FUNCTIONS: Record<
       function(onSuccess: Function, onError: Function, params = {}) {
         const runActionPromise = new AppsmithPromise([
           {
-            type: ActionTriggerType.PLUGIN_ACTION,
+            type: ActionTriggerType.RUN_PLUGIN_ACTION,
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
               params,
@@ -271,6 +273,19 @@ const DATA_TREE_FUNCTIONS: Record<
         if (onError) runActionPromise.catch(onError);
         return runActionPromise;
       },
+  },
+  clear: {
+    qualifier: isAction,
+    func: (entity) => () => {
+      return new AppsmithPromise([
+        {
+          type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
+          payload: {
+            actionId: isAction(entity) ? entity.actionId : "",
+          },
+        },
+      ]);
+    },
   },
 };
 

@@ -3,7 +3,8 @@ import { TypeOptions } from "react-toastify";
 
 export enum ActionTriggerType {
   PROMISE = "PROMISE",
-  PLUGIN_ACTION = "PLUGIN_ACTION",
+  RUN_PLUGIN_ACTION = "RUN_PLUGIN_ACTION",
+  CLEAR_PLUGIN_ACTION = "CLEAR_PLUGIN_ACTION",
   NAVIGATE_TO = "NAVIGATE_TO",
   SHOW_ALERT = "SHOW_ALERT",
   SHOW_MODAL_BY_NAME = "SHOW_MODAL_BY_NAME",
@@ -24,11 +25,18 @@ export type PromiseActionDescription = {
   };
 };
 
-export type PluginActionDescription = {
-  type: ActionTriggerType.PLUGIN_ACTION;
+export type RunPluginActionDescription = {
+  type: ActionTriggerType.RUN_PLUGIN_ACTION;
   payload: {
     actionId: string;
     params?: Record<string, unknown>;
+  };
+};
+
+export type ClearPluginActionDescription = {
+  type: ActionTriggerType.CLEAR_PLUGIN_ACTION;
+  payload: {
+    actionId: string;
   };
 };
 
@@ -95,7 +103,8 @@ export type ResetWidgetDescription = {
 
 export type ActionDescription =
   | PromiseActionDescription
-  | PluginActionDescription
+  | RunPluginActionDescription
+  | ClearPluginActionDescription
   | NavigateActionDescription
   | ShowAlertActionDescription
   | ShowModalActionDescription

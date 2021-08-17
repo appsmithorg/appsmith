@@ -19,6 +19,7 @@ import {
   ActionDescription,
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
+import { clearActionResponse } from "actions/pluginActionActions";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -34,8 +35,11 @@ export function* executeActionTriggers(
     case ActionTriggerType.PROMISE:
       yield call(executePromiseSaga, trigger.payload, eventType);
       break;
-    case ActionTriggerType.PLUGIN_ACTION:
+    case ActionTriggerType.RUN_PLUGIN_ACTION:
       yield call(executePluginActionTriggerSaga, trigger.payload, eventType);
+      break;
+    case ActionTriggerType.CLEAR_PLUGIN_ACTION:
+      yield put(clearActionResponse(trigger.payload.actionId));
       break;
     case ActionTriggerType.NAVIGATE_TO:
       yield call(navigateActionSaga, trigger.payload);

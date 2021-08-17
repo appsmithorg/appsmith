@@ -83,7 +83,7 @@ import {
   QUERIES_EDITOR_URL,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
-import { PluginActionDescription } from "entities/DataTree/actionTriggers";
+import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
 import { ApiResponse } from "api/ApiResponses";
 import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
@@ -206,7 +206,7 @@ function* confirmRunActionSaga() {
 }
 
 export default function* executePluginActionTriggerSaga(
-  pluginAction: PluginActionDescription["payload"],
+  pluginAction: RunPluginActionDescription["payload"],
   eventType: EventType,
 ) {
   const { actionId, params } = pluginAction;

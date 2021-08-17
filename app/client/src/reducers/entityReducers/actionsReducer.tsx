@@ -193,6 +193,20 @@ const actionsReducer = createReducer(initialState, {
       return [...state, partialAction];
     }
   },
+  [ReduxActionTypes.CLEAR_ACTION_RESPONSE]: (
+    state: ActionDataState,
+    action: ReduxAction<{ actionId: string }>,
+  ): ActionDataState => {
+    return state.map((stateAction) => {
+      if (stateAction.config.id === action.payload.actionId) {
+        return {
+          ...stateAction,
+          data: undefined,
+        };
+      }
+      return stateAction;
+    });
+  },
   [ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<ExecuteErrorPayload>,

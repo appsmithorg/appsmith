@@ -126,6 +126,15 @@ export const updateActionSuccess = (payload: { data: Action }) => {
   };
 };
 
+export const clearActionResponse = (actionId: string) => {
+  return {
+    type: ReduxActionTypes.CLEAR_ACTION_RESPONSE,
+    payload: {
+      actionId,
+    },
+  };
+};
+
 export const deleteAction = (payload: {
   id: string;
   name: string;

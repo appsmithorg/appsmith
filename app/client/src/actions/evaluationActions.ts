@@ -32,6 +32,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
   ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+  ReduxActionTypes.CLEAR_ACTION_RESPONSE,
   // App Data
   ReduxActionTypes.SET_APP_MODE,
   ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
