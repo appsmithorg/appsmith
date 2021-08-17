@@ -29,5 +29,6 @@
         <module>googleSheetsPlugin</module>
         <module>snowflakePlugin</module>
         <module>arangoDBPlugin</module>
+        <module>googleSheetsUqiPlugin</module>
     </modules>
 </project>
