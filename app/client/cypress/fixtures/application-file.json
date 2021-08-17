@@ -1,4 +1,5 @@
 {
+    "appsmithVersion":"v1.5.13",
     "exportedApplication": {
         "userPermissions": [
             "canComment:applications",

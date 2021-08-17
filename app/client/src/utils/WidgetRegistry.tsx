@@ -81,6 +81,9 @@ import IconWidget, { CONFIG as ICON_WIDGET_CONFIG } from "widgets/IconWidget";
 import IconButtonWidget, {
   CONFIG as ICON_BUTTON_WIDGET_CONFIG,
 } from "widgets/IconButtonWidget";
+import CheckboxGroupWidget, {
+  CONFIG as CHECKBOX_GROUP_WIDGET_CONFIG,
+} from "widgets/CheckboxGroupWidget";
 
 export const registerWidgets = () => {
   const start = performance.now();
@@ -116,5 +119,6 @@ export const registerWidgets = () => {
   registerWidget(MenuButtonWidget, MENU_BUTTON_WIDGET_CONFIG);
   registerWidget(MultiSelectWidget, MULTI_SELECT_WIDGET_CONFIG);
   registerWidget(IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG);
+  registerWidget(CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG);
   console.log("Widget registration took: ", performance.now() - start, "ms");
 };

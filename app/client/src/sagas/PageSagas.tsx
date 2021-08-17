@@ -98,6 +98,7 @@ import {
   generateTemplateSuccess,
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
+import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -927,6 +928,8 @@ export function* generateTemplatePageSaga(
         text: "Successfully generated a page",
         variant: Variant.success,
       });
+
+      yield put(setCrudInfoModalOpen(true));
     }
   } catch (error) {
     yield put(generateTemplateError());

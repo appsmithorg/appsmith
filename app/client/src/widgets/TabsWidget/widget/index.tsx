@@ -9,7 +9,7 @@ import {
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
-import { generateReactKey } from "utils/generators";
+import { generateReactKey } from "widgets/WidgetUtils";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
@@ -291,7 +291,6 @@ class TabsWidget extends BaseWidget<
         .map((child) => child.widgetId);
       // If the tabs and children are different,
       // add and/or remove tab container widgets
-
       if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
         const widgetIdsToRemove: string[] = _.without(
           childWidgetIds,
@@ -309,7 +308,6 @@ class TabsWidget extends BaseWidget<
         }
       }
       this.updateTabContainerNames();
-
       // If all tabs were removed.
       if (tabWidgetIds.length === 0) {
         const newTabContainerWidgetId = generateReactKey();
@@ -350,7 +348,6 @@ class TabsWidget extends BaseWidget<
           const defaultTab = _.find(visibleTabs, {
             label: this.props.defaultTab,
           });
-
           this.props.updateWidgetMetaProperty(
             "selectedTabWidgetId",
             (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
@@ -401,9 +398,11 @@ class TabsWidget extends BaseWidget<
         (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
       isLoading: false,
     }));
-    this.props.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
-      children: tabContainers,
-    });
+    if (tabContainers && tabContainers.length > 0) {
+      this.props.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
+        children: tabContainers,
+      });
+    }
   };
 
   getVisibleTabs = () => {
@@ -419,6 +418,7 @@ class TabsWidget extends BaseWidget<
   };
 
   componentDidMount() {
+    console.log("Mounting!!");
     const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
     if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {

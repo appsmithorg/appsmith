@@ -49,6 +49,7 @@ import {
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { getCanvasWidth, getRenderMode } from "selectors/editorSelectors";
 import { AppState } from "reducers";
+import shallowequal from "shallowequal";
 
 abstract class BaseWidget<
   T extends WidgetProps,
@@ -126,6 +127,7 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     }, JSON.stringify);
 
     render() {
+      console.log("Rendering", this.props.widgetName);
       return this.getWidgetView();
     }
 
@@ -281,6 +283,13 @@ export function withWidgetAPI(Widget: typeof BaseWidget) {
     getCanvasView(): ReactNode {
       const content = this.getPageView();
       return this.addErrorBoundary(content);
+    }
+
+    shouldComponentUpdate(nextProps: WidgetProps, nextState: WidgetState) {
+      return (
+        !shallowequal(nextProps, this.props) ||
+        !shallowequal(nextState, this.state)
+      );
     }
 
     /**
