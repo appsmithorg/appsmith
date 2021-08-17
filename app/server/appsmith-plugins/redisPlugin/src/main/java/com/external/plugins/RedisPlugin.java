@@ -139,11 +139,7 @@ public class RedisPlugin extends BasePlugin {
         }
 
         private boolean isQueryFormatValid(Map cmdAndArgs) {
-            if (cmdAndArgs.containsKey(CMD_KEY)) {
-                return true;
-            }
-
-            return false;
+            return cmdAndArgs.containsKey(CMD_KEY);
         }
 
         private Map getCommandAndArgs(String query) {
