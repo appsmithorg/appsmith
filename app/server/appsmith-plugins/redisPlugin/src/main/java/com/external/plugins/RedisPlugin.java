@@ -30,17 +30,22 @@ import redis.clients.jedis.util.SafeEncoder;
 
 import java.net.URI;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 
 public class RedisPlugin extends BasePlugin {
     private static final int CONNECTION_TIMEOUT = 60;
+    private static final String CMD_KEY = "cmd";
+    private static final String ARGS_KEY = "args";
 
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -68,21 +73,29 @@ public class RedisPlugin extends BasePlugin {
                             String.format("Body is null or empty [%s]", query)));
                 }
 
-                // First value will be the redis command and others are arguments for that command
-                String[] bodySplitted = query.trim().split("\\s+");
+                Map cmdAndArgs = getCommandAndArgs(query.trim());
+                if (!isQueryFormatValid(cmdAndArgs)) {
+                    return Mono.error(
+                            new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                    "Appsmith server has failed to parse Redis query. Please check if the Redis query" +
+                                            " has correct format."
+                            )
+                    );
+                }
 
                 Protocol.Command command;
                 try {
                     // Commands are in upper case
-                    command = Protocol.Command.valueOf(bodySplitted[0].toUpperCase());
+                    command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
                 } catch (IllegalArgumentException exc) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            String.format("Not a valid Redis command:%s", bodySplitted[0])));
+                            String.format("Not a valid Redis command:%s", cmdAndArgs.get(CMD_KEY))));
                 }
 
                 Object commandOutput;
-                if (bodySplitted.length > 1) {
-                    commandOutput = jedis.sendCommand(command, Arrays.copyOfRange(bodySplitted, 1, bodySplitted.length));
+                if (cmdAndArgs.containsKey(ARGS_KEY)) {
+                    commandOutput = jedis.sendCommand(command, (String[]) cmdAndArgs.get(ARGS_KEY));
                 } else {
                     commandOutput = jedis.sendCommand(command);
                 }
@@ -125,6 +138,43 @@ public class RedisPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        private boolean isQueryFormatValid(Map cmdAndArgs) {
+            if (cmdAndArgs.containsKey(CMD_KEY)) {
+                return true;
+            }
+
+            return false;
+        }
+
+        private Map getCommandAndArgs(String query) {
+            /**
+             * - This regex matches either a whole word, or anything inside double quotes.
+             * - e.g. if the query string is: set key "my val", then the regex matches the following:
+             * (1) set
+             * (2) key
+             * (3) "my val"
+             */
+            String redisCmdRegex = "\\\"[^\\\"]+\\\"|[\\S]+";
+            Pattern pattern = Pattern.compile(redisCmdRegex);
+            Matcher matcher = pattern.matcher(query);
+            Map<String, Object> cmdAndArgs = new HashMap<>();
+            List<String> args = new ArrayList<>();
+            while (matcher.find()) {
+                if (!cmdAndArgs.containsKey(CMD_KEY)) {
+                    cmdAndArgs.put(CMD_KEY, matcher.group().toUpperCase());
+                }
+                else {
+                    args.add(matcher.group());
+                }
+            }
+
+            if (args.size() > 0) {
+                cmdAndArgs.put(ARGS_KEY, args.toArray(new String[0]));
+            }
+
+            return cmdAndArgs;
+        }
+
         // This will be updated as we encounter different outputs.
         private List<Map<String, String>> processCommandOutput(Object commandOutput) {
             if (commandOutput == null) {
@@ -140,7 +190,6 @@ public class RedisPlugin extends BasePlugin {
                 return List.of(Map.of("result", String.valueOf(commandOutput)));
             }
         }
-
 
         /**
          * - Config taken from https://www.baeldung.com/jedis-java-redis-client-library

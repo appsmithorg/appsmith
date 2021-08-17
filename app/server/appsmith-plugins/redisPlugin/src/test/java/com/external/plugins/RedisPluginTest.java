@@ -243,7 +243,7 @@ public class RedisPluginTest {
 
         // Setting a key
         ActionConfiguration setActionConfiguration = new ActionConfiguration();
-        setActionConfiguration.setBody("SET key value");
+        setActionConfiguration.setBody("SET key \"my value\"");
         actionExecutionResultMono = jedisPoolMono
                 .flatMap(jedisPool -> pluginExecutor.execute(jedisPool, datasourceConfiguration,
                         setActionConfiguration));
@@ -264,7 +264,7 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult);
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
-                    Assert.assertEquals("value", node.get("result").asText());
+                    Assert.assertEquals("\"my value\"", node.get("result").asText());
                 }).verifyComplete();
     }
 
