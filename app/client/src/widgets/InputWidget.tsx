@@ -152,6 +152,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.PHONE_NUMBER;
             },
+            dependencies: ["inputType"],
             isBindProperty: false,
             isTriggerProperty: false,
           },
