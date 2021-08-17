@@ -5,15 +5,8 @@
       "id": 1,
       "children": [
         {
-          "label": "Method Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "method"
-        },
-        {
           "label": "Method",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "configProperty": "actionConfiguration.formData.method",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "GET",
@@ -61,61 +54,29 @@
           ]
         },
         {
-          "label": "Spreadsheet Url Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "sheetUrl"
-        },
-        {
           "label": "Spreadsheet Url",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "configProperty": "actionConfiguration.formData.sheetUrl",
           "controlType": "INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "IN",
-            "value": [
-              "CREATE",
-              "LIST"
-            ]
+          "conditionals": {
+            "hide": "{{['CREATE', 'LIST'].includes(actionConfiguration.formData.method)}}"
           },
           "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
         },
         {
-          "label": "Spreadsheet Name Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "spreadsheetName"
-        },
-        {
           "label": "Spreadsheet Name",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "configProperty": "actionConfiguration.formData.spreadsheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "CREATE"
-            ]
+          "conditionals": {
+            "hide": "{{actionConfiguration.formData.method !== 'CREATE'}}"
           },
           "initialValue": ""
         },
         {
-          "label": "Delete Format Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "deleteFormat"
-        },
-        {
           "label": "Select Entity",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[12].value",
+          "configProperty": "actionConfiguration.formData.deleteFormat",
           "controlType": "DROP_DOWN",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_EQUALS",
-            "value": "DELETE"
+          "conditionals": {
+            "hide": "{{actionConfiguration.formData.method !== 'DELETE'}}"
           },
           "initialValue": "SHEET",
           "options": [
@@ -130,93 +91,29 @@
           ]
         },
         {
-          "label": "Sheet Name Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "sheetName"
-        },
-        {
           "label": "Sheet Name",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "configProperty": "actionConfiguration.formData.sheetName",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_IN",
-                "value": [
-                  "GET",
-                  "UPDATE",
-                  "BULK_UPDATE",
-                  "DELETE_ROW",
-                  "DELETE",
-                  "APPEND",
-                  "BULK_APPEND"
-                ]
-              },
-              {
-                "conditionType": "AND",
-                "conditions": [
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                    "comparison": "EQUALS",
-                    "value": "DELETE"
-                  },
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[12].value",
-                    "comparison": "EQUALS",
-                    "value": "SPREADSHEET"
-                  }
-                ]
-              }
-            ]
+          "conditionals": {
+            "show": "{{['GET', 'UPDATE', 'BULK_UPDATE', 'DELETE_ROW', 'APPEND', 'BULK_APPEND'].includes(actionConfiguration.formData.method) || (actionConfiguration.formData.method === 'DELETE' && actionConfiguration.formData.deleteFormat === 'SHEET')}}"
           },
           "initialValue": ""
         },
         {
-          "label": "Table Header Index Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "tableHeaderIndex"
-        },
-        {
           "label": "Table Heading Row Index",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+          "configProperty": "actionConfiguration.formData.tableHeaderIndex",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "GET",
-              "UPDATE",
-              "BULK_UPDATE",
-              "DELETE_ROW",
-              "APPEND",
-              "BULK_APPEND"
-            ]
+          "conditionals": {
+            "show": "{{['GET', 'UPDATE', 'BULK_UPDATE', 'DELETE_ROW', 'APPEND', 'BULK_APPEND'].includes(actionConfiguration.formData.method)}}"
           },
           "initialValue": "1"
         },
         {
-          "label": "Query Format Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "queryFormat"
-        },
-        {
           "label": "Query Format",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
+          "configProperty": "actionConfiguration.formData.queryFormat",
           "controlType": "DROP_DOWN",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "GET"
-            ]
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.method === 'GET'}}"
           },
           "initialValue": "ROWS",
           "options": [
@@ -231,185 +128,60 @@
           ]
         },
         {
-          "label": "Range Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "range"
-        },
-        {
           "label": "Cell Range",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
+          "configProperty": "actionConfiguration.formData.range",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET"
-              },
-              {
-                "conditionType": "AND",
-                "conditions": [
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                    "comparison": "EQUALS",
-                    "value": "GET"
-                  },
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-                    "comparison": "EQUALS",
-                    "value": "ROWS"
-                  }
-                ]
-              }
-            ]
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.method === 'GET' && actionConfiguration.formData.queryFormat === 'RANGE'}}"
           },
           "initialValue": "",
           "placeholderText": "A2:B"
         },
         {
-          "label": "Row Offset Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "rowOffset"
-        },
-        {
           "label": "Row Offset",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "configProperty": "actionConfiguration.formData.rowOffset",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_IN",
-                "value": [
-                  "GET"
-                ]
-              },
-              {
-                "conditionType": "AND",
-                "conditions": [
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                    "comparison": "EQUALS",
-                    "value": "GET"
-                  },
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-                    "comparison": "EQUALS",
-                    "value": "RANGE"
-                  }
-                ]
-              }
-            ]
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.method === 'GET' && actionConfiguration.formData.queryFormat === 'ROWS'}}"
           },
           "initialValue": "",
           "placeholderText": "0"
-        },
-        {
-          "label": "Row Index Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "rowIndex"
         },
         {
           "label": "Row Index",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[11].value",
+          "configProperty": "actionConfiguration.formData.rowIndex",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "DELETE_ROW"
-            ]
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.method === 'DELETE_ROW'}}"
           },
           "initialValue": "",
           "placeholderText": "0"
         },
         {
-          "label": "Row Limit Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "rowLimit"
-        },
-        {
           "label": "Row limit",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "configProperty": "actionConfiguration.formData.rowLimit",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "hidden": {
-            "conditionType": "OR",
-            "conditions": [
-              {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET"
-              },
-              {
-                "conditionType": "AND",
-                "conditions": [
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                    "comparison": "EQUALS",
-                    "value": "GET"
-                  },
-                  {
-                    "path": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-                    "comparison": "EQUALS",
-                    "value": "RANGE"
-                  }
-                ]
-              }
-            ]
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.method === 'GET' && actionConfiguration.formData.queryFormat === 'ROWS'}}"
           },
           "initialValue": "",
           "placeholderText": "10"
         },
         {
-          "label": "Row Object Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "rowObject"
-        },
-        {
           "label": "Row Object",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "configProperty": "actionConfiguration.formData.rowObject",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "APPEND",
-              "UPDATE"
-            ]
+          "conditionals": {
+            "show": "{{['APPEND', 'UPDATE'].includes(actionConfiguration.formData.method)}}"
           },
           "placeholderText": "{{\n  {\n    ...Table1.selectedRow, \n    columnName: Input1.text\n  }\n}}"
         },
         {
-          "label": "Row Objects Key",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].key",
-          "controlType": "INPUT_TEXT",
-          "hidden": true,
-          "initialValue": "rowObjects"
-        },
-        {
           "label": "Row Objects",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[10].value",
+          "configProperty": "actionConfiguration.formData.rowObjects",
           "controlType": "QUERY_DYNAMIC_TEXT",
-          "hidden": {
-            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-            "comparison": "NOT_IN",
-            "value": [
-              "CREATE",
-              "BULK_APPEND",
-              "BULK_UPDATE"
-            ]
+          "conditionals": {
+            "show": "{{['CREATE', 'BULK_APPEND', 'BULK_UPDATE'].includes(actionConfiguration.formData.method)}}"
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
         }
