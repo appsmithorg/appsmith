@@ -4,7 +4,9 @@ import {
   MaybeElement,
   Button,
   IconName,
+  Position,
 } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
 import styled, { css } from "styled-components";
 import { ButtonStyle } from "widgets/ButtonWidget";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
@@ -47,6 +49,20 @@ const getButtonFillStyles = (props: { theme: Theme } & ButtonStyleProps) => {
     return props.theme.colors[AccentColorMap[props.accent]];
   }
 };
+
+const ToolTipContent = styled.div`
+  max-width: 350px;
+`;
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover-target {
+    height: 100%;
+    & > div {
+      height: 100%;
+    }
+  }
+`;
 
 const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${getButtonColorStyles};
@@ -184,6 +200,7 @@ interface RecaptchaProps {
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
+  tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   buttonStyle?: ButtonStyle;
@@ -337,7 +354,7 @@ function BtnWrapper(
 function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
 ) {
-  return (
+  const btnWrapper = (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
@@ -357,6 +374,21 @@ function ButtonContainer(
       />
     </BtnWrapper>
   );
+  if (props.tooltip) {
+    return (
+      <ToolTipWrapper>
+        <Tooltip
+          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+          hoverOpenDelay={200}
+          position={Position.TOP}
+        >
+          {btnWrapper}
+        </Tooltip>
+      </ToolTipWrapper>
+    );
+  } else {
+    return btnWrapper;
+  }
 }
 
 export default ButtonContainer;
