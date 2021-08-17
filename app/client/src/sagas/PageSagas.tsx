@@ -101,6 +101,7 @@ import {
   generateTemplateSuccess,
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
+import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -927,6 +928,8 @@ export function* generateTemplatePageSaga(
         text: "Successfully generated a page",
         variant: Variant.success,
       });
+
+      yield put(setCrudInfoModalOpen(true));
     }
   } catch (error) {
     yield put(generateTemplateError());

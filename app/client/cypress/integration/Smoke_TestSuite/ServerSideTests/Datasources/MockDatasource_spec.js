@@ -10,7 +10,7 @@ describe("Create, test, save then delete a user mock datasource", function() {
     cy.get(datasource.mockUserDatabase).click();
     cy.get(datasource.mockUserDatasources)
       .last()
-      .click();
+      .click({ force: true });
     cy.fillUsersMockDatasourceForm();
     cy.testSaveDeleteDatasource();
   });
@@ -20,7 +20,7 @@ describe("Create, test, save then delete a user mock datasource", function() {
     cy.get(datasource.mockUserDatabase).click();
     cy.get(datasource.mockUserDatasources)
       .last()
-      .click();
+      .click({ force: true });
     cy.fillUsersMockDatasourceForm(true);
     cy.testSaveDeleteDatasource();
   });

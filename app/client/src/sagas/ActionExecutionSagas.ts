@@ -117,7 +117,7 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
@@ -567,7 +567,8 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -576,7 +577,12 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: payload.body as string }],
+        messages: [
+          {
+            message: payload.body as string,
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          },
+        ],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -904,7 +910,8 @@ function* runActionSaga(
           },
         });
       } else {
-        AppsmithConsole.error({
+        AppsmithConsole.addError({
+          id: actionId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${response.data.statusCode}`,
           source: {
@@ -917,6 +924,7 @@ function* runActionSaga(
               message: !isString(payload.body)
                 ? JSON.stringify(payload.body)
                 : payload.body,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
             },
           ],
           state: response.data?.request ?? null,
@@ -933,7 +941,8 @@ function* runActionSaga(
         error = response.data.body.toString();
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode} `,
         source: {
@@ -1018,7 +1027,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: pageAction.id,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -1027,7 +1037,12 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: JSON.stringify(body) }],
+        messages: [
+          {
+            message: JSON.stringify(body),
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          },
+        ],
       });
 
       yield put(
