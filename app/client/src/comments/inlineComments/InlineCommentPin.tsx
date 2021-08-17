@@ -22,6 +22,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
 import history from "utils/history";
+import { useDrag } from "react-dnd";
 
 /**
  * The relavent pixel position is bottom right for the comment cursor
@@ -139,6 +140,10 @@ const resetCommentThreadIdInURL = (commentThreadId: string) => {
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
  */
+export const DraggableCommentsItems = {
+  INLINE_COMMENT_PIN: "INLINE_COMMENT_PIN",
+};
+
 function InlineCommentPin({
   commentThreadId,
   focused,
@@ -146,6 +151,20 @@ function InlineCommentPin({
   commentThreadId: string;
   focused: boolean;
 }) {
+  const [{ isDragging }, drag] = useDrag({
+    item: {
+      type: DraggableCommentsItems.INLINE_COMMENT_PIN,
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  // TODO: remove this logging
+  useEffect(() => {
+    console.log({ isDragging, commentThreadId });
+  }, [isDragging]);
+
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { left, leftPercent, top, topPercent } = get(
     commentThread,
@@ -203,6 +222,7 @@ function InlineCommentPin({
         e.stopPropagation();
       }}
       positionAbsolutely={positionAbsolutely}
+      ref={drag}
       top={top}
       topPercent={topPercent}
       xOffset={-1}

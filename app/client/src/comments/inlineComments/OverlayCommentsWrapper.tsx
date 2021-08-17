@@ -13,6 +13,8 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 
 type Props = {
   children: React.ReactNode;
@@ -63,15 +65,17 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   };
 
   return (
-    <Container
-      data-cy="overlay-comments-wrapper"
-      isCommentMode={isCommentMode}
-      onClick={clickHandler}
-      ref={isCommentMode ? containerRef : null}
-    >
-      {children}
-      {isCommentMode && <Comments refId={refId} />}
-    </Container>
+    <DndProvider backend={HTML5Backend}>
+      <Container
+        data-cy="overlay-comments-wrapper"
+        isCommentMode={isCommentMode}
+        onClick={clickHandler}
+        ref={isCommentMode ? containerRef : null}
+      >
+        {children}
+        {isCommentMode && <Comments refId={refId} />}
+      </Container>
+    </DndProvider>
   );
 }
 
