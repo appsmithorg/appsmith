@@ -308,11 +308,13 @@
         "body": {
             "title": "Select current date in the date picker widget",
             "snippet": "moment.now()",
-            "examples": [{
-               "title": "",
-               "code": "moment.now()",
-               "summary": ""
-            }],
+            "examples": [
+                {
+                    "title": "",
+                    "code": "moment.now()",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "summary": "By default, if you want to assign the date picker value to the current date, you can use moment.now() method. "
         }
@@ -356,6 +358,13 @@
         "body": {
             "title": "Binding current time in the text widget",
             "snippet": "moment.now()",
+            "examples": [
+                {
+                    "title": "",
+                    "code": "moment.now()",
+                    "summary": ""
+                }
+            ],
             "isTrigger": false,
             "summary": "Sometimes, you need to display time when building UI, especially when building dashboards. On Appsmith, you can utilise the moment.javascript library to either display the current time or format any date-time type from a query."
         }

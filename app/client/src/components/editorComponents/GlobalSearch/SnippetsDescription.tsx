@@ -268,12 +268,12 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       title: "Snippet",
       panelComponent: (
         <>
-          <SyntaxHighlighter language={language} style={prism} wrapLongLines>
+          {/* <SyntaxHighlighter language={language} style={prism} wrapLongLines>
             {js_beautify(getSnippet(snippet, {}), { indent_size: 2 })}
-          </SyntaxHighlighter>
+          </SyntaxHighlighter> */}
           {examples && examples.length ? (
             <div className="snippet-group">
-              <div className="header">Example</div>
+              {/* <div className="header">Example</div> */}
               <div className="content">
                 {examples.map((ex: SnippetExample) => (
                   <>

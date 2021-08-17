@@ -56,7 +56,7 @@ import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
-import { keyBy, noop } from "lodash";
+import { get, keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
@@ -421,11 +421,7 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (item: any) => {
-    dispatch(
-      insertSnippet(
-        item.body.snippet.replaceAll("{{", "").replaceAll("}}", ""),
-      ),
-    );
+    dispatch(insertSnippet(get(item, "body.examples[0].code", "")));
     toggleShow();
   };
 

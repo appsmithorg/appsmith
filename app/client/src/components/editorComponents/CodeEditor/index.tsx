@@ -296,7 +296,7 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  onFocusTrigger = (cm: CodeMirror.Editor) => {
+  onFocusTrigger = (cm: CodeMirror.Editor, event: any) => {
     if (!cm.state.completionActive) {
       this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
@@ -392,9 +392,11 @@ class CodeEditor extends Component<Props, State> {
         ) {
           entityInformation.entityType = entityType;
         }
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
       }
-      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
-      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
       entityInformation.propertyPath = propertyPath;
     }
     let hinterOpen = false;
