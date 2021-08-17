@@ -7,9 +7,6 @@ import com.appsmith.server.repositories.GitDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
-import org.eclipse.jgit.lib.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -19,7 +16,6 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import java.io.File;
-import java.io.IOException;
 
 @Service
 @Slf4j
@@ -27,7 +23,10 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
 
     private final UserService userService;
 
-    private final String path = "/Users/anaghhegde/workspace/project";
+    //This value comes from the env variable
+    private final String path = "/Users/anaghhegde/workspace/project/";
+
+
     @Autowired
     public GitDataServiceImpl(Scheduler scheduler,
                               Validator validator,
@@ -51,26 +50,28 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
     }
 
     @Override
-    public Repository connectToGitRepo(String url) throws IOException {
-        File localPath = File.createTempFile("name","name", new File(path));
-        if(!localPath.delete()) {
-            throw new IOException("Could not delete temporary file " + localPath);
-        }
+    public String connectToGitRepo(String url, String orgId) {
+        String filePath = getFilePath(url, orgId);
         try (Git result = Git.cloneRepository()
                 .setURI(url)
-                .setDirectory(localPath)
+                .setDirectory(new File(filePath))
                 .call()) {
-            // Note: the call() returns an opened repository already which needs to be closed to avoid file handle leaks!
-            return result.getRepository();
-        } catch (InvalidRemoteException e) {
-            e.printStackTrace();
-        } catch (TransportException e) {
-            e.printStackTrace();
+            return result.getRepository().toString();
         } catch (GitAPIException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    private String getFilePath(String url, String orgId) {
+        String filePath = path + orgId;
+        File file = new File(filePath);
+        if(!file.exists()) {
+            file.mkdir();
+        }
+        String[] urlArray = url.split("/");
+        String repoName = urlArray[urlArray.length-1].replace(".git", "");
 
+        return filePath + "/" + repoName + "/";
+    }
 }
