@@ -191,15 +191,17 @@ function GeneratePageForm() {
         dataSourceObj &&
         selectedDatasource.id !== dataSourceObj.id
       ) {
-        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE");
+        const pluginId: string = dataSourceObj.data.pluginId;
+        const pluginPackageName: string = generateCRUDSupportedPlugin[pluginId];
+        AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE", {
+          datasourceType: pluginPackageName,
+        });
         selectDataSource(dataSourceObj);
         setSelectedDatasourceTableOptions([]);
         setSelectedTableColumnOptions([]);
         selectTable(DEFAULT_DROPDOWN_OPTION);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        const datasourcePluginId = dataSourceObj.data?.pluginId;
-        const pluginPackageName: string =
-          generateCRUDSupportedPlugin[datasourcePluginId];
+
         switch (pluginPackageName) {
           case PLUGIN_PACKAGE_NAME.S3:
             fetchBucketList({ selectedDatasource: dataSourceObj });
@@ -215,6 +217,7 @@ function GeneratePageForm() {
       }
     },
     [
+      generateCRUDSupportedPlugin,
       selectDataSource,
       setSelectedDatasourceTableOptions,
       setSelectedTableColumnOptions,

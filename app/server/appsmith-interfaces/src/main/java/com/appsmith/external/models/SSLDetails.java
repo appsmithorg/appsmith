@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
-public class SSLDetails {
+public class SSLDetails implements AppsmithDomain {
 
     public enum AuthType {
         // Default driver configurations

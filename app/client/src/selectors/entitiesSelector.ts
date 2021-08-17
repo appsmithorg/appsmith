@@ -19,6 +19,8 @@ import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { PLUGIN_PACKAGE_NAME } from "pages/Editor/GeneratePage/components/constants";
 
+import { APP_MODE } from "entities/App";
+
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
@@ -358,6 +360,39 @@ export const getCurrentPageWidgets = createSelector(
   (widgetsByPage, currentPageId) =>
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
+
+const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+  let parentModalId;
+  let { parentId } = widget;
+  let parentWidget = pageWidgets[parentId];
+  while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+    if (parentWidget?.type === "MODAL_WIDGET") {
+      parentModalId = parentId;
+      break;
+    }
+    parentId = parentWidget?.parentId;
+    parentWidget = pageWidgets[parentId];
+  }
+  return parentModalId;
+};
+
+export const getCanvasWidgetsWithParentId = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets: CanvasWidgetsReduxState) => {
+    return Object.entries(canvasWidgets).reduce(
+      (res, [widgetId, widget]: any) => {
+        const parentModalId = getParentModalId(widget, canvasWidgets);
+
+        return {
+          ...res,
+          [widgetId]: { ...widget, parentModalId },
+        };
+      },
+      {},
+    );
+  },
+);
+
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {
@@ -365,17 +400,7 @@ export const getAllWidgetsMap = createSelector(
       (res: any, [pageId, pageWidgets]: any) => {
         const widgetsMap = Object.entries(pageWidgets).reduce(
           (res, [widgetId, widget]: any) => {
-            let parentModalId;
-            let { parentId } = widget;
-            let parentWidget = pageWidgets[parentId];
-            while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
-              if (parentWidget?.type === "MODAL_WIDGET") {
-                parentModalId = parentId;
-                break;
-              }
-              parentId = parentWidget?.parentId;
-              parentWidget = pageWidgets[parentId];
-            }
+            const parentModalId = getParentModalId(widget, pageWidgets);
 
             return {
               ...res,
@@ -432,3 +457,10 @@ export const getExistingActionNames = createSelector(
 );
 
 export const getAppMode = (state: AppState) => state.entities.app.mode;
+
+export const widgetsMapWithParentModalId = (state: AppState) => {
+  const appMode = getAppMode(state);
+  return appMode === APP_MODE.EDIT
+    ? getAllWidgetsMap(state)
+    : getCanvasWidgetsWithParentId(state);
+};
