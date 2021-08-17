@@ -135,6 +135,14 @@ export const HelpMap = {
     path: "/widget-reference/menu-button",
     searchKey: "Menu Button",
   },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    path: "/widget-reference/checkbox-group",
+    searchKey: "Checkbox Group",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

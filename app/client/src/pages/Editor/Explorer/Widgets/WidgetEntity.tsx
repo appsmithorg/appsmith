@@ -86,7 +86,7 @@ export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const currentPageId = useSelector(getCurrentPageId);
 
   const widgetsToExpand = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestory,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
 
   const shouldExpand = widgetsToExpand.includes(props.widgetId);

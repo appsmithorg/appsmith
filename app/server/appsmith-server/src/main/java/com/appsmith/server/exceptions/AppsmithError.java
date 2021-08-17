@@ -63,8 +63,10 @@ public enum AppsmithError {
     GENERIC_BAD_REQUEST(400, 4028, "Bad Request: {0}", AppsmithErrorAction.DEFAULT, null),
     VALIDATION_FAILURE(400, 4028, "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, null),
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null),
+    INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null),
+    INVALID_IMPORTED_FILE_ERROR(400, 4039, "Provided file is from different version, please wait till Appsmith gets auto-updated to latest version. This may take a day or two. We are really sorry for the inconvenience caused", AppsmithErrorAction.DEFAULT, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
