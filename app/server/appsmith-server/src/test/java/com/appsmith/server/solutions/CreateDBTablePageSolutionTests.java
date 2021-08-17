@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
@@ -85,7 +86,7 @@ public class CreateDBTablePageSolutionTests {
     private DatasourceStructure structure = new DatasourceStructure();
 
     // Regex to break string in separate words
-    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*]+";
+    final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
 
     private final String SELECT_QUERY = "SelectQuery";
 
@@ -93,12 +94,14 @@ public class CreateDBTablePageSolutionTests {
 
     private final String LIST_QUERY = "ListFiles";
 
+    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
     private final Map<String, String> actionNameToBodyMap = Map.of(
         "DeleteQuery", "DELETE FROM sampleTable\n" +
             "  WHERE \"primaryKey\" = {{Table1.selectedRow.primaryKey}};",
 
         "InsertQuery", "INSERT INTO sampleTable (\n" +
-            "\t\"field1\", \n" +
+            "\t\"field1.something\", \n" +
             "\t\"field2\",\n" +
             "\t\"field3\", \n" +
             "\t\"field4\"\n" +
@@ -111,13 +114,13 @@ public class CreateDBTablePageSolutionTests {
             ");",
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
-            "WHERE \"field1\" like '%{{Table1.searchText || \"\"}}%'\n" +
+            "WHERE \"field1.something\" like '%{{Table1.searchText || \"\"}}%'\n" +
             "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
             "LIMIT {{Table1.pageSize}}" +
             "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
 
         "UpdateQuery", "UPDATE sampleTable SET\n" +
-            "\t\t\"field1\" = '{{update_col_2.text}}',\n" +
+            "\t\t\"field1.something\" = '{{update_col_2.text}}',\n" +
             "    \"field2\" = '{{update_col_3.text}}',\n" +
             "    \"field3\" = '{{update_col_4.text}}',\n" +
             "\t\t\"field4\" = '{{update_col_5.text}}'\n" +
@@ -126,7 +129,7 @@ public class CreateDBTablePageSolutionTests {
 
     private final String dropdownOptions = "options -> [\n" +
         "{\n\t\"label\": \"field3\",\n\t\"value\": \"field3\"\n}, \n{\n\t\"label\": \"field4\",\n" +
-        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1\",\n\t\"value\": \"field1\"\n" +
+        "\t\"value\": \"field4\"\n}, \n{\n\t\"label\": \"field1_something\",\n\t\"value\": \"field1.something\"\n" +
         "}, \n{\n\t\"label\": \"field2\",\n\t\"value\": \"field2\"\n}, \n{\n\t\"label\": \"primaryKey\",\n" +
         "\t\"value\": \"primaryKey\"\n}]";
 
@@ -149,7 +152,7 @@ public class CreateDBTablePageSolutionTests {
         List<Key> keys = List.of(new DatasourceStructure.PrimaryKey("pKey", List.of("primaryKey")));
         List<Column> columns = List.of(
             new Column("primaryKey", "type1", null, true),
-            new Column("field1", "VARCHAR(23)", null, false),
+            new Column("field1.something", "VARCHAR(23)", null, false),
             new Column("field2", "type3", null, false),
             new Column("field3", "type4", null, false),
             new Column("field4", "type5", null, false)
@@ -160,6 +163,8 @@ public class CreateDBTablePageSolutionTests {
         testDatasource.setOrganizationId(testOrg.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
         testDatasource.setStructure(structure);
+        datasourceConfiguration.setUrl("http://test.com");
+        testDatasource.setDatasourceConfiguration(datasourceConfiguration);
         datasourceService.create(testDatasource).block();
 
         resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
@@ -181,6 +186,31 @@ public class CreateDBTablePageSolutionTests {
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
+            .verify();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createPageWithInvalidDatasourceTest() {
+
+        Datasource invalidDatasource = new Datasource();
+        invalidDatasource.setOrganizationId(testOrg.getId());
+        invalidDatasource.setName("invalid_datasource");
+        invalidDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
+
+        resource.setDatasourceId(invalidDatasource.getId());
+        Mono<PageDTO> resultMono = datasourceService.create(invalidDatasource)
+            .flatMap(datasource -> {
+                resource.setApplicationId(testApp.getId());
+                resource.setDatasourceId(datasource.getId());
+                return solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource);
+            });
+
+        StepVerifier
+            .create(resultMono)
+            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                throwable.getMessage().equals(AppsmithError.INVALID_DATASOURCE.getMessage(FieldName.DATASOURCE, invalidDatasource.getId())))
             .verify();
 
     }
@@ -279,6 +309,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MySql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -338,6 +369,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Redshift-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -391,6 +423,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("MSSql-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -443,6 +476,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Snowflake-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -612,6 +646,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("Mongo-CRUD-Page-Table-DS");
                 datasource.setStructure(structure);
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -654,7 +689,7 @@ public class CreateDBTablePageSolutionTests {
                             .isEqualTo("{ primaryKey: ObjectId('{{data_table.selectedRow.primaryKey}}') }");
 
                         assertThat(pluginSpecifiedTemplate.get(12).getValue().toString().replaceAll(specialCharactersRegex, ""))
-                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
+                            .isEqualTo("{\"field2\" : {{update_col_1.text}},\"field1.something\" : {{update_col_2.text}},\"field3\" : {{update_col_3.text}},\"field4\" : {{update_col_4.text}}\"}"
                                 .replaceAll(specialCharactersRegex, ""));
                     } else if (queryType.equals("DELETE")) {
                         assertThat(pluginSpecifiedTemplate.get(13).getValue().toString().replaceAll(specialCharactersRegex, ""))
