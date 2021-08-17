@@ -16,6 +16,7 @@ import {
 import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
@@ -39,14 +40,14 @@ export interface SelectedArenaDimensions {
 
 export function CanvasSelectionArena({
   canExtend,
-  draggableParent,
+  parentId,
   snapColumnSpace,
   snapRows,
   snapRowSpace,
   widgetId,
 }: {
   canExtend: boolean;
-  draggableParent: boolean;
+  parentId?: string;
   snapColumnSpace: number;
   widgetId: string;
   snapRows: number;
@@ -54,7 +55,13 @@ export function CanvasSelectionArena({
 }) {
   const dispatch = useDispatch();
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-
+  const parentWidget = useSelector((state: AppState) =>
+    getWidget(state, parentId || ""),
+  );
+  const isDraggableParent = !(
+    widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    (parentWidget && parentWidget.detachFromLayout)
+  );
   const appMode = useSelector(getAppMode);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -269,7 +276,10 @@ export function CanvasSelectionArena({
       };
 
       const onMouseDown = (e: any) => {
-        if (canvasRef.current && (!draggableParent || e.ctrlKey || e.metaKey)) {
+        if (
+          canvasRef.current &&
+          (!isDraggableParent || e.ctrlKey || e.metaKey)
+        ) {
           dispatch(setCanvasSelectionStateAction(true, widgetId));
           firstDraw(e);
         }

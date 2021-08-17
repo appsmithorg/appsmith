@@ -1,8 +1,7 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Message, Severity } from "entities/AppsmithConsole";
+import { Log, Severity } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { get, merge, isEmpty, omit, isUndefined } from "lodash";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { omit, isUndefined } from "lodash";
 
 const initialState: DebuggerReduxState = {
   logs: [],
@@ -15,7 +14,7 @@ const initialState: DebuggerReduxState = {
 const debuggerReducer = createReducer(initialState, {
   [ReduxActionTypes.DEBUGGER_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
     const isError = action.payload.severity === Severity.ERROR;
 
@@ -41,70 +40,28 @@ const debuggerReducer = createReducer(initialState, {
       isOpen: isUndefined(action.payload) ? !state.isOpen : action.payload,
     };
   },
-  [ReduxActionTypes.DEBUGGER_ERROR_LOG]: (
+  [ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<Log>,
   ) => {
-    if (!action.payload.source) return state;
-
-    const entityId = action.payload.source.id;
-    const id =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR ||
-      action.payload.logType === LOG_TYPE.EVAL_ERROR
-        ? `${entityId}-${action.payload.source.propertyPath}`
-        : entityId;
-    const previousState = get(state.errors, id, {});
+    if (!action.payload.id) return state;
 
     return {
       ...state,
       errors: {
         ...state.errors,
-        [id]: {
-          ...merge(previousState, action.payload),
-        },
+        [action.payload.id]: action.payload,
       },
-      expandId: id,
+      expandId: action.payload.id,
     };
   },
-  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOG]: (
+  [ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Message>,
-  ) => {
-    if (!action.payload.source) return state;
-
-    const entityId = action.payload.source.id;
-    const isWidgetErrorLog =
-      action.payload.logType === LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR ||
-      action.payload.logType === LOG_TYPE.EVAL_ERROR;
-    const id = isWidgetErrorLog
-      ? `${entityId}-${action.payload.source.propertyPath}`
-      : entityId;
-
-    if (isEmpty(action.payload.state)) {
-      return {
-        ...state,
-        errors: omit(state.errors, id),
-      };
-    }
-
-    return {
-      ...state,
-      errors: {
-        ...state.errors,
-        [id]: {
-          ...action.payload,
-        },
-      },
-      expandId: id,
-    };
-  },
-  [ReduxActionTypes.DEBUGGER_UPDATE_ERROR_LOGS]: (
-    state: DebuggerReduxState,
-    action: ReduxAction<Message>,
+    action: ReduxAction<string>,
   ) => {
     return {
       ...state,
-      errors: { ...action.payload },
+      errors: omit(state.errors, action.payload),
     };
   },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
@@ -115,10 +72,10 @@ const debuggerReducer = createReducer(initialState, {
 });
 
 export interface DebuggerReduxState {
-  logs: Message[];
+  logs: Log[];
   errorCount: number;
   isOpen: boolean;
-  errors: Record<string, Message>;
+  errors: Record<string, Log>;
   expandId: string;
 }
 

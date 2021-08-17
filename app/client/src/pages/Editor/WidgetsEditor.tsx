@@ -28,6 +28,7 @@ import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { setCanvasSelectionStateAction } from "actions/canvasSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -141,6 +142,7 @@ function WidgetsEditor() {
           {node}
         </CanvasContainer>
         <Debugger />
+        <CrudInfoModal />
       </EditorWrapper>
     </EditorContextProvider>
   );
