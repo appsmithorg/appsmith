@@ -48,7 +48,7 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { unevalTree, widgetTypeConfigMap } = requestData;
+        const { unevalTree, widgets, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -58,7 +58,7 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
-            replayDSL = new ReplayDSL(unevalTree);
+            replayDSL = new ReplayDSL(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -67,6 +67,7 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
+            replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
@@ -180,10 +181,16 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
-        return replayDSL?.undo();
+        const replayWidgets = replayDSL?.undo();
+        return {
+          replayWidgets,
+        };
       }
       case EVAL_WORKER_ACTIONS.REDO: {
-        return replayDSL?.redo();
+        const replayWidgets = replayDSL?.redo();
+        return {
+          replayWidgets,
+        };
       }
       default: {
         console.error("Action not registered on worker", method);

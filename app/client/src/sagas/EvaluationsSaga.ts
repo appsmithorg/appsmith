@@ -17,6 +17,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
+import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -44,6 +45,7 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { UndoRedoPayload } from "./ReplaySaga";
+import { updateAndSaveLayout } from "actions/pageActions";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -53,6 +55,7 @@ function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
+  const widgets = yield select(getWidgets);
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -63,6 +66,7 @@ function* evaluateTreeSaga(
     {
       unevalTree,
       widgetTypeConfigMap,
+      widgets,
     },
   );
   const {
@@ -157,10 +161,8 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     {},
   );
 
-  // step 1: send the new widgets
-  const canvasWidgets = workerResponse;
-  console.log({ canvasWidgets });
-  // yield put(updateAndSaveLayout(canvasWidgets));
+  const { replayWidgets } = workerResponse;
+  yield put(updateAndSaveLayout(replayWidgets, false));
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {

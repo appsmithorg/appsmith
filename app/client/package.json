@@ -154,6 +154,7 @@
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
     "worker-loader": "^3.0.2",
+    "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
   "scripts": {

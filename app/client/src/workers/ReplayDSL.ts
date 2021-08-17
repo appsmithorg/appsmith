@@ -1,26 +1,40 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import * as Y from "yjs";
+import { isEqual } from "lodash";
 
 export default class ReplayDSL {
-  dsl: any = {};
-  constructor(dataTree: DataTree) {
-    console.log("Replay DSL", { dataTree });
-    this.dsl = dataTree;
-    //YJS datastructure will be in this.dsl
+  dslMap: any;
+  undoManager: Y.UndoManager;
+
+  constructor(widgets: CanvasWidgetsReduxState) {
+    const doc = new Y.Doc();
+    this.dslMap = doc.get("map", Y.Map);
+    this.dslMap.set("dsl", widgets);
+    this.undoManager = new Y.UndoManager(this.dslMap);
+    this.undoManager.on("stack-item-added", (stackItem: any) => {
+      console.log("added", stackItem);
+    });
+    this.undoManager.on("stack-item-popped", (stackItem: any) => {
+      console.log("popped", stackItem);
+    });
   }
 
   undo() {
-    console.log(this.dsl);
-    return this.dsl;
-    // This will return ideally the
-    // diff in paths.
-    // the paths to update in the canvasWidgets
-    // Text1.text = "something"
-    // Text1.text = "somet"
-    // <WidgetId>.text
+    this.undoManager.undo();
+    return this.dslMap.get("dsl");
   }
 
   redo() {
-    console.log(this.dsl);
-    // <WidgetId>.text
+    this.undoManager.redo();
+    return this.dslMap.get("dsl");
+  }
+
+  update(widgets: CanvasWidgetsReduxState) {
+    const prevWidgets = this.dslMap.get("dsl", widgets);
+    const startTime = performance.now();
+    const isequal = isEqual(prevWidgets, widgets);
+    const endTime = performance.now();
+    console.log("replay updating,", isequal, endTime - startTime, "ms");
+    if (!isequal) this.dslMap.set("dsl", widgets);
   }
 }
