@@ -485,9 +485,9 @@ public class MongoPluginTest {
                             "  },\n" +
                             "  \"limit\": 10\n" +
                             "}\n");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "FIND");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
-                    assertEquals(findTemplate.getPluginSpecifiedTemplates().get(FIND_SORT).getValue(), "{\"_id\": 1}");
+                    assertEquals(findTemplate.getConfiguration().get(COMMAND).getValue(), "FIND");
+                    assertEquals(findTemplate.getConfiguration().get(FIND_QUERY).getValue(), "{ \"gender\": \"F\"}");
+                    assertEquals(findTemplate.getConfiguration().get(FIND_SORT).getValue(), "{\"_id\": 1}");
 
                     //Assert Find By Id command
                     DatasourceStructure.Template findByIdTemplate = templates.get(1);
@@ -498,8 +498,8 @@ public class MongoPluginTest {
                             "    \"_id\": ObjectId(\"id_to_query_with\")\n" +
                             "  }\n" +
                             "}\n");
-                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "FIND");
-                    assertEquals(findByIdTemplate.getPluginSpecifiedTemplates().get(FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
+                    assertEquals(findByIdTemplate.getConfiguration().get(COMMAND).getValue(), "FIND");
+                    assertEquals(findByIdTemplate.getConfiguration().get(FIND_QUERY).getValue(), "{\"_id\": ObjectId(\"id_to_query_with\")}");
 
                     // Assert Insert command
                     DatasourceStructure.Template insertTemplate = templates.get(2);
@@ -519,8 +519,8 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "INSERT");
-                    assertEquals(insertTemplate.getPluginSpecifiedTemplates().get(INSERT_DOCUMENT).getValue(),
+                    assertEquals(insertTemplate.getConfiguration().get(COMMAND).getValue(), "INSERT");
+                    assertEquals(insertTemplate.getConfiguration().get(INSERT_DOCUMENT).getValue(),
                             "[{      \"_id\": ObjectId(\"a_valid_object_id_hex\"),\n" +
                                     "      \"age\": 1,\n" +
                                     "      \"dob\": new Date(\"2019-07-01\"),\n" +
@@ -545,9 +545,9 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "UPDATE");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(updateTemplate.getPluginSpecifiedTemplates().get(UPDATE_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
+                    assertEquals(updateTemplate.getConfiguration().get(COMMAND).getValue(), "UPDATE");
+                    assertEquals(updateTemplate.getConfiguration().get(UPDATE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
+                    assertEquals(updateTemplate.getConfiguration().get(UPDATE_UPDATE).getValue(), "{ \"$set\": { \"gender\": \"new value\" } }");
 
                     // Assert Delete Command
                     DatasourceStructure.Template deleteTemplate = templates.get(4);
@@ -563,9 +563,9 @@ public class MongoPluginTest {
                             "    }\n" +
                             "  ]\n" +
                             "}\n");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(COMMAND).getValue(), "DELETE");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-                    assertEquals(deleteTemplate.getPluginSpecifiedTemplates().get(DELETE_LIMIT).getValue(), "SINGLE");
+                    assertEquals(deleteTemplate.getConfiguration().get(COMMAND).getValue(), "DELETE");
+                    assertEquals(deleteTemplate.getConfiguration().get(DELETE_QUERY).getValue(), "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+                    assertEquals(deleteTemplate.getConfiguration().get(DELETE_LIMIT).getValue(), "SINGLE");
                 })
                 .verifyComplete();
     }

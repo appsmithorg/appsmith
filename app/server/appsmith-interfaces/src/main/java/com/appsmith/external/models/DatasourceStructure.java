@@ -109,7 +109,7 @@ public class DatasourceStructure {
     public static class Template {
         String title;
         String body;
-        List<Property> pluginSpecifiedTemplates;
+        Object configuration;
     }
 
     ErrorDTO error;
