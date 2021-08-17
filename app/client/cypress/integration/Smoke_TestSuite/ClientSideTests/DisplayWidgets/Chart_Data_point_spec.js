@@ -16,7 +16,7 @@ describe("Chart Widget Functionality", function() {
     cy.SearchEntityandOpen("Input1");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(widgetsPage.defaultInput).type(testdata.bindChartData);
+    cy.testJsontext("defaulttext", testdata.bindChartData + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
