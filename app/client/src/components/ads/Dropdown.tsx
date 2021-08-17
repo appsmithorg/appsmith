@@ -64,6 +64,8 @@ export type DropdownProps = CommonComponentProps &
     renderOption?: RenderOption;
     isLoading?: boolean;
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
+    placeholder?: string;
+    helperText?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -71,6 +73,8 @@ export interface DefaultDropDownValueNodeProps {
   isOpen?: boolean;
   errorMsg?: string;
   renderNode?: RenderOption;
+  placeholder?: string;
+  showDropIcon?: boolean;
 }
 
 export interface RenderDropdownOptionType {
@@ -110,6 +114,7 @@ const Selected = styled.div<{
   height: string;
   bgColor?: string;
   hasError?: boolean;
+  selected?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
@@ -121,9 +126,11 @@ const Selected = styled.div<{
     }
     return !!props.bgColor
       ? props.bgColor
-      : props.theme.colors.dropdown.header.bg;
+      : props.selected
+      ? props.theme.colors.dropdown.header.bg
+      : props.theme.colors.dropdown.header.defaultBg;
   }};
-
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -131,7 +138,15 @@ const Selected = styled.div<{
   height: ${(props) => props.height};
   cursor: pointer;
   ${(props) =>
-    props.isOpen
+    props.hasError
+      ? `.sub-text {
+        color: ${props.theme.colors.danger.main} !important;
+      }`
+      : ""}
+  ${(props) =>
+    props.hasError
+      ? `border: 1px solid ${props.theme.colors.danger.main}`
+      : props.isOpen
       ? `border: 1px solid ${
           !!props.bgColor ? props.bgColor : props.theme.colors.info.main
         }`
@@ -143,9 +158,7 @@ const Selected = styled.div<{
             : props.theme.colors.dropdown.header.bg
         }`};
   ${(props) =>
-    props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
-  ${(props) =>
-    props.isOpen && !props.disabled && !props.bgColor
+    props.isOpen && !props.disabled && !props.bgColor && !props.hasError
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
@@ -155,8 +168,16 @@ const Selected = styled.div<{
         : `color: ${
             !!props.bgColor
               ? Colors.WHITE
+              : props.selected
+              ? props.theme.colors.dropdown.selected.text
               : props.theme.colors.dropdown.header.text
           }`};
+  }
+  &:hover {
+    background: ${(props) =>
+      props.hasError
+        ? Colors.FAIR_PINK
+        : props.theme.colors.dropdown.hovered.bg};
   }
 `;
 
@@ -166,8 +187,10 @@ const DropdownWrapper = styled.div<{
   width: string;
 }>`
   width: ${(props) => props.width};
+  hegith: 32px;
   z-index: 1;
-  background-color: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
+  background-color: ${(props) => props.theme.colors.dropdown.menuBg};
+  box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
   margin-top: ${(props) => -props.theme.spaces[3]}px;
   padding: ${(props) => props.theme.spaces[3]}px 0;
   .dropdown-search {
@@ -206,7 +229,10 @@ const OptionWrapper = styled.div<{
   }
 
   .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.propertyPane.label};
+    color: ${(props) =>
+      props.selected
+        ? props.theme.colors.dropdown.menu.hoverText
+        : props.theme.colors.dropdown.menu.text};
   }
 
   .${Classes.ICON} {
@@ -222,7 +248,7 @@ const OptionWrapper = styled.div<{
   }
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.dropdown.hovered.bg};
+    background-color: ${(props) => props.theme.colors.dropdown.menu.hover};
 
     &&& svg {
       rect {
@@ -231,7 +257,7 @@ const OptionWrapper = styled.div<{
     }
 
     .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.textOnDarkBG};
+      color: ${(props) => props.theme.colors.dropdown.menu.hoverText};
     }
 
     .${Classes.ICON} {
@@ -258,10 +284,17 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
-const StyledSubText = styled(Text)`
+const StyledSubText = styled(Text)<{
+  showDropIcon?: boolean;
+}>`
   margin-left: auto;
   && {
-    color: ${(props) => props.theme.colors.apiPane.body.text};
+    color: ${(props) => props.theme.colors.dropdown.menu.subText};
+  }
+  &.sub-text {
+    color: ${(props) => props.theme.colors.dropdown.selected.subtext};
+    position: absolute;
+    right: ${(props) => (props.showDropIcon ? "39px" : "12px")};
   }
 `;
 
@@ -302,11 +335,38 @@ const SelectedIcon = styled(Icon)`
       }
     }
   }
+
+  svg {
+    path {
+      fill: ${(props) =>
+        props.fillColor
+          ? props.fillColor
+          : props.theme.colors.dropdown.selected.icon};
+    }
+  }
+`;
+
+const DropdownIcon = styled(Icon)`
+  margin-right: 7px;
+  svg {
+    path {
+      fill: ${(props) =>
+        props.fillColor
+          ? props.fillColor
+          : props.theme.colors.dropdown.icon} !important;
+    }
+  }
 `;
 
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.POMEGRANATE2};
+  margin: 6px 0px 10px;
+`;
+
+const HelperMsg = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: ${(props) => props.theme.colors.dropdown.menu.subText};
   margin: 6px 0px 10px;
 `;
 
@@ -317,11 +377,19 @@ const ErrorLabel = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  placeholder,
   renderNode,
   selected,
+  showDropIcon,
   showLabelOnly,
 }: DefaultDropDownValueNodeProps) {
-  const LabelText = showLabelOnly ? selected.label : selected.value;
+  const LabelText = selected
+    ? showLabelOnly
+      ? selected.label
+      : selected.value
+    : placeholder
+    ? placeholder
+    : "Please select a option.";
   function Label() {
     return errorMsg ? (
       <ErrorLabel>{LabelText}</ErrorLabel>
@@ -336,15 +404,26 @@ function DefaultDropDownValueNode({
         renderNode({ isSelectedNode: true, option: selected, errorMsg })
       ) : (
         <>
-          {selected.icon ? (
+          {selected?.icon ? (
             <SelectedIcon
-              fillColor={selected?.iconColor}
-              hoverFillColor={selected?.iconColor}
+              fillColor={errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor}
+              hoverFillColor={
+                errorMsg ? Colors.POMEGRANATE2 : selected?.iconColor
+              }
               name={selected.icon}
-              size={selected.iconSize || IconSize.XXS}
+              size={selected.iconSize || IconSize.XL}
             />
           ) : null}
           <Label />
+          {selected?.subText ? (
+            <StyledSubText
+              className="sub-text"
+              showDropIcon={showDropIcon}
+              type={TextType.P1}
+            >
+              {selected.subText}
+            </StyledSubText>
+          ) : null}
         </>
       )}
     </SelectedDropDownHolder>
@@ -414,7 +493,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                   fillColor={option?.iconColor}
                   hoverFillColor={option?.iconColor}
                   name={option.icon}
-                  size={option.iconSize || IconSize.XXS}
+                  size={option.iconSize || IconSize.XL}
                 />
               ) : null}
 
@@ -450,9 +529,14 @@ export default function Dropdown(props: DropdownProps) {
     SelectedValueNode = DefaultDropDownValueNode,
     renderOption,
     errorMsg = "",
+    placeholder,
+    helperText,
   } = { ...props };
+  console.log("dropdown selected", props.selected);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<DropdownOption>(props.selected);
+  const [selected, setSelected] = useState<DropdownOption | undefined>(
+    props.selected,
+  );
 
   useEffect(() => {
     setSelected(props.selected);
@@ -470,11 +554,10 @@ export default function Dropdown(props: DropdownProps) {
 
   const disabled = props.disabled || isLoading || !!errorMsg;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
-
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       isOpen={isOpen}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -487,29 +570,36 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={!!errorMsg}
-        height={props.height || "38px"}
+        height={props.height || "36px"}
         isOpen={isOpen}
         onClick={() => setIsOpen(!isOpen)}
+        selected={!!selected}
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          placeholder={placeholder}
           renderNode={renderOption}
           selected={selected}
+          showDropIcon={showDropIcon}
           showLabelOnly={props.showLabelOnly}
         />
+        {}
         {isLoading ? (
           <Spinner size={IconSize.LARGE} />
         ) : (
           showDropIcon && (
-            <Icon
+            <DropdownIcon
               fillColor={downIconColor}
               hoverFillColor={downIconColor}
-              name="downArrow"
+              name="expand-more"
               size={IconSize.XXS}
             />
           )
         )}
       </Selected>
+      {errorMsg.length < 1 && helperText && helperText.length > 0 && (
+        <HelperMsg>* {helperText}</HelperMsg>
+      )}
       {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
     </DropdownSelect>
   );
@@ -517,7 +607,7 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
+      height={props.height || "36px"}
       tabIndex={0}
       width={props.width || "260px"}
     >
@@ -525,6 +615,7 @@ export default function Dropdown(props: DropdownProps) {
         boundary="scrollParent"
         isOpen={isOpen && !disabled}
         minimal
+        modifiers={{ arrow: { enabled: true } }}
         onInteraction={(state) => setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
@@ -533,6 +624,11 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           optionClickHandler={optionClickHandler}
           {...props}
+          selected={
+            props.selected
+              ? props.selected
+              : { id: undefined, value: undefined }
+          }
         />
       </Popover>
     </DropdownContainer>

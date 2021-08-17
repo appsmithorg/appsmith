@@ -5,6 +5,10 @@ export const storyName = {
         PATH: "Platform/Form/Button",
         NAME: "Button",
       },
+      dropdown: {
+        PATH: "Platform/Form/Dropdown",
+        NAME: "Dropdown",
+      },
       radio: {
         PATH: "Platform/Form/Radio",
         NAME: "Radio",

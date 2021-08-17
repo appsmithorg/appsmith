@@ -766,15 +766,23 @@ type ColorType = {
     header: {
       text: ShadeColor;
       disabledText: ShadeColor;
+      defaultBg: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
-    menuBg: ShadeColor;
+    menu: {
+      bg: ShadeColor;
+      hover: ShadeColor;
+      text: ShadeColor;
+      hoverText: ShadeColor;
+      subText: ShadeColor;
+    };
     menuShadow: string;
     selected: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
+      subtext?: ShadeColor;
     };
     hovered: {
       text: ShadeColor;
@@ -1605,10 +1613,17 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
+      defaultBg: "#090707",
       bg: "#090707",
       disabledBg: darkShades[2],
     },
-    menuBg: darkShades[3],
+    menu: {
+      bg: darkShades[3],
+      text: darkShades[9],
+      hover: darkShades[4],
+      hoverText: darkShades[9],
+      subText: darkShades[9],
+    },
     menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
@@ -2172,21 +2187,29 @@ export const light: ColorType = {
   },
   dropdown: {
     header: {
-      text: lightShades[9],
+      text: lightShades[8],
       disabledText: darkShades[6],
-      bg: lightShades[2],
+      defaultBg: lightShades[11],
+      bg: lightShades[14],
       disabledBg: lightShades[1],
     },
-    menuBg: lightShades[11],
-    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menu: {
+      bg: lightShades[11],
+      text: lightShades[8],
+      hover: lightShades[2],
+      hoverText: lightShades[10],
+      subText: lightShades[15],
+    },
+    menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
-      text: lightShades[9],
+      text: lightShades[10],
       bg: lightShades[2],
-      icon: lightShades[8],
+      icon: lightShades[15],
+      subtext: lightShades[7],
     },
     hovered: {
-      text: lightShades[11],
-      bg: lightShades[12],
+      text: lightShades[10],
+      bg: lightShades[14],
       icon: lightShades[11],
     },
     icon: lightShades[7],
