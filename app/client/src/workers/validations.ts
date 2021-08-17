@@ -173,7 +173,12 @@ function validateArray(
       _messages.push(`Array must be unique. Duplicate values found`);
     }
   }
-  return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
+
+  return {
+    isValid: _isValid,
+    parsed: _isValid ? value : config.params?.default || [],
+    message: _messages.join(" "),
+  };
 }
 
 export const validate = (
@@ -572,14 +577,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (Array.isArray(parsed)) {
       if (parsed.length === 0) return invalidResponse;
-      parsed.forEach((entry, index) => {
-        if (!isPlainObject(entry)) {
+
+      for (const [index, parsedEntry] of parsed.entries()) {
+        if (!isPlainObject(parsedEntry)) {
           return {
             ...invalidResponse,
             message: `Invalid object at index ${index}`,
           };
         }
-      });
+      }
       return { isValid: true, parsed };
     }
     return invalidResponse;
