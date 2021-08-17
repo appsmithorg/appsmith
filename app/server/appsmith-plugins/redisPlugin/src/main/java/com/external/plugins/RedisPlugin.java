@@ -90,7 +90,7 @@ public class RedisPlugin extends BasePlugin {
                     command = Protocol.Command.valueOf((String) cmdAndArgs.get(CMD_KEY));
                 } catch (IllegalArgumentException exc) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            String.format("Not a valid Redis command:%s", cmdAndArgs.get(CMD_KEY))));
+                            String.format("Not a valid Redis command: %s", cmdAndArgs.get(CMD_KEY))));
                 }
 
                 Object commandOutput;
