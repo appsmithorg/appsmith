@@ -1,12 +1,8 @@
 import React from "react";
-import Dropdown, {
-  DropdownProps,
-  DropdownOption,
-} from "components/ads/Dropdown";
-import { withKnobs, select, boolean, text } from "@storybook/addon-knobs";
+import Dropdown from "components/ads/Dropdown";
+import { select, text } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { Variant } from "components/ads/common";
-import { IconCollection, IconName } from "components/ads/Icon";
+import { IconCollection } from "components/ads/Icon";
 import { action } from "@storybook/addon-actions";
 import { storyName } from "./config/constants";
 import { controlType, statusType } from "./config/types";
