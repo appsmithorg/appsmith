@@ -240,8 +240,6 @@ public class DynamoPlugin extends BasePlugin {
                     final Object sdkValue = plainToSdk(parameters, requestClass);
                     final DynamoDbResponse response = (DynamoDbResponse) actionExecuteMethod.invoke(ddb, sdkValue);
                     Object rawResponse = sdkToPlain(response);
-                    // TODO: remove it.
-                    System.out.println("devtest: raw response: " + rawResponse);
                     Object transformedResponse = getTransformedResponse((Map<String, Object>)rawResponse, action);
                     result.setBody(transformedResponse);
                 } catch (AppsmithPluginException | InvocationTargetException | IllegalAccessException | NoSuchMethodException | ClassNotFoundException e) {
