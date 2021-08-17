@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
@@ -13,6 +14,7 @@ import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -55,6 +57,7 @@ public class UserSignup {
     private final CaptchaService captchaService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final ConfigService configService;
+    private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -114,10 +117,10 @@ public class UserSignup {
         String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
 
         return captchaService.verify(recaptchaToken).flatMap(verified -> {
-                  if (!verified) {
-                    return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
-                  }
-                  return exchange.getFormData();
+                    if (!Boolean.TRUE.equals(verified)) {
+                        return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+                    }
+                    return exchange.getFormData();
                 })
                 .map(formData -> {
                     final User user = new User();
@@ -159,7 +162,7 @@ public class UserSignup {
     public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
         return userService.isUsersEmpty()
                 .flatMap(isEmpty -> {
-                    if (!isEmpty) {
+                    if (!Boolean.TRUE.equals(isEmpty)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     }
 
@@ -181,9 +184,19 @@ public class UserSignup {
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
+
+                    if (userFromRequest.isSignupForNewsletter()) {
+                        analyticsService.sendEvent(
+                                AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name(),
+                                user.getEmail(),
+                                Map.of("id", user.getEmail())
+                        );
+                    }
+
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
-                            configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName()))
+                            configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName())),
+                            analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });
     }
