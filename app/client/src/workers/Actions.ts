@@ -257,7 +257,7 @@ const DATA_TREE_FUNCTIONS: Record<
     ]);
   },
   run: {
-    qualifier: isAction,
+    qualifier: (entity) => isAction(entity),
     func: (entity) =>
       function(onSuccess: Function, onError: Function, params = {}) {
         const runActionPromise = new AppsmithPromise([
@@ -275,7 +275,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
   },
   clear: {
-    qualifier: isAction,
+    qualifier: (entity) => isAction(entity),
     func: (entity) => () => {
       return new AppsmithPromise([
         {

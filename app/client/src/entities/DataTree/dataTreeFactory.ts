@@ -15,6 +15,7 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import {
   ActionDescription,
+  ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
 import { AppsmithPromise } from "workers/Actions";
@@ -43,6 +44,10 @@ export interface DataTreeAction
   pluginType: PluginType;
   name: string;
   run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
+  clear:
+    | ActionDispatcher
+    | ClearPluginActionDescription
+    | Record<string, unknown>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
