@@ -1246,13 +1246,13 @@ type ColorType = {
 };
 
 const gitSyncModal = {
-  menuBackgroundColor: "#FAFAFA",
+  menuBackgroundColor: Colors.ALABASTER,
 };
 
 const tabItemBackgroundFill = {
-  highlightBackground: "#F0F0F0",
-  highlightTextColor: "#090707",
-  textColor: "#4B4848",
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
