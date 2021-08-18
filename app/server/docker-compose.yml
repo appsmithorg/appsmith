@@ -14,6 +14,8 @@ services:
       - redis
     networks:
       - appsmith
+    volumes:
+      - ./container-volumes/git/repo:/repo
 
   mongo:
     image: mongo:4.4.6
