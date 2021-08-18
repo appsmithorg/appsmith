@@ -38,6 +38,8 @@ public class GitServiceTest {
 
     String orgId = "";
 
+    String url = "https://github.com/AnaghHegde/Enigma-Reborn.git";
+
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
@@ -48,7 +50,6 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void  cloneRepo_validRemote_cloneSucess() throws IOException {
-        String url = "https://github.com/AnaghHegde/Enigma-Reborn.git";
         String response = gitDataService.connectToGitRepo(url, orgId);
         assertThat(response.contains("/.git"));
     }
@@ -56,9 +57,25 @@ public class GitServiceTest {
     @Test(expected = TransportException.class)
     @WithUserDetails(value = "api_user")
     public void  cloneRepo_inaValidRemote_ThrowsGitAPIException() throws IOException {
-        String url = "url:https://github.com/appsmithorg/appsmith-docs.git";
         TransportException exception = assertThrows(TransportException.class,
-                ()-> gitDataService.connectToGitRepo(url, orgId));
+                ()-> gitDataService.connectToGitRepo("url:"+url, orgId));
         assertThat(exception.getMessage()).contains("remote hung up unexpectedly");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneRepo_directoryDoesntExists_Success() throws IOException {
+        orgId = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block().getId();
+        String response = gitDataService.connectToGitRepo(url, orgId);
+        assertThat(response.contains("/.git"));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void cloneRepo_duplicateName_Success() throws IOException {
+        String response = gitDataService.connectToGitRepo(url, orgId);
+        assertThat(response.contains("/.git"));
+        response = gitDataService.connectToGitRepo(url, orgId);
+        assertThat(response.contains("/.git"));
     }
 }

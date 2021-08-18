@@ -71,7 +71,13 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
         }
         String[] urlArray = url.split("/");
         String repoName = urlArray[urlArray.length-1].replace(".git", "");
-
+        file = new File(filePath + "/" + repoName + "/");
+        int i = 1;
+        while(file.exists()) {
+            repoName = repoName + "(" + i + ")" ;
+            file =  new File(filePath + "/" + repoName + "/");
+            i = i + 1;
+        }
         return filePath + "/" + repoName + "/";
     }
 }
