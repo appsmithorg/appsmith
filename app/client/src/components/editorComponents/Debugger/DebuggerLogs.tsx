@@ -94,14 +94,18 @@ function DebbuggerLogs(props: Props) {
             placeholderText={createMessage(NO_LOGS)}
           />
         ) : (
-          paginatedData.map((e, index: number) => {
-            const logItemProps = getLogItemProps(e);
+          paginatedData.map((log, index: number) => {
+            const logItemProps = getLogItemProps(log);
+            // Expand the last log and errors by default
+            const expand =
+              index === paginatedData.length - 1 ||
+              log.severity === Severity.ERROR;
 
             return (
               <LogItem
                 key={`debugger-${index}`}
                 {...logItemProps}
-                expand={index === paginatedData.length - 1}
+                expand={expand}
               />
             );
           })
