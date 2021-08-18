@@ -43,9 +43,7 @@ public class ActionExecutionResult {
             this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
             this.title = ((AppsmithPluginException) error).getTitle();
             this.errorType = ((AppsmithPluginException) error).getErrorType();
-        }
-
-        else if (error instanceof BaseException) {
+        } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode().toString();
             this.title = ((BaseException) error).getTitle();
         }
