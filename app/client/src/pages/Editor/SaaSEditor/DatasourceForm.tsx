@@ -95,6 +95,15 @@ const EditDatasourceButton = styled(AdsButton)`
   }
 `;
 
+const StyledAuthMessage = styled.div`
+  color: ${(props) => props.theme.colors.error};
+  margin-top: 15px;
+  &:after {
+    content: " *";
+    color: inherit;
+  }
+`;
+
 class DatasourceSaaSEditor extends JSONtoForm<
   Props,
   DatasourceSaasEditorState
@@ -198,6 +207,11 @@ class DatasourceSaaSEditor extends JSONtoForm<
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
+
+            {!this.state.isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+
             <SaveButtonContainer>
               <ActionButton
                 accent="error"
@@ -214,6 +228,7 @@ class DatasourceSaaSEditor extends JSONtoForm<
                 }
                 text="Delete"
               />
+
               <StyledButton
                 className="t--save-datasource"
                 disabled={this.validate()}
