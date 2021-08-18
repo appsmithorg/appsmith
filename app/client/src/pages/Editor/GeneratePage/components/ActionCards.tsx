@@ -17,6 +17,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchPage } from "actions/pageActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type routeId = {
   applicationId: string;
@@ -27,10 +28,12 @@ const routeToEmptyEditorFromGenPage = ({
   applicationId,
   pageId,
 }: routeId): void => {
+  AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
   history.push(BUILDER_PAGE_URL(applicationId, pageId));
 };
 
 const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
+  AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
   history.push(getGenerateTemplateFormURL(applicationId, pageId));
 };
 

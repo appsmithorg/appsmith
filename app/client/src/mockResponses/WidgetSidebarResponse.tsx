@@ -139,6 +139,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Stat Box",
     key: generateReactKey(),
   },
+  {
+    type: "CHECKBOX_GROUP_WIDGET",
+    widgetCardName: "Checkbox Group",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
