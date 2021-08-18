@@ -5,7 +5,7 @@ const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
 };
 
-const tourReducer = createReducer(initialState, {
+const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN]: (
     state: GitSyncReducerState,
     action: ReduxAction<boolean>,
@@ -19,4 +19,4 @@ export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
 };
 
-export default tourReducer;
+export default gitSyncReducer;
