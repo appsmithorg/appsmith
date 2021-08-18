@@ -425,3 +425,7 @@ export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
 export const SETTINGS = () => "Settings";
+export const CONNECT_TO_GIT = () => "Connect to Git";
+export const CONNECT_TO_GIT_SUBTITLE = () =>
+  "Choose an existing empty repository to host your project and keep it in sync";
+export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
