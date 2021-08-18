@@ -132,11 +132,15 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
       .should("be.visible")
       .click({ force: true });
     cy.wait(1000);
+
     cy.get(datasource.datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
       .should("be.visible")
-      .click();
+      .closest(datasource.datasourceCard)
+      .within(() => {
+        cy.get(datasource.datasourceCardGeneratePageBtn).click();
+      });
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
