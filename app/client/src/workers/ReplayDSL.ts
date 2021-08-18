@@ -1,40 +1,76 @@
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import * as Y from "yjs";
-import { isEqual } from "lodash";
+import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
+import * as Sentry from "@sentry/react";
+
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
+type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
+
+const _DIFF_ = "diff";
 
 export default class ReplayDSL {
-  dslMap: any;
+  dsl: CanvasWidgetsReduxState;
+  diffMap: any;
   undoManager: Y.UndoManager;
 
   constructor(widgets: CanvasWidgetsReduxState) {
     const doc = new Y.Doc();
-    this.dslMap = doc.get("map", Y.Map);
-    this.dslMap.set("dsl", widgets);
-    this.undoManager = new Y.UndoManager(this.dslMap);
-    this.undoManager.on("stack-item-added", (stackItem: any) => {
-      console.log("added", stackItem);
-    });
-    this.undoManager.on("stack-item-popped", (stackItem: any) => {
-      console.log("popped", stackItem);
-    });
+    this.diffMap = doc.get("map", Y.Map);
+    this.dsl = widgets;
+    this.diffMap.set(_DIFF_, []);
+    this.undoManager = new Y.UndoManager(this.diffMap);
   }
 
   undo() {
-    this.undoManager.undo();
-    return this.dslMap.get("dsl");
+    const diffs = this.diffMap.get(_DIFF_);
+
+    if (diffs && diffs.length) {
+      this.undoManager.undo();
+      this.applyDiffs(diffs, revertChange);
+      return this.dsl;
+    }
+
+    return null;
   }
 
   redo() {
     this.undoManager.redo();
-    return this.dslMap.get("dsl");
+    const diffs = this.diffMap.get(_DIFF_);
+
+    if (diffs && diffs.length) {
+      this.applyDiffs(diffs, applyChange);
+      return this.dsl;
+    }
+
+    return null;
   }
 
   update(widgets: CanvasWidgetsReduxState) {
-    const prevWidgets = this.dslMap.get("dsl", widgets);
     const startTime = performance.now();
-    const isequal = isEqual(prevWidgets, widgets);
+    const diffs = deepDiff(this.dsl, widgets);
+    if (diffs && diffs.length) {
+      this.dsl = widgets;
+      this.diffMap.set(_DIFF_, diffs);
+    }
     const endTime = performance.now();
-    console.log("replay updating,", isequal, endTime - startTime, "ms");
-    if (!isequal) this.dslMap.set("dsl", widgets);
+    console.log("replay updating,", diffs, endTime - startTime, "ms");
+  }
+
+  private applyDiffs(diffs: Array<DSLDiff>, diffUpdate: typeof applyChange) {
+    for (const diff of diffs) {
+      if (!Array.isArray(diff.path) || diff.path.length === 0) {
+        continue;
+      }
+      try {
+        diffUpdate(this.dsl, true, diff);
+      } catch (e) {
+        Sentry.captureException(e, {
+          extra: {
+            diff,
+            updateLength: diffs.length,
+          },
+        });
+      }
+    }
   }
 }

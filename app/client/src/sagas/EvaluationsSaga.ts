@@ -162,7 +162,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   );
 
   const { replayWidgets } = workerResponse;
-  yield put(updateAndSaveLayout(replayWidgets, false));
+  if (replayWidgets) yield put(updateAndSaveLayout(replayWidgets, false));
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
