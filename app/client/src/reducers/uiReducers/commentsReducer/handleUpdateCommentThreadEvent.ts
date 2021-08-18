@@ -8,7 +8,7 @@ const handleUpdateCommentThreadEvent = (
   state: CommentsReduxState,
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
-  const id = action.payload._id as string;
+  const id = (action.payload._id || action.payload.id) as string;
   const commentThreadInStore = state.commentThreadsMap[id];
   const existingComments = get(commentThreadInStore, "comments", []);
   const newComments = get(action.payload, "comments", []);
@@ -21,7 +21,8 @@ const handleUpdateCommentThreadEvent = (
     commentThreadInStore?.resolvedState?.active !==
     action.payload?.resolvedState?.active;
 
-  const shouldRefreshList = resolvedStateUpdated || pinnedStateChanged;
+  const shouldRefreshList =
+    resolvedStateUpdated || pinnedStateChanged || action.payload.position;
 
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),

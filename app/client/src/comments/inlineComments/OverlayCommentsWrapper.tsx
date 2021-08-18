@@ -1,9 +1,12 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
+import {
+  createUnpublishedCommentThreadRequest,
+  updateCommentThreadEvent,
+} from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.svg";
 import { getOffsetPos } from "comments/utils";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
@@ -13,8 +16,9 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
-import { DndProvider } from "react-dnd";
+import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
+import { DraggableCommentsItems } from "./InlineCommentPin";
 
 type Props = {
   children: React.ReactNode;
@@ -35,6 +39,17 @@ const Container = styled.div<{ isCommentMode: boolean }>`
  * 2. Calculates pin offset while creating a new comment
  */
 function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
+  const [commentThreadId, setCommentThreadId] = useState<string>("");
+  const [isDropped, setIsDropped] = useState(false);
+  const [, dropRef] = useDrop({
+    accept: [DraggableCommentsItems.INLINE_COMMENT_PIN],
+    collect: () => ({}),
+    drop: (item, monitor) => {
+      const { commentThreadId } = monitor.getItem();
+      setCommentThreadId(commentThreadId);
+      setIsDropped(monitor.isOver());
+    },
+  });
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
@@ -49,21 +64,34 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   // create new unpublished thread
   const clickHandler = (e: any) => {
     if (!isCommentMode) return;
-    proceedToNextTourStep();
     e.persist();
     e.stopPropagation();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);
-      dispatch(
-        createUnpublishedCommentThreadRequest({
-          refId,
-          widgetType,
-          position,
-        }),
-      );
+      if (isDropped && !!commentThreadId) {
+        dispatch(
+          updateCommentThreadEvent({
+            id: commentThreadId,
+            position,
+            refId,
+            widgetType,
+          }),
+        );
+        setCommentThreadId("");
+        setIsDropped(false);
+      } else {
+        proceedToNextTourStep();
+        dispatch(
+          createUnpublishedCommentThreadRequest({
+            refId,
+            widgetType,
+            position,
+          }),
+        );
+      }
     }
   };
-
+  dropRef(containerRef);
   return (
     <DndProvider backend={HTML5Backend}>
       <Container
