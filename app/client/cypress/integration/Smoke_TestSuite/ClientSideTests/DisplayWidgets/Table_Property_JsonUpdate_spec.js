@@ -54,6 +54,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Check Selected Row(s) Resets When Table Data Changes", function() {
     cy.isSelectRow(1);
+    cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", "[]");
     cy.wait("@updateLayout");
     const newTableData = [...this.data.TableInput];
