@@ -2,15 +2,28 @@ import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
-import { getAppsmithConfigs } from "configs";
-import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import log from "loglevel";
+import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
+import { getAppsmithConfigs } from "configs";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
 
 export interface CustomFusionChartConfig {
   type: string;
   dataSource?: any;
 }
+
+export enum LabelOrientation {
+  AUTO = "auto",
+  SLANT = "slant",
+  ROTATE = "rotate",
+  STAGGER = "stagger",
+}
+
+export const LABEL_ORIENTATION_COMPATIBLE_CHARTS = [
+  "LINE_CHART",
+  "AREA_CHART",
+  "COLUMN_CHART",
+];
 
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
@@ -42,16 +55,17 @@ FusionCharts.options.license({
 });
 
 export interface ChartComponentProps {
-  chartType: ChartType;
+  allowHorizontalScroll: boolean;
   chartData: AllChartData;
+  chartName: string;
+  chartType: ChartType;
   customFusionChartConfig: CustomFusionChartConfig;
+  isVisible?: boolean;
+  labelOrientation?: LabelOrientation;
+  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
+  widgetId: string;
   xAxisName: string;
   yAxisName: string;
-  chartName: string;
-  widgetId: string;
-  isVisible?: boolean;
-  allowHorizontalScroll: boolean;
-  onDataPointClick: (selectedDataPoint: { x: any; y: any }) => void;
 }
 
 const CanvasContainer = styled.div<
@@ -68,8 +82,13 @@ const CanvasContainer = styled.div<
   padding: 10px 0 0 0;
 }`;
 
+export const isLabelOrientationApplicableFor = (chartType: string) =>
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
+
 class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
+
+  chartContainerId = this.props.widgetId + "chart-container";
 
   getChartType = () => {
     const { allowHorizontalScroll, chartData, chartType } = this.props;
@@ -145,7 +164,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartCategoriesMutliSeries = (chartData: AllChartData) => {
+  getChartCategoriesMultiSeries = (chartData: AllChartData) => {
     const categories: string[] = [];
 
     Object.keys(chartData).forEach((key: string) => {
@@ -167,7 +186,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartCategories = (chartData: AllChartData) => {
-    const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+    const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
 
     if (categories.length === 0) {
       return [
@@ -212,7 +231,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
    * @returns
    */
   getChartDataset = (chartData: AllChartData) => {
-    const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+    const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
 
     const dataset = Object.keys(chartData).map((key: string) => {
       const item = get(chartData, `${key}`);
@@ -230,8 +249,32 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     return dataset;
   };
 
+  getLabelOrientationConfig = () => {
+    switch (this.props.labelOrientation) {
+      case LabelOrientation.AUTO:
+        return {};
+      case LabelOrientation.ROTATE:
+        return {
+          labelDisplay: "rotate",
+          slantLabel: "0",
+        };
+      case LabelOrientation.SLANT:
+        return {
+          labelDisplay: "rotate",
+          slantLabel: "1",
+        };
+      case LabelOrientation.STAGGER:
+        return {
+          labelDisplay: "stagger",
+        };
+      default: {
+        return {};
+      }
+    }
+  };
+
   getChartConfig = () => {
-    return {
+    let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
       yAxisName: this.props.yAxisName,
@@ -240,6 +283,15 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
     };
+
+    if (isLabelOrientationApplicableFor(this.props.chartType)) {
+      config = {
+        ...config,
+        ...this.getLabelOrientationConfig(),
+      };
+    }
+
+    return config;
   };
 
   getChartDataSource = () => {
@@ -304,7 +356,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   createGraph = () => {
     if (this.props.chartType === "CUSTOM_FUSION_CHART") {
       const chartConfig = {
-        renderAt: this.props.widgetId + "chart-container",
+        renderAt: this.chartContainerId,
         width: "100%",
         height: "100%",
         events: {
@@ -328,7 +380,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
     const chartConfig = {
       type: this.getChartType(),
-      renderAt: this.props.widgetId + "chart-container",
+      renderAt: this.chartContainerId,
       width: "100%",
       height: "100%",
       dataFormat: "json",
@@ -372,7 +424,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     if (!_.isEqual(prevProps, this.props)) {
       if (this.props.chartType === "CUSTOM_FUSION_CHART") {
         const chartConfig = {
-          renderAt: this.props.widgetId + "chart-container",
+          renderAt: this.chartContainerId,
           width: "100%",
           height: "100%",
           events: {
@@ -406,9 +458,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   render() {
     //eslint-disable-next-line  @typescript-eslint/no-unused-vars
     const { onDataPointClick, ...rest } = this.props;
-    return (
-      <CanvasContainer {...rest} id={this.props.widgetId + "chart-container"} />
-    );
+    return <CanvasContainer {...rest} id={this.chartContainerId} />;
   }
 }
 
