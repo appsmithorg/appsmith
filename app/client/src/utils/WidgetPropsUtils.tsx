@@ -814,6 +814,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
     currentDSL.version = 31;
   }
+  
   if (currentDSL.version === 31) {
     currentDSL = migrateTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
