@@ -1,18 +1,15 @@
+import { AppsmithPromisePayload } from "workers/Actions";
 import {
   executeActionTriggers,
   executeAppAction,
 } from "sagas/ActionExecution/ActionExecutionSagas";
-import { all, call, race, select } from "redux-saga/effects";
+import { all, call, select } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
 import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import {
-  PromiseActionDescription,
-  PromiseVariant,
-} from "entities/DataTree/actionTriggers";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -23,32 +20,20 @@ export class TriggerFailureError extends Error {
 }
 
 export default function* executePromiseSaga(
-  trigger: PromiseActionDescription["payload"],
+  trigger: AppsmithPromisePayload,
   eventType: EventType,
 ): any {
   try {
-    const promises = trigger.executor.map((executionTrigger) =>
-      call(executeActionTriggers, executionTrigger, eventType),
+    yield all(
+      trigger.executor.map((executionTrigger) =>
+        call(executeActionTriggers, executionTrigger, eventType),
+      ),
     );
-    let response;
-    if (
-      trigger.variant === PromiseVariant.ALL ||
-      trigger.variant === PromiseVariant.CONSTRUCTOR
-    ) {
-      response = yield all(promises);
-    }
-    if (
-      trigger.variant === PromiseVariant.RACE ||
-      trigger.variant === PromiseVariant.ANY
-    ) {
-      response = yield race(promises);
-    }
     if (trigger.then) {
       if (trigger.then.length) {
         for (const thenable of trigger.then) {
-          response = yield call(executeAppAction, {
+          yield call(executeAppAction, {
             dynamicString: thenable,
-            responseData: response,
             event: {
               type: eventType,
             },
