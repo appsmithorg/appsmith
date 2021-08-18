@@ -5,11 +5,11 @@
     "mongo-username": "cypress-test",
     "mongo-password": "RaopEmky505xYV4p",
     "mongo-authenticationAuthtype": "SCRAM-SHA-1",
-    "postgres-host": "postgres-test-db.cz8diybf9wdj.ap-south-1.rds.amazonaws.com",
+    "postgres-host": "localhost",
     "postgres-port": 5432,
     "postgres-databaseName": "fakeapi",
     "postgres-username": "postgres",
-    "postgres-password": "Appsmith2019#",
+    "postgres-password": "postgres",
     "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
     "mongo-defaultDatabaseName": "sample_airbnb",
     "connection-type": "Replica set",
@@ -17,5 +17,9 @@
     "projectID": "appsmith-f9fe4",
     "serviceAccCredentials": "testdata",
     "access_key": "AKIATTSPRCT3ZEMEPSMC",
-    "secret_key": "DTFRFG15G7Xyn8IIHDW9cKXMg+TuA7DIC74oC0L9"
+    "secret_key": "DTFRFG15G7Xyn8IIHDW9cKXMg+TuA7DIC74oC0L9",
+    "mockHostAddress":"fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
+    "mockDatabaseName": "fakeapi",
+    "mockDatabaseUsername": "fakeapi",
+    "mockDatabasePassword": "LimitedAccess123#"
 }

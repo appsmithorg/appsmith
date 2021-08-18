@@ -6,49 +6,21 @@ import {
   Validator,
 } from "../constants/WidgetValidation";
 import _, {
+  get,
+  isArray,
   isObject,
   isPlainObject,
   isString,
-  startsWith,
   toString,
+  uniq,
 } from "lodash";
-import { WidgetProps } from "../widgets/BaseWidget";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import evaluate from "./evaluate";
 
-/**
- * REF: https://github.com/angular/angular/blob/master/packages/core/src/sanitization/url_sanitizer.ts
- * A pattern that recognizes a commonly useful subset of URLs that are safe.
- *
- * This regular expression matches a subset of URLs that will not cause script
- * execution if used in URL context within a HTML document. Specifically, this
- * regular expression matches if (comment from here on and regex copied from
- * Soy's EscapingConventions):
- * (1) Either an allowed protocol (http, https, mailto or ftp).
- * (2) or no protocol.  A protocol must be followed by a colon. The below
- *     allows that by allowing colons only after one of the characters [/?#].
- *     A colon after a hash (#) must be in the fragment.
- *     Otherwise, a colon after a (?) must be in a query.
- *     Otherwise, a colon after a single solidus (/) must be in a path.
- *     Otherwise, a colon after a double solidus (//) must be in the authority
- *     (before port).
- *
- * The pattern disallows &, used in HTML entity declarations before
- * one of the characters in [/?#]. This disallows HTML entities used in the
- * protocol name, which should never happen, e.g. "h&#116;tp" for "http".
- * It also disallows HTML entities in the first path part of a relative path,
- * e.g. "foo&lt;bar/baz".  Our existing escaping functions should not produce
- * that. More importantly, it disallows masking of a colon,
- * e.g. "javascript&#58;...".
- *
- * This regular expression was taken from the Closure sanitization library.
- */
-const SAFE_URL_PATTERN = /^(?:(?:https?|mailto|ftp|tel|file|sms):|[^&:/?#]*(?:[/?#]|$))/gi;
-
-/** A pattern that matches safe data URLs. Only matches image, video and audio types. */
-const DATA_URL_PATTERN = /^data:(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm)|audio\/(?:mp3|oga|ogg|opus));base64,[a-z0-9+\/]+=*$/i;
+import getIsSafeURL from "utils/validation/getIsSafeURL";
+export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
 function validatePlainObject(
   config: ValidationConfig,
@@ -75,11 +47,8 @@ function validatePlainObject(
             );
         }
       } else if (entry.params?.required) {
-        return {
-          isValid: false,
-          parsed: value,
-          message: `Missing required key: ${entry.name}`,
-        };
+        _valid = false;
+        _messages.push(`Missing required key: ${entry.name}`);
       }
     });
     if (_valid) {
@@ -105,6 +74,8 @@ function validateArray(
   value: unknown[],
   props: Record<string, unknown>,
 ) {
+  let _isValid = true;
+  const _messages: string[] = [];
   const whiteList = config.params?.allowedValues;
   if (whiteList) {
     value.forEach((entry) => {
@@ -117,9 +88,59 @@ function validateArray(
       }
     });
   }
+  // Check uniqueness of object elements in an array
+  if (
+    config.params?.children?.type === ValidationTypes.OBJECT &&
+    (config.params.children.params?.allowedKeys || []).length > 0
+  ) {
+    const allowedKeysCofigArray =
+      config.params.children.params?.allowedKeys || [];
+
+    const allowedKeys = (config.params.children.params?.allowedKeys || []).map(
+      (key) => key.name,
+    );
+    type ObjectKeys = typeof allowedKeys[number];
+    type ItemType = {
+      [key in ObjectKeys]: string;
+    };
+
+    const valueWithType = value as ItemType[];
+    allowedKeysCofigArray.forEach((allowedKeyConfig) => {
+      if (allowedKeyConfig.params?.unique) {
+        const allowedKeyValues = valueWithType.map(
+          (item) => item[allowedKeyConfig.name],
+        );
+        const normalizedValues = valueWithType.map((item) =>
+          item[allowedKeyConfig.name].toLowerCase(),
+        );
+        // Check if value is duplicated
+        _messages.push(
+          ...allowedKeyValues.reduce(
+            (acc: string[], currentValue, currentIndex) => {
+              if (
+                normalizedValues.indexOf(currentValue.toLowerCase()) !==
+                currentIndex
+              ) {
+                acc.push(
+                  `Duplicated entry at index: ${currentIndex + 1}, key: ${
+                    allowedKeyConfig.name
+                  }, value: ${currentValue}`,
+                );
+              }
+              return acc;
+            },
+            [],
+          ),
+        );
+        if (_messages.length > 0) {
+          _isValid = false;
+        }
+      }
+    });
+  }
+
   const children = config.params?.children;
-  let _isValid = true;
-  const _messages: string[] = [];
+
   if (children) {
     value.forEach((entry, index) => {
       const validation = validate(children, entry, props);
@@ -131,7 +152,33 @@ function validateArray(
       }
     });
   }
-  return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
+  if (config.params?.unique) {
+    if (isArray(config.params?.unique)) {
+      for (const param of config.params?.unique) {
+        const shouldBeUnique = value.map((entry) =>
+          get(entry, param as string, ""),
+        );
+        if (uniq(shouldBeUnique).length !== value.length) {
+          _isValid = false;
+          _messages.push(
+            `Array entry path:${param} must be unique. Duplicate values found`,
+          );
+          break;
+        }
+      }
+    } else if (
+      uniq(value.map((entry) => JSON.stringify(entry))).length !== value.length
+    ) {
+      _isValid = false;
+      _messages.push(`Array must be unique. Duplicate values found`);
+    }
+  }
+
+  return {
+    isValid: _isValid,
+    parsed: _isValid ? value : config.params?.default || [],
+    message: _messages.join(" "),
+  };
 }
 
 export const validate = (
@@ -150,6 +197,69 @@ export const validate = (
 export const WIDGET_TYPE_VALIDATION_ERROR =
   "This value does not evaluate to type"; // TODO: Lot's of changes in validations.ts file
 
+export function getExpectedType(config?: ValidationConfig): string | undefined {
+  if (!config) return UNDEFINED_VALIDATION; // basic fallback
+  switch (config.type) {
+    case ValidationTypes.FUNCTION:
+      return config.params?.expected?.type || "unknown";
+    case ValidationTypes.TEXT:
+      let result = "string";
+      if (config.params?.allowedValues) {
+        const allowed = config.params.allowedValues.join(" | ");
+        result = result + ` ( ${allowed} )`;
+      }
+      if (config.params?.expected?.type) result = config.params?.expected.type;
+      return result;
+    case ValidationTypes.REGEX:
+      return "regExp";
+    case ValidationTypes.DATE_ISO_STRING:
+      return "ISO 8601 date string";
+    case ValidationTypes.BOOLEAN:
+      return "boolean";
+    case ValidationTypes.NUMBER:
+      let type = "number";
+      if (config.params?.min) {
+        type = `${type} Min: ${config.params?.min}`;
+      }
+      if (config.params?.max) {
+        type = `${type} Max: ${config.params?.max}`;
+      }
+      if (config.params?.required) {
+        type = `${type} Required`;
+      }
+
+      return type;
+    case ValidationTypes.OBJECT:
+      type = "Object";
+      if (config.params?.allowedKeys) {
+        type = "{";
+        config.params?.allowedKeys.forEach((allowedKeyConfig) => {
+          const _expected = getExpectedType(allowedKeyConfig);
+          type = `${type} "${allowedKeyConfig.name}": "${_expected}",`;
+        });
+        type = `${type.substring(0, type.length - 1)} }`;
+        return type;
+      }
+      return type;
+    case ValidationTypes.ARRAY:
+      if (config.params?.allowedValues) {
+        const allowed = config.params?.allowedValues.join("' | '");
+        return `Array<'${allowed}'>`;
+      }
+      if (config.params?.children) {
+        const children = getExpectedType(config.params.children);
+        return `Array<${children}>`;
+      }
+      return "Array";
+    case ValidationTypes.OBJECT_ARRAY:
+      return `Array<Object>`;
+    case ValidationTypes.IMAGE_URL:
+      return `base64 encoded image | data uri | image url`;
+    case ValidationTypes.SAFE_URL:
+      return "URL";
+  }
+}
+
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.TEXT]: (
     config: ValidationConfig,
@@ -161,7 +271,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed: config.params?.default || "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
       return {
@@ -175,7 +285,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: JSON.stringify(value, null, 2),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
       };
     }
 
@@ -187,7 +297,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed: config.params?.default || "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "string"`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
     }
@@ -230,7 +340,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: new RegExp(parsed),
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "regex"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
       };
     }
 
@@ -258,7 +368,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: config.params?.default || 0,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
       };
     }
 
@@ -271,7 +381,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed: config.params?.default || 0,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "number"`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
     }
@@ -324,7 +434,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed: !!config.params?.default,
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
       return { isValid: true, parsed: config.params?.default || value };
@@ -340,7 +450,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: config.params?.default || false,
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} "boolean"`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
       };
     }
 
@@ -360,7 +470,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         return {
           isValid: false,
           parsed: config.params?.default || {},
-          message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+          message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(
+            config,
+          )}`,
         };
       }
       return {
@@ -385,13 +497,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return {
         isValid: false,
         parsed: config.params?.default || {},
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
       };
     } catch (e) {
       return {
         isValid: false,
         parsed: config.params?.default || {},
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: Object`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
       };
     }
   },
@@ -403,7 +515,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [],
-      message: `${WIDGET_TYPE_VALIDATION_ERROR} Array`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
     if (value === undefined || value === null) {
       if (config.params && config.params.required) {
@@ -443,15 +555,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [{}],
-      message: `${WIDGET_TYPE_VALIDATION_ERROR} Array of objects`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
-    if (
-      value === undefined ||
-      value === null ||
-      (!isString(value) && !Array.isArray(value))
-    ) {
+    if (value === undefined || value === null) {
       if (config.params?.required) return invalidResponse;
       return { isValid: true, parsed: value };
+    }
+    if (!isString(value) && !Array.isArray(value)) {
+      return invalidResponse;
     }
 
     let parsed = value;
@@ -466,14 +577,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (Array.isArray(parsed)) {
       if (parsed.length === 0) return invalidResponse;
-      parsed.forEach((entry, index) => {
-        if (!isPlainObject(entry)) {
+
+      for (const [index, parsedEntry] of parsed.entries()) {
+        if (!isPlainObject(parsedEntry)) {
           return {
             ...invalidResponse,
             message: `Invalid object at index ${index}`,
           };
         }
-      });
+      }
       return { isValid: true, parsed };
     }
     return invalidResponse;
@@ -486,7 +598,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || moment().toISOString(true),
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ISO 8601 date string`,
+      message: `Value does not match: ${getExpectedType(config)}`,
     };
     if (value === undefined || value === null || !isString(value)) {
       if (!config.params?.required) {
@@ -547,8 +659,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || "",
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: base64 string or data uri or URL`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
     };
+    const base64Regex = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     const base64ImageRegex = /^data:image\/.*;base64/;
     const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
     if (
@@ -569,7 +682,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           parsed: value,
         };
       }
-      if (btoa(atob(value)) === value) {
+      if (base64Regex.test(value) && btoa(atob(value)) === value) {
         return { isValid: true, parsed: `data:image/png;base64,${value}` };
       }
     }
@@ -582,13 +695,10 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     const invalidResponse = {
       isValid: false,
       parsed: config?.params?.default || "",
-      message: `${WIDGET_TYPE_VALIDATION_ERROR}: URL`,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
     };
 
-    if (
-      typeof value === "string" &&
-      (value.match(SAFE_URL_PATTERN) || value.match(DATA_URL_PATTERN))
-    ) {
+    if (typeof value === "string" && getIsSafeURL(value)) {
       return {
         isValid: true,
         parsed: value,

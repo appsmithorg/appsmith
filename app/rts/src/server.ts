@@ -1,10 +1,22 @@
 import http from "http"
 import path from "path"
 import express from "express"
-import SocketIO from "socket.io"
+import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
+import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
+
+const APP_ROOM_PREFIX : string = "app:"
+const PAGE_ROOM_PREFIX : string = "page:"
+const ROOT_NAMESPACE : string = "/"
+const PAGE_EDIT_NAMESPACE : string = "/page/edit"
+
+const EDITORS_EVENT_NAME : string = "collab:online_editors"
+const START_EDIT_EVENT_NAME : string = "collab:start_edit"
+const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
+const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
+
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
 if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
@@ -18,22 +30,12 @@ if (API_BASE_URL == null || API_BASE_URL === "") {
 	process.exit(1)
 }
 
-console.log("Connecting to MongoDB at", MONGODB_URI)
-
-const ROOMS = {}
-
 main()
-
-interface Policy {
-	permission: string
-	users: string[]
-	groups: string[]
-}
 
 function main() {
 	const app = express()
 	const server = new http.Server(app)
-	const io = new SocketIO.Server(server, {
+	const io = new Server(server, {
 		// TODO: Remove this CORS configuration.
 		cors: {
 			origin: "*",
@@ -46,15 +48,31 @@ function main() {
 		res.redirect("/index.html")
 	})
 
-	app.get("/info", (req, res) => {
-		return res.json({ rooms: ROOMS })
-	});
-
-	io.on("connection", (socket) => {
-		socket.join("default_room")
-		onSocketConnected(socket)
+	io.on("connection", (socket: Socket) => {
+		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
+		onAppSocketConnected(socket)
 			.catch((error) => console.error("Error in socket connected handler", error))
 	})
+
+	io.of(PAGE_EDIT_NAMESPACE).on("connection", (socket: Socket) => {
+		subscribeToEditEvents(socket, PAGE_ROOM_PREFIX);
+		onPageSocketConnected(socket, io)
+			.catch((error) => console.error("Error in socket connected handler", error))
+	});
+
+	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
+	});
+	
+	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
+	});
+
+	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
+			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
+		}
+	});
 
 	watchMongoDB(io)
 		.catch((error) => console.error("Error watching MongoDB", error))
@@ -65,83 +83,94 @@ function main() {
 	})
 }
 
-async function onSocketConnected(socket) {
-	const connectionCookie = socket.handshake.headers.cookie
-	console.log("new user connected with cookie", connectionCookie)
+function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
+	// remove this socket from any other app rooms
+	socket.rooms.forEach(roomName => {
+		if(roomName.startsWith(roomPrefix)) {
+			socket.leave(roomName);
+		}
+	});
 
-	socket.on("disconnect", () => {
-		console.log("user disconnected", connectionCookie)
-	})
+	// add this socket to room with application id
+	let roomName = roomPrefix + roomId;
+	socket.join(roomName);
+}
 
-	let isAuthenticated = true
+function subscribeToEditEvents(socket:Socket, appRoomPrefix:string) {
+	socket.on(START_EDIT_EVENT_NAME, (resourceId) => {
+		if(socket.data.email) {  // user is authenticated, join the room now
+			joinEditRoom(socket, resourceId, appRoomPrefix)
+		} else { // user not authenticated yet, save the resource id and room prefix to join later after auth
+			socket.data.pendingRoomId = resourceId
+			socket.data.pendingRoomPrefix = appRoomPrefix
+		}
+	});
 
-	if (connectionCookie != null && connectionCookie !== "") {
-		isAuthenticated = await tryAuth(socket, connectionCookie)
-		socket.emit("authStatus", { isAuthenticated })
-	}
-
-	socket.on("auth", async ({ cookie }) => {
-		isAuthenticated = await tryAuth(socket, cookie)
-		socket.emit("authStatus", { isAuthenticated })
+	socket.on(LEAVE_EDIT_EVENT_NAME, (resourceId) => {
+		let roomName = appRoomPrefix + resourceId;
+		socket.leave(roomName);  // remove this socket from room
 	});
 }
 
-async function tryAuth(socket, cookie) {
-	const sessionCookie = cookie.match(/\bSESSION=\S+/)[0]
-	let response
-	try {
-		response = await axios.request({
-			method: "GET",
-			url: API_BASE_URL + "/applications/new",
-			headers: {
-				Cookie: sessionCookie,
-			},
-		})
-	} catch (error) {
-		if (error.response?.status === 401) {
-			console.info("Couldn't authenticate user with cookie:", sessionCookie)
-		} else {
-			console.error("Error authenticating", error)
-		}
-		return false
+async function onAppSocketConnected(socket:Socket) {
+	let isAuthenticated = await tryAuth(socket)
+	if(isAuthenticated) {
+		socket.join("email:" + socket.data.email)
 	}
+}
 
-	const email = response.data.data.user.email
-	ROOMS[email] = []
-	socket.join("email:" + email)
-	console.log("A socket joined email:" + email)
+async function onPageSocketConnected(socket:Socket, socketIo:Server) {
+	let isAuthenticated = await tryAuth(socket)
+	if(isAuthenticated) {
+		socket.on(MOUSE_POINTER_EVENT_NAME, (event:MousePointerEvent) => {
+			event.user = new AppUser(socket.data.name, socket.data.email)
+			event.socketId = socket.id
+			socketIo.of(PAGE_EDIT_NAMESPACE).to(PAGE_ROOM_PREFIX+event.pageId).emit(MOUSE_POINTER_EVENT_NAME, event);
+		});
+	}
+}
 
-	/*for (const org of response.data.data.organizationApplications) {
-		for (const app of org.applications) {
-			ROOMS[email].push(app.id)
-			console.log("Joining", app.id)
-			socket.join("application:" + app.id)
+async function tryAuth(socket:Socket) {
+	const connectionCookie = socket.handshake.headers.cookie
+	if (connectionCookie != null && connectionCookie !== "") {
+		const sessionCookie = connectionCookie.match(/\bSESSION=\S+/)[0]
+		let response
+		try {
+			response = await axios.request({
+				method: "GET",
+				url: API_BASE_URL + "/applications/new",
+				headers: {
+					Cookie: sessionCookie,
+				},
+			})
+		} catch (error) {
+			if (error.response?.status === 401) {
+				console.info("Couldn't authenticate user with cookie:")
+			} else {
+				console.error("Error authenticating", error)
+			}
+			return false
 		}
-	}//*/
+	
+		const email = response.data.data.user.email
+		const name = response.data.data.user.name ? response.data.data.user.name : email;
+	
+		socket.data.email = email
+		socket.data.name = name
+		
+		if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
+			joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+		}
 
-	socket.on("disconnect", (reason) => {
-		delete ROOMS[email]
-	});
-
-	return true
+		return true
+	}
+	return false
+	
 }
 
 async function watchMongoDB(io) {
 	const client = await MongoClient.connect(MONGODB_URI, { useUnifiedTopology: true });
 	const db = client.db()
-
-	interface CommentThread {
-		applicationId: string
-	}
-
-	interface Comment {
-		threadId: string
-		policies: Policy[]
-		createdAt: string
-		updatedAt: string
-		creationTime: string
-		updationTime: string
-	}
 
 	const threadCollection: mongodb.Collection<CommentThread> = db.collection("commentThread")
 
@@ -151,7 +180,6 @@ async function watchMongoDB(io) {
 			{
 				$unset: [
 					"deletedAt",
-					"deleted",
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
@@ -160,8 +188,13 @@ async function watchMongoDB(io) {
 	);
 
 	commentChangeStream.on("change", async (event: mongodb.ChangeEventCR<Comment>) => {
-		console.log("comment event", event)
+		let eventName = event.operationType + ":" + event.ns.coll
+
 		const comment: Comment = event.fullDocument
+		if(comment.deleted) {
+			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
+		}
+		
 		const { applicationId }: CommentThread = await threadCollection.findOne(
 			{ _id: new ObjectId(comment.threadId) },
 			{ projection: { applicationId: 1 } },
@@ -169,21 +202,20 @@ async function watchMongoDB(io) {
 
 		comment.creationTime = comment.createdAt
 		comment.updationTime = comment.updatedAt
+		
 		delete comment.createdAt
 		delete comment.updatedAt
+		delete comment.deleted
 
 		let target = io
 		let shouldEmit = false
 
 		for (const email of findPolicyEmails(comment.policies, "read:comments")) {
 			shouldEmit = true
-			console.log("Emitting comment to email", email)
 			target = target.to("email:" + email)
 		}
 
 		if (shouldEmit) {
-			const eventName = event.operationType + ":" + event.ns.coll
-			console.log("Emitting", eventName)
 			target.emit(eventName, { comment })
 		}
 	})
@@ -194,7 +226,6 @@ async function watchMongoDB(io) {
 			{
 				$unset: [
 					"deletedAt",
-					"deleted",
 					"_class",
 				].map(f => "fullDocument." + f)
 			},
@@ -203,8 +234,13 @@ async function watchMongoDB(io) {
 	);
 
 	threadChangeStream.on("change", async (event: mongodb.ChangeEventCR) => {
-		console.log("thread event", event)
+		let eventName = event.operationType + ":" + event.ns.coll
+		
 		const thread = event.fullDocument
+		if(thread.deleted) {
+			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
+		}
+		
 		if (thread == null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			console.error("Null document recieved for comment change event", event)
@@ -213,8 +249,11 @@ async function watchMongoDB(io) {
 
 		thread.creationTime = thread.createdAt
 		thread.updationTime = thread.updatedAt
+		
 		delete thread.createdAt
 		delete thread.updatedAt
+		delete thread.deleted
+
 		thread.isViewed = false
 
 		let target = io
@@ -222,13 +261,10 @@ async function watchMongoDB(io) {
 
 		for (const email of findPolicyEmails(thread.policies, "read:commentThreads")) {
 			shouldEmit = true
-			console.log("Emitting thread to email", email)
 			target = target.to("email:" + email)
 		}
 
 		if (shouldEmit) {
-			const eventName = event.operationType + ":" + event.ns.coll
-			console.log("Emitting", eventName)
 			target.emit(eventName, { thread })
 		}
 	})
@@ -247,7 +283,6 @@ async function watchMongoDB(io) {
 	);
 
 	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
-		console.log("notification event", event)
 		const notification = event.fullDocument
 
 		if (notification == null) {
@@ -278,11 +313,30 @@ function findPolicyEmails(policies: Policy[], permission: string): string[] {
 	for (const policy of policies) {
 		if (policy.permission === permission) {
 			for (const email of policy.users) {
-				console.log("Emitting comment to email", email)
 				emails.push(email)
 			}
 			break
 		}
 	}
 	return emails
+}
+
+function sendCurrentUsers(socketIo, roomName:string, roomPrefix:string) {
+	if(roomName.startsWith(roomPrefix)) {
+		socketIo.in(roomName).fetchSockets().then(sockets => {
+			let onlineUsernames = new Set<string>();
+			let onlineUsers = new Array<AppUser>();
+			if(sockets) {
+				sockets.forEach(s => {
+					if(!onlineUsernames.has(s.data.email)) {
+						onlineUsers.push(new AppUser(s.data.name, s.data.email));
+					}
+					onlineUsernames.add(s.data.email);
+				});
+			}
+			let resourceId = roomName.replace(roomPrefix, "") // get resourceId from room name by removing the prefix
+			let response = new CurrentEditorsEvent(resourceId, onlineUsers);
+			socketIo.to(roomName).emit(EDITORS_EVENT_NAME, response);
+		});
+	}
 }
