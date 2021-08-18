@@ -162,7 +162,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               }
 
               propertiesToUpdate.push({
-                propertyPath: "backgroundColor",
+                propertyPath: "buttonColor",
                 propertyValue: "",
               });
 
@@ -194,6 +194,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isTriggerProperty: false,
             hidden: (props: ButtonWidgetProps) =>
               props.buttonStyle !== ButtonStyleTypes.CUSTOM,
+            dependencies: ["buttonStyle"],
           },
           {
             propertyName: "buttonVariant",
