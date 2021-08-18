@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled, { createGlobalStyle, withTheme } from "styled-components";
 import { Popover, Position } from "@blueprintjs/core";
 
@@ -8,6 +8,9 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Theme } from "constants/DefaultTheme";
+import { getCurrentUser } from "../../selectors/usersSelectors";
+import { useSelector } from "react-redux";
+import { bootIntercom } from "utils/helpers";
 
 const HelpPopoverStyle = createGlobalStyle`
   .bp3-popover.bp3-minimal.navbar-help-popover {
@@ -41,7 +44,14 @@ const Trigger = withTheme(({ theme }: { theme: Theme }) => (
 const onOpened = () => {
   AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
 };
+
 function HelpButton() {
+  const user = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    bootIntercom(user);
+  }, [user?.email]);
+
   return (
     <Popover
       minimal

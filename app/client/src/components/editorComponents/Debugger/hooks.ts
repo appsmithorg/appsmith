@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { ENTITY_TYPE, Message } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { AppState } from "reducers";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
@@ -12,10 +12,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
-import {
-  getCurrentWidgetId,
-  getIsPropertyPaneVisible,
-} from "selectors/propertyPaneSelectors";
 import { isWidget, isAction } from "workers/evaluationUtils";
 import {
   onApiEditor,
@@ -24,6 +20,7 @@ import {
   doesEntityHaveErrors,
 } from "./helpers";
 import history from "utils/history";
+import { getSelectedWidget } from "selectors/ui";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { isEqual, keyBy } from "lodash";
 import {
@@ -36,11 +33,11 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
   if (filter) {
-    logs = logs.filter((log: Message) => log.severity === filter);
+    logs = logs.filter((log) => log.severity === filter);
   }
 
   if (query) {
-    logs = logs.filter((log: Message) => {
+    logs = logs.filter((log) => {
       if (log.source?.name)
         return (
           log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
@@ -51,9 +48,9 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   return logs;
 };
 
-export const usePagination = (data: Message[], itemsPerPage = 50) => {
+export const usePagination = (data: Log[], itemsPerPage = 50) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedData, setPaginatedData] = useState<Message[]>([]);
+  const [paginatedData, setPaginatedData] = useState<Log[]>([]);
   const maxPage = Math.ceil(data.length / itemsPerPage);
 
   useEffect(() => {
@@ -94,10 +91,9 @@ export const useSelectedEntity = () => {
     return null;
   });
 
-  const isPropertyPaneVisible = useSelector(getIsPropertyPaneVisible);
-  const selectedWidget = useSelector(getCurrentWidgetId);
+  const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId) && isPropertyPaneVisible) {
+    if (onCanvas(applicationId, currentPageId)) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
@@ -162,9 +158,7 @@ export const useEntityLink = () => {
 
 export const useGetEntityInfo = (name: string) => {
   const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
-  const debuggerErrors: Record<string, Message> = useSelector(
-    getDebuggerErrors,
-  );
+  const debuggerErrors = useSelector(getDebuggerErrors);
   const action = useSelector((state: AppState) =>
     isAction(entity) ? getAction(state, entity.actionId) : undefined,
   );
