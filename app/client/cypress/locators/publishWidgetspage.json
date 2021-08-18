@@ -42,5 +42,6 @@
   "pageInfo": ".bp3-heading",
   "inputGrp": ".bp3-input-group input",
   "datePickerNew": ".t--widget-datepickerwidget2",
-  "tab": ".t--tab-Tab"
+  "tab": ".t--tab-Tab",
+  "publishedAppName": ".current-app-name span"
 }
