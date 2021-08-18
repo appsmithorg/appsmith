@@ -101,6 +101,8 @@ import {
   generateTemplateSuccess,
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
+import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -616,6 +618,7 @@ export function* clonePageSaga(
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
         history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
@@ -927,6 +930,8 @@ export function* generateTemplatePageSaga(
         text: "Successfully generated a page",
         variant: Variant.success,
       });
+
+      yield put(setCrudInfoModalOpen(true));
     }
   } catch (error) {
     yield put(generateTemplateError());

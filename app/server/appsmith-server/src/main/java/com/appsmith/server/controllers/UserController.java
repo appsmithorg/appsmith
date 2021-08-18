@@ -121,8 +121,8 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @GetMapping("/verifyPasswordResetToken")
-    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String email, @RequestParam String token) {
-        return service.verifyPasswordResetToken(email, token)
+    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String token) {
+        return service.verifyPasswordResetToken(token)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 

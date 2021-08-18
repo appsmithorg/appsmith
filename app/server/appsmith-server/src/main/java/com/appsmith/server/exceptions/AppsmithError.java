@@ -68,6 +68,7 @@ public enum AppsmithError {
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null),
+    INVALID_IMPORTED_FILE_ERROR(400, 4039, "Provided file is from different version, please wait till Appsmith gets auto-updated to latest version. This may take a day or two. We are really sorry for the inconvenience caused", AppsmithErrorAction.DEFAULT, null),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
@@ -95,7 +96,8 @@ public enum AppsmithError {
     INVALID_CURL_HEADER(400, 4036, "Invalid header in cURL command: {0}.", AppsmithErrorAction.DEFAULT, null),
     AUTHENTICATION_FAILURE(500, 5010, "Authentication failed with error: {0}", AppsmithErrorAction.DEFAULT, null),
     INSTANCE_REGISTRATION_FAILURE(500, 5011, "Registration for instance failed with error: {0}", AppsmithErrorAction.LOG_EXTERNALLY, null),
-    INVALID_JS_ACTION(400, 4037, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null)
+    TOO_MANY_REQUESTS(429, 4039, "Too many requests received. Please try later.", AppsmithErrorAction.DEFAULT, "Too many requests"),
+    INVALID_JS_ACTION(400, 4040, "Something went wrong while trying to parse this action. Please check the JS object for errors.", AppsmithErrorAction.DEFAULT, null)
     ;
 
     private final Integer httpErrorCode;

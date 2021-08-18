@@ -43,6 +43,7 @@
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
   "apiFormDataBodyType": "x-www-form-urlencoded",
+  "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
   "deafultDropDownWidget": [
@@ -115,6 +116,7 @@
   "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ \"label\": \"string\", \"value\": \"string\" }>\".",
   "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\".",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
+  "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",
   "appUrl": "https://oauth.mocklab.io/userinfo",
   "clientID": "169444434892406",
