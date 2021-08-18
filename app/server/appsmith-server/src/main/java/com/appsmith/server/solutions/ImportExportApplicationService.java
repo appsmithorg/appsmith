@@ -89,10 +89,14 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final CommonConfig commonConfig;
     private final ReleaseNotesService releaseNotesService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
+    private static final String PAGE_DIRECTORY = "/Pages/";
+    private static final String ACTION_DIRECTORY = "/Actions/";
+    private static final String DATASOURCE_DIRECTORY = "/Datasources/";
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
     }
@@ -604,6 +608,7 @@ public class ImportExportApplicationService {
                         return newActionService.save(newAction);
                     })
                     .map(newAction -> {
+                        
                         if (newAction.getUnpublishedAction() != null) {
                             ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                             actionIdMap.put(
@@ -611,6 +616,7 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
+    
                         if (newAction.getPublishedAction() != null) {
                             ActionDTO publishedAction = newAction.getPublishedAction();
                             actionIdMap.put(
@@ -926,10 +932,31 @@ public class ImportExportApplicationService {
             --page2
          */
 
+    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String repoPath) {
+
+        String baseRepoPath = repoPath != null ? repoPath : "./home/repo/" + applicationJson.getExportedApplication().getName();
+        String pageDir = baseRepoPath + "/Pages/";
+        String actionDir = baseRepoPath + "/Actions/";
+        String datasourceDir = baseRepoPath + "/Datasources/";
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
         // Save application
         saveFile(applicationJson.getExportedApplication(), baseRepoPath + "/application.json", gson);
+
+        // Save miscellaneous fields which includes mongoEscapedWidgets, defaultPages
+        File metadataFile = new File(baseRepoPath + "/metadata.json");
+        try {
+            // Create a file if absent
+            FileUtils.write(metadataFile, "", StandardCharsets.UTF_8);
+            FileWriter fileWriter = new FileWriter(metadataFile);
+            gson.toJson(applicationJson.getPublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedLayoutmongoEscapedWidgets(), fileWriter);
+            gson.toJson(applicationJson.getPublishedDefaultPageName(), fileWriter);
+            gson.toJson(applicationJson.getUnpublishedDefaultPageName(), fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+        }
 
         // Save pages
         applicationJson.getPageList().forEach(newPage -> {
@@ -1048,4 +1075,36 @@ public class ImportExportApplicationService {
         return domainList;
     }
 
+    /*
+    public WidgetDSLMetadata getWidgetDslMetadata(JSONObject dsl) {
+
+        // 1. Fetch the children of the current node in the DSL and recursively iterate over them
+        // 2. Delete unwanted children and update dsl
+        WidgetDSLMetadata widgetDSLMetadata = new WidgetDSLMetadata();
+
+        if (dsl.get(FieldName.WIDGET_NAME) == null) {
+            // This isn't a valid widget configuration. No need to traverse this.
+            return widgetDSLMetadata;
+        }
+
+    private List<? extends BaseDomain> readFiles(String directoryPath,
+                                                 Gson gson,
+                                                 List<? extends BaseDomain> domainList,
+                                                 Class<? extends BaseDomain> domainClass) {
+        File directory = new File(directoryPath);
+        if (directory.isDirectory()) {
+            Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
+                try {
+                    domainList.add(gson.fromJson(new JsonReader(new FileReader(file)), domainClass));
+                } catch (FileNotFoundException e) {
+                    log.debug(e.getMessage());
+                }
+            });
+        }
+        return domainList;
+    }
+
+        return dsl;
+    }
+    */
 }
