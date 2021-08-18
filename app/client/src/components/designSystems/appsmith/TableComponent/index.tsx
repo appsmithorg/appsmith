@@ -8,7 +8,7 @@ import { Row } from "react-table";
 import Table from "components/designSystems/appsmith/TableComponent/Table";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isEqual } from "lodash";
-import React, { useEffect, useMemo } from "react";
+import React from "react";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -117,95 +117,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const { columnOrder, hiddenColumns } = useMemo(() => {
-    const order: string[] = [];
-    const hidden: string[] = [];
-    columns.forEach((item) => {
-      if (item.isHidden) {
-        hidden.push(item.accessor);
-      } else {
-        order.push(item.accessor);
-      }
-    });
-    return { columnOrder: order, hiddenColumns: hidden };
-  }, [columns]);
-
-  useEffect(() => {
-    let dragged = -1;
-    const headers = Array.prototype.slice.call(
-      document.querySelectorAll(`#table${widgetId} .draggable-header`),
-    );
-    headers.forEach((header, i) => {
-      header.setAttribute("draggable", true);
-
-      header.ondragstart = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style =
-          "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
-        e.stopPropagation();
-        dragged = i;
-      };
-
-      header.ondrag = (e: React.DragEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-      };
-
-      header.ondragend = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        e.stopPropagation();
-        setTimeout(() => (dragged = -1), 1000);
-      };
-
-      // the dropped header
-      header.ondragover = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragenter = (e: React.DragEvent<HTMLDivElement>) => {
-        if (i !== dragged && dragged !== -1) {
-          if (dragged > i) {
-            header.parentElement.className = "th header-reorder highlight-left";
-          } else if (dragged < i) {
-            header.parentElement.className =
-              "th header-reorder highlight-right";
-          }
-        }
-        e.preventDefault();
-      };
-
-      header.ondragleave = (e: React.DragEvent<HTMLDivElement>) => {
-        header.parentElement.className = "th header-reorder";
-        e.preventDefault();
-      };
-
-      header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
-        header.style = "";
-        header.parentElement.className = "th header-reorder";
-        if (i !== dragged && dragged !== -1) {
-          e.preventDefault();
-          const newColumnOrder = [...columnOrder];
-          // The dragged column
-          const movedColumnName = newColumnOrder.splice(dragged, 1);
-
-          // If the dragged column exists
-          if (movedColumnName && movedColumnName.length === 1) {
-            newColumnOrder.splice(i, 0, movedColumnName[0]);
-          }
-          handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
-        } else {
-          dragged = -1;
-        }
-      };
-    });
-  });
-
   const sortTableColumn = (columnIndex: number, asc: boolean) => {
     if (columnIndex === -1) {
       _sortTableColumn("", asc);
@@ -254,6 +165,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         disableDrag(false);
       }}
       filters={filters}
+      handleReorderColumn={handleReorderColumn}
       handleResizeColumn={handleResizeColumn}
       height={height}
       isLoading={isLoading}
