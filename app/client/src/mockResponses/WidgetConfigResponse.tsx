@@ -1341,8 +1341,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 2.5,
-                      left: 45,
+                      top: 2,
+                      left: 46,
                     },
                     props: {
                       iconName: "arrow-top-right",
