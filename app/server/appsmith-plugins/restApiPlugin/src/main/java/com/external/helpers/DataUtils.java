@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     private static DataUtils dataUtils;
+    final ObjectMapper objectMapper;
 
     public enum MultipartFormDataType {
         TEXT,
@@ -41,6 +42,8 @@ public class DataUtils {
     }
 
     private DataUtils() {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     public static DataUtils getInstance() {
@@ -147,8 +150,7 @@ public class DataUtils {
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
                             bodyBuilder.part(key, property.getValue());
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-                            final ObjectMapper objectMapper = new ObjectMapper();
-                            objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
                             MultipartFormDataDTO multipartFormDataDTO = null;
                             try {
                                 multipartFormDataDTO = objectMapper.readValue(
