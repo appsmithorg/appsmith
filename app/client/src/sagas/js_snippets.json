@@ -18,7 +18,7 @@
                 },
                 {
                     "name": "key",
-                    "type": "STRING"
+                    "type": "TEXT"
                 },
                 {
                     "name": "value",
@@ -129,12 +129,12 @@
                     "name": "your_array"
                 },
                 {
-                    "type": "Obj1",
-                    "name": "VAR"
+                    "type": "VAR",
+                    "name": "Obj1"
                 },
                 {
-                    "type": "Obj2",
-                    "name": "VAR"
+                    "type": "VAR",
+                    "name": "Obj2"
                 }
             ],
             "isTrigger": false,
@@ -142,7 +142,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "/* Query #1 Data: \navengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);",
+                    "code": "/* Query #1 Data: Avengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);",
                     "summary": ""
                 }
             ]
@@ -213,11 +213,11 @@
                 },
                 {
                     "name": "attribute1",
-                    "type": "STRING"
+                    "type": "TEXT"
                 },
                 {
                     "name": "attribute2",
-                    "type": "STRING"
+                    "type": "TEXT"
                 }
             ],
             "summary": "When you want to create an option list from an API or DB Query, which contains an array of object\"s you can use the `map()` function and return the options in an array in the following format:`Array<{ label: string, value: string }>`",
@@ -239,7 +239,7 @@
         "dataType": "function",
         "body": {
             "title": "Updating queries when options are changed from the select widget",
-            "snippet": "if( {{selectBox}}.selectedOptionValue === {{value}}) { {{QueryOne}}.run();} else { {{QueryTwo}}.run();}",
+            "snippet": "{{selectBox}}.selectedOptionValue === {{value}} ? {{QueryOne}}.run() : {{QueryTwo}}.run()",
             "args": [
                 {
                     "type": "string",

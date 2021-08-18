@@ -284,16 +284,18 @@ export function* evaluateSnippetSaga(action: any) {
       });
     } else {
       yield put(
-        errors && errors.length
-          ? setEvaluatedSnippet(JSON.stringify(errors, null, 2))
-          : setEvaluatedSnippet(JSON.stringify(result, null, 2)),
+        setEvaluatedSnippet(
+          result
+            ? JSON.stringify(result, null, 2)
+            : errors && errors.length
+            ? JSON.stringify(errors, null, 2)
+            : "",
+        ),
       );
     }
     Toaster.show({
       text: createMessage(
-        errors && errors.length
-          ? SNIPPET_EXECUTION_FAILED
-          : SNIPPET_EXECUTION_SUCCESS,
+        result ? SNIPPET_EXECUTION_SUCCESS : SNIPPET_EXECUTION_FAILED,
       ),
       variant: errors && errors.length ? Variant.danger : Variant.success,
     });

@@ -296,7 +296,7 @@ class CodeEditor extends Component<Props, State> {
     });
   }
 
-  onFocusTrigger = (cm: CodeMirror.Editor, event: any) => {
+  onFocusTrigger = (cm: CodeMirror.Editor) => {
     if (!cm.state.completionActive) {
       this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
