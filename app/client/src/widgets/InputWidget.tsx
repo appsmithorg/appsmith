@@ -520,7 +520,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
             return emailRegex.test(this.text);
           }
-          else if (this.inputType === "NUMBER") {
+          else if (
+            this.inputType === "NUMBER" 
+            this.inputType === "INTEGER"
+            this.inputType === "CURRENCY"
+            this.inputType === "PHONE_NUMBER"
+          ) {
             if (parsedRegex) {
               return parsedRegex.test(this.text);
             }
@@ -540,7 +545,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             } else {
               return false;
             }
-          } if (parsedRegex) {
+          } 
+          else if (parsedRegex) {
             return parsedRegex.test(this.text)
           } else {
             return true;
