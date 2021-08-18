@@ -172,7 +172,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     ];
   }
 
-  render() {
+  getPageView() {
     const {
       borderRadius,
       boxShadow,
@@ -216,7 +216,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     const { onClick } = this.props;
 
     if (onClick) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {

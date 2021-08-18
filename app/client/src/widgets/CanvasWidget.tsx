@@ -3,7 +3,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
@@ -59,13 +59,7 @@ class CanvasWidget extends ContainerWidget {
     return WidgetFactory.createWidget(childWidgetProps);
   }
 
-  render() {
-    if (
-      this.props.renderMode === RenderModes.CANVAS &&
-      !this.props.dropDisabled
-    ) {
-      return this.renderAsDropTarget();
-    }
+  getPageView() {
     let height = 0;
     const snapRows = getCanvasSnapRows(
       this.props.bottomRow,
@@ -86,6 +80,13 @@ class CanvasWidget extends ContainerWidget {
         {this.renderAsContainerComponent(this.getCanvasProps())}
       </div>
     );
+  }
+
+  getCanvasView() {
+    if (!this.props.dropDisabled) {
+      return this.renderAsDropTarget();
+    }
+    return this.getPageView();
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

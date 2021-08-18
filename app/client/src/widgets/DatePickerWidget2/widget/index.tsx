@@ -232,7 +232,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     };
   }
 
-  render() {
+  getPageView() {
     return (
       <DatePickerComponent
         closeOnSelection={this.props.closeOnSelection}

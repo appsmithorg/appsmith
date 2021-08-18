@@ -291,7 +291,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     this.props.disableDrag(false);
   };
 
-  render() {
+  getPageView() {
     return (
       <>
         {!google.enabled && (

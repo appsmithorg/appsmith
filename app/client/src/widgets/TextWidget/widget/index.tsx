@@ -155,7 +155,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     ];
   }
 
-  render() {
+  getPageView() {
     return (
       <TextComponent
         backgroundColor={this.props.backgroundColor}

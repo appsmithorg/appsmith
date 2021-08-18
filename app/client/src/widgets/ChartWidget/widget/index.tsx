@@ -54,7 +54,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     );
   };
 
-  render() {
+  getPageView() {
     return (
       <Suspense fallback={<Skeleton />}>
         <ChartComponent

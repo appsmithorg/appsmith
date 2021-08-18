@@ -224,7 +224,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     });
   };
 
-  render() {
+  getPageView() {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent

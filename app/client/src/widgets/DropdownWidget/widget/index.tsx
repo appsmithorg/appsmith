@@ -195,7 +195,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     };
   }
 
-  render() {
+  getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
@@ -248,7 +248,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    this.props.executeAction({
+    super.executeAction({
       triggerPropertyName: "onFilterUpdate",
       dynamicString: this.props.onFilterUpdate,
       event: {

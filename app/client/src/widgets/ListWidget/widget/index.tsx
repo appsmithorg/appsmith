@@ -213,7 +213,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         return prev + `{{(currentItem) => { ${next} }}} `;
       }, "");
 
-      this.props.executeAction({
+      super.executeAction({
         dynamicString: modifiedAction,
         event: {
           type: EventType.ON_CLICK,
@@ -634,7 +634,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * view that is rendered in editor
    */
-  render() {
+  getPageView() {
     const children = this.renderChildren();
     const { componentHeight } = getWidgetDimensions(this.props);
     const { perPage, shouldPaginate } = this.shouldPaginate();

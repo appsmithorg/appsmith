@@ -92,7 +92,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       },
     ];
   }
-  render() {
+  getPageView() {
     return (
       <SwitchComponent
         alignWidget={this.props.alignWidget ? this.props.alignWidget : "LEFT"}

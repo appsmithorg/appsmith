@@ -127,7 +127,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     };
   }
 
-  render() {
+  getPageView() {
     return (
       <RadioGroupComponent
         isDisabled={this.props.isDisabled}

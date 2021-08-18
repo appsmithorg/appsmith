@@ -587,7 +587,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (this.props.pageSize !== prevProps.pageSize) {
       if (this.props.onPageSizeChange) {
-        this.props.executeAction({
+        super.executeAction({
           triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
           event: {
@@ -638,7 +638,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.disableDrag(disable);
   };
 
-  render() {
+  getPageView() {
     const {
       pageSize,
       filteredTableData = [],
@@ -770,7 +770,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
 
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: modifiedAction,
         event: {
@@ -785,7 +785,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onItemSelect = (action: string) => {
-    this.props.executeAction({
+    super.executeAction({
       dynamicString: action,
       event: {
         type: EventType.ON_OPTION_CHANGE,

@@ -170,7 +170,7 @@ class ContainerWidget extends BaseWidget<
     );
   }
 
-  render() {
+  getPageView() {
     return this.renderAsContainerComponent(this.props);
   }
 

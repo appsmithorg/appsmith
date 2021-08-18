@@ -3,7 +3,7 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import store from "store";
 
-import BaseWidget, { WidgetProps, withWidgetAPI } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
@@ -38,7 +38,7 @@ export const registerWidget = (
         const ProfiledWidget = Sentry.withProfiler(
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          withWidgetAPI(widget),
+          widget,
         );
         return <ProfiledWidget key={widgetData.widgetId} {...widgetData} />;
       },

@@ -92,7 +92,6 @@ const Info = styled.div`
 function WidgetSidebar(props: IPanelProps) {
   const location = useLocation();
   const cards = useSelector(getWidgetCards);
-  console.log("Cards", { cards });
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const filterCards = (keyword: string) => {

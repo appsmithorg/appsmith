@@ -15,8 +15,6 @@ const dropTargetWidgets = Object.keys(
   ),
 );
 
-console.log({ dropTargetWidgets });
-
 export const usePositionedContainerZIndex = (
   props: PositionedContainerProps,
 ) => {

@@ -21,11 +21,11 @@ import { isEmpty } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useShowPropertyPane } from "./dragResizeHooks";
 import { useWidgetSelection } from "./useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
-import { updateWidget } from "actions/pageActions";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -81,6 +81,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const { updateWidget } = useContext(EditorContext);
 
   const allWidgets = useSelector(getWidgets);
   const getDragCenterSpace = () => {
@@ -237,13 +238,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
 
   const addNewWidget = (newWidget: WidgetDraggingUpdateParams) => {
     const { updateWidgetParams } = newWidget;
-    dispatch(
+    updateWidget &&
       updateWidget(
         updateWidgetParams.operation,
         updateWidgetParams.widgetId,
         updateWidgetParams.payload,
-      ),
-    );
+      );
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {

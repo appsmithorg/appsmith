@@ -7,7 +7,7 @@ import {
 } from "widgets/constants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 export const CONFIG = {
@@ -366,9 +366,7 @@ export const CONFIG = {
 
               return {
                 widgets,
-                message: `${
-                  WidgetFactory.widgetConfigMap.get(widget.type)?.widgetName
-                } widget cannot be used inside the list widget.`,
+                message: `This widget cannot be used inside the list widget.`,
               };
             }
 

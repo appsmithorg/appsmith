@@ -11,14 +11,12 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import WidgetFactory from "utils/WidgetFactory";
-const WidgetTypes = WidgetFactory.widgetTypes;
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
   WidgetState
 > {
-  render() {
+  getPageView() {
     return null;
   }
   static getPropertyPaneConfig() {
@@ -133,7 +131,7 @@ class TabsMigratorWidget extends BaseWidget<
       this.props.batchUpdateWidgetProperty({
         modify: {
           tabsObj: migratedTabsDsl.tabsObj,
-          type: WidgetTypes.TABS_WIDGET,
+          type: "TABS_WIDGET",
           version: 2,
           dynamicPropertyPathList: migratedTabsDsl.dynamicPropertyPathList,
           dynamicBindingPathList: migratedTabsDsl.dynamicBindingPathList,

@@ -165,7 +165,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return {};
   }
 
-  render() {
+  getPageView() {
     const { maxZoomLevel, objectFit } = this.props;
     return (
       <ImageComponent
@@ -188,7 +188,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   onImageClick() {
     if (this.props.onClick) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {

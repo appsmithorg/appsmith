@@ -147,7 +147,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       this.setState({
         isLoading: true,
       });
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
@@ -181,7 +181,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     });
   };
 
-  render() {
+  getPageView() {
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}

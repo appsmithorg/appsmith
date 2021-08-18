@@ -214,7 +214,7 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
-  render() {
+  getPageView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
@@ -252,7 +252,7 @@ class MultiSelectWidget extends BaseWidget<
   onFilterChange = (value: string) => {
     this.props.updateWidgetMetaProperty("filterText", value);
 
-    this.props.executeAction({
+    super.executeAction({
       triggerPropertyName: "onFilterUpdate",
       dynamicString: this.props.onFilterUpdate,
       event: {

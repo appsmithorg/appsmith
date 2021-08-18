@@ -395,7 +395,7 @@ class FilePickerWidget extends BaseWidget<
    */
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onFilesSelected",
         dynamicString: this.props.onFilesSelected,
         event: {
@@ -436,7 +436,7 @@ class FilePickerWidget extends BaseWidget<
     this.state.uppy.close();
   }
 
-  render() {
+  getPageView() {
     return (
       <FilePickerComponent
         files={this.props.selectedFiles || []}

@@ -107,7 +107,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
 
   urlChangedHandler = (url: string) => {
     if (url && this.props.onURLChanged) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onURLChanged",
         dynamicString: this.props.onURLChanged,
         event: {
@@ -132,7 +132,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     });
   };
 
-  render() {
+  getPageView() {
     const {
       borderColor,
       borderOpacity,

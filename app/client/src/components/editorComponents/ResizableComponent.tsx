@@ -6,6 +6,7 @@ import {
   WidgetRowCols,
   WidgetProps,
 } from "widgets/BaseWidget";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { generateClassName } from "utils/generators";
 import { DropTargetContext } from "./DropTargetComponent";
 import {
@@ -18,7 +19,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import Resizable from "resizable";
 import { omit, get, ceil } from "lodash";
@@ -41,7 +42,6 @@ import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { updateWidget } from "actions/pageActions";
 import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
@@ -53,9 +53,9 @@ export type ResizableComponentProps = WidgetProps & {
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
-  const dispatch = useDispatch();
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
+  const { updateWidget } = useContext(EditorContext);
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
@@ -250,9 +250,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     if (newRowCols) {
       persistDropTargetRows &&
         persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
-      dispatch(
-        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols),
-      );
+      updateWidget &&
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
     }
     // Tell the Canvas that we've stopped resizing
     // Put it later in the stack so that other updates like click, are not propagated to the parent container

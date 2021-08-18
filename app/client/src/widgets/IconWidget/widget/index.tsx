@@ -34,7 +34,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
 
   onClick = () => {
     if (this.props.onClick) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
@@ -45,7 +45,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     }
   };
 
-  render() {
+  getPageView() {
     return (
       <IconWrapper>
         <IconComponent

@@ -176,7 +176,7 @@ class TabsWidget extends BaseWidget<
     return {};
   }
 
-  render() {
+  getPageView() {
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),

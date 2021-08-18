@@ -18,6 +18,7 @@ import { executeAction } from "actions/widgetActions";
 import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { RenderModes } from "constants/WidgetConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
   resetChildrenMetaProperty,
@@ -106,29 +107,37 @@ class AppViewer extends Component<
     return (
       <ThemeProvider theme={this.props.lightTheme}>
         <GlobalHotKeys>
-          <ContainerWithComments>
-            <AppComments isInline />
-            <AppViewerBodyContainer>
-              <AppViewerBody hasPages={this.props.pages.length > 1}>
-                {isInitialized && this.state.registered && (
-                  <Switch>
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={getApplicationViewerPageURL()}
-                    />
-                    <SentryRoute
-                      component={AppViewerPageContainer}
-                      exact
-                      path={`${getApplicationViewerPageURL()}/fork`}
-                    />
-                  </Switch>
-                )}
-              </AppViewerBody>
-            </AppViewerBodyContainer>
-          </ContainerWithComments>
-          <AddCommentTourComponent />
-          <CommentShowCaseCarousel />
+          <EditorContext.Provider
+            value={{
+              executeAction: this.props.executeAction,
+              updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
+              resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
+            }}
+          >
+            <ContainerWithComments>
+              <AppComments isInline />
+              <AppViewerBodyContainer>
+                <AppViewerBody hasPages={this.props.pages.length > 1}>
+                  {isInitialized && this.state.registered && (
+                    <Switch>
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={getApplicationViewerPageURL()}
+                      />
+                      <SentryRoute
+                        component={AppViewerPageContainer}
+                        exact
+                        path={`${getApplicationViewerPageURL()}/fork`}
+                      />
+                    </Switch>
+                  )}
+                </AppViewerBody>
+              </AppViewerBodyContainer>
+            </ContainerWithComments>
+            <AddCommentTourComponent />
+            <CommentShowCaseCarousel />
+          </EditorContext.Provider>
         </GlobalHotKeys>
       </ThemeProvider>
     );

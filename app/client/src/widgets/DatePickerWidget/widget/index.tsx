@@ -342,7 +342,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     }
   }
 
-  render() {
+  getPageView() {
     return (
       <DatePickerComponent
         dateFormat={this.props.dateFormat}

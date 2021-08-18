@@ -167,7 +167,7 @@ class FormButtonWidget extends BaseWidget<
       this.setState({
         isLoading: true,
       });
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
@@ -190,7 +190,7 @@ class FormButtonWidget extends BaseWidget<
     }
   };
 
-  render() {
+  getPageView() {
     const disabled =
       this.props.disabledWhenInvalid &&
       "isFormValid" in this.props &&

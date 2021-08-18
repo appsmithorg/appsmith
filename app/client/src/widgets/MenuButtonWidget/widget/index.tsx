@@ -236,7 +236,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
 
   menuItemClickHandler = (onClick: string | undefined) => {
     if (onClick) {
-      this.props.executeAction({
+      super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {
@@ -246,7 +246,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     }
   };
 
-  render() {
+  getPageView() {
     return (
       <MenuButtonComponent
         {...this.props}

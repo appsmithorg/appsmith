@@ -120,7 +120,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
-  render() {
+  getPageView() {
     return (
       <CheckboxComponent
         alignWidget={this.props.alignWidget}
