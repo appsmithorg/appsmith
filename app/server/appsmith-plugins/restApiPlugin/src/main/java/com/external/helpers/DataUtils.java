@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     private static DataUtils dataUtils;
-    final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public enum MultipartFormDataType {
         TEXT,
