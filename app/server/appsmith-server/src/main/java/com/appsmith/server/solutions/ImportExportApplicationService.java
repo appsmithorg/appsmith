@@ -7,9 +7,11 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
@@ -61,10 +63,12 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -84,10 +88,14 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final CommonConfig commonConfig;
     private final ReleaseNotesService releaseNotesService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
+    private static final String PAGE_DIRECTORY = "/Pages/";
+    private static final String ACTION_DIRECTORY = "/Actions/";
+    private static final String DATASOURCE_DIRECTORY = "/Datasources/";
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
     }
@@ -95,7 +103,7 @@ public class ImportExportApplicationService {
     /**
      * This function will give the application resource to rebuild the application in import application flow
      * @param applicationId which needs to be exported
-     * @return
+     * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationJson> exportApplicationById(String applicationId) {
 
@@ -146,21 +154,20 @@ public class ImportExportApplicationService {
                 }
                 
                 if (application.getPublishedPages() != null) {
-                    ApplicationPage publishedDefaultPage = application.getPublishedPages()
+                    application.getPublishedPages()
                         .stream()
                         .filter(ApplicationPage::getIsDefault)
                         .findFirst()
-                        .orElse(null);
-                    
-                    if(publishedDefaultPage != null) {
-                        applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId());
-                    }
+                        .ifPresent(
+                            publishedDefaultPage -> applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId())
+                        );
                 }
 
                 // Refactor application to remove the ids
                 final String organizationId = application.getOrganizationId();
                 application.setOrganizationId(null);
                 application.setPages(null);
+                application.setPublishedPages(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
@@ -271,15 +278,19 @@ public class ImportExportApplicationService {
                             datasource.setId(null);
                             datasource.setOrganizationId(null);
                             datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                            datasource.setStructure(null);
                             if (datasource.getDatasourceConfiguration() != null) {
                                 datasource.getDatasourceConfiguration().setAuthentication(null);
                             }
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
-                        return saveApplicationWithinServerDirectory(applicationJson);
+                        return saveApplicationWithinServerDirectory(applicationJson, "release");
                     })
                     .map(repoPath -> {
-                        ApplicationJson app = reconstructApplicationFromServerDirectory(repoPath);
+                        ApplicationJson app = reconstructApplicationFromServerDirectory(
+                            applicationJson.getExportedApplication().getName(),
+                            "release"
+                        );
                         log.debug(app.getExportedApplication().getName());
                         return applicationJson;
                     });
@@ -288,9 +299,9 @@ public class ImportExportApplicationService {
 
     /**
      * This function will take the Json filepart and saves the application in organization
-     * @param orgId
-     * @param filePart
-     * @return
+     * @param orgId organization to which the application needs to be hydrated
+     * @param filePart Json file which contains the entire application object
+     * @return saved application in DB
      */
     public Mono<Application> extractFileAndSaveApplication(String orgId, Part filePart) {
 
@@ -331,7 +342,7 @@ public class ImportExportApplicationService {
      * This function will save the application to organisation from the application resource
      * @param organizationId organization to which application is going to be stored
      * @param importedDoc application resource which contains necessary information to save the application
-     * @return
+     * @return saved application in DB
      */
     public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
 
@@ -389,27 +400,30 @@ public class ImportExportApplicationService {
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
             )
-            .flatMap(organization -> Flux.fromIterable(importedDatasourceList)
-                //Check for duplicate datasources to avoid duplicates in target organization
-                .flatMap(datasource -> {
-                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                    datasource.setOrganizationId(organization.getId());
-                    
-                    //Check if any decrypted fields are present for datasource
-                    if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
-                        
-                        DecryptedSensitiveFields decryptedFields =
-                            importedDoc.getDecryptedFields().get(datasource.getName());
-                        
-                        updateAuthenticationDTO(datasource, decryptedFields);
-                    }
-                    return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
-                })
-                .map(datasource -> {
-                    datasourceMap.put(datasource.getName(), datasource.getId());
-                    return datasource;
-                })
-                .collectList()
+            .flatMap(organization -> {
+                    assert importedDatasourceList != null : "At least empty datasource list is expected here";
+                    return Flux.fromIterable(importedDatasourceList)
+                        //Check for duplicate datasources to avoid duplicates in target organization
+                        .flatMap(datasource -> {
+                            datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                            datasource.setOrganizationId(organization.getId());
+
+                            //Check if any decrypted fields are present for datasource
+                            if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+
+                                DecryptedSensitiveFields decryptedFields =
+                                    importedDoc.getDecryptedFields().get(datasource.getName());
+
+                                updateAuthenticationDTO(datasource, decryptedFields);
+                            }
+                            return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
+                        })
+                        .map(datasource -> {
+                            datasourceMap.put(datasource.getName(), datasource.getId());
+                            return datasource;
+                        })
+                        .collectList();
+                }
             )
             .then(
                 // 1. Assign the policies for the imported application
@@ -429,6 +443,7 @@ public class ImportExportApplicationService {
                             
                             return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
                                 .map(suffix -> {
+                                    assert importedApplication != null;
                                     importedApplication.setName(importedApplication.getName() + suffix);
                                     return importedApplication;
                                 });
@@ -437,6 +452,7 @@ public class ImportExportApplicationService {
                     )
             )
             .flatMap(savedApp -> {
+                assert importedApplication != null;
                 importedApplication.setId(savedApp.getId());
                 Map<PublishType, List<ApplicationPage>> applicationPages = Map.of(
                     PublishType.UNPUBLISHED, new ArrayList<>(),
@@ -444,6 +460,7 @@ public class ImportExportApplicationService {
                 );
 
                 // Import and save pages, also update the pages related fields in saved application
+                assert importedNewPageList != null;
                 return importAndSavePages(
                     importedNewPageList,
                     importedApplication,
@@ -473,10 +490,10 @@ public class ImportExportApplicationService {
                         publishedAppPage.setId(newPage.getId());
                         pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                     }
-                    if (unpublishedAppPage != null && unpublishedAppPage.getId() != null) {
+                    if (unpublishedAppPage.getId() != null) {
                         applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
                     }
-                    if (publishedAppPage != null && publishedAppPage.getId() != null) {
+                    if (publishedAppPage.getId() != null) {
                         applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
                     }
                     return applicationPages;
@@ -485,9 +502,11 @@ public class ImportExportApplicationService {
                 .thenReturn(applicationPages);
             })
             .flatMap(applicationPageMap -> {
+                assert importedApplication != null;
                 importedApplication.setPages(applicationPageMap.get(PublishType.UNPUBLISHED));
                 importedApplication.setPublishedPages(applicationPageMap.get(PublishType.PUBLISHED));
-                
+
+                assert importedNewActionList != null;
                 importedNewActionList.forEach(newAction -> {
                     NewPage parentPage = new NewPage();
                     if (newAction.getUnpublishedAction() != null && newAction.getUnpublishedAction().getName() != null) {
@@ -535,6 +554,7 @@ public class ImportExportApplicationService {
             })
             .flatMap(ignored -> {
                 //Map layoutOnLoadActions ids with relevant actions
+                assert importedNewPageList != null;
                 importedNewPageList.forEach(page -> mapActionIdWithPageLayout(page, actionIdMap));
                 return Flux.fromIterable(importedNewPageList)
                     .flatMap(newPageService::save)
@@ -552,7 +572,10 @@ public class ImportExportApplicationService {
         if (sourceEntity != null) {
             return sequenceService
                 .getNextAsSuffix(sourceEntity.getClass(), " for organization with _id : " + orgId)
-                .flatMap(sequenceNumber -> Mono.just(" #" + sequenceNumber.trim()));
+                .map(sequenceNumber -> {
+                    // sequence number will be empty if no duplicate is found
+                    return sequenceNumber.isEmpty() ? " #1" : " #" + sequenceNumber.trim();
+                });
         }
         return Mono.just("");
     }
@@ -776,45 +799,36 @@ public class ImportExportApplicationService {
         return null;
     }
 
-    public Mono<String> prettifiedJson(Object sourceEntity) {
+    /**
+     * This method will save the complete application in the local repo directory. The repoPath will contain the actual
+     * path of branch as we will be using worktree for the requirement of multiple branches checked out at the same time
+     * @param applicationJson application reference object from which entire application can be rehydrated
+     * @param branchName name of the branch for the current application
+     * @return repo path where the application is stored
+     */
+    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String branchName) {
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-        String prettifiedJson = gson.toJson(sourceEntity);
-        if (prettifiedJson.isEmpty()) {
-            prettifiedJson = sourceEntity.toString();
-        }
-        return Mono.just(prettifiedJson);
-    }
+        String baseRepoPath = commonConfig.gitRepoPath + "/" + applicationJson.getExportedApplication().getName() + "/" + branchName;
 
-    private Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson) {
-        return saveApplicationWithinServerDirectory(applicationJson, null);
-    }
+        /*
+        Application will be stored in the following structure :
+        repo
+        --ApplicationName
+        ----Datasource
+            --datasource1Name
+            --datasource2Name
+        ----Actions (Only requirement here is the filename should be unique)
+            --action1_page1
+            --action2_page2
+        ----Pages
+            --page1
+            --page2
+         */
 
-    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String repoPath) {
-
-        String baseRepoPath = repoPath != null ? repoPath : "./home/repo/" + applicationJson.getExportedApplication().getName();
-        String pageDir = baseRepoPath + "/Pages/";
-        String actionDir = baseRepoPath + "/Actions/";
-        String datasourceDir = baseRepoPath + "/Datasources/";
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
 
         // Save application
         saveFile(applicationJson.getExportedApplication(), baseRepoPath + "/application.json", gson);
-
-        // Save miscellaneous fields which includes mongoEscapedWidgets, defaultPages
-        File metadataFile = new File(baseRepoPath + "/metadata.json");
-        try {
-            // Create a file if absent
-            FileUtils.write(metadataFile, "", StandardCharsets.UTF_8);
-            FileWriter fileWriter = new FileWriter(metadataFile);
-            gson.toJson(applicationJson.getPublishedLayoutmongoEscapedWidgets(), fileWriter);
-            gson.toJson(applicationJson.getUnpublishedLayoutmongoEscapedWidgets(), fileWriter);
-            gson.toJson(applicationJson.getPublishedDefaultPageName(), fileWriter);
-            gson.toJson(applicationJson.getUnpublishedDefaultPageName(), fileWriter);
-            fileWriter.close();
-        } catch (IOException e) {
-            log.debug(e.getMessage());
-        }
 
         // Save pages
         applicationJson.getPageList().forEach(newPage -> {
@@ -824,24 +838,21 @@ public class ImportExportApplicationService {
             } else if (newPage.getPublishedPage() != null) {
                 pageName = newPage.getPublishedPage().getName();
             }
-            saveFile(newPage, pageDir + pageName + ".json", gson);
+            saveFile(newPage, baseRepoPath + PAGE_DIRECTORY + pageName + ".json", gson);
         });
 
         // Save actions
         applicationJson.getActionList().forEach(newAction -> {
-            String actionName = "";
-            if (newAction.getUnpublishedAction() != null) {
-                actionName = newAction.getUnpublishedAction().getName();
-            } else if (newAction.getPublishedAction() != null) {
-                actionName = newAction.getPublishedAction().getName();
-            }
-            saveFile(newAction, actionDir + actionName + ".json", gson);
+            String prefix = newAction.getUnpublishedAction() != null ?
+                newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
+                : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
+            saveFile(newAction, baseRepoPath + ACTION_DIRECTORY + prefix + ".json", gson);
         });
 
         // Save datasources ref
-        applicationJson.getDatasourceList().forEach(datasource -> {
-            saveFile(datasource, datasourceDir + datasource.getName() + ".json", gson);
-        });
+        applicationJson.getDatasourceList().forEach(
+            datasource -> saveFile(datasource, baseRepoPath + DATASOURCE_DIRECTORY + datasource.getName() + ".json", gson)
+        );
 
         return Mono.just(baseRepoPath);
     }
@@ -861,22 +872,73 @@ public class ImportExportApplicationService {
         return false;
     }
 
-    public ApplicationJson reconstructApplicationFromServerDirectory(String repoPath) {
+    /**
+     * This will reconstruct the application from the repo file
+     * @param applicationName path to the actual application
+     * @param branchName for which the application needs to be rehydrate
+     * @return application reference from which entire application can be rehydrated
+     */
+    public ApplicationJson reconstructApplicationFromServerDirectory(String applicationName, String branchName) {
+
+        String baseRepo = commonConfig.getGitRepoPath() + "/" + applicationName + "/" + branchName;
         ApplicationJson applicationJson = new ApplicationJson();
-        Gson gson = new Gson();
-        applicationJson.setExportedApplication((Application) readFile(repoPath + "/application.json", gson));
+
+        Gson gson = new GsonBuilder()
+            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+            .create();
+
+        // Extract application data from the json
+        applicationJson.setExportedApplication(
+            (Application) readFile( baseRepo + "/application.json", gson, Application.class)
+        );
+
+        // Extract actions
+        List<NewAction> importedActions = new ArrayList<>();
+        applicationJson.setActionList(
+            (List<NewAction>) readFiles(baseRepo + ACTION_DIRECTORY, gson, importedActions, NewAction.class)
+        );
+
+        // Extract pages
+        List<NewPage> importedPages = new ArrayList<>();
+        applicationJson.setPageList(
+            (List<NewPage>) readFiles(baseRepo + PAGE_DIRECTORY, gson, importedPages, NewPage.class)
+        );
+
+        // Extract datasources
+        List<Datasource> importedDatasources = new ArrayList<>();
+        applicationJson.setDatasourceList(
+            (List<Datasource>) readFiles(baseRepo + DATASOURCE_DIRECTORY, gson, importedDatasources, Datasource.class)
+        );
+
         return applicationJson;
     }
 
-    private BaseDomain readFile(String filePath, Gson gson) {
+    private BaseDomain readFile(String filePath, Gson gson, Class<? extends BaseDomain> domain) {
         JsonReader reader = null;
         try {
             reader = new JsonReader(new FileReader(filePath));
         } catch (FileNotFoundException e) {
             log.debug(e.getMessage());
         }
-        BaseDomain data = gson.fromJson(reader, BaseDomain.class);
-        return data;
+        assert reader != null;
+        return gson.fromJson(reader, domain);
+    }
+
+    private List<? extends BaseDomain> readFiles(String directoryPath,
+                                                 Gson gson,
+                                                 List<? extends BaseDomain> domainList,
+                                                 Class<? extends BaseDomain> domainClass) {
+        File directory = new File(directoryPath);
+        if (directory.isDirectory()) {
+            Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
+                try {
+                    domainList.add(gson.fromJson(new JsonReader(new FileReader(file)), domainClass));
+                } catch (FileNotFoundException e) {
+                    log.debug(e.getMessage());
+                }
+            });
+        }
+        return domainList;
     }
 
     /*
