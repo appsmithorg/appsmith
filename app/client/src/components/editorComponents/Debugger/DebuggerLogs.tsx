@@ -94,8 +94,8 @@ function DebbuggerLogs(props: Props) {
             placeholderText={createMessage(NO_LOGS)}
           />
         ) : (
-          paginatedData.map((log, index: number) => {
-            const logItemProps = getLogItemProps(log);
+          paginatedData.map((e, index: number) => {
+            const logItemProps = getLogItemProps(e);
 
             return (
               <LogItem
