@@ -127,6 +127,16 @@ function* copyJSActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<JSAction>;
     delete copyJSAction.id;
+    if (copyJSAction.actions && copyJSAction.actions.length > 0) {
+      const newJSSubActions: any = [];
+      copyJSAction.actions.forEach((action) => {
+        const jsSubAction = JSON.parse(JSON.stringify(action));
+        delete jsSubAction.id;
+        delete jsSubAction.collectionId;
+        newJSSubActions.push(jsSubAction);
+      });
+      copyJSAction.actions = newJSSubActions;
+    }
     const response = yield JSActionAPI.createJSAction(copyJSAction);
 
     const isValidResponse = yield validateResponse(response);

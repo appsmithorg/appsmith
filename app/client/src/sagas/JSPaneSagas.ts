@@ -46,7 +46,6 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
@@ -92,7 +91,6 @@ function* handleJSActionCreatedSaga(actionPayload: ReduxAction<JSAction>) {
 function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   const body = actionPayload.body;
   const jsActionId = getJSActionIdFromURL();
-  const pageId = yield select(getCurrentPageId);
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSAction = yield select(getJSAction, jsActionId);
