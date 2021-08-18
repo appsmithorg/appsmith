@@ -458,6 +458,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                         actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
                         actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
                         actionDTO.setPageId(actionCollectionDTO.getPageId());
+                        actionDTO.setPluginType(actionCollectionDTO.getPluginType());
+                        actionDTO.setPluginId(actionCollectionDTO.getPluginId());
                         // this is a new action, we need to create one
                         return layoutActionService.createAction(actionDTO);
                     } else {
