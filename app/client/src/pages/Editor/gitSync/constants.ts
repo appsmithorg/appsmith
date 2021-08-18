@@ -38,3 +38,8 @@ export const MENU_ITEMS: TabProp[] = [
     title: createMessage(SETTINGS),
   },
 ];
+
+export const AuthTypeOptions = [
+  { label: "SSH", value: "SSH" },
+  { label: "HTTPS", value: "HTTPS" },
+];

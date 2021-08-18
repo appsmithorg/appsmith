@@ -32,7 +32,7 @@ const CheckContainer = styled.div`
 `;
 
 const UrlContainer = styled.div`
-  width: 30vw;
+  width: 70%;
   display: flex;
   align-items: center;
 `;

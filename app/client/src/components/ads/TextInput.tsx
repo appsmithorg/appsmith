@@ -148,7 +148,7 @@ const StyledInput = styled((props) => {
       : null};
 `;
 
-export const InputWrapper = styled.div`
+const InputWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -165,7 +165,6 @@ const RightSideContainer = styled.div`
   right: 0;
   bottom: 0;
   top: 0;
-  display: flex;
 `;
 
 const ErrorWrapper = styled.div`

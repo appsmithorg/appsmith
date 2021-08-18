@@ -7,6 +7,7 @@ import Dropdown, {
 import { ReactComponent as ChevronDown } from "assets/icons/ads/chevron-down.svg";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
+import { AuthTypeOptions } from "../constants";
 
 const SelectedValueNodeContainer = styled.div`
   color: ${Colors.CRUSTA};
@@ -43,12 +44,8 @@ function SelectAuthType() {
         SelectedValueNode={SelectedValueNode}
         bgColor={"transparent"}
         className="auth-type-dropdown"
-        options={[
-          { label: "SSH", value: "SSh" },
-          { label: "HTTPS", value: "HTTPS" },
-        ]}
-        // renderOption={({ option }: any) => <div>{option.label}</div>}
-        selected={{ label: "SSH", value: "SSh" }}
+        options={AuthTypeOptions}
+        selected={AuthTypeOptions[0]}
         showDropIcon={false}
         showLabelOnly
       />
