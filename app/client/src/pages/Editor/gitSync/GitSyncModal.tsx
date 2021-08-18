@@ -12,6 +12,8 @@ import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
+const Body = styled.div``;
+
 const Container = styled.div`
   height: 70vh;
   width: 100%;
