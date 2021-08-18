@@ -20,6 +20,8 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
+  `Default Text length must be less than Max Chars allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -349,11 +351,15 @@ export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const VALUE_IS_INVALID = (propertyPath: string) =>
+  `The value at ${propertyPath} is invalid`;
 export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
+export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
+  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
@@ -388,6 +394,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+
+export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+  "Hurray! Your application is ready to use.";
+export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
+export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
+  "Search through your data in the table and update it using the form.";
+
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
