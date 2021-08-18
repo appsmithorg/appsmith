@@ -129,6 +129,7 @@
     "react-spring": "^8.0.27",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
+    "react-timer-hook": "^3.0.4",
     "react-toastify": "^5.5.0",
     "react-transition-group": "^4.3.0",
     "react-use-gesture": "^7.0.4",

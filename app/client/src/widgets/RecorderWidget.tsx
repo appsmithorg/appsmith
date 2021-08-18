@@ -4,10 +4,7 @@ import * as Sentry from "@sentry/react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import withMeta, { WithMeta } from "./MetaHOC";
 import RecorderComponent from "components/designSystems/appsmith/RecorderComponent";
 
@@ -16,6 +13,8 @@ export interface RecorderWidgetProps extends WidgetProps, WithMeta {
   iconColor: string;
   isDisabled: boolean;
   isValid: boolean;
+  onRecordingStart?: string;
+  onRecordingComplete?: string;
 }
 
 class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
@@ -98,6 +97,32 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
     };
   }
 
+  handleRecordingStart = () => {
+    if (this.props.onRecordingStart) {
+      super.executeAction({
+        triggerPropertyName: "onRecordingStart",
+        dynamicString: this.props.onRecordingStart,
+        event: {
+          type: EventType.ON_RECORDING_START,
+        },
+      });
+    }
+  };
+
+  handleRecordingComplete = (blobUrl?: string, blob?: Blob) => {
+    if (!blobUrl) {
+      this.props.updateWidgetMetaProperty("value", undefined);
+      return;
+    }
+    this.props.updateWidgetMetaProperty("value", blob, {
+      triggerPropertyName: "onRecordingComplete",
+      dynamicString: this.props.onRecordingComplete,
+      event: {
+        type: EventType.ON_RECORDING_COMPLETE,
+      },
+    });
+  };
+
   getPageView() {
     const {
       backgroundColor,
@@ -118,6 +143,8 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
         isDisabled={isDisabled}
+        onRecordingComplete={this.handleRecordingComplete}
+        onRecordingStart={this.handleRecordingStart}
         widgetId={widgetId}
         width={(rightColumn - leftColumn) * parentColumnSpace}
       />

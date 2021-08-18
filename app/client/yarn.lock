@@ -14920,6 +14920,11 @@ react-textarea-autosize@^7.1.0:
     "@babel/runtime" "^7.1.2"
     prop-types "^15.6.0"
 
+react-timer-hook@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.4.tgz#13089b62cc81c6dd0d2bd904cd54add668089c4b"
+  integrity sha512-3Ifg00REsB7871rkpiLZEVTsagaOVvcBKF33Qu9eqJ3tWjYxej3hr2Fo8tep9KP0eXBfE5k60C/M+Tv4/I/ZzA==
+
 react-toastify@^5.5.0:
   version "5.5.0"
   resolved "https://registry.npmjs.org/react-toastify/-/react-toastify-5.5.0.tgz"
