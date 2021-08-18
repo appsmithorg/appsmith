@@ -60,7 +60,6 @@ function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
-
   const widgets = useSelector(getCanvasWidgetDsl);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
@@ -119,7 +118,7 @@ function WidgetsEditor() {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+    node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
   const onDragStart = (e: any) => {
     e.preventDefault();
