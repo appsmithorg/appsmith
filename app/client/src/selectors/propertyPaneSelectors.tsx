@@ -11,6 +11,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import { generateClassName } from "utils/generators";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -163,6 +164,9 @@ export const getIsPropertyPaneVisible = createSelector(
     lastSelectedWidget,
     widgets,
   ) => {
+    const el = document.getElementsByClassName(
+      generateClassName(pane.widgetId),
+    )[0];
     const isWidgetSelected = pane.widgetId
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
@@ -172,6 +176,7 @@ export const getIsPropertyPaneVisible = createSelector(
       !multipleWidgetsSelected &&
       !isResizingorDragging &&
       pane.isVisible &&
+      el &&
       pane.widgetId
     );
   },
