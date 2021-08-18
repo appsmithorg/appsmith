@@ -41,6 +41,9 @@ public class CommonConfig {
     @Value("${signup.allowed-domains}")
     private String allowedDomainsString;
 
+    @Value("${appsmith.git_services.repo:./container-volumes/git/repo}")
+    public String gitRepoPath;
+
     // Is this instance hosted on Appsmith cloud?
     // isCloudHosting should be true only for our cloud instance
     @Value("${is.cloud-hosting:false}")
