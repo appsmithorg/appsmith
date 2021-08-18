@@ -77,8 +77,22 @@ function Pin({
   unread?: boolean;
   onClick: () => void;
 }) {
+  const [{ isDragging }, dragRef] = useDrag({
+    item: {
+      type: DraggableCommentsItems.INLINE_COMMENT_PIN,
+      commentThreadId,
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  // TODO: remove this logging
+  useEffect(() => {
+    console.log({ isDragging, commentThreadId });
+  }, [isDragging]);
   return (
-    <StyledPinContainer onClick={onClick} unread={unread}>
+    <StyledPinContainer onClick={onClick} ref={dragRef} unread={unread}>
       <Icon
         className={`comment-thread-pin-${commentThreadId} t--inline-comment-pin-trigger-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
@@ -151,20 +165,6 @@ function InlineCommentPin({
   commentThreadId: string;
   focused: boolean;
 }) {
-  const [{ isDragging }, drag] = useDrag({
-    item: {
-      type: DraggableCommentsItems.INLINE_COMMENT_PIN,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  // TODO: remove this logging
-  useEffect(() => {
-    console.log({ isDragging, commentThreadId });
-  }, [isDragging]);
-
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { left, leftPercent, top, topPercent } = get(
     commentThread,
@@ -222,7 +222,6 @@ function InlineCommentPin({
         e.stopPropagation();
       }}
       positionAbsolutely={positionAbsolutely}
-      ref={drag}
       top={top}
       topPercent={topPercent}
       xOffset={-1}
