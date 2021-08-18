@@ -11,15 +11,14 @@ describe("API Panel Test Functionality", function() {
     cy.CreateAPI("PageLoadApi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.WaitAutoSave();
-    cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=executeOnLoad]").click({ force: true });
-
-    cy.wait("@setExecuteOnLoad");
-
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{PageLoadApi.data.data");
+    cy.testJsontext("tabledata", "{{PageLoadApi.data.data}}");
 
     cy.wait("@updateLayout");
+
+    cy.get(commonlocators.toastMsg).contains(
+      `[PageLoadApi] will be executed automatically on page load`,
+    );
 
     cy.reload();
     cy.wait("@postExecute").should(
@@ -40,7 +39,7 @@ describe("API Panel Test Functionality", function() {
     cy.wait("@setExecuteOnLoad");
 
     cy.SearchEntityandOpen("Table1");
-    cy.testJsontext("tabledata", "{{PageLoadApi2.data.data");
+    cy.testJsontext("tabledata", "{{PageLoadApi2.data.data}}");
 
     cy.wait("@updateLayout");
 

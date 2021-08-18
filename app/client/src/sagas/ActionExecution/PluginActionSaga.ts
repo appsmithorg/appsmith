@@ -496,7 +496,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = `The action "${pageAction.name}" has failed.`;
+  const error = `The action "${pageAction.name}" has failed.`;
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -506,17 +506,9 @@ function* executePageLoadAction(pageAction: PageAction) {
     isError = executePluginActionResponse.isError;
   } catch (e) {
     log.error(e);
-    error = e.message;
   }
 
   if (isError) {
-    // Get an appropriate error message
-    if (payload.body) {
-      error = !isString(payload.body)
-        ? JSON.stringify(payload.body)
-        : (error += `\nERROR: "${payload.body}"`);
-    }
-
     AppsmithConsole.addError({
       id: pageAction.id,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
@@ -534,9 +526,7 @@ function* executePageLoadAction(pageAction: PageAction) {
       executePluginActionError({
         actionId: pageAction.id,
         isPageLoad: true,
-        error: _.get(payload, "responseMeta.error", {
-          error,
-        }),
+        error: { message: error },
         data: payload,
       }),
     );
