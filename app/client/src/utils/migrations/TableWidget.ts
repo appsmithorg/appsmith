@@ -131,6 +131,7 @@ export const tableWidgetPropertyPaneMigrations = (
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
           buttonStyle: "rgb(3, 179, 101)",

@@ -83,12 +83,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      label: "",
+      label: "Label",
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      maxChars: 255,
+      iconAlign: "left",
+      autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
+      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },
@@ -203,6 +207,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "step",
           computedValue:
@@ -219,6 +224,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "task",
           computedValue:
@@ -235,6 +241,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "status",
           computedValue:
@@ -251,6 +258,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "action",
           onClick:

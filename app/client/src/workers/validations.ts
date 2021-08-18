@@ -11,11 +11,9 @@ import _, {
   isObject,
   isPlainObject,
   isString,
-  startsWith,
   toString,
   uniq,
 } from "lodash";
-import { WidgetProps } from "../widgets/BaseWidget";
 
 import moment from "moment";
 import { ValidationConfig } from "constants/PropertyControlConstants";
@@ -175,7 +173,12 @@ function validateArray(
       _messages.push(`Array must be unique. Duplicate values found`);
     }
   }
-  return { isValid: _isValid, parsed: value, message: _messages.join(" ") };
+
+  return {
+    isValid: _isValid,
+    parsed: _isValid ? value : config.params?.default || [],
+    message: _messages.join(" "),
+  };
 }
 
 export const validate = (
@@ -574,14 +577,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     if (Array.isArray(parsed)) {
       if (parsed.length === 0) return invalidResponse;
-      parsed.forEach((entry, index) => {
-        if (!isPlainObject(entry)) {
+
+      for (const [index, parsedEntry] of parsed.entries()) {
+        if (!isPlainObject(parsedEntry)) {
           return {
             ...invalidResponse,
             message: `Invalid object at index ${index}`,
           };
         }
-      });
+      }
       return { isValid: true, parsed };
     }
     return invalidResponse;
@@ -657,6 +661,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || "",
       message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
     };
+    const base64Regex = /^(?:[A-Za-z\d+\/]{4})*?(?:[A-Za-z\d+\/]{2}(?:==)?|[A-Za-z\d+\/]{3}=?)?$/;
     const base64ImageRegex = /^data:image\/.*;base64/;
     const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
     if (
@@ -677,7 +682,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           parsed: value,
         };
       }
-      if (btoa(atob(value)) === value) {
+      if (base64Regex.test(value) && btoa(atob(value)) === value) {
         return { isValid: true, parsed: `data:image/png;base64,${value}` };
       }
     }
