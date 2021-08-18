@@ -22,7 +22,7 @@ import {
 } from "actions/metaActions";
 
 export type EditorContextType = {
-  executeTrigger?: (triggerPayload: ExecuteTriggerPayload) => void;
+  executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -59,7 +59,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     children,
     deleteWidgetProperty,
     disableDrag,
-    executeTrigger,
+    executeAction,
     resetChildrenMetaProperty,
     updateWidget,
     updateWidgetMetaProperty,
@@ -70,7 +70,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
   // unnecessary renders
   const contextValue = useMemo(
     () => ({
-      executeAction: executeTrigger,
+      executeAction,
       updateWidget,
       updateWidgetProperty,
       updateWidgetMetaProperty,
@@ -80,7 +80,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       batchUpdateWidgetProperty,
     }),
     [
-      executeTrigger,
+      executeAction,
       updateWidget,
       updateWidgetProperty,
       updateWidgetMetaProperty,
@@ -110,7 +110,7 @@ const mapDispatchToProps = {
       RenderModes.CANVAS,
     ),
 
-  executeTrigger,
+  executeAction: executeTrigger,
   updateWidget,
   updateWidgetMetaProperty,
   resetChildrenMetaProperty,

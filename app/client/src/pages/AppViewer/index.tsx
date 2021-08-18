@@ -109,7 +109,7 @@ class AppViewer extends Component<
         <GlobalHotKeys>
           <EditorContext.Provider
             value={{
-              executeTrigger: this.props.executeAction,
+              executeAction: this.props.executeAction,
               updateWidgetMetaProperty: this.props.updateWidgetMetaProperty,
               resetChildrenMetaProperty: this.props.resetChildrenMetaProperty,
             }}
