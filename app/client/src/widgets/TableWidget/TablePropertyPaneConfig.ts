@@ -858,15 +858,15 @@ export default [
         isTriggerProperty: false,
         options: [
           {
-            label: "SHORT",
+            label: "Short",
             value: "SHORT",
           },
           {
-            label: "DEFAULT",
+            label: "Default",
             value: "DEFAULT",
           },
           {
-            label: "TALL",
+            label: "Tall",
             value: "TALL",
           },
         ],
