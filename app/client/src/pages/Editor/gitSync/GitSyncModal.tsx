@@ -38,6 +38,7 @@ function GitSyncModal() {
       canOutsideClickClose
       className="git-sync-modal"
       isOpen={isModalOpen}
+      maxWidth={"900px"}
       onClose={handleClose}
       width={"60vw"}
     >
