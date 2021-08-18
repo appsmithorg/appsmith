@@ -104,7 +104,6 @@ interface TableHeaderProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   tableSizes: TableSizes;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
@@ -121,9 +120,7 @@ function TableHeader(props: TableHeaderProps) {
           value={props.searchKey}
         />
       )}
-      {(props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.isVisibleCompactMode) && (
+      {(props.isVisibleFilters || props.isVisibleDownload) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
           {props.isVisibleFilters && (
             <TableFilters

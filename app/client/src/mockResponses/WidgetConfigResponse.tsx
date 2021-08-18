@@ -314,7 +314,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleSearch: true,
       isVisibleFilters: true,
       isVisibleDownload: true,
-      isVisibleCompactMode: true,
       isVisiblePagination: true,
       version: 1,
     },

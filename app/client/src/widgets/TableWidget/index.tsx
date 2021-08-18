@@ -634,7 +634,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const {
       pageSize,
       filteredTableData = [],
-      isVisibleCompactMode,
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
@@ -644,7 +643,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isVisibleHeaderOptions =
-      isVisibleCompactMode ||
       isVisibleDownload ||
       isVisibleFilters ||
       isVisiblePagination ||
@@ -664,7 +662,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
-          isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}

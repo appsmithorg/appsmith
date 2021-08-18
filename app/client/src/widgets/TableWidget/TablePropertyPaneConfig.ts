@@ -851,7 +851,7 @@ export default [
       {
         propertyName: "compactMode",
         helpText: "Selects row height",
-        label: "Select Compact mode",
+        label: "Select Row Height",
         controlType: "DROP_DOWN",
         defaultValue: "DEFAULT",
         isBindProperty: true,
@@ -983,14 +983,6 @@ export default [
         helpText: "Toggle visibility of the data download",
         propertyName: "isVisibleDownload",
         label: "Download",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the row height",
-        propertyName: "isVisibleCompactMode",
-        label: "Row Height",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

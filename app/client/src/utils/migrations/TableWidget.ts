@@ -241,7 +241,6 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
         child.isVisibleSearch = true;
         child.isVisibleFilters = true;
         child.isVisibleDownload = true;
-        child.isVisibleCompactMode = true;
         child.isVisiblePagination = true;
       }
     } else if (child.children && child.children.length > 0) {
