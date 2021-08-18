@@ -238,7 +238,7 @@ public class ImportExportApplicationService {
                             .findByApplicationId(applicationId, AclPermission.MANAGE_ACTIONS, null);
                     })
                     .collectList()
-                    .flatMap(newActionList -> {
+                    .map(newActionList -> {
                         Set<String> concernedDBNames = new HashSet<>();
                         newActionList.forEach(newAction -> {
                             newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -284,14 +284,6 @@ public class ImportExportApplicationService {
                             }
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
-                        return saveApplicationWithinServerDirectory(applicationJson, "release");
-                    })
-                    .map(repoPath -> {
-                        ApplicationJson app = reconstructApplicationFromServerDirectory(
-                            applicationJson.getExportedApplication().getName(),
-                            "release"
-                        );
-                        log.debug(app.getExportedApplication().getName());
                         return applicationJson;
                     });
                 });
