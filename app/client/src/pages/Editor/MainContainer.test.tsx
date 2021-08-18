@@ -5,7 +5,6 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { act, render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
-import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import store from "store";
@@ -15,18 +14,14 @@ import {
   MockApplication,
   mockGetCanvasWidgetDsl,
   syntheticTestMouseEvent,
-  useMockDsl,
 } from "test/testCommon";
 import lodash from "lodash";
 import { getAbsolutePixels } from "utils/helpers";
+import { UpdatedMainContainer } from "test/testMockedWidgets";
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
-  function UpdatedMainContainer({ dsl }: any) {
-    useMockDsl(dsl);
-    return <MainContainer />;
-  }
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {

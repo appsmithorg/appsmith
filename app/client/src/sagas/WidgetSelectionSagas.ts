@@ -1,4 +1,8 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import {
   DroppableWidgets,
   WidgetTypes,
@@ -121,7 +125,7 @@ const isChildOfDropDisabledCanvas = (
   const widget = canvasWidgets[widgetId];
   const parentId = widget.parentId || MAIN_CONTAINER_WIDGET_ID;
   const parent = canvasWidgets[parentId];
-  return !!parent.dropDisabled;
+  return !!parent?.dropDisabled;
 };
 
 function* getAllSelectableChildren() {
@@ -160,103 +164,155 @@ function* getAllSelectableChildren() {
 }
 
 function* selectAllWidgetsInCanvasSaga() {
-  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const allSelectableChildren: string[] = yield call(getAllSelectableChildren);
-  if (allSelectableChildren && allSelectableChildren.length) {
-    yield put(selectMultipleWidgetsAction(allSelectableChildren));
-    const isAnyModalSelected = allSelectableChildren.some((each) => {
-      return (
-        each &&
-        canvasWidgets[each] &&
-        canvasWidgets[each].type === WidgetTypes.MODAL_WIDGET
-      );
-    });
-    if (isAnyModalSelected) {
-      Toaster.show({
-        text: createMessage(SELECT_ALL_WIDGETS_MSG),
-        variant: Variant.info,
-        duration: 3000,
+  try {
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const allSelectableChildren: string[] = yield call(
+      getAllSelectableChildren,
+    );
+    if (allSelectableChildren && allSelectableChildren.length) {
+      yield put(selectMultipleWidgetsAction(allSelectableChildren));
+      const isAnyModalSelected = allSelectableChildren.some((each) => {
+        return (
+          each &&
+          canvasWidgets[each] &&
+          canvasWidgets[each].type === WidgetTypes.MODAL_WIDGET
+        );
       });
+      if (isAnyModalSelected) {
+        Toaster.show({
+          text: createMessage(SELECT_ALL_WIDGETS_MSG),
+          variant: Variant.info,
+          duration: 3000,
+        });
+      }
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
+        error,
+      },
+    });
   }
 }
 
 function* deselectNonSiblingsOfWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
-  const { isMultiSelect, widgetId } = action.payload;
-  if (isMultiSelect) {
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const parentId: any = allWidgets[widgetId].parentId;
-    const childWidgets: string[] = yield select(
-      getWidgetImmediateChildren,
-      parentId,
-    );
-    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
-
-    const nonSiblings = currentSelectedWidgets.filter(
-      (each) => !childWidgets.includes(each),
-    );
-    if (nonSiblings && nonSiblings.length) {
-      yield put(
-        deselectMultipleWidgetsAction(
-          nonSiblings.filter((each) => each !== widgetId),
-        ),
+  try {
+    const { isMultiSelect, widgetId } = action.payload;
+    if (isMultiSelect) {
+      const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+      const parentId: any = allWidgets[widgetId].parentId;
+      const childWidgets: string[] = yield select(
+        getWidgetImmediateChildren,
+        parentId,
       );
+      const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
+
+      const nonSiblings = currentSelectedWidgets.filter(
+        (each) => !childWidgets.includes(each),
+      );
+      if (nonSiblings && nonSiblings.length) {
+        yield put(
+          deselectMultipleWidgetsAction(
+            nonSiblings.filter((each) => each !== widgetId),
+          ),
+        );
+      }
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_WIDGET_INIT,
+        error,
+      },
+    });
   }
 }
 
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
-  const { isMultiSelect, widgetId } = action.payload;
-  yield put(selectWidgetAction(widgetId, isMultiSelect));
+  try {
+    const { isMultiSelect, widgetId } = action.payload;
+    yield put(selectWidgetAction(widgetId, isMultiSelect));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_WIDGET_INIT,
+        error,
+      },
+    });
+  }
 }
 
 function* shiftSelectWidgetsSaga(
   action: ReduxAction<{ widgetId: string; siblingWidgets: string[] }>,
 ) {
-  const { siblingWidgets, widgetId } = action.payload;
-  const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const lastSelectedWidget: string = yield select(getSelectedWidget);
-  const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
-  const isWidgetSelected = selectedWidgets.includes(widgetId);
-  if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
-    const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
-    const start =
-      lastSelectedWidgetIndex < selectedWidgetIndex
-        ? lastSelectedWidgetIndex
-        : selectedWidgetIndex;
-    const end =
-      lastSelectedWidgetIndex < selectedWidgetIndex
-        ? selectedWidgetIndex
-        : lastSelectedWidgetIndex;
-    const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
-    if (unSelectedSiblings && unSelectedSiblings.length) {
-      yield put(silentAddSelectionsAction(unSelectedSiblings));
+  try {
+    const { siblingWidgets, widgetId } = action.payload;
+    const selectedWidgets: string[] = yield select(getSelectedWidgets);
+    const lastSelectedWidget: string = yield select(getSelectedWidget);
+    const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
+    const isWidgetSelected = selectedWidgets.includes(widgetId);
+    if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
+      const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
+      const start =
+        lastSelectedWidgetIndex < selectedWidgetIndex
+          ? lastSelectedWidgetIndex
+          : selectedWidgetIndex;
+      const end =
+        lastSelectedWidgetIndex < selectedWidgetIndex
+          ? selectedWidgetIndex
+          : lastSelectedWidgetIndex;
+      const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
+      if (unSelectedSiblings && unSelectedSiblings.length) {
+        yield put(silentAddSelectionsAction(unSelectedSiblings));
+      }
     }
+    yield put(selectWidgetInitAction(widgetId, true));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
+        error,
+      },
+    });
   }
-  yield put(selectWidgetInitAction(widgetId, true));
 }
 
 function* selectMultipleWidgetsSaga(
   action: ReduxAction<{ widgetIds: string[] }>,
 ) {
-  const { widgetIds } = action.payload;
-  if (!widgetIds || !widgetIds.length) {
-    return;
-  }
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const parentToMatch = allWidgets[widgetIds[0]].parentId;
-  const doesNotMatchParent = widgetIds.some((each) => {
-    return allWidgets[each].parentId !== parentToMatch;
-  });
-  if (doesNotMatchParent) {
-    return;
-  } else {
-    yield put(selectWidgetAction());
-    yield put(selectMultipleWidgetsAction(widgetIds));
+  try {
+    const { widgetIds } = action.payload;
+    if (!widgetIds || !widgetIds.length) {
+      return;
+    }
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const parentToMatch = allWidgets[widgetIds[0]].parentId;
+    const doesNotMatchParent = widgetIds.some((each) => {
+      return allWidgets[each].parentId !== parentToMatch;
+    });
+    if (doesNotMatchParent) {
+      return;
+    } else {
+      yield put(selectWidgetAction());
+      yield put(selectMultipleWidgetsAction(widgetIds));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
+        error,
+      },
+    });
   }
 }
 

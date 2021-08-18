@@ -136,6 +136,7 @@ function WidgetsEditor() {
   return (
     <EditorContextProvider>
       <EditorWrapper
+        data-testid="widgets-editor"
         draggable
         onClick={handleWrapperClick}
         onDragStart={onDragStart}
