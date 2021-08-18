@@ -27,4 +27,12 @@ describe("Debugger logs", function() {
       cy.contains(debuggerLocators.debuggerIcon, 0);
     });
   });
+
+  it("Api headers need to be shown as headers in logs", function() {
+    // TODO
+  });
+
+  it("Api body needs to be shown as JSON when possible", function() {
+    // TODO
+  });
 });
