@@ -15,9 +15,17 @@ export enum ActionTriggerType {
   RESET_WIDGET_META_RECURSIVE_BY_NAME = "RESET_WIDGET_META_RECURSIVE_BY_NAME",
 }
 
+export enum PromiseVariant {
+  ALL = "ALL",
+  ANY = "ANY",
+  RACE = "RACE",
+  CONSTRUCTOR = "CONSTRUCTOR",
+}
+
 export type PromiseActionDescription = {
   type: ActionTriggerType.PROMISE;
   payload: {
+    variant: PromiseVariant;
     executor: ActionDescription[];
     then: string[];
     catch?: string;

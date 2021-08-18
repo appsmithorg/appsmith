@@ -47,15 +47,9 @@ import {
   ActionDescription,
   ActionTriggerType,
   PromiseActionDescription,
+  PromiseVariant,
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-
-export type AppsmithPromisePayload = {
-  executor: ActionDescription[];
-  then: string[];
-  catch?: string;
-  finally?: string;
-};
 
 export const pusher: ActionDispatcher = function(
   this: { triggers: ActionDescription[]; isPromise: boolean },
@@ -100,13 +94,20 @@ export class AppsmithPromise {
   action: PromiseActionDescription = {
     type: ActionTriggerType.PROMISE,
     payload: {
+      variant: PromiseVariant.CONSTRUCTOR,
       executor: [],
       then: [],
     },
   };
   triggerReference?: number;
 
-  constructor(executor: ActionDescription[] | (() => ActionDescription[])) {
+  constructor(
+    executor: ActionDescription[] | (() => ActionDescription[]),
+    variant?: PromiseVariant,
+  ) {
+    if (variant) {
+      this.action.payload.variant = variant;
+    }
     if (typeof executor === "function") {
       pusherOverride();
       executor();
@@ -165,7 +166,15 @@ export class AppsmithPromise {
   }
 
   static all(actions: ActionDescription[]) {
-    return new AppsmithPromise(actions);
+    return new AppsmithPromise(actions, PromiseVariant.ALL);
+  }
+
+  static any(actions: ActionDescription[]) {
+    return new AppsmithPromise(actions, PromiseVariant.ANY);
+  }
+
+  static race(actions: ActionDescription[]) {
+    return new AppsmithPromise(actions, PromiseVariant.RACE);
   }
 }
 
