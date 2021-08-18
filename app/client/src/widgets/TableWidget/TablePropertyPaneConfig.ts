@@ -1008,6 +1008,21 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "delimiter",
+        label: "CSV Separator",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter CSV separator",
+        helpText: "The character used for separating the CSV download file.",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: ",",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
+        dependencies: ["isVisibleDownload"],
+      },
     ],
   },
   {
