@@ -70,9 +70,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @Transient
     Boolean isAnonymous = false;
 
-    // This contains all the necessary details needed to make a commit and push those commits to remote repo
-    //private GitGlobalConfig gitGlobalConfig;
-
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     public Map<String, Object> getAttributes() {

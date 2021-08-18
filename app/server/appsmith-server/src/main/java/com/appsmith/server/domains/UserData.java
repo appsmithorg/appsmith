@@ -40,4 +40,6 @@ public class UserData extends BaseDomain {
         this.userId = userId;
     }
 
+    private List<GitConfig> gitLocalConfigData;
+
 }

@@ -1,6 +1,6 @@
 package com.appsmith.server.domains;
 
-public class GitGlobalConfig {
+public class GitConfig {
     String userName;
 
     String commitEmail;
@@ -8,4 +8,6 @@ public class GitGlobalConfig {
     String password;
 
     String remoteUrl;
+
+    String sshKey;
 }

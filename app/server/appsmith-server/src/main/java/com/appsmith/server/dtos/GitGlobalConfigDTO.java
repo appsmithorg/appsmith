@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 ;
-import com.appsmith.server.domains.GitGlobalConfig;
+import com.appsmith.server.domains.GitConfig;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,5 +12,5 @@ public class GitGlobalConfigDTO {
 
     String userEmail;
 
-    GitGlobalConfig gitGlobalConfig;
+    GitConfig gitGlobalConfig;
 }

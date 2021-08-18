@@ -2,16 +2,13 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.GitData;
-import com.appsmith.server.domains.GitGlobalConfig;
+import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.dtos.GitGlobalConfigDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitDataService;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Repository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,11 +33,10 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
     }
 
     @PostMapping("/user")
-    public Mono<ResponseDTO<GitGlobalConfig>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
-        //update the user field in db with git config data
-        /*return gitService.saveGitConfigData(gitGlobalConfigDTO)
-                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfig.getGitGlobalConfig(), null));*/
-        return Mono.empty();
+    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
+        //Add to the userData object - git config data
+        return gitService.saveGitConfigData(gitGlobalConfigDTO)
+                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
     }
 
     @PostMapping("/connect/{organizationId}")
