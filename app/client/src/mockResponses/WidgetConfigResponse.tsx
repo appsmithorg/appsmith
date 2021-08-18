@@ -657,6 +657,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
+          seriesName: "Revenue",
           chart: {
             caption: "Last week's revenue",
             xAxisName: "Last Week",
