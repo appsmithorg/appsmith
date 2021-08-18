@@ -1,0 +1,27 @@
+version: "3"
+services:
+  appsmith:
+    build:
+      context: ../../
+    container_name: appsmith_fat
+    ports:
+      - "80:80"
+      - "443:443"
+      - "9001:9001"
+    volumes: 
+      - ./stacks/data:/opt/appsmith/data
+      - ./stacks/configuration:/opt/appsmith/configuration
+      - ./stacks/letsencrypt:/etc/letsencrypt
+    networks:
+      - appsmith
+  auto_update:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Update check interval in seconds.
+    command: --interval 300 --label-enable --cleanup
+    networks:
+      - appsmith
+networks:
+  appsmith:
+    driver: bridge
