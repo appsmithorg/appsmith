@@ -20,6 +20,8 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
+  `Default Text length must be less than Max Chars allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -392,6 +394,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+
+export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+  "Hurray! Your application is ready to use.";
+export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
+export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
+  "Search through your data in the table and update it using the form.";
+
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";

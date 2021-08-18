@@ -99,6 +99,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "status",
           computedValue:
@@ -130,6 +131,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -138,6 +143,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.verticalAlignment":
@@ -154,7 +162,12 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonStyle":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.createdAt.isVisible":
+        //   EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
@@ -253,6 +266,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           params: {
             children: {
               params: {
+                required: true,
                 allowedKeys: [
                   {
                     name: "x",

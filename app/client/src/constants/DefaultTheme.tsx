@@ -1229,9 +1229,23 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
   pagesEditor: {
     iconColor: string;
   };
+  numberedStep: {
+    line: string;
+  };
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: "#F0F0F0",
+  highlightTextColor: "#090707",
+  textColor: "#4B4848",
 };
 
 const notifications = {
@@ -1413,7 +1427,14 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1971,6 +1992,8 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
