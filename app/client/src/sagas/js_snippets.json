@@ -5,7 +5,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "array",
+        "dataType": "ARRAY",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
             "snippet": "{{data}}.filter((item) => {return item[{{key}}] === {{value}};});",
@@ -41,7 +41,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Access attributes from a nested data",
             "snippet": "{{your_object}}.{{key}}",
@@ -72,7 +72,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Add colours to data inside table columns based on certain conditions",
             "snippet": "(function columnColor() { let colors = { {{columnValue1}}: {{color1}}, {{columnValue2}}: {{color2}}, }; return colors[{{tableName}}.selectedRow[{{columnName1}}]]; })()",
@@ -119,7 +119,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "array",
+        "dataType": "ARRAY",
         "body": {
             "title": "Merge multiple objects from queries into a single array",
             "snippet": "{{your_array}}.concat({{Obj1}}, {{Obj2}});",
@@ -154,7 +154,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Parsing through nested JSON data inside an array of objects",
             "snippet": "currentRow.columnName.{{key}}.{{key}}",
@@ -175,7 +175,7 @@
             "table"
         ],
         "language": "javascript",
-        "dataType": "array",
+        "dataType": "ARRAY",
         "body": {
             "title": "Removing duplicate values from an array",
             "snippet": "(function(){let JSONObject = {{your_array}}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;})()",
@@ -201,7 +201,7 @@
             "dropdown"
         ],
         "language": "javascript",
-        "dataType": "array",
+        "dataType": "ARRAY",
         "body": {
             "title": "Creating a select widget options list from a query",
             "snippet": "{{queryData}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute2}} }; });",
@@ -236,7 +236,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Updating queries when options are changed from the select widget",
             "snippet": "{{selectBox}}.selectedOptionValue === {{value}} ? {{QueryOne}}.run() : {{QueryTwo}}.run()",
@@ -274,7 +274,7 @@
             "checkbox"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Setting default value of checkbox based on a query",
             "snippet": "{{query}}.{{key}}",
@@ -304,7 +304,7 @@
             "datepicker"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Select current date in the date picker widget",
             "snippet": "moment.now()",
@@ -324,7 +324,7 @@
             "datepicker"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Formatting date inside the data picker widget",
             "snippet": "moment({{date}}).format({{dateFormat}})",
@@ -354,7 +354,7 @@
             "text"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Binding current time in the text widget",
             "snippet": "moment.now()",
@@ -374,7 +374,7 @@
             "text"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Binding an object onto the text widget",
             "snippet": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
@@ -400,7 +400,7 @@
             "text"
         ],
         "language": "javascript",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Bind a variable dynamically on the text widget",
             "snippet": "`The total amount on the invoice is ${{{your_text}}}`",
@@ -427,7 +427,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Configuring multiple actions on button click",
             "snippet": "{{query1}}.run(() => {showAlert({{successMessage}}, \"info\");storeValue({{key}}, {{queryData}});navigateTo({{pageName}});});",
@@ -470,7 +470,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Open a modal and run a query on button click",
             "snippet": "showModal({{modalName}});{{query}}.run();",
@@ -501,7 +501,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Run an API, close modal and show alert",
             "snippet": "{{query}}.run(() => {closeModal({{modalName}});showAlert({{alertMessage}});})",
@@ -537,7 +537,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Running multiple queries in series",
             "snippet": "{{query1}}.run(() => {{query2}}.run(() => {{query3}}.run()));",
@@ -573,7 +573,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Running multiple queries in parallel",
             "snippet": "{{query1}}.run();{{query2}}.run();",
@@ -604,7 +604,7 @@
             "workflow"
         ],
         "language": "javascript",
-        "dataType": "function",
+        "dataType": "FUNCTION",
         "body": {
             "title": "Displaying alerts for workflows",
             "snippet": "{{query1}}.run(() => {{{query2}}.run(() => {showAlert({{successMessage}}); },() => showAlert({{errorMessage}}) );},() => showAlert({{errorMessage}}, \"error\"));",
@@ -643,7 +643,7 @@
             "postgres"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Query data from Postgres table",
             "snippet": "SELECT * FROM {{table_name}}",
@@ -670,7 +670,7 @@
             "postgres"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from multiple columns",
             "snippet": "SELECT {{column1}}, {{column2}}, {{column3}} FROM {{table_name}}",
@@ -709,7 +709,7 @@
             "postgres"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from one column",
             "snippet": "SELECT {{column_name}} FROM {{table_name}}",
@@ -740,7 +740,7 @@
             "postgres"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Ordering table data in ascending order",
             "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} ASC;",
@@ -775,7 +775,7 @@
             "postgres"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Ordering table data in descending order",
             "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} DESC;",
@@ -810,7 +810,7 @@
             "datasource"
         ],
         "language": "sql",
-        "dataType": "string",
+        "dataType": "STRING",
         "body": {
             "title": "Ordering table data based on the length of column value",
             "snippet": "SELECT {{column1}}, LENGTH(column1) len FROM {{table_name}} ORDER BY len DESC;",
