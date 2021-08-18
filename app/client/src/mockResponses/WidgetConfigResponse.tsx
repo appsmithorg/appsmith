@@ -1268,7 +1268,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     STATBOX_WIDGET: {
-      rows: 4 * GRID_DENSITY_MIGRATION_V1,
+      rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Statbox",
       backgroundColor: "white",
@@ -1292,7 +1292,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
                       cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
-                    position: { top: 0.5, left: 1.5 },
+                    position: { top: 0, left: 1 },
                     props: {
                       text: "Page Views",
                       fontSize: "PARAGRAPH2",
@@ -1307,8 +1307,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 5.5,
-                      left: 1.5,
+                      top: 4,
+                      left: 1,
                     },
                     props: {
                       text: "2.6 M",
@@ -1324,8 +1324,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 10,
-                      left: 1.5,
+                      top: 8,
+                      left: 1,
                     },
                     props: {
                       text: "21% more than last month",
@@ -1341,7 +1341,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 3,
+                      top: 2.5,
                       left: 45,
                     },
                     props: {
