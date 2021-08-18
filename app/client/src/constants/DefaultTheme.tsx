@@ -978,10 +978,12 @@ type ColorType = {
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
+    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
+    searchItemAltText: string;
     searchItemText: string;
     searchItemSubText: string;
     highlightedTextUnderline: string;
@@ -997,6 +999,9 @@ type ColorType = {
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
+    mainContainerBackground: string;
+    filterListBackground: string;
+    filterBtnText: string;
   };
   gif: {
     overlay: string;
@@ -1164,6 +1169,23 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: "#F0F0F0",
+  highlightTextColor: "#090707",
+  textColor: "#4B4848",
 };
 
 const notifications = {
@@ -1198,6 +1220,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1286,28 +1312,33 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
-  searchInputText: "#fff",
+  activeSearchItemBackground: "#6A86CE",
+  activeCategory: "#6A86CE",
+  searchInputText: "#484848",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
-  searchItemText: "rgba(255, 255, 255, 0.6)",
-  searchItemSubText: "rgba(255, 255, 255, 0.4)",
+  searchItemAltText: "#fff",
+  searchItemText: "#484848",
+  searchItemSubText: "#A9A7A7",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
-  emptyStateText: "#ABABAB",
+  emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#494949",
-  documentLink: "#54a9fb",
+  codeBackground: "#F0F0F0",
+  documentLink: "#69B5FF",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
-  sectionTitle: "#D4D4D4",
+  sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
+  mainContainerBackground: "#F0F0F0",
+  filterListBackground: lightShades[0],
+  filterBtnText: lightShades[8],
 };
 
 const mentionsInput = {
@@ -1336,7 +1367,14 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1900,9 +1938,12 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2474,6 +2515,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2584,11 +2626,22 @@ export const theme: Theme = {
       fontSize: 28,
       lineHeight: 36,
     },
+    docHeader: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 17,
+    },
     spacedOutP1: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 14,
       lineHeight: 24,
+    },
+    categoryBtn: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.2,
+      fontWeight: 500,
     },
   },
   iconSizes: {
@@ -2636,6 +2689,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2652,6 +2706,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2675,6 +2730,10 @@ export const theme: Theme = {
     scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
     scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
     dropdownIconBg: Colors.ALTO2,
+    welcomeTourStickySidebarColor: Colors.WHITE,
+    welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

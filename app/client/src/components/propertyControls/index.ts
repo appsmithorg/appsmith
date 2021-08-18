@@ -46,6 +46,7 @@ import MenuItemsControl from "./MenuItemsControl";
 import IconSelectControl from "./IconSelectControl";
 import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
+import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 
 export const PropertyControls = {
@@ -72,6 +73,7 @@ export const PropertyControls = {
   IconSelectControl,
   IconAlignControl,
   BoxShadowOptionsControl,
+  BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
 };
 

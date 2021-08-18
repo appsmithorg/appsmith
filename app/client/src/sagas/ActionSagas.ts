@@ -8,6 +8,8 @@ import {
   all,
   call,
   put,
+  putResolve,
+  race,
   select,
   take,
   takeEvery,
@@ -43,6 +45,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
+  getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -91,6 +94,15 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { getWidgetById } from "./selectors";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -768,6 +780,32 @@ function* executeCommand(
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
   switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      const { entityId, entityType, expectedType, propertyPath } = get(
+        actionPayload,
+        "payload.args",
+      );
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+        propertyPath,
+      );
+      yield putResolve(
+        setGlobalSearchFilterContext({
+          category: filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+          refinements,
+          fieldMeta,
+        }),
+      );
+      yield put(toggleShowGlobalSearchModal());
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(effectRaceResult.success.payload);
+      break;
     case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
@@ -814,6 +852,34 @@ function* executeCommand(
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
       break;
   }
+}
+
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta = {
+    dataType: expectedType,
+    fields: `${propertyPath}<score=2>`,
+  };
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "").toLowerCase().split("-");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = currentEntity.type.toLowerCase().split("_");
+    refinements.entities = type;
+  }
+  return { refinements, fieldMeta };
 }
 
 export function* watchActionSagas() {

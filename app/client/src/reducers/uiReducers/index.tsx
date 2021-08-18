@@ -32,8 +32,10 @@ import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import notificationsReducer from "./notificationsReducer";
+import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
+import crudInfoModalReducer from "./crudInfoModalReducer";
 
 const uiReducer = combineReducers({
   actionTabs: actionTabsReducer,
@@ -71,6 +73,8 @@ const uiReducer = combineReducers({
   tour: tourReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
+  appCollab: appCollabReducer,
+  crudInfoModal: crudInfoModalReducer,
 });
 
 export default uiReducer;

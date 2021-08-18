@@ -23,6 +23,7 @@ export const Colors = {
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
   CODE_GRAY: "#090707",
+  DIESEL: "#0C0000",
   SHARK: "#21282C",
   SHARK2: "#232324",
   MINE_SHAFT: "#262626",
@@ -39,6 +40,7 @@ export const Colors = {
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
+  FOAM: "#D9FDED",
   GREEN: "#03B365",
   JUNGLE_GREEN: "#24BA91",
   JUNGLE_GREEN_DARKER: "#30A481",
@@ -77,6 +79,7 @@ export const Colors = {
   NERO: "#2B2B2B",
   CHARCOAL: "#4B4848",
   LIGHT_GREY: "#D4D4D4",
+  LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
@@ -87,6 +90,7 @@ export const Colors = {
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
   RATE_INACTIVE: "#F2F2F2",
+  MALIBU: "#7DBCFF",
 
   WARNING_SOLID: "#FEB811",
   WARNING_SOLID_HOVER: "#EFA903",
@@ -112,7 +116,6 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT3: "rgba(0, 0, 0, 0.5)",
   BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
-
   SELECT_DISABLED: "#ced9e080",
 };
 export type Color = typeof Colors[keyof typeof Colors];

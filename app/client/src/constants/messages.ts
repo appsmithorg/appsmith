@@ -20,6 +20,8 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
+  `Default Text length must be less than Max Chars allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -283,7 +285,10 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  "Search Widgets, Queries, Documentation";
+  `Search Widgets, Queries, Documentation`;
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search Snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search Widgets and Queries";
+export const OMNIBAR_PLACEHOLDER_DOC = () => "Search Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -334,6 +339,7 @@ export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 // Showcase Carousel
 export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
+export const SKIP = () => "SKIP";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
@@ -345,11 +351,15 @@ export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const VALUE_IS_INVALID = (propertyPath: string) =>
+  `The value at ${propertyPath} is invalid`;
 export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
+export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
+  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
@@ -359,6 +369,9 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+//Editor Page
+export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
 // Generate page from DB Messages
 
@@ -381,6 +394,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+
+export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+  "Hurray! Your application is ready to use.";
+export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
+export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
+  "Search through your data in the table and update it using the form.";
+
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
@@ -394,3 +414,7 @@ export const SUGGESTED_WIDGET_DESCRIPTION = () =>
 export const ADD_NEW_WIDGET = () => "Add New Widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
+export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
+
+// Data Sources pane
+export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";

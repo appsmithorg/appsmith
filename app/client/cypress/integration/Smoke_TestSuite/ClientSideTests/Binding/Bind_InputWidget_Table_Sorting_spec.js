@@ -11,7 +11,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.defaultInputWidget);
+    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -22,9 +22,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("validation of data displayed in input widgets based on sorting", function() {
     cy.SearchEntityandOpen("Table1");
-    cy.get(commonlocators.deflautSelectedRow)
-      .last()
-      .type("0", { force: true });
+    cy.testJsontext("defaultselectedrow", "0");
     cy.get(".draggable-header ")
       .first()
       .click({ force: true });
