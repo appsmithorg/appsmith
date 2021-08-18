@@ -23,7 +23,10 @@ import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
 import { getCanvasWidgets } from "./entitiesSelector";
-import { WidgetTypes } from "../constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -157,7 +160,7 @@ export const getCanvasWidgetDsl = createSelector(
       const evaluatedWidget = _.find(evaluatedDataTree, {
         widgetId: widgetKey,
       }) as DataTreeWidget;
-      if (evaluatedWidget) {
+      if (evaluatedWidget || widgetKey === MAIN_CONTAINER_WIDGET_ID) {
         widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
       } else {
         widgets[widgetKey] = createLoadingWidget(canvasWidget);
