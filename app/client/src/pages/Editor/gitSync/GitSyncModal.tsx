@@ -28,7 +28,7 @@ function GitSyncModal() {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(false));
-  }, []);
+  }, [dispatch, setIsGitSyncModalOpen]);
 
   const [activeTabIndex, setActiveTabIndex] = useState(0);
 

@@ -225,7 +225,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   // eslint-disable-next-line
   const showGitSyncModal = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(true));
-  }, []);
+  }, [dispatch, setIsGitSyncModalOpen]);
 
   return (
     <ThemeProvider theme={props.darkTheme}>
