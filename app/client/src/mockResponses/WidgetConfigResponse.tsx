@@ -324,6 +324,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleFilters: true,
       isVisibleDownload: true,
       isVisiblePagination: true,
+      delimiter: ",",
       version: 1,
     },
     DROP_DOWN_WIDGET: {

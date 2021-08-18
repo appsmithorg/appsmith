@@ -25,6 +25,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentRowSpace: 40,
       tableData: "{{getUsers.data}}",
       isVisible: true,
+      isVisibleDownload: true,
       label: "Data",
       searchKey: "",
       type: WidgetTypes.TABLE_WIDGET,
@@ -122,6 +123,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
         compactMode: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -179,6 +181,9 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         defaultSearchText: {
+          type: "TEXT",
+        },
+        delimiter: {
           type: "TEXT",
         },
         defaultSelectedRow: {

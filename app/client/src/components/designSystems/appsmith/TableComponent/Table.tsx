@@ -75,6 +75,7 @@ interface TableProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
+  delimiter: string;
 }
 
 const defaultColumn = {
@@ -238,6 +239,7 @@ export function Table(props: TableProps) {
                 applyFilter={props.applyFilter}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
+                delimiter={props.delimiter}
                 filters={props.filters}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}

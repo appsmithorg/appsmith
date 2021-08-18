@@ -252,6 +252,22 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
   return currentDSL;
 };
 
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
 export const migrateTablePrimaryColumnsComputedValue = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
