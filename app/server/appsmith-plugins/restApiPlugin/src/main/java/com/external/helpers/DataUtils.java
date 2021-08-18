@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Property;
 import com.external.dtos.MultipartFormDataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
 import net.minidev.json.JSONArray;
@@ -146,7 +147,8 @@ public class DataUtils {
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
                             bodyBuilder.part(key, property.getValue());
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-                            ObjectMapper objectMapper = new ObjectMapper();
+                            final ObjectMapper objectMapper = new ObjectMapper();
+                            objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
                             MultipartFormDataDTO multipartFormDataDTO = null;
                             try {
                                 multipartFormDataDTO = objectMapper.readValue(
