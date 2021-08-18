@@ -10,6 +10,7 @@ import { MENU_ITEM, MENU_ITEMS } from "./constants";
 import GitConnection from "./GitConnection";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
+import { Classes } from "./constants";
 
 const Container = styled.div`
   height: 70vh;
@@ -60,7 +61,7 @@ function GitSyncModal() {
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(false));
-  }, []);
+  }, [dispatch, setIsGitSyncModalOpen]);
 
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const BodyComponent =
@@ -70,8 +71,9 @@ function GitSyncModal() {
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      className="git-sync-modal"
+      className={Classes.GIT_SYNC_MODAL}
       isOpen={isModalOpen}
+      maxWidth={"900px"}
       onClose={handleClose}
       width={"60vw"}
     >

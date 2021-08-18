@@ -43,3 +43,6 @@ export const AuthTypeOptions = [
   { label: "SSH", value: "SSH" },
   { label: "HTTPS", value: "HTTPS" },
 ];
+export const Classes = {
+  GIT_SYNC_MODAL: "git-sync-modal",
+};

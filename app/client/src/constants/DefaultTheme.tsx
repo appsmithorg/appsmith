@@ -1435,14 +1435,14 @@ const navigationMenu = {
 };
 
 const numberedStep = {
-  line: "#E0DEDE",
-  number: "#000",
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
 };
 
 export const dark: ColorType = {
   gitSyncModal,
-  tabItemBackgroundFill,
   numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2001,8 +2001,8 @@ export const dark: ColorType = {
 
 export const light: ColorType = {
   gitSyncModal,
-  tabItemBackgroundFill,
   numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
