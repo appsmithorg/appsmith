@@ -546,7 +546,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               return false;
             }
           } 
-          else if (parsedRegex) {
+          if (parsedRegex) {
             return parsedRegex.test(this.text)
           } else {
             return true;
