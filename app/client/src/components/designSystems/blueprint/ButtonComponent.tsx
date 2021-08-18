@@ -7,8 +7,11 @@ import {
   MaybeElement,
   Button,
   Alignment,
+  Position,
 } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
+
+import Tooltip from "components/ads/Tooltip";
 import { Theme } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
@@ -73,6 +76,7 @@ const getCustomHoverColor = (
       (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
     ][(buttonVariant || ButtonVariantTypes.SOLID).toLowerCase()].hoverColor;
   }
+
   switch (buttonVariant) {
     case ButtonVariantTypes.OUTLINE:
       return backgroundColor
@@ -133,6 +137,20 @@ const RecaptchaWrapper = styled.div`
   position: relative;
   .grecaptcha-badge {
     visibility: hidden;
+  }
+`;
+
+const ToolTipContent = styled.div`
+  max-width: 350px;
+`;
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover-target {
+    height: 100%;
+    & > div {
+      height: 100%;
+    }
   }
 `;
 
@@ -250,6 +268,7 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
     } !important;
 
     & > span {
+      max-height: 100%;
       max-width: 99%;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -257,8 +276,6 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
       -webkit-line-clamp: 1;
       -webkit-box-orient: vertical;
 
-      max-height: 100%;
-      overflow: hidden;
       color: ${
         buttonVariant === ButtonVariantTypes.SOLID
           ? buttonStyle === ButtonStyleTypes.CUSTOM
@@ -403,6 +420,7 @@ interface RecaptchaProps {
 interface ButtonComponentProps extends ComponentProps {
   text?: string;
   icon?: IconName | MaybeElement;
+  tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   isDisabled?: boolean;
   buttonStyle?: ButtonStyle;
@@ -549,7 +567,7 @@ function BtnWrapper(
 
 // To be used with the canvas
 function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
-  return (
+  const btnWrapper = (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
@@ -578,6 +596,21 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       </ButtonContainer>
     </BtnWrapper>
   );
+  if (props.tooltip) {
+    return (
+      <ToolTipWrapper>
+        <Tooltip
+          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+          hoverOpenDelay={200}
+          position={Position.TOP}
+        >
+          {btnWrapper}
+        </Tooltip>
+      </ToolTipWrapper>
+    );
+  } else {
+    return btnWrapper;
+  }
 }
 
 export default ButtonComponent;

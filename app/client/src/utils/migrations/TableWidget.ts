@@ -131,6 +131,7 @@ export const tableWidgetPropertyPaneMigrations = (
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
           buttonStyle: "rgb(3, 179, 101)",
@@ -168,7 +169,7 @@ export const tableWidgetPropertyPaneMigrations = (
 };
 
 const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\s/;
+  const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
     .join("_")

@@ -225,7 +225,12 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.OBJECT_ARRAY },
+        validation: {
+          type: ValidationTypes.OBJECT_ARRAY,
+          params: {
+            default: [],
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -333,6 +338,23 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isCellVisible",
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
+                  label: "Visible",
+                  helpText: "Controls the visibility of the cell in the column",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -759,6 +781,17 @@ export default [
                 return columnType !== "button";
               },
               children: [
+                {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
                 {
                   propertyName: "buttonLabel",
                   label: "Label",

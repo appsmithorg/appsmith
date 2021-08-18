@@ -13,6 +13,8 @@ import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
+import React, { ReactNode, useCallback } from "react";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 /**
  *
@@ -46,6 +48,56 @@ export function getParentToOpenIfAny(
   }
 
   return;
+}
+
+export function ClickContentToOpenPropPane({
+  children,
+  widgetId,
+}: {
+  widgetId: string;
+  children?: ReactNode;
+}) {
+  const { focusWidget } = useWidgetSelection();
+
+  const openPropertyPane = useClickOpenPropPane();
+  const openPropPane = useCallback(
+    (e) => {
+      openPropertyPane(e, widgetId);
+    },
+    [widgetId, openPropertyPane],
+  );
+  const focusedWidget = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+  );
+
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const isResizingOrDragging = !!isResizing || !!isDragging;
+  const handleMouseOver = (e: any) => {
+    focusWidget &&
+      !isResizingOrDragging &&
+      focusedWidget !== widgetId &&
+      focusWidget(widgetId);
+    e.stopPropagation();
+  };
+
+  return (
+    <div
+      onClick={stopEventPropagation}
+      onClickCapture={openPropPane}
+      onMouseOver={handleMouseOver}
+      style={{
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 export const useClickOpenPropPane = () => {
