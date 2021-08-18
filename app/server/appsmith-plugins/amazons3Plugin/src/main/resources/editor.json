@@ -138,7 +138,7 @@
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
-          "initialValue": "method"
+          "initialValue": "generateUnsignedUrl"
         },
         {
           "label": "Generate Un-signed URL",
