@@ -122,11 +122,13 @@ export const renderCell = (
           columnType={columnType}
           isHidden={isHidden}
           tableWidth={tableWidth}
-          title={value.toString()}
+          title={!!value ? value.toString() : ""}
         >
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
-            : value.toString()}
+            : !!value
+            ? value.toString()
+            : ""}
         </AutoToolTipComponent>
       );
   }
