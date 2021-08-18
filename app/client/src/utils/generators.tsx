@@ -1,3 +1,4 @@
+import { WidgetType } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
@@ -22,6 +23,12 @@ export const getCanvasClassName = () => "canvas";
 
 export const getNearestParentCanvas = (el: Element | null) => {
   const canvasQuerySelector = `.${getCanvasClassName()}`;
+  if (el) return el.closest(canvasQuerySelector);
+  return null;
+};
+
+export const getNearestWidget = (el: Element | null, type: WidgetType) => {
+  const canvasQuerySelector = `div[type="${type}"]`;
   if (el) return el.closest(canvasQuerySelector);
   return null;
 };

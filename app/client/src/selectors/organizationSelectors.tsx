@@ -31,10 +31,6 @@ export const getCurrentAppOrg = (state: AppState) => {
 export const getAllUsers = (state: AppState) => state.ui.orgs.orgUsers;
 export const getAllRoles = (state: AppState) => state.ui.orgs.orgRoles;
 
-export const getUserCurrentOrgId = (state: AppState) => {
-  return state.ui.users.currentUser?.currentOrganizationId;
-};
-
 export const getRoles = createSelector(getRolesFromState, (roles?: OrgRole[]):
   | OrgRole[]
   | undefined => {
