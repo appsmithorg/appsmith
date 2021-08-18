@@ -3,6 +3,11 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 
+export type SelectEvent =
+  | React.MouseEvent
+  | React.KeyboardEvent
+  | KeyboardEvent;
+
 export type RecentEntity = {
   type: string;
   id: string;

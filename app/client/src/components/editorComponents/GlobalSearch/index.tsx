@@ -47,6 +47,7 @@ import {
   isMenu,
   isSnippet,
   isDocumentation,
+  SelectEvent,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -420,24 +421,41 @@ function GlobalSearch() {
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
   };
 
-  const handleSnippetClick = (item: any) => {
+  const handleSnippetClick = (event: SelectEvent, item: any) => {
+    if (event.type === "click") {
+      setActiveItemIndex(
+        snippets.findIndex((snip: any) => snip.objectID === item.objectID),
+      );
+      return;
+    }
     dispatch(insertSnippet(get(item, "body.examples[0].code", "")));
     toggleShow();
   };
 
   const itemClickHandlerByType = {
-    [SEARCH_ITEM_TYPES.document]: handleDocumentationItemClick,
-    [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
-    [SEARCH_ITEM_TYPES.action]: handleActionClick,
-    [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
-    [SEARCH_ITEM_TYPES.page]: handlePageClick,
+    [SEARCH_ITEM_TYPES.document]: (e: SelectEvent, item: any) =>
+      handleDocumentationItemClick(item),
+    [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
+      handleWidgetClick(item),
+    [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
+      handleActionClick(item),
+    [SEARCH_ITEM_TYPES.datasource]: (e: SelectEvent, item: any) =>
+      handleDatasourceClick(item),
+    [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
+      handlePageClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
-    [SEARCH_ITEM_TYPES.category]: setCategory,
-    [SEARCH_ITEM_TYPES.snippet]: handleSnippetClick,
+    [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>
+      setCategory(item),
+    [SEARCH_ITEM_TYPES.snippet]: (e: SelectEvent, item: any) =>
+      handleSnippetClick(e, item),
   };
 
-  const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
+  const handleItemLinkClick = (
+    event: SelectEvent,
+    itemArg?: SearchItem,
+    source?: string,
+  ) => {
     const item = itemArg || activeItem;
     const type = getItemType(item) as SEARCH_ITEM_TYPES;
 
@@ -445,8 +463,7 @@ function GlobalSearch() {
       type,
       source,
     });
-
-    itemClickHandlerByType[type](item);
+    itemClickHandlerByType[type](event, item);
   };
 
   const searchContext = {

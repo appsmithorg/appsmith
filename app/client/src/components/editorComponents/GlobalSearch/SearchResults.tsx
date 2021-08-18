@@ -445,13 +445,13 @@ function SearchItemComponent(props: ItemProps) {
       className="t--docHit"
       isActiveItem={isActiveItem}
       itemType={itemType}
-      onClick={() => {
+      onClick={(e: React.MouseEvent) => {
         if (
           itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
           itemType !== SEARCH_ITEM_TYPES.placeholder
         ) {
           setActiveItemIndex(index);
-          searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
+          searchContext?.handleItemLinkClick(e, item, "SEARCH_ITEM");
         }
       }}
       ref={itemRef}
