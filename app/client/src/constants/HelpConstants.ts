@@ -139,6 +139,10 @@ export const HelpMap = {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",
   },
+  CHECKBOX_GROUP_WIDGET: {
+    path: "/widget-reference/checkbox-group",
+    searchKey: "Checkbox Group",
+  },
   RECORDER_WIDGET: {
     path: "/widget-reference/recorder",
     searchKey: "Recorder",

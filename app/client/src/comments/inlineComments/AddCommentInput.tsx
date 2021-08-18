@@ -134,6 +134,37 @@ const appsmithSupport = {
   isSupport: true,
 };
 
+const getSortIndex = (a: number, b: number) => {
+  if (a === -1 && b !== -1) return b;
+  if (b === -1 && a !== -1) return a;
+  return a - b;
+};
+
+const sortMentionData = (filter = "") => (a: MentionData, b: MentionData) => {
+  let sortIndex = 0;
+  const nameA = a.name?.toLowerCase() || "";
+  const nameB = b.name?.toLowerCase() || "";
+  const usernameA = a.user?.username?.toLowerCase() || "";
+  const usernameB = b.user?.username?.toLowerCase() || "";
+
+  if (filter) {
+    const nameIndexA = nameA.indexOf(filter);
+    const nameIndexB = nameB.indexOf(filter);
+    sortIndex = getSortIndex(nameIndexA, nameIndexB);
+    if (sortIndex) return sortIndex;
+
+    const usernameIndexA = usernameA.indexOf(filter);
+    const usernameIndexB = usernameB.indexOf(filter);
+    sortIndex = getSortIndex(usernameIndexA, usernameIndexB);
+    if (sortIndex) return sortIndex;
+  }
+
+  sortIndex = nameA.localeCompare(nameB);
+  if (sortIndex) return sortIndex;
+
+  return usernameA.localeCompare(usernameB);
+};
+
 const useUserSuggestions = (
   users: Array<OrgUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
@@ -152,6 +183,8 @@ const useUserSuggestions = (
           user,
         });
     });
+
+    result.sort(sortMentionData());
 
     if (canManage) result.unshift(appsmithSupport);
 
@@ -246,28 +279,7 @@ function AddCommentInput({
           const username = suggestion.user?.username.toLowerCase() || "";
           return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
         })
-        .sort((a: MentionData, b: MentionData) => {
-          const nameIndexA = a.name?.toLowerCase().indexOf(filter);
-          const nameIndexB = b.name?.toLowerCase().indexOf(filter);
-
-          const usernameIndexA = a.user?.username
-            ?.toLowerCase()
-            .indexOf(filter);
-          const usernameIndexB = b.user?.username
-            ?.toLowerCase()
-            .indexOf(filter);
-
-          const indexA =
-            nameIndexA < usernameIndexA && nameIndexA !== -1
-              ? nameIndexA
-              : usernameIndexA;
-          const indexB =
-            nameIndexB < usernameIndexB && nameIndexB !== -1
-              ? nameIndexB
-              : usernameIndexB;
-
-          return indexA - indexB;
-        });
+        .sort(sortMentionData(filter));
     }
 
     if (suggestionResults.length !== 0) return suggestionResults;

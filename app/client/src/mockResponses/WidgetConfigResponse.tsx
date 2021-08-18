@@ -83,12 +83,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      label: "",
+      label: "Label",
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      maxChars: 255,
+      iconAlign: "left",
+      autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
+      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },
@@ -203,6 +207,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "step",
           computedValue:
@@ -219,6 +224,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "task",
           computedValue:
@@ -235,6 +241,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "status",
           computedValue:
@@ -251,6 +258,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "action",
           onClick:
@@ -316,6 +325,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleDownload: true,
       isVisibleCompactMode: true,
       isVisiblePagination: true,
+      delimiter: ",",
       version: 1,
     },
     DROP_DOWN_WIDGET: {
@@ -328,6 +338,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Green", value: "GREEN" },
         { label: "Red", value: "RED" },
       ],
+      serverSideFiltering: false,
       widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
@@ -349,6 +360,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Naruto Uzumaki", value: "Seventh" },
       ],
       widgetName: "MultiSelect",
+      serverSideFiltering: false,
       defaultOptionValue: ["First", "Seventh"],
       version: 1,
       isRequired: false,
@@ -646,6 +658,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
+          seriesName: "Revenue",
           chart: {
             caption: "Last week's revenue",
             xAxisName: "Last Week",
@@ -1215,7 +1228,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       capType: "nc",
       capSide: 0,
       strokeStyle: "solid",
-      dividerColor: "black",
+      dividerColor: Colors.LIGHT_GREY2,
       thickness: 2,
       isVisible: true,
       version: 1,
@@ -1265,6 +1278,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 1 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "IconButton",
+      version: 1,
+    },
+    [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
+      options: [
+        { label: "Apple", value: "apple" },
+        { label: "Orange", value: "orange" },
+        { label: "Lemon", value: "lemon" },
+      ],
+      defaultSelectedValues: "apple",
+      isDisabled: false,
+      isRequired: false,
+      isVisible: true,
+      widgetName: "CheckboxGroup",
       version: 1,
     },
     [WidgetTypes.RECORDER_WIDGET]: {

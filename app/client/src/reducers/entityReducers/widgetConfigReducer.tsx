@@ -35,6 +35,7 @@ import { RateWidgetProps } from "widgets/RateWidget";
 import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
+import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
 import { RecorderWidgetProps } from "widgets/RecorderWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
@@ -95,6 +96,8 @@ export interface WidgetConfigReducerState {
     IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
     MENU_BUTTON_WIDGET: Partial<MenuButtonWidgetProps> & WidgetConfigProps;
     ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
+    CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
+      WidgetConfigProps;
     RECORDER_WIDGET: Partial<RecorderWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;

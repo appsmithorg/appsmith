@@ -70,6 +70,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             },
           },
           {
+            helpText: "Show helper text with button on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter tooltip text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -188,6 +198,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
+        tooltip={this.props.tooltip}
         type={this.props.buttonType || ButtonType.BUTTON}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}
