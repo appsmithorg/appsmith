@@ -224,7 +224,7 @@
             "examples": [
                 {
                     "title": "",
-                    "code": "function () {let skills = [\"strength\",\"speed\",\"durability\",\"agility\",\"reflexes\"];let options_list = skills.map((item) => {return { label: item, value: item, };});return options_list;}()",
+                    "code": "(function () {let skills = [\"strength\",\"speed\",\"durability\",\"agility\",\"reflexes\"];let options_list = skills.map((item) => {return { label: item, value: item, };});return options_list;})()",
                     "summary": ""
                 }
             ]
