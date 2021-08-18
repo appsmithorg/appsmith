@@ -12,11 +12,12 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
-import _ from "lodash";
+import _, { findIndex } from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import FileDataTypes from "./FileDataTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -214,7 +215,7 @@ class FilePickerWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
-      files: `{{this.selectedFiles.map((file) => { return { ...file, data: this.fileDataType === "Base64" ? file.base64 : this.fileDataType === "Binary" ? file.raw : file.text } })}}`,
+      files: `{{this.selectedFiles}}`,
     };
   }
 
@@ -341,39 +342,40 @@ class FilePickerWidget extends BaseWidget<
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
-      const fileReaderPromises = files.map((file) => {
-        const reader = new FileReader();
-        return new Promise((resolve) => {
-          reader.readAsDataURL(file.data);
-          reader.onloadend = () => {
-            const base64data = reader.result;
-            const binaryReader = new FileReader();
-            binaryReader.readAsBinaryString(file.data);
-            binaryReader.onloadend = () => {
-              const rawData = binaryReader.result;
-              const textReader = new FileReader();
-              textReader.readAsText(file.data);
-              textReader.onloadend = () => {
-                const text = textReader.result;
-                const newFile = {
-                  type: file.type,
-                  id: file.id,
-                  base64: base64data,
-                  raw: rawData,
-                  text: text,
-                  data:
-                    this.props.fileDataType === FileDataTypes.Base64
-                      ? base64data
-                      : this.props.fileDataType === FileDataTypes.Binary
-                      ? rawData
-                      : text,
-                  name: file.meta ? file.meta.name : undefined,
-                };
 
-                resolve(newFile);
+      const fileCount = this.props.selectedFiles?.length || 0;
+      const fileReaderPromises = files.map((file, index) => {
+        return new Promise((resolve) => {
+          if (file.size < 5000 * 1000) {
+            const reader = new FileReader();
+            if (this.props.fileDataType === FileDataTypes.Base64) {
+              reader.readAsDataURL(file.data);
+            } else if (this.props.fileDataType === FileDataTypes.Binary) {
+              reader.readAsBinaryString(file.data);
+            } else {
+              reader.readAsText(file.data);
+            }
+            reader.onloadend = () => {
+              const newFile = {
+                type: file.type,
+                id: file.id,
+                data: reader.result,
+                name: file.meta ? file.meta.name : `File-${index + fileCount}`,
+                size: file.size,
               };
+              resolve(newFile);
             };
-          };
+          } else {
+            const data = createBlobUrl(file.data, this.props.fileDataType);
+            const newFile = {
+              type: file.type,
+              id: file.id,
+              data: data,
+              name: file.meta ? file.meta.name : `File-${index + fileCount}`,
+              size: file.size,
+            };
+            resolve(newFile);
+          }
         });
       });
 
@@ -429,6 +431,20 @@ class FilePickerWidget extends BaseWidget<
     ) {
       this.reinitializeUppy(this.props);
     }
+    this.clearFilesFromMemory(prevProps.selectedFiles);
+  }
+  // Reclaim the memory used by blobs.
+  clearFilesFromMemory(previousFiles: any[] = []) {
+    const { selectedFiles: newFiles = [] } = this.props;
+    previousFiles.forEach((file: any) => {
+      let { data: blobUrl } = file;
+      if (isBlobUrl(blobUrl)) {
+        if (findIndex(newFiles, (f) => f.data === blobUrl) === -1) {
+          blobUrl = blobUrl.split("?")[0];
+          URL.revokeObjectURL(blobUrl);
+        }
+      }
+    });
   }
 
   componentDidMount() {
