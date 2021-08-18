@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { Button } from "@blueprintjs/core";
+import { Button, Icon } from "@blueprintjs/core";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
 
@@ -55,6 +55,7 @@ const RightContainer = styled.div`
     align-items: center;
     button {
       margin-left: 5%;
+      border: none;
     }
   }
 `;
@@ -219,7 +220,13 @@ function PlayerButton(props: PlayerButtonProps) {
 
     default:
       return (
-        <Button icon="small-cross" minimal onClick={onClick} outlined small />
+        <Button
+          icon={<Icon color="#F22B2B" icon="small-cross" />}
+          minimal
+          onClick={onClick}
+          outlined
+          small
+        />
       );
       break;
   }
@@ -252,6 +259,7 @@ function RecorderRight(props: RecorderRightProps) {
     isReadyPlayer,
     isReadyPlayerTimer,
     minutes,
+    onClearRecording,
     onPlayerEnded,
     playerStatus,
     seconds,
@@ -294,9 +302,17 @@ function RecorderRight(props: RecorderRightProps) {
     }
   }, [playerStatus]);
 
+  useEffect(() => {
+    if (!isReadyPlayerTimer) {
+      setCurrentDays(0);
+      setCurrentHours(0);
+      setCurrentMinutes(0);
+      setCurrentSeconds(0);
+    }
+  }, [isReadyPlayerTimer]);
+
   const renderPlayerControls = (props: RecorderRightProps) => {
     const {
-      onClearRecording,
       onPausePlayer,
       onPlayPlayer,
       onStopPlayer,
@@ -316,7 +332,7 @@ function RecorderRight(props: RecorderRightProps) {
             />
             <PlayerButton
               intent={PlayerButtonIntentTypes.CLEAR}
-              onClick={onClearRecording}
+              onClick={handleClear}
             />
           </>
         );
@@ -332,7 +348,7 @@ function RecorderRight(props: RecorderRightProps) {
                 />
                 <PlayerButton
                   intent={PlayerButtonIntentTypes.CLEAR}
-                  onClick={onClearRecording}
+                  onClick={handleClear}
                 />
               </>
             );
@@ -347,7 +363,7 @@ function RecorderRight(props: RecorderRightProps) {
                 />
                 <PlayerButton
                   intent={PlayerButtonIntentTypes.CLEAR}
-                  onClick={onClearRecording}
+                  onClick={handleClear}
                 />
               </>
             );
@@ -412,6 +428,14 @@ function RecorderRight(props: RecorderRightProps) {
     setCurrentHours(Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60)));
     setCurrentMinutes(Math.floor((totalSeconds % (60 * 60)) / 60));
     setCurrentSeconds(Math.floor(totalSeconds % 60));
+  };
+
+  const handleClear = () => {
+    onClearRecording();
+    setCurrentDays(0);
+    setCurrentHours(0);
+    setCurrentMinutes(0);
+    setCurrentSeconds(0);
   };
 
   const getFormattedDigit = (value: number) => {
@@ -580,6 +604,7 @@ function RecorderComponent(props: RecorderComponentProps) {
   const handleClearRecording = () => {
     reset(0, false);
     setIsReadyPlayer(false);
+    setIsReadyPlayerTimer(false);
     setPlayerStatus(PlayerStatusTypes.DEFAULT);
     setRecorderStatus(RecorderStatusTypes.DEFAULT);
     setStatusMessage("Press to start recording");
