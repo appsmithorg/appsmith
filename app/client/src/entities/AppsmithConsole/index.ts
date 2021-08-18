@@ -9,6 +9,7 @@ export enum ENTITY_TYPE {
   ACTION = "ACTION",
   DATASOURCE = "DATASOURCE",
   WIDGET = "WIDGET",
+  JSACTION = "JSACTION",
 }
 
 export type ErrorType = BindingError | ActionError | WidgetError | EvalError;

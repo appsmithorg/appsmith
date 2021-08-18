@@ -26,8 +26,10 @@ import {
   getAction,
   getPlugin,
   getPluginNameFromId,
+  getJSAction,
 } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
+import { JSAction } from "entities/JSAction";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
@@ -147,6 +149,13 @@ function* onEntityDeleteSaga(payload: Message) {
           errorMessages: error.messages,
           pageId: currentPageId,
         });
+      } else if (source.type === ENTITY_TYPE.JSACTION) {
+        AnalyticsUtil.logEvent("DEBUGGER_RESOLVED_ERROR", {
+          entityType: ENTITY_TYPE.JSACTION,
+          propertyPath: `${error.source?.name}`,
+          errorMessages: error.messages,
+          pageId: currentPageId,
+        });
       }
     }
   });
@@ -222,6 +231,20 @@ function* debuggerLogSaga(action: ReduxAction<Message>) {
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
       return;
+    case LOG_TYPE.JS_ACTION_UPDATE:
+      yield put(debuggerLog(payload));
+      return;
+    case LOG_TYPE.JS_PARSE_ERROR:
+      yield put(errorLog(payload));
+      break;
+    case LOG_TYPE.JS_PARSE_SUCCESS:
+      yield put(
+        updateErrorLog({
+          ...payload,
+          state: {},
+        }),
+      );
+      break;
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
@@ -329,6 +352,18 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
         propertyPath,
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
+      });
+    } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
+      const action: JSAction = yield select(getJSAction, payload.entityId);
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      const pluginName = plugin.name.replace(/ /g, "");
+
+      // Sending plugin name for actions
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: pluginName,
+        propertyPath: "",
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
       });

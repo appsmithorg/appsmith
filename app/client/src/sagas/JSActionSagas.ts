@@ -55,6 +55,9 @@ import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { GenericApiResponse } from "api/ApiResponses";
 import { JSActionViewMode } from "entities/JSAction";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 export function* fetchJSActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -94,10 +97,14 @@ export function* createJSActionSaga(
         variant: Variant.success,
       });
 
-      // const pageName = yield select(
-      //   getCurrentPageNameByJSActionId,
-      //   response.data.id,
-      // );
+      AppsmithConsole.info({
+        text: `JS Object created`,
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          id: response.data.id,
+          name: response.data.name,
+        },
+      });
 
       const newAction = response.data;
       yield put(createJSActionSuccess(newAction));
@@ -247,6 +254,15 @@ export function* deleteJSActionSaga(
           history.push(BUILDER_PAGE_URL(applicationId, pageId));
         }
       }
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ENTITY_DELETED,
+        text: "JS object was deleted",
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: response.data.name,
+          id: response.data.id,
+        },
+      });
       yield put(deleteJSActionSuccess({ id }));
     }
   } catch (error) {

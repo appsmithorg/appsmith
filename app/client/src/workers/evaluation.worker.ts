@@ -181,7 +181,7 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
-        const { body } = requestData;
+        const { body, jsAction } = requestData;
 
         if (!dataTreeEvaluator) {
           return true;
@@ -220,6 +220,7 @@ ctx.addEventListener(
           errors.push({
             type: EvalErrorTypes.PARSE_JS_ERROR,
             message: e.message,
+            context: jsAction,
           });
           return errors;
         }

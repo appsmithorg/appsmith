@@ -41,7 +41,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import { JSSubAction } from "entities/JSAction";
+import { JSAction, JSSubAction } from "entities/JSAction";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
@@ -156,12 +156,13 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   });
 }
 
-export function* parseJSAction(body: string) {
+export function* parseJSAction(body: string, jsAction: JSAction) {
   const parsedObject = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
       body,
+      jsAction,
     },
   );
   return parsedObject;

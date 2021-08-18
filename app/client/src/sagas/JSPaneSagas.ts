@@ -43,6 +43,10 @@ import {
   ERROR_JS_COLLECTION_RENAME_FAIL,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
@@ -87,11 +91,23 @@ function* handleJSActionCreatedSaga(actionPayload: ReduxAction<JSAction>) {
 
 function* handleParseUpdateJSAction(actionPayload: { body: string }) {
   const body = actionPayload.body;
-  const parsedBody = yield call(parseJSAction, body);
   const jsActionId = getJSActionIdFromURL();
+  const pageId = yield select(getCurrentPageId);
   const organizationId: string = yield select(getCurrentOrgId);
   if (jsActionId) {
     const jsAction: JSAction = yield select(getJSAction, jsActionId);
+    const parsedBody = yield call(parseJSAction, body, jsAction);
+    if (parsedBody) {
+      AppsmithConsole.info({
+        logType: LOG_TYPE.JS_PARSE_SUCCESS,
+        text: "Executed successfully from widget request",
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: jsAction.name,
+          id: jsActionId,
+        },
+      });
+    }
     const data = getDifferenceInJSAction(parsedBody, jsAction);
     const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
     jsActionTobeUpdated.body = body;
@@ -160,6 +176,15 @@ function* handleUpdateJSAction(actionPayload: ReduxAction<{ body: string }>) {
       const response = yield JSActionAPI.updateJSAction(data);
       const isValidResponse = yield validateResponse(response);
       if (isValidResponse) {
+        AppsmithConsole.info({
+          logType: LOG_TYPE.JS_ACTION_UPDATE,
+          text: "JS object updated",
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: response?.data.name,
+            id: response?.data,
+          },
+        });
         yield put(updateJSActionSuccess({ data: response?.data }));
       }
     }

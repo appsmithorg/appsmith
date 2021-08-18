@@ -240,12 +240,15 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        //TO DO push to debugger
-        // Toaster.show({
-        //   text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
-        //   variant: Variant.danger,
-        //   showDebugButton: false,
-        // });
+        AppsmithConsole.error({
+          logType: LOG_TYPE.JS_PARSE_ERROR,
+          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: error?.context?.name,
+            id: error?.context?.id,
+          },
+        });
         break;
       }
       default: {
