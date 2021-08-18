@@ -12,8 +12,8 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import {
+  deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
-  selectMultipleWidgetsAction,
 } from "actions/widgetSelectionActions";
 import {
   setGlobalSearchFilterContext,
@@ -30,14 +30,18 @@ import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/actionActions";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
+import {
+  filterCategories,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
 
 type Props = {
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: () => void;
+  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -45,9 +49,7 @@ type Props = {
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
-  setGlobalSearchFilterContext: (payload: {
-    category: SEARCH_CATEGORIES;
-  }) => void;
+  setGlobalSearchFilterContext: (payload: { category: any }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -75,10 +77,12 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    this.props.setGlobalSearchFilterContext({
-      category: SEARCH_CATEGORIES.NAVIGATION,
-    });
-    this.props.toggleShowGlobalSearchModal();
+    // this.props.setGlobalSearchFilterContext({
+    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+    // });
+    this.props.toggleShowGlobalSearchModal(
+      filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+    );
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
 
@@ -252,15 +256,16 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
-    toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    toggleShowGlobalSearchModal: (category: SearchCategory) =>
+      dispatch(toggleShowGlobalSearchModal(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
+    deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
-    setGlobalSearchFilterContext: (payload: { category: SEARCH_CATEGORIES }) =>
+    setGlobalSearchFilterContext: (payload: { category: any }) =>
       dispatch(setGlobalSearchFilterContext(payload)),
   };
 };

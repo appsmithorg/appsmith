@@ -251,12 +251,17 @@ export default function CommentsShowcaseCarousel() {
     isSkipped,
   );
 
+  const handleClose = () => {
+    dispatch(hideCommentsIntroCarousel());
+  };
+
   if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>
       <ShowcaseCarousel
         activeIndex={activeIndex}
+        onClose={handleClose}
         setActiveIndex={setActiveIndex}
         steps={steps as Steps}
       />
