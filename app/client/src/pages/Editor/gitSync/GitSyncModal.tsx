@@ -6,6 +6,7 @@ import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import styled from "styled-components";
 import Menu from "./Menu";
+import { Classes } from "./constants";
 
 const Body = styled.div``;
 
@@ -36,7 +37,7 @@ function GitSyncModal() {
     <Dialog
       canEscapeKeyClose
       canOutsideClickClose
-      className="git-sync-modal"
+      className={Classes.GIT_SYNC_MODAL}
       isOpen={isModalOpen}
       maxWidth={"900px"}
       onClose={handleClose}

@@ -30,3 +30,7 @@ export const MENU_ITEMS: TabProp[] = [
     title: createMessage(SETTINGS),
   },
 ];
+
+export const Classes = {
+  GIT_SYNC_MODAL: "git-sync-modal",
+};
