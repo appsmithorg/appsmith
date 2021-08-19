@@ -116,7 +116,7 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
         id={`comment-overlay-wrapper-${refId}`}
         isCommentMode={isCommentMode}
         onClick={clickHandler}
-        ref={isCommentMode ? containerRef : null}
+        ref={containerRef}
       >
         {children}
         {isCommentMode && <Comments refId={refId} />}
