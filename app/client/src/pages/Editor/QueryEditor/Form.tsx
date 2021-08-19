@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
+  getPlugin,
 } from "selectors/entitiesSelector";
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { getFormValues } from "redux-form";
@@ -21,8 +22,11 @@ const mapStateToProps = (state: AppState) => {
   const documentationLinks = getPluginDocumentationLinks(state);
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
 
+  const plugin = getPlugin(state, pluginId);
+
   return {
     actionName,
+    plugin,
     pluginId,
     selectedDbId,
     responseType: responseTypes[pluginId],

@@ -61,6 +61,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import { Plugin } from "api/PluginApi";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -378,6 +379,7 @@ type QueryFormProps = {
 type ReduxProps = {
   actionName: string;
   responseType: string | undefined;
+  plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
 };
@@ -400,6 +402,7 @@ export function EditorJSONtoForm(props: Props) {
     isRunning,
     onCreateDatasourceClick,
     onRunClick,
+    plugin,
     responseType,
     runErrorMessage,
     settingConfig,
@@ -485,18 +488,12 @@ export function EditorJSONtoForm(props: Props) {
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (props?.documentationLink) {
-      const query = omnibarDocumentationHelper(props.documentationLink);
-      if (query !== "") {
-        dispatch(setGlobalSearchQuery(query));
-      } else {
-        dispatch(setGlobalSearchQuery("Connect to Databases"));
-      }
-      dispatch(toggleShowGlobalSearchModal());
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DATASOURCE_DOCUMENTATION_CLICK",
-      });
-    }
+    const query = plugin?.name || "Connecting to datasources";
+    dispatch(setGlobalSearchQuery(query));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "DATASOURCE_DOCUMENTATION_CLICK",
+    });
   };
 
   const renderEachConfig = (formName: string) => (section: any): any => {
