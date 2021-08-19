@@ -382,6 +382,7 @@ type ReduxProps = {
   responseType: string | undefined;
   pluginId: string;
   documentationLink: string | undefined;
+  evalState: Record<string, any>;
 };
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
@@ -502,6 +503,53 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
+  // V2 call to make rendering more flexible, used for UQI forms
+  const renderEachConfigV2 = (formName: string) => (section: any): any => {
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (!!formControlOrSection && props.hasOwnProperty("evalState")) {
+          let allowToRender = true;
+          if (
+            formControlOrSection.hasOwnProperty("configProperty") &&
+            props.evalState.hasOwnProperty(formControlOrSection.configProperty)
+          ) {
+            allowToRender =
+              props?.evalState[formControlOrSection.configProperty].visible;
+          } else if (
+            formControlOrSection.hasOwnProperty("serverLabel") &&
+            !!formControlOrSection.serverLabel &&
+            props.evalState.hasOwnProperty(formControlOrSection.serverLabel)
+          ) {
+            allowToRender =
+              props?.evalState[formControlOrSection.serverLabel].visible;
+          }
+
+          if (!allowToRender) return null;
+        }
+
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfigV2(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
+        }
+        return null;
+      },
+    );
+  };
+
+  // Recursive call to render forms pre UQI
   const renderEachConfig = (formName: string) => (section: any): any => {
     return section.children.map(
       (formControlOrSection: ControlProps, idx: number) => {
@@ -695,8 +743,13 @@ export function EditorJSONtoForm(props: Props) {
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
+                        {/*// Selectively rendering form based on uiComponent prop*/}
                         {editorConfig && editorConfig.length > 0 ? (
-                          editorConfig.map(renderEachConfig(formName))
+                          uiComponent === UIComponentTypes.UQIDbEditorForm ? (
+                            editorConfig.map(renderEachConfigV2(formName))
+                          ) : (
+                            editorConfig.map(renderEachConfig(formName))
+                          )
                         ) : (
                           <>
                             <ErrorMessage>

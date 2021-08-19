@@ -19,3 +19,6 @@ export const getApiName = (state: AppState, id: string) => {
     (action: ActionData) => action.config.id === id,
   )?.config.name;
 };
+
+export const getFormEvaluationState = (state: AppState) =>
+  state.evaluations.formEvaluation;

@@ -33,6 +33,7 @@ export interface ControlBuilder<T extends ControlProps> {
 }
 
 export interface ControlProps extends ControlData, ControlFunctions {
+  serverLabel?: string;
   key?: string;
   extraData?: ControlData[];
   formName: string;
@@ -49,6 +50,7 @@ export interface ControlData {
   validationRegex?: string;
   dataType?: InputType;
   isRequired?: boolean;
+  conditionals: string;
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
