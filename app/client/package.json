@@ -9,7 +9,7 @@
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
-    "@blueprintjs/datetime": "^3.14.0",
+    "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
