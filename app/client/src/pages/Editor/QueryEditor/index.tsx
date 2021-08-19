@@ -15,6 +15,7 @@ import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import { Plugin } from "api/PluginApi";
+import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
@@ -64,6 +65,7 @@ type ReduxStateProps = {
   editorConfig: any;
   settingConfig: any;
   isEditorInitialized: boolean;
+  uiComponent: UIComponentTypes;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -123,6 +125,7 @@ class QueryEditor extends React.Component<Props> {
       responses,
       runErrorMessage,
       settingConfig,
+      uiComponent,
     } = this.props;
     const { applicationId, pageId } = this.props.match.params;
 
@@ -165,6 +168,7 @@ class QueryEditor extends React.Component<Props> {
         onRunClick={this.handleRunClick}
         runErrorMessage={runErrorMessage[queryId]}
         settingConfig={settingConfig}
+        uiComponent={uiComponent}
       />
     );
   }
@@ -196,9 +200,24 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     settingConfig = settingConfigs[pluginId];
   }
 
+  const allPlugins = getPlugins(state);
+  // Adding uiComponent field to switch form type to UQI or allow for backward compatibility
+  const plugin = allPlugins.find((plugin) =>
+    !!formData ? plugin.id === formData.pluginId : false,
+  );
+  // Defaults to old value, new value can be DBEditorForm or UQIDBEditorForm
+  let uiComponent = UIComponentTypes.DbEditorForm;
+  if (plugin) {
+    uiComponent = plugin.uiComponent;
+  }
+
+  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+    initFormEvaluations;
+  }
+
   return {
     pluginImages: getPluginImages(state),
-    plugins: getPlugins(state),
+    plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
     dataSources: getDBDatasources(state),
@@ -210,6 +229,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     settingConfig,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
+    uiComponent,
   };
 };
 

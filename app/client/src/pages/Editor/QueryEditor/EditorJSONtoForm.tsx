@@ -61,6 +61,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import { UIComponentTypes } from "../../../api/PluginApi";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -359,6 +360,7 @@ type QueryFormProps = {
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
+  uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
@@ -403,6 +405,7 @@ export function EditorJSONtoForm(props: Props) {
     responseType,
     runErrorMessage,
     settingConfig,
+    uiComponent,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
