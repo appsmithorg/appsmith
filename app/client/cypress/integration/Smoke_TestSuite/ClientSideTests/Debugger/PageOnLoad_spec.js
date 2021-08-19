@@ -18,6 +18,6 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     cy.get(explorer.addWidget).click();
 
     cy.reload();
-    cy.get(".t--debugger-count").should("not.be.visible");
+    cy.get(debuggerLocators.errorCount).should("not.exist");
   });
 });
