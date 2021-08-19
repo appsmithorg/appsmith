@@ -8,13 +8,18 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { WidgetDraggingUpdateParams } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
 import { updateWidgetPosition } from "utils/WidgetPropsUtils";
-import { getWidgets } from "./selectors";
+import { getWidget, getWidgets } from "./selectors";
 import log from "loglevel";
 import { cloneDeep } from "lodash";
 import { updateAndSaveLayout } from "actions/pageActions";
+import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
+import { GridDefaults } from "constants/WidgetConstants";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
+import { OccupiedSpace } from "constants/editorConstants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -30,16 +35,74 @@ export type WidgetMoveParams = {
   allWidgets: CanvasWidgetsReduxState;
 };
 
+function* updateCanvasSizeAfterWidgetMove(
+  canvasWidgetId: string,
+  movedWidgetsBottomRow: number,
+) {
+  const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+  if (canvasWidget) {
+    const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
+      getOccupiedSpacesSelectorForContainer(canvasWidgetId),
+    );
+    const canvasMinHeight = canvasWidget.minHeight || 0;
+    const newRows = calculateDropTargetRows(
+      canvasWidgetId,
+      movedWidgetsBottomRow,
+      canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      occupiedSpacesByChildren,
+    );
+    const rowsToPersist = Math.max(
+      canvasMinHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
+      newRows,
+    );
+
+    const originalSnapRows = canvasWidget.bottomRow - canvasWidget.topRow;
+
+    const newBottomRow = Math.round(
+      rowsToPersist * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    );
+    /* Update the canvas's rows, ONLY if it has changed since the last render */
+    if (originalSnapRows !== newBottomRow) {
+      // TODO(abhinav): This considers that the topRow will always be zero
+      // Check this out when non canvas widgets are updating snapRows
+      // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
+      return newBottomRow;
+    }
+    return canvasWidget.bottomRow;
+  }
+}
+
+const getBottomMostRowAfterMove = (
+  draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
+  allWidgets: CanvasWidgetsReduxState,
+) => {
+  const bottomMostBlock =
+    draggedBlocksToUpdate[draggedBlocksToUpdate.length - 1];
+  const widget = allWidgets[bottomMostBlock.widgetId];
+  const { updateWidgetParams } = bottomMostBlock;
+  const widgetBottomRow =
+    updateWidgetParams.payload.topRow +
+    (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+  return widgetBottomRow;
+};
+
 function* moveWidgetsSaga(
   actionPayload: ReduxAction<{
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
+    canvasId: string;
   }>,
 ) {
   const start = performance.now();
 
-  const { draggedBlocksToUpdate } = actionPayload.payload;
+  const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = cloneDeep(allWidgets);
+  const bottomMostRowAfterMove = getBottomMostRowAfterMove(
+    draggedBlocksToUpdate,
+    allWidgets,
+  );
+  // draggedBlocksToUpdate is already sorted based on bottomRow
+
   try {
     const updatedWidgets = draggedBlocksToUpdate.reduce((widgetsObj, each) => {
       return moveWidget({
@@ -48,6 +111,19 @@ function* moveWidgetsSaga(
         allWidgets: widgetsObj,
       });
     }, widgets);
+
+    const updatedCanvasBottomRow: number = yield call(
+      updateCanvasSizeAfterWidgetMove,
+      canvasId,
+      bottomMostRowAfterMove,
+    );
+    if (updatedCanvasBottomRow) {
+      const canvasWidget = updatedWidgets[canvasId];
+      updatedWidgets[canvasId] = {
+        ...canvasWidget,
+        bottomRow: updatedCanvasBottomRow,
+      };
+    }
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
