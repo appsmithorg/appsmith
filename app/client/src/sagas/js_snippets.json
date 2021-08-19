@@ -8,13 +8,13 @@
         "dataType": "ARRAY",
         "body": {
             "title": "Filter data based on a particular value when binding data from an array",
-            "snippet": "{{data}}.filter((item) => {return item[{{key}}] === {{value}};});",
+            "snippet": "let data = [{\"hero\": \"Iron Man\",\"team\": \"Avengers\",\"skills\": \"Superhuman strength\"}, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\", \"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }]; filtered_data = data.filter((item) => { return item[\"team\"] == \"Avengers\"; });",
+            "template": "{{data}}.filter((item) => {return item[{{key}}] === {{value}};});",
             "isTrigger": false,
             "args": [
                 {
                     "name": "data",
-                    "type": "OBJECT_ARRAY",
-                    "defaultValue": "Table1.tableData"
+                    "type": "OBJECT_ARRAY"
                 },
                 {
                     "name": "key",
@@ -26,11 +26,10 @@
                 }
             ],
             "summary": "Merge data from two entities into a single response",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "let data = [{\"hero\": \"Iron Man\",\"team\": \"Avengers\",\"skills\": \"Superhuman strength\"}, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\", \"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }]; filtered_data = data.filter((item) => { return item[\"team\"] == \"Avengers\"; });",
-                    "summary": ""
+                    "content": ""
                 }
             ]
         }
@@ -44,7 +43,7 @@
         "dataType": "STRING",
         "body": {
             "title": "Access attributes from a nested data",
-            "snippet": "{{your_object}}.{{key}}",
+            "template": "{{your_object}}.{{key}}",
             "args": [
                 {
                     "name": "your_object",
@@ -57,13 +56,13 @@
             ],
             "isTrigger": false,
             "summary": "When you have objects or arrays nested inside each other, you can use the dot operator to access items inside them and return them onto the table or list widget.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "let nested_data = {\"data\": {\"heros_data\": [{\"hero\": \"Iron Man\", \"team\": \"Avengers\", \"skills\": \"Superhuman strength\" }, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\",\"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }] }}heros_data = nested_data.data.heros_data;",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "let nested_data = {\"data\": {\"heros_data\": [{\"hero\": \"Iron Man\", \"team\": \"Avengers\", \"skills\": \"Superhuman strength\" }, {\"hero\": \"Bat Man\", \"team\": \"Justice League\", \"skills\": \"Gadgets\" }, {\"hero\": \"Aqua Man\",\"team\": \"Justice League\", \"skills\": \"endurance\" }, {\"hero\": \"Captain America\", \"team\": \"Avengers\", \"skills\": \"endurance\" }] }}heros_data = nested_data.data.heros_data;"
         }
     },
     {
@@ -75,7 +74,7 @@
         "dataType": "STRING",
         "body": {
             "title": "Add colours to data inside table columns based on certain conditions",
-            "snippet": "(function columnColor() { let colors = { {{columnValue1}}: {{color1}}, {{columnValue2}}: {{color2}}, }; return colors[{{tableName}}.selectedRow[{{columnName1}}]]; })()",
+            "template": "(function columnColor() { let colors = { {{columnValue1}}: {{color1}}, {{columnValue2}}: {{color2}}, }; return colors[{{tableName}}.selectedRow[{{columnName}}]]; })()",
             "isTrigger": false,
             "args": [
                 {
@@ -104,13 +103,13 @@
                 }
             ],
             "summary": "You can have custom styles such as colours and backgrounds in your table widget on a particular column. Choose the column you want, open the column settings and use the following snippet in Cell Background or Text Color property.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "//Javascript for Cell Background or Text Color property\n(function columnColor() {let colors = {\"True\": \"green\",\"False\": \"Red\"};return colors[currentRow[\"status\"]];})()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "//Javascript for Cell Background or Text Color property\n(function columnColor() {let colors = {\"True\": \"green\",\"False\": \"Red\"};return colors[currentRow[\"status\"]];})()"
         }
     },
     {
@@ -122,7 +121,7 @@
         "dataType": "ARRAY",
         "body": {
             "title": "Merge multiple objects from queries into a single array",
-            "snippet": "{{your_array}}.concat({{Obj1}}, {{Obj2}});",
+            "template": "{{your_array}}.concat({{Obj1}}, {{Obj2}});",
             "args": [
                 {
                     "type": "ARRAY",
@@ -139,13 +138,13 @@
             ],
             "isTrigger": false,
             "summary": "If you have multiple objects from Queries with the same key\"s and want to bind them in a list or table widget, you can use the concat() method.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "/* Query #1 Data: Avengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "/* Query #1 Data: Avengers\n [ { hero: \"Bat Man\", team: \"Justice League\", skills: \"Gadgets\", }, { hero: \"Aqua Man\", team: \"Justice League\", skills: \"endurance\", }, ] \nQuery #2 Data: justice_league\n [ { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", }, { hero: \"Captain America\", team: \"Avengers\", skills: \"endurance\", }, ] */let heros = avengers.concat(justice_league);"
         }
     },
     {
@@ -157,16 +156,16 @@
         "dataType": "STRING",
         "body": {
             "title": "Parsing through nested JSON data inside an array of objects",
-            "snippet": "currentRow.columnName.{{key}}.{{key}}",
+            "template": "currentRow.columnName.{{key}}.{{key}}",
             "isTrigger": false,
             "summary": "If the values in the data are dense JSON, you could parse them into your columns inside the Table widget or bind them onto the List widget. For this, you\"ll have to open the property pane on the Table widget and go to the column settings and update the ComputedValue. Similarly, on the list widget, you could use the currentItem property and parse through JSON.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "// When using Notion API, to bind title from a Notion table,\n// the following has to be used inside the Title computed Value.\ncurrentRow.Title.title[0].plain_text",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "// When using Notion API, to bind title from a Notion table,\n// the following has to be used inside the Title computed Value.\ncurrentRow.Title.title[0].plain_text"
         }
     },
     {
@@ -178,7 +177,7 @@
         "dataType": "ARRAY",
         "body": {
             "title": "Removing duplicate values from an array",
-            "snippet": "(function(){let JSONObject = {{your_array}}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;})()",
+            "template": "(function(){let JSONObject = {{your_array}}.map(JSON.stringify);let uniqueSet = new Set(JSONObject);let uniqueArray = Array.from(uniqueSet).map(JSON.parse);return uniqueArray;})()",
             "isTrigger": false,
             "args": [
                 {
@@ -187,13 +186,13 @@
                 }
             ],
             "summary": "When binding array data into a table widget or list widget, you may encounter duplicate values. You can use the following snippet to only bind unique values.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "(function(){let heroes = [{     hero: \"Iron Man\",     team: \"Avengers\",     skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",     team: \"Justice League\",     skills: \"Gadgets\", }, {     hero: \"Iron Man\",    team: \"Avengers\",    skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",    team: \"Justice League\",    skills: \"Gadgets\", }, {     hero: \"Aqua Man\",     team: \"Justice League\",     skills: \"endurance\" }, {      hero: \"Captain America\",      team: \"Avengers\",      skills: \"endurance\", }]; let JSONObject = heroes.map(JSON.stringify); let uniqueSet = new Set(JSONObject); let uniqueArray = Array.from(uniqueSet).map(JSON.parse); return uniqueArray; })()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "(function(){let heroes = [{     hero: \"Iron Man\",     team: \"Avengers\",     skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",     team: \"Justice League\",     skills: \"Gadgets\", }, {     hero: \"Iron Man\",    team: \"Avengers\",    skills: \"Superhuman strength\", }, {     hero: \"Bat Man\",    team: \"Justice League\",    skills: \"Gadgets\", }, {     hero: \"Aqua Man\",     team: \"Justice League\",     skills: \"endurance\" }, {      hero: \"Captain America\",      team: \"Avengers\",      skills: \"endurance\", }]; let JSONObject = heroes.map(JSON.stringify); let uniqueSet = new Set(JSONObject); let uniqueArray = Array.from(uniqueSet).map(JSON.parse); return uniqueArray; })()"
         }
     },
     {
@@ -204,7 +203,7 @@
         "dataType": "ARRAY",
         "body": {
             "title": "Creating a select widget options list from a query",
-            "snippet": "{{queryData}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute2}} }; });",
+            "template": "{{queryData}}.map((item) => { return { label: item.{{attribute1}}, value: item.{{attribute2}} }; });",
             "isTrigger": false,
             "args": [
                 {
@@ -213,21 +212,21 @@
                 },
                 {
                     "name": "attribute1",
-                    "type": "TEXT"
+                    "type": "VAR"
                 },
                 {
                     "name": "attribute2",
-                    "type": "TEXT"
+                    "type": "VAR"
                 }
             ],
             "summary": "When you want to create an option list from an API or DB Query, which contains an array of object\"s you can use the `map()` function and return the options in an array in the following format:`Array<{ label: string, value: string }>`",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "(function () {let skills = [\"strength\",\"speed\",\"durability\",\"agility\",\"reflexes\"];let options_list = skills.map((item) => {return { label: item, value: item, };});return options_list;})()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "(function () {let skills = [\"strength\",\"speed\",\"durability\",\"agility\",\"reflexes\"];let options_list = skills.map((item) => {return { label: item, value: item, };});return options_list;})()"
         }
     },
     {
@@ -239,7 +238,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Updating queries when options are changed from the select widget",
-            "snippet": "{{selectBox}}.selectedOptionValue === {{value}} ? {{QueryOne}}.run() : {{QueryTwo}}.run()",
+            "template": "{{selectBox}}.selectedOptionValue === {{value}} ? {{QueryOne}}.run() : {{QueryTwo}}.run()",
             "args": [
                 {
                     "type": "string",
@@ -260,13 +259,13 @@
             ],
             "isTrigger": false,
             "summary": "Based on the updated option on the select widget, you can call or execute an API. For this, you\"ll need to define a workflow in the onOptionChange property with JavaScript.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "/* If the selected option in the Select widget is User then fetch_users query is executed, else fetch_products query is executed. */\nSelect1.selectedOptionValue === \"User\" ? fetch_users.run() : fetch_products.run()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "/* If the selected option in the Select widget is User then fetch_users query is executed, else fetch_products query is executed. */\nSelect1.selectedOptionValue === \"User\" ? fetch_users.run() : fetch_products.run()"
         }
     },
     {
@@ -277,26 +276,26 @@
         "dataType": "STRING",
         "body": {
             "title": "Setting default value of checkbox based on a query",
-            "snippet": "{{query}}.{{key}}",
+            "template": "{{query}}.{{key}}",
             "isTrigger": false,
             "args": [
                 {
                     "name": "query",
-                    "type": "VAR"
+                    "type": "OBJECT"
                 },
                 {
                     "name": "key",
-                    "type": "TEXT"
+                    "type": "VAR"
                 }
             ],
             "summary": "To configure the default value of the checkbox widget with a particular query, you can use javascript and return the state of the checkbox.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "function() {let iron_man = { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", status: true, };return iron_man.status; }()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "function() {let iron_man = { hero: \"Iron Man\", team: \"Avengers\", skills: \"Superhuman strength\", status: true, };return iron_man.status; }()"
         }
     },
     {
@@ -307,14 +306,14 @@
         "dataType": "STRING",
         "body": {
             "title": "Select current date in the date picker widget",
-            "snippet": "moment.now()",
-            "examples": [
+            "template": "moment.now()",
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "moment.now()",
-                    "summary": ""
+                    "content": ""
                 }
             ],
+            "snippet": "moment.now()",
             "isTrigger": false,
             "summary": "By default, if you want to assign the date picker value to the current date, you can use moment.now() method. "
         }
@@ -327,7 +326,7 @@
         "dataType": "STRING",
         "body": {
             "title": "Formatting date inside the data picker widget",
-            "snippet": "moment({{date}}).format({{dateFormat}})",
+            "template": "moment({{date}}).format({{dateFormat}})",
             "args": [
                 {
                     "name": "date",
@@ -340,13 +339,13 @@
             ],
             "isTrigger": false,
             "summary": "If you want to change the format of the date object from a query, you can use moment.javascript and covert it into the desired format.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "moment(\"2021-06-28 12:28:33 PM\").format(\"LL\")",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "moment(\"2021-06-28 12:28:33 PM\").format(\"LL\")"
         }
     },
     {
@@ -357,14 +356,13 @@
         "dataType": "STRING",
         "body": {
             "title": "Binding current time in the text widget",
-            "snippet": "moment.now()",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "moment.now()",
-                    "summary": ""
+                    "content": ""
                 }
             ],
+            "snippet": "moment.now()",
             "isTrigger": false,
             "summary": "Sometimes, you need to display time when building UI, especially when building dashboards. On Appsmith, you can utilise the moment.javascript library to either display the current time or format any date-time type from a query."
         }
@@ -377,7 +375,7 @@
         "dataType": "STRING",
         "body": {
             "title": "Binding an object onto the text widget",
-            "snippet": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
+            "template": "(function() { let my_object = {{my_object}};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
             "isTrigger": false,
             "args": [
                 {
@@ -386,13 +384,13 @@
                 }
             ],
             "summary": "Text Widget allows you to bind data from the APIs. When they are strings, we could directly bind them using the dot operator, but when you need the entire object with key-value pairs listed on the text widget you\"ll need to use the Object.entries method.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "(function(){let my_object = {\"AC\": \"True\", \"Parking\": \"True\", \"WiFi\": \"False\"};let my_string = Object.entries(my_object).map( ([key, value]) => `${key}: ${value}`).join(\"\\n\");return my_string;})()"
         }
     },
     {
@@ -403,22 +401,15 @@
         "dataType": "STRING",
         "body": {
             "title": "Bind a variable dynamically on the text widget",
-            "snippet": "`The total amount on the invoice is ${{{your_text}}}`",
             "isTrigger": false,
-            "args": [
-                {
-                    "name": "your_text",
-                    "type": "TEXT"
-                }
-            ],
-            "summary": "When you want any variable onto the text widget, you can use the template literals in JavaScript.",
-            "examples": [
+            "summary": "When you want any variable onto the text widget, you can use the snippets literals in JavaScript.",
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "(function(){let invoice_total = 120;let text = `The total amount on the invoice is ${invoice_total}`;return text;})()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "(function(){let invoice_total = 120;let text = `The total amount on the invoice is ${invoice_total}`;return text;})()"
         }
     },
     {
@@ -430,7 +421,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Configuring multiple actions on button click",
-            "snippet": "{{query1}}.run(() => {showAlert({{successMessage}}, \"info\");storeValue({{key}}, {{queryData}});navigateTo({{pageName}});});",
+            "template": "{{query1}}.run(() => {showAlert({{successMessage}}, \"info\");storeValue({{key}}, {{queryData}});navigateTo({{pageName}});});",
             "isTrigger": true,
             "args": [
                 {
@@ -455,13 +446,13 @@
                 }
             ],
             "summary": "You can configure multiple actions for buttons in Appsmith. For this, you\"ll need to use javascript in the onClick property and use the necessary methods. The following snippet does the following when clicked.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "getUsers.run(() => {showAlert(\"Query Executed\", \"info\");storeValue(\"name\", getUsers.data[0].name);navigateTo(\"#Page2\"));});",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "getUsers.run(() => {showAlert(\"Query Executed\", \"info\");storeValue(\"name\", getUsers.data[0].name);navigateTo(\"#Page2\"));});"
         }
     },
     {
@@ -473,7 +464,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Open a modal and run a query on button click",
-            "snippet": "showModal({{modalName}});{{query}}.run();",
+            "template": "showModal({{modalName}});{{query}}.run();",
             "isTrigger": true,
             "args": [
                 {
@@ -486,13 +477,13 @@
                 }
             ],
             "summary": "To open a new Modal on button click and run a query, you can use javascript in the onClick property. This can be handy when you want to render any data on the Modal.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "showModal('Modal1');getUsers.run()",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "showModal('Modal1');getUsers.run()"
         }
     },
     {
@@ -504,7 +495,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Run an API, close modal and show alert",
-            "snippet": "{{query}}.run(() => {closeModal({{modalName}});showAlert({{alertMessage}});})",
+            "template": "{{query}}.run(() => {closeModal({{modalName}});showAlert({{alertMessage}});})",
             "isTrigger": true,
             "args": [
                 {
@@ -521,13 +512,13 @@
                 }
             ],
             "summary": "",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "getUsers.run(() => {closeModal(\"Modal1\");showAlert(\"Success\");})",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "getUsers.run(() => {closeModal(\"Modal1\");showAlert(\"Success\");})"
         }
     },
     {
@@ -540,7 +531,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Running multiple queries in series",
-            "snippet": "{{query1}}.run(() => {{query2}}.run(() => {{query3}}.run()));",
+            "template": "{{query1}}.run(() => {{query2}}.run(() => {{query3}}.run()));",
             "isTrigger": true,
             "args": [
                 {
@@ -557,13 +548,13 @@
                 }
             ],
             "summary": "If you want to run two APIs in series on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "getAvengers.run(() => getLeague.run(() => getRangers.run()));",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "getAvengers.run(() => getLeague.run(() => getRangers.run()));"
         }
     },
     {
@@ -576,7 +567,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Running multiple queries in parallel",
-            "snippet": "{{query1}}.run();{{query2}}.run();",
+            "template": "{{query1}}.run();{{query2}}.run();",
             "isTrigger": true,
             "args": [
                 {
@@ -589,13 +580,13 @@
                 }
             ],
             "summary": "If you want to run two APIs in parallel on button click, page-load or any other actions, you can use javascript to define a workflow. For this, you\"ll need to update the properties with javascript.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "getAvengers.run(); getLeague.run();",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "getAvengers.run(); getLeague.run();"
         }
     },
     {
@@ -607,7 +598,7 @@
         "dataType": "FUNCTION",
         "body": {
             "title": "Displaying alerts for workflows",
-            "snippet": "{{query1}}.run(() => {{{query2}}.run(() => {showAlert({{successMessage}}); },() => showAlert({{errorMessage}}) );},() => showAlert({{errorMessage}}, \"error\"));",
+            "template": "{{query1}}.run(() => {{{query2}}.run(() => {showAlert({{successMessage}}); },() => showAlert({{errorMessage}}) );},() => showAlert({{errorMessage}}, \"error\"));",
             "isTrigger": true,
             "args": [
                 {
@@ -628,13 +619,13 @@
                 }
             ],
             "summary": "You might often want to notify users with alerts, after executing queries or when performing certain actions on Appsmith. To do this, you can use showAlert method with javascript.",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "updateUsers.run(() => {fetchUsers.run(() => {showAlert(\"User Updated\"); },() => showAlert(\"Fetch Users Failed\") );},() => showAlert(\"Update User Failed\", \"error\"));",
-                    "summary": ""
+                    "content": ""
                 }
-            ]
+            ],
+            "snippet": "updateUsers.run(() => {fetchUsers.run(() => {showAlert(\"User Updated\"); },() => showAlert(\"Fetch Users Failed\") );},() => showAlert(\"Update User Failed\", \"error\"));"
         }
     },
     {
@@ -646,14 +637,13 @@
         "dataType": "STRING",
         "body": {
             "title": "Query data from Postgres table",
-            "snippet": "SELECT * FROM {{table_name}}",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "SELECT * FROM table_name",
-                    "summary": ""
+                    "content": ""
                 }
             ],
+            "snippet": "SELECT * FROM table_name",
             "isTrigger": false,
             "args": [
                 {
@@ -673,14 +663,13 @@
         "dataType": "STRING",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from multiple columns",
-            "snippet": "SELECT {{column1}}, {{column2}}, {{column3}} FROM {{table_name}}",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "SELECT column1, column2, column3 FROM table_name",
-                    "summary": ""
+                    "content": ""
                 }
             ],
+            "snippet": "SELECT column1, column2, column3 FROM table_name",
             "isTrigger": false,
             "args": [
                 {
@@ -712,14 +701,13 @@
         "dataType": "STRING",
         "body": {
             "title": "PostgreSQL SELECT statement to query data from one column",
-            "snippet": "SELECT {{column_name}} FROM {{table_name}}",
-            "examples": [
+            "additionalInfo": [
                 {
                     "title": "",
-                    "code": "SELECT column_name FROM table_name",
-                    "summary": ""
+                    "content": ""
                 }
             ],
+            "snippet": "SELECT column_name FROM table_name",
             "isTrigger": false,
             "args": [
                 {
@@ -743,7 +731,13 @@
         "dataType": "STRING",
         "body": {
             "title": "Ordering table data in ascending order",
-            "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} ASC;",
+            "additionalInfo": [
+                {
+                    "title": "",
+                    "content": ""
+                }
+            ],
+            "snippet": "SELECT column1, column2 FROM table_name ORDER BY column1 ASC;",
             "examples": [
                 {
                     "title": "",
@@ -778,7 +772,13 @@
         "dataType": "STRING",
         "body": {
             "title": "Ordering table data in descending order",
-            "snippet": "SELECT {{column1}}, {{column2}} FROM {{table_name}} ORDER BY {{column1}} DESC;",
+            "additionalInfo": [
+                {
+                    "title": "",
+                    "content": ""
+                }
+            ],
+            "snippet": "SELECT column1, column2 FROM table_name ORDER BY column1 DESC;",
             "examples": [
                 {
                     "title": "",
@@ -813,7 +813,13 @@
         "dataType": "STRING",
         "body": {
             "title": "Ordering table data based on the length of column value",
-            "snippet": "SELECT {{column1}}, LENGTH(column1) len FROM {{table_name}} ORDER BY len DESC;",
+            "additionalInfo": [
+                {
+                    "title": "",
+                    "content": ""
+                }
+            ],
+            "snippet": "SELECT column1, LENGTH(column1) len FROM table_name ORDER BY len DESC;",
             "examples": [
                 {
                     "title": "",
