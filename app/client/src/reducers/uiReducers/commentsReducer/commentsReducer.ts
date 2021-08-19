@@ -20,7 +20,7 @@ import {
 } from "entities/Comments/CommentsInterfaces";
 
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
-import dragCommentThread from "./dragCommentThread";
+import handleDragCommentThread from "./handleDragCommentThread";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
@@ -139,7 +139,7 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<CommentThread>,
   ) => {
-    return dragCommentThread(state, action);
+    return handleDragCommentThread(state, action);
   },
   [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
     state: CommentsReduxState,

@@ -4,7 +4,7 @@ import { get } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
 // TODO verify cases where commentThread can be undefined for update event
-const dragCommentThread = (
+const handleDragCommentThread = (
   state: CommentsReduxState,
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
@@ -42,4 +42,4 @@ const dragCommentThread = (
   return { ...state };
 };
 
-export default dragCommentThread;
+export default handleDragCommentThread;
