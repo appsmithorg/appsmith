@@ -162,7 +162,7 @@ const Selected = styled.div<{
 
 const DropdownSelect = styled.div``;
 
-const DropdownWrapper = styled.div<{
+export const DropdownWrapper = styled.div<{
   width: string;
 }>`
   width: ${(props) => props.width};
@@ -377,7 +377,10 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
   return (
-    <DropdownWrapper width={props.optionWidth || "260px"}>
+    <DropdownWrapper
+      className="ads-dropdown-options-wrapper"
+      width={props.optionWidth || "260px"}
+    >
       {props.enableSearch && (
         <SearchComponent
           className="dropdown-search"
