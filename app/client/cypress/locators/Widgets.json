@@ -40,6 +40,8 @@
     "containerWrapper": "div[data-testid='container-wrapper']",
     "defaultInput": ".t--property-control-defaulttext .CodeMirror-code",
     "placeholder": ".t--property-control-placeholder .CodeMirror-code",
+    "inputLabelControl": ".t--property-control-label .CodeMirror-code",
+    "inputTooltipControl": ".t--property-control-tooltip .CodeMirror-code",
     "inputButtonPos": ".t--draggable-inputwidget button",
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",

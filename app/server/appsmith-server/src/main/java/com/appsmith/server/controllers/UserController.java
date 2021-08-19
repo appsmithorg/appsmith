@@ -6,6 +6,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -73,6 +74,12 @@ public class UserController extends BaseController<UserService, User, String> {
         return userSignup.signupAndLoginFromFormData(exchange);
     }
 
+    @PostMapping("/super")
+    public Mono<ResponseDTO<User>> createSuperUser(@Valid @RequestBody User resource, ServerWebExchange exchange) {
+        return userSignup.signupAndLoginSuper(resource, exchange)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
     @PutMapping()
     public Mono<ResponseDTO<User>> update(@RequestBody User resource, ServerWebExchange exchange) {
         return service.updateCurrentUser(resource, exchange)
@@ -114,8 +121,8 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @GetMapping("/verifyPasswordResetToken")
-    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String email, @RequestParam String token) {
-        return service.verifyPasswordResetToken(email, token)
+    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String token) {
+        return service.verifyPasswordResetToken(token)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -125,11 +132,11 @@ public class UserController extends BaseController<UserService, User, String> {
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
-    @Deprecated
     @GetMapping("/me")
-    public Mono<ResponseDTO<User>> getUserProfile() {
+    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
         return sessionUserService.getCurrentUser()
-                .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
+                .flatMap(service::buildUserProfileDTO)
+                .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
     /**

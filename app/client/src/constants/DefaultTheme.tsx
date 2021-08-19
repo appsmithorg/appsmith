@@ -1229,6 +1229,30 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1263,6 +1287,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1406,7 +1434,15 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1960,9 +1996,13 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2524,6 +2564,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2697,6 +2738,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2739,6 +2781,8 @@ export const theme: Theme = {
     dropdownIconBg: Colors.ALTO2,
     welcomeTourStickySidebarColor: Colors.WHITE,
     welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
