@@ -879,7 +879,7 @@ export default [
       {
         propertyName: "compactMode",
         helpText: "Selects row height",
-        label: "Select Row Height",
+        label: "Row Height",
         controlType: "DROP_DOWN",
         defaultValue: "DEFAULT",
         isBindProperty: true,

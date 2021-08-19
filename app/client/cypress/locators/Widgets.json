@@ -23,6 +23,7 @@
     "inputval": ".t--draggable-inputwidget span.t--widget-name",
     "dataclass": "'.bp3-input",
     "datatype": ".t--property-control-datatype .bp3-popover-target",
+    "rowHeight": ".t--property-control-rowheight .bp3-popover-target",
     "innertext": ".t--draggable-inputwidget input",
     "defaultinput": ".t--property-control-defaultinput",
     "requiredjs": ".t--property-control-required input",

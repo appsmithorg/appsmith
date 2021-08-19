@@ -174,5 +174,18 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
+  it("Edit Row height and test table for changes", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.get(widgetsPage.rowHeight)
+      .last()
+      .click({ force: true });
+    cy.get(".t--dropdown-option")
+      .contains("Short")
+      .click({ force: true });
+    cy.wait(1000);
+    cy.readTabledataValidateCSS("0", "0", "height", "19px");
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 });
