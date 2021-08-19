@@ -8,29 +8,41 @@ import {
   SETTINGS,
 } from "constants/messages";
 
+export enum MENU_ITEM {
+  GIT_CONNECTION = "GIT_CONNECTION",
+  DEPLOY = "DEPLOY",
+  MERGE = "MERGE",
+  SHARE_APPLICATION = "SHARE_APPLICATION",
+  SETTINGS = "SETTINGS",
+}
+
 export const MENU_ITEMS: TabProp[] = [
   {
-    key: "GIT_CONNECTION",
+    key: MENU_ITEM.GIT_CONNECTION,
     title: createMessage(GIT_CONNECTION),
   },
   {
-    key: "DEPLOY",
+    key: MENU_ITEM.DEPLOY,
     title: createMessage(DEPLOY),
   },
   {
-    key: "MERGE",
+    key: MENU_ITEM.MERGE,
     title: createMessage(MERGE),
   },
   {
-    key: "SHARE_APPLICATION",
+    key: MENU_ITEM.SHARE_APPLICATION,
     title: createMessage(SHARE_APPLICATION),
   },
   {
-    key: "SETTINGS",
+    key: MENU_ITEM.SETTINGS,
     title: createMessage(SETTINGS),
   },
 ];
 
+export const AuthTypeOptions = [
+  { label: "SSH", value: "SSH" },
+  { label: "HTTPS", value: "HTTPS" },
+];
 export const Classes = {
   GIT_SYNC_MODAL: "git-sync-modal",
 };
