@@ -118,7 +118,7 @@ export const getLintAnnotations = (
         const annotation = {
           from,
           to,
-          errorMessage,
+          message: errorMessage,
           severity,
         };
         annotations.push(annotation);
