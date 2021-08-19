@@ -42,7 +42,6 @@ const Container = styled.div<{ isCommentMode: boolean }>`
 function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   const [isDropped, setIsDropped] = useState(false);
   const applicationId = useSelector(getCurrentApplicationId);
-  // const [hasDropped, setHasDropped] = useState(false);
   const [hasDroppedOnChild, setHasDroppedOnChild] = useState(false);
   const [, dropRef] = useDrop({
     accept: [DraggableCommentsItems.INLINE_COMMENT_PIN],
