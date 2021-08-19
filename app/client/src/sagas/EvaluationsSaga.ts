@@ -56,12 +56,14 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  const overrideUpdate = localStorage.getItem("shouldOverrideUpdate") || false;
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
       unevalTree,
       widgetTypeConfigMap,
+      overrideUpdate,
     },
   );
   const {
