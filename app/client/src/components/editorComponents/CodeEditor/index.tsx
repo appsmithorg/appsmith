@@ -70,6 +70,7 @@ import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Placement } from "@blueprintjs/popover2";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -116,6 +117,7 @@ export type EditorStyleProps = {
   fill?: boolean;
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -125,6 +127,8 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    errors?: any;
+    isInvalid?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -507,16 +511,19 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+    let { errors, isInvalid } = validations;
+    const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
-
+    if (this.props.errors) {
+      errors = this.props.errors;
+    }
+    if (this.props.isInvalid !== undefined) {
+      isInvalid = Boolean(this.props.isInvalid);
+    }
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||
@@ -552,6 +559,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
+          popperPlacement={this.props.popperPlacement}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >

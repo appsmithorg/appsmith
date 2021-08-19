@@ -4,13 +4,17 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 
-const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
+const SnippetsFilterContainer = styled.div<{
+  showFilter: boolean;
+  snippetsEmpty: boolean;
+}>`
   position: absolute;
-  bottom: 10px;
+  bottom: 50px;
   display: flex;
-  width: 100%;
+  width: 240px;
   height: 32px;
   justify-content: center;
+  display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   button {
     background: ${(props) => props.theme.colors.tertiary.light};
     border-radius: 20px;
@@ -101,7 +105,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
   }
 `;
 
-function SnippetsFilter({ refinements }: any) {
+function SnippetsFilter({ refinements, snippetsEmpty }: any) {
   const [showSnippetFilter, toggleSnippetFilter] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const handleOutsideClick = useCallback(
@@ -117,7 +121,11 @@ function SnippetsFilter({ refinements }: any) {
   }, []);
 
   return (
-    <SnippetsFilterContainer ref={ref} showFilter={showSnippetFilter}>
+    <SnippetsFilterContainer
+      ref={ref}
+      showFilter={showSnippetFilter}
+      snippetsEmpty={snippetsEmpty}
+    >
       <button onClick={() => toggleSnippetFilter(!showSnippetFilter)}>
         {!showSnippetFilter && <FilterIcon />}
         {!showSnippetFilter &&

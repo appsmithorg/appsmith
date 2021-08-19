@@ -159,6 +159,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 }
 
 interface PopoverContentProps {
@@ -407,6 +408,7 @@ function EvaluatedValuePopup(props: Props) {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
+    if (props.popperPlacement) return props.popperPlacement;
     if (wrapperRef.current) {
       const boundingRect = wrapperRef.current.getBoundingClientRect();
       if (boundingRect.left < theme.evaluatedValuePopup.width) {
@@ -423,7 +425,7 @@ function EvaluatedValuePopup(props: Props) {
         modifiers={modifiers}
         placement={placement}
         targetNode={wrapperRef.current || undefined}
-        zIndex={5}
+        zIndex={9}
       >
         <PopoverContent
           errors={props.errors}

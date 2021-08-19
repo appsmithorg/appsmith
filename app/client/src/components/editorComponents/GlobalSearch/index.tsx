@@ -61,6 +61,7 @@ import { get, keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
+import SnippetsFilter from "./SnippetsFilter";
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -525,6 +526,12 @@ function GlobalSearch() {
                   </>
                 ) : (
                   <ResultsNotFound />
+                )}
+                {isSnippet(category) && (
+                  <SnippetsFilter
+                    refinements={refinements}
+                    snippetsEmpty={snippets.length === 0}
+                  />
                 )}
               </div>
               <Footer />

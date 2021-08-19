@@ -27,7 +27,6 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
-import SnippetsFilter from "./SnippetsFilter";
 import { APPLY_SEARCH_CATEGORY, createMessage } from "constants/messages";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
@@ -475,9 +474,7 @@ const SearchResultsContainer = styled.div`
 
 function SearchResults({
   query,
-  refinements,
   searchResults,
-  showFilter,
 }: {
   searchResults: SearchItem[];
   query: string;
@@ -496,7 +493,6 @@ function SearchResults({
           />
         ))}
       </div>
-      {showFilter && <SnippetsFilter refinements={refinements} />}
     </SearchResultsContainer>
   );
 }

@@ -20,7 +20,10 @@ import {
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import {
+  EVAL_WORKER_ACTIONS,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -57,6 +60,7 @@ import {
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
 } from "constants/messages";
+import { validate } from "workers/validations";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -295,9 +299,11 @@ export function* evaluateSnippetSaga(action: any) {
     }
     Toaster.show({
       text: createMessage(
-        result ? SNIPPET_EXECUTION_SUCCESS : SNIPPET_EXECUTION_FAILED,
+        result || triggers
+          ? SNIPPET_EXECUTION_SUCCESS
+          : SNIPPET_EXECUTION_FAILED,
       ),
-      variant: errors && errors.length ? Variant.danger : Variant.success,
+      variant: result || triggers ? Variant.success : Variant.danger,
     });
     yield put(
       setGlobalSearchFilterContext({
@@ -325,9 +331,29 @@ export function* evaluateArgumentSaga(action: any) {
         expression: value,
       },
     );
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {});
+      if (!validation.isValid)
+        lintErrors.unshift({
+          ...validation,
+          ...{
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: validation.message,
+          },
+        });
+    }
     yield put(
       setEvaluatedArgument({
-        [name]: { type, value: workerResponse.result, name },
+        [name]: {
+          type,
+          value: workerResponse.result,
+          name,
+          errors: lintErrors,
+          isInvalid: lintErrors.length > 0,
+        },
       }),
     );
   } catch (e) {

@@ -58,7 +58,7 @@ export type SnippetBody = {
   isTrigger?: boolean;
   args: [SnippetArgument];
   summary: string;
-  examples: [SnippetExample];
+  template: string;
   additionalInfo?: [
     {
       header: string;
@@ -70,12 +70,6 @@ export type SnippetBody = {
 export type SnippetArgument = {
   name: string;
   type: ValidationTypes;
-};
-
-export type SnippetExample = {
-  title?: string;
-  code: string;
-  summary?: string;
 };
 
 export type SearchCategory = {

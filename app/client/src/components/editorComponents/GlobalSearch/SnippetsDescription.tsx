@@ -17,6 +17,7 @@ import Button, { Size } from "components/ads/Button";
 import {
   evaluateArgument,
   evaluateSnippet,
+  setEvaluatedArgument,
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
   unsetEvaluatedArgument,
@@ -27,22 +28,51 @@ import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
 import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
-import { validate } from "workers/validations";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
-import { bindingHint } from "../CodeEditor/hintHelpers";
-import { Snippet, SnippetArgument, SnippetExample } from "./utils";
+import { Snippet, SnippetArgument } from "./utils";
 import { createMessage, SEARCH_ITEM_SELECT } from "constants/messages";
 import { getExpectedValue } from "utils/validation/common";
+import { ControlIcons } from "icons/ControlIcons";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
 const SnippetContainer = styled.div`
   display: flex;
   flex-direction: column;
+  .snippet-container {
+    position: relative;
+    .t--copy-snippet {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      opacity: 0.3;
+      svg > path {
+        fill: gray;
+      }
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+    &:hover {
+      .t--copy-snippet {
+        opacity: 1;
+      }
+    }
+    .t--run-snippet {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      svg > path {
+        fill: green;
+      }
+    }
+    pre {
+      padding: 1.5em 1em !important;
+    }
+  }
   .snippet-title {
     color: #090707;
     font-size: 17px;
@@ -82,6 +112,12 @@ const SnippetContainer = styled.div`
         background-color: ${(props) => props.theme.colors.propertyPane.bg};
         border: none;
       }
+      .t--no-binding-prompt {
+        background-color: #6a86ce;
+        span {
+          color: #6a86ce;
+        }
+      }
     }
     .danger {
       color: red;
@@ -103,7 +139,7 @@ const SnippetContainer = styled.div`
       }
       .actions-container {
         display: flex;
-        margin: 15px 0;
+        margin: 30px 0 15px;
         button {
           margin-right: 5px;
         }
@@ -118,10 +154,6 @@ const SnippetContainer = styled.div`
     .react-tabs__tab-list {
       background: white !important;
       padding: 0 10px !important;
-      color: #a9a7a7 !important;
-      .react-tabs__tab--selected {
-        color: #f86a2b;
-      }
     }
   }
 `;
@@ -133,21 +165,16 @@ const removeDynamicBinding = (value: string) => {
   });
 };
 
+const CopyIcon = ControlIcons.COPY_CONTROL;
+
 export const getSnippet = (snippet: string, args: any) => {
   const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
     const substitution = (args[capture] || "")
-      .replace("{{", "")
-      .replace("}}", "");
+      .replaceAll("{{", "")
+      .replaceAll("}}", "");
     return substitution || capture;
   });
-};
-
-const getArgValidationType = (type: string) => {
-  if (type === "STRING") {
-    return ValidationTypes.TEXT;
-  }
-  return type as ValidationTypes;
 };
 
 export default function SnippetDescription({ item }: { item: Snippet }) {
@@ -155,10 +182,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     body: {
       additionalInfo,
       args,
-      examples,
       isTrigger,
       snippet,
       summary,
+      template,
       title,
     },
     dataType,
@@ -170,22 +197,23 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     evaluatedSnippet = useSelector(
       (state: AppState) => state.ui.globalSearch.filterContext.evaluatedSnippet,
     ),
-    [isCopied, setIsCopied] = useState(false),
     executionInProgress = useSelector(
       (state: AppState) =>
         state.ui.globalSearch.filterContext.executionInProgress,
     ),
-    [validations, setValidations] = useState<
-      Record<string, ValidationResponse>
-    >(),
+    // [validations, setValidations] = useState<
+    //   Record<string, ValidationResponse>
+    // >(),
     evaluatedArguments = useSelector(
       (state: AppState) =>
         state.ui.globalSearch.filterContext.evaluatedArguments,
     );
 
-  const handleArgsValidation = useCallback(
-    debounce((value, arg) => {
-      const { name, type } = arg;
+  const handleArgsValidation = useCallback((value, arg) => {
+    const { name, type } = arg;
+    if (!value) {
+      dispatch(setEvaluatedArgument({ [arg.name]: {} }));
+    } else {
       dispatch(
         evaluateArgument({
           name,
@@ -193,17 +221,16 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           type,
         }),
       );
-    }, 500),
-    [validations],
-  );
+    }
+  }, []);
 
-  const handleCopy = useCallback(() => {
-    copy(`{{ ${getSnippet(snippet, selectedArgs)} }}`);
-    setIsCopied(true);
-    setTimeout(() => {
-      setIsCopied(false);
-    }, 3000);
-  }, [snippet, selectedArgs]);
+  const handleCopy = useCallback((value) => {
+    copy(value);
+    Toaster.show({
+      text: "Snippet copied to clipboard",
+      variant: Variant.success,
+    });
+  }, []);
 
   const handleRun = useCallback(() => {
     dispatch(
@@ -213,7 +240,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     );
     dispatch(
       evaluateSnippet({
-        expression: getSnippet(snippet, selectedArgs),
+        expression: getSnippet(template, selectedArgs),
         dataType: dataType,
         isTrigger,
       }),
@@ -221,33 +248,33 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   }, [snippet, selectedArgs, dataType]);
 
   const handleArgChange = useCallback(
-    (value, arg) => {
+    debounce((value, arg) => {
       setSelectedArgs({
         ...selectedArgs,
         [arg.name]: value,
       });
       if (arg.type && Object.values(ValidationTypes).includes(arg.type))
         handleArgsValidation(value, arg);
-    },
+    }, 500),
     [selectedArgs],
   );
 
-  useEffect(() => {
-    const validations: any = Object.values(evaluatedArguments);
-    setValidations(
-      validations.reduce(
-        (acc: any, arg: SnippetArgument & { value: string }) => {
-          acc[arg.name] = validate(
-            { type: getArgValidationType(arg.type) },
-            arg.value,
-            {},
-          );
-          return acc;
-        },
-        {},
-      ),
-    );
-  }, [evaluatedArguments]);
+  // useEffect(() => {
+  //   const validations: any = Object.values(evaluatedArguments);
+  //   setValidations(
+  //     validations.reduce(
+  //       (acc: any, arg: SnippetArgument & { value: string }) => {
+  //         acc[arg.name] = validate(
+  //           { type: getArgValidationType(arg.type) },
+  //           arg.value,
+  //           {},
+  //         );
+  //         return acc;
+  //       },
+  //       {},
+  //     ),
+  //   );
+  // }, [evaluatedArguments]);
 
   useEffect(() => {
     document
@@ -262,53 +289,53 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     unsetEvaluatedArgument();
   }, [title]);
 
+  const getEvaluatedSnippet = (value: string) => ({ value });
+
   const tabs = [
     {
       key: "Snippet",
       title: "Snippet",
       panelComponent: (
-        <>
-          {/* <SyntaxHighlighter language={language} style={prism} wrapLongLines>
-            {js_beautify(getSnippet(snippet, {}), { indent_size: 2 })}
-          </SyntaxHighlighter> */}
-          {examples && examples.length ? (
-            <div className="snippet-group">
-              {/* <div className="header">Example</div> */}
-              <div className="content">
-                {examples.map((ex: SnippetExample) => (
-                  <>
-                    <p>{ex.title}</p>
-                    <SyntaxHighlighter
-                      language={language}
-                      style={prism}
-                      wrapLongLines
-                    >
-                      {js_beautify(ex.code, { indent_size: 2 })}
-                    </SyntaxHighlighter>
-                    <p>{ex.summary}</p>
-                  </>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div />
-          )}
-        </>
+        <div className="snippet-container">
+          <SyntaxHighlighter language={language} style={prism} wrapLongLines>
+            {js_beautify(snippet, { indent_size: 2 })}
+          </SyntaxHighlighter>
+          <CopyIcon
+            className="t--copy-snippet"
+            height={14}
+            onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
+            width={14}
+          />
+        </div>
       ),
     },
   ];
-  if (args && args.length > 0 && language === "javascript") {
+  if (template && language === "javascript") {
     tabs.push({
       key: "Customize",
       title: "Customize",
       panelComponent:
         args && args.length > 0 ? (
           <>
-            <SyntaxHighlighter language={language} style={prism} wrapLongLines>
-              {js_beautify(getSnippet(snippet, selectedArgs), {
-                indent_size: 2,
-              })}
-            </SyntaxHighlighter>
+            <div className="snippet-container">
+              <SyntaxHighlighter
+                language={language}
+                style={prism}
+                wrapLongLines
+              >
+                {js_beautify(getSnippet(template, selectedArgs), {
+                  indent_size: 2,
+                })}
+              </SyntaxHighlighter>
+              <CopyIcon
+                className="t--copy-snippet"
+                height={14}
+                onClick={() =>
+                  handleCopy(`{{ ${getSnippet(template, selectedArgs)} }}`)
+                }
+                width={14}
+              />
+            </div>
             <div className="snippet-group">
               {args.map((arg: SnippetArgument) => (
                 <div
@@ -318,24 +345,27 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 >
                   <span>{arg.name}</span>
                   <CodeEditor
+                    errors={evaluatedArguments[arg.name]?.errors}
+                    evaluatedValue={evaluatedArguments[arg.name]?.value}
                     expected={getExpectedValue({ type: arg.type })}
-                    hideEvaluatedValue
-                    hinting={[bindingHint]}
                     input={{
                       value: selectedArgs[arg.name],
                       onChange: (value: any) => handleArgChange(value, arg),
                     }}
+                    isInvalid={evaluatedArguments[arg.name]?.isInvalid}
                     mode={EditorModes.TEXT_WITH_BINDING}
+                    popperPlacement="right-start"
                     showLightningMenu={false}
                     size={EditorSize.EXTENDED}
                     tabBehaviour={TabBehaviour.INDENT}
                     theme={EditorTheme.LIGHT}
+                    useValidationMessage
                   />
-                  {validations && (
+                  {/* {validations && (
                     <span className="danger">
                       {validations[arg.name]?.message}
                     </span>
-                  )}
+                  )} */}
                 </div>
               ))}
               <div className="actions-container">
@@ -348,14 +378,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   text="Run"
                   type="button"
                 />
-                <Button
-                  className="copy-snippet-btn"
-                  onClick={handleCopy}
-                  size={Size.medium}
-                  tag="button"
-                  text={isCopied ? "Copied" : "Copy Snippet"}
-                  type="button"
-                />
               </div>
               <div id="snippet-evaluator">
                 {evaluatedSnippet && (
@@ -365,7 +387,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                       <ReadOnlyEditor
                         folding
                         height="300px"
-                        input={{ value: evaluatedSnippet }}
+                        input={getEvaluatedSnippet(evaluatedSnippet)}
                       />
                     </div>
                   </div>
