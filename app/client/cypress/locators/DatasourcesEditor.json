@@ -47,5 +47,5 @@
   "basicUsername": "input[name='authentication.username']",
   "basicPassword": "input[name='authentication.password']",
   "mockUserDatabase":"div[id='mock-database'] span:contains('Users')",
-  "mockUserDatasources":".t--datasource-name:contains('users')"
+  "mockUserDatasources":".t--datasource-name:contains('Users')"
 }
