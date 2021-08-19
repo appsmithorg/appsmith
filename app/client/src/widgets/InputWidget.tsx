@@ -521,9 +521,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             return emailRegex.test(this.text);
           }
           else if (
-            this.inputType === "NUMBER" 
-            this.inputType === "INTEGER"
-            this.inputType === "CURRENCY"
+            this.inputType === "NUMBER" ||
+            this.inputType === "INTEGER" ||
+            this.inputType === "CURRENCY" ||
             this.inputType === "PHONE_NUMBER"
           ) {
             if (parsedRegex) {
