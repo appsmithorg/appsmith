@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { isString, get } from "lodash";
+
 import config from "./propertyConfig";
+import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 
 declare global {
   namespace jest {
@@ -85,6 +87,20 @@ describe("Validate Chart Widget's property config", () => {
     hiddenFns.forEach((fn: (props: any) => boolean) => {
       const result = fn({ chartType: "CUSTOM_FUSION_CHART" });
       expect(result).toBeTruthy();
+    });
+  });
+
+  it("Validates that axis labelOrientation is visible when chartType are LINE_CHART AREA_CHART COLUMN_CHART", () => {
+    const allowedChartsTypes = ["LINE_CHART", "AREA_CHART", "COLUMN_CHART"];
+
+    const axisSection = config.find((c) => c.sectionName === "Axis");
+    const labelOrientationProperty = ((axisSection?.children as unknown) as PropertyPaneControlConfig[]).find(
+      (p) => p.propertyName === "labelOrientation",
+    );
+
+    allowedChartsTypes.forEach((chartType) => {
+      const result = labelOrientationProperty?.hidden?.({ chartType }, "");
+      expect(result).toBeFalsy();
     });
   });
 });

@@ -254,7 +254,7 @@ export default [
         helpText: "Changes the x-axis label orientation",
         propertyName: "labelOrientation",
         label: "x-axis Label Orientation",
-        hidden: (x: any) => isLabelOrientationApplicableFor(x.chartType),
+        hidden: (x: any) => !isLabelOrientationApplicableFor(x.chartType),
         isBindProperty: false,
         isTriggerProperty: false,
         dependencies: ["chartType"],
