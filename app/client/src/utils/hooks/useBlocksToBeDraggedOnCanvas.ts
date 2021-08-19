@@ -8,6 +8,7 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/editorConstants";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
@@ -55,6 +56,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
 
+  // check any table filter is open or not
+  // if filter pane open, close before property pane open
+  const tableFilterPaneState = useSelector(getTableFilterState);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -244,6 +248,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams.widgetId,
         updateWidgetParams.payload,
       );
+    // close filter pane if any open, before property pane open
+    tableFilterPaneState.isVisible &&
+      dispatch({
+        type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+        payload: { widgetId: tableFilterPaneState.widgetId },
+      });
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
