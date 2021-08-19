@@ -36,8 +36,6 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 /***
  * BaseWidget
@@ -479,7 +477,8 @@ export interface WidgetProps
 export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
-  widgetCardName: string;
+  displayName: string;
+  icon: string;
   isBeta?: boolean;
 }
 

@@ -13,10 +13,6 @@ import {
 import { generateReactKey } from "./generators";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { RenderModes } from "constants/WidgetConstants";
-import { APP_MODE } from "entities/App";
-import { AppState } from "reducers";
-import store from "store";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -162,10 +158,6 @@ class WidgetFactory {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
-      renderMode:
-        (store.getState() as AppState).entities.app.mode === APP_MODE.EDIT
-          ? RenderModes.CANVAS
-          : RenderModes.PAGE,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {

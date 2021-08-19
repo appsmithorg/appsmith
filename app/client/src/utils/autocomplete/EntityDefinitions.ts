@@ -7,7 +7,7 @@ const isVisible = {
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions = {
+export const entityDefinitions: Record<string, unknown> = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
