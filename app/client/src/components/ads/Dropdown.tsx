@@ -9,6 +9,8 @@ import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 
+export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
+
 export type DropdownOption = {
   label?: string;
   value?: string;
@@ -19,7 +21,7 @@ export type DropdownOption = {
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
-  onSelect?: (value?: string, dropdownOption?: any) => void;
+  onSelect?: DropdownOnSelect;
   data?: any;
 };
 export interface DropdownSearchProps {
@@ -48,7 +50,7 @@ export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
     options: DropdownOption[];
     selected: DropdownOption;
-    onSelect?: (value?: string, dropdownOption?: any) => void;
+    onSelect?: DropdownOnSelect;
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
@@ -163,7 +165,7 @@ const Selected = styled.div<{
 
 const DropdownSelect = styled.div``;
 
-const DropdownWrapper = styled.div<{
+export const DropdownWrapper = styled.div<{
   width: string;
 }>`
   width: ${(props) => props.width};
@@ -384,7 +386,10 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     onSearch && onSearch(searchStr);
   };
   return (
-    <DropdownWrapper width={props.optionWidth || "260px"}>
+    <DropdownWrapper
+      className="ads-dropdown-options-wrapper"
+      width={props.optionWidth || "260px"}
+    >
       {props.enableSearch && (
         <SearchComponent
           className="dropdown-search"
