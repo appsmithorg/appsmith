@@ -46,7 +46,7 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { overrideUpdate, unevalTree, widgetTypeConfigMap } = requestData;
+        const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -65,9 +65,6 @@ ctx.addEventListener(
           } else {
             dataTree = {};
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
-            if (overrideUpdate) {
-              dataTree = JSON.parse(JSON.stringify(updateResponse.dataTree));
-            }
             updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
