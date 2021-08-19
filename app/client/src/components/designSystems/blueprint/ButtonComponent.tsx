@@ -350,6 +350,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     icon,
     iconAlign,
     iconName,
+    loading,
     onClick,
     prevButtonStyle,
     rightIcon,
@@ -370,6 +371,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         disabled={disabled}
         fill
         icon={icon}
+        loading={loading}
         onClick={onClick}
         prevButtonStyle={prevButtonStyle}
         rightIcon={iconName || rightIcon}
@@ -391,6 +393,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       disabled={disabled}
       fill
       icon={iconName || icon}
+      loading={loading}
       onClick={onClick}
       prevButtonStyle={prevButtonStyle}
       rightIcon={rightIcon}
