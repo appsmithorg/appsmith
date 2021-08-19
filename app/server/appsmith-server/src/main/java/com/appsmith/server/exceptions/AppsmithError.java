@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     INVALID_PARAMETER(400, 4000, "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
     PLUGIN_NOT_INSTALLED(400, 4001, "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
-    PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
+    PLUGIN_ID_NOT_GIVEN(400, 4002, "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     DATASOURCE_NOT_GIVEN(400, 4003, "Missing datasource. Add/enter/connect a datasource to create a valid action.",
             AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
     PAGE_ID_NOT_GIVEN(400, 4004, "Missing page id. Please enter one.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
