@@ -6,9 +6,9 @@ import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
-import ContainerComponentWrapper, {
-  BoxShadowTypes,
-} from "components/designSystems/appsmith/ContainerComponentWrapper";
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
 
 const scrollContents = css`
@@ -68,7 +68,7 @@ function ContainerComponent(props: ContainerComponentProps) {
     }
   }, [props.shouldScrollContents]);
   return (
-    <ContainerComponentWrapper
+    <WidgetStyleContainer
       {...pick(props, [
         "widgetId",
         "containerStyle",
@@ -91,27 +91,23 @@ function ContainerComponent(props: ContainerComponentProps) {
       >
         {props.children}
       </StyledContainerComponent>
-    </ContainerComponentWrapper>
+    </WidgetStyleContainer>
   );
 }
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
-export interface ContainerComponentProps extends ComponentProps {
-  containerStyle?: ContainerStyle;
+export interface ContainerComponentProps
+  extends ComponentProps,
+    WidgetStyleContainerProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;
-  borderColor?: Color;
-  borderWidth?: number;
-  borderRadius?: number;
   shouldScrollContents?: boolean;
   resizeDisabled?: boolean;
   selected?: boolean;
   focused?: boolean;
   minHeight?: number;
-  boxShadow?: BoxShadowTypes;
-  boxShadowColor?: string;
 }
 
 export default ContainerComponent;

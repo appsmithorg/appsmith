@@ -1,10 +1,14 @@
 import React from "react";
+import { pick } from "lodash";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType, TextSize } from "constants/WidgetConstants";
 import TextComponent from "components/designSystems/blueprint/TextComponent";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
 
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -65,6 +69,67 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 regex: /^(?![<|{{]).+/,
               },
             },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Colour",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Enter value for border width",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            helpText: "Enter value for border radius",
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "fontSize",
@@ -155,18 +220,30 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <TextComponent
-        backgroundColor={this.props.backgroundColor}
-        fontSize={this.props.fontSize}
-        fontStyle={this.props.fontStyle}
-        isLoading={this.props.isLoading}
-        key={this.props.widgetId}
-        shouldScroll={this.props.shouldScroll}
-        text={this.props.text}
-        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-        textColor={this.props.textColor}
-        widgetId={this.props.widgetId}
-      />
+      <WidgetStyleContainer
+        {...pick(this.props, [
+          "widgetId",
+          "containerStyle",
+          "borderColor",
+          "borderWidth",
+          "borderRadius",
+          "boxShadow",
+          "boxShadowColor",
+        ])}
+      >
+        <TextComponent
+          backgroundColor={this.props.backgroundColor}
+          fontSize={this.props.fontSize}
+          fontStyle={this.props.fontStyle}
+          isLoading={this.props.isLoading}
+          key={this.props.widgetId}
+          shouldScroll={this.props.shouldScroll}
+          text={this.props.text}
+          textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+          textColor={this.props.textColor}
+          widgetId={this.props.widgetId}
+        />
+      </WidgetStyleContainer>
     );
   }
 
@@ -191,7 +268,10 @@ export interface TextStyles {
   textAlign?: TextAlign;
 }
 
-export interface TextWidgetProps extends WidgetProps, TextStyles {
+export interface TextWidgetProps
+  extends WidgetProps,
+    TextStyles,
+    WidgetStyleContainerProps {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
