@@ -794,14 +794,16 @@ public class ImportExportApplicationService {
     }
 
     /**
-     * This method will save the complete application in the local repo directory. The repoPath will contain the actual
-     * path of branch as we will be using worktree for the requirement of multiple branches checked out at the same time
+     * This method will save the complete application in the local repo directory.
      * @param applicationJson application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String branchName) {
 
+        // The repoPath will contain the actual path of branch as we will be using worktree. This decision has been
+        // taken considering the case multiple users can checkout different branches at same time
+        // API reference for worktree : https://git-scm.com/docs/git-worktree
         String baseRepoPath = commonConfig.gitRepoPath + "/" + applicationJson.getExportedApplication().getName() + "/" + branchName;
 
         /*
@@ -867,12 +869,17 @@ public class ImportExportApplicationService {
     }
 
     /**
-     * This will reconstruct the application from the repo file
+     * This will reconstruct the application from the repo
      * @param applicationName path to the actual application
      * @param branchName for which the application needs to be rehydrate
      * @return application reference from which entire application can be rehydrated
      */
     public ApplicationJson reconstructApplicationFromServerDirectory(String applicationName, String branchName) {
+
+        // For implementing a branching model we are using worktree structure so each branch will have the separate
+        // directory, this decision has been taken considering multiple users can checkout different branches at same
+        // time
+        // API reference for worktree : https://git-scm.com/docs/git-worktree
 
         String baseRepo = commonConfig.getGitRepoPath() + "/" + applicationName + "/" + branchName;
         ApplicationJson applicationJson = new ApplicationJson();
@@ -935,52 +942,4 @@ public class ImportExportApplicationService {
         return domainList;
     }
 
-    /*
-    public WidgetDSLMetadata getWidgetDslMetadata(JSONObject dsl) {
-
-        // 1. Fetch the children of the current node in the DSL and recursively iterate over them
-        // 2. Delete unwanted children and update dsl
-        WidgetDSLMetadata widgetDSLMetadata = new WidgetDSLMetadata();
-
-        if (dsl.get(FieldName.WIDGET_NAME) == null) {
-            // This isn't a valid widget configuration. No need to traverse this.
-            return widgetDSLMetadata;
-        }
-
-        // Updates in dynamicBindingPathlist not required as it's updated by FE code
-        // Fetch the children of the current node in the DSL and recursively iterate over them
-        ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
-        ArrayList<Object> newChildren = new ArrayList<>();
-        if (children != null) {
-            for (Object obj : children) {
-                if (!(obj instanceof Map)) {
-                    log.error("Child in DSL is not instanceof Map, {}", obj);
-                    continue;
-                }
-                Map data = (Map) obj;
-                JSONObject object = new JSONObject();
-                // If the children tag exists and there are entries within it
-                if (!CollectionUtils.isEmpty(data)) {
-                    object.putAll(data);
-                    JSONObject child =
-                        extractAndUpdateAllWidgetFromDSL(object, mappedColumnsAndTableNames, deletedWidgets);
-                    String widgetType = child.getAsString(FieldName.WIDGET_TYPE);
-                    if (FieldName.TABLE_WIDGET.equals(widgetType)
-                        || FieldName.CONTAINER_WIDGET.equals(widgetType)
-                        || FieldName.CANVAS_WIDGET.equals(widgetType)
-                        || FieldName.FORM_WIDGET.equals(widgetType)
-                        || !child.toString().contains(DELETE_FIELD)
-                    ) {
-                        newChildren.add(child);
-                    } else {
-                        deletedWidgets.add(child.getAsString(FieldName.WIDGET_NAME));
-                    }
-                }
-            }
-            dsl.put(FieldName.CHILDREN, newChildren);
-        }
-
-        return dsl;
-    }
-    */
 }
