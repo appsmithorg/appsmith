@@ -286,7 +286,9 @@ public class ImportExportApplicationService {
                         applicationJson.setDecryptedFields(decryptedFields);
                         return applicationJson;
                     });
-                });
+            })
+            .then()
+            .thenReturn(applicationJson);
     }
 
     /**
