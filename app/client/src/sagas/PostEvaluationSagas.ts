@@ -212,7 +212,8 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
-        AppsmithConsole.error({
+        AppsmithConsole.addError({
+          id: error?.context?.id,
           logType: LOG_TYPE.JS_PARSE_ERROR,
           text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
           source: {
