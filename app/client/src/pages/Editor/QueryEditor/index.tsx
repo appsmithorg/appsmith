@@ -14,7 +14,6 @@ import { deleteAction, runActionInit } from "actions/actionActions";
 import { AppState } from "reducers";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { Plugin } from "api/PluginApi";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
 import {
@@ -26,7 +25,7 @@ import {
   getActionResponses,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import { QueryAction } from "entities/Action";
+import { QueryAction, QueryActionConfig } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeQuery } from "actions/queryPaneActions";
@@ -34,6 +33,11 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  initFormEvaluations,
+  startFormEvaluations,
+} from "../../../actions/evaluationActions";
+import { isObject } from "lodash";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -49,6 +53,12 @@ type ReduxDispatchProps = {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   changeQueryPage: (queryId: string) => void;
+  runFormEvaluation: (formId: string, formData: QueryActionConfig) => void;
+  initFormEvaluation: (
+    editorConfig: any,
+    settingConfig: any,
+    formId: string,
+  ) => void;
 };
 
 type ReduxStateProps = {
@@ -72,9 +82,43 @@ type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 
 type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
 
+// Helper function to deep compare 2 objects, used to debounce calls to the eval saga
+function deepEqual(object1: any, object2: any) {
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+
+  for (const key of keys1) {
+    const val1 = object1[key];
+    const val2 = object2[key];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEqual(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 class QueryEditor extends React.Component<Props> {
+  constructor(props: Props) {
+    super(props);
+    this.props.initFormEvaluation(
+      this.props.editorConfig,
+      this.props.settingConfig,
+      this.props.match.params.queryId,
+    );
+  }
+
   componentDidMount() {
     this.props.changeQueryPage(this.props.match.params.queryId);
+
     PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
       actionType: "QUERY",
     });
@@ -106,6 +150,24 @@ class QueryEditor extends React.Component<Props> {
     }
     if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
       this.props.changeQueryPage(this.props.match.params.queryId);
+    }
+    // If statement to debounce and track changes in the formData to update evaluations
+    if (
+      this.props.uiComponent === UIComponentTypes.UQIDbEditorForm &&
+      !!this.props.formData &&
+      (!prevProps.formData ||
+        (this.props.formData.hasOwnProperty("actionConfiguration") &&
+          !!prevProps.formData &&
+          prevProps.formData.hasOwnProperty("actionConfiguration") &&
+          !deepEqual(
+            prevProps.formData.actionConfiguration,
+            this.props.formData.actionConfiguration,
+          )))
+    ) {
+      this.props.runFormEvaluation(
+        this.props.formData.id,
+        this.props.formData.actionConfiguration,
+      );
     }
   }
 
@@ -239,6 +301,16 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   runAction: (actionId: string) => dispatch(runActionInit(actionId)),
   changeQueryPage: (queryId: string) => {
     dispatch(changeQuery(queryId));
+  },
+  runFormEvaluation: (formId: string, formData: QueryActionConfig) => {
+    dispatch(startFormEvaluations(formId, formData));
+  },
+  initFormEvaluation: (
+    editorConfig: any,
+    settingsConfig: any,
+    formId: string,
+  ) => {
+    dispatch(initFormEvaluations(editorConfig, settingsConfig, formId));
   },
 });
 
