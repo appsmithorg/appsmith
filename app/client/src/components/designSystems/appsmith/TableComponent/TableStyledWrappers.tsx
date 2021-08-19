@@ -280,6 +280,10 @@ export const ActionWrapper = styled.div<{
     .bp3-button span {
       font-weight: 400;
     }
+    &&& .bp3-disabled {
+      color: ${Colors.SLATE_GRAY};
+      background: ${Colors.MERCURY};
+    }
   }
 `;
 
@@ -351,8 +355,10 @@ export const CellWrapper = styled.div<{
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
+  isCellVisible?: boolean;
 }>`
-  display: flex;
+  display: ${(props) => (props.isCellVisible ? "flex" : "none")};
+
   align-items: center;
   justify-content: flex-start;
   width: 100%;

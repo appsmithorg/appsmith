@@ -5,7 +5,10 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
 import Skeleton from "components/utils/Skeleton";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
-import { ChartComponentProps } from "components/designSystems/appsmith/ChartComponent";
+import {
+  ChartComponentProps,
+  ChartSelectedDataPoint,
+} from "components/designSystems/appsmith/ChartComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { retryPromise } from "utils/AppsmithUtils";
 import { WidgetType } from "constants/WidgetConstants";
@@ -29,7 +32,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return propertyConfig;
   }
 
-  onDataPointClick = (selectedDataPoint: { x: any; y: any }) => {
+  onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {
     this.props.updateWidgetMetaProperty(
       "selectedDataPoint",
       selectedDataPoint,
