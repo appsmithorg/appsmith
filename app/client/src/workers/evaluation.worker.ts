@@ -48,7 +48,12 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { unevalTree, widgets, widgetTypeConfigMap } = requestData;
+        const {
+          isReplay,
+          unevalTree,
+          widgets,
+          widgetTypeConfigMap,
+        } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -67,7 +72,7 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
-            replayDSL?.update(widgets);
+            !isReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;

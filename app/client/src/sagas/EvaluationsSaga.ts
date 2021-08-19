@@ -46,6 +46,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { UndoRedoPayload } from "./ReplaySaga";
 import { updateAndSaveLayout } from "actions/pageActions";
+import { get } from "lodash";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -53,6 +54,7 @@ const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  isReplay?: boolean,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   const widgets = yield select(getWidgets);
@@ -67,6 +69,7 @@ function* evaluateTreeSaga(
       unevalTree,
       widgetTypeConfigMap,
       widgets,
+      isReplay,
     },
   );
   const {
@@ -162,7 +165,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   );
 
   const { replayWidgets } = workerResponse;
-  if (replayWidgets) yield put(updateAndSaveLayout(replayWidgets, false));
+  if (replayWidgets) yield put(updateAndSaveLayout(replayWidgets, false, true));
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
@@ -258,7 +261,11 @@ function* evaluationChangeListenerSaga() {
       evtActionChannel,
     );
     if (shouldProcessBatchedAction(action)) {
-      yield call(evaluateTreeSaga, action.postEvalActions);
+      yield call(
+        evaluateTreeSaga,
+        action.postEvalActions,
+        get(action, "payload.isReplay"),
+      );
     }
   }
 }
