@@ -43,6 +43,7 @@ import { AppState } from "reducers";
 import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
+import { WidgetType } from "../../constants/WidgetConstants";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -77,6 +78,37 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_COMMENT_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
+function* updateCommentThreadPosition(
+  action: ReduxAction<{
+    id: string;
+    refId: string;
+    position: {
+      top: number;
+      left: number;
+      leftPercent: number;
+      topPercent: number;
+    };
+    widgetType?: WidgetType;
+  }>,
+) {
+  try {
+    const { id, position, refId, widgetType } = action.payload;
+    const response = yield CommentsApi.updateCommentThread(
+      { position, refId, widgetType },
+      id,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(updateCommentThreadSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PIN_COMMENT_THREAD_ERROR,
       payload: { error, logToSentry: true },
     });
   }
@@ -353,6 +385,10 @@ export default function* commentSagas() {
     takeLatest(
       ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
       setCommentResolution,
+    ),
+    takeLatest(
+      ReduxActionTypes.DRAG_COMMENT_THREAD_EVENT,
+      updateCommentThreadPosition,
     ),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),
