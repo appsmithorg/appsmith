@@ -580,7 +580,13 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: payload.body as string }],
+        messages: [
+          {
+            message: isString(payload.body)
+              ? payload.body
+              : JSON.stringify(payload.body, null, 2),
+          },
+        ],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
