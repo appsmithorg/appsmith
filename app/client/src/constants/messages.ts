@@ -429,3 +429,11 @@ export const CONNECT_TO_GIT = () => "Connect to Git";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Choose an existing empty repository to host your project and keep it in sync";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+
+export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+
+export const AUTHOR_NAME = () => "AUTHOR NAME";
+export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
+export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
+export const USER_NAME = () => "USER NAME";
+export const USER_PASSWORD = () => "PASSWORD";

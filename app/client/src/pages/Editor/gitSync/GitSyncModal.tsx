@@ -17,12 +17,16 @@ const Container = styled.div`
   width: 100%;
   display: flex;
   position: relative;
+  overflow-y: hidden;
 `;
 
 const BodyContainer = styled.div`
   flex: 3;
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[13]}px;
+  padding-bottom: ${(props) => props.theme.spaces[13]}px;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 const MenuContainer = styled.div`
