@@ -6,6 +6,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { IconWrapper } from "constants/IconConstants";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -94,7 +95,9 @@ function WidgetCard(props: CardProps) {
   return (
     <Wrapper className={className} draggable onDragStart={onDragStart}>
       <div>
-        <img height="24px" src={props.details.icon} width="24px" />
+        <IconWrapper>
+          <img height="24px" src={props.details.icon} width="24px" />
+        </IconWrapper>
         <IconLabel>{props.details.displayName}</IconLabel>
         {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
       </div>

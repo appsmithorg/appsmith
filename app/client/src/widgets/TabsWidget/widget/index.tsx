@@ -414,7 +414,6 @@ class TabsWidget extends BaseWidget<
   };
 
   componentDidMount() {
-    console.log("Mounting!!");
     const visibleTabs = this.getVisibleTabs();
     // If we have a defaultTab
     if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {

@@ -17,6 +17,7 @@ export interface WidgetConfiguration {
   iconSVG?: string;
   defaults: Partial<WidgetProps> & WidgetConfigProps;
   hideCard?: boolean;
+  isCanvas?: boolean;
   needsMeta?: boolean;
   properties: {
     config: PropertyPaneConfig[];
@@ -59,6 +60,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,
+    isCanvas: config.isCanvas,
   };
 
   store.dispatch({

@@ -1,24 +1,16 @@
 import { PositionedContainerProps } from "components/designSystems/appsmith/PositionedContainer";
 import { Layers } from "constants/Layers";
-import { pickBy } from "lodash";
+
 import { useMemo } from "react";
 import { AppState } from "reducers";
-import { WidgetConfig } from "reducers/entityReducers/widgetConfigReducer";
+
 import { getSelectedWidgets } from "selectors/ui";
 import { useSelector } from "store";
-import WidgetFactory from "utils/WidgetFactory";
-
-const dropTargetWidgets = Object.keys(
-  pickBy(
-    WidgetFactory.widgetConfigMap,
-    (config: WidgetConfig) => !!config.isCanvas,
-  ),
-);
 
 export const usePositionedContainerZIndex = (
   props: PositionedContainerProps,
+  droppableWidget: boolean,
 ) => {
-  const droppableWidget = dropTargetWidgets.includes(props.widgetType);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );

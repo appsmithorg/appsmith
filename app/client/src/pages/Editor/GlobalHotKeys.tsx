@@ -41,7 +41,6 @@ type Props = {
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
-  unfocusWidgets: () => void;
   toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
@@ -187,17 +186,7 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
-        <Hotkey
-          combo="Esc"
-          global
-          group="Canvas"
-          label="Un-select widgets"
-          onKeyDown={() => {
-            this.props.deselectAllWidgets();
-            this.props.closeProppane();
-            this.props.unfocusWidgets();
-          }}
-        />
+
         <Hotkey
           combo="mod + a"
           global
@@ -279,7 +268,6 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     setGlobalSearchFilterContext: (payload: { category: any }) =>
       dispatch(setGlobalSearchFilterContext(payload)),
-    unfocusWidgets: () => dispatch(deselectAllInitAction()),
   };
 };
 
