@@ -492,6 +492,7 @@ export function EditorJSONtoForm(props: Props) {
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "DATASOURCE_DOCUMENTATION_CLICK",
+      query,
     });
   };
 
