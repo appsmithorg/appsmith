@@ -14,6 +14,6 @@ public interface GitDataService extends CrudService<GitData, String> {
 
     Mono<UserData> saveGitConfigData(GitGlobalConfigDTO gitConfig);
 
-    String connectToGitRepo(String url, String orgId) throws IOException;
+    String connectToGitRepo(GitGlobalConfigDTO gitGlobalConfigDTO) throws IOException;
 
 }

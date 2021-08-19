@@ -8,9 +8,16 @@ import lombok.Setter;
 @Setter
 public class GitGlobalConfigDTO {
 
-    String userName;
-
     String userEmail;
 
-    GitConfig gitGlobalConfig;
+    String password;
+
+    String remoteUrl;
+
+    boolean isSshKey;
+
+    String sshKey;
+
+    String organizationId;
+
 }

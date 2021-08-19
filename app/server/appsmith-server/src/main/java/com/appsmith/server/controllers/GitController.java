@@ -32,17 +32,18 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
         this.gitService = gitService;
     }
 
+
     @PostMapping("/user")
     public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
         //Add to the userData object - git config data
         return gitService.saveGitConfigData(gitGlobalConfigDTO)
                 .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+
     }
 
-    @PostMapping("/connect/{organizationId}")
-    public String connectToRemoteRepo(@PathVariable String organizationId, @RequestParam String url) throws IOException {
-        return gitService.connectToGitRepo(url, organizationId);
+    @PostMapping("/connect")
+    public String connectToRemoteRepo(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) throws IOException {
+        return gitService.connectToGitRepo(gitGlobalConfigDTO);
     }
-
 
 }

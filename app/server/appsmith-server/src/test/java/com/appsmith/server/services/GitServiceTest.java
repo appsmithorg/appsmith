@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.dtos.GitGlobalConfigDTO;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -47,18 +48,29 @@ public class GitServiceTest {
         orgId = testOrg == null ? "" : testOrg.getId();
     }
 
+    private GitGlobalConfigDTO getConnectRequest(String url, String userName, String password, String sshKey, boolean isSshKey) {
+        GitGlobalConfigDTO gitGlobalConfigDTO = new GitGlobalConfigDTO();
+        gitGlobalConfigDTO.setUserEmail(userName);
+        gitGlobalConfigDTO.setPassword(password);
+        gitGlobalConfigDTO.setRemoteUrl(url);
+        gitGlobalConfigDTO.setOrganizationId(orgId);
+        return gitGlobalConfigDTO;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void  cloneRepo_validRemote_cloneSucess() throws IOException {
-        String response = gitDataService.connectToGitRepo(url, orgId);
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest(url, "", "", "", false);
+        String response = gitDataService.connectToGitRepo(gitGlobalConfigDTO);
         assertThat(response.contains("/.git"));
     }
 
     @Test(expected = TransportException.class)
     @WithUserDetails(value = "api_user")
     public void  cloneRepo_inaValidRemote_ThrowsGitAPIException() throws IOException {
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest("url" + url, "", "", "", false);
         TransportException exception = assertThrows(TransportException.class,
-                ()-> gitDataService.connectToGitRepo("url:"+url, orgId));
+                ()-> gitDataService.connectToGitRepo(gitGlobalConfigDTO));
         assertThat(exception.getMessage()).contains("remote hung up unexpectedly");
     }
 
@@ -66,16 +78,20 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void cloneRepo_directoryDoesntExists_Success() throws IOException {
         orgId = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block().getId();
-        String response = gitDataService.connectToGitRepo(url, orgId);
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest("url" + url, "", "", "", false);
+        String response = gitDataService.connectToGitRepo(gitGlobalConfigDTO);
         assertThat(response.contains("/.git"));
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void cloneRepo_duplicateName_Success() throws IOException {
-        String response = gitDataService.connectToGitRepo(url, orgId);
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest("url" + url, "", "", "", false);
+        String response = gitDataService.connectToGitRepo(gitGlobalConfigDTO);
         assertThat(response.contains("/.git"));
-        response = gitDataService.connectToGitRepo(url, orgId);
+        response = gitDataService.connectToGitRepo(gitGlobalConfigDTO);
         assertThat(response.contains("/.git"));
     }
+
+
 }

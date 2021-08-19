@@ -11,6 +11,8 @@ import com.appsmith.server.repositories.GitDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -56,19 +58,28 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
                         .getForUser(user.getId())
                         .flatMap(userData -> {
                             List<GitConfig> gitConfigs = userData.getGitLocalConfigData();
-                            gitConfigs.add(gitConfig.getGitGlobalConfig());
+                            GitConfig gitLocalConfig = new GitConfig();
+                            gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
+                            gitLocalConfig.setUserName(user.getUsername());
+                            gitLocalConfig.setCommitEmail(gitConfig.getUserEmail());
+                            gitLocalConfig.setRemoteUrl(gitConfig.getRemoteUrl());
+                            gitLocalConfig.setPassword(gitConfig.getPassword());
+                            gitLocalConfig.setSshKey(gitConfig.getSshKey());
+                            gitConfigs.add(gitLocalConfig);
                             userData.setGitLocalConfigData(gitConfigs);
                             return userDataService.updateForCurrentUser(userData);
                         }));
     }
 
     @Override
-    public String connectToGitRepo(String url, String orgId) {
-        String filePath = getFilePath(url, orgId);
+    public String connectToGitRepo(GitGlobalConfigDTO gitGlobalConfigDTO) {
+        String filePath = getFilePath(gitGlobalConfigDTO.getRemoteUrl(), gitGlobalConfigDTO.getOrganizationId());
         try (Git result = Git.cloneRepository()
-                .setURI(url)
+                .setURI(gitGlobalConfigDTO.getRemoteUrl())
+                .setCredentialsProvider(new UsernamePasswordCredentialsProvider("",""))
                 .setDirectory(new File(filePath))
                 .call()) {
+            saveGitConfigData(gitGlobalConfigDTO);
             return result.getRepository().toString();
         } catch (GitAPIException e) {
             e.printStackTrace();
@@ -85,12 +96,15 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
         String[] urlArray = url.split("/");
         String repoName = urlArray[urlArray.length-1].replace(".git", "");
         file = new File(filePath + "/" + repoName + "/");
+
+        //if the file with same exists, append the number at the end of the name until the proper name is found
         int i = 1;
+        String currentName = repoName;
         while(file.exists()) {
-            repoName = repoName + "(" + i + ")" ;
-            file =  new File(filePath + "/" + repoName + "/");
+            currentName = repoName + "(" + i + ")" ;
+            file =  new File(filePath + "/" + currentName + "/");
             i = i + 1;
         }
-        return filePath + "/" + repoName + "/";
+        return filePath + "/" + currentName + "/";
     }
 }
