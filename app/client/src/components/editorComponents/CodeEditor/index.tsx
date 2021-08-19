@@ -392,9 +392,11 @@ class CodeEditor extends Component<Props, State> {
         ) {
           entityInformation.entityType = entityType;
         }
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
       }
-      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
-      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
       entityInformation.propertyPath = propertyPath;
     }
     let hinterOpen = false;
