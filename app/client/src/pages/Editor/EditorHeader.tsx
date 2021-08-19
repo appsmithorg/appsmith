@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
@@ -54,6 +54,7 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 
@@ -220,6 +221,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
+
+  // eslint-disable-next-line
+  const showGitSyncModal = useCallback(() => {
+    dispatch(setIsGitSyncModalOpen(true));
+  }, [dispatch, setIsGitSyncModalOpen]);
 
   return (
     <ThemeProvider theme={props.darkTheme}>
