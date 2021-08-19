@@ -15,7 +15,9 @@ export const getIndexOfRegex = (
 };
 
 const buildBoundaryRegex = (key: string) => {
-  return key.replace("$", "\\$").replace(/[A-z]+/g, "\\b$&\\b");
+  return key
+    .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
+    .replace(/\w+/g, "\\b$&\\b");
 };
 
 export const getAllWordOccurences = (str: string, key: string) => {
