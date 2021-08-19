@@ -13,7 +13,7 @@ import {
   call,
 } from "redux-saga/effects";
 import { FetchActionsPayload } from "actions/actionActions";
-import { JSAction } from "entities/JSAction";
+import { JSAction, JSSubAction } from "entities/JSAction";
 import {
   createJSActionSuccess,
   deleteJSActionSuccess,
@@ -78,9 +78,7 @@ export function* fetchJSActionsSaga(
 }
 
 export function* createJSActionSaga(
-  actionPayload: ReduxAction<
-    Partial<JSAction> & { eventData: any; pluginId: string }
-  >,
+  actionPayload: ReduxAction<Partial<JSAction>>,
 ) {
   try {
     const payload = actionPayload.payload;
@@ -128,7 +126,7 @@ function* copyJSActionSaga(
     }) as Partial<JSAction>;
     delete copyJSAction.id;
     if (copyJSAction.actions && copyJSAction.actions.length > 0) {
-      const newJSSubActions: any = [];
+      const newJSSubActions: JSSubAction[] = [];
       copyJSAction.actions.forEach((action) => {
         const jsSubAction = JSON.parse(JSON.stringify(action));
         delete jsSubAction.id;
@@ -216,7 +214,7 @@ function* moveJSActionSaga(
 export const getIndexToBeRedirected = (
   jsActions: Array<DataTreeJSAction>,
   id: string,
-): any => {
+): number | undefined => {
   let resultIndex = undefined;
   let redirectIndex = undefined;
   if (jsActions.length > 1) {

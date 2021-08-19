@@ -42,7 +42,7 @@ class JSEditor extends React.Component<Props> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
   const jsAction = getJSActionById(state, props);
   const { isCreating } = state.ui.jsPane;
   const pluginId = _.get(jsAction, "pluginId", "");

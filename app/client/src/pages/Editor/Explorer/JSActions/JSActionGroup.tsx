@@ -5,11 +5,12 @@ import { jsIcon, jsFileIcon } from "../ExplorerIcons";
 import ExplorerJSActionEntity from "./JSActionEntity";
 import { createNewJSAction } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
+import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 
 type ExplorerJSActionGroupProps = {
   pageId: string;
   step: number;
-  jsActions?: any;
+  jsActions?: JSActionData[];
   searchKeyword?: string;
 };
 
@@ -21,9 +22,10 @@ export const ExplorerJSActionGroup = memo(
         create.
       </EntityPlaceholder>
     );
+    const jsActions = props.jsActions || [];
     const childNode: ReactElement<ExplorerJSActionGroupProps> = (
       <>
-        {props.jsActions.map((js: any) => {
+        {jsActions.map((js: JSActionData) => {
           return (
             <ExplorerJSActionEntity
               action={js}

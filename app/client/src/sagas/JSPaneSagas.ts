@@ -130,8 +130,10 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
       let changedActions = [];
       for (let i = 0; i < data.updateActions.length; i++) {
         changedActions = jsActionTobeUpdated.actions.map(
-          (js: any) =>
-            data.updateActions.find((update: any) => update.id === js.id) || js,
+          (js: JSSubAction) =>
+            data.updateActions.find(
+              (update: JSSubAction) => update.id === js.id,
+            ) || js,
         );
       }
       jsActionTobeUpdated.actions = changedActions;
@@ -144,7 +146,7 @@ function* handleParseUpdateJSAction(actionPayload: { body: string }) {
     }
     if (data.deletedActions.length > 0) {
       for (let i = 0; i < data.deletedActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js: any) => {
+        jsActionTobeUpdated.actions.map((js: JSSubAction) => {
           if (js.id !== data.deletedActions[i].id) {
             return js;
           }

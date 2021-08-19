@@ -15,6 +15,7 @@ import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ValidationConfig } from "constants/PropertyControlConstants";
+import { variable } from "entities/JSAction";
 
 export type ActionDescription<T> = {
   type: string;
@@ -69,12 +70,15 @@ export interface DataTreeJSAction {
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   body: string;
   [propName: string]: any;
-  meta: Record<string, any>;
+  meta: Record<string, MetaArgs>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   listVariables: Array<string>;
 }
 
+export interface MetaArgs {
+  arguments: variable[];
+}
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;

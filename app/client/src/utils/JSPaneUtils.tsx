@@ -1,14 +1,14 @@
 //check difference for after body change and parsing
-import { JSAction, variable } from "entities/JSAction";
+import { JSAction, JSSubAction, variable } from "entities/JSAction";
 
-export type ParsedJSAction = {
+export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<variable>;
 };
 
 export type ParsedBody = {
-  actions: Array<ParsedJSAction>;
+  actions: Array<ParsedJSSubAction>;
   variables: Array<variable>;
 };
 
@@ -16,10 +16,10 @@ export const getDifferenceInJSAction = (
   parsedBody: ParsedBody,
   jsAction: JSAction,
 ) => {
-  const newActions: any = [];
-  const toBearchivedActions = [];
-  const toBeupdatedActions: any = [];
-  const toBeAddedActions: any = [];
+  const newActions: ParsedJSSubAction[] = [];
+  const toBearchivedActions: JSSubAction[] = [];
+  const toBeupdatedActions: JSSubAction[] = [];
+  const toBeAddedActions: Partial<JSSubAction>[] = [];
   //check if body is changed and update if exists or
   // add to new array so it can be added to main collection
   if (parsedBody.actions && parsedBody.actions.length > 0) {
@@ -45,7 +45,7 @@ export const getDifferenceInJSAction = (
     for (let i = 0; i < jsAction.actions.length; i++) {
       const preAction = jsAction.actions[i];
       const existed = parsedBody.actions.find(
-        (js: any) => js.name === preAction.name,
+        (js: ParsedJSSubAction) => js.name === preAction.name,
       );
       if (!existed) {
         toBearchivedActions.push(preAction);

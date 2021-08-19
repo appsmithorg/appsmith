@@ -52,6 +52,7 @@ import _ from "lodash";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSAction } from "actions/jsPaneActions";
 import getFeatureFlags from "utils/featureFlags";
+import { JSSubAction, variable } from "entities/JSAction";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
@@ -456,11 +457,11 @@ function getIntegrationOptionsWithChildren(
             },
           };
           jsObject.children = [createJSFunction];
-          jsAction.config.actions.forEach((js: any) => {
+          jsAction.config.actions.forEach((js: JSSubAction) => {
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];
             if (jsArguments && jsArguments.length) {
-              jsArguments.forEach((arg: any) => {
+              jsArguments.forEach((arg: variable) => {
                 argValue.push(arg.value);
               });
             }

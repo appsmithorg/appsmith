@@ -1,4 +1,8 @@
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  ENTITY_TYPE,
+  MetaArgs,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
@@ -12,24 +16,9 @@ import {
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
 import getFeatureFlags from "utils/featureFlags";
-
 // When there is a complex data type, we store it in extra def and refer to it
 // in the def
 let extraDefs: any = {};
-export const skipJSProps = [
-  "ENTITY_TYPE",
-  "name",
-  "meta",
-  "body",
-  "pluginType",
-  "dynamicBindingPathList",
-  "bindingPaths",
-  "actionId",
-  "__evaluation__",
-  "variables",
-  "data", //for time being till we introduce async functions
-];
-
 // Def names are encoded with information about the entity
 // This so that we have more info about them
 // when sorting results in autocomplete
@@ -74,16 +63,19 @@ export const dataTreeTypeDefCreator = (
         subType: ENTITY_TYPE.APPSMITH,
       });
     } else if (isJSAction(entity) && isJSEditorEnabled) {
-      const result: any = _.omit(entity, skipJSProps);
-      const metaObj: any = entity.meta;
-      const jsOptions: any = {};
+      const metaObj: Record<string, MetaArgs> = entity.meta;
+      const jsOptions: Record<string, unknown> = {};
       for (const key in metaObj) {
         jsOptions[key] =
           "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
       }
-      for (const key in result) {
-        jsOptions[key] = generateTypeDef(entity[key]);
+
+      for (let i = 0; i < entity.variables.length; i++) {
+        const varKey = entity.variables[i];
+        const varValue = entity[varKey];
+        jsOptions[varKey] = generateTypeDef(JSON.parse(varValue));
       }
+
       def[entityName] = jsOptions;
       flattenDef(def, entityName);
       entityMap.set(entityName, {

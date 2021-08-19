@@ -9,9 +9,10 @@ import { useParams } from "react-router";
 import JSActionEntityContextMenu from "./JSActionContextMenu";
 import { getJSActionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
+import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 
 type ExplorerJSActionEntityProps = {
-  action: any;
+  action: JSActionData;
   icon: ReactNode;
   step: number;
   searchKeyword?: string;
