@@ -18,6 +18,7 @@ import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/dataso
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
 import { ReactComponent as JSIcon } from "assets/icons/menu/js.svg";
 import { ReactComponent as JSFileIcon } from "assets/icons/menu/js_file.svg";
+import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
@@ -119,6 +120,11 @@ export const MenuIcons: {
   DATASOURCE_COLUMN_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <DatasourceColumnIcon />
+    </IconWrapper>
+  ),
+  LINK_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <LinkIcon />
     </IconWrapper>
   ),
 };

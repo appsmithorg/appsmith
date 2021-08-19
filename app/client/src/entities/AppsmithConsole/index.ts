@@ -1,9 +1,6 @@
 import { ReduxAction } from "constants/ReduxActionConstants";
-import { BindingError } from "entities/AppsmithConsole/binding";
-import { ActionError } from "entities/AppsmithConsole/action";
-import { WidgetError } from "entities/AppsmithConsole/widget";
-import { EvalError } from "entities/AppsmithConsole/eval";
 import LOG_TYPE from "./logtype";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -12,7 +9,11 @@ export enum ENTITY_TYPE {
   JSACTION = "JSACTION",
 }
 
-export type ErrorType = BindingError | ActionError | WidgetError | EvalError;
+export enum PLATFORM_ERROR {
+  PLUGIN_EXECUTION = "PLUGIN_EXECUTION",
+}
+
+export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
 
 export enum Severity {
   // Everything, irrespective of what the user should see or not
@@ -48,17 +49,13 @@ export interface SourceEntity {
 }
 
 export interface LogActionPayload {
+  // Log id, used for updating or deleting
+  id?: string;
   // What is the log about. Is it a datasource update, widget update, eval error etc.
   logType?: LOG_TYPE;
   text: string;
+  messages?: Array<Message>;
   // Time taken for the event to complete
-  messages?: Array<{
-    // More contextual message than `text`
-    message: string;
-    // The section of code being referred to
-    // codeSegment?: string;
-  }>;
-
   timeTaken?: string;
   // "where" source entity and propertyPsath.
   source?: SourceEntity;
@@ -68,7 +65,15 @@ export interface LogActionPayload {
   analytics?: Record<string, any>;
 }
 
-export interface Message extends LogActionPayload {
+export interface Message {
+  // More contextual message than `text`
+  message: string;
+  type?: ErrorType;
+  // The section of code being referred to
+  // codeSegment?: string;
+}
+
+export interface Log extends LogActionPayload {
   severity: Severity;
   // "when" did this event happen
   timestamp: string;
@@ -101,12 +106,3 @@ export interface Message extends LogActionPayload {
  *   ]
  * }
  */
-export interface ActionableError extends Message {
-  // Error type of the event.
-  type: ErrorType;
-
-  severity: Severity.ERROR;
-
-  // Actions a user can take to resolve this issue
-  userActions: Array<UserAction>;
-}
