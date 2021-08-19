@@ -52,14 +52,8 @@ export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
   };
 };
 
-/**
- * Returns the offset position relative to the container
- * using the coordinates from the click event
- * @param clickEvent
- * @param containerRef
- */
-export const getOffsetPos = (
-  clickEvent: React.MouseEvent,
+const getRelativePos = (
+  absPosition: { x: number; y: number },
   containerRef: HTMLDivElement,
 ) => {
   const boundingClientRect = containerRef.getBoundingClientRect();
@@ -67,13 +61,8 @@ export const getOffsetPos = (
     left: boundingClientRect.left,
     top: boundingClientRect.top,
   };
-  const clickPosition = {
-    left: clickEvent.clientX,
-    top: clickEvent.clientY,
-  };
-
-  const offsetLeft = clickPosition.left - containerPosition.left;
-  const offsetTop = clickPosition.top - containerPosition.top;
+  const offsetLeft = absPosition.x - containerPosition.left;
+  const offsetTop = absPosition.y - containerPosition.top;
 
   const offsetLeftPercent = parseFloat(
     `${(offsetLeft / boundingClientRect.width) * 100}`,
@@ -88,6 +77,33 @@ export const getOffsetPos = (
     left: offsetLeft,
     top: offsetTop,
   };
+};
+
+export const getNewDragPos = (
+  absolutePos: {
+    x: number;
+    y: number;
+  },
+  containerRef: HTMLDivElement,
+) => {
+  return getRelativePos(absolutePos, containerRef);
+};
+
+/**
+ * Returns the offset position relative to the container
+ * using the coordinates from the click event
+ * @param clickEvent
+ * @param containerRef
+ */
+export const getOffsetPos = (
+  clickEvent: React.MouseEvent,
+  containerRef: HTMLDivElement,
+) => {
+  const clickPosition = {
+    x: clickEvent.clientX,
+    y: clickEvent.clientY,
+  };
+  return getRelativePos(clickPosition, containerRef);
 };
 
 export const getCommentThreadURL = ({

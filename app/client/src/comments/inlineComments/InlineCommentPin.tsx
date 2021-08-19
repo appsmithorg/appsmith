@@ -77,7 +77,7 @@ function Pin({
   unread?: boolean;
   onClick: () => void;
 }) {
-  const [{ isDragging }, dragRef] = useDrag({
+  const [, dragRef] = useDrag({
     item: {
       type: DraggableCommentsItems.INLINE_COMMENT_PIN,
       commentThreadId,
@@ -87,10 +87,6 @@ function Pin({
     }),
   });
 
-  // TODO: remove this logging
-  useEffect(() => {
-    console.log({ isDragging, commentThreadId });
-  }, [isDragging]);
   return (
     <StyledPinContainer onClick={onClick} ref={dragRef} unread={unread}>
       <Icon
