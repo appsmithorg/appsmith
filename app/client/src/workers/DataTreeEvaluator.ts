@@ -137,7 +137,8 @@ export default class DataTreeEvaluator {
     unEvalUpdates: DataTreeDiff[];
   } {
     const oldEvalTree = _.cloneDeep(this.evalTree);
-    const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    // const localUnEvalTree = JSON.parse(JSON.stringify(unEvalTree));
+    const localUnEvalTree = Object.assign({}, unEvalTree);
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -856,7 +857,7 @@ export default class DataTreeEvaluator {
               reg,
               entity.name + ".",
             );
-            const { result } = evaluate(newUnEvalValue, this.evalTree, {});
+            const { result } = evaluate(newUnEvalValue, unEvalDataTree, {});
             _.set(
               this.resolvedFunctions,
               `${entityName}.${propertyPath}`,
@@ -869,7 +870,7 @@ export default class DataTreeEvaluator {
         const unEvalValue = _.get(entity, propertyPath);
         if (typeof unEvalValue === "string") {
           const newUnEvalValue = unEvalValue.replaceAll(reg, entity.name + ".");
-          const { result } = evaluate(newUnEvalValue, this.evalTree, {});
+          const { result } = evaluate(newUnEvalValue, unEvalDataTree, {});
           _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
         }
       }

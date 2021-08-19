@@ -157,17 +157,16 @@ export default function evaluate(
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
 
-    Object.keys(resolvedFunctions).forEach((datum) => {
-      const resolvedObject = resolvedFunctions[datum];
-      Object.keys(resolvedObject).forEach((key) => {
-        GLOBAL_DATA[datum][key] = resolvedObject[key];
-      });
-    });
-
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
+    });
+    Object.keys(resolvedFunctions).forEach((datum: any) => {
+      const resolvedObject = resolvedFunctions[datum];
+      Object.keys(resolvedObject).forEach((key: any) => {
+        self[datum][key] = resolvedObject[key];
+      });
     });
     errors = getLintingErrors(script, GLOBAL_DATA);
 
