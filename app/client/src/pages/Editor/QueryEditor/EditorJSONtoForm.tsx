@@ -50,6 +50,8 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DOCUMENTATION,
+  DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
 } from "constants/messages";
 import { useParams } from "react-router";
@@ -686,7 +688,7 @@ export function EditorJSONtoForm(props: Props) {
                   onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
                 >
                   <TooltipComponent
-                    content="Open Docs in Omnibar"
+                    content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
@@ -697,7 +699,7 @@ export function EditorJSONtoForm(props: Props) {
                         size={IconSize.XXXL}
                       />
                       &nbsp;
-                      {"Documentation"}
+                      {createMessage(DOCUMENTATION)}
                     </span>
                   </TooltipComponent>
                 </DocumentationLink>

@@ -437,3 +437,6 @@ export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
 export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
+
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
