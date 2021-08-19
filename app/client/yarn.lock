@@ -2857,6 +2857,23 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@etchteam/storybook-addon-status@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@etchteam/storybook-addon-status/-/storybook-addon-status-4.0.0.tgz#299b36062084e285fd4ebb627cd0cce0d5c63303"
+  integrity sha512-CK69kfB/0HKSwMpnt7sC24h2sNFqPcCX/+o2CCOi6PP7ERqoqmy+DbnqLNtxYdshEJXs5pd6k5admbzpnZkevw==
+  dependencies:
+    "@storybook/addons" "^6.2.9"
+    "@storybook/api" "^6.2.9"
+    "@storybook/client-logger" "^6.2.9"
+    "@storybook/components" "^6.2.9"
+    "@storybook/core-events" "^6.2.9"
+    "@storybook/theming" "^6.2.9"
+    core-js "^3.0.1"
+    lodash "^4.17.21"
+    memoizerific "^1.11.3"
+    react "^16.8.3"
+    util-deprecate "^1.0.2"
+
 "@figspec/components@^0.1.1":
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/@figspec/components/-/components-0.1.9.tgz#78e6bf65ca4f546d162960d3bb2d4e0f58545aec"
@@ -3764,7 +3781,7 @@
     prop-types "^15.7.2"
     regenerator-runtime "^0.13.7"
 
-"@storybook/addons@6.3.7", "@storybook/addons@^6.3.0":
+"@storybook/addons@6.3.7", "@storybook/addons@^6.2.9", "@storybook/addons@^6.3.0":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-6.3.7.tgz#7c6b8d11b65f67b1884f6140437fe996dc39537a"
   integrity sha512-9stVjTcc52bqqh7YQex/LpSjJ4e2Czm4/ZYDjIiNy0p4OZEx+yLhL5mZzMWh2NQd6vv+pHASBSxf2IeaR5511A==
@@ -3779,7 +3796,7 @@
     global "^4.4.0"
     regenerator-runtime "^0.13.7"
 
-"@storybook/api@6.3.7", "@storybook/api@^6.3.0":
+"@storybook/api@6.3.7", "@storybook/api@^6.2.9", "@storybook/api@^6.3.0":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/api/-/api-6.3.7.tgz#88b8a51422cd0739c91bde0b1d65fb6d8a8485d0"
   integrity sha512-57al8mxmE9agXZGo8syRQ8UhvGnDC9zkuwkBPXchESYYVkm3Mc54RTvdAOYDiy85VS4JxiGOywHayCaRwgUddQ==
@@ -3927,7 +3944,7 @@
     ts-dedent "^2.0.0"
     util-deprecate "^1.0.2"
 
-"@storybook/client-logger@6.3.7":
+"@storybook/client-logger@6.3.7", "@storybook/client-logger@^6.2.9":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-6.3.7.tgz#ff17b7494e7e9e23089b0d5c5364c371c726bdd1"
   integrity sha512-BQRErHE3nIEuUJN/3S3dO1LzxAknOgrFeZLd4UVcH/fvjtS1F4EkhcbH+jNyUWvcWGv66PZYN0oFPEn/g3Savg==
@@ -3935,7 +3952,7 @@
     core-js "^3.8.2"
     global "^4.4.0"
 
-"@storybook/components@6.3.7", "@storybook/components@^6.3.0":
+"@storybook/components@6.3.7", "@storybook/components@^6.2.9", "@storybook/components@^6.3.0":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/components/-/components-6.3.7.tgz#42b1ca6d24e388e02eab82aa9ed3365db2266ecc"
   integrity sha512-O7LIg9Z18G0AJqXX7Shcj0uHqwXlSA5UkHgaz9A7mqqqJNl6m6FwwTWcxR1acUfYVNkO+czgpqZHNrOF6rky1A==
@@ -4042,7 +4059,7 @@
     util-deprecate "^1.0.2"
     webpack "4"
 
-"@storybook/core-events@6.3.7", "@storybook/core-events@^6.3.0":
+"@storybook/core-events@6.3.7", "@storybook/core-events@^6.2.9", "@storybook/core-events@^6.3.0":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/core-events/-/core-events-6.3.7.tgz#c5bc7cae7dc295de73b6b9f671ecbe582582e9bd"
   integrity sha512-l5Hlhe+C/dqxjobemZ6DWBhTOhQoFF3F1Y4kjFGE7pGZl/mas4M72I5I/FUcYCmbk2fbLfZX8hzKkUqS1hdyLA==
@@ -4278,7 +4295,7 @@
     prettier "~2.2.1"
     regenerator-runtime "^0.13.7"
 
-"@storybook/theming@6.3.7":
+"@storybook/theming@6.3.7", "@storybook/theming@^6.2.9":
   version "6.3.7"
   resolved "https://registry.yarnpkg.com/@storybook/theming/-/theming-6.3.7.tgz#6daf9a21b26ed607f3c28a82acd90c0248e76d8b"
   integrity sha512-GXBdw18JJd5jLLcRonAZWvGGdwEXByxF1IFNDSOYCcpHWsMgTk4XoLjceu9MpXET04pVX51LbVPLCvMdggoohg==
@@ -15883,6 +15900,15 @@ react-zoom-pan-pinch@^1.6.1:
 react@^16.12.0, react@^16.8.5:
   version "16.13.1"
   resolved "https://registry.npmjs.org/react/-/react-16.13.1.tgz"
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.2"
+
+react@^16.8.3:
+  version "16.14.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.14.0.tgz#94d776ddd0aaa37da3eda8fc5b6b18a4c9a3114d"
+  integrity sha512-0X2CImDkJGApiAlcf0ODKIneSwBPhqJawOa5wCtKbu7ZECrmS26NvtSILynQ66cgkT/RJ4LidJOc3bUESwmU8g==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"

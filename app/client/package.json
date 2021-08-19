@@ -198,6 +198,7 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
+    "@etchteam/storybook-addon-status": "^4.0.0",
     "@storybook/addon-actions": "^6.3.7",
     "@storybook/addon-essentials": "^6.3.7",
     "@storybook/addon-knobs": "^6.3.0",
