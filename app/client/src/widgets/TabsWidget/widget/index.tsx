@@ -246,7 +246,7 @@ class TabsWidget extends BaseWidget<
             children: [],
           },
         };
-        this.props.updateWidget(
+        super.updateWidget(
           WidgetOperations.ADD_CHILD,
           this.props.widgetId,
           config,
@@ -259,21 +259,17 @@ class TabsWidget extends BaseWidget<
     this.props.children.forEach((each) => {
       const tab = this.props.tabsObj[each.tabId];
       if (tab && each.tabName !== tab.label) {
-        this.props.updateWidget(
-          WidgetOperations.UPDATE_PROPERTY,
-          each.widgetId,
-          {
-            propertyPath: "tabName",
-            propertyValue: tab.label,
-          },
-        );
+        super.updateWidget(WidgetOperations.UPDATE_PROPERTY, each.widgetId, {
+          propertyPath: "tabName",
+          propertyValue: tab.label,
+        });
       }
     });
   };
 
   removeTabContainer = (widgetIds: string[]) => {
     widgetIds.forEach((widgetIdToRemove: string) => {
-      this.props.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
+      super.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
         parentId: this.props.widgetId,
       });
     });
@@ -399,7 +395,7 @@ class TabsWidget extends BaseWidget<
       isLoading: false,
     }));
     if (tabContainers && tabContainers.length > 0) {
-      this.props.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
+      super.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
         children: tabContainers,
       });
     }

@@ -128,6 +128,7 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
           buttonStyle: "rgb(3, 179, 101)",
@@ -241,6 +242,22 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetHeaderVisibilityProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: DSLWidget,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
     }
     return child;
   });

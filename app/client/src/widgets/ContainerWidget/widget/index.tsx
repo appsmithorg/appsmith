@@ -16,7 +16,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
-import { getWidgetDimensions } from "widgets/WidgetUtils";
 
 import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
@@ -79,7 +78,7 @@ class ContainerWidget extends BaseWidget<
   }
 
   getSnapSpaces = () => {
-    const { componentWidth } = getWidgetDimensions(this.props);
+    const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
     let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     if (
@@ -109,7 +108,7 @@ class ContainerWidget extends BaseWidget<
       return null;
     }
 
-    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     const childWidgetProps = produce(childProps, (childWidgetData) => {
       childWidgetData.rightColumn = componentWidth;
       childWidgetData.bottomRow = this.props.shouldScrollContents

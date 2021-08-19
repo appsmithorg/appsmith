@@ -31,7 +31,6 @@ import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
-import { getWidgetDimensions } from "widgets/WidgetUtils";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import produce from "immer";
 
@@ -207,7 +206,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!action) return;
 
     try {
-      const rowData = [this.props.listData[rowIndex]];
+      const rowData = [this.props.listData?.[rowIndex]] || [];
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentItem) => { ${next} }}} `;
@@ -226,7 +225,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   renderChild = (childProps: WidgetProps) => {
-    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     const { shouldPaginate } = this.shouldPaginate();
 
     const childWidgetProps = produce(childProps, (childWidgetData) => {
@@ -364,7 +363,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           propertyValue.indexOf("{{((currentItem) => {") === -1
         ) {
           const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.listData[itemIndex];
+          const listItem = this.props.listData?.[itemIndex] || {};
 
           const newPropertyValue = jsSnippets.reduce(
             (prev: string, next: string) => {
@@ -560,33 +559,34 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.listData?.length ?? 0;
     if (this.props.children && this.props.children.length > 0) {
-      const children = removeFalsyEntries(this.props.children);
-      const childCanvas = children[0];
-      let canvasChildren = childCanvas.children;
+      const children: WidgetProps[] = removeFalsyEntries(this.props.children);
+      const updatedChildCanvas = produce(children[0], (childCanvas: any) => {
+        // const childCanvas = children[0];
+        let canvasChildren = childCanvas.children;
+        if (canvasChildren) {
+          try {
+            // here we are duplicating the template for each items in the data array
+            // first item of the canvasChildren acts as a template
+            const template = canvasChildren.slice(0, 1).shift();
 
-      try {
-        // here we are duplicating the template for each items in the data array
-        // first item of the canvasChildren acts as a template
-        const template = canvasChildren.slice(0, 1).shift();
+            for (let i = 0; i < numberOfItemsInGrid; i++) {
+              canvasChildren[i] = JSON.parse(JSON.stringify(template));
+            }
 
-        for (let i = 0; i < numberOfItemsInGrid; i++) {
-          canvasChildren[i] = JSON.parse(JSON.stringify(template));
+            // TODO(pawan): This is recalculated everytime for not much reason
+            // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+            // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
+            // In particular useNewValues can be memoized, if others can't.
+            canvasChildren = this.updateGridChildrenProps(canvasChildren);
+
+            childCanvas.children = canvasChildren;
+          } catch (e) {
+            log.error(e);
+          }
         }
+      });
 
-        // TODO(pawan): This is recalculated everytime for not much reason
-        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
-        // In particular useNewValues can be memoized, if others can't.
-        canvasChildren = this.updateGridChildrenProps(canvasChildren);
-
-        childCanvas.children = canvasChildren;
-      } catch (e) {
-        log.error(e);
-      }
-
-      console.log({ childCanvas });
-
-      return this.renderChild(childCanvas);
+      return this.renderChild(updatedChildCanvas);
     }
   };
 
@@ -601,7 +601,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (!listData?.length) {
       return { shouldPaginate: false, perPage: 0 };
     }
-    const { componentHeight } = getWidgetDimensions(this.props);
+    const { componentHeight } = this.getComponentDimensions();
     const templateBottomRow = get(children, "0.children.0.bottomRow");
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -636,7 +636,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   getPageView() {
     const children = this.renderChildren();
-    const { componentHeight } = getWidgetDimensions(this.props);
+    const { componentHeight } = this.getComponentDimensions();
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
       this.props.children,
@@ -694,6 +694,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         {...this.props}
         hasPagination={shouldPaginate}
         key={`list-widget-page-${this.state.page}`}
+        listData={this.props.listData || []}
       >
         {children}
 
@@ -703,7 +704,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             disabled={false && this.props.renderMode === RenderModes.CANVAS}
             onChange={(page: number) => this.setState({ page })}
             perPage={perPage}
-            total={this.props.listData.length}
+            total={(this.props.listData || []).length}
           />
         )}
       </ListComponent>
@@ -722,7 +723,7 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   children?: T[];
   shouldScrollContents?: boolean;
   onListItemClick?: string;
-  listData: Array<Record<string, unknown>>;
+  listData?: Array<Record<string, unknown>>;
   currentItemStructure?: Record<string, string>;
 }
 

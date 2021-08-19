@@ -99,6 +99,7 @@ import {
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -617,6 +618,7 @@ export function* clonePageSaga(
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(selectMultipleWidgetsAction([]));
 
       if (!clonePageAction.payload.blockNavigation) {
         history.push(BUILDER_PAGE_URL(applicationId, response.data.id));

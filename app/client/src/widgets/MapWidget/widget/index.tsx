@@ -97,6 +97,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "lat",

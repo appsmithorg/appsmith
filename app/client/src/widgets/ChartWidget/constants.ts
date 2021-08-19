@@ -25,3 +25,9 @@ export interface CustomFusionChartConfig {
 export interface AllChartData {
   [key: string]: ChartData;
 }
+
+export interface ChartSelectedDataPoint {
+  x: any;
+  y: any;
+  seriesTitle: string;
+}

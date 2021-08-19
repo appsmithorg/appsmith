@@ -65,6 +65,7 @@ class MultiSelectWidget extends BaseWidget<
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",

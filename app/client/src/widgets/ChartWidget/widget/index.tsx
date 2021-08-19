@@ -10,8 +10,8 @@ import {
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
+  ChartSelectedDataPoint,
 } from "../constants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -32,15 +32,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return propertyConfig;
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-
-  onDataPointClick = (selectedDataPoint: { x: any; y: any }) => {
+  onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {
     this.props.updateWidgetMetaProperty(
       "selectedDataPoint",
       selectedDataPoint,

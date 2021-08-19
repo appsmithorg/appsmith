@@ -318,9 +318,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {

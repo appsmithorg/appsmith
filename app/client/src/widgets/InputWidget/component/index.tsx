@@ -7,6 +7,12 @@ import {
 } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
 import {
+  FontStyleTypes,
+  TextSize,
+  TEXT_SIZES,
+} from "constants/WidgetConstants";
+import {
+  Alignment,
   Intent,
   NumericInput,
   IconName,
@@ -16,8 +22,13 @@ import {
   Classes,
   ControlGroup,
   TextArea,
+  Tag,
+  Position,
 } from "@blueprintjs/core";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
+import Tooltip from "components/ads/Tooltip";
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+import { IconWrapper } from "constants/IconConstants";
+
 import { Colors } from "constants/Colors";
 import _ from "lodash";
 import {
@@ -48,6 +59,7 @@ const InputComponentWrapper = styled((props) => (
   allowCurrencyChange?: boolean;
   inputType: InputType;
 }>`
+  flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
     .currency-type-filter {
       width: 40px;
@@ -107,6 +119,10 @@ const InputComponentWrapper = styled((props) => (
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
+      .bp3-tag {
+        background-color: transparent;
+        color: #5c7080;
+      }
     }
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
@@ -115,13 +131,48 @@ const InputComponentWrapper = styled((props) => (
     align-items: center;
     label {
       ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
+      margin-right: 5px;
       text-align: right;
       align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
+      color: ${(props) => props.labelTextColor || "inherit"};
+      font-size: ${(props) => props.labelTextSize};
+      font-weight: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
+      font-style: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.ITALIC) ? "italic" : ""};
+      text-decoration: ${(props) =>
+        props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
+          ? "underline"
+          : ""};
     }
   }
+`;
+
+const ToolTipIcon = styled(IconWrapper)`
+  cursor: help;
+  margin-top: 1.5px;
+  &&&:hover {
+    svg {
+      path {
+        fill: #716e6e;
+      }
+    }
+  }
+`;
+
+const TextLableWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  display: flex;
+  max-height: 20px;
+`;
+
+const TextInputWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex: 1;
 `;
 
 const DropdownTriggerIconWrapper = styled.div`
@@ -348,18 +399,20 @@ class InputComponent extends React.Component<
         disabled={this.props.disabled}
         intent={this.props.intent}
         leftIcon={
-          this.props.inputType === "PHONE_NUMBER"
-            ? "phone"
-            : this.props.inputType !== InputTypes.CURRENCY
-            ? this.props.leftIcon
-            : this.props.inputType === InputTypes.CURRENCY && (
-                <CurrencyTypeDropdown
-                  allowCurrencyChange={this.props.allowCurrencyChange}
-                  onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-                  options={getCurrencyOptions()}
-                  selected={getSelectedItem(this.props.currencyCountryCode)}
-                />
-              )
+          this.props.inputType === "PHONE_NUMBER" ? (
+            "phone"
+          ) : this.props.inputType === InputTypes.CURRENCY ? (
+            <CurrencyTypeDropdown
+              allowCurrencyChange={this.props.allowCurrencyChange}
+              onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+              options={getCurrencyOptions()}
+              selected={getSelectedItem(this.props.currencyCountryCode)}
+            />
+          ) : this.props.iconName && this.props.iconAlign === "left" ? (
+            this.props.iconName
+          ) : (
+            undefined
+          )
         }
         max={this.props.maxNum}
         maxLength={this.props.maxChars}
@@ -380,6 +433,7 @@ class InputComponent extends React.Component<
   };
   private textAreaInputComponent = () => (
     <TextArea
+      autoFocus={this.props.autoFocus}
       className={this.props.isLoading ? "bp3-skeleton" : ""}
       disabled={this.props.disabled}
       growVertically={false}
@@ -400,9 +454,15 @@ class InputComponent extends React.Component<
       this.textAreaInputComponent()
     ) : (
       <InputGroup
+        autoFocus={this.props.autoFocus}
         className={this.props.isLoading ? "bp3-skeleton" : ""}
         disabled={this.props.disabled}
         intent={this.props.intent}
+        leftIcon={
+          this.props.iconName && this.props.iconAlign === "left"
+            ? this.props.iconName
+            : undefined
+        }
         maxLength={this.props.maxChars}
         onBlur={() => this.setFocusState(false)}
         onChange={this.onTextChange}
@@ -417,6 +477,8 @@ class InputComponent extends React.Component<
                 this.setState({ showPassword: !this.state.showPassword });
               }}
             />
+          ) : this.props.iconName && this.props.iconAlign === "right" ? (
+            <Tag icon={this.props.iconName} />
           ) : (
             undefined
           )
@@ -431,38 +493,77 @@ class InputComponent extends React.Component<
       : this.textInputComponent(isTextArea);
 
   render() {
+    const {
+      label,
+      labelStyle,
+      labelTextColor,
+      labelTextSize,
+      tooltip,
+    } = this.props;
+    const showLabelHeader = label || tooltip;
+
     return (
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}
+        compactMode={this.props.compactMode}
         fill
         hasError={this.props.isInvalid}
         inputType={this.props.inputType}
+        labelStyle={labelStyle}
+        labelTextColor={labelTextColor}
+        labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={this.props.multiline.toString()}
         numeric={this.isNumberInputType(this.props.inputType)}
       >
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
+        {showLabelHeader && (
+          <TextLableWrapper
+            className="t--input-label-wrapper"
+            compactMode={this.props.compactMode}
+          >
+            {this.props.label && (
+              <Label
+                className={`
+                  t--input-widget-label ${
+                    this.props.isLoading
+                      ? Classes.SKELETON
+                      : Classes.TEXT_OVERFLOW_ELLIPSIS
+                  }
+                `}
+              >
+                {this.props.label}
+              </Label>
+            )}
+            {this.props.tooltip && (
+              <Tooltip
+                content={this.props.tooltip}
+                hoverOpenDelay={200}
+                position={Position.TOP}
+              >
+                <ToolTipIcon
+                  color={Colors.SILVER_CHALICE}
+                  height={14}
+                  width={14}
+                >
+                  <HelpIcon className="t--input-widget-tooltip" />
+                </ToolTipIcon>
+              </Tooltip>
+            )}
+          </TextLableWrapper>
+        )}
+        <TextInputWrapper>
+          <ErrorTooltip
+            isOpen={this.props.isInvalid && this.props.showError}
+            message={
+              this.props.errorMessage ||
+              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
           >
-            {this.props.label}
-          </Label>
-        )}
-        <ErrorTooltip
-          isOpen={this.props.isInvalid && this.props.showError}
-          message={
-            this.props.errorMessage ||
-            createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-          }
-        >
-          {this.renderInputComponent(
-            this.props.inputType,
-            this.props.multiline,
-          )}
-        </ErrorTooltip>
+            {this.renderInputComponent(
+              this.props.inputType,
+              this.props.multiline,
+            )}
+          </ErrorTooltip>
+        </TextInputWrapper>
       </InputComponentWrapper>
     );
   }
@@ -483,6 +584,10 @@ export interface InputComponentProps extends ComponentProps {
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  tooltip?: string;
   leftIcon?: IconName;
   allowNumericCharactersOnly?: boolean;
   fill?: boolean;
@@ -496,7 +601,11 @@ export interface InputComponentProps extends ComponentProps {
   placeholder?: string;
   isLoading: boolean;
   multiline: boolean;
+  compactMode: boolean;
   isInvalid: boolean;
+  autoFocus?: boolean;
+  iconName?: IconName;
+  iconAlign?: Omit<Alignment, "center">;
   showError: boolean;
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;

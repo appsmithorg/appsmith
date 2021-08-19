@@ -5,7 +5,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DropDownComponent from "../component";
 import _ from "lodash";
 import { DropdownOption } from "../constants";
-import { getWidgetDimensions } from "widgets/WidgetUtils";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -46,6 +45,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
@@ -197,11 +197,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
 
-    const { componentHeight, componentWidth } = getWidgetDimensions(this.props);
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
     return (
       <DropDownComponent
         disabled={this.props.isDisabled}

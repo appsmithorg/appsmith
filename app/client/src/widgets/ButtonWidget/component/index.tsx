@@ -4,7 +4,9 @@ import {
   MaybeElement,
   Button,
   IconName,
+  Position,
 } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
 import styled, { css } from "styled-components";
 import { Theme, darkenHover, darkenActive } from "constants/DefaultTheme";
 import _ from "lodash";
@@ -48,6 +50,20 @@ const getButtonFillStyles = (props: { theme: Theme } & ButtonStyleProps) => {
   }
 };
 
+const ToolTipContent = styled.div`
+  max-width: 350px;
+`;
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover-target {
+    height: 100%;
+    & > div {
+      height: 100%;
+    }
+  }
+`;
+
 const ButtonColorStyles = css<ButtonStyleProps>`
   color: ${getButtonColorStyles};
   svg {
@@ -86,10 +102,7 @@ const ButtonWrapper = styled((props: ButtonStyleProps & IButtonProps) => (
         props.accent
           ? props.theme.colors[AccentColorMap[props.accent]]
           : props.theme.colors.primary};
-    color: ${(props) =>
-      props.accent === "grey"
-        ? props.theme.colors.textOnGreyBG
-        : props.theme.colors.textOnDarkBG};
+
     border-radius: 0;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     outline: none;
@@ -184,6 +197,7 @@ interface RecaptchaProps {
 interface ButtonContainerProps extends ComponentProps {
   text?: string;
   icon?: MaybeElement;
+  tooltip?: string;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   disabled?: boolean;
   buttonStyle?: ButtonStyle;
@@ -337,7 +351,7 @@ function BtnWrapper(
 function ButtonContainer(
   props: ButtonContainerProps & ButtonStyleProps & RecaptchaProps,
 ) {
-  return (
+  const btnWrapper = (
     <BtnWrapper
       clickWithRecaptcha={props.clickWithRecaptcha}
       googleRecaptchaKey={props.googleRecaptchaKey}
@@ -357,6 +371,21 @@ function ButtonContainer(
       />
     </BtnWrapper>
   );
+  if (props.tooltip) {
+    return (
+      <ToolTipWrapper>
+        <Tooltip
+          content={<ToolTipContent>{props.tooltip}</ToolTipContent>}
+          hoverOpenDelay={200}
+          position={Position.TOP}
+        >
+          {btnWrapper}
+        </Tooltip>
+      </ToolTipWrapper>
+    );
+  } else {
+    return btnWrapper;
+  }
 }
 
 export default ButtonContainer;

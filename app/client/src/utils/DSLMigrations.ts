@@ -8,7 +8,7 @@ import {
 } from "constants/WidgetConstants";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import { get, has, isString, omit, set } from "lodash";
+import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
@@ -20,6 +20,7 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   tableWidgetPropertyPaneMigrations,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimiterProperties,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -30,6 +31,7 @@ import { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 
 /**
  * adds logBlackList key for all list widget children
@@ -870,9 +872,51 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
+    currentDSL.version = 30;
+  }
+  if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
+    currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+const addIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!isEmpty(currentDSL.primaryColumns)) {
+      for (const key of Object.keys(
+        currentDSL.primaryColumns as Record<string, ColumnProperties>,
+      )) {
+        if (currentDSL.primaryColumns[key].columnType === "button") {
+          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+            currentDSL.primaryColumns[key]["isDisabled"] = false;
+          }
+        }
+        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+          currentDSL.primaryColumns[key]["isCellVisible"] = true;
+        }
+      }
+    }
+  }
+  return currentDSL;
+};
+
+const migrateIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateIsDisabledToButtonColumn(children);
+  });
   return currentDSL;
 };
 
