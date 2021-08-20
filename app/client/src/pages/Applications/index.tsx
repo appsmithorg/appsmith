@@ -80,13 +80,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
-import OnboardingForm from "./OnboardingForm";
-import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUCCESS_URL } from "constants/routes";
-import {
-  setOnboardingFormInProgress,
-  getOnboardingFormInProgress,
-} from "utils/storage";
+
+import { getIsSafeRedirectURL } from "utils/helpers";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -897,7 +893,6 @@ const getIsFromSignup = () => {
   return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
 
-const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
   { selectedOrgId: string; showOnboardingForm: boolean }
@@ -914,68 +909,40 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
-    window.addEventListener("message", this.handleTypeFormMessage, false);
-    this.showOnboardingForm();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("message", this.handleTypeFormMessage);
-  }
-
-  showOnboardingForm = async () => {
     const isFromSignUp = getIsFromSignup();
-    const isOnboardingFormInProgress = await getOnboardingFormInProgress();
-    const showOnboardingForm =
-      onboardingFormEnabled && (isFromSignUp || isOnboardingFormInProgress);
-    this.setState({
-      showOnboardingForm: !!showOnboardingForm,
-    });
-
-    // Redirect directly in case we're not showing the onboarding form
-    if (isFromSignUp && !onboardingFormEnabled) {
+    if (isFromSignUp) {
       this.redirectUsingQueryParam();
     }
-  };
+    this.props.getAllApplication();
+  }
 
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
     if (redirectUrl) {
       try {
-        window.location.replace(redirectUrl);
+        if (getIsSafeRedirectURL(redirectUrl)) {
+          window.location.replace(redirectUrl);
+        }
       } catch (e) {
         console.error("Error handling the redirect url");
       }
     }
   };
 
-  handleTypeFormMessage = (event: any) => {
-    if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
-      setOnboardingFormInProgress();
-      this.redirectUsingQueryParam();
-    }
-  };
-
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        {this.state.showOnboardingForm ? (
-          <OnboardingForm />
-        ) : (
-          <>
-            <ProductUpdatesModal />
-            <LeftPane />
-            <SubHeader
-              search={{
-                placeholder: "Search for apps...",
-                queryFn: this.props.searchApplications,
-                defaultValue: this.props.searchKeyword,
-              }}
-            />
-            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-          </>
-        )}
+        <ProductUpdatesModal />
+        <LeftPane />
+        <SubHeader
+          search={{
+            placeholder: "Search for apps...",
+            queryFn: this.props.searchApplications,
+            defaultValue: this.props.searchKeyword,
+          }}
+        />
+        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
       </PageWrapper>
     );
   }

@@ -42,6 +42,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final ReleaseNotesService releaseNotesService;
 
+    private final FeatureFlagService featureFlagService;
+
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
     @Autowired
@@ -54,13 +56,14 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                UserService userService,
                                SessionUserService sessionUserService,
                                AssetService assetService,
-                               ReleaseNotesService releaseNotesService
-    ) {
+                               ReleaseNotesService releaseNotesService,
+                               FeatureFlagService featureFlagService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
+        this.featureFlagService = featureFlagService;
     }
 
     @Override
@@ -101,6 +104,14 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                     final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
                     return updaterMono.switchIfEmpty(creatorMono);
                 });
+    }
+
+    @Override
+    public Mono<UserData> updateForUser(User user, UserData updates) {
+        updates.setUserId(user.getId());
+        final Mono<UserData> updaterMono = update(user.getId(), updates);
+        final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
+        return updaterMono.switchIfEmpty(creatorMono);
     }
 
     @Override
@@ -228,5 +239,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
             userData.setRecentlyUsedOrgIds(recentlyUsedOrgIds);
             return repository.save(userData);
         });
+    }
+
+    @Override
+    public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
+        return featureFlagService.getAllFeatureFlagsForUser();
     }
 }

@@ -1,6 +1,7 @@
 package com.external.utils;
 
 import com.appsmith.external.models.DatasourceStructure;
+import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,20 +11,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * API reference: https://docs.snowflake.com/en/sql-reference/sql/show-columns.html
+ * API reference: https://docs.snowflake.com/en/sql-reference/info-schema/columns.html
  */
 public class SqlUtils {
 
     /**
      * Example output for COLUMNS_QUERY:
-     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+------------------------------+
-     * | TABLE_SCHEMA | TABLE_NAME | COLUMN_ID | COLUMN_NAME | COLUMN_TYPE | IS_NULLABLE | COLUMN_DEFAULT | COLUMN_AUTOINCREMENT         |
-     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+------------------------------+
-     * | test_schema  | test       |         1 | id          | int         |           0 |                |IDENTITY START 1 INCREMENT 1  |
-     * | test_schema  | test       |         2 | firstname   | varchar     |           1 | Foo            |                              |
-     * | test_schema  | test       |         3 | middlename  | varchar     |           1 |                |                              |
-     * | test_schema  | test       |         4 | lastname    | varchar     |           1 |                |                              |
-     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+------------------------------+
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+-------------+
+     * | TABLE_SCHEMA | TABLE_NAME | COLUMN_ID | COLUMN_NAME | COLUMN_TYPE | IS_NULLABLE | COLUMN_DEFAULT | IS_IDENTITY |
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+-------------+
+     * | test_schema  | test       |         1 | id          | int         |           0 |                |        YES  |
+     * | test_schema  | test       |         2 | firstname   | varchar     |           1 | Foo            |         NO  |
+     * | test_schema  | test       |         3 | middlename  | varchar     |           1 |                |         NO  |
+     * | test_schema  | test       |         4 | lastname    | varchar     |           1 |                |         NO  |
+     * +--------------+------------+-----------+-------------+-------------+-------------+----------------+-------------+
      */
     public static final String COLUMNS_QUERY =
             "SELECT " +
@@ -33,8 +34,8 @@ public class SqlUtils {
                     "cols.column_name as column_name, " +
                     "cols.data_type as column_type, " +
                     "cols.is_nullable = 'YES' as is_nullable, " +
-                    "cols.autoincrement as column_autoincrement, " +
-                    "cols.column_default as column_default " +
+                    "cols.column_default as column_default, " +
+                    "cols.is_identity as is_identity " +
                     "FROM " +
                     "information_schema.columns cols " +
                     "WHERE " +
@@ -87,15 +88,15 @@ public class SqlUtils {
             case "BOOLEAN":
                 return "true";
             case "DATE":
-                return "2021-01-01";
+                return "'2021-01-01'";
             case "TIME":
-                return "00:00:01";
+                return "'00:00:01'";
             case "DATETIME":
             case "TIMESTAMP":
             case "TIMESTAMP_LTZ":
             case "TIMESTAMP_NTZ":
             case "TIMESTAMP_TZ":
-                return "2021-01-01 00:00:01";
+                return "'2021-01-01 00:00:01'";
             case "ARRAY":
                 return "array_construct(1, 2, 3)";
             case "VARIANT":
@@ -141,7 +142,12 @@ public class SqlUtils {
 
                 columnNames.add(name);
                 columnValues.add(value);
-                setFragments.append("\n    ").append(name).append(" = ").append(value);
+                setFragments.append("\n    ").append(name).append(" = ").append(value).append(",");
+            }
+
+            // Delete the last comma
+            if (setFragments.length() > 0) {
+                setFragments.deleteCharAt(setFragments.length() - 1);
             }
 
             final String tableName = table.getSchema() + "." + table.getName();
@@ -231,13 +237,18 @@ public class SqlUtils {
                     new ArrayList<>()
             ));
         }
-
         final DatasourceStructure.Table table = tablesByName.get(tableName);
+        String defaultValue = row.getString("COLUMN_DEFAULT");
+        // AUTOINCREMENT and IDENTITY are synonymous. If either is specified for a column, Snowflake utilizes a sequence
+        // to generate the values for the column. For more information about sequences, see Using Sequences
+        boolean isAutogenerated = "YES".equalsIgnoreCase(row.getString("IS_IDENTITY"))
+            || (!StringUtils.isEmpty(defaultValue) && defaultValue.toLowerCase().contains("nextval"));
+
         table.getColumns().add(new DatasourceStructure.Column(
                 row.getString("COLUMN_NAME"),
                 row.getString("COLUMN_TYPE"),
-                row.getString("COLUMN_DEFAULT"),
-                row.getString("COLUMN_AUTOINCREMENT").toLowerCase().contains("identity")
+                defaultValue,
+                isAutogenerated
         ));
     }
 }

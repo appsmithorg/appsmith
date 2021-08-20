@@ -15,8 +15,14 @@
   "createQuerty": ".t--create-query",
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
+  "datasourceCardMenu": ".t--datasource-menu-option",
+  "datasourceCardGeneratePageBtn": ".t--generate-template",
+  "datasourceMenuOptionEdit": "t--datasource-option-edit",
+  "datasourceMenuOptionDelete":"t--datasource-option-delete",
   "editDatasource": ".t--edit-datasource",
+  "datasourceTitle": ".t--edit-datasource-name .bp3-editable-text-content",
   "defaultDatabaseName": "input[name='datasourceConfiguration.connection.defaultDatabaseName']",
+  "datasourceConfigurationProperty":"input[name='datasourceConfiguration.properties[0]']",
   "selConnectionType": "[data-cy='datasourceConfiguration.connection.type']",
   "Mysql": ".t--plugin-name:contains('Mysql')",
   "ElasticSearch": ".t--plugin-name:contains('ElasticSearch')",
@@ -25,7 +31,7 @@
   "MsSQL": ".t--plugin-name:contains('MsSQL')",
   "Firestore": ".t--plugin-name:contains('Firestore')",
   "Redshift": ".t--plugin-name:contains('Redshift')",
-  "AmazonS3": ".t--plugin-name:contains('Amazon S3')",
+  "AmazonS3": ".t--plugin-name:contains('S3')",
   "authType": "[data-cy=authType]",
   "OAuth2": "//div[contains(@class,'option') and text()='OAuth 2.0']",
   "accessTokenUrl": "[data-cy='authentication.accessTokenUrl'] input",
@@ -40,5 +46,7 @@
   "saveAndAuthorize": "button:contains('Save and Authorize')",
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
-  "basicPassword": "input[name='authentication.password']"
+  "basicPassword": "input[name='authentication.password']",
+  "mockUserDatabase":"div[id='mock-database'] span:contains('Users')",
+  "mockUserDatasources":".t--datasource-name:contains('Users')"
 }

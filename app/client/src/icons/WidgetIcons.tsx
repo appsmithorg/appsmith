@@ -8,6 +8,7 @@ import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
+import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
@@ -26,6 +27,8 @@ import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
+import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 
 /* eslint-disable react/display-name */
 
@@ -75,6 +78,11 @@ export const WidgetIcons: {
   DROP_DOWN_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <DropDownIcon />
+    </IconWrapper>
+  ),
+  MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MultiSelectIcon />
     </IconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
@@ -165,6 +173,16 @@ export const WidgetIcons: {
   MENU_BUTTON_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <MenuButtonIcon />
+    </IconWrapper>
+  ),
+  ICON_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IconButtonIcon />
+    </IconWrapper>
+  ),
+  CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CheckboxGroupIcon />
     </IconWrapper>
   ),
 };

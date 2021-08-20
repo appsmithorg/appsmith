@@ -7,11 +7,15 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,7 +29,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
 @Service
@@ -33,15 +41,22 @@ public class MockDataServiceImpl implements MockDataService {
 
     private final CloudServicesConfig cloudServicesConfig;
     private final DatasourceService datasourceService;
+    private final AnalyticsService analyticsService;
+    private final SessionUserService sessionUserService;
 
     public MockDataDTO mockData = new MockDataDTO();
 
     private Instant cacheExpiryTime = null;
 
     @Autowired
-    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig, DatasourceService datasourceService) {
+    public MockDataServiceImpl(CloudServicesConfig cloudServicesConfig,
+                               DatasourceService datasourceService,
+                               AnalyticsService analyticsService,
+                               SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.datasourceService = datasourceService;
+        this.analyticsService = analyticsService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -81,17 +96,23 @@ public class MockDataServiceImpl implements MockDataService {
         }
         return mockDataSet.flatMap(mockDataDTO -> {
             DatasourceConfiguration datasourceConfiguration;
+            String name = mockDataSource.getName();
             if (mockDataSource.getPackageName().equals("mongo-plugin")) {
                 datasourceConfiguration = getMongoDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             } else {
                 datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             }
+            if( datasourceConfiguration.getAuthentication() == null) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
+                        " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
+            }
             Datasource datasource = new Datasource();
             datasource.setOrganizationId(mockDataSource.getOrganizationId());
             datasource.setPluginId(mockDataSource.getPluginId());
-            datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
+            datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
-            return createSuffixedDatasource(datasource);
+            return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
+                    .then(createSuffixedDatasource(datasource));
         });
 
     }
@@ -105,8 +126,12 @@ public class MockDataServiceImpl implements MockDataService {
         List<Property> listProperty = new ArrayList<>();
         SSLDetails sslDetails = new SSLDetails();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+            return datasourceConfiguration;
+        }
 
+        MockDataCredentials credentials = credentialsList.get();
         property.setKey("Use Mongo Connection String URI");
         property.setValue("Yes");
         listProperty.add(property);
@@ -140,8 +165,12 @@ public class MockDataServiceImpl implements MockDataService {
         Endpoint endpoint = new Endpoint();
         List<Endpoint> endpointList = new ArrayList<>();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter( cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+            return datasourceConfiguration;
+        }
 
+        MockDataCredentials credentials = credentialsList.get();
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
         connection.setSsl(sslDetails);
         connection.setMode(Connection.Mode.READ_WRITE);
@@ -174,13 +203,39 @@ public class MockDataServiceImpl implements MockDataService {
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
+        String password = null;
+        if( datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+            password = ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).getPassword();
+        }
+        final String finalPassword = password;
         return datasourceService.create(datasource)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            && error.getMessage().contains("organization_datasource_deleted_compound_index")) {
+                            && error.getMessage().contains("organization_datasource_deleted_compound_index")
+                            && datasource.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
+                        ((DBAuth) datasource.getDatasourceConfiguration().getAuthentication()).setPassword(finalPassword);
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
                     }
                     throw error;
+                });
+    }
+
+    private Mono<User> addAnalyticsForMockDataCreation(String name, String orgId) {
+        if (!analyticsService.isActive()) {
+            return Mono.empty();
+        }
+
+        return sessionUserService.getCurrentUser()
+                .map(user -> {
+                    analyticsService.sendEvent(
+                            AnalyticsEvents.CREATE.getEventName(),
+                            user.getUsername(),
+                            Map.of(
+                                    "MockDataSource", defaultIfNull(name, ""),
+                                    "orgId", defaultIfNull(orgId, "")
+                            )
+                    );
+                    return user;
                 });
     }
 

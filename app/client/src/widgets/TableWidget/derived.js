@@ -240,7 +240,7 @@ export default {
       const column = columns.find((column) => column.id === sortedColumn);
       const columnType =
         column && column.columnType ? column.columnType : "text";
-
+      const inputFormat = column.inputFormat;
       sortedTableData = derivedTableData.sort((a, b) => {
         if (
           _.isPlainObject(a) &&
@@ -260,10 +260,14 @@ export default {
             case "date":
               try {
                 return sortOrder
-                  ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
+                  ? moment(a[sortedColumn], inputFormat).isAfter(
+                      moment(b[sortedColumn], inputFormat),
+                    )
                     ? 1
                     : -1
-                  : moment(b[sortedColumn]).isAfter(a[sortedColumn])
+                  : moment(b[sortedColumn], inputFormat).isAfter(
+                      moment(a[sortedColumn], inputFormat),
+                    )
                   ? 1
                   : -1;
               } catch (e) {
@@ -336,7 +340,10 @@ export default {
       },
       doesNotContain: (a, b) => {
         try {
-          return !this.contains(a, b);
+          return !a
+            .toString()
+            .toLowerCase()
+            .includes(b.toString().toLowerCase());
         } catch (e) {
           return false;
         }
@@ -364,16 +371,16 @@ export default {
         }
       },
       is: (a, b) => {
-        return moment(a).isSame(moment(b), "d");
+        return moment(a).isSame(moment(b), "minute");
       },
       isNot: (a, b) => {
-        return !moment(a).isSame(moment(b), "d");
+        return !moment(a).isSame(moment(b), "minute");
       },
       isAfter: (a, b) => {
-        return !moment(a).isAfter(moment(b), "d");
+        return moment(a).isAfter(moment(b), "minute");
       },
       isBefore: (a, b) => {
-        return !moment(a).isBefore(moment(b), "d");
+        return moment(a).isBefore(moment(b), "minute");
       },
     };
 

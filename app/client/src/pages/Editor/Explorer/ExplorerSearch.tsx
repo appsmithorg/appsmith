@@ -39,7 +39,6 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
         color: ${Colors.DOVE_GRAY};
       }
       &:focus {
-        background: ${Colors.COD_GRAY};
         & ~ div.underline {
           width: 100%;
         }

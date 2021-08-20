@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import MapComponent from "components/designSystems/appsmith/MapComponent";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getAppsmithConfigs } from "configs";
 import styled from "styled-components";
@@ -52,7 +52,34 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             controlType: "LOCATION_SEARCH",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.LAT_LONG,
+            validation: {
+              type: ValidationTypes.OBJECT,
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "lat",
+                    type: ValidationTypes.NUMBER,
+                    params: {
+                      min: -90,
+                      max: 90,
+                      default: 0,
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "long",
+                    type: ValidationTypes.NUMBER,
+                    params: {
+                      min: -180,
+                      max: 180,
+                      default: 0,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+            },
           },
           {
             propertyName: "defaultMarkers",
@@ -63,7 +90,43 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             placeholderText: 'Enter [{ "lat": "val1", "long": "val2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.MARKERS,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "lat",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          min: -90,
+                          max: 90,
+                          default: 0,
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "long",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          min: -180,
+                          max: 180,
+                          default: 0,
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "title",
+                        type: ValidationTypes.TEXT,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
@@ -108,7 +171,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: VALIDATION_TYPES.BOOLEAN,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

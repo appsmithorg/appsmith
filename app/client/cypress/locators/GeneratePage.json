@@ -1,0 +1,10 @@
+{
+  "buildFromScratchActionCard": ".t--BuildFromScratch",
+  "generateCRUDPageActionCard": ".t--GenerateCRUDPage",
+  "selectDatasourceDropdown": "[data-cy=t--datasource-dropdown]",
+  "datasourceDropdownOption":"[data-cy=t--datasource-dropdown-option]",
+  "selectTableDropdown":"[data-cy=t--table-dropdown]",
+  "dropdownOption": ".bp3-popover-content .t--dropdown-option",
+  "selectSearchColumnDropdown":"[data-cy=t--searchColumn-dropdown]",
+  "generatePageFormSubmitBtn":"[data-cy=t--generate-page-form-submit]"
+}

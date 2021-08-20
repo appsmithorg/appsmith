@@ -15,10 +15,11 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Url.CONFIG_URL)
-public class ConfigController extends BaseController<ConfigService, Config, String> {
+public class ConfigController {
 
+    private final ConfigService service;
     public ConfigController(ConfigService service) {
-        super(service);
+        this.service = service;
     }
 
     @GetMapping("/name/{name}")
@@ -29,7 +30,7 @@ public class ConfigController extends BaseController<ConfigService, Config, Stri
 
     @PutMapping("/name/{name}")
     public Mono<ResponseDTO<Config>> updateByName(@PathVariable String name, @RequestBody Config config) {
-        return service.updateByName(name, config)
+        return service.updateByName(config)
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 }

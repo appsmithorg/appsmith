@@ -72,12 +72,12 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
-import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
+import static com.appsmith.server.helpers.WidgetSuggestionHelper.getSuggestedWidgets;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -132,7 +132,8 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         this.objectMapper = new ObjectMapper();
     }
 
-    private Boolean validateActionName(String name) {
+    @Override
+    public Boolean validateActionName(String name) {
         boolean isValidName = SourceVersion.isName(name);
         String pattern = "^((?=[A-Za-z0-9_])(?![\\\\-]).)*$";
         boolean doesPatternMatch = name.matches(pattern);
@@ -583,11 +584,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
                                     result.setTitle(((AppsmithPluginException) e).getTitle());
+                                    result.setErrorType(((AppsmithPluginException) e).getErrorType());
                                 } else {
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
 
                                     if (e instanceof AppsmithException) {
                                         result.setTitle(((AppsmithException) e).getTitle());
+                                        result.setErrorType(((AppsmithException) e).getErrorType());
                                     }
                                 }
                                 return Mono.just(result);
@@ -624,6 +627,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
+                    result.setErrorType(error.getErrorType());
                     return Mono.just(result);
                 });
 
