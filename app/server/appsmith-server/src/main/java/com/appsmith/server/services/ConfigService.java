@@ -6,10 +6,16 @@ import com.appsmith.server.domains.Datasource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public interface ConfigService {
     Mono<Config> getByName(String name);
 
-    Mono<Config> updateByName(String name, Config config);
+    Mono<Config> updateByName(Config config);
+
+    Mono<Config> save(Config config);
+
+    Mono<Config> save(String name, Map<String, Object> config);
 
     Mono<String> getInstanceId();
 
