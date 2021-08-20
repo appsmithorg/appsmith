@@ -305,11 +305,11 @@ public class ImportExportApplicationService {
          */
 
         final MediaType contentType = filePart.headers().getContentType();
-        
+
         if (orgId == null || orgId.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
-        
+
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
         }
@@ -328,7 +328,7 @@ public class ImportExportApplicationService {
                     Gson gson = new Gson();
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInOrganization(orgId, jsonFile);
+                    return importApplicationInOrganization(orgId, jsonFile, "release");
                 });
     }
 
@@ -339,6 +339,19 @@ public class ImportExportApplicationService {
      * @return saved application in DB
      */
     public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
+        return importApplicationInOrganization(organizationId, importedDoc, null);
+    }
+
+    /**
+     * This function will take the application reference object to hydrate the application in mongoDB
+     * @param organizationId
+     * @param importedDoc
+     * @param branchName
+     * @return
+     */
+    public Mono<Application> importApplicationInOrganization(String organizationId,
+                                                             ApplicationJson importedDoc,
+                                                             String branchName) {
 
         /*
             1. Fetch organization by id
@@ -352,15 +365,15 @@ public class ImportExportApplicationService {
         Map<String, String> datasourceMap = new HashMap<>();
         Map<String, NewPage> pageNameMap = new HashMap<>();
         Map<String, String> actionIdMap = new HashMap<>();
-        
+
         Application importedApplication = importedDoc.getExportedApplication();
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
-        
+
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository.findAllByOrganizationId(organizationId).cache();
-        
+
         String errorField = "";
         if (importedNewPageList == null || importedNewPageList.isEmpty()) {
             errorField = FieldName.PAGES;
@@ -371,7 +384,7 @@ public class ImportExportApplicationService {
         } else if (importedDatasourceList == null) {
             errorField = FieldName.DATASOURCE;
         }
-        
+
         if(!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
         } else if(importedDoc.getAppsmithVersion() == null) {
@@ -384,7 +397,7 @@ public class ImportExportApplicationService {
         } else if(!releaseNotesService.getReleasedVersion().equals(importedDoc.getAppsmithVersion())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE_ERROR));
         }
-        
+
         return pluginRepository.findAll()
             .map(plugin -> {
                 pluginMap.put(plugin.getPackageName(), plugin.getId());
@@ -395,30 +408,33 @@ public class ImportExportApplicationService {
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId))
             )
             .flatMap(organization -> {
-                    assert importedDatasourceList != null : "At least empty datasource list is expected here";
-                    return Flux.fromIterable(importedDatasourceList)
-                        //Check for duplicate datasources to avoid duplicates in target organization
-                        .flatMap(datasource -> {
-                            datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
-                            datasource.setOrganizationId(organization.getId());
-
-                            //Check if any decrypted fields are present for datasource
-                            if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
-
-                                DecryptedSensitiveFields decryptedFields =
-                                    importedDoc.getDecryptedFields().get(datasource.getName());
-
-                                updateAuthenticationDTO(datasource, decryptedFields);
-                            }
-                            return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
-                        })
-                        .map(datasource -> {
-                            datasourceMap.put(datasource.getName(), datasource.getId());
-                            return datasource;
-                        })
-                        .collectList();
+                // Check if the request is to hydrate the application to DB for particular branch
+                if (branchName != null) {
+                    // No need to hydrate the datasource as we expect user will configure the datasource
+                    return Mono.empty();
                 }
-            )
+                return Flux.fromIterable(importedDatasourceList)
+                //Check for duplicate datasources to avoid duplicates in target organization
+                .flatMap(datasource -> {
+                    datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
+                    datasource.setOrganizationId(organization.getId());
+
+                    //Check if any decrypted fields are present for datasource
+                    if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+
+                        DecryptedSensitiveFields decryptedFields =
+                            importedDoc.getDecryptedFields().get(datasource.getName());
+
+                        updateAuthenticationDTO(datasource, decryptedFields);
+                    }
+                    return createUniqueDatasourceIfNotPresent(existingDatasourceFlux, datasource, organizationId);
+                })
+                .map(datasource -> {
+                    datasourceMap.put(datasource.getName(), datasource.getId());
+                    return datasource;
+                })
+                .collectList();
+            })
             .then(
                 // 1. Assign the policies for the imported application
                 // 2. Check for possible duplicate names,
@@ -428,16 +444,15 @@ public class ImportExportApplicationService {
                         .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
                         .collectList()
                         .flatMap(applicationList -> {
-                            
+
                             Application duplicateNameApp = applicationList
                                 .stream()
                                 .filter(application1 -> StringUtils.equals(application1.getName(), application.getName()))
                                 .findAny()
                                 .orElse(null);
-                            
+
                             return getUniqueSuffixForDuplicateNameEntity(duplicateNameApp, organizationId)
                                 .map(suffix -> {
-                                    assert importedApplication != null;
                                     importedApplication.setName(importedApplication.getName() + suffix);
                                     return importedApplication;
                                 });
@@ -461,39 +476,39 @@ public class ImportExportApplicationService {
                     importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                     importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
                 )
-                .map(newPage -> {
-                    ApplicationPage unpublishedAppPage = new ApplicationPage();
-                    ApplicationPage publishedAppPage = new ApplicationPage();
-                    
-                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                        unpublishedAppPage.setIsDefault(
-                            StringUtils.equals(
-                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                            )
-                        );
-                        unpublishedAppPage.setId(newPage.getId());
-                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                    }
-    
-                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                        publishedAppPage.setIsDefault(
-                            StringUtils.equals(
-                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                            )
-                        );
-                        publishedAppPage.setId(newPage.getId());
-                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                    }
-                    if (unpublishedAppPage.getId() != null) {
-                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                    }
-                    if (publishedAppPage.getId() != null) {
-                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
-                    }
-                    return applicationPages;
-                })
-                .then()
-                .thenReturn(applicationPages);
+                    .map(newPage -> {
+                        ApplicationPage unpublishedAppPage = new ApplicationPage();
+                        ApplicationPage publishedAppPage = new ApplicationPage();
+
+                        if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                            unpublishedAppPage.setIsDefault(
+                                StringUtils.equals(
+                                    newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                                )
+                            );
+                            unpublishedAppPage.setId(newPage.getId());
+                            pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                        }
+
+                        if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                            publishedAppPage.setIsDefault(
+                                StringUtils.equals(
+                                    newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                                )
+                            );
+                            publishedAppPage.setId(newPage.getId());
+                            pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                        }
+                        if (unpublishedAppPage.getId() != null) {
+                            applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                        }
+                        if (publishedAppPage.getId() != null) {
+                            applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                        }
+                        return applicationPages;
+                    })
+                    .then()
+                    .thenReturn(applicationPages);
             })
             .flatMap(applicationPageMap -> {
                 assert importedApplication != null;
@@ -509,14 +524,14 @@ public class ImportExportApplicationService {
                         newAction.getUnpublishedAction().setPageId(parentPage.getId());
                         sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
-                    
+
                     if (newAction.getPublishedAction() != null && newAction.getPublishedAction().getName() != null) {
                         parentPage = pageNameMap.get(newAction.getPublishedAction().getPageId());
                         actionIdMap.put(newAction.getPublishedAction().getName() + parentPage.getId(), newAction.getId());
                         newAction.getPublishedAction().setPageId(parentPage.getId());
                         sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceMap, pluginMap, organizationId);
                     }
-                    
+
                     examplesOrganizationCloner.makePristine(newAction);
                     newAction.setOrganizationId(organizationId);
                     newAction.setApplicationId(importedApplication.getId());
@@ -525,7 +540,7 @@ public class ImportExportApplicationService {
                 });
                 return newActionService.saveAll(importedNewActionList)
                     .map(newAction -> {
-                        
+
                         if (newAction.getUnpublishedAction() != null) {
                             ActionDTO unpublishedAction = newAction.getUnpublishedAction();
                             actionIdMap.put(
@@ -533,7 +548,7 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
-    
+
                         if (newAction.getPublishedAction() != null) {
                             ActionDTO publishedAction = newAction.getPublishedAction();
                             actionIdMap.put(
@@ -541,7 +556,7 @@ public class ImportExportApplicationService {
                                 newAction.getId()
                             );
                         }
-                        
+
                         return newAction;
                     })
                     .then(Mono.just(importedApplication));
