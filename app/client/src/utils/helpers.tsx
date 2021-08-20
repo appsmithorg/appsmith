@@ -13,6 +13,10 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { User } from "constants/userConstants";
+import { getAppsmithConfigs } from "configs";
+
+const { intercomAppID } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -416,3 +420,14 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
     return false;
   }
 };
+
+export function bootIntercom(user?: User) {
+  if (intercomAppID && window.Intercom) {
+    window.Intercom("boot", {
+      app_id: intercomAppID,
+      user_id: user?.username,
+      name: user?.name,
+      email: user?.email,
+    });
+  }
+}
