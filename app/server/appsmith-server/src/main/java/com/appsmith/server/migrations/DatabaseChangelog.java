@@ -2969,7 +2969,7 @@ public class DatabaseChangelog {
 
         ensureIndexes(mongoTemplate, Application.class,
             makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
-                .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
+                .unique().named("organization_application_git_compound_index_test")
         );
     }
 }
