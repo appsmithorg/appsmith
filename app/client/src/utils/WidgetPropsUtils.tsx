@@ -30,6 +30,7 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimiterProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -812,6 +813,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

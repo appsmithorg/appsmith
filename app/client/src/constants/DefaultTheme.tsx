@@ -1180,12 +1180,21 @@ type ColorType = {
   numberedStep: {
     line: string;
   };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+    separator: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
 };
 
 const tabItemBackgroundFill = {
-  highlightBackground: "#F0F0F0",
-  highlightTextColor: "#090707",
-  textColor: "#4B4848",
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1373,6 +1382,7 @@ const numberedStep = {
 };
 
 export const dark: ColorType = {
+  gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
@@ -1942,6 +1952,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
