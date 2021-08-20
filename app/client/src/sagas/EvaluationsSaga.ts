@@ -43,6 +43,7 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -85,6 +86,12 @@ function* evaluateTreeSaga(
   );
 
   const updatedDataTree = yield select(getDataTree);
+
+  const postDiffs = diff(updatedDataTree, dataTree);
+  if (postDiffs && postDiffs.length) {
+    debugger;
+    yield put(setEvaluatedTree(dataTree, []));
+  }
 
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
