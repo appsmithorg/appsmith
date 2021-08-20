@@ -122,6 +122,7 @@ interface TableHeaderProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
+  delimiter: string;
 }
 
 function TableHeader(props: TableHeaderProps) {
@@ -151,6 +152,7 @@ function TableHeader(props: TableHeaderProps) {
             <TableDataDownload
               columns={props.tableColumns}
               data={props.tableData}
+              delimiter={props.delimiter}
               widgetName={props.widgetName}
             />
           )}

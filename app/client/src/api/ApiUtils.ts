@@ -139,6 +139,6 @@ export const apiFailureResponseInterceptor = (error: any) => {
     // Something happened in setting up the request that triggered an Error
     log.error("Error", error.message);
   }
-  console.log(error.config);
+  log.debug(error.config);
   return Promise.resolve(error);
 };

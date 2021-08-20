@@ -1060,6 +1060,8 @@ type ColorType = {
     sectionTitle: string;
     navigateToEntityEnterkey: string;
     mainContainerBackground: string;
+    filterListBackground: string;
+    filterBtnText: string;
   };
   gif: {
     overlay: string;
@@ -1227,6 +1229,32 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+    separator: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1261,6 +1289,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1374,6 +1406,8 @@ const globalSearch = {
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
   mainContainerBackground: "#F0F0F0",
+  filterListBackground: lightShades[0],
+  filterBtnText: lightShades[8],
 };
 
 const mentionsInput = {
@@ -1402,7 +1436,15 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1956,9 +1998,13 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2520,6 +2566,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2693,6 +2740,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2709,6 +2757,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2734,6 +2783,8 @@ export const theme: Theme = {
     dropdownIconBg: Colors.ALTO2,
     welcomeTourStickySidebarColor: Colors.WHITE,
     welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
