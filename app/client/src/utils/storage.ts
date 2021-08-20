@@ -207,26 +207,3 @@ export const getCommentsIntroSeen = async () => {
     log.error(error);
   }
 };
-
-export const setOnboardingFormInProgress = async (flag?: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting ONBOARDING_FORM_IN_PROGRESS");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getOnboardingFormInProgress = async () => {
-  try {
-    const onboardingFormInProgress = await store.getItem(
-      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
-    );
-    return onboardingFormInProgress;
-  } catch (error) {
-    log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
-    log.error(error);
-  }
-};

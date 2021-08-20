@@ -81,9 +81,8 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
 }
 
-export const DropdownContainer = styled.div<{ width: string; height: string }>`
+export const DropdownContainer = styled.div<{ width: string }>`
   width: ${(props) => props.width};
-  height: ${(props) => props.height};
   position: relative;
 `;
 
@@ -113,6 +112,7 @@ const Selected = styled.div<{
   height: string;
   bgColor?: string;
   hasError?: boolean;
+  isLoading?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
@@ -132,7 +132,8 @@ const Selected = styled.div<{
   justify-content: space-between;
   width: 100%;
   height: ${(props) => props.height};
-  cursor: pointer;
+  cursor: ${(props) =>
+    props.disabled || props.isLoading ? "not-allowed" : "pointer"};
   ${(props) =>
     props.isOpen
       ? `border: 1px solid ${
@@ -310,7 +311,7 @@ const SelectedIcon = styled(Icon)`
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.POMEGRANATE2};
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const ErrorLabel = styled.span`
@@ -321,7 +322,7 @@ const ErrorLabel = styled.span`
 const HelperText = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.GRAY};
-  margin-top: 8px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 function DefaultDropDownValueNode({
@@ -491,12 +492,20 @@ export default function Dropdown(props: DropdownProps) {
   const disabled = props.disabled || isLoading || !!errorMsg;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
+  const dropdownHeight = props.height ? props.height : "38px";
+
+  const onClickHandler = () => {
+    if (!props.disabled) {
+      setIsOpen(!isOpen);
+    }
+  };
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={props.height || "38px"}
+      height={dropdownHeight}
       isOpen={isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={onClickHandler}
     >
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
@@ -507,9 +516,10 @@ export default function Dropdown(props: DropdownProps) {
         className={props.className}
         disabled={props.disabled}
         hasError={!!errorMsg}
-        height={props.height || "38px"}
+        height={dropdownHeight}
+        isLoading={isLoading}
         isOpen={isOpen}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onClickHandler}
       >
         <SelectedValueNode
           errorMsg={errorMsg}
@@ -540,7 +550,6 @@ export default function Dropdown(props: DropdownProps) {
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
-      height={props.height || "38px"}
       tabIndex={0}
       width={props.width || "260px"}
     >
@@ -548,7 +557,7 @@ export default function Dropdown(props: DropdownProps) {
         boundary="scrollParent"
         isOpen={isOpen && !disabled}
         minimal
-        onInteraction={(state) => setIsOpen(state)}
+        onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
       >
