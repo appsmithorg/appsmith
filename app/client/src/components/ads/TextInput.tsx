@@ -103,6 +103,7 @@ const StyledInput = styled((props) => {
     inputStyle: boxReturnType;
     isValid: boolean;
     rightSideComponentWidth: number;
+    hasLeftIcon: boolean;
   }
 >`
   width: ${(props) => (props.fill ? "100%" : "260px")};
@@ -113,25 +114,19 @@ const StyledInput = styled((props) => {
   padding: 0px ${(props) => props.theme.spaces[5]}px;
   height: 36px;
   padding-right: ${(props) =>
-    props.rightSideComponentWidth + props.theme.spaces[6]}px;
+    props.rightSideComponentWidth + props.theme.spaces[5]}px;
+  padding-left: ${(props) =>
+    props.hasLeftIcon ? "35" : props.theme.spaces[5]}px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
-​
-  ${(props) =>
-    props.leftIcon &&
-    IconCollection.includes(props.leftIcon) &&
-    `
-  padding-left: 35px;`};
-​
+
   &:-internal-autofill-selected,
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px ${(props) =>
-      props.inputStyle.bgColor} inset !important;
+    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
     -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
   }
-​
   &:hover {
     background-color: ${(props) =>
       props.disabled
@@ -267,6 +262,7 @@ const TextInput = forwardRef(
           type={props.dataType || "text"}
           {...props}
           data-cy={props.cypressSelector}
+          hasLeftIcon={IconCollection.includes(props.leftIcon)}
           inputRef={ref}
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}

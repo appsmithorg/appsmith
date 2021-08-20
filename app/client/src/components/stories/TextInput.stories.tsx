@@ -94,6 +94,10 @@ Primary.argTypes = {
     description: "function",
     defaultValue: true,
   },
+  rightSideComponent: {
+    control: controlType.OBJECT,
+    description: "React.ReactNode",
+  },
 };
 
 Primary.storyName = storyName.platform.form.textInput.NAME;
