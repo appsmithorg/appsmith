@@ -271,7 +271,7 @@ public class ExamplesOrganizationCloner {
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(appId -> applicationPageService.publish(appId).thenReturn(appId))
+                .flatMap(appId -> applicationPageService.publish(appId, true).thenReturn(appId))
                 .collectList();
     }
 
