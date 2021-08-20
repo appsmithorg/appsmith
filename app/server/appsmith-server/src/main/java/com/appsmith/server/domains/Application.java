@@ -67,6 +67,8 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
+    GitMetadata gitMetadata;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant lastDeployedAt; // when this application was last deployed
 
@@ -132,6 +134,20 @@ public class Application extends BaseDomain {
             MOBILE,
             FLUID,
         }
+    }
+
+    // This class will be used for one-to-one mapping for the DB application and the application present in the
+    // git repo.
+    @Data
+    public static class GitMetadata {
+        @Transient
+        String applicationId;
+
+        // Git branch corresponding to this application
+        String branchName;
+
+        // Git remote url will be used while pushing and pulling changes
+        String remoteUrl;
     }
 
 }
