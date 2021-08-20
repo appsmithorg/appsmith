@@ -51,6 +51,10 @@ export const storyName = {
         PATH: "Platform/Icons/AppIcon",
         NAME: "AppIcon",
       },
+      iconSelector: {
+        PATH: "Platform/Icons/IconSelector",
+        NAME: "IconSelector",
+      },
     },
   },
 };
