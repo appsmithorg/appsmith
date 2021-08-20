@@ -41,8 +41,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -515,7 +517,6 @@ public class CreateDBTablePageSolutionTests {
             .verifyComplete();
     }
 
-    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void createPageWithNullPageIdForS3() {
@@ -528,6 +529,7 @@ public class CreateDBTablePageSolutionTests {
                 datasource.setPluginId(plugin.getId());
                 datasource.setOrganizationId(testOrg.getId());
                 datasource.setName("S3-CRUD-Page-Table-DS");
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 return datasourceService.create(datasource);
             });
 
@@ -584,6 +586,7 @@ public class CreateDBTablePageSolutionTests {
                 Datasource datasource = new Datasource();
                 datasource.setPluginId(plugin.getId());
                 datasource.setOrganizationId(testOrg.getId());
+                datasource.setDatasourceConfiguration(datasourceConfiguration);
                 datasource.setName("Google-Sheet-CRUD-Page-Table-DS");
                 return datasourceService.create(datasource);
             });
@@ -626,8 +629,6 @@ public class CreateDBTablePageSolutionTests {
             })
             .verifyComplete();
     }
-
-    */
 
     @Test
     @WithUserDetails(value = "api_user")
