@@ -208,7 +208,7 @@ export type executeDatasourceQuerySuccessPayload<T> = {
     isExecutionSuccess: boolean;
   };
 };
-type errorPayload = unknown;
+type errorPayload = string;
 
 export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
   executeDatasourceQueryRequest,
