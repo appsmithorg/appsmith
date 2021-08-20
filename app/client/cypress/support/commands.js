@@ -1538,37 +1538,18 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
-Cypress.Commands.add("onRowSelectedAction", () => {
+Cypress.Commands.add("onTableAction", (value, value1, value2) => {
   cy.get(commonlocators.dropdownSelectButton)
-    .first()
+    .eq(value)
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show Message")
     .click();
+  cy.testJsontext(value1, value2);
 });
 
-Cypress.Commands.add("onPageChangeAction", () => {
-  cy.get(commonlocators.dropdownSelectButton)
-    .eq(1)
-    .click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show Message")
-    .click();
-});
-
-Cypress.Commands.add("onPageSizeChangeAction", () => {
-  cy.get(commonlocators.dropdownSelectButton)
-    .eq(2)
-    .click();
-  cy.get(commonlocators.chooseAction)
-    .children()
-    .contains("Show Message")
-    .click();
-});
-
-Cypress.Commands.add("selectShowMsg", (value) => {
+Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show Message")

@@ -2,7 +2,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableNewDslWithPagination.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Table Widget property pane feature validation", function() {
@@ -13,23 +12,9 @@ describe("Table Widget property pane feature validation", function() {
   // To be done:
   // Column Data type: Video
 
-  it("Verify On Search Text Change Action", function() {
-    // Open property pane
-    cy.SearchEntityandOpen("Table1");
-    // Show Message on Search text change Action
-    cy.addAction("Search Text Changed");
-    cy.PublishtheApp();
-    // Change the Search text
-    cy.get(widgetsPage.searchField).type("search");
-    cy.wait(2000);
-    // Verify the search text is changed
-    cy.get(commonlocators.toastmsg).contains("Search Text Changed");
-    cy.get(publish.backToEditor).click();
-  });
-
   it("Verify default array data", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
     // Open Widget side bar
     cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
@@ -46,11 +31,9 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Verify On Row Selected Action", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
-    cy.onRowSelectedAction();
-    // Type message in the message field
-    cy.get(widgetsPage.selectedRowMessageField).type("Row is selected");
+    cy.onTableAction(0, "onrowselected", "Row is selected");
     cy.PublishtheApp();
     // Select 1st row
     cy.isSelectRow(2);
@@ -60,25 +43,11 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("Explore Widget related documents Verification", function() {
-    // Open property pane
-    cy.SearchEntityandOpen("Table1");
-    // Click on "Explore widget related docs" button
-    cy.get(widgetsPage.exploreWidget).click();
-    // Verify the widget related document
-    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Table1");
-    cy.wait(2000);
-    cy.get(widgetsPage.header).click();
-    cy.wait(1000);
-  });
-
   it("Check On Page Change Action", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
-    cy.onPageChangeAction();
-    // Type message in the message fiald
-    cy.get(widgetsPage.pageChangeMessageField).type("Page Changed");
+    cy.onTableAction(1, "onpagechange", "Page Changed");
     cy.PublishtheApp();
     cy.wait(2000);
     // Change the page
@@ -86,6 +55,32 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the page is changed
     cy.get(commonlocators.toastmsg).contains("Page Changed");
     cy.get(publish.backToEditor).click();
+  });
+  it("Verify On Search Text Change Action", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidget");
+    // Show Message on Search text change Action
+    cy.onTableAction(3, "onsearchtextchanged", "Search Text Changed");
+    cy.PublishtheApp();
+    // Change the Search text
+    cy.get(widgetsPage.searchField).type("Hello");
+    cy.wait(2000);
+    // Verify the search text is changed
+    cy.get(commonlocators.toastmsg).contains("Search Text Changed");
+    cy.get(publish.backToEditor).click();
+  });
+
+  it("Explore Widget related documents Verification", function() {
+    // Open property pane
+    cy.openPropertyPane("tablewidget");
+    // Click on "Explore widget related docs" button
+    cy.get(widgetsPage.exploreWidget).click();
+    // Verify the widget related document
+    cy.get(widgetsPage.widgetRelatedDocument).should("contain", "Table");
+    cy.wait(2000);
+    cy.get(widgetsPage.header).click();
+    cy.wait(1000);
+    cy.PublishtheApp();
   });
 
   it("Check open section and column data in property pane", function() {
@@ -117,7 +112,6 @@ describe("Table Widget property pane feature validation", function() {
   });
 
   it("Column Detail - Edit column name and validate test for computed value based on column type selected", function() {
-
     cy.makeColumnVisible("email");
     cy.makeColumnVisible("userName");
     cy.makeColumnVisible("productName");
@@ -130,13 +124,13 @@ describe("Table Widget property pane feature validation", function() {
     // Reading single cell value of the table and verify it's value.
     cy.readTabledataPublish("1", "1").then((tabData) => {
       const tabValue = tabData;
-      cy.log(tabData)
+      cy.log(tabData);
       expect(tabData).to.not.equal("2736212");
       // Changing the Computed value from "id" to "Email"
       cy.updateComputedValue(testdata.currentRowEmail);
       // Reading single cell value of the table and verify it's value.
       cy.readTabledataPublish("1", "0").then((tabData2) => {
-        cy.log(tabData2)
+        cy.log(tabData2);
         expect(tabData2).to.be.equal(tabValue);
         cy.log("computed value of plain text " + tabData2);
       });
@@ -145,12 +139,12 @@ describe("Table Widget property pane feature validation", function() {
     // Changing Column data type from "Plain text" to "Number"
     cy.changeColumnType("Number");
     cy.readTabledataPublish("1", "4").then((tabData) => {
-      cy.log(tabData)
+      cy.log(tabData);
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
       // Email to "orderAmount"
       cy.updateComputedValue(testdata.currentRowOrderAmt);
       cy.readTabledataPublish("1", "0").then((tabData2) => {
-        cy.log(tabData2)
+        cy.log(tabData2);
         expect(tabData2).to.be.equal(tabData);
         cy.log("computed value of number is " + tabData2);
       });
@@ -189,7 +183,7 @@ describe("Table Widget property pane feature validation", function() {
     });
 
     // Changing Column data type from "Date" to "URl"
-    cy.readTabledataPublish("1", "1").then((tabData) => {
+    cy.readTabledataPublish("1", "1").then(() => {
       cy.changeColumnType("URL");
       // "Image" to "url"
       cy.updateComputedValue(testdata.currentRowEmail);
@@ -288,22 +282,19 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Verify default search text", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
     // Chage deat search text value to "data"
     cy.testJsontext("defaultsearchtext", "data");
     cy.PublishtheApp();
     // Verify the deaullt search text
     cy.get(widgetsPage.searchField).should("have.value", "data");
     cy.get(publish.backToEditor).click();
-    // Open property pane
-    cy.SearchEntityandOpen("Table1");
-    // Clear the default search text value
-    cy.testJsontext("defaultsearchtext", "");
   });
 
   it("Verify default selected row", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
+    cy.testJsontext("defaultsearchtext", "");
     // Change default selected row value to 1
     cy.get(widgetsPage.defaultSelectedRowField).type("1");
     cy.wait(2000);
@@ -319,11 +310,16 @@ describe("Table Widget property pane feature validation", function() {
 
   it("Table-Delete Verification", function() {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    cy.openPropertyPane("tablewidget");
     // Delete the Table widget
     cy.deleteWidget(widgetsPage.tableWidget);
     cy.PublishtheApp();
     // Verify the Table widget is deleted
     cy.get(widgetsPage.tableWidget).should("not.exist");
+  });
+
+  afterEach(() => {
+    // put your clean up code if any
+    cy.goToEditFromPublish();
   });
 });

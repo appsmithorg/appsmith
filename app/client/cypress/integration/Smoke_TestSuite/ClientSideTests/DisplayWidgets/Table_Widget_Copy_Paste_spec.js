@@ -1,13 +1,8 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 
-const pageid = "MyPage";
 before(() => {
   cy.addDsl(dsl);
 });
@@ -17,7 +12,6 @@ describe("Test Suite to validate copy/paste table Widget", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
     cy.openPropertyPane("tablewidget");
-    cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.widgetText("Table1", widgetsPage.tableWidget, commonlocators.tableInner);
     cy.get("body").type(`{${modifierKey}}c`);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
