@@ -9,6 +9,8 @@ import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 
+export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
+
 export type DropdownOption = {
   label?: string;
   value?: string;
@@ -19,7 +21,7 @@ export type DropdownOption = {
   subText?: string;
   iconSize?: IconSize;
   iconColor?: string;
-  onSelect?: (value?: string, dropdownOption?: any) => void;
+  onSelect?: DropdownOnSelect;
   data?: any;
 };
 export interface DropdownSearchProps {
@@ -48,7 +50,7 @@ export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
     options: DropdownOption[];
     selected: DropdownOption;
-    onSelect?: (value?: string, dropdownOption?: any) => void;
+    onSelect?: DropdownOnSelect;
     width?: string;
     height?: string;
     showLabelOnly?: boolean;
@@ -64,6 +66,7 @@ export type DropdownProps = CommonComponentProps &
     renderOption?: RenderOption;
     isLoading?: boolean;
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
+    helperText?: string;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -311,12 +314,18 @@ const SelectedIcon = styled(Icon)`
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.POMEGRANATE2};
-  margin: 6px 0px 10px;
+  margin-top: 8px;
 `;
 
 const ErrorLabel = styled.span`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.POMEGRANATE2};
+`;
+
+const HelperText = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: ${Colors.GRAY};
+  margin-top: 8px;
 `;
 
 function DefaultDropDownValueNode({
@@ -457,12 +466,20 @@ export default function Dropdown(props: DropdownProps) {
     SelectedValueNode = DefaultDropDownValueNode,
     renderOption,
     errorMsg = "",
+    helperText = "",
   } = { ...props };
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
+  const closeIfOpen = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     setSelected(props.selected);
+    closeIfOpen();
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
@@ -476,7 +493,7 @@ export default function Dropdown(props: DropdownProps) {
   );
 
   const disabled = props.disabled || isLoading || !!errorMsg;
-  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
+  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
@@ -517,6 +534,9 @@ export default function Dropdown(props: DropdownProps) {
         )}
       </Selected>
       {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {helperText && !isOpen && !errorMsg && (
+        <HelperText>{helperText}</HelperText>
+      )}
     </DropdownSelect>
   );
   return (
