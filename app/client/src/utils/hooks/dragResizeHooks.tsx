@@ -97,8 +97,32 @@ export const useCanvasSnapRowsUpdateHook = () => {
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
   return {
-    setIsDragging: useCallback(
-      (isDragging: boolean) => {
+    setDraggingNewWidget: useCallback(
+      (isDragging: boolean, newWidgetProps: any) => {
+        if (isDragging) {
+          document.body.classList.add("dragging");
+        } else {
+          document.body.classList.remove("dragging");
+        }
+        dispatch({
+          type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
+          payload: { isDragging, newWidgetProps },
+        });
+      },
+      [dispatch],
+    ),
+    setDraggingState: useCallback(
+      ({
+        isDragging,
+        dragGroupActualParent = "",
+        draggingGroupCenter = {},
+        startPoints,
+      }: {
+        isDragging: boolean;
+        dragGroupActualParent?: string;
+        draggingGroupCenter?: Record<string, any>;
+        startPoints?: any;
+      }) => {
         if (isDragging) {
           document.body.classList.add("dragging");
         } else {
@@ -106,7 +130,23 @@ export const useWidgetDragResize = () => {
         }
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
-          payload: { isDragging },
+          payload: {
+            isDragging,
+            dragGroupActualParent,
+            draggingGroupCenter,
+            startPoints,
+          },
+        });
+      },
+      [dispatch],
+    ),
+    setDraggingCanvas: useCallback(
+      (draggedOn?: string) => {
+        dispatch({
+          type: ReduxActionTypes.SET_DRAGGING_CANVAS,
+          payload: {
+            draggedOn,
+          },
         });
       },
       [dispatch],

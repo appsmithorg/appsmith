@@ -28,6 +28,7 @@ import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 
 /* eslint-disable react/display-name */
 
@@ -177,6 +178,11 @@ export const WidgetIcons: {
   ICON_BUTTON_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <IconButtonIcon />
+    </IconWrapper>
+  ),
+  CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CheckboxGroupIcon />
     </IconWrapper>
   ),
 };

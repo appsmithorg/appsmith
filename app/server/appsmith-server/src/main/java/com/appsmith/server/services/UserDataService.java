@@ -19,6 +19,8 @@ public interface UserDataService {
 
     Mono<UserData> updateForCurrentUser(UserData updates);
 
+    Mono<UserData> updateForUser(User user, UserData updates);
+
     Mono<User> setViewedCurrentVersionReleaseNotes(User user);
 
     Mono<User> setViewedCurrentVersionReleaseNotes(User user, String version);

@@ -25,4 +25,8 @@ export const PopoverStyles = createGlobalStyle`
   .bp3-modal-widget.comments-onboarding-carousel-portal {
     z-index: ${Layers.help} !important; 
   }
+
+  .auth-type-dropdown .ads-dropdown-options-wrapper {
+    padding: 0;
+  }
 `;

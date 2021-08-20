@@ -30,7 +30,7 @@ public class ConfigController {
 
     @PutMapping("/name/{name}")
     public Mono<ResponseDTO<Config>> updateByName(@PathVariable String name, @RequestBody Config config) {
-        return service.updateByName(name, config)
+        return service.updateByName(config)
                 .map(resource -> new ResponseDTO<>(HttpStatus.OK.value(), resource, null));
     }
 }

@@ -199,10 +199,10 @@ export const getOAuthAccessToken = (datasourceId: string) => {
   };
 };
 
-export type executeDatasourceQuerySuccessPayload = {
+export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
-    body: Array<{ id: string; name: string }>;
+    body: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -210,9 +210,9 @@ export type executeDatasourceQuerySuccessPayload = {
 };
 type errorPayload = unknown;
 
-export type executeDatasourceQueryReduxAction = ReduxActionWithCallbacks<
+export type executeDatasourceQueryReduxAction<T> = ReduxActionWithCallbacks<
   executeDatasourceQueryRequest,
-  executeDatasourceQuerySuccessPayload,
+  executeDatasourceQuerySuccessPayload<T>,
   errorPayload
 >;
 
@@ -222,9 +222,11 @@ export const executeDatasourceQuery = ({
   payload,
 }: {
   onErrorCallback?: (payload: errorPayload) => void;
-  onSuccessCallback?: (payload: executeDatasourceQuerySuccessPayload) => void;
+  onSuccessCallback?: (
+    payload: executeDatasourceQuerySuccessPayload<any>,
+  ) => void;
   payload: executeDatasourceQueryRequest;
-}): executeDatasourceQueryReduxAction => {
+}): executeDatasourceQueryReduxAction<any> => {
   return {
     type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
     payload,

@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { get, has, isString, omit, set } from "lodash";
+import { has, isString, set, isEmpty, omit, get } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -30,12 +30,14 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimiterProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
@@ -806,12 +808,53 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 30;
   }
 
+  if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
+    currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
   return currentDSL;
 };
 
+const addIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!isEmpty(currentDSL.primaryColumns)) {
+      for (const key of Object.keys(
+        currentDSL.primaryColumns as Record<string, ColumnProperties>,
+      )) {
+        if (currentDSL.primaryColumns[key].columnType === "button") {
+          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+            currentDSL.primaryColumns[key]["isDisabled"] = false;
+          }
+        }
+        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+          currentDSL.primaryColumns[key]["isCellVisible"] = true;
+        }
+      }
+    }
+  }
+  return currentDSL;
+};
+
+const migrateIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateIsDisabledToButtonColumn(children);
+  });
+  return currentDSL;
+};
 export const migrateToNewMultiSelect = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -1099,16 +1142,19 @@ export const noCollision = (
   clientOffset: XYCoord,
   colWidth: number,
   rowHeight: number,
-  widget: WidgetProps & Partial<WidgetConfigProps>,
   dropTargetOffset: XYCoord,
+  widgetWidth: number,
+  widgetHeight: number,
+  widgetId: string,
   occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
+  detachFromLayout = false,
 ): boolean => {
-  if (clientOffset && dropTargetOffset && widget) {
-    if (widget.detachFromLayout) {
-      return true;
-    }
+  if (detachFromLayout) {
+    return true;
+  }
+  if (clientOffset && dropTargetOffset) {
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
@@ -1118,12 +1164,6 @@ export const noCollision = (
     if (left < 0 || top < 0) {
       return false;
     }
-    const widgetWidth = widget.columns
-      ? widget.columns
-      : widget.rightColumn - widget.leftColumn;
-    const widgetHeight = widget.rows
-      ? widget.rows
-      : widget.bottomRow - widget.topRow;
     const currentOffset = {
       left,
       right: left + widgetWidth,
@@ -1131,7 +1171,7 @@ export const noCollision = (
       bottom: top + widgetHeight,
     };
     return (
-      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isDropZoneOccupied(currentOffset, widgetId, occupiedSpaces) &&
       !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
     );
   }
