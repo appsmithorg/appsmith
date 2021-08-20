@@ -15,6 +15,7 @@ import {
   executeDatasourceQuerySuccessPayload,
 } from "../../../../actions/datasourceActions";
 import { DropdownOptions, DatasourceTableDropdownOption } from "./constants";
+import log from "loglevel";
 
 // const GOOGLE_SHEET_METHODS = {
 //   GET_ALL_SPREADSHEETS: "LIST", // Get all the spreadsheets
@@ -149,7 +150,7 @@ function GoogleSheetForm(props: Props) {
 
   // TODO :- Create loading state and set Loading state false on success or error
   const onFetchAllSpreadsheetFailure = (error: any) => {
-    console.log({ error });
+    log.error(error);
   };
 
   const onFetchAllSpreadsheetSuccess = (
