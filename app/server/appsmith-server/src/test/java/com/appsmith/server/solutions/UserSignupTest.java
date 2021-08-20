@@ -3,8 +3,12 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ValidationUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,16 +24,28 @@ public class UserSignupTest {
     private UserService userService;
 
     @MockBean
+    private UserDataService userDataService;
+
+    @MockBean
     private CaptchaService captchaService;
 
     @MockBean
     private AuthenticationSuccessHandler authenticationSuccessHandler;
 
+    @MockBean
+    private ConfigService configService;
+
+    @MockBean
+    private PolicyUtils policyUtils;
+
+    @MockBean
+    private AnalyticsService analyticsService;
+
     private UserSignup userSignup;
 
     @Before
     public void setUp() {
-        userSignup = new UserSignup(userService, captchaService, authenticationSuccessHandler);
+        userSignup = new UserSignup(userService, userDataService, captchaService, authenticationSuccessHandler, configService, analyticsService, policyUtils);
     }
 
     private String createRandomString(int length) {

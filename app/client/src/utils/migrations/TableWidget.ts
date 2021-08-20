@@ -131,6 +131,7 @@ export const tableWidgetPropertyPaneMigrations = (
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
           buttonStyle: "rgb(3, 179, 101)",
@@ -168,7 +169,7 @@ export const tableWidgetPropertyPaneMigrations = (
 };
 
 const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\s/;
+  const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
     .join("_")
@@ -246,6 +247,22 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetHeaderVisibilityProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
     }
     return child;
   });

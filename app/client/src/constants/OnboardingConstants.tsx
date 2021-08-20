@@ -46,6 +46,7 @@ export type OnboardingHelperConfig = {
     label: string;
     action: { type: string; payload?: any };
   };
+  allowMinimize: boolean;
 };
 
 export type OnboardingStepConfig = {
@@ -88,6 +89,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
         },
         initialStep: true,
       },
+      allowMinimize: false,
     },
   },
   [OnboardingStep.EXAMPLE_DATABASE]: {
@@ -116,7 +118,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
       ],
       image: {
         src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/new_query.gif",
+          "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/new-query.gif",
       },
       skipLabel: "Skip tour",
       cheatAction: {
@@ -125,6 +127,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.ONBOARDING_CREATE_QUERY,
         },
       },
+      allowMinimize: false,
     },
   },
   [OnboardingStep.RUN_QUERY_SUCCESS]: {
@@ -162,6 +165,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.ONBOARDING_ADD_TABLE_WIDGET,
         },
       },
+      allowMinimize: false,
     },
   },
   [OnboardingStep.SUCCESSFUL_BINDING]: {
@@ -199,6 +203,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.ONBOARDING_ADD_TABLEDATA_BINDING,
         },
       },
+      allowMinimize: false,
     },
   },
   [OnboardingStep.ADD_INPUT_WIDGET]: {
@@ -231,6 +236,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.ONBOARDING_ADD_INPUT_WIDGET,
         },
       },
+      allowMinimize: false,
     },
   },
   [OnboardingStep.DEPLOY]: {
@@ -255,6 +261,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           type: ReduxActionTypes.ONBOARDING_DEPLOY,
         },
       },
+      allowMinimize: false,
     },
   },
   // Final step
@@ -300,6 +307,7 @@ export const OnboardingConfig: Record<OnboardingStep, OnboardingStepConfig> = {
           AnalyticsUtil.logEvent("ONBOARDING_NEXT_MISSION");
         },
       },
+      allowMinimize: true,
     },
   },
 };
