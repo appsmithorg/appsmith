@@ -8,14 +8,21 @@ export class AppUser {
     }
 }
 
-export class CurrentAppEditorEvent {
-    appId: string;
+export class CurrentEditorsEvent {
+    resourceId: string;
     users: AppUser [];
 
-    constructor(appId: string, users: AppUser []) {
-        this.appId = appId;
+    constructor(resourceId: string, users: AppUser []) {
+        this.resourceId = resourceId;
         this.users = users;
     }
+}
+
+export class MousePointerEvent {
+    pageId: string
+    socketId: string
+    user: AppUser
+    data: object
 }
 
 export interface Policy {
@@ -35,4 +42,5 @@ export interface Comment {
     updatedAt: string
     creationTime: string
     updationTime: string
+    deleted: boolean
 }
