@@ -1,13 +1,19 @@
 import React from "react";
-import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
 import styled from "styled-components";
+
+import { ControlIcons } from "icons/ControlIcons";
+import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
+
 const Wrapper = styled(EntityTogglesWrapper)`
   &&& {
-    & > span {
-      line-height: 16px;
+    & svg {
+      cursor: ${(props) => (props.onClick ? "pointer" : "initial")};
     }
   }
 `;
+
+const PlusIcon = ControlIcons.INCREASE_CONTROL;
+
 export const EntityAddButton = (props: {
   onClick?: () => void;
   className?: string;
@@ -20,7 +26,7 @@ export const EntityAddButton = (props: {
   else {
     return (
       <Wrapper className={props.className} onClick={handleClick}>
-        <span>+</span>
+        <PlusIcon color="white" height={10} width={10} />
       </Wrapper>
     );
   }

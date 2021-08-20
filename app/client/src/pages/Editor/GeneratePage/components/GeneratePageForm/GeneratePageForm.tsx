@@ -37,6 +37,7 @@ import {
   useSheetsList,
   useSpreadSheets,
   useSheetColumnHeaders,
+  useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { AppState } from "reducers/index";
@@ -119,6 +120,9 @@ const Row = styled.p`
 
 // Constants
 
+const datasourceIcon: IconName = "tables";
+const columnIcon: IconName = "column";
+
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
@@ -198,6 +202,9 @@ function GeneratePageForm() {
   const isGoogleSheetPlugin =
     selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
 
+  const isS3Plugin =
+    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+
   const isFetchingSheetPluginForm = useSelector((state: AppState) => {
     if (isGoogleSheetPlugin) {
       return getIsFetchingSinglePluginForm(
@@ -221,6 +228,13 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
+  const {
+    bucketList,
+    failedFetchingBucketList,
+    fetchBucketList,
+    isFetchingBucketList,
+  } = useS3BucketList();
+
   const onSelectDataSource = useCallback(
     (
       datasource: string | undefined,
@@ -243,7 +257,18 @@ function GeneratePageForm() {
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
-          dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+          switch (pluginPackageName) {
+            case PLUGIN_PACKAGE_NAME.S3:
+              fetchBucketList({ selectedDatasource: dataSourceObj });
+              break;
+            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+              break;
+            default: {
+              if (dataSourceObj.id) {
+                dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+              }
+            }
+          }
         }
       }
     },
@@ -257,6 +282,7 @@ function GeneratePageForm() {
       dispatch,
       setSelectedDatasourceIsInvalid,
       selectedDatasource,
+      generateCRUDSupportedPlugin,
     ],
   );
 
@@ -266,9 +292,9 @@ function GeneratePageForm() {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        if (!isGoogleSheetPlugin) {
+        if (!isGoogleSheetPlugin && !isS3Plugin) {
           const { data } = TableObj;
-          const columnIcon: IconName = "column";
+
           if (Array.isArray(data.columns)) {
             const newSelectedTableColumnOptions: DropdownOption[] = [];
             data.columns.map((column) => {
@@ -301,6 +327,7 @@ function GeneratePageForm() {
       setSelectedTableColumnOptions,
       selectColumn,
       isGoogleSheetPlugin,
+      isS3Plugin,
     ],
   );
 
@@ -319,8 +346,6 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin,
   });
 
-  //
-
   const spreadSheetsProps = useSpreadSheets({
     setSelectedDatasourceTableOptions,
     setSelectedDatasourceIsInvalid,
@@ -329,6 +354,20 @@ function GeneratePageForm() {
   const sheetsListProps = useSheetsList();
 
   const sheetColumnsHeaderProps = useSheetColumnHeaders();
+
+  useEffect(() => {
+    if (isS3Plugin && bucketList && bucketList.length) {
+      const tables = bucketList.map((bucketName) => ({
+        id: bucketName,
+        label: bucketName,
+        value: bucketName,
+        icon: datasourceIcon,
+        iconSize: IconSize.LARGE,
+        iconColor: Colors.BURNING_ORANGE,
+      }));
+      setSelectedDatasourceTableOptions(tables);
+    }
+  }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
 
   useEffect(() => {
     if (
@@ -340,7 +379,6 @@ function GeneratePageForm() {
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id] || {};
 
-      const datasourceIcon: IconName = "tables";
       const hasError = selectedDatasourceStructure?.error;
 
       if (hasError) {
@@ -388,7 +426,12 @@ function GeneratePageForm() {
         }
       }
     }
-  }, [dataSourceOptions, datasourceIdToBeSelected, onSelectDataSource]);
+  }, [
+    dataSourceOptions,
+    datasourceIdToBeSelected,
+    onSelectDataSource,
+    setDatasourceIdToBeSelected,
+  ]);
 
   useEffect(() => {
     if (querySearch) {
@@ -409,7 +452,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch]);
+  }, [querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
@@ -487,14 +530,20 @@ function GeneratePageForm() {
 
   const fetchingDatasourceConfigs =
     isFetchingDatasourceStructure ||
+    (isFetchingBucketList && isS3Plugin) ||
     ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
       isGoogleSheetPlugin);
+
+  const fetchingDatasourceConfigError =
+    selectedDatasourceIsInvalid ||
+    !isValidDatasourceConfig ||
+    (failedFetchingBucketList && isS3Plugin);
 
   if (!fetchingDatasourceConfigs) {
     if (datasourceTableOptions.length === 0) {
       tableDropdownErrorMsg = `Couldn't find any ${pluginField.TABLE}, Please select another datasource`;
     }
-    if (selectedDatasourceIsInvalid || !isValidDatasourceConfig) {
+    if (fetchingDatasourceConfigError) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
@@ -507,7 +556,11 @@ function GeneratePageForm() {
   const showSearchableColumn =
     !!selectedTable.value &&
     PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+
   const showSubmitButton = selectedTable.value && !showEditDatasourceBtn;
+  !fetchingDatasourceConfigs &&
+    fetchingDatasourceConfigError &&
+    !!selectedDatasource.value;
 
   return (
     <div>

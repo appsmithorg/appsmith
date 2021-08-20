@@ -466,3 +466,70 @@ export const useSheetColumnHeaders = () => {
     fetchColumnHeaderList,
   };
 };
+
+const payload = [
+  {
+    value: "LIST_BUCKETS",
+  },
+];
+
+export const useS3BucketList = () => {
+  const dispatch = useDispatch();
+
+  const [bucketList, setBucketList] = useState<Array<string>>([]);
+  const [isFetchingBucketList, setIsFetchingBucketList] = useState<boolean>(
+    false,
+  );
+  const [failedFetchingBucketList, setFailedFetchingBucketList] = useState<
+    boolean
+  >(false);
+  const onFetchBucketSuccess = useCallback(
+    (
+      payload: executeDatasourceQuerySuccessPayload<{
+        bucketList: Array<string>;
+      }>,
+    ) => {
+      setIsFetchingBucketList(false);
+      if (payload.data && payload.data.body) {
+        const payloadBody = payload.data.body;
+        if (Array.isArray(payloadBody.bucketList)) {
+          const { bucketList: list = [] } = payloadBody;
+          setBucketList(list);
+        }
+      }
+    },
+    [setBucketList, setIsFetchingBucketList],
+  );
+
+  const onFetchBucketFailure = useCallback(() => {
+    setIsFetchingBucketList(false);
+    setFailedFetchingBucketList(true);
+  }, [setIsFetchingBucketList]);
+
+  const fetchBucketList = useCallback(
+    ({ selectedDatasource }: { selectedDatasource: DropdownOption }) => {
+      if (selectedDatasource.id) {
+        setIsFetchingBucketList(true);
+        setFailedFetchingBucketList(false);
+        dispatch(
+          executeDatasourceQuery({
+            payload: {
+              datasourceId: selectedDatasource.id,
+              data: payload,
+            },
+            onSuccessCallback: onFetchBucketSuccess,
+            onErrorCallback: onFetchBucketFailure,
+          }),
+        );
+      }
+    },
+    [onFetchBucketSuccess, onFetchBucketFailure, setIsFetchingBucketList],
+  );
+
+  return {
+    bucketList,
+    isFetchingBucketList,
+    failedFetchingBucketList,
+    fetchBucketList,
+  };
+};

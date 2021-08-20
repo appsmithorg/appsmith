@@ -202,7 +202,7 @@ export const getOAuthAccessToken = (datasourceId: string) => {
 export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
-    body: T | string;
+    body: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
