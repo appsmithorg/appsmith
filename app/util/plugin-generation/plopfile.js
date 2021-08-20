@@ -1,23 +1,4 @@
-
-// // The below code works in creating java file.
-// module.exports = function (plop) {
-//     // controller generator
-//     plop.setGenerator('controller', {
-//         description: 'application controller logic',
-//         prompts: [{
-//             type: 'input',
-//             name: 'name',
-//             message: 'Integration Name here: '
-//         }],
-//         actions: [{
-//             type: 'add',
-//             // path: '../../server/appsmith-plugins/{{pascalCase name}}/src/main/java/com.external.plugins/{{pascalCase name}}.java',
-//             path: '{{pascalCase name}}/{{pascalCase name}}.java',
-//             templateFile: 'plop-templates/controller.hbs'
-//         }]
-//     });
-// };
-
+// The following code takes prompt input and generates two files from two different templates
 module.exports = function (plop) {
     plop.setGenerator('plugin', {
         prompts: [
@@ -42,20 +23,36 @@ module.exports = function (plop) {
         actions: function(data) {
             var actions = [];
 
-            if(data.wantTacos) {
-                actions.push({
-                    type: 'add',
-                    path: 'folder/{{dashCase name}}.txt',
-                    templateFile: 'templates/tacos.txt'
-                });
-            } else {
-                actions.push({
-                    type: 'add',
-                    path: 'folder/{{dashCase name}}.txt',
-                    templateFile: 'templates/burritos.txt'
-                });
-            }
+            if (data.pluginType && data.name && data.entityName) {
+                // All the inputs were given. Generate the files 
 
+                /*
+                    Plugin Authentication UI File
+                    Plugin Authentication File
+                    Plugin Entity CRUD File
+                    Plugin Entity UI File
+                    Plugin Entity Test File
+                */
+               actions.push(
+                {
+                    type: 'add',
+                    // path: '../../server/appsmith-plugins/{{pascalCase name}}/src/main/java/com.external.plugins/{{pascalCase name}}.java',
+                    path: '{{pascalCase name}}/{{pascalCase name}}.java',
+                    templateFile: 'plop-templates/controller.hbs'
+                }
+               );
+
+               actions.push(
+                {
+                    type: 'add',
+                    // path: '../../server/appsmith-plugins/{{pascalCase name}}/src/main/java/com.external.plugins/{{pascalCase name}}.java',
+                    path: '{{pascalCase name}}/editor.json',
+                    templateFile: 'plop-templates/json-template.hbs'
+                }
+               );
+
+
+            }
             return actions;
         }
     });
