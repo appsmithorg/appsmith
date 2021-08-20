@@ -49,6 +49,7 @@ export type TextInputProps = CommonComponentProps & {
   theme?: any;
   leftIcon?: IconName;
   helperText?: string;
+  rightSideComponent?: React.ReactNode;
 };
 
 type boxReturnType = {
@@ -97,7 +98,13 @@ const StyledInput = styled((props) => {
   ) : (
     <input ref={inputRef} {...inputProps} />
   );
-})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
+})<
+  TextInputProps & {
+    inputStyle: boxReturnType;
+    isValid: boolean;
+    rightSideComponentWidth: number;
+  }
+>`
   width: ${(props) => (props.fill ? "100%" : "260px")};
   border-radius: 0;
   outline: 0;
@@ -105,23 +112,26 @@ const StyledInput = styled((props) => {
   border: 1.2px solid ${(props) => props.inputStyle.borderColor};
   padding: 0px ${(props) => props.theme.spaces[5]}px;
   height: 36px;
+  padding-right: ${(props) =>
+    props.rightSideComponentWidth + props.theme.spaces[6]}px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
-
+​
   ${(props) =>
     props.leftIcon &&
     IconCollection.includes(props.leftIcon) &&
     `
   padding-left: 35px;`};
-
+​
   &:-internal-autofill-selected,
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
+    -webkit-box-shadow: 0 0 0 30px ${(props) =>
+      props.inputStyle.bgColor} inset !important;
     -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
   }
-
+​
   &:hover {
     background-color: ${(props) =>
       props.disabled
@@ -160,12 +170,10 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   position: relative;
   width: 100%;
-
-  .${Classes.TEXT} {
+  ​ .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
-
-  .helper {
+  ​ .helper {
     .${Classes.TEXT} {
       color: ${(props) => props.theme.colors.textInput.helper};
     }
@@ -176,6 +184,14 @@ const MsgWrapper = styled.div`
   position: absolute;
   bottom: -20px;
 `;
+
+const RightSideContainer = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+`;
+
 const IconWrapper = styled.div`
   position: absolute;
   top: 10.37px;
@@ -196,6 +212,15 @@ const TextInput = forwardRef(
       isValid: boolean;
       message: string;
     }>(initialValidation());
+
+    const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
+
+    const setRightSideRef = useCallback((ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setRightSideComponentWidth(width);
+      }
+    }, []);
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, props.theme),
@@ -246,6 +271,7 @@ const TextInput = forwardRef(
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
+          rightSideComponentWidth={rightSideComponentWidth}
         />
         {props.leftIcon && (
           <IconWrapper>
@@ -261,6 +287,9 @@ const TextInput = forwardRef(
           props.helperText.length > 0 &&
           HelperMessage}
         {ErrorMessage}
+        <RightSideContainer ref={setRightSideRef}>
+          {props.rightSideComponent}
+        </RightSideContainer>
       </InputWrapper>
     );
   },
