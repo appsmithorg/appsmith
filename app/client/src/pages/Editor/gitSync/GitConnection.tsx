@@ -1,17 +1,21 @@
-import React from "react";
-import { Subtitle, Title } from "./components/StyledComponents";
+import React, { useState } from "react";
+import { Subtitle, Title, Space } from "./components/StyledComponents";
 import {
   CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
   REMOTE_URL_VIA,
   createMessage,
 } from "constants/messages";
-import AuthTypeDropdown from "./components/AuthTypeDropdown";
+import OptionSelector from "./components/OptionSelector";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import TextInput from "components/ads/TextInput";
 import { ReactComponent as CheckIcon } from "assets/icons/ads/check.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link_2.svg";
+import UserGitProfileSettings from "./components/UserGitProfileSettings";
+import { DropdownOption } from "components/ads/Dropdown";
+import { AUTH_TYPE_OPTIONS } from "./constants";
+import { DropdownOnSelect } from "../../../components/ads/Dropdown";
 
 const UrlOptionContainer = styled.div`
   ${(props) => getTypographyByKey(props, "h6")};
@@ -37,14 +41,26 @@ const UrlContainer = styled.div`
   align-items: center;
 `;
 
-function GitConection() {
+function GitConnection() {
+  const [selectedAuthType, setSelectedAuthType] = useState<DropdownOption>(
+    AUTH_TYPE_OPTIONS[0],
+  );
+
+  const onSelectAuthType: DropdownOnSelect = (value, dropdownOption) => {
+    setSelectedAuthType(dropdownOption);
+  };
+
   return (
     <>
       <Title>{createMessage(CONNECT_TO_GIT)}</Title>
       <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
       <UrlOptionContainer>
         <span className="label">{`${createMessage(REMOTE_URL_VIA)} `}</span>
-        <AuthTypeDropdown />
+        <OptionSelector
+          onSelect={onSelectAuthType}
+          options={AUTH_TYPE_OPTIONS}
+          selected={selectedAuthType}
+        />
       </UrlOptionContainer>
       <UrlContainer>
         <TextInput
@@ -57,8 +73,10 @@ function GitConection() {
         />
         <LinkIcon />
       </UrlContainer>
+      <Space size={12} />
+      <UserGitProfileSettings authType={selectedAuthType.label || ""} />
     </>
   );
 }
 
-export default GitConection;
+export default GitConnection;
