@@ -34,7 +34,7 @@ export enum FileType {
   ANY = "ANY",
 }
 
-type FilePickerProps = {
+export type FilePickerProps = {
   onFileUploaded?: (fileUrl: string) => void;
   onFileRemoved?: () => void;
   fileUploader?: FileUploader;

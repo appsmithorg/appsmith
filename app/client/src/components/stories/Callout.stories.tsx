@@ -1,22 +1,41 @@
 import React from "react";
-import { withKnobs, select, text, boolean } from "@storybook/addon-knobs";
-import Callout from "components/ads/Callout";
-import { StoryWrapper, Variant } from "components/ads/common";
+import Callout, { CalloutProps } from "components/ads/Callout";
+import { withDesign } from "storybook-addon-designs";
+import { Variant } from "components/ads/common";
+import { action } from "@storybook/addon-actions";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Callout",
+  title: storyName.platform.form.callout.PATH,
   component: Callout,
-  decorators: [withKnobs],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
-export function CalloutStory() {
-  return (
-    <StoryWrapper>
-      <Callout
-        fill={boolean("fill", false)}
-        text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
-        variant={select("variant", Object.values(Variant), Variant.info)}
-      />
-    </StoryWrapper>
-  );
+export function CalloutStory(args: CalloutProps) {
+  return <Callout {...args} onClose={action("closed-callout")} />;
 }
+
+CalloutStory.args = {
+  variant: Variant.success,
+  fill: true,
+  closeButton: true,
+  text: "Callout",
+};
+
+CalloutStory.argTypes = {
+  closeButton: { control: controlType.BOOLEAN },
+  fill: { control: controlType.BOOLEAN },
+  text: { control: controlType.TEXT },
+  variant: {
+    control: controlType.SELECT,
+    options: Object.values(Variant),
+  },
+};
+
+CalloutStory.storyName = storyName.platform.form.callout.NAME;

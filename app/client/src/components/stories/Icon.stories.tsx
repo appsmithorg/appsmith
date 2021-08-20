@@ -1,50 +1,53 @@
 import React from "react";
-import Icon, { IconSize, IconCollection } from "components/ads/Icon";
-import Button, { Size, Category } from "components/ads/Button";
-import { withKnobs, select, boolean } from "@storybook/addon-knobs";
+import Icon, { IconSize, IconCollection, IconProps } from "components/ads/Icon";
+import { action } from "@storybook/addon-actions";
 import { withDesign } from "storybook-addon-designs";
-import AppIcon, { AppIconCollection } from "components/ads/AppIcon";
-import { StoryWrapper, Variant } from "components/ads/common";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Icon",
+  title: storyName.platform.icons.icon.PATH,
   component: Icon,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
-export function ButtonIcon() {
-  return (
-    <StoryWrapper>
-      <Button
-        category={select("category", Object.values(Category), Category.primary)}
-        disabled={boolean("Disabled", false)}
-        icon={select("Icon name", IconCollection, "delete")}
-        isLoading={boolean("Loading", false)}
-        size={select("size", Object.values(Size), Size.large)}
-        variant={select("variant", Object.values(Variant), Variant.info)}
-      />
-    </StoryWrapper>
-  );
+export function Primary(args: IconProps) {
+  return <Icon {...args} onClick={action("icon-clicked")} />;
 }
 
-export function BordelessIcon() {
-  return (
-    <StoryWrapper>
-      <Icon
-        name={select("Icon name", IconCollection, "delete")}
-        size={select("Icon size", Object.values(IconSize), IconSize.LARGE)}
-      />
-    </StoryWrapper>
-  );
-}
+Primary.args = {
+  size: IconSize.LARGE,
+  name: "delete",
+  invisible: false,
+  className: "",
+  fillColor: "",
+  hoverFillColor: "",
+  keepColors: false,
+  loaderWithIconWrapper: false,
+  clickable: true,
+};
 
-export function AppIconVariant() {
-  return (
-    <StoryWrapper>
-      <AppIcon
-        name={select("Select Icon", AppIconCollection, "bag")}
-        size={select("Icon size", Object.values(Size), Size.small)}
-      />
-    </StoryWrapper>
-  );
-}
+Primary.argTypes = {
+  size: {
+    control: controlType.SELECT,
+    options: Object.values(IconSize),
+  },
+  name: {
+    control: controlType.SELECT,
+    options: IconCollection,
+  },
+  invisible: { control: controlType.BOOLEAN },
+  className: { control: controlType.TEXT },
+  fillColor: { control: controlType.COLOR },
+  hoverFillColor: { control: controlType.COLOR },
+  keepColors: { control: controlType.BOOLEAN },
+  loaderWithIconWrapper: { control: controlType.BOOLEAN },
+  clickable: { control: controlType.BOOLEAN },
+};
+
+Primary.storyName = storyName.platform.icons.icon.NAME;

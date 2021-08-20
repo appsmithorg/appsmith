@@ -766,15 +766,23 @@ type ColorType = {
     header: {
       text: ShadeColor;
       disabledText: ShadeColor;
+      defaultBg: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
-    menuBg: ShadeColor;
+    menu: {
+      bg: ShadeColor;
+      hover: ShadeColor;
+      text: ShadeColor;
+      hoverText: ShadeColor;
+      subText: ShadeColor;
+    };
     menuShadow: string;
     selected: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
+      subtext?: ShadeColor;
     };
     hovered: {
       text: ShadeColor;
@@ -798,6 +806,7 @@ type ColorType = {
       off: ShadeColor;
     };
     spinner: ShadeColor;
+    spinnerBg: ShadeColor;
   };
   textInput: {
     disable: {
@@ -811,10 +820,15 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    helper: ShadeColor;
+    icon: ShadeColor;
     readOnly: {
       bg: ShadeColor;
       border: ShadeColor;
       text: ShadeColor;
+    };
+    hover: {
+      bg: ShadeColor;
     };
   };
   menuBorder: ShadeColor;
@@ -1038,12 +1052,10 @@ type ColorType = {
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
-    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
-    searchItemAltText: string;
     searchItemText: string;
     searchItemSubText: string;
     highlightedTextUnderline: string;
@@ -1059,9 +1071,6 @@ type ColorType = {
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
-    mainContainerBackground: string;
-    filterListBackground: string;
-    filterBtnText: string;
   };
   gif: {
     overlay: string;
@@ -1291,10 +1300,6 @@ const mentionSuggestion = {
   hover: "#EBEBEB",
 };
 
-const pagesEditor = {
-  iconColor: "#A2A6A8",
-};
-
 const comments = {
   introTitle: "#090707",
   introContent: "#716E6E",
@@ -1381,33 +1386,28 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "#6A86CE",
-  activeCategory: "#6A86CE",
-  searchInputText: "#484848",
+  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
+  searchInputText: "#fff",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
-  searchItemAltText: "#fff",
-  searchItemText: "#484848",
-  searchItemSubText: "#A9A7A7",
+  searchItemText: "rgba(255, 255, 255, 0.6)",
+  searchItemSubText: "rgba(255, 255, 255, 0.4)",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
-  emptyStateText: "#A9A7A7",
+  emptyStateText: "#ABABAB",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#F0F0F0",
-  documentLink: "#69B5FF",
+  codeBackground: "#494949",
+  documentLink: "#54a9fb",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
-  sectionTitle: "#716E6E",
+  sectionTitle: "#D4D4D4",
   navigateToEntityEnterkey: "#3DA5D9",
-  mainContainerBackground: "#F0F0F0",
-  filterListBackground: lightShades[0],
-  filterBtnText: lightShades[8],
 };
 
 const mentionsInput = {
@@ -1436,15 +1436,7 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
-const numberedStep = {
-  line: Colors.ALTO2,
-  number: Colors.BLACK,
-};
-
 export const dark: ColorType = {
-  gitSyncModal,
-  numberedStep,
-  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1647,10 +1639,17 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
+      defaultBg: "#090707",
       bg: "#090707",
       disabledBg: darkShades[2],
     },
-    menuBg: darkShades[3],
+    menu: {
+      bg: darkShades[3],
+      text: darkShades[9],
+      hover: darkShades[4],
+      hoverText: darkShades[9],
+      subText: darkShades[9],
+    },
     menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
@@ -1679,6 +1678,7 @@ export const dark: ColorType = {
       off: darkShades[5],
     },
     spinner: darkShades[6],
+    spinnerBg: darkShades[4],
   },
   textInput: {
     disable: {
@@ -1692,10 +1692,15 @@ export const dark: ColorType = {
       text: darkShades[7],
     },
     placeholder: darkShades[5],
+    helper: darkShades[5],
+    icon: darkShades[7],
     readOnly: {
       bg: darkShades[0],
       border: darkShades[0],
       text: darkShades[7],
+    },
+    hover: {
+      bg: darkShades[0],
     },
   },
   menuBorder: darkShades[4],
@@ -1998,13 +2003,9 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
 };
 
 export const light: ColorType = {
-  gitSyncModal,
-  numberedStep,
-  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2212,57 +2213,71 @@ export const light: ColorType = {
   },
   dropdown: {
     header: {
-      text: lightShades[9],
+      text: lightShades[8],
       disabledText: darkShades[6],
-      bg: lightShades[2],
+      defaultBg: lightShades[11],
+      bg: lightShades[14],
       disabledBg: lightShades[1],
     },
-    menuBg: lightShades[11],
-    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menu: {
+      bg: lightShades[11],
+      text: lightShades[8],
+      hover: lightShades[2],
+      hoverText: lightShades[10],
+      subText: lightShades[15],
+    },
+    menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
-      text: lightShades[9],
+      text: lightShades[10],
       bg: lightShades[2],
-      icon: lightShades[8],
+      icon: lightShades[15],
+      subtext: lightShades[7],
     },
     hovered: {
-      text: lightShades[11],
-      bg: lightShades[12],
+      text: lightShades[10],
+      bg: lightShades[14],
       icon: lightShades[11],
     },
     icon: lightShades[7],
   },
   toggle: {
-    bg: lightShades[4],
+    bg: lightShades[13],
     hover: {
-      on: "#E4500E",
+      on: "#BF4109",
       off: lightShades[5],
     },
     disable: {
-      on: "#FDE0D2",
-      off: lightShades[3],
+      on: "#FEEDE5",
+      off: lightShades[13],
     },
     disabledSlider: {
       off: lightShades[11],
       on: lightShades[11],
     },
-    spinner: lightShades[6],
+    spinner: lightShades[5],
+    spinnerBg: lightShades[3],
   },
   textInput: {
     disable: {
-      bg: lightShades[1],
-      text: darkShades[6],
-      border: lightShades[1],
-    },
-    normal: {
       bg: lightShades[2],
-      text: lightShades[9],
+      text: darkShades[5],
       border: lightShades[2],
     },
-    placeholder: lightShades[7],
+    normal: {
+      bg: lightShades[11],
+      text: lightShades[10],
+      border: lightShades[13],
+    },
+    placeholder: lightShades[5],
+    helper: lightShades[15],
+    icon: lightShades[7],
     readOnly: {
       bg: lightShades[2],
       border: lightShades[2],
       text: lightShades[7],
+    },
+    hover: {
+      bg: lightShades[0],
     },
   },
   menuBorder: lightShades[3],
@@ -2566,7 +2581,6 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
-  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2677,22 +2691,11 @@ export const theme: Theme = {
       fontSize: 28,
       lineHeight: 36,
     },
-    docHeader: {
-      fontStyle: "normal",
-      fontWeight: "bold",
-      fontSize: 17,
-    },
     spacedOutP1: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 14,
       lineHeight: 24,
-    },
-    categoryBtn: {
-      fontSize: 12,
-      lineHeight: 14,
-      letterSpacing: 0.2,
-      fontWeight: 500,
     },
   },
   iconSizes: {
@@ -2740,7 +2743,6 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
-    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2757,7 +2759,6 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
-    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2783,8 +2784,6 @@ export const theme: Theme = {
     dropdownIconBg: Colors.ALTO2,
     welcomeTourStickySidebarColor: Colors.WHITE,
     welcomeTourStickySidebarBackground: "#F86A2B",
-    dropdownIconDarkBg: Colors.DARK_GRAY,
-    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

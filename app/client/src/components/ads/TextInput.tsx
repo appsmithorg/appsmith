@@ -8,6 +8,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
+import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
@@ -46,7 +47,8 @@ export type TextInputProps = CommonComponentProps & {
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
-  rightSideComponent?: React.ReactNode;
+  leftIcon?: IconName;
+  helperText?: string;
 };
 
 type boxReturnType = {
@@ -95,24 +97,22 @@ const StyledInput = styled((props) => {
   ) : (
     <input ref={inputRef} {...inputProps} />
   );
-})<
-  TextInputProps & {
-    inputStyle: boxReturnType;
-    isValid: boolean;
-    rightSideComponentWidth: number;
-  }
->`
-  width: ${(props) => (props.fill ? "100%" : "320px")};
+})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
+  width: ${(props) => (props.fill ? "100%" : "260px")};
   border-radius: 0;
   outline: 0;
   box-shadow: none;
-  border: 1px solid ${(props) => props.inputStyle.borderColor};
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
-  padding-right: ${(props) =>
-    props.rightSideComponentWidth + props.theme.spaces[6]}px;
-  height: 38px;
+  border: 1.2px solid ${(props) => props.inputStyle.borderColor};
+  padding: 0px ${(props) => props.theme.spaces[5]}px;
+  height: 36px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
+
+  ${(props) =>
+    props.leftIcon &&
+    IconCollection.includes(props.leftIcon) &&
+    `
+  padding-left: 35px;`};
 
   &:-internal-autofill-selected,
   &:-webkit-autofill,
@@ -122,6 +122,12 @@ const StyledInput = styled((props) => {
     -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
   }
 
+  &:hover {
+    background-color: ${(props) =>
+      props.disabled
+        ? props.inputStyle.bgColor
+        : props.theme.colors.textInput.hover.bg};
+  }
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
   }
@@ -158,18 +164,22 @@ const InputWrapper = styled.div`
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
+
+  .helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
+  }
 `;
 
-const RightSideContainer = styled.div`
+const MsgWrapper = styled.div`
   position: absolute;
-  right: 0;
-  bottom: 0;
-  top: 0;
+  bottom: -20px;
 `;
-
-const ErrorWrapper = styled.div`
+const IconWrapper = styled.div`
   position: absolute;
-  bottom: -17px;
+  top: 10.37px;
+  left: 14.37px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -178,6 +188,7 @@ const TextInput = forwardRef(
       if (props.defaultValue && props.validator) {
         validationObj = props.validator(props.defaultValue);
       }
+      // return { isValid: false, message: "Error Message" };
       return validationObj;
     };
 
@@ -185,15 +196,6 @@ const TextInput = forwardRef(
       isValid: boolean;
       message: string;
     }>(initialValidation());
-
-    const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
-
-    const setRightSideRef = useCallback((ref: HTMLDivElement) => {
-      if (ref) {
-        const { width } = ref.getBoundingClientRect();
-        setRightSideComponentWidth(width);
-      }
-    }, []);
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, props.theme),
@@ -217,11 +219,19 @@ const TextInput = forwardRef(
     );
 
     const ErrorMessage = (
-      <ErrorWrapper>
+      <MsgWrapper>
         <Text type={TextType.P3}>{validation.message}</Text>
-      </ErrorWrapper>
+      </MsgWrapper>
     );
 
+    const HelperMessage = (
+      <MsgWrapper className="helper">
+        <Text type={TextType.P3}>* {props.helperText}</Text>
+      </MsgWrapper>
+    );
+    const iconColor = !validation.isValid
+      ? props.theme.colors.danger.main
+      : props.theme.colors.textInput.icon;
     return (
       <InputWrapper>
         <StyledInput
@@ -236,12 +246,21 @@ const TextInput = forwardRef(
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
-          rightSideComponentWidth={rightSideComponentWidth}
         />
+        {props.leftIcon && (
+          <IconWrapper>
+            <Icon
+              fillColor={iconColor}
+              name={props.leftIcon}
+              size={IconSize.MEDIUM}
+            />
+          </IconWrapper>
+        )}
+        {validation.isValid &&
+          props.helperText &&
+          props.helperText.length > 0 &&
+          HelperMessage}
         {ErrorMessage}
-        <RightSideContainer ref={setRightSideRef}>
-          {props.rightSideComponent}
-        </RightSideContainer>
       </InputWrapper>
     );
   },

@@ -1,56 +1,99 @@
 import React from "react";
-import { withKnobs, boolean, text } from "@storybook/addon-knobs";
-import TextInput from "components/ads/TextInput";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "components/ads/common";
-import { noop } from "utils/AppsmithUtils";
+import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { withDesign } from "storybook-addon-designs";
+import { IconCollection, IconName } from "components/ads/Icon";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Text Input",
+  title: storyName.platform.form.textInput.PATH,
   component: TextInput,
-  decorators: [withKnobs],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
-const callValidator1 = () => {
-  return {
-    isValid: true,
-    message: "",
+export function Primary(args: TextInputProps) {
+  const validator = () => {
+    return args.validator
+      ? { isValid: true, message: "" }
+      : {
+          isValid: false,
+          message: "This is a warning text for the above field.",
+        };
   };
-};
-
-export function TextInputStory() {
   return (
-    <StoryWrapper>
-      <TextInput
-        defaultValue={text("defaultValue", "This is valid")}
-        disabled={boolean("disabled", false)}
-        fill={boolean("fill", true)}
-        onChange={action("input value changed")}
-        placeholder={text("placeholder", "Your name")}
-        validator={() => callValidator1()}
-      />
-    </StoryWrapper>
+    <TextInput
+      {...args}
+      onChange={action("value changed")}
+      validator={validator}
+    />
   );
 }
 
-const callValidator2 = () => {
-  return {
-    isValid: false,
-    message: "This is a warning text for the above field.",
-  };
+Primary.args = {
+  placeholder: "Placeholder",
+  fill: false,
+  defaultValue: "",
+  readOnly: false,
+  dataType: "text",
+  leftIcon: undefined,
+  helperText: "",
+  disabled: false,
+  validator: true,
 };
 
-export function ErrorTextInputStory() {
-  return (
-    <StoryWrapper>
-      <TextInput
-        defaultValue={text("defaultValue", "This is wrong")}
-        disabled={boolean("disabled", false)}
-        fill={boolean("fill", true)}
-        onChange={noop}
-        placeholder={text("placeholder", "Your name")}
-        validator={() => callValidator2()}
-      />
-    </StoryWrapper>
-  );
-}
+Primary.argTypes = {
+  defaultValue: {
+    control: controlType.TEXT,
+    description: "string",
+    defaultValue: "",
+  },
+  placeholder: {
+    control: controlType.TEXT,
+    description: "string",
+    defaultValue: "Placeholder",
+  },
+  disabled: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  fill: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  leftIcon: {
+    control: controlType.SELECT,
+    options: ["Select icon" as IconName, ...IconCollection],
+    description: "Icon",
+    defaultValue: undefined,
+  },
+  readOnly: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+    defaultValue: false,
+  },
+  dataType: {
+    control: controlType.SELECT,
+    options: ["text", "email", "number", "password", "url"],
+    description: ["text", "email", "number", "password", "url"].join(", "),
+    defaultValue: "text",
+  },
+  helperText: {
+    control: controlType.TEXT,
+    description: "string",
+  },
+  validator: {
+    control: controlType.BOOLEAN,
+    description: "function",
+    defaultValue: true,
+  },
+};
+
+Primary.storyName = storyName.platform.form.textInput.NAME;
