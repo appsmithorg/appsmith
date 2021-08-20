@@ -884,6 +884,8 @@ public class PostgresPlugin extends BasePlugin {
                         break;
                     }
                     case STRING: {
+                    }
+                    case JSON_OBJECT: {
                         preparedStatement.setString(index, value);
                         break;
                     }

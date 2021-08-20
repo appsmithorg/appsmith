@@ -1218,4 +1218,67 @@ public class PostgresPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testPreparedStatementWithJsonDataType() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        String query = "INSERT INTO dataTypeTest VALUES ({{id}}, {{jsonObject1}}::json, {{jsonObject2}}::json, {{stringValue}})";
+        actionConfiguration.setBody(query);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        params.add(new Param("id", "10"));
+        params.add(new Param("jsonObject1", "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}"));
+        params.add(new Param("jsonObject2", "{\"country\":\"japan\", \"city\":\"kyoto\"}"));
+        params.add(new Param("stringValue", "Something here"));
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("affectedRows").asText(), "1");
+
+                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    RequestParamDTO requestParamDTO = requestParams.get(0);
+                    Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
+                    for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
+                        PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
+                        switch (psParameter.getValue()) {
+                            case "10" :
+                                assertEquals(psParameter.getType(), "INTEGER");
+                                break;
+                            case "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}":
+
+                            case "{\"country\":\"japan\", \"city\":\"kyoto\"}" :
+                                assertEquals(psParameter.getType(), "JSON_OBJECT");
+                                break;
+                            case "Something here" :
+                                assertEquals(psParameter.getType(), "STRING");
+                                break;
+                        }
+                    }
+
+                })
+                .verifyComplete();
+
+        // Delete the newly added row to not affect any other test case
+        actionConfiguration.setBody("DELETE FROM users dataTypeTest id = 10");
+        connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
+    }
 }
