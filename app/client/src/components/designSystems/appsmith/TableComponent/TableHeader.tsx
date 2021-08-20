@@ -56,16 +56,23 @@ function PageNumberInput(props: {
     (e) => {
       const oldPageNo = Number(props.pageNo || 0);
       let page = Number(e.target.value);
-      if (isNaN(page) || Number(page) < 1) {
+      // check page is less then min page count
+      if (isNaN(page) || page < 1) {
         page = 1;
       }
+      // check page is greater then max page count
+      if (page > props.pageCount) {
+        page = props.pageCount;
+      }
+      // fire Event based on new page number
       if (oldPageNo < page) {
         props.updatePageNo(page, EventType.ON_NEXT_PAGE);
       } else if (oldPageNo > page) {
         props.updatePageNo(page, EventType.ON_PREV_PAGE);
       }
+      setPageNumber(page);
     },
-    [props.pageNo],
+    [props.pageNo, props.pageCount],
   );
   return (
     <PageNumberInputWrapper
@@ -82,13 +89,7 @@ function PageNumberInput(props: {
         }
       }}
       onValueChange={(value: number) => {
-        if (isNaN(value) || value < 1) {
-          setPageNumber(1);
-        } else if (value > props.pageCount) {
-          setPageNumber(props.pageCount);
-        } else {
-          setPageNumber(value);
-        }
+        setPageNumber(value);
       }}
       value={pageNumber}
     />
