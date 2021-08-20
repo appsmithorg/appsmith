@@ -21,13 +21,11 @@ describe("Dropdown Widget Functionality", function() {
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
     cy.get(formWidgetsPage.searchBoxDropdown).should("be.visible");
-    cy.get(publish.backToEditor).click();
   });
 
   it("Verify Dropdown default value", function() {
     cy.PublishtheApp();
     cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Select");
-    cy.get(publish.backToEditor).click();
   });
 
   it("Selects value with invalid default value", () => {
@@ -52,31 +50,30 @@ describe("Dropdown Widget Functionality", function() {
   it("Verify Dropdown Icon is available", function() {
     cy.PublishtheApp();
     cy.get(formWidgetsPage.dropdowonChevranDown).should("exist");
-    cy.get(publish.backToEditor).click();
   });
 
-  it("Explore Widget related documents Validation", function() {
-    // Open property pane
-    cy.openPropertyPane("dropdownwidget");
-    cy.widgetText(
-      "Select",
-      formWidgetsPage.dropdownWidget,
-      commonlocators.dropdownInner,
-    );
-    // Click on "Explore widget related docs" button
-    cy.get(formWidgetsPage.exploreWidget).click();
-    cy.wait(2000);
-    // Verify the widget related document
-    cy.get(formWidgetsPage.widgetRelatedDocument).should("contain", "Select");
-    cy.wait(2000);
-    cy.get("#header-root").click();
-    cy.widgetText(
-      "Dropdown1",
-      formWidgetsPage.dropdownWidget,
-      commonlocators.dropdownInner,
-    );
-    cy.wait(1000);
-  });
+  // it("Explore Widget related documents Validation", function() {
+  //   // Open property pane
+  //   cy.openPropertyPane("dropdownwidget");
+  //   cy.widgetText(
+  //     "Select",
+  //     formWidgetsPage.dropdownWidget,
+  //     commonlocators.dropdownInner,
+  //   );
+  //   // Click on "Explore widget related docs" button
+  //   cy.get(formWidgetsPage.exploreWidget).click();
+  //   cy.wait(2000);
+  //   // Verify the widget related document
+  //   cy.get(formWidgetsPage.widgetRelatedDocument).should("contain", "Select");
+  //   cy.wait(2000);
+  //   cy.get("#header-root").click();
+  //   cy.widgetText(
+  //     "Dropdown1",
+  //     formWidgetsPage.dropdownWidget,
+  //     commonlocators.dropdownInner,
+  //   );
+  //   cy.wait(1000);
+  // });
 
   it("Dropdown Close Verification", function() {
     // Open property pane
@@ -153,7 +150,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.PublishtheApp();
     // Verify the disabled visible JS
     cy.get(publish.dropdownWidget + " " + "input").should("not.exist");
-    cy.get(publish.backToEditor).click();
   });
   it("Dropdown Functionality To UnCheck disabled Widget", function() {
     cy.SearchEntityandOpen("lock");
@@ -162,7 +158,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.PublishtheApp();
     // Verify the checked visible JS
     cy.get(publish.dropdownWidget).should("exist");
-    cy.get(publish.backToEditor).click();
   });
   it("Toggle JS - Dropdown-Unckeck Visible field Validation", function() {
     // Open Property pane
@@ -172,7 +167,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "false");
     cy.PublishtheApp();
     cy.get(formWidgetsPage.selectWidget).should("not.exist");
-    cy.get(publish.backToEditor).click({ force: true });
   });
 
   it("Toggle JS - Dropdown-Check Visible field Validation", function() {
@@ -182,7 +176,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.EditWidgetPropertiesUsingJS(formWidgetsPage.inputToggleVisible, "true");
     cy.PublishtheApp();
     cy.get(formWidgetsPage.selectWidget).should("exist");
-    cy.get(publish.backToEditor).click({ force: true });
   });
 });
 afterEach(() => {

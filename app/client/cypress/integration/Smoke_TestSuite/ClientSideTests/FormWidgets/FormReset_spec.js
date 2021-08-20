@@ -13,8 +13,8 @@ describe("Form reset functionality", function() {
       .click()
       .should("have.class", "selected-row");
     // Select three options
-    cy.get(".t--draggable-dropdownwidget").click({ force: true });
-    cy.get(".t--draggable-dropdownwidget").type("Option");
+    cy.get(".t--draggable-multiselectwidget").click({ force: true });
+    cy.get(".t--draggable-multiselectwidget").type("Option");
     cy.dropdownDynamic("Option 1");
     cy.dropdownDynamic("Option 2");
     cy.dropdownDynamic("Option 3");
