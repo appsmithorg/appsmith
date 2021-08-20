@@ -46,6 +46,6 @@
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
   "basicPassword": "input[name='authentication.password']",
-  "mockUserDatabase":"div[id='mock-database'] span:contains('users')",
-  "mockUserDatasources":".t--datasource-name:contains('USERS - Mock')"
+  "mockUserDatabase":"div[id='mock-database'] span:contains('Users')",
+  "mockUserDatasources":".t--datasource-name:contains('Users')"
 }
