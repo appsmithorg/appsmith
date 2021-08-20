@@ -2,16 +2,19 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import { getTypographyByKey } from "../../../../../constants/DefaultTheme";
+import { getTypographyByKey } from "constants/DefaultTheme";
 import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
   getIsFetchingDatasourceStructure,
-} from "../../../../../selectors/entitiesSelector";
+  getGenerateCRUDEnabledPluginMap,
+  getIsFetchingSinglePluginForm,
+  getDatasourcesStructure,
+} from "selectors/entitiesSelector";
+
 import { Datasource } from "entities/Datasource";
-import { fetchDatasourceStructure } from "../../../../../actions/datasourceActions";
-import { getDatasourcesStructure } from "selectors/entitiesSelector";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
@@ -26,41 +29,48 @@ import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
-import GoogleSheetForm from "../GoogleSheetForm";
-import { GENERATE_PAGE_FORM_TITLE } from "../../../../../constants/messages";
-import { GenerateCRUDEnabledPluginMap } from "../../../../../api/PluginApi";
-import { getGenerateCRUDEnabledPluginMap } from "../../../../../selectors/entitiesSelector";
-import { useDatasourceOptions } from "./hooks";
+import GoogleSheetForm from "./GoogleSheetForm";
+import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import {
+  useDatasourceOptions,
+  useSheetsList,
+  useSpreadSheets,
+  useSheetColumnHeaders,
+  useS3BucketList,
+} from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { AppState } from "reducers/index";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
   PluginFormInputFieldMap,
   PLUGIN_PACKAGE_NAME,
+  DEFAULT_DROPDOWN_OPTION,
+  DROPDOWN_DIMENSION,
+  ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
+import Tooltip from "components/ads/Tooltip";
+import { Bold, Label, SelectWrapper } from "./styles";
+import { GeneratePagePayload } from "./types";
+import Icon from "components/ads/Icon";
 
-const DROPDOWN_DIMENSION = {
-  HEIGHT: "36px",
-  WIDTH: "404px",
-};
-
-const DEFAULT_DROPDOWN_OPTION = {
-  id: "- Select -",
-  label: "- Select -",
-  value: "",
-  onSelect: () => null,
-  data: {},
-};
-
-const ALLOWED_SEARCH_DATATYPE = [
-  "text",
-  "string",
-  "char",
-  "varchar",
-  "character",
-  "text string",
-];
 //  ---------- Styles ----------
+
+const RoundBg = styled.div`
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  background-color: ${Colors.GRAY};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const TooltipWrapper = styled.div`
+  margin-top: 2px;
+  margin-left: 6px;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -69,14 +79,6 @@ const Wrapper = styled.div`
   align-items: center;
   padding: 10px 20px 0px;
   border: none;
-`;
-
-const SelectWrapper = styled.div`
-  margin: 10px;
-`;
-
-const Label = styled.p`
-  ${(props) => `${getTypographyByKey(props, "p1")}`}
 `;
 
 const FormWrapper = styled.div`
@@ -96,10 +98,6 @@ const EditDatasourceButton = styled(Button)`
   margin-top: 30px;
 `;
 
-const Bold = styled.span`
-  font-weight: 500;
-`;
-
 const DescWrapper = styled.div`
   flex: 1;
   display: flex;
@@ -113,14 +111,51 @@ const Title = styled.p`
   color: ${Colors.CODE_GRAY};
   font-size: 24px;
 `;
-// ---------- Types ----------
 
-// ---------- GeneratePageForm Component ----------
+const Row = styled.p`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+`;
+
+// Constants
+
+const datasourceIcon: IconName = "tables";
+const columnIcon: IconName = "column";
 
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
+
+//
+
+function GeneratePageSubmitBtn({
+  disabled,
+  isLoading,
+  onSubmit,
+  showSubmitButton,
+}: {
+  onSubmit: () => void;
+  isLoading: boolean;
+  showSubmitButton: boolean;
+  disabled: boolean;
+}) {
+  return showSubmitButton ? (
+    <FormSubmitButton
+      category={Category.tertiary}
+      data-cy="t--generate-page-form-submit"
+      disabled={disabled}
+      isLoading={isLoading}
+      onClick={onSubmit}
+      size={Size.large}
+      text="Generate Page"
+      type="button"
+    />
+  ) : null;
+}
+
+// ---------- GeneratePageForm Component ----------
 
 function GeneratePageForm() {
   const dispatch = useDispatch();
@@ -160,6 +195,26 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
+  const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
+  const selectedDatasourcePluginPackageName: string =
+    generateCRUDSupportedPlugin[selectedDatasourcePluginId];
+
+  const isGoogleSheetPlugin =
+    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+
+  const isS3Plugin =
+    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.S3;
+
+  const isFetchingSheetPluginForm = useSelector((state: AppState) => {
+    if (isGoogleSheetPlugin) {
+      return getIsFetchingSinglePluginForm(
+        state,
+        selectedDatasource.data?.pluginId,
+      );
+    }
+    return false;
+  });
+
   const [selectedTable, selectTable] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
@@ -173,12 +228,23 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
+  const {
+    bucketList,
+    failedFetchingBucketList,
+    fetchBucketList,
+    isFetchingBucketList,
+  } = useS3BucketList();
+
   const onSelectDataSource = useCallback(
     (
       datasource: string | undefined,
       dataSourceObj: DropdownOption | undefined,
     ) => {
-      if (datasource && dataSourceObj) {
+      if (
+        datasource &&
+        dataSourceObj &&
+        selectedDatasource.id !== dataSourceObj.id
+      ) {
         const pluginId: string = dataSourceObj.data.pluginId;
         const pluginPackageName: string = generateCRUDSupportedPlugin[pluginId];
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE", {
@@ -189,8 +255,20 @@ function GeneratePageForm() {
         setSelectedTableColumnOptions([]);
         selectTable(DEFAULT_DROPDOWN_OPTION);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
+        setSelectedDatasourceIsInvalid(false);
         if (dataSourceObj.id) {
-          dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+          switch (pluginPackageName) {
+            case PLUGIN_PACKAGE_NAME.S3:
+              fetchBucketList({ selectedDatasource: dataSourceObj });
+              break;
+            case PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS:
+              break;
+            default: {
+              if (dataSourceObj.id) {
+                dispatch(fetchDatasourceStructure(dataSourceObj.id, true));
+              }
+            }
+          }
         }
       }
     },
@@ -202,6 +280,9 @@ function GeneratePageForm() {
       selectTable,
       selectColumn,
       dispatch,
+      setSelectedDatasourceIsInvalid,
+      selectedDatasource,
+      generateCRUDSupportedPlugin,
     ],
   );
 
@@ -211,35 +292,43 @@ function GeneratePageForm() {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
-        const { data } = TableObj;
-        const columnIcon: IconName = "column";
-        if (data.columns && Array.isArray(data.columns)) {
-          const newSelectedTableColumnOptions: DropdownOption[] = [];
-          data.columns.map((column) => {
-            if (
-              column.type &&
-              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
-            ) {
-              newSelectedTableColumnOptions.push({
-                id: column.name,
-                label: column.name,
-                value: column.name,
-                subText: column.type,
-                icon: columnIcon,
-                iconSize: IconSize.LARGE,
-                iconColor: Colors.GOLD,
-              });
+        if (!isGoogleSheetPlugin && !isS3Plugin) {
+          const { data } = TableObj;
+
+          if (Array.isArray(data.columns)) {
+            const newSelectedTableColumnOptions: DropdownOption[] = [];
+            data.columns.map((column) => {
+              if (
+                column.type &&
+                ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
+              ) {
+                newSelectedTableColumnOptions.push({
+                  id: column.name,
+                  label: column.name,
+                  value: column.name,
+                  subText: column.type,
+                  icon: columnIcon,
+                  iconSize: IconSize.LARGE,
+                  iconColor: Colors.GOLD,
+                });
+              }
+            });
+            if (newSelectedTableColumnOptions) {
+              setSelectedTableColumnOptions(newSelectedTableColumnOptions);
             }
-          });
-          if (newSelectedTableColumnOptions) {
-            setSelectedTableColumnOptions(newSelectedTableColumnOptions);
+          } else {
+            setSelectedTableColumnOptions([]);
           }
-        } else {
-          setSelectedTableColumnOptions([]);
         }
       }
     },
-    [selectTable, setSelectedTableColumnOptions, selectColumn],
+    [
+      selectTable,
+      setSelectedTableColumnOptions,
+      selectColumn,
+      isGoogleSheetPlugin,
+      isS3Plugin,
+    ],
   );
 
   const onSelectColumn = useCallback(
@@ -257,6 +346,29 @@ function GeneratePageForm() {
     generateCRUDSupportedPlugin,
   });
 
+  const spreadSheetsProps = useSpreadSheets({
+    setSelectedDatasourceTableOptions,
+    setSelectedDatasourceIsInvalid,
+  });
+
+  const sheetsListProps = useSheetsList();
+
+  const sheetColumnsHeaderProps = useSheetColumnHeaders();
+
+  useEffect(() => {
+    if (isS3Plugin && bucketList && bucketList.length) {
+      const tables = bucketList.map((bucketName) => ({
+        id: bucketName,
+        label: bucketName,
+        value: bucketName,
+        icon: datasourceIcon,
+        iconSize: IconSize.LARGE,
+        iconColor: Colors.BURNING_ORANGE,
+      }));
+      setSelectedDatasourceTableOptions(tables);
+    }
+  }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
+
   useEffect(() => {
     if (
       selectedDatasource.id &&
@@ -267,7 +379,6 @@ function GeneratePageForm() {
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id] || {};
 
-      const datasourceIcon: IconName = "tables";
       const hasError = selectedDatasourceStructure?.error;
 
       if (hasError) {
@@ -315,7 +426,12 @@ function GeneratePageForm() {
         }
       }
     }
-  }, [dataSourceOptions, datasourceIdToBeSelected, onSelectDataSource]);
+  }, [
+    dataSourceOptions,
+    datasourceIdToBeSelected,
+    onSelectDataSource,
+    setDatasourceIdToBeSelected,
+  ]);
 
   useEffect(() => {
     if (querySearch) {
@@ -336,7 +452,7 @@ function GeneratePageForm() {
         history.replace(redirectURL);
       }
     }
-  }, [querySearch]);
+  }, [querySearch, setDatasourceIdToBeSelected]);
 
   const routeToCreateNewDatasource = () => {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
@@ -349,22 +465,39 @@ function GeneratePageForm() {
     );
   };
 
-  const handleFormSubmit = () => {
+  const generatePageAction = (data: GeneratePagePayload) => {
+    let extraParams = {};
+    if (data.pluginSpecificParams) {
+      extraParams = {
+        pluginSpecificParams: data.pluginSpecificParams,
+      };
+    }
+
+    const payload = {
+      applicationId: currentApplicationId || "",
+      pageId:
+        currentMode.current === GENERATE_PAGE_MODE.NEW
+          ? ""
+          : currentPageId || "",
+      columns: data.columns || [],
+      searchColumn: data.searchColumn,
+      tableName: data.tableName,
+      datasourceId: selectedDatasource.id || "",
+      mode: currentMode.current,
+      ...extraParams,
+    };
+
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
-    dispatch(
-      generateTemplateToUpdatePage({
-        applicationId: currentApplicationId || "",
-        pageId:
-          currentMode.current === GENERATE_PAGE_MODE.NEW
-            ? ""
-            : currentPageId || "",
-        columns: [],
-        searchColumn: selectedColumn.value,
-        tableName: selectedTable.value || "",
-        datasourceId: selectedDatasource.id || "",
-        mode: currentMode.current,
-      }),
-    );
+    dispatch(generateTemplateToUpdatePage(payload));
+  };
+
+  const handleFormSubmit = () => {
+    const payload = {
+      columns: [],
+      searchColumn: selectedColumn.value,
+      tableName: selectedTable.value || "",
+    };
+    generatePageAction(payload);
   };
 
   const goToEditDatasource = () => {
@@ -380,13 +513,10 @@ function GeneratePageForm() {
     history.push(redirectURL);
   };
 
-  const showSubmitButton = selectedTable.value;
   const submitButtonDisable = !selectedTable.value;
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
   const isValidDatasourceConfig = selectedDatasource.data?.isValid;
-  const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
-  const selectedDatasourcePluginPackageName: string =
-    generateCRUDSupportedPlugin[selectedDatasourcePluginId];
+
   const pluginField: {
     TABLE: string;
     COLUMN: string;
@@ -395,21 +525,42 @@ function GeneratePageForm() {
     PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
       ? PluginFormInputFieldMap[selectedDatasourcePluginPackageName]
       : PluginFormInputFieldMap.DEFAULT;
-  const tableLabel = pluginField.TABLE;
-  const columnLabel = pluginField.COLUMN;
 
   let tableDropdownErrorMsg = "";
-  if (!isFetchingDatasourceStructure) {
+
+  const fetchingDatasourceConfigs =
+    isFetchingDatasourceStructure ||
+    (isFetchingBucketList && isS3Plugin) ||
+    ((isFetchingSheetPluginForm || spreadSheetsProps.isFetchingSpreadsheets) &&
+      isGoogleSheetPlugin);
+
+  const fetchingDatasourceConfigError =
+    selectedDatasourceIsInvalid ||
+    !isValidDatasourceConfig ||
+    (failedFetchingBucketList && isS3Plugin);
+
+  if (!fetchingDatasourceConfigs) {
     if (datasourceTableOptions.length === 0) {
-      tableDropdownErrorMsg = `Couldn't find any ${tableLabel}, Please select another datasource`;
+      tableDropdownErrorMsg = `Couldn't find any ${pluginField.TABLE}, Please select another datasource`;
     }
-    if (selectedDatasourceIsInvalid || !isValidDatasourceConfig) {
+    if (fetchingDatasourceConfigError) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
   }
 
-  const isGoogleSheetPlugin =
-    selectedDatasourcePluginPackageName === PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS;
+  const showEditDatasourceBtn =
+    !isFetchingDatasourceStructure &&
+    (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
+    !!selectedDatasource.value;
+
+  const showSearchableColumn =
+    !!selectedTable.value &&
+    PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
+
+  const showSubmitButton = selectedTable.value && !showEditDatasourceBtn;
+  !fetchingDatasourceConfigs &&
+    fetchingDatasourceConfigError &&
+    !!selectedDatasource.value;
 
   return (
     <div>
@@ -419,7 +570,7 @@ function GeneratePageForm() {
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper>
+        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>Select Datasource</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
@@ -443,50 +594,68 @@ function GeneratePageForm() {
             width={DROPDOWN_DIMENSION.WIDTH}
           />
         </SelectWrapper>
+        {selectedDatasource.value ? (
+          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+            <Label>
+              Select {pluginField.TABLE} from{" "}
+              <Bold>{selectedDatasource.label}</Bold>
+            </Label>
+            <Dropdown
+              cypressSelector="t--table-dropdown"
+              dropdownMaxHeight={"300px"}
+              errorMsg={tableDropdownErrorMsg}
+              height={DROPDOWN_DIMENSION.HEIGHT}
+              isLoading={fetchingDatasourceConfigs}
+              onSelect={onSelectTable}
+              optionWidth={DROPDOWN_DIMENSION.WIDTH}
+              options={datasourceTableOptions}
+              selected={selectedTable}
+              showLabelOnly
+              width={DROPDOWN_DIMENSION.WIDTH}
+            />
+          </SelectWrapper>
+        ) : null}
+        {showEditDatasourceBtn && (
+          <EditDatasourceButton
+            category={Category.tertiary}
+            onClick={goToEditDatasource}
+            size={Size.medium}
+            text="Edit Datasource"
+            type="button"
+          />
+        )}
         {!isGoogleSheetPlugin ? (
           <>
-            {selectedDatasource.value ? (
-              <SelectWrapper>
-                <Label>
-                  Select {tableLabel} from{" "}
-                  <Bold>{selectedDatasource.label}</Bold>
-                </Label>
-                <Dropdown
-                  cypressSelector="t--table-dropdown"
-                  dropdownMaxHeight={"300px"}
-                  errorMsg={tableDropdownErrorMsg}
-                  height={DROPDOWN_DIMENSION.HEIGHT}
-                  isLoading={isFetchingDatasourceStructure}
-                  onSelect={onSelectTable}
-                  optionWidth={DROPDOWN_DIMENSION.WIDTH}
-                  options={datasourceTableOptions}
-                  selected={selectedTable}
-                  showLabelOnly
-                  width={DROPDOWN_DIMENSION.WIDTH}
-                />
-              </SelectWrapper>
-            ) : null}
-            {!isFetchingDatasourceStructure &&
-              (selectedDatasourceIsInvalid || !isValidDatasourceConfig) &&
-              selectedDatasource.value && (
-                <EditDatasourceButton
-                  category={Category.tertiary}
-                  onClick={goToEditDatasource}
-                  size={Size.medium}
-                  text="Edit Datasource"
-                  type="button"
-                />
-              )}
-            {selectedTable.value ? (
-              <SelectWrapper>
-                <Label>
-                  Select a searchable {columnLabel} from
-                  <Bold> {selectedTable.label} </Bold>
-                </Label>
+            {showSearchableColumn && (
+              <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+                <Row>
+                  Select a searchable {pluginField.COLUMN} from
+                  <Bold> &nbsp;{selectedTable.label} </Bold>
+                  <TooltipWrapper>
+                    <Tooltip
+                      content="Only string values are allowed for searchable column"
+                      hoverOpenDelay={200}
+                    >
+                      <RoundBg>
+                        <Icon
+                          fillColor={Colors.WHITE}
+                          hoverFillColor={Colors.WHITE}
+                          name="help"
+                          size={IconSize.XXS}
+                        />
+                      </RoundBg>
+                    </Tooltip>
+                  </TooltipWrapper>
+                </Row>
                 <Dropdown
                   cypressSelector="t--searchColumn-dropdown"
+                  disabled={selectedTableColumnOptions.length === 0}
                   dropdownMaxHeight={"300px"}
-                  height={DROPDOWN_DIMENSION.HEIGHT}
+                  helperText={
+                    selectedTableColumnOptions.length === 0
+                      ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
+                      : "* Optional"
+                  }
                   onSelect={onSelectColumn}
                   optionWidth={DROPDOWN_DIMENSION.WIDTH}
                   options={selectedTableColumnOptions}
@@ -495,40 +664,41 @@ function GeneratePageForm() {
                   width={DROPDOWN_DIMENSION.WIDTH}
                 />
               </SelectWrapper>
-            ) : null}
+            )}
+            <GeneratePageSubmitBtn
+              disabled={submitButtonDisable}
+              isLoading={!!isGeneratingTemplatePage}
+              onSubmit={handleFormSubmit}
+              showSubmitButton={!!showSubmitButton}
+            />
           </>
         ) : (
           <GoogleSheetForm
-            columnLabel={columnLabel}
-            datasourceTableOptions={datasourceTableOptions}
+            generatePageAction={generatePageAction}
             googleSheetPluginId={selectedDatasourcePluginId}
-            isFetchingDatasourceStructure={isFetchingDatasourceStructure}
-            onSelectColumn={onSelectColumn}
-            onSelectTable={onSelectTable}
-            selectedColumn={selectedColumn}
+            renderSubmitButton={({
+              disabled,
+              isLoading,
+              onSubmit,
+            }: {
+              onSubmit: () => void;
+              disabled: boolean;
+              isLoading: boolean;
+            }) => (
+              <GeneratePageSubmitBtn
+                disabled={disabled}
+                isLoading={!!isGeneratingTemplatePage || isLoading}
+                onSubmit={onSubmit}
+                showSubmitButton={!!showSubmitButton}
+              />
+            )}
             selectedDatasource={selectedDatasource}
-            selectedTable={selectedTable}
-            selectedTableColumnOptions={selectedTableColumnOptions}
-            setSelectedDatasourceTableOptions={
-              setSelectedDatasourceTableOptions
-            }
-            tableDropdownErrorMsg={tableDropdownErrorMsg}
-            tableLabel={tableLabel}
+            selectedSpreadsheet={selectedTable}
+            sheetColumnsHeaderProps={sheetColumnsHeaderProps}
+            sheetsListProps={sheetsListProps}
+            spreadSheetsProps={spreadSheetsProps}
           />
         )}
-
-        {showSubmitButton ? (
-          <FormSubmitButton
-            category={Category.tertiary}
-            data-cy="t--generate-page-form-submit"
-            disabled={submitButtonDisable}
-            isLoading={isGeneratingTemplatePage}
-            onClick={handleFormSubmit}
-            size={Size.large}
-            text="Generate Page"
-            type="button"
-          />
-        ) : null}
       </FormWrapper>
     </div>
   );

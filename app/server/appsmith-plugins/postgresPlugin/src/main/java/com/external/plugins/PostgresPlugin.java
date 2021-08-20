@@ -726,6 +726,8 @@ public class PostgresPlugin extends BasePlugin {
                                 value = "''";
                             } else if (type.startsWith("int")) {
                                 value = "1";
+                            } else if (type.startsWith("float") || type.startsWith("double")) {
+                                value = "1.0";
                             } else if ("date".equals(type)) {
                                 value = "'2019-07-01'";
                             } else if ("time".equals(type)) {
@@ -746,7 +748,12 @@ public class PostgresPlugin extends BasePlugin {
 
                             columnNames.add("\"" + name + "\"");
                             columnValues.add(value);
-                            setFragments.append("\n    \"").append(name).append("\" = ").append(value);
+                            setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
+                        }
+
+                        // Delete the last comma
+                        if (setFragments.length() > 0) {
+                            setFragments.deleteCharAt(setFragments.length() - 1);
                         }
 
                         final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
