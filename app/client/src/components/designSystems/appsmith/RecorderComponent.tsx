@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import styled from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 import { Button, Icon } from "@blueprintjs/core";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
@@ -78,24 +78,42 @@ const getRgbaColor = (color: string, alpha: number) => {
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
 };
 
+const pulse = (boxShadowColor: string, dimension: number) => {
+  return keyframes`
+  0% {
+    box-shadow: 0 0 0 0px ${getRgbaColor(boxShadowColor, 0.4)};
+  }
+  100% {
+    box-shadow: 0 0 0 ${dimension * 0.1}px rgba(0, 0, 0, 0);
+  }
+`;
+};
+
+const animation = (props: RecorderLeftButtonStyleProps) => css`
+  ${pulse(props.backgroundColor, props.dimension)} 2s infinite
+`;
+
 const StyledRecorderLeftButton = styled(Button)<
   ThemeProp & RecorderLeftButtonStyleProps
 >`
   background-image: none !important;
   border-radius: 50%;
-  height: ${({ dimension, status }) =>
-    status === RecorderStatusTypes.RECORDING ? dimension - 8 : dimension}px;
-  width: ${({ dimension, status }) =>
-    status === RecorderStatusTypes.RECORDING ? dimension - 8 : dimension}px;
+  height: ${({ dimension }) => dimension * 0.8}px;
+  width: ${({ dimension }) => dimension * 0.8}px;
+
   box-shadow: ${({ backgroundColor, status }) =>
-    status === RecorderStatusTypes.RECORDING &&
+    status === RecorderStatusTypes.RECORDING
+      ? `
+      0 0 0 1px 1px ${getRgbaColor(backgroundColor, 0.4)}
     `
-      0 0 0 4px ${getRgbaColor(backgroundColor, 0.121)} !important;
-    `}}
+      : "none"} !important;
+  margin-left: ${({ dimension }) => dimension * 0.1}px;
+
+  animation: ${animation};
 
   & > svg {
     flex: 1;
-    height: 50%;
+    height: 40%;
     path {
       ${({ iconColor }) =>
         iconColor &&
@@ -118,6 +136,7 @@ const StyledRecorderLeftButton = styled(Button)<
     }
     &:hover:enabled, &:active:enabled {
       background: ${darkenHover(backgroundColor || "#f6f6f6")} !important;
+      animation: none;
     }
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
@@ -207,25 +226,51 @@ function PlayerButton(props: PlayerButtonProps) {
 
   switch (intent) {
     case PlayerButtonIntentTypes.PLAY:
-      return <Button icon="play" minimal onClick={onClick} outlined small />;
+      return (
+        <Button
+          icon={<Icon icon="play" iconSize={20} />}
+          minimal
+          onClick={onClick}
+          outlined
+          small
+          title="play"
+        />
+      );
       break;
     case PlayerButtonIntentTypes.PAUSE:
-      return <Button icon="pause" minimal onClick={onClick} outlined small />;
+      return (
+        <Button
+          icon={<Icon icon="pause" iconSize={20} />}
+          minimal
+          onClick={onClick}
+          outlined
+          small
+          title="pause"
+        />
+      );
       break;
     case PlayerButtonIntentTypes.STOP:
       return (
-        <Button icon="symbol-square" minimal onClick={onClick} outlined small />
+        <Button
+          icon={<Icon icon="symbol-square" iconSize={20} />}
+          minimal
+          onClick={onClick}
+          outlined
+          small
+          title="stop"
+        />
       );
       break;
 
     default:
       return (
         <Button
-          icon={<Icon color="#F22B2B" icon="small-cross" />}
+          icon={<Icon color="#F22B2B" icon="small-cross" iconSize={20} />}
           minimal
           onClick={onClick}
           outlined
           small
+          title="discard"
         />
       );
       break;
@@ -237,13 +282,15 @@ interface RecorderRightProps {
   playerStatus: PlayerStatus;
   recorderStatus: RecorderStatus;
   onStopRecording: () => void;
+  onClearBlobUrl: () => void;
+  onBlobChanged: (blobUrl?: string, blob?: Blob) => void;
   onClearRecording: () => void;
   onPausePlayer: () => void;
   onPlayPlayer: () => void;
   onStopPlayer: () => void;
   onPlayerEnded: () => void;
   statusMessage: string;
-  isReadyPlayer: boolean;
+  isClear: boolean;
   isReadyPlayerTimer: boolean;
   days: number;
   hours: number;
@@ -256,9 +303,11 @@ function RecorderRight(props: RecorderRightProps) {
     blobUrl,
     days,
     hours,
-    isReadyPlayer,
+    isClear,
     isReadyPlayerTimer,
     minutes,
+    onBlobChanged,
+    onClearBlobUrl,
     onClearRecording,
     onPlayerEnded,
     playerStatus,
@@ -310,6 +359,13 @@ function RecorderRight(props: RecorderRightProps) {
       setCurrentSeconds(0);
     }
   }, [isReadyPlayerTimer]);
+
+  useEffect(() => {
+    if (isClear) {
+      onClearBlobUrl();
+      onBlobChanged();
+    }
+  }, [isClear]);
 
   const renderPlayerControls = (props: RecorderRightProps) => {
     const {
@@ -462,7 +518,7 @@ function RecorderRight(props: RecorderRightProps) {
     <RightContainer>
       <div className="status">{statusMessage}</div>
       <div className="controls">
-        {isReadyPlayer && isReadyPlayerTimer
+        {isReadyPlayerTimer
           ? renderTimer(
               currentDays,
               currentHours,
@@ -510,17 +566,9 @@ function RecorderComponent(props: RecorderComponentProps) {
     "Press to start recording",
   );
 
-  const [isReadyPlayer, setIsReadyPlayer] = useState(false);
   const [isReadyPlayerTimer, setIsReadyPlayerTimer] = useState(false);
   const [isClear, setIsClear] = useState(false);
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
-
-  useEffect(() => {
-    const recorderContainerElement = recorderContainerRef.current;
-    if (recorderContainerElement) {
-      setContainerWidth(recorderContainerElement.clientWidth);
-    }
-  }, [width, height]);
 
   const {
     clearBlobUrl,
@@ -540,11 +588,11 @@ function RecorderComponent(props: RecorderComponentProps) {
   });
 
   useEffect(() => {
-    if (isClear) {
-      clearBlobUrl();
-      onRecordingComplete();
+    const recorderContainerElement = recorderContainerRef.current;
+    if (recorderContainerElement) {
+      setContainerWidth(recorderContainerElement.clientWidth);
     }
-  }, [isClear]);
+  }, [width, height]);
 
   useEffect(() => {
     if (error === "permission_denied") {
@@ -581,6 +629,9 @@ function RecorderComponent(props: RecorderComponentProps) {
       case RecorderStatusTypes.SAVED:
         setRecorderStatus(RecorderStatusTypes.DEFAULT);
         setStatusMessage("Press to start recording");
+        setIsClear(true);
+        setIsReadyPlayerTimer(false);
+        reset(0, false);
         break;
 
       default:
@@ -588,6 +639,7 @@ function RecorderComponent(props: RecorderComponentProps) {
         start();
         setRecorderStatus(RecorderStatusTypes.RECORDING);
         setStatusMessage("Recording...");
+        setIsClear(false);
         onRecordingStart();
         break;
     }
@@ -596,14 +648,12 @@ function RecorderComponent(props: RecorderComponentProps) {
   const handleStopRecording = () => {
     stopRecording();
     pause();
-    setIsReadyPlayer(true);
     setRecorderStatus(RecorderStatusTypes.COMPLETE);
     setStatusMessage("Recording complete");
   };
 
   const handleClearRecording = () => {
     reset(0, false);
-    setIsReadyPlayer(false);
     setIsReadyPlayerTimer(false);
     setPlayerStatus(PlayerStatusTypes.DEFAULT);
     setRecorderStatus(RecorderStatusTypes.DEFAULT);
@@ -626,6 +676,9 @@ function RecorderComponent(props: RecorderComponentProps) {
     setPlayerStatus(PlayerStatusTypes.DEFAULT);
     setRecorderStatus(RecorderStatusTypes.DEFAULT);
     setStatusMessage("Press to start recording");
+    setIsClear(true);
+    reset(0, false);
+    setIsReadyPlayerTimer(false);
   };
 
   const handlePlayerEnded = () => {
@@ -647,9 +700,11 @@ function RecorderComponent(props: RecorderComponentProps) {
         blobUrl={mediaBlobUrl}
         days={days}
         hours={hours}
-        isReadyPlayer={isReadyPlayer}
+        isClear={isClear}
         isReadyPlayerTimer={isReadyPlayerTimer}
         minutes={minutes}
+        onBlobChanged={onRecordingComplete}
+        onClearBlobUrl={clearBlobUrl}
         onClearRecording={handleClearRecording}
         onPausePlayer={handlePausePlayer}
         onPlayPlayer={handlePlayPlayer}

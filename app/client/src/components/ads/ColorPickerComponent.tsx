@@ -73,6 +73,7 @@ const defaultColors: string[] = [
   "#F6F7F8",
   "#FFFFFF",
   "#231F20",
+  "#F86A2B",
 ];
 
 interface ColorBoardProps {
