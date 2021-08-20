@@ -197,6 +197,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         boxShadowColor={boxShadowColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
+        hasOnClickAction={!!this.props.onClick}
         height={
           (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
         }

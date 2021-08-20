@@ -1278,7 +1278,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "IconButton",
       version: 1,
     },
-    STATBOX_WIDGET: {
+    [WidgetTypes.STATBOX_WIDGET]: {
       rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Statbox",
@@ -1318,7 +1318,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 4,
+                      top: 1 * GRID_DENSITY_MIGRATION_V1,
                       left: 1,
                     },
                     props: {
@@ -1335,7 +1335,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                       cols: 9 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: {
-                      top: 8,
+                      top: 2 * GRID_DENSITY_MIGRATION_V1,
                       left: 1,
                     },
                     props: {
@@ -1353,7 +1353,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     },
                     position: {
                       top: 2,
-                      left: 46,
+                      left: 11.5 * GRID_DENSITY_MIGRATION_V1,
                     },
                     props: {
                       iconName: "arrow-top-right",

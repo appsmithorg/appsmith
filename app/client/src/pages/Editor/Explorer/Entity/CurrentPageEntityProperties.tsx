@@ -72,7 +72,6 @@ export const CurrentPageEntityProperties = memo(
           | "ICON_WIDGET"
           | "SKELETON_WIDGET"
           | "TABS_MIGRATOR_WIDGET"
-          | "STATBOX_WIDGET"
         > = entity.type;
         config = entityDefinitions[type];
         if (!config) {
