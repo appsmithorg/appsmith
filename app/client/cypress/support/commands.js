@@ -936,7 +936,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
   cy.get(apiwidget.apiTxt).blur();
@@ -1022,14 +1021,12 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
-    console.log($x);
     expect($x).contain(value.concat(" is already being used."));
   });
 });
@@ -2464,6 +2461,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
   );
+  cy.route("PUT", "/api/v1/datasources/datasource-query/*").as(
+    "datasourceQuery",
+  );
 
   cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
@@ -2682,4 +2682,20 @@ Cypress.Commands.add("renameDatasource", (datasourceName) => {
 
 Cypress.Commands.add("skipGenerateCRUDPage", () => {
   cy.get(generatePage.buildFromScratchActionCard).click();
+});
+
+Cypress.Commands.add("fillAmazonS3DatasourceForm", () => {
+  cy.get(datasourceEditor.projectID).type(Cypress.env("S3_ACCESS_KEY"));
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(Cypress.env("S3_SECRET_KEY"));
+});
+
+Cypress.Commands.add("createAmazonS3Datasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.AmazonS3).click();
+
+  cy.fillAmazonS3DatasourceForm();
+
+  cy.testSaveDatasource();
 });
