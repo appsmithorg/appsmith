@@ -936,7 +936,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
   cy.get(apiwidget.apiTxt).blur();
@@ -1022,14 +1021,12 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
-    console.log($x);
     expect($x).contain(value.concat(" is already being used."));
   });
 });
