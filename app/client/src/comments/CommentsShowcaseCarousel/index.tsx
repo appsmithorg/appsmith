@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Text, { TextType } from "components/ads/Text";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
@@ -28,13 +28,21 @@ import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
-import { getCanManage } from "utils/helpers";
+import { getCanCreateApplications } from "utils/helpers";
 
 import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
 import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
 
+import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
+
+enum IntroStepsTypesEditor {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
 
 const introStepsEditor = [
   {
@@ -44,6 +52,7 @@ const introStepsEditor = [
     banner: getBanner(1),
     bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
     title: "Give Contextual Feedback",
@@ -54,6 +63,12 @@ const introStepsEditor = [
   },
 ];
 
+enum IntroStepsTypesViewer {
+  INTRODUCING_LIVE_COMMENTS,
+  GIVE_CONTEXTUAL_FEEDBACK,
+  PROFILE_FORM,
+}
+
 const introStepsViewer = [
   {
     title: "Introducing Live Comments",
@@ -62,6 +77,7 @@ const introStepsViewer = [
     banner: getBanner(1),
     bannerThumbnail: stepOneThumbnail,
     hideBackBtn: true,
+    showSkipBtn: true,
   },
   {
     title: "Give Contextual Feedback",
@@ -128,18 +144,22 @@ function IntroStep(props: {
 const IntroStepThemed = withTheme(IntroStep);
 
 const getSteps = (
-  onSubmitProfileForm: any,
   isSubmitProfileFormDisabled: boolean,
-  startTutorial: () => void,
+  finalSubmit: () => void,
   initialProfileFormValues: { emailAddress?: string; displayName?: string },
   emailDisabled: boolean,
   showEditorSteps: boolean,
+  onSkip: () => void,
+  isSkipped?: boolean,
 ) => {
   const introSteps = showEditorSteps ? introStepsEditor : introStepsViewer;
 
   return [
     ...introSteps.map((stepConfig: any) => ({
-      props: stepConfig,
+      props: {
+        ...stepConfig,
+        onSkip,
+      },
       component: IntroStepThemed,
     })),
     {
@@ -148,15 +168,26 @@ const getSteps = (
         isSubmitDisabled: isSubmitProfileFormDisabled,
         initialValues: initialProfileFormValues,
         emailDisabled,
-        nextBtnText: "Start Tutorial",
-        onSubmit: () => {
-          startTutorial();
-          onSubmitProfileForm();
-        },
+        nextBtnText: isSkipped ? "Submit" : "Start Tutorial",
+        onSubmit: finalSubmit,
         hideBackBtn: true,
       },
     },
   ];
+};
+
+const getInitialAndFinalSteps = (canManage: boolean) => {
+  if (canManage) {
+    return [
+      IntroStepsTypesEditor.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesEditor.PROFILE_FORM,
+    ];
+  } else {
+    return [
+      IntroStepsTypesViewer.INTRODUCING_LIVE_COMMENTS,
+      IntroStepsTypesViewer.PROFILE_FORM,
+    ];
+  }
 };
 
 export default function CommentsShowcaseCarousel() {
@@ -165,6 +196,8 @@ export default function CommentsShowcaseCarousel() {
   const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
   const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
   const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
+
+  const [isSkipped, setIsSkipped] = useState(false);
 
   const currentUser = useSelector(getCurrentUser);
   const { email, name } = currentUser || {};
@@ -181,32 +214,57 @@ export default function CommentsShowcaseCarousel() {
 
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
-  const canManage = getCanManage(currentOrg);
+  const canManage = getCanCreateApplications(currentOrg);
 
-  const startTutorial = () => {
-    const tourType = canManage
-      ? TourType.COMMENTS_TOUR_EDIT_MODE
-      : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
+  const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
 
-    dispatch(setActiveTour(tourType));
+  const [activeIndex, setActiveIndex] = useState(initialStep);
+
+  const finalSubmit = async () => {
     dispatch(hideCommentsIntroCarousel());
-    setCommentsIntroSeen(true);
+    await setCommentsIntroSeen(true);
+
+    if (!isSkipped) {
+      const tourType = canManage
+        ? TourType.COMMENTS_TOUR_EDIT_MODE
+        : TourType.COMMENTS_TOUR_PUBLISHED_MODE;
+      dispatch(setActiveTour(tourType));
+    } else {
+      setCommentModeInUrl(true);
+    }
+
+    onSubmitProfileForm();
+  };
+
+  const onSkip = () => {
+    setActiveIndex(finalStep);
+    setIsSkipped(true);
   };
 
   const steps = getSteps(
-    onSubmitProfileForm,
     isSubmitDisabled,
-    startTutorial,
+    finalSubmit,
     initialProfileFormValues,
     !!email,
     canManage,
+    onSkip,
+    isSkipped,
   );
+
+  const handleClose = () => {
+    dispatch(hideCommentsIntroCarousel());
+  };
 
   if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel steps={steps as Steps} />
+      <ShowcaseCarousel
+        activeIndex={activeIndex}
+        onClose={handleClose}
+        setActiveIndex={setActiveIndex}
+        steps={steps as Steps}
+      />
     </CommentsCarouselModal>
   );
 }

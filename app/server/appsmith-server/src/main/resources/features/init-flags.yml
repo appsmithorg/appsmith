@@ -11,18 +11,18 @@ ff4j:
 
     - uid: JS_EDITOR
       enable: true
-      description: Should the JS Editor be visible?
+      description: Enable JS editor by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: requiredKey
-            value: requiredValue
+          - name: emailDomains
+            value: appsmith.com,moolya.com
 
     - uid: COMMENT
       enable: true
-      description: Enable this feature based on email ID of the user
+      description: Enable collaboration by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.AppsmithUserStrategy
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: requiredKey
-            value: requiredValue
+          - name: emailDomains
+            value: appsmith.com,wazirx.com,pharmeasy.in,allround.club
