@@ -64,6 +64,8 @@ public class Application extends BaseDomain {
 
     Boolean forkingEnabled;
 
+    GitMetadata gitMetadata;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
@@ -119,6 +121,20 @@ public class Application extends BaseDomain {
             MOBILE,
             FLUID,
         }
+    }
+
+    // This class will be used for one-to-one mapping for the DB application and the application present in the
+    // git repo.
+    @Data
+    public static class GitMetadata {
+        @Transient
+        String applicationId;
+
+        // Git branch corresponding to this application
+        String branchName;
+
+        // Git remote url will be used while pushing and pulling changes
+        String remoteUrl;
     }
 
 }
