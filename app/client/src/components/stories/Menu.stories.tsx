@@ -1,25 +1,29 @@
 import React, { useState } from "react";
-import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import Menu from "components/ads/Menu";
+import Menu, { MenuProps } from "components/ads/Menu";
 import { action } from "@storybook/addon-actions";
 import MenuDivider from "components/ads/MenuDivider";
 import MenuItem from "components/ads/MenuItem";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import ColorSelector from "components/ads/ColorSelector";
-import { AppIconCollection } from "components/ads/AppIcon";
 import IconSelector from "components/ads/IconSelector";
 import EditableText, {
   SavingState,
   EditInteractionKind,
 } from "components/ads/EditableText";
-import { IconCollection, IconName } from "components/ads/Icon";
 import { theme } from "constants/DefaultTheme";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Menu",
-  component: Menu,
-  decorators: [withKnobs, withDesign],
+  title: storyName.platform.menus.menu.PATH,
+  component: IconSelector,
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
 const errorFunction = (name: string) => {
@@ -30,14 +34,10 @@ const errorFunction = (name: string) => {
   }
 };
 
-export function MenuStory() {
+export function MenuStory(args: MenuProps) {
   const [selectedColor, setSelectedColor] = useState<string>(
     theme.colors.appCardColors[0],
   );
-  const [savingState, SetSavingState] = useState<SavingState>(
-    SavingState.NOT_STARTED,
-  );
-
   return (
     <div
       style={{
@@ -49,7 +49,6 @@ export function MenuStory() {
       }}
     >
       <Menu
-        position={select("Position", Object.values(Position), Position.RIGHT)}
         target={
           <div>
             <svg
@@ -69,6 +68,9 @@ export function MenuStory() {
             </svg>
           </div>
         }
+        {...args}
+        onClose={action("menu-closed")}
+        onOpening={action("menu-opended")}
       >
         <EditableText
           defaultValue="Product design app"
@@ -77,15 +79,10 @@ export function MenuStory() {
           hideEditIcon={false}
           isEditingDefault={false}
           isInvalid={(name: any) => errorFunction(name)}
-          onBlur={() => {
-            SetSavingState(SavingState.STARTED);
-            setTimeout(() => {
-              SetSavingState(SavingState.SUCCESS);
-            }, 2000);
-          }}
+          onBlur={action("editable-input-blured")}
           onTextChanged={action("editable-input-changed")}
           placeholder={"Edit text input"}
-          savingState={savingState}
+          savingState={SavingState.NOT_STARTED}
           valueTransform={(value: any) => value.toUpperCase()}
         />
         <ColorSelector
@@ -98,37 +95,51 @@ export function MenuStory() {
           fill={false}
           onSelect={action("icon-selected")}
           selectedColor={selectedColor}
-          selectedIcon={select("Select app icon", AppIconCollection, "bag")}
+          selectedIcon="bag"
         />
         <MenuDivider />
         <MenuItem
-          disabled={boolean("First option disabled", false)}
-          icon={select(
-            "First Icon",
-            ["Select icon" as IconName, ...IconCollection],
-            "Select icon" as IconName,
-          )}
           label={<span>W</span>}
           onSelect={action("clicked-first-option")}
-          text={text("First option", "Invite user")}
+          text="Invite user"
         />
-        {boolean("First menu item divider", false) ? <MenuDivider /> : null}
         <MenuItem
-          icon={select(
-            "Second Icon",
-            ["Select icon" as IconName, ...IconCollection],
-            "Select icon" as IconName,
-          )}
+          icon="bug"
           label={<span>W</span>}
           onSelect={action("clicked-second-option")}
-          text={text("Second option", "Are you sure")}
+          text="Are you sure"
         />
-        {boolean("Second menu item divider", false) ? <MenuDivider /> : null}
+        <MenuDivider />
         <MenuItem
           onSelect={action("clicked-third-option")}
-          text={text("Third option", "Third option text only")}
+          text="Third option text only"
         />
       </Menu>
     </div>
   );
 }
+
+MenuStory.args = {
+  position: Position.RIGHT,
+  isOpen: false,
+  canEscapeKeyClose: true,
+  canOutsideClickClose: true,
+  menuItemWrapperWidth: 200,
+};
+
+MenuStory.argTypes = {
+  target: {
+    control: controlType.OBJECT,
+    description: "JSX.Element",
+  },
+  position: {
+    control: controlType.SELECT,
+    options: Object.values(Position),
+  },
+  isOpen: { control: controlType.BOOLEAN },
+  canEscapeKeyClose: { control: controlType.BOOLEAN },
+  canOutsideClickClose: { control: controlType.BOOLEAN },
+  menuItemWrapperWidth: { control: controlType.NUMBER },
+};
+
+MenuStory.storyName = storyName.platform.menus.menu.NAME;

@@ -56,5 +56,15 @@ export const storyName = {
         NAME: "IconSelector",
       },
     },
+    menus: {
+      menu: {
+        PATH: "Platform/Menus/Menu",
+        NAME: "Menu",
+      },
+      menuItem: {
+        PATH: "Platform/Menus/MenuItem",
+        NAME: "MenuItem",
+      },
+    },
   },
 };
