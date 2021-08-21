@@ -91,6 +91,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
+    private final ApplicationPageService applicationPageService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -120,7 +121,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
-                           EncryptionService encryptionService) {
+                           EncryptionService encryptionService,
+                           ApplicationPageService applicationPageService
+    ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -137,6 +140,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
+        this.applicationPageService = applicationPageService;
     }
 
     @Override
@@ -507,7 +511,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                 if (!StringUtils.hasText(templateOrganizationId)) {
                                     // Since template organization is not configured, we create an empty default organization.
                                     log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                    return organizationService.createDefault(new Organization(), savedUser).thenReturn(savedUser);
+                                    return organizationService.createDefault(new Organization(), savedUser)
+                                            .flatMap(org -> applicationPageService.createDefaultApplication(org)
+                                                    .thenReturn(savedUser)
+                                            );
                                 }
 
                                 return Mono.just(savedUser);
