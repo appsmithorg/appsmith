@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -17,6 +18,8 @@ public interface ApplicationPageService {
     Mono<Application> createApplication(Application application);
 
     Mono<Application> createApplication(Application application, String orgId);
+
+    Mono<Application> createDefaultApplication(Organization organization);
 
     Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode);
 

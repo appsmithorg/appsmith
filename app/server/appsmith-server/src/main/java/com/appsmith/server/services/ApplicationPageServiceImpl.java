@@ -22,8 +22,10 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -49,10 +51,11 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final OrganizationService organizationService;
+    private final OrganizationRepository organizationRepository;
     private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
@@ -61,26 +64,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationRepository applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-
-    public ApplicationPageServiceImpl(ApplicationService applicationService,
-                                      SessionUserService sessionUserService,
-                                      OrganizationService organizationService,
-                                      LayoutActionService layoutActionService,
-                                      AnalyticsService analyticsService,
-                                      PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository,
-                                      NewPageService newPageService,
-                                      NewActionService newActionService) {
-        this.applicationService = applicationService;
-        this.sessionUserService = sessionUserService;
-        this.organizationService = organizationService;
-        this.layoutActionService = layoutActionService;
-        this.analyticsService = analyticsService;
-        this.policyGenerator = policyGenerator;
-        this.applicationRepository = applicationRepository;
-        this.newPageService = newPageService;
-        this.newActionService = newActionService;
-    }
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -248,12 +231,36 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
-        application.setPublishedPages(new ArrayList<>());
-
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
-        return applicationWithPoliciesMono
+        return saveNewApplication(applicationWithPoliciesMono)
+                .flatMap(
+                        // Now publish this newly created app with default states so that
+                        // launching of newly created application is possible.
+                        updatedApplication -> publish(updatedApplication.getId(), false)
+                                .then(applicationService.findById(updatedApplication.getId(), READ_APPLICATIONS))
+                );
+    }
+
+    @Override
+    public Mono<Application> createDefaultApplication(Organization organization) {
+        Application application = new Application();
+        application.setOrganizationId(organization.getId());
+        application.setName("My first application");
+        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
+                organization.getPolicies(), Organization.class, Application.class
+        );
+        application.setPolicies(documentPolicies);
+        return saveNewApplication(Mono.just(application));
+    }
+
+    private Mono<Application> saveNewApplication(Mono<Application> applicationMono) {
+        return applicationMono
+                .map(application -> {
+                    application.setPublishedPages(new ArrayList<>());
+                    return application;
+                })
                 .flatMap(applicationService::createDefault)
                 .flatMap(savedApplication -> {
 
@@ -270,10 +277,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
-                            // Now publish this newly created app with default states so that
-                            // launching of newly created application is possible.
-                            .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
-                                    .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
+                            .thenReturn(savedApplication);
                 });
     }
 
@@ -281,7 +285,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
+                    Mono<Organization> orgMono = organizationRepository.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
 
                     return orgMono.map(org -> {
