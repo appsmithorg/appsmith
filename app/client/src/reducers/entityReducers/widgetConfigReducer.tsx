@@ -37,6 +37,7 @@ import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 import { TreeSingleSelectWidgetProps } from "widgets/TreeSelectWidget/SingleSelectWidget";
 import { TreeMultiSelectWidgetProps } from "widgets/TreeSelectWidget/MultiSelectWidget";
 import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
+import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -100,6 +101,8 @@ export interface WidgetConfigReducerState {
     TREE_MULTI_SELECT_WIDGET: Partial<TreeMultiSelectWidgetProps> &
       WidgetConfigProps;
     ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
+    CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
+      WidgetConfigProps;
   };
   configVersion: number;
 }

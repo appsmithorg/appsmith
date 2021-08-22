@@ -35,6 +35,7 @@ export enum WidgetTypes {
   TREE_SINGLE_SELECT_WIDGET = "TREE_SINGLE_SELECT_WIDGET",
   TREE_MULTI_SELECT_WIDGET = "TREE_MULTI_SELECT_WIDGET",
   ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
+  CHECKBOX_GROUP_WIDGET = "CHECKBOX_GROUP_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -104,7 +105,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 30;
+export const LATEST_PAGE_VERSION = 32;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,

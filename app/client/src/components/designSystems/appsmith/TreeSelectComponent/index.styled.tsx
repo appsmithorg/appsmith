@@ -37,12 +37,10 @@ const rcSelectDropdownSlideUpIn = keyframes`
 	0% {
 		opacity: 0;
 		transform-origin: 0% 0%;
-		transform: scaleY(0);
 	}
 	100% {
 		opacity: 1;
 		transform-origin: 0% 0%;
-		transform: scaleY(1);
 	}
 `;
 
@@ -50,12 +48,10 @@ const rcSelectDropdownSlideUpOut = keyframes`
 	0% {
 		opacity: 1;
 		transform-origin: 0% 0%;
-		transform: scaleY(1);
 	}
 100% {
 		opacity: 0;
 		transform-origin: 0% 0%;
-		transform: scaleY(0);
 	}
 `;
 
@@ -98,26 +94,22 @@ export const DropdownStyles = createGlobalStyle`
 	color: #999;
 }
 .rc-tree-select-selection__choice-zoom {
-	transition: all 0.3s;
+	transition: all 0s;
 }
 .rc-tree-select-selection__choice-zoom-appear {
 	opacity: 0;
-	transform: scale(0.5);
 }
 .rc-tree-select-selection__choice-zoom-appear.rc-tree-select-selection__choice-zoom-appear-active {
 	opacity: 1;
-	transform: scale(1);
 }
 .rc-tree-select-selection__choice-zoom-leave {
 	opacity: 1;
-	transform: scale(1);
 }
 .rc-tree-select-selection__choice-zoom-leave.rc-tree-select-selection__choice-zoom-leave-active {
 	opacity: 0;
-	transform: scale(0.5);
 }
 .rc-tree-select-dropdown-slide-up-enter {
-	animation-duration: 0.3s;
+	animation-duration: 0s;
 	animation-fill-mode: both;
 	transform-origin: 0 0;
 	opacity: 0;
@@ -125,7 +117,7 @@ export const DropdownStyles = createGlobalStyle`
 	animation-play-state: paused;
 }
 .rc-tree-select-dropdown-slide-up-appear {
-	animation-duration: 0.3s;
+	animation-duration: 0s;
 	animation-fill-mode: both;
 	transform-origin: 0 0;
 	opacity: 0;
@@ -133,7 +125,7 @@ export const DropdownStyles = createGlobalStyle`
 	animation-play-state: paused;
 }
 .rc-tree-select-dropdown-slide-up-leave {
-	animation-duration: 0.3s;
+	animation-duration: 0s;
 	animation-fill-mode: both;
 	transform-origin: 0 0;
 	opacity: 1;
