@@ -292,6 +292,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
               boxShadowColor: cellProperties.boxShadowColor,
+              isCellVisible: cellProperties.isCellVisible ?? true,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {

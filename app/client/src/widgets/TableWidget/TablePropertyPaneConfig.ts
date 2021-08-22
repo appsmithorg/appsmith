@@ -5,6 +5,18 @@ import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+
+enum ColumnTypes {
+  TEXT = "text",
+  URL = "url",
+  NUMBER = "number",
+  IMAGE = "image",
+  VIDEO = "video",
+  DATE = "date",
+  BUTTON = "button",
+  ICON_BUTTON = "iconButton",
+}
 
 function defaultSelectedRowValidation(
   value: unknown,
@@ -211,6 +223,17 @@ const getBasePropertyPath = (propertyPath: string): string | undefined => {
   }
 };
 
+// Hide column which are not included in the array params
+const hideByColumnType = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  columnTypes: ColumnTypes[],
+) => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const columnType = get(props, `${baseProperty}.columnType`, "");
+  return !columnTypes.includes(columnType);
+};
+
 export default [
   {
     sectionName: "General",
@@ -329,13 +352,14 @@ export default [
                   controlType: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType === "button";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.DATE,
+                      ColumnTypes.IMAGE,
+                      ColumnTypes.NUMBER,
+                      ColumnTypes.TEXT,
+                      ColumnTypes.VIDEO,
+                      ColumnTypes.URL,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -604,14 +628,12 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                const columnType = get(props, `${propertyPath}.columnType`, "");
-
-                return (
-                  columnType === "button" ||
-                  columnType === "image" ||
-                  columnType === "video" ||
-                  columnType === "iconButton"
-                );
+                return hideByColumnType(props, propertyPath, [
+                  ColumnTypes.BUTTON,
+                  ColumnTypes.IMAGE,
+                  ColumnTypes.ICON_BUTTON,
+                  ColumnTypes.VIDEO,
+                ]);
               },
               dependencies: ["primaryColumns", "derivedColumns"],
               children: [
@@ -791,14 +813,11 @@ export default [
                   label: "Icon",
                   helpText: "Sets the icon to be used for the icon button",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
+
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -809,7 +828,12 @@ export default [
                   isJSConvertible: true,
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "plus",
+                    },
+                  },
                 },
                 {
                   propertyName: "iconButtonStyle",
@@ -842,13 +866,9 @@ export default [
                   ],
 
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -857,7 +877,12 @@ export default [
                   ],
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  validation: { type: ValidationTypes.TEXT },
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "plus",
+                    },
+                  },
                 },
                 {
                   propertyName: "isDisabled",
@@ -877,13 +902,9 @@ export default [
                   defaultValue: "Action",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "button";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -903,13 +924,9 @@ export default [
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "button";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -927,13 +944,9 @@ export default [
                   isJSConvertible: true,
                   helpText: "Sets the variant of the icon button",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -966,13 +979,9 @@ export default [
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BORDER_RADIUS_OPTIONS",
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -997,13 +1006,9 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -1034,13 +1039,9 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "iconButton";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -1058,13 +1059,9 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "button";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -1392,4 +1389,4 @@ export default [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];

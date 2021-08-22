@@ -52,7 +52,7 @@ class ColumnActionSelectorControl extends BaseControl<
                 <InputTextWrapper>
                   <InputText
                     evaluatedValue={columnAction.label}
-                    label={columnAction.label as string}
+                    label={columnAction.label || ""}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
                       columnAction,

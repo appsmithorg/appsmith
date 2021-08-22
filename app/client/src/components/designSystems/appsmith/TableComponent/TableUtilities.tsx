@@ -174,6 +174,7 @@ interface RenderIconButtonProps {
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isCellVisible: boolean;
 }
 export const renderIconButton = (
   props: RenderIconButtonProps,
@@ -184,7 +185,11 @@ export const renderIconButton = (
     return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
 
   return (
-    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <IconButton
@@ -219,14 +224,15 @@ function IconButton(props: {
   const onComplete = () => {
     setLoading(false);
   };
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (props.isSelected) {
+      e.stopPropagation();
+    }
+  };
   return (
-    <div
-      onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
-      }}
-    >
+    <div onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
