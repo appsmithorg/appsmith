@@ -107,6 +107,14 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     }
 
     @Override
+    public Mono<UserData> updateForUser(User user, UserData updates) {
+        updates.setUserId(user.getId());
+        final Mono<UserData> updaterMono = update(user.getId(), updates);
+        final Mono<UserData> creatorMono = Mono.just(updates).flatMap(this::create);
+        return updaterMono.switchIfEmpty(creatorMono);
+    }
+
+    @Override
     public Mono<UserData> update(String userId, UserData resource) {
         if (userId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, fieldName(QUserData.userData.userId)));
