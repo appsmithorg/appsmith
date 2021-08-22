@@ -228,8 +228,11 @@ const hideByColumnType = (
   props: TableWidgetProps,
   propertyPath: string,
   columnTypes: ColumnTypes[],
+  shouldUsePropertyPath?: boolean,
 ) => {
-  const baseProperty = getBasePropertyPath(propertyPath);
+  const baseProperty = shouldUsePropertyPath
+    ? propertyPath
+    : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
   return !columnTypes.includes(columnType);
 };
@@ -628,12 +631,17 @@ export default [
             {
               sectionName: "Styles",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                return hideByColumnType(props, propertyPath, [
-                  ColumnTypes.BUTTON,
-                  ColumnTypes.IMAGE,
-                  ColumnTypes.ICON_BUTTON,
-                  ColumnTypes.VIDEO,
-                ]);
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [
+                    ColumnTypes.TEXT,
+                    ColumnTypes.DATE,
+                    ColumnTypes.NUMBER,
+                    ColumnTypes.URL,
+                  ],
+                  true,
+                );
               },
               dependencies: ["primaryColumns", "derivedColumns"],
               children: [
