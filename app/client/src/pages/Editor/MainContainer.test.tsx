@@ -428,9 +428,9 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    const updatedDropTarget: any = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    // const updatedDropTarget: any = component.container.getElementsByClassName(
+    //   "t--drop-target",
+    // )[0];
     // let updatedLength = updatedDropTarget.style.height;
 
     // expect(initialLength).not.toEqual(updatedLength);
