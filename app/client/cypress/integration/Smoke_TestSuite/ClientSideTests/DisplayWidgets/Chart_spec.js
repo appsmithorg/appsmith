@@ -348,7 +348,7 @@ describe("Chart Widget Functionality", function() {
     cy.UpdateChartType("Pie Chart");
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
-
+    cy.wait("@updateLayout");
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
