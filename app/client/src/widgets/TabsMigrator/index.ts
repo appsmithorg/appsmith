@@ -9,7 +9,7 @@ export const CONFIG = {
     isLoading: true,
     rows: 1,
     columns: 1,
-    widgetName: "TabsMigrator",
+    widgetName: "Skeleton",
     version: 1,
   },
   properties: {

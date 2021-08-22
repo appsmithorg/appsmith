@@ -200,7 +200,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className={"t--drop-target"}
+        className="t--drop-target"
         onClick={handleFocus}
         ref={dropTargetRef}
         style={{

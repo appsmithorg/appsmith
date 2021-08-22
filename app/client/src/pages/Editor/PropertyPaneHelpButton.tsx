@@ -9,8 +9,8 @@ import {
 } from "actions/globalSearchActions";
 import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
-import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import WidgetFactory from "utils/WidgetFactory";
 
 type Props = {
   theme: Theme;
@@ -18,13 +18,10 @@ type Props = {
 
 const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const selectedWidget = useSelector(getSelectedWidget);
-  const selectedWidgetType = selectedWidget?.type;
+  const selectedWidgetType = selectedWidget?.type || "";
   const dispatch = useDispatch();
-  const displayName = useSelector((state: AppState) => {
-    return selectedWidgetType
-      ? state.entities.widgetConfig.config[selectedWidgetType].displayName
-      : "";
-  });
+  const displayName =
+    WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.name || "";
 
   const openHelpModal = useCallback(() => {
     dispatch(setGlobalSearchQuery(displayName));

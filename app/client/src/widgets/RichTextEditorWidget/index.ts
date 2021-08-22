@@ -13,6 +13,7 @@ export const CONFIG = {
     columns: 8 * GRID_DENSITY_MIGRATION_V1,
     isDisabled: false,
     isVisible: true,
+    isRequired: false,
     widgetName: "RichTextEditor",
     isDefaultClickDisabled: true,
     inputType: "html",

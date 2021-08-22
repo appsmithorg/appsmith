@@ -14,6 +14,7 @@ export const CONFIG = {
     widgetName: "FormButton",
     text: "Submit",
     isDefaultClickDisabled: true,
+    recaptchaV2: false,
     version: 1,
   },
   properties: {

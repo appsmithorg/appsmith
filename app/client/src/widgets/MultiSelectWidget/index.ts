@@ -21,6 +21,7 @@ export const CONFIG = {
       { label: "Naruto Uzumaki", value: "Seventh" },
     ],
     widgetName: "MultiSelect",
+    serverSideFiltering: false,
     defaultOptionValue: ["First", "Seventh"],
     version: 1,
     isRequired: false,

@@ -8,7 +8,10 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { cloneDeep, get, indexOf, isString } from "lodash";
 
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -17,8 +20,7 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    needsChildrenDSL: true,
-    backgroundColor: "",
+    backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 8 * GRID_DENSITY_MIGRATION_V1,
@@ -43,22 +45,19 @@ export const CONFIG = {
 
           if (!parentProps.widgetId) return [];
 
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-
-          const modifiedAction = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              return `${prev}${next}`;
-            },
-            "",
+          const { jsSnippets, stringSegments } = getDynamicBindings(
+            propertyValue,
           );
 
-          value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+          const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+          value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
-                return  ${modifiedAction};
+                return  ${js};
               })();
             })}}`;
 
-          if (!modifiedAction) {
+          if (!js) {
             value = propertyValue;
           }
 
@@ -270,16 +269,16 @@ export const CONFIG = {
                   let value = childWidget[key];
 
                   if (isString(value) && value.indexOf("currentItem") > -1) {
-                    const { jsSnippets } = getDynamicBindings(value);
-
-                    const modifiedAction = jsSnippets.reduce(
-                      (prev: string, next: string) => {
-                        return prev + `${next}`;
-                      },
-                      "",
+                    const { jsSnippets, stringSegments } = getDynamicBindings(
+                      value,
                     );
 
-                    value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+                    const js = combineDynamicBindings(
+                      jsSnippets,
+                      stringSegments,
+                    );
+
+                    value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                     childWidget[key] = value;
 
@@ -339,7 +338,7 @@ export const CONFIG = {
             const widget = { ...widgets[widgetId] };
             const parent = { ...widgets[parentId] };
             const logBlackList: { [key: string]: boolean } = {};
-            // TODO (abhinav): Figure out how to avoid this abstraction leak
+
             const disallowedWidgets = [
               "TABLE_WIDGET",
               "LIST_WIDGET",
@@ -358,7 +357,7 @@ export const CONFIG = {
               if (widget.parentId) {
                 const _parent = { ...widgets[widget.parentId] };
                 _parent.children = _parent.children?.filter(
-                  (id: string) => id !== widgetId,
+                  (id) => id !== widgetId,
                 );
                 widgets[widget.parentId] = _parent;
               }

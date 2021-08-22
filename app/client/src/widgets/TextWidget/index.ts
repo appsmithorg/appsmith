@@ -8,11 +8,10 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     text: "Label",
-    fontSize: "PARAGRAPH", // Make these into appsmith defaults: For example. AppsmithFontSizes.PARAGRAPH
-    fontStyle: "BOLD", // Make these into general defaults: For example. FontStyles.BOLD,
-    textAlign: "LEFT", // Make these into general defaults: For example. TextAlignments.LEFT
-    textColor: "#231F20", // Make these into appsmith defaults. For example. AppsmithColors.defaultText
-    renderAsHTML: true,
+    fontSize: "PARAGRAPH",
+    fontStyle: "BOLD",
+    textAlign: "LEFT",
+    textColor: "#231F20",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Text",

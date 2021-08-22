@@ -16,6 +16,7 @@ export const CONFIG = {
     isDisabled: false,
     isVisible: true,
     isDefaultClickDisabled: true,
+    recaptchaV2: false,
     version: 1,
   },
   properties: {

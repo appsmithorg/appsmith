@@ -9,7 +9,7 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 4 * GRID_DENSITY_MIGRATION_V1,
     label: "",
     selectionType: "SINGLE_SELECT",
     options: [
@@ -17,9 +17,11 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
+    serverSideFiltering: false,
     widgetName: "Select",
     defaultOptionValue: "GREEN",
     version: 1,
+    isFilterable: true,
     isRequired: false,
     isDisabled: false,
   },

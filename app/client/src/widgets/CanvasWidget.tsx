@@ -107,10 +107,10 @@ export const CONFIG = {
   name: "Canvas",
   hideCard: true,
   defaults: {
-    rows: 1,
-    columns: 1,
+    rows: 0,
+    columns: 0,
     widgetName: "Canvas",
-    detachFromLayout: true,
+    version: 1,
   },
   properties: {
     derived: CanvasWidget.getDerivedPropertiesMap(),
