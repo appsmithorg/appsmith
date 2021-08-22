@@ -18,7 +18,7 @@ import {
   useMockDsl,
 } from "test/testCommon";
 import lodash from "lodash";
-import { getAbsolutePixels } from "utils/helpers";
+// import { getAbsolutePixels } from "utils/helpers";
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
@@ -393,9 +393,9 @@ describe("Drag and Drop widgets into Main container", () => {
     });
 
     const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
-    const dropTarget: any = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    // const dropTarget: any = component.container.getElementsByClassName(
+    //   "t--drop-target",
+    // )[0];
     // let initialLength = dropTarget.style.height;
     act(() => {
       fireEvent(
@@ -428,7 +428,7 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    let updatedDropTarget: any = component.container.getElementsByClassName(
+    const updatedDropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
     )[0];
     // let updatedLength = updatedDropTarget.style.height;
@@ -451,9 +451,9 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    updatedDropTarget = component.container.getElementsByClassName(
-      "t--drop-target",
-    )[0];
+    // updatedDropTarget = component.container.getElementsByClassName(
+    //   "t--drop-target",
+    // )[0];
     // updatedLength = updatedDropTarget.style.height;
     // expect(getAbsolutePixels(initialLength) + amountMovedY).toEqual(
     // getAbsolutePixels(updatedLength),
