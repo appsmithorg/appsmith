@@ -5,6 +5,7 @@ import InputComponent from "./";
 import { Provider } from "react-redux";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
+import { noop } from "utils/AppsmithUtils";
 
 let container: HTMLDivElement | null;
 
@@ -30,15 +31,9 @@ describe("<InputComponent />", () => {
               isLoading={false}
               label="label"
               multiline
-              onCurrencyTypeChange={(code?: string) => {
-                console.log(code);
-              }}
-              onFocusChange={(state: boolean) => {
-                console.log(state);
-              }}
-              onValueChange={(valueAsString: string) => {
-                console.log(valueAsString);
-              }}
+              onCurrencyTypeChange={noop}
+              onFocusChange={noop}
+              onValueChange={noop}
               showError={false}
               value="something"
               widgetId="24234r35"
