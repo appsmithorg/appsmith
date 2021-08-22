@@ -265,31 +265,32 @@ describe("Table Widget Functionality", function() {
         .click();
     });
   });
+  // Compact mode moved to property pane
 
-  it("Table Widget Functionality To Check Compact Mode", function() {
-    cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "3").then((tabData) => {
-      const tabValue = tabData;
-      expect(tabValue).to.be.equal("Lindsay Ferguson");
-      cy.log("the value is" + tabValue);
-      cy.get(publish.rowHeight).click();
-      cy.get(publish.rowHeightOpt)
-        .contains("Tall")
-        .click();
-      cy.scrollTabledataPublish("3", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Byron Fields");
-      });
-      cy.get(publish.rowHeight).click();
-      cy.get(publish.rowHeightOpt)
-        .contains("Short")
-        .click();
-      cy.readTabledataPublish("4", "3").then((tabData) => {
-        const tabValue = tabData;
-        expect(tabValue).to.be.equal("Ryan Holmes");
-      });
-    });
-  });
+  // it("Table Widget Functionality To Check Compact Mode", function() {
+  //   cy.isSelectRow(1);
+  //   cy.readTabledataPublish("1", "3").then((tabData) => {
+  //     const tabValue = tabData;
+  //     expect(tabValue).to.be.equal("Lindsay Ferguson");
+  //     cy.log("the value is" + tabValue);
+  //     cy.get(publish.rowHeight).click();
+  //     cy.get(publish.rowHeightOpt)
+  //       .contains("Tall")
+  //       .click();
+  //     cy.scrollTabledataPublish("3", "3").then((tabData) => {
+  //       const tabValue = tabData;
+  //       expect(tabValue).to.be.equal("Byron Fields");
+  //     });
+  //     cy.get(publish.rowHeight).click();
+  //     cy.get(publish.rowHeightOpt)
+  //       .contains("Short")
+  //       .click();
+  //     cy.readTabledataPublish("4", "3").then((tabData) => {
+  //       const tabValue = tabData;
+  //       expect(tabValue).to.be.equal("Ryan Holmes");
+  //     });
+  //   });
+  // });
 
   /*
   To enabled later
