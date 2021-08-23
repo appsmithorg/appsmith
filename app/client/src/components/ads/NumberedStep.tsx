@@ -12,7 +12,7 @@ const Container = styled.div`
 `;
 
 const Line = styled.div`
-  width: 2px;
+  width: 1px;
   flex: 1;
   background-color: ${(props) => props.theme.colors.numberedStep.line};
 `;
