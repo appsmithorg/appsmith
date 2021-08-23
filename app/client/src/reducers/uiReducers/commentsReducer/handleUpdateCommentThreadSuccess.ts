@@ -28,6 +28,7 @@ const handleUpdateCommentThreadSuccess = (
     ...action.payload,
     comments: existingComments,
   };
+
   if (shouldRefreshList) {
     state.applicationCommentThreadsByRef[
       action.payload.applicationId as string
