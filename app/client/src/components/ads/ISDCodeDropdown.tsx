@@ -96,6 +96,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       dropdownHeight="195px"
       dropdownTriggerIcon={dropdownTrigger}
       enableSearch
+      height="32px"
       onSelect={props.onISDCodeChange}
       optionWidth="260px"
       options={props.options}

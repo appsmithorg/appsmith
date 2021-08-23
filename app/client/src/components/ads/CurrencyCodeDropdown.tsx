@@ -96,6 +96,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
       dropdownHeight="195px"
       dropdownTriggerIcon={dropdownTriggerIcon}
       enableSearch
+      height="32px"
       onSelect={props.onCurrencyTypeChange}
       optionWidth="260px"
       options={props.options}
