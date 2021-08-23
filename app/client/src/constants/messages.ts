@@ -445,3 +445,6 @@ export const CONNECT = () => "Connect";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const COMMIT = () => "COMMIT";
+export const PUSH = () => "PUSH";
