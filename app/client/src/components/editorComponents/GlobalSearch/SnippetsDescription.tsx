@@ -33,9 +33,9 @@ import { debounce } from "lodash";
 import { Snippet, SnippetArgument } from "./utils";
 import { createMessage, SEARCH_ITEM_SELECT } from "constants/messages";
 import { getExpectedValue } from "utils/validation/common";
-import { ControlIcons } from "icons/ControlIcons";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -44,14 +44,19 @@ const SnippetContainer = styled.div`
   flex-direction: column;
   .snippet-container {
     position: relative;
-    .t--copy-snippet {
+    .action-icons {
       position: absolute;
-      top: 5px;
-      right: 5px;
-      opacity: 0.3;
-      svg > path {
-        fill: gray;
-      }
+      top: 4px;
+      right: 4px;
+      padding: 4px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .action-icons > * {
+      height: 12px;
+      width: 12px;
+      cursor: pointer;
+      margin: 0 4px;
       &:hover {
         transform: scale(1.1);
       }
@@ -59,14 +64,6 @@ const SnippetContainer = styled.div`
     &:hover {
       .t--copy-snippet {
         opacity: 1;
-      }
-    }
-    .t--run-snippet {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      svg > path {
-        fill: green;
       }
     }
     pre {
@@ -165,8 +162,6 @@ const removeDynamicBinding = (value: string) => {
   });
 };
 
-const CopyIcon = ControlIcons.COPY_CONTROL;
-
 export const getSnippet = (snippet: string, args: any) => {
   const regex = /{{(.*?)}}/g;
   return snippet.replace(regex, function(match, capture) {
@@ -201,28 +196,35 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       (state: AppState) =>
         state.ui.globalSearch.filterContext.executionInProgress,
     ),
-    // [validations, setValidations] = useState<
-    //   Record<string, ValidationResponse>
-    // >(),
     evaluatedArguments = useSelector(
       (state: AppState) =>
         state.ui.globalSearch.filterContext.evaluatedArguments,
     );
 
-  const handleArgsValidation = useCallback((value, arg) => {
-    const { name, type } = arg;
-    if (!value) {
-      dispatch(setEvaluatedArgument({ [arg.name]: {} }));
-    } else {
-      dispatch(
-        evaluateArgument({
-          name,
-          value: removeDynamicBinding(value),
-          type,
-        }),
-      );
-    }
-  }, []);
+  const handleArgsValidation = useCallback(
+    debounce((value, arg) => {
+      const { name, type } = arg;
+      if (!value) {
+        dispatch(setEvaluatedArgument({ [arg.name]: {} }));
+      } else {
+        dispatch(
+          evaluateArgument({
+            name,
+            value: removeDynamicBinding(value),
+            type,
+          }),
+        );
+      }
+    }, 500),
+    [],
+  );
+
+  useEffect(() => {
+    setSelectedIndex(0);
+    dispatch(setEvaluatedSnippet(""));
+    setSelectedArgs({});
+    dispatch(unsetEvaluatedArgument());
+  }, [title]);
 
   const handleCopy = useCallback((value) => {
     copy(value);
@@ -248,48 +250,22 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   }, [snippet, selectedArgs, dataType]);
 
   const handleArgChange = useCallback(
-    debounce((value, arg) => {
+    (value, arg) => {
       setSelectedArgs({
         ...selectedArgs,
         [arg.name]: value,
       });
       if (arg.type && Object.values(ValidationTypes).includes(arg.type))
         handleArgsValidation(value, arg);
-    }, 500),
+    },
     [selectedArgs],
   );
-
-  // useEffect(() => {
-  //   const validations: any = Object.values(evaluatedArguments);
-  //   setValidations(
-  //     validations.reduce(
-  //       (acc: any, arg: SnippetArgument & { value: string }) => {
-  //         acc[arg.name] = validate(
-  //           { type: getArgValidationType(arg.type) },
-  //           arg.value,
-  //           {},
-  //         );
-  //         return acc;
-  //       },
-  //       {},
-  //     ),
-  //   );
-  // }, [evaluatedArguments]);
 
   useEffect(() => {
     document
       .querySelector("#snippet-evaluator")
       ?.scrollIntoView({ behavior: "smooth" });
   }, [evaluatedSnippet]);
-
-  useEffect(() => {
-    setSelectedIndex(0);
-    setEvaluatedSnippet("");
-    setSelectedArgs({});
-    unsetEvaluatedArgument();
-  }, [title]);
-
-  const getEvaluatedSnippet = (value: string) => ({ value });
 
   const tabs = [
     {
@@ -300,12 +276,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <SyntaxHighlighter language={language} style={prism} wrapLongLines>
             {js_beautify(snippet, { indent_size: 2 })}
           </SyntaxHighlighter>
-          <CopyIcon
-            className="t--copy-snippet"
-            height={14}
-            onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-            width={14}
-          />
+          <div className="action-icons">
+            <CopyIcon
+              onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
+            />
+          </div>
         </div>
       ),
     },
@@ -327,14 +302,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   indent_size: 2,
                 })}
               </SyntaxHighlighter>
-              <CopyIcon
-                className="t--copy-snippet"
-                height={14}
-                onClick={() =>
-                  handleCopy(`{{ ${getSnippet(template, selectedArgs)} }}`)
-                }
-                width={14}
-              />
+              <div className="action-icons">
+                <CopyIcon
+                  onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
+                />
+              </div>
             </div>
             <div className="snippet-group">
               {args.map((arg: SnippetArgument) => (
@@ -361,11 +333,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                     theme={EditorTheme.LIGHT}
                     useValidationMessage
                   />
-                  {/* {validations && (
-                    <span className="danger">
-                      {validations[arg.name]?.message}
-                    </span>
-                  )} */}
                 </div>
               ))}
               <div className="actions-container">
@@ -387,7 +354,8 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                       <ReadOnlyEditor
                         folding
                         height="300px"
-                        input={getEvaluatedSnippet(evaluatedSnippet)}
+                        input={{ value: evaluatedSnippet }}
+                        showLineNumbers={false}
                       />
                     </div>
                   </div>

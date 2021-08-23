@@ -11,7 +11,7 @@ const SnippetsFilterContainer = styled.div<{
   position: absolute;
   bottom: 50px;
   display: flex;
-  width: 240px;
+  width: 220px;
   height: 32px;
   justify-content: center;
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
