@@ -277,8 +277,6 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
 
-  // We don't show errors in the debugger until all the onPageLoad
-  // actions have run
   if (!payload.source || !payload.id) return;
 
   yield put(debuggerLogInit(payload));
