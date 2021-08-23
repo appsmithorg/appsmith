@@ -101,10 +101,6 @@ class IconSelectControl extends BaseControl<
   componentDidMount() {
     this.timer = setTimeout(() => {
       const iconSelectTargetElement = this.iconSelectTargetRef.current;
-      console.log(
-        `target width: => `,
-        iconSelectTargetElement?.getBoundingClientRect().width,
-      );
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,

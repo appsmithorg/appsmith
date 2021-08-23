@@ -23,6 +23,7 @@ import {
   getDBDatasources,
   getAction,
   getActionResponses,
+  getUIComponent,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, QueryActionConfig } from "entities/Action";
@@ -263,19 +264,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   }
 
   const allPlugins = getPlugins(state);
-  // Adding uiComponent field to switch form type to UQI or allow for backward compatibility
-  const plugin = allPlugins.find((plugin) =>
-    !!formData ? plugin.id === formData.pluginId : false,
-  );
-  // Defaults to old value, new value can be DBEditorForm or UQIDBEditorForm
-  let uiComponent = UIComponentTypes.DbEditorForm;
-  if (plugin) {
-    uiComponent = plugin.uiComponent;
-  }
-
-  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
-    initFormEvaluations;
-  }
+  const uiComponent = getUIComponent(state, formData.pluginId, allPlugins);
 
   return {
     pluginImages: getPluginImages(state),
