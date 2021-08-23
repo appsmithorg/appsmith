@@ -80,5 +80,9 @@ export const storyName = {
         NAME: "Table",
       },
     },
+    tabs: {
+      PATH: "Platform/Tabs",
+      NAME: "Tabs",
+    },
   },
 };
