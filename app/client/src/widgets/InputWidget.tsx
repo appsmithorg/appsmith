@@ -526,14 +526,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             this.inputType === "CURRENCY" ||
             this.inputType === "PHONE_NUMBER"
           ) {
+            let value = this.text.split(",").join("");
             if (parsedRegex) {
-              return parsedRegex.test(this.text);
+              return parsedRegex.test(value);
             }
             if (this.isRequired) {
-              return !(this.text === '' || isNaN(this.text));
+              return !(value === '' || isNaN(value));
             }
 
-            return (this.text === '' || !isNaN(this.text || ''));
+            return (value === '' || !isNaN(value || ''));
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
