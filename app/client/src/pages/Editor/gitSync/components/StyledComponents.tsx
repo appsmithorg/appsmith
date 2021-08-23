@@ -9,6 +9,10 @@ export const Subtitle = styled.p`
   ${(props) => getTypographyByKey(props, "p3")};
 `;
 
+export const Caption = styled.span`
+  ${(props) => getTypographyByKey(props, "h6")};
+`;
+
 export const Space = styled.div<{ size: number; horizontal?: boolean }>`
   margin: ${(props) =>
     props.horizontal
