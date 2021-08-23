@@ -18,6 +18,7 @@ export enum PaginationType {
 export interface ActionConfig {
   timeoutInMillisecond?: number;
   paginationType?: PaginationType;
+  formData?: Record<string, unknown>;
   pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
 }
 

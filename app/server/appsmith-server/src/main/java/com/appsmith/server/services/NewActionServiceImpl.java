@@ -601,11 +601,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
                                     result.setTitle(((AppsmithPluginException) e).getTitle());
+                                    result.setErrorType(((AppsmithPluginException) e).getErrorType());
                                 } else {
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
 
                                     if (e instanceof AppsmithException) {
                                         result.setTitle(((AppsmithException) e).getTitle());
+                                        result.setErrorType(((AppsmithException) e).getErrorType());
                                     }
                                 }
                                 return Mono.just(result);
@@ -642,6 +644,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
+                    result.setErrorType(error.getErrorType());
                     return Mono.just(result);
                 });
 

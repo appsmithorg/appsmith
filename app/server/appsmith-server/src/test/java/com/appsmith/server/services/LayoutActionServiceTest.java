@@ -326,7 +326,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
-        applicationPageService.publish(testPage.getApplicationId()).block();
+        applicationPageService.publish(testPage.getApplicationId(), true).block();
 
         newActionService.deleteUnpublishedAction(firstAction.getId()).block();
 

@@ -2948,7 +2948,21 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "080", id = "add-js-plugin", author = "")
+    @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
+    public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongockTemplate mongoTemplate) {
+
+        Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
+
+        List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
+        for (Plugin plugin : plugins) {
+            if (validPackageNames.contains(plugin.getPackageName())) {
+                plugin.setGenerateCRUDPageComponent(plugin.getName());
+            }
+            mongoTemplate.save(plugin);
+        }
+    }
+
+     @ChangeSet(order = "083", id = "add-js-plugin", author = "")
     public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
