@@ -128,7 +128,7 @@ function MultiSelectComponent({
         dropdownClassName="multi-select-dropdown"
         dropdownRender={dropdownRender}
         dropdownStyle={dropdownStyle}
-        filterOption={filterOption}
+        filterOption={serverSideFiltering ? false : filterOption}
         getPopupContainer={getDropdownPosition}
         inputIcon={inputIcon}
         loading={loading}
