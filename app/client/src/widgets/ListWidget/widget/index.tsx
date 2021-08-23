@@ -32,7 +32,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import produce from "immer";
 
 const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -224,24 +223,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   };
 
-  renderChild = (childProps: WidgetProps) => {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+  renderChild = (childWidgetData: WidgetProps) => {
     const { shouldPaginate } = this.shouldPaginate();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    const childWidgetProps = produce(childProps, (childWidgetData) => {
-      childWidgetData.parentId = this.props.widgetId;
-      // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
-      childWidgetData.canExtend = undefined;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.noPad = true;
-      childWidgetData.bottomRow = shouldPaginate
-        ? componentHeight - LIST_WIDGEY_PAGINATION_HEIGHT
-        : componentHeight;
-    });
+    childWidgetData.parentId = this.props.widgetId;
+    // childWidgetData.shouldScrollContents = this.props.shouldScrollContents;
+    childWidgetData.canExtend = undefined;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.noPad = true;
+    childWidgetData.bottomRow = shouldPaginate
+      ? componentHeight - LIST_WIDGEY_PAGINATION_HEIGHT
+      : componentHeight;
 
-    return WidgetFactory.createWidget(childWidgetProps);
+    return WidgetFactory.createWidget(childWidgetData);
   };
 
   /**
@@ -559,34 +556,31 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   renderChildren = () => {
     const numberOfItemsInGrid = this.props.listData?.length ?? 0;
     if (this.props.children && this.props.children.length > 0) {
-      const children: WidgetProps[] = removeFalsyEntries(this.props.children);
-      const updatedChildCanvas = produce(children[0], (childCanvas: any) => {
-        // const childCanvas = children[0];
-        let canvasChildren = childCanvas.children;
-        if (canvasChildren) {
-          try {
-            // here we are duplicating the template for each items in the data array
-            // first item of the canvasChildren acts as a template
-            const template = canvasChildren.slice(0, 1).shift();
+      const children = removeFalsyEntries(this.props.children);
+      const childCanvas = children[0];
+      let canvasChildren = childCanvas.children;
 
-            for (let i = 0; i < numberOfItemsInGrid; i++) {
-              canvasChildren[i] = JSON.parse(JSON.stringify(template));
-            }
+      try {
+        // here we are duplicating the template for each items in the data array
+        // first item of the canvasChildren acts as a template
+        const template = canvasChildren.slice(0, 1).shift();
 
-            // TODO(pawan): This is recalculated everytime for not much reason
-            // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-            // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
-            // In particular useNewValues can be memoized, if others can't.
-            canvasChildren = this.updateGridChildrenProps(canvasChildren);
-
-            childCanvas.children = canvasChildren;
-          } catch (e) {
-            log.error(e);
-          }
+        for (let i = 0; i < numberOfItemsInGrid; i++) {
+          canvasChildren[i] = JSON.parse(JSON.stringify(template));
         }
-      });
 
-      return this.renderChild(updatedChildCanvas);
+        // TODO(pawan): This is recalculated everytime for not much reason
+        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
+        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
+        // In particular useNewValues can be memoized, if others can't.
+        canvasChildren = this.updateGridChildrenProps(canvasChildren);
+
+        childCanvas.children = canvasChildren;
+      } catch (e) {
+        log.error(e);
+      }
+
+      return this.renderChild(childCanvas);
     }
   };
 

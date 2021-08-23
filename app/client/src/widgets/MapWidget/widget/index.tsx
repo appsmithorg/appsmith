@@ -231,12 +231,12 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         return marker;
       },
     );
-    this.props.disableDrag(false);
+    this.disableDrag(false);
     this.props.updateWidgetMetaProperty("markers", markers);
   };
 
   onCreateMarker = (lat: number, long: number) => {
-    this.props.disableDrag(true);
+    this.disableDrag(true);
     const marker = { lat, long, title: "" };
 
     const markers = [];
@@ -259,7 +259,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   };
 
   onMarkerClick = (lat: number, long: number, title: string) => {
-    this.props.disableDrag(true);
+    this.disableDrag(true);
     const selectedMarker = {
       lat: lat,
       long: long,
@@ -289,7 +289,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   }
 
   enableDrag = () => {
-    this.props.disableDrag(false);
+    this.disableDrag(false);
   };
 
   getPageView() {

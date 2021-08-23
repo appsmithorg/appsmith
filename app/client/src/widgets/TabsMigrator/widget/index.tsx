@@ -128,7 +128,7 @@ class TabsMigratorWidget extends BaseWidget<
     if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
-      this.props.batchUpdateWidgetProperty({
+      super.batchUpdateWidgetProperty({
         modify: {
           tabsObj: migratedTabsDsl.tabsObj,
           type: "TABS_WIDGET",

@@ -538,7 +538,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToUpdate.remove = pathsToDelete;
         }
 
-        this.props.batchUpdateWidgetProperty(propertiesToUpdate);
+        super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     }
   };
@@ -582,6 +582,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           return !primaryColumns[id].isDerived; // Filter out the derived columns
         },
       );
+
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
       if (xor(columnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns(); // This updates the widget
@@ -665,7 +666,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   toggleDrag = (disable: boolean) => {
-    this.props.disableDrag(disable);
+    this.disableDrag(disable);
   };
 
   getPageView() {
@@ -745,7 +746,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleCompactModeChange = (compactMode: CompactMode) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetProperty("compactMode", compactMode);
+      super.updateWidgetProperty("compactMode", compactMode);
     } else {
       this.props.updateWidgetMetaProperty("compactMode", compactMode);
     }
@@ -753,7 +754,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetProperty("columnOrder", columnOrder);
+      super.updateWidgetProperty("columnOrder", columnOrder);
     } else this.props.updateWidgetMetaProperty("columnOrder", columnOrder);
   };
 
@@ -771,7 +772,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetProperty("columnSizeMap", columnSizeMap);
+      super.updateWidgetProperty("columnSizeMap", columnSizeMap);
     } else {
       this.props.updateWidgetMetaProperty("columnSizeMap", columnSizeMap);
     }

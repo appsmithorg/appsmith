@@ -171,7 +171,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
       <ImageComponent
         defaultImageUrl={this.props.defaultImage}
         disableDrag={(disable: boolean) => {
-          this.props.disableDrag(disable);
+          this.disableDrag(disable);
         }}
         enableDownload={this.props.enableDownload}
         enableRotation={this.props.enableRotation}

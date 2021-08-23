@@ -1158,7 +1158,6 @@ function* batchUpdateWidgetPropertySaga(
 ) {
   const start = performance.now();
   const { updates, widgetId } = action.payload;
-
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;

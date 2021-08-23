@@ -323,18 +323,18 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           this.props.dateFormat,
         );
         if (!defaultDate.isValid()) {
-          this.props.updateWidgetProperty("defaultDate", "");
+          super.updateWidgetProperty("defaultDate", "");
         } else {
           if (this.props.minDate) {
             const minDate = moment(this.props.minDate, this.props.dateFormat);
             if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
-              this.props.updateWidgetProperty("defaultDate", "");
+              super.updateWidgetProperty("defaultDate", "");
             }
           }
           if (this.props.maxDate) {
             const maxDate = moment(this.props.maxDate, this.props.dateFormat);
             if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
-              this.props.updateWidgetProperty("defaultDate", "");
+              super.updateWidgetProperty("defaultDate", "");
             }
           }
         }

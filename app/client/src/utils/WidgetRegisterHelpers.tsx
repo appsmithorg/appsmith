@@ -11,6 +11,7 @@ import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
+import { memoize } from "lodash";
 export interface WidgetConfiguration {
   type: string;
   name: string;
@@ -27,20 +28,27 @@ export interface WidgetConfiguration {
   };
 }
 
+const generateWidget = memoize(function getWidgetComponent(
+  Widget: typeof BaseWidget,
+  needsMeta: boolean,
+) {
+  const widget = needsMeta ? withMeta(Widget) : Widget;
+  return Sentry.withProfiler(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    widget,
+  );
+});
+
 export const registerWidget = (
   Widget: typeof BaseWidget,
   config: WidgetConfiguration,
 ) => {
+  const ProfiledWidget = generateWidget(Widget, !!config.needsMeta);
   WidgetFactory.registerWidgetBuilder(
     config.type,
     {
       buildWidget(widgetData: any): JSX.Element {
-        const widget = config.needsMeta ? withMeta(Widget) : Widget;
-        const ProfiledWidget = Sentry.withProfiler(
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          widget,
-        );
         return <ProfiledWidget key={widgetData.widgetId} {...widgetData} />;
       },
     },

@@ -315,7 +315,7 @@ class TabsWidget extends BaseWidget<
             index: 0,
           },
         };
-        this.props.updateWidgetProperty("tabsObj", tabs);
+        super.updateWidgetProperty("tabsObj", tabs);
       }
     }
     const visibleTabs = this.getVisibleTabs();

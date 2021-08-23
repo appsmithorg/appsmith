@@ -481,10 +481,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   onCurrencyTypeChange = (code?: string) => {
     const currencyCountryCode = code;
     if (this.props.renderMode === RenderModes.CANVAS) {
-      this.props.updateWidgetProperty(
-        "currencyCountryCode",
-        currencyCountryCode,
-      );
+      super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
     } else {
       this.props.updateWidgetMetaProperty(
         "selectedCurrencyCountryCode",

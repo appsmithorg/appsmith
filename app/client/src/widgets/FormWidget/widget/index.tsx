@@ -6,7 +6,6 @@ import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";
-import produce from "immer";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 class FormWidget extends ContainerWidget {
@@ -60,14 +59,16 @@ class FormWidget extends ContainerWidget {
   };
 
   handleResetInputs = () => {
-    this.props.resetChildrenMetaProperty(this.props.widgetId);
+    super.resetChildrenMetaProperty(this.props.widgetId);
   };
 
   componentDidMount() {
+    super.componentDidMount();
     this.updateFormData();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
+    super.componentDidUpdate(prevProps);
     this.updateFormData();
   }
 
@@ -95,11 +96,10 @@ class FormWidget extends ContainerWidget {
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     if (childWidgetData.children) {
       const isInvalid = this.checkInvalidChildren(childWidgetData.children);
-      childWidgetData = produce(childWidgetData, (draft: WidgetProps) => {
-        draft.children.forEach((grandChild: WidgetProps, index: number) => {
-          if (isInvalid) draft[index].isFormInvalid = false;
-          draft.children[index].onReset = this.handleResetInputs;
-        });
+      childWidgetData.children.forEach((grandChild: WidgetProps) => {
+        if (isInvalid) grandChild.isFormValid = false;
+        // Add submit and reset handlers
+        grandChild.onReset = this.handleResetInputs;
       });
     }
     return super.renderChildWidget(childWidgetData);

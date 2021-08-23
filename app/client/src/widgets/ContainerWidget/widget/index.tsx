@@ -19,7 +19,6 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import produce from "immer";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -102,27 +101,26 @@ class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childProps: WidgetProps): React.ReactNode {
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
-    if (childProps.detachFromLayout && !childProps.isVisible) {
+    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
       return null;
     }
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    const childWidgetProps = produce(childProps, (childWidgetData) => {
-      childWidgetData.rightColumn = componentWidth;
-      childWidgetData.bottomRow = this.props.shouldScrollContents
-        ? childWidgetData.bottomRow
-        : componentHeight;
-      childWidgetData.minHeight = componentHeight;
-      childWidgetData.isVisible = this.props.isVisible;
-      childWidgetData.shouldScrollContents = false;
-      childWidgetData.canExtend = this.props.shouldScrollContents;
 
-      childWidgetData.parentId = this.props.widgetId;
-    });
+    childWidgetData.rightColumn = componentWidth;
+    childWidgetData.bottomRow = this.props.shouldScrollContents
+      ? childWidgetData.bottomRow
+      : componentHeight;
+    childWidgetData.minHeight = componentHeight;
+    childWidgetData.isVisible = this.props.isVisible;
+    childWidgetData.shouldScrollContents = false;
+    childWidgetData.canExtend = this.props.shouldScrollContents;
 
-    return WidgetFactory.createWidget(childWidgetProps);
+    childWidgetData.parentId = this.props.widgetId;
+
+    return WidgetFactory.createWidget(childWidgetData);
   }
 
   renderChildren = () => {

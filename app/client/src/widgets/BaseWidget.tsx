@@ -36,6 +36,8 @@ import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 /***
  * BaseWidget
@@ -88,6 +90,16 @@ abstract class BaseWidget<
   executeAction(actionPayload: WidgetExecuteActionPayload): void {
     const { executeAction } = this.context;
     executeAction && executeAction(actionPayload);
+
+    actionPayload.triggerPropertyName &&
+      AppsmithConsole.info({
+        text: `${actionPayload.triggerPropertyName} triggered`,
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: this.props.widgetId,
+          name: this.props.widgetName,
+        },
+      });
   }
 
   disableDrag(disable: boolean) {
