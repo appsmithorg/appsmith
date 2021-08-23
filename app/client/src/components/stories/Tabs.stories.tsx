@@ -1,21 +1,35 @@
 import React from "react";
-import { TabComponent, TabProp } from "components/ads/Tabs";
-import { select, text, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { IconCollection, IconName } from "components/ads/Icon";
+import { TabComponent, TabbedViewComponentType } from "components/ads/Tabs";
 import { StoryWrapper } from "components/ads/common";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
+import { action } from "@storybook/addon-actions";
 
 export default {
-  title: "Tabs",
+  title: storyName.platform.tabs.PATH,
   component: TabComponent,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
-function TabStory(props: any) {
-  const tabArr: TabProp[] = [
+export function TabsStory(args: TabbedViewComponentType) {
+  return (
+    <StoryWrapper style={{ height: 200 }}>
+      <TabComponent {...args} onSelect={action("tab-selected")} />
+    </StoryWrapper>
+  );
+}
+
+TabsStory.args = {
+  tabs: [
     {
       key: "1",
-      title: props.title1,
+      title: "General",
       panelComponent: (
         <div
           style={{
@@ -26,11 +40,11 @@ function TabStory(props: any) {
           }}
         />
       ),
-      icon: props.icon1,
+      icon: "",
     },
     {
       key: "2",
-      title: props.title2,
+      title: "User",
       panelComponent: (
         <div
           style={{
@@ -41,11 +55,11 @@ function TabStory(props: any) {
           }}
         />
       ),
-      icon: props.icon2,
+      icon: "user",
     },
     {
       key: "3",
-      title: props.title3,
+      title: "Billing",
       panelComponent: (
         <div
           style={{
@@ -56,62 +70,18 @@ function TabStory(props: any) {
           }}
         />
       ),
-      icon: props.icon3,
+      icon: "bill",
     },
-  ];
+  ],
+  overflow: false,
+  vertical: false,
+};
 
-  if (props.icon4 || props.title4) {
-    tabArr.push({
-      key: "4",
-      title: props.title4,
-      panelComponent: (
-        <div
-          style={{
-            backgroundColor: "grey",
-            width: "100%",
-            height: "100%",
-            overflow: "hidden",
-          }}
-        />
-      ),
-      icon: props.icon4,
-    });
-  }
+TabsStory.argTypes = {
+  overflow: { control: controlType.BOOLEAN },
+  vertical: { control: controlType.BOOLEAN },
+  tabs: { control: controlType.ARRAY },
+  selectedIndex: { control: controlType.NUMBER },
+};
 
-  return (
-    <StoryWrapper>
-      <TabComponent tabs={tabArr} />
-    </StoryWrapper>
-  );
-}
-
-export function Tabs() {
-  return (
-    <TabStory
-      icon1={select(
-        "Icon 1",
-        ["Select icon" as IconName, ...IconCollection],
-        "Select icon" as IconName,
-      )}
-      icon2={select(
-        "Icon 2",
-        ["Select icon" as IconName, ...IconCollection],
-        "Select icon" as IconName,
-      )}
-      icon3={select(
-        "Icon 3",
-        ["Select icon" as IconName, ...IconCollection],
-        "Select icon" as IconName,
-      )}
-      icon4={select(
-        "Icon 4",
-        ["Select icon" as IconName, ...IconCollection],
-        "Select icon" as IconName,
-      )}
-      title1={text("Title 1", "General")}
-      title2={text("Title 2", "User")}
-      title3={text("Title 3", "Billing")}
-      title4={text("Title 4", "")}
-    />
-  );
-}
+TabsStory.storyName = storyName.platform.tabs.NAME;

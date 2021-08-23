@@ -151,7 +151,7 @@ function DefaultTabItem(props: TabItemProps) {
   );
 }
 
-type TabbedViewComponentType = CommonComponentProps & {
+export type TabbedViewComponentType = CommonComponentProps & {
   tabs: Array<TabProp>;
   selectedIndex?: number;
   onSelect?: (tabIndex: number) => void;

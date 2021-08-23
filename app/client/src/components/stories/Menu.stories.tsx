@@ -49,6 +49,9 @@ export function MenuStory(args: MenuProps) {
       }}
     >
       <Menu
+        {...args}
+        onClose={action("menu-closed")}
+        onOpening={action("menu-opended")}
         target={
           <div>
             <svg
@@ -68,9 +71,6 @@ export function MenuStory(args: MenuProps) {
             </svg>
           </div>
         }
-        {...args}
-        onClose={action("menu-closed")}
-        onOpening={action("menu-opended")}
       >
         <EditableText
           defaultValue="Product design app"

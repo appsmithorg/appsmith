@@ -33,6 +33,10 @@ export const storyName = {
         PATH: "Platform/Form/Dropdown",
         NAME: "Dropdown",
       },
+      searchInput: {
+        PATH: "Platform/Form/SearchInput",
+        NAME: "SearchInput",
+      },
       textInput: {
         PATH: "Platform/Form/TextInput",
         NAME: "TextInput",
@@ -65,6 +69,20 @@ export const storyName = {
         PATH: "Platform/Menus/MenuItem",
         NAME: "MenuItem",
       },
+    },
+    tables: {
+      tableDropdown: {
+        PATH: "Platform/Tables/TableDropdown",
+        NAME: "TableDropdown",
+      },
+      table: {
+        PATH: "Platform/Tables/Table",
+        NAME: "Table",
+      },
+    },
+    tabs: {
+      PATH: "Platform/Tabs",
+      NAME: "Tabs",
     },
   },
 };

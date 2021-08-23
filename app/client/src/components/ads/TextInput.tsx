@@ -252,6 +252,10 @@ const TextInput = forwardRef(
     const iconColor = !validation.isValid
       ? props.theme.colors.danger.main
       : props.theme.colors.textInput.icon;
+
+    const hasLeftIcon = props.leftIcon
+      ? IconCollection.includes(props.leftIcon)
+      : false;
     return (
       <InputWrapper>
         <StyledInput
@@ -262,7 +266,7 @@ const TextInput = forwardRef(
           type={props.dataType || "text"}
           {...props}
           data-cy={props.cypressSelector}
-          hasLeftIcon={IconCollection.includes(props.leftIcon)}
+          hasLeftIcon={hasLeftIcon}
           inputRef={ref}
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}

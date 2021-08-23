@@ -15,7 +15,7 @@ type DropdownOption = {
   desc: string;
 };
 
-type DropdownProps = CommonComponentProps & {
+export type DropdownProps = CommonComponentProps & {
   options: DropdownOption[];
   onSelect: (selectedValue: DropdownOption) => void;
   selectedIndex: number;
