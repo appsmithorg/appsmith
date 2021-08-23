@@ -22,4 +22,12 @@ describe("Widget error state", function() {
 
     cy.get(debuggerLocators.debuggerLogState).contains("Test");
   });
+
+  it("All errors should be expanded by default", function() {
+    cy.testJsontext("label", "{{[]}}");
+
+    cy.get(".t--debugger-message")
+      .should("be.visible")
+      .should("have.length", 2);
+  });
 });
