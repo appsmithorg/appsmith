@@ -308,6 +308,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             hidden: (props: MenuButtonWidgetProps) =>
               props.menuStyle !== ButtonStyleTypes.CUSTOM,
+            dependencies: ["menuStyle"],
             updateHook: (
               props: MenuButtonWidgetProps,
               propertyPath: string,
