@@ -5,3 +5,6 @@ export const getIsOnboardingHelperVisible = (state: AppState) => {
   const isCommentModeInUrl = urlSearchParams.get("isCommentMode");
   return state.ui.onBoarding.showHelper && !isCommentModeInUrl;
 };
+
+export const showWelcomeScreen = (state: AppState) =>
+  state.ui.onBoarding.showOnboardingLoader;

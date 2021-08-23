@@ -418,3 +418,35 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
 
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+// Git sync
+export const GIT_CONNECTION = () => "GIT Connection";
+export const DEPLOY = () => "Deploy";
+export const MERGE = () => "Merge";
+export const SHARE_APPLICATION = () => "Share Application";
+export const SETTINGS = () => "Settings";
+export const CONNECT_TO_GIT = () => "Connect to Git";
+export const CONNECT_TO_GIT_SUBTITLE = () =>
+  "Choose an existing empty repository to host your project and keep it in sync";
+export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+
+export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+
+export const AUTHOR_NAME = () => "AUTHOR NAME";
+export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
+export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
+export const USER_NAME = () => "USER NAME";
+export const USER_PASSWORD = () => "PASSWORD";
+
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
+export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
+export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
+  "Checkout branches, make commits, add deploy your application";
+export const CONNECT = () => "Connect";
+export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
+export const DEPLOY_WITHOUT_GIT = () =>
+  "Deploy your application without version control";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const COMMIT = () => "COMMIT";
+export const PUSH = () => "PUSH";

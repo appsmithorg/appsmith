@@ -226,7 +226,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
    * we will use that for the dimension of the widget
    */
   const dimension = useMemo(() => {
-    console.log({ width, height });
     if (width > height) {
       return height - WIDGET_PADDING * 2;
     }
