@@ -378,25 +378,32 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
       );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
-      if (entity && "ENTITY_TYPE" in entity) {
-        const entityType = entity.ENTITY_TYPE;
-        if (
-          entityType === ENTITY_TYPE.WIDGET ||
-          entityType === ENTITY_TYPE.ACTION
-        ) {
-          entityInformation.entityType = entityType;
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE.WIDGET ||
+            entityType === ENTITY_TYPE.ACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
         }
+
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
+        entityInformation.propertyPath = propertyPath;
       }
-      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
-      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
-      entityInformation.propertyPath = propertyPath;
     }
+
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
