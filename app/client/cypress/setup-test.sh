@@ -40,7 +40,7 @@ sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=
 echo "Sleeping for 30 seconds to let the MySQL start"
 sleep 30
 
-sudo docker exec -i mariadb mysql -uroot -proot123 mysql < init-DB.sql
+sudo docker exec -i mariadb mysql -uroot -proot123 mysql < init-mysql-dump-for-test.sql
 
 
 echo "Sleeping for 30 seconds to let the servers start"
