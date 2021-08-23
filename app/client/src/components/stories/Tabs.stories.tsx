@@ -19,7 +19,7 @@ export default {
 
 export function TabsStory(args: TabbedViewComponentType) {
   return (
-    <StoryWrapper>
+    <StoryWrapper style={{ height: 200 }}>
       <TabComponent {...args} onSelect={action("tab-selected")} />
     </StoryWrapper>
   );
