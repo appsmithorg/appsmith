@@ -412,6 +412,7 @@ export function EditorJSONtoForm(props: Props) {
     responseType,
     runErrorMessage,
     settingConfig,
+    uiComponent,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;

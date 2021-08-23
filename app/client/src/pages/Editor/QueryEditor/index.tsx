@@ -23,7 +23,6 @@ import {
   getDBDatasources,
   getAction,
   getActionResponses,
-  getUIComponent,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, QueryActionConfig } from "entities/Action";
@@ -39,6 +38,7 @@ import {
   startFormEvaluations,
 } from "../../../actions/evaluationActions";
 import { isObject } from "lodash";
+import { getUIComponent } from "../../../selectors/formSelectors";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -264,7 +264,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   }
 
   const allPlugins = getPlugins(state);
-  const uiComponent = getUIComponent(state, formData.pluginId, allPlugins);
+  let uiComponent = UIComponentTypes.DbEditorForm;
+  if (!!pluginId) uiComponent = getUIComponent(state, pluginId, allPlugins);
 
   return {
     pluginImages: getPluginImages(state),
