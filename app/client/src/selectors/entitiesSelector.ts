@@ -16,7 +16,10 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
-import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
+import {
+  GenerateCRUDEnabledPluginMap,
+  UIComponentTypes,
+} from "../api/PluginApi";
 import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
 
 import { APP_MODE } from "entities/App";
@@ -303,6 +306,24 @@ export const getAction = (
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
   return action ? action.config : undefined;
+};
+
+export const getUIComponent = (
+  state: AppState,
+  pluginId: string,
+  allPlugins: any,
+) => {
+  // Adding uiComponent field to switch form type to UQI or allow for backward compatibility
+  const plugin = allPlugins.find((plugin: any) =>
+    !!pluginId ? plugin.id === pluginId : false,
+  );
+  // Defaults to old value, new value can be DBEditorForm or UQIDBEditorForm
+  let uiComponent = UIComponentTypes.DbEditorForm;
+  if (plugin) {
+    uiComponent = plugin.uiComponent;
+  }
+
+  return uiComponent;
 };
 
 export function getCurrentPageNameByActionId(
