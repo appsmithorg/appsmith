@@ -273,7 +273,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       title: "Snippet",
       panelComponent: (
         <div className="snippet-container">
-          <SyntaxHighlighter language={language} style={prism} wrapLongLines>
+          <SyntaxHighlighter language={language} style={prism}>
             {js_beautify(snippet, { indent_size: 2 })}
           </SyntaxHighlighter>
           <div className="action-icons">
@@ -293,11 +293,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
         args && args.length > 0 ? (
           <>
             <div className="snippet-container">
-              <SyntaxHighlighter
-                language={language}
-                style={prism}
-                wrapLongLines
-              >
+              <SyntaxHighlighter language={language} style={prism}>
                 {js_beautify(getSnippet(template, selectedArgs), {
                   indent_size: 2,
                 })}
