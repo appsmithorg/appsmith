@@ -41,11 +41,13 @@ export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
+  value?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
+  rightSideComponent?: React.ReactNode;
 };
 
 type boxReturnType = {
@@ -94,13 +96,21 @@ const StyledInput = styled((props) => {
   ) : (
     <input ref={inputRef} {...inputProps} />
   );
-})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
+})<
+  TextInputProps & {
+    inputStyle: boxReturnType;
+    isValid: boolean;
+    rightSideComponentWidth: number;
+  }
+>`
   width: ${(props) => (props.fill ? "100%" : "320px")};
   border-radius: 0;
   outline: 0;
   box-shadow: none;
   border: 1px solid ${(props) => props.inputStyle.borderColor};
   padding: 0px ${(props) => props.theme.spaces[6]}px;
+  padding-right: ${(props) =>
+    props.rightSideComponentWidth + props.theme.spaces[6]}px;
   height: 38px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
@@ -151,6 +161,13 @@ const InputWrapper = styled.div`
   }
 `;
 
+const RightSideContainer = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+`;
+
 const ErrorWrapper = styled.div`
   position: absolute;
   bottom: -17px;
@@ -169,6 +186,15 @@ const TextInput = forwardRef(
       isValid: boolean;
       message: string;
     }>(initialValidation());
+
+    const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
+
+    const setRightSideRef = useCallback((ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setRightSideComponentWidth(width);
+      }
+    }, []);
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, props.theme),
@@ -211,8 +237,12 @@ const TextInput = forwardRef(
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
+          rightSideComponentWidth={rightSideComponentWidth}
         />
         {ErrorMessage}
+        <RightSideContainer ref={setRightSideRef}>
+          {props.rightSideComponent}
+        </RightSideContainer>
       </InputWrapper>
     );
   },

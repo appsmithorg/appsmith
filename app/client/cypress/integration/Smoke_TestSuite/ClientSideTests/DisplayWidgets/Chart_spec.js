@@ -293,14 +293,14 @@ describe("Chart Widget Functionality", function() {
   it("Toggle JS - Chart-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("Toggle JS - Chart-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
@@ -348,7 +348,11 @@ describe("Chart Widget Functionality", function() {
     cy.UpdateChartType("Pie Chart");
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
-
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
     const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];

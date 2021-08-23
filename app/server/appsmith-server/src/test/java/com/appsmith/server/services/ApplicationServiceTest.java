@@ -729,7 +729,7 @@ public class ApplicationServiceTest {
         testApplication.setName(appName);
         testApplication.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, orgId)
-                .flatMap(application -> applicationPageService.publish(application.getId()))
+                .flatMap(application -> applicationPageService.publish(application.getId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -780,7 +780,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -826,7 +826,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
@@ -890,7 +890,7 @@ public class ApplicationServiceTest {
                     page.setLayouts(layouts);
                     return applicationPageService.createPage(page);
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId()))
+                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
                 .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
