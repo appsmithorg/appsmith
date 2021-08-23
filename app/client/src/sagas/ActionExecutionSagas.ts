@@ -119,6 +119,7 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+import { hideDebuggerErrors } from "actions/debuggerActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1113,7 +1114,9 @@ function* executePageLoadActionsSaga() {
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
 
-    yield put(executePageLoadActionsComplete());
+    // We show errors in the debugger once onPageLoad actions
+    // are executed
+    yield put(hideDebuggerErrors(false));
   } catch (e) {
     log.error(e);
 

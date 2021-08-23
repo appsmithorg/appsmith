@@ -67,3 +67,8 @@ export const logDebuggerErrorAnalytics = (
   type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
   payload,
 });
+
+export const hideDebuggerErrors = (payload: boolean) => ({
+  type: ReduxActionTypes.HIDE_DEBUGGER_ERRORS,
+  payload,
+});

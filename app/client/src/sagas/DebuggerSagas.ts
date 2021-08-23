@@ -17,7 +17,7 @@ import {
   takeEvery,
 } from "redux-saga/effects";
 import { findIndex, get, isMatch, set } from "lodash";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getDebuggerErrors, hideErrors } from "selectors/debuggerSelectors";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -276,10 +276,13 @@ function* logDebuggerErrorAnalyticsSaga(
 function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
+  const shouldHideErrors: boolean = yield select(hideErrors);
+
+  // We don't show errors in the debugger until all the onPageLoad
+  // actions have run
+  if (!payload.source || !payload.id || shouldHideErrors) return;
 
   yield put(debuggerLogInit(payload));
-
-  if (!payload.source || !payload.id) return;
 
   const analyticsPayload = {
     entityName: payload.source.name,

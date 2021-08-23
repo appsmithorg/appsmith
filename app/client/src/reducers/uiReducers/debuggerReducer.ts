@@ -1,14 +1,14 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { Log, Severity } from "entities/AppsmithConsole";
+import { Log } from "entities/AppsmithConsole";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { omit, isUndefined } from "lodash";
 
 const initialState: DebuggerReduxState = {
   logs: [],
-  errorCount: 0,
   isOpen: false,
   errors: {},
   expandId: "",
+  hideErrors: true,
 };
 
 const debuggerReducer = createReducer(initialState, {
@@ -16,19 +16,15 @@ const debuggerReducer = createReducer(initialState, {
     state: DebuggerReduxState,
     action: ReduxAction<Log>,
   ) => {
-    const isError = action.payload.severity === Severity.ERROR;
-
     return {
       ...state,
       logs: [...state.logs, action.payload],
-      errorCount: isError ? state.errorCount + 1 : state.errorCount,
     };
   },
   [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
     return {
       ...state,
       logs: [],
-      errorCount: 0,
     };
   },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
@@ -64,6 +60,15 @@ const debuggerReducer = createReducer(initialState, {
       errors: omit(state.errors, action.payload),
     };
   },
+  [ReduxActionTypes.HIDE_DEBUGGER_ERRORS]: (
+    state: DebuggerReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      hideErrors: action.payload,
+    };
+  },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
     return {
       ...initialState,
@@ -73,10 +78,10 @@ const debuggerReducer = createReducer(initialState, {
 
 export interface DebuggerReduxState {
   logs: Log[];
-  errorCount: number;
   isOpen: boolean;
   errors: Record<string, Log>;
   expandId: string;
+  hideErrors: boolean;
 }
 
 export default debuggerReducer;
