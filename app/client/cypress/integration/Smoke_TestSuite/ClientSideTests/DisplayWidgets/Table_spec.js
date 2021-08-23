@@ -36,11 +36,9 @@ describe("Table Widget Functionality", function() {
     //   .find("> .bp3-button-text")
     //   .should("have.text", "{{navigateTo()}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
-    cy.PublishtheApp();
   });
 
   it("Table Widget Functionality To Verify The Data", function() {
-    cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then((tabData) => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");
@@ -49,7 +47,6 @@ describe("Table Widget Functionality", function() {
   });
 
   it("Table Widget Functionality To Show a Base64 Image", function() {
-    cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.editColumn("image");
     cy.changeColumnType("Image");
@@ -57,8 +54,8 @@ describe("Table Widget Functionality", function() {
 
     const index = 1;
     const imageVal = this.data.TableInput[index].image;
-    cy.readTableLinkPublish(index, "1").then((bgUrl) => {
-      expect(bgUrl).to.be.equal(`url("${imageVal}")`);
+    cy.readTableLinkPublish(index, "1").then((hrefVal) => {
+      expect(hrefVal).to.contain(imageVal);
     });
   });
 
@@ -118,19 +115,18 @@ describe("Table Widget Functionality", function() {
         .contains("is exactly")
         .click();
       cy.get(publish.inputValue).type(tabValue);
-      cy.wait(500);
-      cy.get(publish.applyFiltersBtn).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
+      // cy.get(widgetsPage.filterCloseBtn).click({force:true});
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
+      cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
-      cy.get("body").type("{esc}");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -139,7 +135,8 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
+      cy.wait(500);
     });
   });
 
@@ -159,19 +156,17 @@ describe("Table Widget Functionality", function() {
         .contains("contains")
         .click();
       cy.get(publish.inputValue).type("Lindsay");
-      cy.wait(500);
-      cy.get(publish.applyFiltersBtn).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
+      cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
-      cy.get("body").type("{esc}");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -180,7 +175,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -200,19 +195,17 @@ describe("Table Widget Functionality", function() {
         .contains("starts with")
         .click();
       cy.get(publish.inputValue).type("Lindsay");
-      cy.wait(500);
-      cy.get(publish.applyFiltersBtn).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
+      cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
-      cy.get("body").type("{esc}");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -221,7 +214,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
@@ -241,19 +234,17 @@ describe("Table Widget Functionality", function() {
         .contains("ends with")
         .click();
       cy.get(publish.inputValue).type("Ferguson");
-      cy.wait(500);
-      cy.get(publish.applyFiltersBtn).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      cy.get(publish.canvas)
-        .first()
-        .click();
+      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
+      cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("Lindsay Ferguson");
       });
+      cy.get(widgetsPage.filterCloseBtn).click({ force: true });
+      cy.get(publish.filterBtn).click();
       cy.get(publish.removeFilter).click();
-      cy.get("body").type("{esc}");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
       cy.readTabledataPublish("0", "3").then((tabData) => {
@@ -262,7 +253,7 @@ describe("Table Widget Functionality", function() {
       });
       cy.get(publish.canvas)
         .first()
-        .click();
+        .click({ force: true });
     });
   });
 
