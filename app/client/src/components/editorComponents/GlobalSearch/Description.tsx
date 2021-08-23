@@ -7,6 +7,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
 
 const SnippetDescription = lazy(() =>
   retryPromise(() => import("./SnippetsDescription")),
@@ -180,7 +181,7 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
 
 function LazySnippetDescription(props: any) {
   return (
-    <Suspense fallback={<div>Loading</div>}>
+    <Suspense fallback={<Skeleton />}>
       <SnippetDescription {...props} />
     </Suspense>
   );
