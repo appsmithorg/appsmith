@@ -245,7 +245,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             </SaveButtonContainer>
           </>
         ) : (
-          <Connected />
+          <>
+            <Connected />
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+          </>
         )}
       </form>
     );
