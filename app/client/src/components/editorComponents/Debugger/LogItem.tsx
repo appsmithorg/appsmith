@@ -66,7 +66,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-description {
     display: inline-block;
     margin-left: 7px;
-
+    overflow-wrap: anywhere;
+    word-break: break-word;
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
     }
@@ -294,7 +295,7 @@ function LogItem(props: LogItemProps) {
               return (
                 <MessageWrapper key={e.message}>
                   <span
-                    className="debugger-message"
+                    className="debugger-message t--debugger-message"
                     onClick={(event) => onLogClick(event, e)}
                   >
                     {e.message}

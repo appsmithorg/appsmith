@@ -1241,12 +1241,24 @@ type ColorType = {
   pagesEditor: {
     iconColor: string;
   };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+    separator: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
 };
 
 const tabItemBackgroundFill = {
-  highlightBackground: "#F0F0F0",
-  highlightTextColor: "#090707",
-  textColor: "#4B4848",
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1432,7 +1444,14 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  gitSyncModal,
+  numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
@@ -1991,6 +2010,8 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  gitSyncModal,
+  numberedStep,
   tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,

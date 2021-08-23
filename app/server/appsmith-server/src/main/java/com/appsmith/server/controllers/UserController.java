@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserOrganizationService;
@@ -75,7 +76,10 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PostMapping("/super")
-    public Mono<ResponseDTO<User>> createSuperUser(@Valid @RequestBody User resource, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<User>> createSuperUser(
+            @Valid @RequestBody UserSignupRequestDTO resource,
+            ServerWebExchange exchange
+    ) {
         return userSignup.signupAndLoginSuper(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
@@ -121,8 +125,8 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @GetMapping("/verifyPasswordResetToken")
-    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String email, @RequestParam String token) {
-        return service.verifyPasswordResetToken(email, token)
+    public Mono<ResponseDTO<Boolean>> verifyPasswordResetToken(@RequestParam String token) {
+        return service.verifyPasswordResetToken(token)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
