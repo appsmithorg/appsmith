@@ -96,7 +96,7 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: "Find answers through appsmith documentation.",
   },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,
