@@ -77,7 +77,7 @@ public enum AppsmithError {
 
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
-    INVALID_IMPORTED_FILE_ERROR(400, 4039, "Provided file is from different version, please wait till Appsmith gets auto-updated to latest version. This may take a day or two. We are really sorry for the inconvenience caused", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
+    INVALID_IMPORTED_FILE_ERROR(400, 4039, "You seem to have imported an application from an older version of Appsmith. This is not supported. Please export your application again from your Appsmith server before importing it again.", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),
     REPOSITORY_SAVE_FAILED(500, 5001, "Failed to save the repository. Try again.", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     PLUGIN_INSTALLATION_FAILED_DOWNLOAD_ERROR(500, 5002, "Plugin installation failed due to an error while " +
