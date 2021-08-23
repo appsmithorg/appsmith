@@ -1,20 +1,67 @@
-const homePage = require("../../../../locators/HomePage.json");
+const queryLocators = require("../../../../locators/QueryEditor.json");
+const plugins = require("../../../../fixtures/plugins.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../fixtures/tableInputImportdsl.json");
+const datasource = require("../../../../locators/DatasourcesEditor.json");
+const homePage = require("../../../../locators/HomePage.json");
 
-describe("Organization Import Application", function() {
-  let orgid;
-  let newOrganizationName;
-  let appname;
+let datasourceName;
+let orgid;
+let newOrganizationName;
+let appname;
 
-  before(() => {
-    cy.addDsl(dsl);
+describe("Create a query with a mongo datasource, run, save and then delete the query", function() {
+  beforeEach(() => {
+    cy.startRoutesForDatasource();
+  });
+
+  it("Create a query with a mongo datasource, run, save and then delete the query", function() {
+    cy.NavigateToDatasourceEditor();
+    cy.get(datasource.MongoDB).click();
+
+    cy.getPluginFormsAndCreateDatasource();
+
+    cy.fillMongoDatasourceForm();
+
+    cy.testSaveDatasource();
+
+    cy.NavigateToQueryEditor();
+
+    cy.get("@createDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+
+      cy.contains(".t--datasource-name", datasourceName)
+        .find(queryLocators.createQuery)
+        .click();
+    });
+
+    cy.get("@getPluginForm").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+
+    cy.xpath('//div[contains(text(),"Find Document(s)")]').click({
+      force: true,
+    });
+    cy.xpath('//div[contains(text(),"Raw")]').click({ force: true });
+    cy.get(queryLocators.templateMenu).click();
+    cy.get(".CodeMirror textarea")
+      .first()
+      .focus()
+      .type(`{"find": "listingsAndReviews","limit": 10}`, {
+        parseSpecialCharSequences: false,
+      });
+
+    cy.EvaluateCurrentValue(`{"find": "listingsAndReviews","limit": 10}`);
+    cy.get(".editable-application-name span")
+      .invoke("text")
+      .then((text) => {
+        appname = text;
+      });
   });
 
   it("Can Import Application", function() {
     cy.NavigateToHome();
-    appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -70,33 +117,9 @@ describe("Organization Import Application", function() {
     });
   });
 
-  it("Validate Imported Application in Edit mode", function() {
-    cy.get(publish.inputWidget + " " + "input")
-      .first()
-      .invoke("attr", "value")
-      .should("contain", "#1");
-
-    cy.get(".editable-application-name span")
-      .invoke("text")
-      .then((text) => {
-        appname = text;
-      });
-  });
-
-  it("Validate Imported Application in publish mode", function() {
-    cy.PublishtheApp();
-    cy.wait("@viewApp");
-    cy.wait("@getPagesForViewApp");
-    cy.wait("@getOrganisation");
-    cy.get(publish.inputWidget + " " + "input")
-      .first()
-      .invoke("attr", "value")
-      .should("contain", "#1");
-    cy.get(publish.publishedAppName)
-      .invoke("text")
-      .then((text) => {
-        const someText = text;
-        expect(someText).to.equal(appname);
-      });
+  it("Run Query and delete datasource in the newly imported App", function() {
+    cy.NavigateToDatasourceEditor();
+    cy.SearchEntityandOpen("Query1");
+    cy.runAndDeleteQuery();
   });
 });
