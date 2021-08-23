@@ -1,5 +1,4 @@
 import { get } from "lodash";
-import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
@@ -15,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useShowPropertyPane } from "./dragResizeHooks";
 
 /**
  *
@@ -59,12 +59,12 @@ export function ClickContentToOpenPropPane({
 }) {
   const { focusWidget } = useWidgetSelection();
 
-  const openPropertyPane = useClickOpenPropPane();
-  const openPropPane = useCallback(
+  const clickToSelectWidget = useClickToSelectWidget();
+  const clickToSelectFn = useCallback(
     (e) => {
-      openPropertyPane(e, widgetId);
+      clickToSelectWidget(e, widgetId);
     },
-    [widgetId, openPropertyPane],
+    [widgetId, clickToSelectWidget],
   );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
@@ -88,7 +88,7 @@ export function ClickContentToOpenPropPane({
   return (
     <div
       onClick={stopEventPropagation}
-      onClickCapture={openPropPane}
+      onClickCapture={clickToSelectFn}
       onMouseOver={handleMouseOver}
       style={{
         width: "100%",
@@ -100,9 +100,9 @@ export function ClickContentToOpenPropPane({
   );
 }
 
-export const useClickOpenPropPane = () => {
-  const showPropertyPane = useShowPropertyPane();
+export const useClickToSelectWidget = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
+  const showPropertyPane = useShowPropertyPane();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
   const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
@@ -122,7 +122,7 @@ export const useClickOpenPropPane = () => {
   );
 
   const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
-  const openPropertyPane = (e: any, targetWidgetId: string) => {
+  const clickToSelectWidget = (e: any, targetWidgetId: string) => {
     // ignore click captures
     // 1. if the component was resizing or dragging coz it is handled internally in draggable component
     // 2. table filter property pane is open
@@ -142,18 +142,15 @@ export const useClickOpenPropPane = () => {
 
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
-        !isMultiSelect &&
-          showPropertyPane(parentWidgetToOpen.widgetId, undefined, true);
       } else {
         selectWidget(focusedWidgetId, isMultiSelect);
         focusWidget(focusedWidgetId);
-        !isMultiSelect && showPropertyPane(focusedWidgetId, undefined, true);
       }
-
+      showPropertyPane();
       if (isMultiSelect) {
         e.stopPropagation();
       }
     }
   };
-  return openPropertyPane;
+  return clickToSelectWidget;
 };
