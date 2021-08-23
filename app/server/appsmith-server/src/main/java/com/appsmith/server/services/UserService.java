@@ -20,7 +20,7 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
-    Mono<Boolean> verifyPasswordResetToken(String email, String token);
+    Mono<Boolean> verifyPasswordResetToken(String token);
 
     Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user);
 
