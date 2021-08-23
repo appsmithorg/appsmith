@@ -13,6 +13,13 @@ class StatboxWidget extends ContainerWidget {
         sectionName: "General",
         children: [
           {
+            propertyName: "shouldScrollContents",
+            label: "Scroll Contents",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "backgroundColor",
             label: "Background Color",
             helpText: "Use a html color name, HEX, RGB or RGBA value",
