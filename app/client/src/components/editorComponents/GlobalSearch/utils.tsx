@@ -1,3 +1,9 @@
+import {
+  createMessage,
+  DOC_DESCRIPTION,
+  NAV_DESCRIPTION,
+  SNIPPET_DESCRIPTION,
+} from "constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
@@ -84,19 +90,19 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     title: "Navigate",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.NAVIGATION,
-    desc: "Navigate to any page, widget or file across this project.",
+    desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: createMessage(SNIPPET_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: "Find answers through appsmith documentation.",
+    desc: createMessage(DOC_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,

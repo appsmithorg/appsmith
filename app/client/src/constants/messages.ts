@@ -456,3 +456,10 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+
+export const SNIPPET_DESCRIPTION = () =>
+  `Search and Insert code snippets to perform complex actions quickly.`;
+export const DOC_DESCRIPTION = () =>
+  `Find answers through appsmith documentation.`;
+export const NAV_DESCRIPTION = () =>
+  `Navigate to any page, widget or file across this project.`;
