@@ -28,14 +28,10 @@ const handleUpdateCommentThreadSuccess = (
     ...action.payload,
     comments: existingComments,
   };
-
+  const { applicationId } = commentThreadInStore;
   if (shouldRefreshList) {
-    state.applicationCommentThreadsByRef[
-      action.payload.applicationId as string
-    ] = {
-      ...state.applicationCommentThreadsByRef[
-        action.payload.applicationId as string
-      ],
+    state.applicationCommentThreadsByRef[applicationId as string] = {
+      ...state.applicationCommentThreadsByRef[applicationId as string],
     };
   }
 

@@ -19,7 +19,6 @@ import {
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { DraggableCommentsItems } from "./InlineCommentPin";
-import { getCurrentApplicationId } from "../../selectors/editorSelectors";
 
 type Props = {
   children: React.ReactNode;
@@ -41,7 +40,6 @@ const Container = styled.div<{ isCommentMode: boolean }>`
  */
 function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   const [isDropped, setIsDropped] = useState(false);
-  const applicationId = useSelector(getCurrentApplicationId);
   const [hasDroppedOnChild, setHasDroppedOnChild] = useState(false);
   const [, dropRef] = useDrop({
     accept: [DraggableCommentsItems.INLINE_COMMENT_PIN],
@@ -67,7 +65,6 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
             position: newPosition,
             refId,
             widgetType,
-            applicationId,
           }),
         );
       }
