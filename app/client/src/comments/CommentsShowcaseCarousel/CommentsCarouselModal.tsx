@@ -3,6 +3,7 @@ import { Layers } from "constants/Layers";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { useDispatch } from "react-redux";
 import { hideCommentsIntroCarousel } from "actions/commentActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
       left={25}
       onClose={() => {
         dispatch(hideCommentsIntroCarousel());
+        AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_DISMISSED");
       }}
       overlayClassName="comments-onboarding-carousel"
       portalClassName="comments-onboarding-carousel-portal"

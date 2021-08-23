@@ -200,7 +200,6 @@ class ApiEditor extends React.Component<Props> {
             settingsConfig={this.props.settingsConfig}
           />
         )}
-
         {formUiComponent === "RapidApiEditorForm" && (
           <RapidApiEditorForm
             apiId={this.props.match.params.apiId}
@@ -218,7 +217,6 @@ class ApiEditor extends React.Component<Props> {
             paginationType={paginationType}
           />
         )}
-
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
             SAAS_EDITOR_API_ID_URL(

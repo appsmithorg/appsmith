@@ -36,6 +36,12 @@ import {
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+
+import { commentModeSelector } from "selectors/commentsSelectors";
+import getFeatureFlags from "utils/featureFlags";
+
 type Props = {
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
@@ -54,6 +60,8 @@ type Props = {
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  appMode?: APP_MODE;
+  isCommentMode: boolean;
 };
 
 @HotkeysTarget
@@ -203,6 +211,13 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
+            if (this.props.isCommentMode && getFeatureFlags().COMMENT) {
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "esc",
+              });
+            }
             setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
@@ -216,6 +231,12 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
+            if (getFeatureFlags().COMMENT && this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "v",
+              });
             setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
@@ -225,7 +246,15 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="c"
           global
           label="Comment Mode"
-          onKeyDown={() => setCommentModeInUrl(true)}
+          onKeyDown={() => {
+            if (getFeatureFlags().COMMENT && !this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: "COMMENT",
+                source: "HOTKEY",
+                combo: "c",
+              });
+            setCommentModeInUrl(true);
+          }}
         />
         <Hotkey
           allowInInput
@@ -249,6 +278,8 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
+  appMode: getAppMode(state),
+  isCommentMode: commentModeSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

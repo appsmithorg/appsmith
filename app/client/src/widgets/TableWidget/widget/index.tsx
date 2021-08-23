@@ -27,7 +27,7 @@ import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter } from "../component/Constants";
+import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -574,6 +574,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
+      // Set filter to default
+      const defaultFilter = [
+        {
+          column: "",
+          operator: OperatorTypes.OR,
+          value: "",
+          condition: "",
+        },
+      ];
+      this.applyFilters(defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns

@@ -10,7 +10,6 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -47,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -362,7 +360,7 @@ public class PageServiceTest {
         PageDTO firstPage = applicationPageService.createPage(testPage).block();
 
         // Publish the application
-        applicationPageService.publish(application.getId());
+        applicationPageService.publish(application.getId(), true);
 
         //Delete Page in edit mode
         applicationPageService.deleteUnpublishedPage(firstPage.getId()).block();
