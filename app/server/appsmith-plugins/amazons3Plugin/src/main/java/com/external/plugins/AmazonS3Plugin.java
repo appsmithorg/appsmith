@@ -74,6 +74,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int READ_WITH_BASE64_ENCODING_PROPERTY_INDEX = 5;
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
     private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
+    private static final int GET_UNSIGNED_URL_PROPERTY_INDEX = 8;
     private static final int AWS_S3_REGION_PROPERTY_INDEX = 0;
     private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
@@ -468,6 +469,25 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ((ArrayList<Object>) actionResult).add(fileInfo);
                             }
                         }
+
+                        if (properties.size() > GET_UNSIGNED_URL_PROPERTY_INDEX
+                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX) != null
+                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
+                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), YES, null,
+                                    null, null));
+                            ((ArrayList<Object>) actionResult).stream()
+                                    .forEach(item -> ((Map) item)
+                                            .put(
+                                                    "url", // key
+                                                    connection.getUrl(bucketName, (String) ((Map) item).get("fileName")).toString() // value
+                                            )
+                                    );
+                        }
+                        else {
+                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), NO, null,
+                                    null, null));
+                        }
+
                         break;
                     case UPLOAD_FILE_FROM_BODY:
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
