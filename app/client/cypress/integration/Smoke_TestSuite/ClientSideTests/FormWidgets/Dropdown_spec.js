@@ -97,7 +97,6 @@ describe("Dropdown Widget Functionality", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(data.input));
     cy.widgetText(
       "Dropdown1",
       formWidgetsPage.dropdownWidget,

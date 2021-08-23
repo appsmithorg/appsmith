@@ -24,7 +24,7 @@ describe("Dropdown Widget Functionality", function() {
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });
     cy.get(commonlocators.singleSelectMenuItem)
-      .contains("Option 1")
+      .contains("Option 2")
       .click({ force: true });
     cy.wait(1000);
     cy.get(modalWidgetPage.modelTextField).should(
@@ -49,7 +49,6 @@ describe("Dropdown Widget Functionality", function() {
       "have.text",
       this.data.FormModalName,
     );
-    cy.get(publish.backToEditor).click();
   });
 
   it("Dropdown-Call-Api Validation", function() {
@@ -65,7 +64,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.SearchEntityandOpen("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("dropdownApi");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -81,7 +79,6 @@ describe("Dropdown Widget Functionality", function() {
       .contains("Option 3")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
   });
 
   it("Dropdown-Call-Query Validation", function() {
@@ -117,7 +114,6 @@ describe("Dropdown Widget Functionality", function() {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("dropdownwidget");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -154,7 +150,6 @@ describe("Dropdown Widget Functionality", function() {
       .contains("Option 2")
       .click({ force: true });
     cy.get(formWidgetsPage.apiCallToast).should("have.text", "Success");
-    cy.get(publish.backToEditor).click();
   });
 
   it("Toggle JS - Dropdown-CallAnApi Validation", function() {
@@ -186,13 +181,11 @@ describe("Dropdown Widget Functionality", function() {
       .children()
       .contains("No Action")
       .click();
-    cy.testJsontext("options", "");
   });
 
   it("Dropdown Widget Functionality to Verify On Option Change Action", function() {
     // Open property pane
     cy.SearchEntityandOpen("Dropdown1");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Dropdown On Option Change
     cy.addAction("Option Changed");
     cy.PublishtheApp();

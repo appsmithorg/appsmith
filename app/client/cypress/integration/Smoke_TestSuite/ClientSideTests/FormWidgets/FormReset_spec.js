@@ -15,9 +15,9 @@ describe("Form reset functionality", function() {
     // Select three options
     cy.get(".t--draggable-multiselectwidget").click({ force: true });
     cy.get(".t--draggable-multiselectwidget").type("Option");
-    cy.dropdownDynamic("Option 1");
-    cy.dropdownDynamic("Option 2");
-    cy.dropdownDynamic("Option 3");
+    cy.dropdownMultiSelectDynamic("Option 1");
+    cy.dropdownMultiSelectDynamic("Option 2");
+    cy.dropdownMultiSelectDynamic("Option 3");
     // Verify input should include the name "lindsay.ferguson@reqres.in"
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
