@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -11,37 +11,29 @@ import { Colors } from "constants/Colors";
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
-import { GEN_CRUD_INFO_DIALOG_HEADING } from "../../../../constants/messages";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
-  GEN_CRUD_INFO_DIALOG_TITLE,
+  GEN_CRUD_SUCCESS_MESSAGE,
+  GEN_CRUD_SUCCESS_DESC,
 } from "constants/messages";
+import SuccessGif from "assets/gifs/check_mark_verified.gif";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 type Props = {
   crudInfoModalOpen: boolean;
 };
 
-const HeaderContents = styled.div`
-  padding: ${(props) => props.theme.spaces[9]}px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: ${(props) => props.theme.spaces[7]}px;
-  background-color: ${Colors.FOAM};
-`;
-
 const Heading = styled.div`
-  color: ${(props) => props.theme.colors.modal.headerText};
+  color: ${Colors.CODE_GRAY};
   display: flex;
   justify-content: center;
   font-size: 20px;
   line-height: 24px;
-  color: ${(props) => props.theme.colors.success.dark};
 `;
 
 const ActionButtonWrapper = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin: 30px 0px 0px;
 `;
 
@@ -63,17 +55,22 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
+const Desc = styled.p`
+  ${(props) => getTypographyByKey(props, "p1")}
+  color: ${Colors.DOVE_GRAY2};
+  margin-top: 8px;
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-
-  .info-title {
-    font-weight: bold;
-  }
+  max-height: 700px;
+  min-height: 500px;
 
   .info-subtitle {
     padding-top: 5px;
+    text-align: center;
   }
 `;
 
@@ -89,14 +86,49 @@ const ImageWrapper = styled.div`
   justify-content: center;
 `;
 
-function Header() {
+const SuccessContentWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`;
+
+const SuccessImage = styled.img`
+  margin: ${(props) => props.theme.spaces[6]}px;
+`;
+
+const STEP = {
+  SHOW_SUCCESS_GIF: "show_success_gif",
+  SHOW_INFO: "show_info",
+};
+
+function InfoContent({ onClose }: { onClose: () => void }) {
   return (
-    <HeaderContents>
-      <Heading> {GEN_CRUD_INFO_DIALOG_HEADING()}</Heading>
-    </HeaderContents>
+    <>
+      <Content>
+        <Text className="info-subtitle" type={TextType.P1}>
+          {GEN_CRUD_INFO_DIALOG_SUBTITLE()}
+        </Text>
+        <ImageWrapper>
+          <InfoImage alt="CRUD Info" src={getInfoImage()} />
+        </ImageWrapper>
+      </Content>
+
+      <ActionButtonWrapper>
+        <ActionButton
+          category={Category.primary}
+          onClick={() => {
+            onClose();
+          }}
+          size={Size.medium}
+          text="GOT IT"
+        />
+      </ActionButtonWrapper>
+    </>
   );
 }
-
 const getInfoImage = (): string =>
   `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
@@ -104,11 +136,18 @@ function GenCRUDSuccessModal(props: Props) {
   const { crudInfoModalOpen } = props;
 
   const dispatch = useDispatch();
+  const [step, setStep] = useState(STEP.SHOW_SUCCESS_GIF);
 
   const onClose = () => {
     AnalyticsUtil.logEvent("CLOSE_GEN_PAGE_INFO_MODAL");
     dispatch(setCrudInfoModalOpen(false));
   };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setStep(STEP.SHOW_INFO);
+    }, 2000);
+  }, [setStep]);
 
   return (
     <Dialog
@@ -118,30 +157,14 @@ function GenCRUDSuccessModal(props: Props) {
       setModalClose={onClose}
     >
       <Wrapper>
-        <Header />
-        <Content>
-          <Text className="info-title" type={TextType.H4}>
-            {GEN_CRUD_INFO_DIALOG_TITLE()}
-          </Text>
-
-          <Text className="info-subtitle" type={TextType.P1}>
-            {GEN_CRUD_INFO_DIALOG_SUBTITLE()}
-          </Text>
-          <ImageWrapper>
-            <InfoImage alt="CRUD Info" src={getInfoImage()} />
-          </ImageWrapper>
-        </Content>
-
-        <ActionButtonWrapper>
-          <ActionButton
-            category={Category.primary}
-            onClick={() => {
-              onClose();
-            }}
-            size={Size.medium}
-            text="GOT IT"
-          />
-        </ActionButtonWrapper>
+        {step === STEP.SHOW_SUCCESS_GIF ? (
+          <SuccessContentWrapper>
+            <SuccessImage alt="Success" src={SuccessGif} width="50px" />
+            <Heading> {GEN_CRUD_SUCCESS_MESSAGE()}</Heading>
+            <Desc>{GEN_CRUD_SUCCESS_DESC()}</Desc>
+          </SuccessContentWrapper>
+        ) : null}
+        {step === STEP.SHOW_INFO ? <InfoContent onClose={onClose} /> : null}
       </Wrapper>
     </Dialog>
   );

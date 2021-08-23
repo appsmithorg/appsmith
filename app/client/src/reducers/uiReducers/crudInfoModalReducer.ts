@@ -2,7 +2,7 @@ import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const initialState: CrudInfoModalReduxState = {
-  crudInfoModalOpen: false,
+  crudInfoModalOpen: true,
 };
 
 const crudInfoModalReducer = createReducer(initialState, {
