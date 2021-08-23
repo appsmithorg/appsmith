@@ -79,7 +79,9 @@ function Debugger() {
         onClick={onClick}
       >
         <Icon name="bug" size={IconSize.XL} />
-        <div className="debugger-count">{errorCount}</div>
+        {!!errorCount && (
+          <div className="debugger-count t--debugger-count">{errorCount}</div>
+        )}
       </Container>
     );
   return <DebuggerTabs defaultIndex={errorCount ? 0 : 1} />;
