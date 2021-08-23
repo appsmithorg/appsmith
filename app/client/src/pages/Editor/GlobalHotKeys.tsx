@@ -77,9 +77,6 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    // this.props.setGlobalSearchFilterContext({
-    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    // });
     this.props.toggleShowGlobalSearchModal(
       filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
     );
