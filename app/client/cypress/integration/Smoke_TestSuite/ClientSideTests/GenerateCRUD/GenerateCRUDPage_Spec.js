@@ -4,9 +4,15 @@ import homePage from "../../../../locators/HomePage.json";
 import datasource from "../../../../locators/DatasourcesEditor.json";
 
 describe("Generate New CRUD Page Inside from entity explorer", function() {
+  let datasourceName;
+
   before(() => {
     cy.startRoutesForDatasource();
     cy.createPostgresDatasource();
+
+    cy.get("@createDatasource").then((httpResponse) => {
+      datasourceName = httpResponse.response.body.data.name;
+    });
     // TODO
     // 1. Add INVALID credential for a datasource and test the invalid datasource structure flow.
     // 2. Add 2 supported datasource and 1 not supported datasource with a fixed name to search.
@@ -27,7 +33,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get(generatePage.selectDatasourceDropdown).click();
 
     cy.get(generatePage.datasourceDropdownOption)
-      .first()
+      .contains(datasourceName)
       .click();
 
     cy.wait("@getDatasourceStructure").should(
@@ -81,7 +87,8 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((UUID) => {
-      cy.renameDatasource(`PostgresSQL CRUD Demo ${UUID}`);
+      datasourceName = `PostgresSQL CRUD Demo ${UUID}`;
+      cy.renameDatasource(datasourceName);
     });
 
     cy.startRoutesForDatasource();
@@ -124,10 +131,16 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get(pages.integrationActiveTab)
       .should("be.visible")
       .click({ force: true });
+    cy.wait(1000);
 
-    cy.get(generatePage.datasourceCardGeneratePageBtn)
-      .first()
-      .click();
+    cy.get(datasource.datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(datasource.datasourceCard)
+      .within(() => {
+        cy.get(datasource.datasourceCardGeneratePageBtn).click();
+      });
 
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
