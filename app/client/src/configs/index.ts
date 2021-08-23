@@ -32,6 +32,7 @@ export type INJECTED_CONFIGS = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
   logLevel: "debug" | "error";
   appVersion: {
@@ -92,6 +93,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
+      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -196,6 +198,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.algolia.indexName,
     APPSMITH_FEATURE_CONFIGS.algolia.indexName,
   );
+  const algoliaSnippetIndex = getConfig(
+    ENV_CONFIG.algolia.indexName,
+    APPSMITH_FEATURE_CONFIGS.algolia.snippetIndex,
+  );
 
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
@@ -247,12 +253,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     },
     algolia: {
       enabled: true,
-      apiId: "FXR9GEQFKH" || algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey:
-        "291d1380b60d89bc1bb094f05a5a752b" ||
-        algoliaAPIKey.value ||
-        "d113611dccb80ac14aaa72a6e3ac6d10",
-      indexName: "js_snippets" || algoliaIndex.value || "test_appsmith",
+      apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
+      apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
+      indexName: algoliaIndex.value || "test_appsmith",
+      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {
       enabled: google.enabled,

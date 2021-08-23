@@ -306,7 +306,6 @@
         "dataType": "STRING",
         "body": {
             "title": "Select current date in the date picker widget",
-            "template": "moment.now()",
             "additionalInfo": [
                 {
                     "title": "",

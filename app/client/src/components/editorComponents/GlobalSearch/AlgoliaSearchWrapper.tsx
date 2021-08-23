@@ -40,7 +40,7 @@ function Search({
 
   return (
     <InstantSearch
-      indexName={isSnippet(category) ? "js_snippets" : algolia.indexName}
+      indexName={isSnippet(category) ? algolia.snippetIndex : algolia.indexName}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}

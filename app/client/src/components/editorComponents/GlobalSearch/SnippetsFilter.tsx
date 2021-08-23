@@ -22,7 +22,7 @@ const SnippetsFilterContainer = styled.div<{
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: ${(props) => props.theme.colors.globalSearch.filterBtnText};
+    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
     border: none;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     height: 100%;
@@ -37,9 +37,9 @@ const SnippetsFilterContainer = styled.div<{
     height: ${(props) => (props.showFilter ? "185px" : "0")};
     bottom: 40px;
     background: ${(props) =>
-      props.theme.colors.globalSearch.filterListBackground};
+      props.theme.colors.globalSearch.snippets.filterListBackground};
     border: 1px solid rgba(240, 240, 240, 1);
-    color: ${(props) => props.theme.colors.globalSearch.filterBtnText};
+    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     [class^="ais-"] {
       font-size: 12px;
@@ -56,17 +56,17 @@ const SnippetsFilterContainer = styled.div<{
         font-weight: ${(props) => props.theme.fontWeights[2]};
         transition: 0.1s;
         background: ${(props) =>
-          props.theme.colors.globalSearch.filterListBackground};
+          props.theme.colors.globalSearch.snippets.filterListBackground};
         &:hover {
           background: ${(props) =>
-            props.theme.colors.globalSearch.filterListBackground};
+            props.theme.colors.globalSearch.snippets.filterListBackground};
           font-weight: ${(props) => props.theme.fontWeights[3]};
         }
         &.ais-ClearRefinements-button--disabled {
           font-weight: ${(props) => props.theme.fontWeights[1]};
           &:hover {
             background: ${(props) =>
-              props.theme.colors.globalSearch.filterListBackground};
+              props.theme.colors.globalSearch.snippets.filterListBackground};
             cursor: block;
           }
         }

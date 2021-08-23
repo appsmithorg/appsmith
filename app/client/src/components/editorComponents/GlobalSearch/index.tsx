@@ -62,6 +62,8 @@ import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
+import SnippetRefinements from "./SnippetRefinements";
+import { Index } from "react-instantsearch-dom";
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -111,9 +113,10 @@ const getSortedResults = (
   filteredEntities: Array<any>,
   documentationSearchResults: Array<any>,
   recentEntityIndex: (entity: any) => number,
+  snippets: Array<any>,
   currentPageId?: string,
 ) => {
-  return [...filteredEntities, ...documentationSearchResults].sort(
+  return [...filteredEntities, ...documentationSearchResults, ...snippets].sort(
     (a: any, b: any) => {
       const queryIndexA = getQueryIndexForSorting(a, query);
       const queryIndexB = getQueryIndexForSorting(b, query);
@@ -177,11 +180,6 @@ function GlobalSearch() {
     documentationSearchResults,
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
-
-  const setSearchResults = useCallback((res, categoryId) => {
-    if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);
-    else setDocumentationSearchResultsInState(res);
-  }, []);
 
   const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {
@@ -305,6 +303,7 @@ function GlobalSearch() {
       return snippets;
     }
 
+    let currentSnippets = snippets;
     let filteredEntities: any = [];
     let documents: DocSearchItem[] = [];
     if (isNavigation(category) || isMenu(category)) {
@@ -320,12 +319,16 @@ function GlobalSearch() {
         ? documentationSearchResults
         : defaultDocs.concat(documentationSearchResults);
     }
+    if (!(isSnippet(category) || isMenu(category))) {
+      currentSnippets = [];
+    }
 
     return getSortedResults(
       query,
       filteredEntities,
       documents,
       recentEntityIndex,
+      currentSnippets,
       currentPageId,
     );
   }, [
@@ -335,6 +338,7 @@ function GlobalSearch() {
     filteredDatasources,
     query,
     recentEntities,
+    snippets,
   ]);
 
   const activeItem = useMemo(() => {
@@ -425,7 +429,7 @@ function GlobalSearch() {
   const handleSnippetClick = (event: SelectEvent, item: any) => {
     if (event.type === "click") {
       setActiveItemIndex(
-        snippets.findIndex((snip: any) => snip.objectID === item.objectID),
+        searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
       );
       return;
     }
@@ -467,6 +471,14 @@ function GlobalSearch() {
     itemClickHandlerByType[type](event, item);
   };
 
+  const setSearchResults = useCallback((res, category) => {
+    if (isSnippet(category)) {
+      setSnippetsState(res);
+    } else {
+      setDocumentationSearchResultsInState(res);
+    }
+  }, []);
+
   const searchContext = {
     handleItemLinkClick,
     setActiveItemIndex,
@@ -480,6 +492,14 @@ function GlobalSearch() {
     handleDownKey,
     handleItemLinkClick,
   };
+
+  const showDescription = useMemo(() => {
+    return (
+      isDocumentation(category) ||
+      isSnippet(category) ||
+      (isMenu(category) && query)
+    );
+  }, [category, query]);
 
   const activeItemType = useMemo(() => {
     return activeItem ? getItemType(activeItem) : undefined;
@@ -502,11 +522,22 @@ function GlobalSearch() {
                 setCategory={setCategory}
                 setQuery={setQuery}
               />
+              {refinements &&
+                refinements.entities &&
+                refinements.entities.length && <SnippetRefinements />}
               <div className="main">
                 <SetSearchResults
-                  categoryId={category.id}
-                  setDocumentationSearchResults={setSearchResults}
+                  category={category}
+                  setSearchResults={setSearchResults}
                 />
+                {isMenu(category) && (
+                  <Index indexName="snippet">
+                    <SetSearchResults
+                      category={category}
+                      setSearchResults={setSnippetsState}
+                    />
+                  </Index>
+                )}
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
@@ -515,7 +546,7 @@ function GlobalSearch() {
                       searchResults={searchResults}
                       showFilter={isSnippet(category)}
                     />
-                    {(isDocumentation(category) || isSnippet(category)) && (
+                    {showDescription && (
                       <Description
                         activeItem={activeItem}
                         activeItemType={activeItemType}

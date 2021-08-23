@@ -1060,8 +1060,12 @@ type ColorType = {
     sectionTitle: string;
     navigateToEntityEnterkey: string;
     mainContainerBackground: string;
-    filterListBackground: string;
-    filterBtnText: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+    };
   };
   gif: {
     overlay: string;
@@ -1394,8 +1398,12 @@ const globalSearch = {
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
   mainContainerBackground: "#F0F0F0",
-  filterListBackground: lightShades[0],
-  filterBtnText: lightShades[8],
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+  },
 };
 
 const mentionsInput = {
