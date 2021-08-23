@@ -86,6 +86,39 @@ function defaultSelectedRowValidation(
   };
 }
 
+function totalRecordsCountValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  if (_.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: 0,
+      message: "",
+    };
+  }
+  if (!Number.isFinite(value) && !_.isString(value)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  if (_.isString(value) && !/^\d+\.?\d*$/.test(value as string)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  return {
+    isValid: true,
+    parsed: Number(value),
+    message: "",
+  };
+}
+
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
   props: TableWidgetProps,
@@ -915,7 +948,17 @@ export default [
         placeholderText: "Enter total record count",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.NUMBER },
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: totalRecordsCountValidation,
+            expected: {
+              type: "Number",
+              example: "10",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
         hidden: (props: TableWidgetProps) =>
           !!!props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
