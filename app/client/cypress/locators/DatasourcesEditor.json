@@ -16,6 +16,7 @@
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
   "datasourceCardMenu": ".t--datasource-menu-option",
+  "datasourceCardGeneratePageBtn": ".t--generate-template",
   "datasourceMenuOptionEdit": "t--datasource-option-edit",
   "datasourceMenuOptionDelete":"t--datasource-option-delete",
   "editDatasource": ".t--edit-datasource",
@@ -30,7 +31,7 @@
   "MsSQL": ".t--plugin-name:contains('MsSQL')",
   "Firestore": ".t--plugin-name:contains('Firestore')",
   "Redshift": ".t--plugin-name:contains('Redshift')",
-  "AmazonS3": ".t--plugin-name:contains('Amazon S3')",
+  "AmazonS3": ".t--plugin-name:contains('S3')",
   "authType": "[data-cy=authType]",
   "OAuth2": "//div[contains(@class,'option') and text()='OAuth 2.0']",
   "accessTokenUrl": "[data-cy='authentication.accessTokenUrl'] input",
@@ -46,6 +47,6 @@
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
   "basicPassword": "input[name='authentication.password']",
-  "mockUserDatabase":"div[id='mock-database'] span:contains('users')",
-  "mockUserDatasources":".t--datasource-name:contains('USERS - Mock')"
+  "mockUserDatabase":"div[id='mock-database'] span:contains('Users')",
+  "mockUserDatasources":".t--datasource-name:contains('Users')"
 }
