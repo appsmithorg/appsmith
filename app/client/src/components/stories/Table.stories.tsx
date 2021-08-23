@@ -5,11 +5,10 @@ import Button, { Category, Size } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { StoryWrapper, Variant } from "components/ads/common";
+import { Variant } from "components/ads/common";
 import { noop } from "utils/AppsmithUtils";
 import { storyName } from "./config/constants";
 import { controlType, statusType } from "./config/types";
-import { action } from "@storybook/addon-actions";
 
 export default {
   title: storyName.platform.tables.table.PATH,
