@@ -62,10 +62,6 @@ interface DispatchFunctions {
   redirectToNewIntegrations: (applicationId: string, pageId: string) => void;
 }
 
-interface DatasourceSaasEditorState {
-  isAuthorized: boolean;
-}
-
 type DatasourceSaaSEditorProps = StateProps &
   DispatchFunctions &
   RouteComponentProps<{
@@ -77,6 +73,12 @@ type DatasourceSaaSEditorProps = StateProps &
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
+
+enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
 
 const StyledButton = styled(Button)`
   &&&& {
@@ -104,17 +106,7 @@ const StyledAuthMessage = styled.div`
   }
 `;
 
-class DatasourceSaaSEditor extends JSONtoForm<
-  Props,
-  DatasourceSaasEditorState
-> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      isAuthorized: false,
-    };
-  }
-
+class DatasourceSaaSEditor extends JSONtoForm<Props> {
   componentDidMount() {
     super.componentDidMount();
     const search = new URLSearchParams(this.props.location.search);
@@ -131,11 +123,6 @@ class DatasourceSaaSEditor extends JSONtoForm<
         }
         Toaster.show({ text: display_message || message, variant });
       } else {
-        // set authorization status
-        this.setState({
-          isAuthorized: true,
-        });
-
         this.props.getOAuthAccessToken(this.props.match.params.datasourceId);
       }
       AnalyticsUtil.logEvent("GSHEET_AUTH_COMPLETE", {
@@ -159,6 +146,7 @@ class DatasourceSaaSEditor extends JSONtoForm<
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      datasource,
       deleteDatasource,
       isDeleting,
       isSaving,
@@ -169,6 +157,10 @@ class DatasourceSaaSEditor extends JSONtoForm<
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
+    const isAuthorized =
+      datasource?.datasourceConfiguration.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+
     return (
       <form
         onSubmit={(e) => {
@@ -207,11 +199,9 @@ class DatasourceSaaSEditor extends JSONtoForm<
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
-
-            {!this.state.isAuthorized && (
+            {!isAuthorized && (
               <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
             )}
-
             <SaveButtonContainer>
               <ActionButton
                 accent="error"
@@ -250,7 +240,7 @@ class DatasourceSaaSEditor extends JSONtoForm<
                   );
                 }}
                 size="small"
-                text={this.state.isAuthorized ? "Re-authorize" : "Authorize"}
+                text={isAuthorized ? "Re-authorize" : "Authorize"}
               />
             </SaveButtonContainer>
           </>
