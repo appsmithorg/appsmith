@@ -6,6 +6,7 @@ const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
   width?: string;
   maxHeight?: string;
+  maxWidth?: string;
   showHeaderUnderline?: boolean;
 }>`
   && {
@@ -15,6 +16,7 @@ const StyledDialog = styled(Dialog)<{
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
     ${(props) => props.setMaxWidth && `width: 100vh;`}
+    ${(props) => props.maxWidth && `max-width: ${props.maxWidth};`}
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
@@ -86,21 +88,24 @@ type DialogComponentProps = {
   width?: string;
   maxHeight?: string;
   onOpening?: () => void;
+  onClose?: () => void;
   setModalClose?: (close: boolean) => void;
   triggerZIndex?: number;
   showHeaderUnderline?: boolean;
   getHeader?: () => ReactNode;
   canEscapeKeyClose?: boolean;
   className?: string;
+  maxWidth?: string;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
   const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
-  const { setModalClose } = props;
+  const { onClose: onCloseProp, setModalClose } = props;
   const onClose = () => {
     setModalClose ? setModalClose(false) : null;
     setIsOpen(false);
+    onCloseProp && onCloseProp();
   };
 
   useEffect(() => {
@@ -128,6 +133,7 @@ export function DialogComponent(props: DialogComponentProps) {
         className={props.className}
         isOpen={isOpen}
         maxHeight={props.maxHeight}
+        maxWidth={props.maxWidth}
         onClose={onClose}
         onOpening={props.onOpening}
         setMaxWidth={props.setMaxWidth}

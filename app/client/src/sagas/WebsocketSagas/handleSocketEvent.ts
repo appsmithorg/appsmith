@@ -1,5 +1,6 @@
 import { put, select } from "redux-saga/effects";
 import { SOCKET_EVENTS } from "./constants";
+import { APP_COLLAB_EVENTS } from "constants/AppCollabConstants";
 
 import {
   newCommentEvent,
@@ -8,6 +9,8 @@ import {
   updateCommentEvent,
   incrementThreadUnreadCount,
   decrementThreadUnreadCount,
+  deleteCommentThreadEvent,
+  deleteCommentEvent,
 } from "actions/commentActions";
 
 import { newNotificationEvent } from "actions/notificationActions";
@@ -16,6 +19,7 @@ import { getCurrentApplication } from "selectors/applicationSelectors";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { AppState } from "reducers";
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { collabListAppEditorsEvent } from "../../actions/appCollabActions";
 
 export default function* handleSocketEvent(event: any) {
   const currentUser = yield select(getCurrentUser);
@@ -77,9 +81,22 @@ export default function* handleSocketEvent(event: any) {
       yield put(updateCommentEvent(event.payload[0].comment));
       return;
     }
+    case SOCKET_EVENTS.DELETE_COMMENT_THREAD: {
+      yield put(deleteCommentThreadEvent(event.payload[0].thread));
+      return;
+    }
+    case SOCKET_EVENTS.DELETE_COMMENT: {
+      yield put(deleteCommentEvent(event.payload[0].comment));
+      return;
+    }
     // notifications
     case SOCKET_EVENTS.INSERT_NOTIFICATION: {
       yield put(newNotificationEvent(event.payload[0].notification));
+      return;
+    }
+    // Collab V2 - Realtime Editing
+    case APP_COLLAB_EVENTS.LIST_ONLINE_APP_EDITORS: {
+      yield put(collabListAppEditorsEvent(event.payload[0]));
       return;
     }
   }

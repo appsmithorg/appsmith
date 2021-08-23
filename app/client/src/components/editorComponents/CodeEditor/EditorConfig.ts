@@ -45,6 +45,8 @@ export type FieldEntityInformation = {
   entityName?: string;
   expectedType?: AutocompleteDataType;
   entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET;
+  entityId?: string;
+  propertyPath?: string;
 };
 
 export type HintHelper = (

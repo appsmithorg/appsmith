@@ -272,7 +272,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             // Now publish this newly created app with default states so that
                             // launching of newly created application is possible.
-                            .flatMap(updatedApplication -> publish(savedApplication.getId())
+                            .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
                                     .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
                 });
     }
@@ -577,7 +577,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
      * @return Publishes a Boolean true, when the application has been published.
      */
     @Override
-    public Mono<Application> publish(String applicationId) {
+    public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
@@ -623,7 +623,9 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     application.setPublishedPages(pages);
 
                     application.setPublishedAppLayout(application.getUnpublishedAppLayout());
-
+                    if(isPublishedManually) {
+                        application.setLastDeployedAt(Instant.now());
+                    }
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published
                     return Mono.zip(archivePageListMono, applicationService.save(application))

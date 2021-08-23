@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "constants/messages";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { bootIntercom } from "utils/helpers";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;
@@ -18,7 +20,11 @@ const ListWrapper = styled.div`
 
 function Errors(props: { hasShortCut?: boolean }) {
   const errors = useSelector(getDebuggerErrors);
-  const expandId = useSelector((state: any) => state.ui.debugger.expandId);
+  const currentUser = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    bootIntercom(currentUser);
+  }, [currentUser?.email]);
 
   return (
     <ContainerWrapper>
@@ -31,14 +37,9 @@ function Errors(props: { hasShortCut?: boolean }) {
         ) : (
           Object.values(errors).map((e, index) => {
             const logItemProps = getLogItemProps(e);
-            const id = Object.keys(errors)[index];
-
+            // Expand all errors by default
             return (
-              <LogItem
-                key={`debugger-${index}`}
-                {...logItemProps}
-                expand={id === expandId}
-              />
+              <LogItem key={`debugger-${index}`} {...logItemProps} expand />
             );
           })
         )}

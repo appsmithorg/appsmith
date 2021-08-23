@@ -63,6 +63,65 @@ function PostBodyData(props: Props) {
     updateBodyContentType,
   } = props;
 
+  const tabComponentsMap = (
+    key: string,
+    contentType: ApiContentTypes,
+  ): JSX.Element => {
+    return {
+      [ApiContentTypes.JSON]: (
+        <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
+          <DynamicTextField
+            dataTreePath={`${dataTreePath}.body`}
+            expected={expectedPostBody}
+            mode={EditorModes.JSON_WITH_BINDING}
+            name="actionConfiguration.body"
+            placeholder={
+              '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
+            }
+            showLineNumbers
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={theme}
+          />
+        </JSONEditorFieldWrapper>
+      ),
+      [ApiContentTypes.FORM_URLENCODED]: (
+        <KeyValueFieldArray
+          dataTreePath={`${dataTreePath}.bodyFormData`}
+          key={key}
+          label=""
+          name="actionConfiguration.bodyFormData"
+          theme={theme}
+        />
+      ),
+
+      [ApiContentTypes.MULTIPART_FORM_DATA]: (
+        <KeyValueFieldArray
+          dataTreePath={`${dataTreePath}.bodyFormData`}
+          hasType
+          key={key}
+          label=""
+          name="actionConfiguration.bodyFormData"
+          pushFields
+          theme={theme}
+        />
+      ),
+
+      [ApiContentTypes.RAW]: (
+        <JSONEditorFieldWrapper key={key}>
+          <DynamicTextField
+            dataTreePath={`${dataTreePath}.body`}
+            mode={EditorModes.TEXT_WITH_BINDING}
+            name="actionConfiguration.body"
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+            theme={theme}
+          />
+        </JSONEditorFieldWrapper>
+      ),
+    }[contentType];
+  };
+
   return (
     <PostBodyContainer>
       <MultiSwitch
@@ -71,54 +130,11 @@ function PostBodyData(props: Props) {
         }
         selected={displayFormat}
         tabs={POST_BODY_FORMAT_TITLES.map((el) => {
-          let component = (
-            <JSONEditorFieldWrapper
-              className={"t--apiFormPostBody"}
-              key={el.key}
-            >
-              <DynamicTextField
-                dataTreePath={`${dataTreePath}.body`}
-                expected={expectedPostBody}
-                mode={EditorModes.JSON_WITH_BINDING}
-                name="actionConfiguration.body"
-                placeholder={
-                  '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}\n\n\\\\Take widget inputs using {{ }}'
-                }
-                showLineNumbers
-                size={EditorSize.EXTENDED}
-                tabBehaviour={TabBehaviour.INDENT}
-                theme={theme}
-              />
-            </JSONEditorFieldWrapper>
-          );
-          if (
-            el.title === ApiContentTypes.FORM_URLENCODED ||
-            el.title === ApiContentTypes.MULTIPART_FORM_DATA
-          ) {
-            component = (
-              <KeyValueFieldArray
-                dataTreePath={`${dataTreePath}.bodyFormData`}
-                key={el.key}
-                label=""
-                name="actionConfiguration.bodyFormData"
-                theme={theme}
-              />
-            );
-          } else if (el.title === ApiContentTypes.RAW) {
-            component = (
-              <JSONEditorFieldWrapper key={el.key}>
-                <DynamicTextField
-                  dataTreePath={`${dataTreePath}.body`}
-                  mode={EditorModes.TEXT_WITH_BINDING}
-                  name="actionConfiguration.body"
-                  size={EditorSize.EXTENDED}
-                  tabBehaviour={TabBehaviour.INDENT}
-                  theme={theme}
-                />
-              </JSONEditorFieldWrapper>
-            );
-          }
-          return { key: el.key, title: el.title, panelComponent: component };
+          return {
+            key: el.key,
+            title: el.title,
+            panelComponent: tabComponentsMap(el.key, el.title),
+          };
         })}
       />
     </PostBodyContainer>

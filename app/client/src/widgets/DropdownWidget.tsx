@@ -48,6 +48,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
@@ -134,6 +135,16 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Enables server side filtering of the data",
+            propertyName: "serverSideFiltering",
+            label: "Server Side Filtering",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -143,6 +154,17 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             helpText: "Triggers an action when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: DropdownWidgetProps) => !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -178,6 +200,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
@@ -189,10 +212,12 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
         label={`${this.props.label}`}
+        onFilterChange={this.onFilterChange}
         onOptionSelected={this.onOptionSelected}
         options={options}
         placeholder={this.props.placeholderText}
         selectedIndex={selectedIndex > -1 ? selectedIndex : undefined}
+        serverSideFiltering={this.props.serverSideFiltering}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -204,9 +229,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
-    if (this.props.selectedOption) {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+    if (this.props.selectedOptionValue) {
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
+
     if (isChanged) {
       this.props.updateWidgetMetaProperty(
         "defaultValue",
@@ -220,6 +246,18 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         },
       );
     }
+  };
+
+  onFilterChange = (value: string) => {
+    this.props.updateWidgetMetaProperty("filterText", value);
+
+    super.executeAction({
+      triggerPropertyName: "onFilterUpdate",
+      dynamicString: this.props.onFilterUpdate,
+      event: {
+        type: EventType.ON_FILTER_UPDATE,
+      },
+    });
   };
 
   getWidgetType(): WidgetType {
@@ -250,6 +288,8 @@ export interface DropdownWidgetProps extends WidgetProps, WithMeta {
   isFilterable: boolean;
   defaultValue: string;
   selectedOptionLabel: string;
+  serverSideFiltering: boolean;
+  onFilterUpdate: string;
 }
 
 export default DropdownWidget;
