@@ -115,5 +115,7 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
   SELECT_DISABLED: "#ced9e080",
+  SELECT_PLACEHOLDER: "#bfbfbf",
+  SELECT_COLOR: "#182026",
 };
 export type Color = typeof Colors[keyof typeof Colors];

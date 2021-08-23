@@ -32,7 +32,7 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)`
+const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   div {
     flex: 1 1 auto;
   }
@@ -60,6 +60,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
+    color: ${(props) =>
+      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
   }
   && {
     .${Classes.ICON} {
@@ -171,6 +173,11 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             className={this.props.isLoading ? Classes.SKELETON : ""}
             disabled={this.props.disabled}
             filterable={this.props.isFilterable}
+            isSelected={
+              !_.isEmpty(this.props.options) &&
+              this.props.selectedIndex !== undefined &&
+              this.props.selectedIndex > -1
+            }
             itemListPredicate={
               !this.props.serverSideFiltering
                 ? this.itemListPredicate

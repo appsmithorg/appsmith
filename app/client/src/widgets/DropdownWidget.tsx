@@ -96,7 +96,6 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             dependencies: ["selectionType"],
           },
           {
-            helpText: "Input Place Holder",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",

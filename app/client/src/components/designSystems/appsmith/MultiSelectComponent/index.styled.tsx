@@ -379,6 +379,7 @@ export const MultiSelectContainer = styled.div`
       height: 100%;
       display: flex;
       align-items: center;
+      fill: ${Colors.SLATE_GRAY};
     }
     .rc-select-arrow-icon {
       &::after {
