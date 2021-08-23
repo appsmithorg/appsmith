@@ -47,7 +47,6 @@ function RefinementPill({ item, refine }: any) {
 }
 
 function SnippetRefinements({ items, refine }: any) {
-  console.log({ items });
   return (
     <RefinementListContainer>
       <span>Showing filtered results: </span>
