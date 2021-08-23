@@ -20,7 +20,7 @@ import {
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
@@ -315,7 +315,7 @@ TriggerNode.displayName = "TriggerNode";
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
-  const debuggerErrors = useSelector(getDebuggerErrors);
+  const debuggerErrors = useSelector(getFilteredErrors);
 
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
