@@ -1,11 +1,8 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CUSTOM_CHART_TYPES } from "constants/CustomChartConstants";
-import {
-  isLabelOrientationApplicableFor,
-  LabelOrientation,
-} from "components/designSystems/appsmith/ChartComponent";
+import { CUSTOM_CHART_TYPES, LabelOrientation } from "constants/ChartConstants";
+import { isLabelOrientationApplicableFor } from "components/designSystems/appsmith/ChartComponent";
 
 export default [
   {

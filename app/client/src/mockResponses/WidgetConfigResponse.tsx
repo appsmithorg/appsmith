@@ -20,7 +20,7 @@ import {
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
-import { LabelOrientation } from "components/designSystems/appsmith/ChartComponent";
+import { LabelOrientation } from "constants/ChartConstants";
 
 /*
  ********************************{Grid Density Migration}*********************************

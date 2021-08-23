@@ -6,6 +6,10 @@ import log from "loglevel";
 import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import { getAppsmithConfigs } from "configs";
 import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import {
+  LabelOrientation,
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+} from "constants/ChartConstants";
 
 export interface CustomFusionChartConfig {
   type: string;
@@ -17,19 +21,6 @@ export interface ChartSelectedDataPoint {
   y: any;
   seriesTitle: string;
 }
-
-export enum LabelOrientation {
-  AUTO = "auto",
-  SLANT = "slant",
-  ROTATE = "rotate",
-  STAGGER = "stagger",
-}
-
-export const LABEL_ORIENTATION_COMPATIBLE_CHARTS = [
-  "LINE_CHART",
-  "AREA_CHART",
-  "COLUMN_CHART",
-];
 
 const FusionCharts = require("fusioncharts");
 const plugins: Record<string, any> = {
