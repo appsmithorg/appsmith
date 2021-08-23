@@ -150,7 +150,6 @@ describe("Button Widget Functionality", function() {
   });
 
   it("Button-Copy Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy button and verify all properties
     cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
 
