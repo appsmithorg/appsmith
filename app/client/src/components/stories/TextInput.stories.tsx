@@ -41,7 +41,7 @@ Primary.args = {
   defaultValue: "",
   readOnly: false,
   dataType: "text",
-  leftIcon: undefined,
+  leftIcon: "Select icon" as IconName,
   helperText: "",
   disabled: false,
   validator: true,

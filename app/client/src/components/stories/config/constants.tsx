@@ -70,5 +70,15 @@ export const storyName = {
         NAME: "MenuItem",
       },
     },
+    tables: {
+      tableDropdown: {
+        PATH: "Platform/Tables/TableDropdown",
+        NAME: "TableDropdown",
+      },
+      table: {
+        PATH: "Platform/Tables/Table",
+        NAME: "Table",
+      },
+    },
   },
 };
