@@ -41,6 +41,14 @@ public class GitController extends BaseController<GitDataService, GitData, Strin
 
     }
 
+    @PostMapping("/update")
+    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
+        //Add to the userData object - git config data
+        return gitService.updateGitConfigData(gitGlobalConfigDTO)
+                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+
+    }
+
     @PostMapping("/connect")
     public String connectToRemoteRepo(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) throws IOException {
         return gitService.connectToGitRepo(gitGlobalConfigDTO);
