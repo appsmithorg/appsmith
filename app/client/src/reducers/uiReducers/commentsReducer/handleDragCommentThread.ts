@@ -8,10 +8,12 @@ const handleDragCommentThread = (
   state: CommentsReduxState,
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
-  const { applicationId, refId } = action.payload;
-  if (!applicationId || !refId) return;
+  const { refId } = action.payload;
   const id = (action.payload._id || action.payload.id) as string;
   const commentThreadInStore = state.commentThreadsMap[id];
+  const { applicationId } = commentThreadInStore;
+  if (!applicationId || !refId) return;
+
   const oldContainerRef = commentThreadInStore.refId;
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
