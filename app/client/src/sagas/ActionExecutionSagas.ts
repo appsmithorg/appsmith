@@ -581,6 +581,7 @@ export function* executeActionSaga(
             message: isString(payload.body)
               ? payload.body
               : JSON.stringify(payload.body, null, 2),
+            subType: response.data.errorType,
           },
         ],
       });
@@ -925,6 +926,7 @@ function* runActionSaga(
                 ? JSON.stringify(payload.body)
                 : payload.body,
               type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+              subType: response.data.errorType,
             },
           ],
           state: response.data?.request ?? null,
@@ -1041,6 +1043,7 @@ function* executePageLoadAction(pageAction: PageAction) {
           {
             message: JSON.stringify(body),
             type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            subType: response.data.errorType,
           },
         ],
       });
