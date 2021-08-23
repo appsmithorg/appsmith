@@ -1,4 +1,4 @@
-import { Message, Severity } from "entities/AppsmithConsole";
+import { Log, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -125,7 +125,7 @@ export function getDependencyChain(
 
 export const doesEntityHaveErrors = (
   entityId: string,
-  debuggerErrors: Record<string, Message>,
+  debuggerErrors: Record<string, Log>,
 ) => {
   const ids = Object.keys(debuggerErrors);
 

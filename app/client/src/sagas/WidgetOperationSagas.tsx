@@ -545,6 +545,9 @@ export function* deleteAllSelectedWidgetsSaga(
                 type: ENTITY_TYPE.WIDGET,
                 id: widget.widgetId,
               },
+              analytics: {
+                widgetType: widget.type,
+              },
             });
           });
         }
@@ -665,6 +668,9 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
                   name: widget.widgetName,
                   type: ENTITY_TYPE.WIDGET,
                   id: widget.widgetId,
+                },
+                analytics: {
+                  widgetType: widget.type,
                 },
               });
             });
@@ -1815,7 +1821,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     );
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
-    console.log(error, "Error");
+    log.error(error);
   }
 }
 

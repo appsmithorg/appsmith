@@ -35,6 +35,8 @@ import notificationsReducer from "./notificationsReducer";
 import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
+import gitSyncReducer from "./gitSyncReducer";
+import crudInfoModalReducer from "./crudInfoModalReducer";
 
 const uiReducer = combineReducers({
   actionTabs: actionTabsReducer,
@@ -72,7 +74,9 @@ const uiReducer = combineReducers({
   tour: tourReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
+  gitSync: gitSyncReducer,
   appCollab: appCollabReducer,
+  crudInfoModal: crudInfoModalReducer,
 });
 
 export default uiReducer;
