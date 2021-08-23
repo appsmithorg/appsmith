@@ -20,8 +20,6 @@ import {
   GenerateCRUDEnabledPluginMap,
   UIComponentTypes,
 } from "../api/PluginApi";
-import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
-
 import { APP_MODE } from "entities/App";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
@@ -125,6 +123,10 @@ export const getIsFetchingSinglePluginForm = (
   pluginId: string,
 ): boolean => {
   return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
+};
+
+export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
+  return state.entities.datasources.executingDatasourceQuery;
 };
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
@@ -255,13 +257,8 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   getPlugins,
   (plugins) => {
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
-    // Disable google sheet plugin
     plugins.map((plugin) => {
-      if (
-        plugin.generateCRUDPageComponent &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.S3
-      ) {
+      if (plugin.generateCRUDPageComponent) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
     });

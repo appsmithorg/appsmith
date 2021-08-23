@@ -28,7 +28,7 @@ import { Variant } from "components/ads/common";
 import Text, { TextType } from "components/ads/Text";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
-import AdsIcon from "components/ads/Icon";
+import AdsIcon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -50,6 +50,8 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DOCUMENTATION,
+  DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
 } from "constants/messages";
 import { useParams } from "react-router";
@@ -62,6 +64,7 @@ import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { UIComponentTypes } from "../../../api/PluginApi";
+import TooltipComponent from "../../../components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -145,6 +148,16 @@ const DocumentationLink = styled.a`
   position: absolute;
   right: 23px;
   top: -6px;
+  color: black;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 14px;
+  span {
+    display: flex;
+  }
+  &:hover {
+    color: black;
+  }
 `;
 
 const SecondaryWrapper = styled.div`
@@ -300,13 +313,6 @@ const NoDataSourceContainer = styled.div`
     margin-bottom: 23px;
     font-size: 18px;
     color: #2e3d49;
-  }
-`;
-
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
   }
 `;
 
@@ -683,8 +689,21 @@ export function EditorJSONtoForm(props: Props) {
                   className="t--datasource-documentation-link"
                   onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
                 >
-                  {"Documentation "}
-                  <StyledOpenDocsIcon icon="document-open" />
+                  <TooltipComponent
+                    content={createMessage(DOCUMENTATION_TOOLTIP)}
+                    hoverOpenDelay={50}
+                    position="top"
+                  >
+                    <span>
+                      <AdsIcon
+                        keepColors
+                        name="book-line"
+                        size={IconSize.XXXL}
+                      />
+                      &nbsp;
+                      {createMessage(DOCUMENTATION)}
+                    </span>
+                  </TooltipComponent>
                 </DocumentationLink>
               )}
               <TabComponent
