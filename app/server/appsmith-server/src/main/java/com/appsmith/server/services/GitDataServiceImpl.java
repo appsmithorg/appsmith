@@ -72,6 +72,28 @@ public class GitDataServiceImpl extends BaseService<GitDataRepository, GitData, 
     }
 
     @Override
+    public Mono<UserData> updateGitConfigData(GitGlobalConfigDTO gitConfig) {
+        return userService.findByEmail(gitConfig.getUserEmail())
+                .flatMap(user -> userDataService
+                        .getForUser(user.getId())
+                        .flatMap(userData -> {
+                            List<GitConfig> gitConfigs = userData.getGitLocalConfigData();
+                            for(GitConfig gitLocalConfig : gitConfigs) {
+                                if( gitLocalConfig.getRemoteUrl().equals(gitConfig.getRemoteUrl())) {
+                                    gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
+                                    gitLocalConfig.setUserName(user.getUsername());
+                                    gitLocalConfig.setCommitEmail(gitConfig.getUserEmail());
+                                    gitLocalConfig.setPassword(gitConfig.getPassword());
+                                    gitLocalConfig.setSshKey(gitConfig.getSshKey());
+                                    gitConfigs.add(gitLocalConfig);
+                                    userData.setGitLocalConfigData(gitConfigs);
+                                }
+                            }
+                            return userDataService.updateForCurrentUser(userData);
+                        }));
+    }
+
+    @Override
     public String connectToGitRepo(GitGlobalConfigDTO gitGlobalConfigDTO) {
         String filePath = getFilePath(gitGlobalConfigDTO.getRemoteUrl(), gitGlobalConfigDTO.getOrganizationId());
         try (Git result = Git.cloneRepository()
