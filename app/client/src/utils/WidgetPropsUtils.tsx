@@ -43,6 +43,7 @@ import WidgetConfigResponse, {
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { theme } from "../../src/constants/DefaultTheme";
+import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -818,6 +819,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 32) {
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
   return currentDSL;
