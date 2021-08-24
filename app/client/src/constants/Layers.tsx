@@ -54,6 +54,7 @@ export const Layers = {
   appComments: Indices.Layer7,
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,
+  evaluationPopper: Indices.Layer9,
 };
 
 export const LayersContext = React.createContext(Layers);

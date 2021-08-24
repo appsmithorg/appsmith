@@ -22,6 +22,7 @@ import {
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import { Layers } from "constants/Layers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -425,7 +426,7 @@ function EvaluatedValuePopup(props: Props) {
         modifiers={modifiers}
         placement={placement}
         targetNode={wrapperRef.current || undefined}
-        zIndex={9}
+        zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
           errors={props.errors}
