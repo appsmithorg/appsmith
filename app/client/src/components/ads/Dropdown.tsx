@@ -89,6 +89,7 @@ export const DropdownContainer = styled.div<{ width: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
+  height: string;
 }>`
   height: 100%;
   display: flex;
