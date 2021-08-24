@@ -266,6 +266,7 @@ function* logDebuggerErrorAnalyticsSaga(
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
+        errorSubType: payload.errorSubType,
       });
     }
   } catch (e) {
@@ -312,6 +313,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
+              errorSubType: errorMessage.subType,
             },
           }),
         ),
@@ -338,6 +340,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
               errorMessage: updatedErrorMessage.message,
               errorType: updatedErrorMessage.type,
+              errorSubType: updatedErrorMessage.subType,
             },
           });
         }
@@ -361,6 +364,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
               errorMessage: existingErrorMessage.message,
               errorType: existingErrorMessage.type,
+              errorSubType: existingErrorMessage.subType,
             },
           });
         }
@@ -408,6 +412,7 @@ function* deleteDebuggerErrorLogSaga(
             eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
             errorMessage: errorMessage.message,
             errorType: errorMessage.type,
+            errorSubType: errorMessage.subType,
           },
         });
       }),
