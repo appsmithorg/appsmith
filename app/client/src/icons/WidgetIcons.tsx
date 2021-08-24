@@ -115,7 +115,7 @@ export const WidgetIcons: {
       <ImageIcon />
     </IconWrapper>
   ),
-  FILE_PICKER_WIDGET: (props: IconProps) => (
+  FILE_PICKER_WIDGET_V2: (props: IconProps) => (
     <IconWrapper {...props}>
       <FilePickerIcon />
     </IconWrapper>
