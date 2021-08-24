@@ -1,10 +1,10 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 
 export const setCanvasSelectionFromEditor = (
   start: boolean,
-  startPoints?: XYCoord,
+  startPoints?: XYCord,
 ) => {
   return {
     type: start

@@ -1,7 +1,7 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 
 const initialState: CanvasSelectionState = {
   isDraggingForSelection: false,
@@ -24,7 +24,7 @@ export const canvasSelectionReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.START_CANVAS_SELECTION_FROM_EDITOR]: (
     state: CanvasSelectionState,
-    action: ReduxAction<{ startPoints?: XYCoord }>,
+    action: ReduxAction<{ startPoints?: XYCord }>,
   ) => {
     state.isDraggingForSelection = true;
     state.widgetId = MAIN_CONTAINER_WIDGET_ID;
@@ -42,7 +42,7 @@ export const canvasSelectionReducer = createImmerReducer(initialState, {
 export type CanvasSelectionState = {
   isDraggingForSelection: boolean;
   widgetId?: string;
-  outOfCanvasStartPositions?: XYCoord;
+  outOfCanvasStartPositions?: XYCord;
 };
 
 export default canvasSelectionReducer;

@@ -17,7 +17,7 @@ import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 
 const StyledSelectionCanvas = styled.canvas`
@@ -120,7 +120,7 @@ export function CanvasSelectionArena({
   };
   const drawOnEnterObj = useRef<{
     canDraw: boolean;
-    startPoints?: XYCoord;
+    startPoints?: XYCord;
   }>(defaultDrawOnObj);
 
   // start main container selection from widget editor
