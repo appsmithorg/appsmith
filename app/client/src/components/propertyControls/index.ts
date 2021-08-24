@@ -45,8 +45,9 @@ import MultiSwitchControl, {
 import MenuItemsControl from "./MenuItemsControl";
 import IconSelectControl from "./IconSelectControl";
 import IconAlignControl from "./IconAlignControl";
-import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
+import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
+import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -71,8 +72,9 @@ export const PropertyControls = {
   MenuItemsControl,
   IconSelectControl,
   IconAlignControl,
-  BorderRadiusOptionsControl,
   BoxShadowOptionsControl,
+  BorderRadiusOptionsControl,
+  ButtonBorderRadiusOptionsControl,
 };
 
 export type PropertyControlPropsType =
