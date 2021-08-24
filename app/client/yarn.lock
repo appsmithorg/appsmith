@@ -2017,6 +2017,11 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@fusioncharts/accessibility@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/accessibility/-/accessibility-1.4.0.tgz#e4dff397f68b17e1154af6b0a7a567ee23db4b4d"
+  integrity sha512-6Pvjqc6Y9ahEwQGlDAnLS/iFwEVfgqiwyVI/m9fOlDhOvXOPdW03z9xfbZeL29CqPgNE4QpjL3AyuWUWoKxPIw==
+
 "@fusioncharts/charts@^3.16.0":
   version "3.16.0"
   resolved "https://registry.npmjs.org/@fusioncharts/charts/-/charts-3.16.0.tgz"
@@ -2026,6 +2031,16 @@
     "@fusioncharts/features" "^1.2.0"
     "@fusioncharts/utils" "^1.2.0"
 
+"@fusioncharts/charts@^3.17.0":
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/charts/-/charts-3.17.0.tgz#bb03baf998abfc16518ca66ecad202d218c75130"
+  integrity sha512-19qzUu9pCyqIZgImhwKHACxl9xrEdJGGs7Y7rdcCMPL/sr1jy8rExjG0VYSyYyIwuxz8Lbza3Y3Na0ZgYrPphQ==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/features" "^1.4.0"
+    "@fusioncharts/utils" "^1.4.0"
+
 "@fusioncharts/constructor@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@fusioncharts/constructor/-/constructor-1.2.0.tgz"
@@ -2033,6 +2048,15 @@
     "@babel/runtime" "^7.9.2"
     "@fusioncharts/core" "^1.2.0"
     "@fusioncharts/maps" "^3.16.0"
+
+"@fusioncharts/constructor@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/constructor/-/constructor-1.4.0.tgz#b670b547ddf52832ca0b9b08bc61f711541bfed0"
+  integrity sha512-mX+ehcnI7ecixrPoJfinbAyOJDY3m11joeLiZzquLTu3Hx2U8W0UMt3KUY5OOZVU9bPRbs0pOSAquoCMV3RK1Q==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/maps" "^3.17.0"
 
 "@fusioncharts/core@^1.2.0":
   version "1.2.0"
@@ -2043,12 +2067,30 @@
     core-js "^3.0.1"
     ramda "^0.25.0"
 
+"@fusioncharts/core@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/core/-/core-1.4.0.tgz#af48bf707bf1e352b2af2141c8b3760ba8b3756b"
+  integrity sha512-F0/irFmWz0WNa/FN77wBr6JRqc6BE83KG0yKdZO5Guw/4gsVWnkOK4KmVVeNnB6NOv1MIqfspXmm3PcxWQBWpA==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/utils" "^1.4.0"
+    core-js "^3.0.1"
+    ramda "^0.25.0"
+
 "@fusioncharts/datatable@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@fusioncharts/datatable/-/datatable-1.2.0.tgz"
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@fusioncharts/utils" "^1.2.0"
+
+"@fusioncharts/datatable@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/datatable/-/datatable-1.4.0.tgz#e0938c3a7bd1ae702b8cde24a0efb1f44b64c22f"
+  integrity sha512-Amkf75UG0NNMAF0syCQtKSBpT1qShp4YAPFj/IwJVZs2i9/oWvuKjdyjtxe/OoLq32oOq9N9pAiTzSsFduMHDQ==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/utils" "^1.4.0"
 
 "@fusioncharts/features@^1.2.0":
   version "1.2.0"
@@ -2057,6 +2099,15 @@
     "@babel/runtime" "^7.9.2"
     "@fusioncharts/core" "^1.2.0"
     "@fusioncharts/utils" "^1.2.0"
+
+"@fusioncharts/features@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/features/-/features-1.4.0.tgz#58c9410e4e65f560dd0268478f40af74ecd4e667"
+  integrity sha512-5hF5ZQu+/JQ6l13prg1S6UzZIs3xIbcp5K/zruMvtb9IqtW0QAfC5xIeVRbe743oNiLGkk8jaAQpGDci4qNATg==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/utils" "^1.4.0"
 
 "@fusioncharts/fusiontime@^2.4.0":
   version "2.4.0"
@@ -2069,6 +2120,18 @@
     "@fusioncharts/utils" "^1.2.0"
     ramda "^0.25.0"
 
+"@fusioncharts/fusiontime@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/fusiontime/-/fusiontime-2.5.0.tgz#2c5947a0ec597a3cb9c5a586f346d3be7721ee72"
+  integrity sha512-gsS0vpP5RC9mnwoSOk8O2pLOJ5wnwO/ADYgfCs2p4eK6AeWkvJE/CeIhhSXYSlTeDnIisSAaWjl0Fn20cK3zfw==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/charts" "^3.17.0"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/datatable" "^1.4.0"
+    "@fusioncharts/utils" "^1.4.0"
+    ramda "^0.25.0"
+
 "@fusioncharts/maps@^3.16.0":
   version "3.16.0"
   resolved "https://registry.npmjs.org/@fusioncharts/maps/-/maps-3.16.0.tgz"
@@ -2077,6 +2140,16 @@
     "@fusioncharts/charts" "^3.16.0"
     "@fusioncharts/core" "^1.2.0"
     "@fusioncharts/features" "^1.2.0"
+
+"@fusioncharts/maps@^3.17.0":
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/maps/-/maps-3.17.0.tgz#e6e251ffdf6611c104624037f36cb3863a25adf0"
+  integrity sha512-j/DYLAqp6hcYS7e40YcBQlALG3Jxl2f7PBc+qOiotoPGzfpfdJccuHMA+153TZhfDm3643NqqOgYBJepjBC3cA==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/charts" "^3.17.0"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/features" "^1.4.0"
 
 "@fusioncharts/powercharts@^3.16.0":
   version "3.16.0"
@@ -2087,9 +2160,27 @@
     "@fusioncharts/core" "^1.2.0"
     "@fusioncharts/utils" "^1.2.0"
 
+"@fusioncharts/powercharts@^3.17.0":
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/powercharts/-/powercharts-3.17.0.tgz#35685435209d322f3ba3199375af96691dcad932"
+  integrity sha512-bHw3p6b/yw2joJgcHMhGisM67aAFhosANFkQt7r+N8zK1bQGy+7nqo8dB5y60SAq9xEluNjHtXDbeyXhXHLH7g==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/charts" "^3.17.0"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/utils" "^1.4.0"
+
 "@fusioncharts/utils@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@fusioncharts/utils/-/utils-1.2.0.tgz"
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    ramda "^0.25.0"
+
+"@fusioncharts/utils@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/utils/-/utils-1.4.0.tgz#b54e446e49cc469ffed48445b6693343db6e3b68"
+  integrity sha512-oMJfQu4nZfucyouZngRu7iPdx1j9noqSSiP1REPcpQSC/uX84eJfYY4wbNNr9q1BMm8u5r53JTGVq51w3NJnIQ==
   dependencies:
     "@babel/runtime" "^7.9.2"
     ramda "^0.25.0"
@@ -2104,6 +2195,18 @@
     "@fusioncharts/core" "^1.2.0"
     "@fusioncharts/features" "^1.2.0"
     "@fusioncharts/utils" "^1.2.0"
+
+"@fusioncharts/widgets@^3.17.0":
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/@fusioncharts/widgets/-/widgets-3.17.0.tgz#0fb8d169c8f258cd49f4597fe91f7ad9fe2f2241"
+  integrity sha512-bOu/i3npNeWNqMHQRyMw8Zp+4q2YK1opOeuG9dy44tXgAySLdjewx9P9Yzo3UKtAGQlRwjaVrXMff1BDuisPzw==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/charts" "^3.17.0"
+    "@fusioncharts/constructor" "^1.4.0"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/features" "^1.4.0"
+    "@fusioncharts/utils" "^1.4.0"
 
 "@github/g-emoji-element@^1.1.5":
   version "1.1.5"
@@ -8946,6 +9049,26 @@ fusioncharts@^3.16.0:
     mutationobserver-shim "^0.3.5"
     promise-polyfill "^8.1.3"
 
+fusionmaps@^3.17.0:
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/fusionmaps/-/fusionmaps-3.17.0.tgz#eccaead546e8745b78ade106a96fb10e7a040bfb"
+  integrity sha512-k1zQDjmhbv7eHYfvXluWVKPGTNhZGxIlEyJKheHmNxohXA2vo8hcY3Xac7uKoIZoyWpLWfB8lN3mfjEmWyCnyg==
+  dependencies:
+    "@babel/runtime" "^7.9.2"
+    "@fusioncharts/accessibility" "^1.4.0"
+    "@fusioncharts/charts" "^3.17.0"
+    "@fusioncharts/constructor" "^1.4.0"
+    "@fusioncharts/core" "^1.4.0"
+    "@fusioncharts/datatable" "^1.4.0"
+    "@fusioncharts/features" "^1.4.0"
+    "@fusioncharts/fusiontime" "^2.5.0"
+    "@fusioncharts/maps" "^3.17.0"
+    "@fusioncharts/powercharts" "^3.17.0"
+    "@fusioncharts/utils" "^1.4.0"
+    "@fusioncharts/widgets" "^3.17.0"
+    mutationobserver-shim "^0.3.5"
+    promise-polyfill "^8.1.3"
+
 gauge@~2.7.3:
   version "2.7.4"
   resolved "https://registry.npmjs.org/gauge/-/gauge-2.7.4.tgz"
@@ -14542,6 +14665,13 @@ react-focus-lock@^2.1.0:
     use-callback-ref "^1.2.1"
     use-sidecar "^1.0.1"
 
+react-fusioncharts@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/react-fusioncharts/-/react-fusioncharts-3.1.2.tgz#add3f23e1ca819f1d6f9b58547cfcb85b50c6972"
+  integrity sha512-ilmR7gfUJL5yed0soSHKlBpq2qCPyWiSc7gyFlT2vbPQS8eN6fAWMmLHy8H2kFP/XELItoAMqgUXyrjgK82bXA==
+  dependencies:
+    uuid "^3.2.1"
+
 react-google-maps@^9.4.5:
   version "9.4.5"
   resolved "https://registry.npmjs.org/react-google-maps/-/react-google-maps-9.4.5.tgz"
@@ -17497,7 +17627,7 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz"
 
-uuid@^3.1.0, uuid@^3.3.2, uuid@^3.4.0:
+uuid@^3.1.0, uuid@^3.2.1, uuid@^3.3.2, uuid@^3.4.0:
   version "3.4.0"
   resolved "https://registry.npmjs.org/uuid/-/uuid-3.4.0.tgz"
 
