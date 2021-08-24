@@ -119,6 +119,9 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT3: "rgba(0, 0, 0, 0.5)",
   BOX_SHADOW_DEFAULT_VARIANT4: "rgba(0, 0, 0, 0.25)",
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
+
+  BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
+
   SELECT_DISABLED: "#ced9e080",
 };
 export type Color = typeof Colors[keyof typeof Colors];
