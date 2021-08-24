@@ -352,6 +352,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "somangshu",
+      "name": "Somangshu Goswami",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11089579?v=4",
+      "profile": "http://appsmith.com",
+      "contributions": [
+        "bug",
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
