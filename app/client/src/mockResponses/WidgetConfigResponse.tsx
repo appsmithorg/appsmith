@@ -1253,8 +1253,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     [WidgetTypes.MENU_BUTTON_WIDGET]: {
       label: "Open Menu",
-      isDisabled: false,
+      menuStyle: "PRIMARY",
+      menuVariant: "SOLID",
       isCompact: false,
+      isDisabled: false,
+      isVisible: true,
       menuItems: {
         menuItem1: {
           label: "First Menu Item",
@@ -1278,12 +1281,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           widgetId: "",
           isVisible: true,
           isDisabled: false,
-          index: 1,
+          index: 2,
         },
       },
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
+      version: 1,
     },
     [WidgetTypes.ICON_BUTTON_WIDGET]: {
       iconName: IconNames.PLUS,

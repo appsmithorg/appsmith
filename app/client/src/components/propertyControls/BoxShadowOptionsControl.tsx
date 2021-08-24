@@ -48,6 +48,57 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: ButtonBoxShadow | undefined;
 }
 
+const buttonConfigs = [
+  {
+    variant: ButtonBoxShadowTypes.NONE,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_NONE,
+      color: "#CACACA",
+      width: 16,
+    },
+  },
+  {
+    variant: ButtonBoxShadowTypes.VARIANT1,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_VARIANT1,
+      height: 32,
+      width: 40,
+    },
+  },
+  {
+    variant: ButtonBoxShadowTypes.VARIANT2,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_VARIANT2,
+      height: 28,
+      width: 36,
+    },
+  },
+  {
+    variant: ButtonBoxShadowTypes.VARIANT3,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_VARIANT3,
+      height: 27,
+      width: 32,
+    },
+  },
+  {
+    variant: ButtonBoxShadowTypes.VARIANT4,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_VARIANT4,
+      height: 26,
+      width: 34,
+    },
+  },
+  {
+    variant: ButtonBoxShadowTypes.VARIANT5,
+    icon: {
+      element: ControlIcons.BOX_SHADOW_VARIANT5,
+      height: 26,
+      width: 34,
+    },
+  },
+];
+
 class BoxShadowOptionsControl extends BaseControl<
   BoxShadowOptionsControlProps
 > {
@@ -64,81 +115,29 @@ class BoxShadowOptionsControl extends BaseControl<
 
     return (
       <StyledButtonGroup fill>
-        <StyledButton
-          active={
-            propertyValue === ButtonBoxShadowTypes.NONE ||
-            propertyValue === undefined
-          }
-          icon={
-            <ControlIcons.BOX_SHADOW_NONE
-              color="#CACACA"
-              keepColors
-              width={16}
+        {buttonConfigs.map(({ icon, variant }) => {
+          const active =
+            variant === ButtonBoxShadowTypes.NONE
+              ? propertyValue === variant || propertyValue === undefined
+              : propertyValue === variant;
+
+          return (
+            <StyledButton
+              active={active}
+              icon={
+                <icon.element
+                  color={icon.color}
+                  height={icon.height}
+                  keepColors
+                  width={icon.width}
+                />
+              }
+              key={variant}
+              large
+              onClick={() => this.toggleOption(variant)}
             />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.NONE)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.VARIANT1}
-          icon={
-            <ControlIcons.BOX_SHADOW_VARIANT1
-              height={32}
-              keepColors
-              width={40}
-            />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.VARIANT1)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.VARIANT2}
-          icon={
-            <ControlIcons.BOX_SHADOW_VARIANT2
-              height={28}
-              keepColors
-              width={36}
-            />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.VARIANT2)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.VARIANT3}
-          icon={
-            <ControlIcons.BOX_SHADOW_VARIANT3
-              height={27}
-              keepColors
-              width={32}
-            />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.VARIANT3)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.VARIANT4}
-          icon={
-            <ControlIcons.BOX_SHADOW_VARIANT4
-              height={26}
-              keepColors
-              width={34}
-            />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.VARIANT4)}
-        />
-        <StyledButton
-          active={propertyValue === ButtonBoxShadowTypes.VARIANT5}
-          icon={
-            <ControlIcons.BOX_SHADOW_VARIANT5
-              height={26}
-              keepColors
-              width={34}
-            />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBoxShadowTypes.VARIANT5)}
-        />
+          );
+        })}
       </StyledButtonGroup>
     );
   }
