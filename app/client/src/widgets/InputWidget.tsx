@@ -495,7 +495,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     /**
      * Reason for disabling drag on focusState: true:
      * 1. In Firefox, draggable="true" property on the parent element
-     *    or <input /> itself, interferes with some input element events
+     *    or <input /> itself, interferes with some <input /> element's events
      *    Bug Ref - https://bugzilla.mozilla.org/show_bug.cgi?id=800050
      *              https://bugzilla.mozilla.org/show_bug.cgi?id=1189486
      *
