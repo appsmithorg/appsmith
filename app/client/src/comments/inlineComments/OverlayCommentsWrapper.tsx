@@ -115,11 +115,11 @@ function OverlayCommentsWrapper(props: Props) {
   // create new unpublished thread
   const clickHandler = (e: any) => {
     if (!isCommentMode) return;
+    proceedToNextTourStep();
     e.persist();
     e.stopPropagation();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);
-      proceedToNextTourStep();
       dispatch(
         createUnpublishedCommentThreadRequest({
           refId,
