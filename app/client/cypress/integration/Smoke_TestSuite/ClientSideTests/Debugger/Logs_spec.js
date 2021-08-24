@@ -11,6 +11,7 @@ describe("Debugger logs", function() {
     cy.get("button")
       .contains("Submit")
       .click({ force: true });
+    cy.openPropertyPane("buttonwidget");
     cy.testJsontext("label", "Test");
     cy.get(".t--debugger").click();
     cy.get(".t--debugger-log-state").contains("Test");
@@ -24,7 +25,15 @@ describe("Debugger logs", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.generateUUID().then((id) => {
       cy.CreateAppInFirstListedOrg(id);
-      cy.contains(debuggerLocators.debuggerIcon, 0);
+      cy.get(debuggerLocators.errorCount).should("not.exist");
     });
+  });
+
+  it("Api headers need to be shown as headers in logs", function() {
+    // TODO
+  });
+
+  it("Api body needs to be shown as JSON when possible", function() {
+    // TODO
   });
 });
