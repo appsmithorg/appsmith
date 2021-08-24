@@ -35,6 +35,14 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
+sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
+
+echo "Sleeping for 30 seconds to let the MySQL start"
+sleep 30
+
+sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
+
+
 echo "Sleeping for 30 seconds to let the servers start"
 sleep 30
 
