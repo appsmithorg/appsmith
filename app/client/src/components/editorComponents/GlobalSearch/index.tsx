@@ -530,6 +530,10 @@ function GlobalSearch() {
                   category={category}
                   setSearchResults={setSearchResults}
                 />
+                {/* Search from default menu should search multiple indexes.
+                Below is the code to search in the index-snippet. Index
+                component requires Hits component as its children to display the
+                results. SetSearchResults is the custom hits component. */}
                 {isMenu(category) && (
                   <Index indexName="snippet">
                     <SetSearchResults
