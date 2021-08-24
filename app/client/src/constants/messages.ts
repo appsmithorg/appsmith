@@ -438,6 +438,8 @@ export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
 
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
   "Checkout branches, make commits, add deploy your application";
