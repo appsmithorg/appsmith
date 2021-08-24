@@ -120,6 +120,7 @@ export const DroppableWidgets: WidgetType[] = [
   WidgetTypes.FORM_WIDGET,
   WidgetTypes.LIST_WIDGET,
   WidgetTypes.TABS_WIDGET,
+  WidgetTypes.MODAL_WIDGET,
 ];
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
