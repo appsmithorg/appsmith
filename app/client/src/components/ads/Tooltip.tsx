@@ -7,7 +7,7 @@ import { noop } from "lodash";
 
 type Variant = "dark" | "light";
 
-type TooltipProps = CommonComponentProps & {
+export type TooltipProps = CommonComponentProps & {
   content: JSX.Element | string;
   disabled?: boolean;
   position?: Position;

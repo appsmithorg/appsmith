@@ -91,6 +91,7 @@ export function Primary(args: any) {
 }
 
 Primary.args = {
+  type: "Text",
   disabled: false,
   onSelect: () => {
     action("selected-option");
@@ -101,7 +102,6 @@ Primary.argTypes = {
   type: {
     control: controlType.RADIO,
     options: ["Text", "Icon and text", "Label and text"],
-    defaultValue: "Text",
   },
   selected: {
     control: controlType.OBJECT,

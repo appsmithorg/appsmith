@@ -51,39 +51,32 @@ Primary.argTypes = {
   defaultValue: {
     control: controlType.TEXT,
     description: "string",
-    defaultValue: "",
   },
   placeholder: {
     control: controlType.TEXT,
     description: "string",
-    defaultValue: "Placeholder",
   },
   disabled: {
     control: controlType.BOOLEAN,
     description: "boolean",
-    defaultValue: false,
   },
   fill: {
     control: controlType.BOOLEAN,
     description: "boolean",
-    defaultValue: false,
   },
   leftIcon: {
     control: controlType.SELECT,
     options: ["Select icon" as IconName, ...IconCollection],
     description: "Icon",
-    defaultValue: undefined,
   },
   readOnly: {
     control: controlType.BOOLEAN,
     description: "boolean",
-    defaultValue: false,
   },
   dataType: {
     control: controlType.SELECT,
     options: ["text", "email", "number", "password", "url"],
     description: ["text", "email", "number", "password", "url"].join(", "),
-    defaultValue: "text",
   },
   helperText: {
     control: controlType.TEXT,
@@ -92,7 +85,6 @@ Primary.argTypes = {
   validator: {
     control: controlType.BOOLEAN,
     description: "function",
-    defaultValue: true,
   },
   rightSideComponent: {
     control: controlType.OBJECT,

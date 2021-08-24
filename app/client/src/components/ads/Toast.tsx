@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 import { Colors } from "constants/Colors";
 import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 
-type ToastProps = ToastOptions &
+export type ToastProps = ToastOptions &
   CommonComponentProps & {
     text: string;
     variant?: Variant;

@@ -1,35 +1,48 @@
 import React from "react";
-import { select, withKnobs } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
 import { Position } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
-import { StoryWrapper } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import TooltipComponent, { TooltipProps } from "components/ads/Tooltip";
+import { StoryWrapper, Variant } from "components/ads/common";
+import Button from "components/ads/Button";
+import { storyName } from "./config/constants";
+import { statusType } from "./config/types";
+import { action } from "@storybook/addon-actions";
 
 export default {
-  title: "Tooltip",
+  title: storyName.platform.tooltip.PATH,
   component: TooltipComponent,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.BETA,
+    },
+  },
 };
 
-export function MenuStory() {
+export function TooltipStory(args: TooltipProps) {
   return (
-    <StoryWrapper>
-      <div style={{ paddingTop: "50px", paddingLeft: "50px", width: "200px" }}>
-        <TooltipComponent
-          content={
-            <Text highlight type={TextType.P1}>
-              This is a tooltip
-            </Text>
-          }
-          position={select("Position", Object.values(Position), Position.RIGHT)}
-          variant={select("variant", ["dark", "light"], "dark")}
-        >
-          <Text highlight type={TextType.P1}>
-            Hover to show tooltip
-          </Text>
-        </TooltipComponent>
-      </div>
+    <StoryWrapper style={{ height: 350 }}>
+      <div id="tooltip-root" />
+      <TooltipComponent {...args} onOpening={action("tooltip-opened")}>
+        <Button text="Hover to show tooltip" variant={Variant.info} />
+      </TooltipComponent>
     </StoryWrapper>
   );
 }
+
+TooltipStory.args = {
+  content: "I'm a hover over text.",
+  position: Position.RIGHT,
+  boundary: "viewport",
+  // minWidth: "250px",
+  // openOnTargetFocus: true,
+  // autoFocus: true,
+  // hoverOpenDelay: 500,
+  // minimal: false,
+  // isOpen: false,
+  // modifiers: { preventOverflow: { enabled: true } },
+};
+
+TooltipStory.argTypes = {};
+
+TooltipStory.storyName = storyName.platform.tooltip.NAME;

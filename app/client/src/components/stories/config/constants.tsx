@@ -88,5 +88,13 @@ export const storyName = {
       PATH: "Platform/Text",
       NAME: "Text",
     },
+    toast: {
+      PATH: "Platform/Toast",
+      NAME: "Toast",
+    },
+    tooltip: {
+      PATH: "Platform/Tooltip",
+      NAME: "Tooltip",
+    },
   },
 };
