@@ -8,7 +8,7 @@ import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType } from "entities/Action";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as JsIcon } from "assets/icons/menu/js.svg";
+import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";

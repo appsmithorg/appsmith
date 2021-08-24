@@ -16,8 +16,8 @@ import { ReactComponent as PrimaryKeyIcon } from "assets/icons/menu/primary-key.
 import { ReactComponent as ForeignKeyIcon } from "assets/icons/menu/foreign-key.svg";
 import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/datasource-column.svg";
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
-import { ReactComponent as JSIcon } from "assets/icons/menu/js.svg";
-import { ReactComponent as JSFileIcon } from "assets/icons/menu/js_file.svg";
+import { ReactComponent as JSIcon } from "assets/icons/menu/js-group.svg";
+import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
