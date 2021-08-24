@@ -157,7 +157,7 @@
     "zipcelx": "^1.6.2"
   },
   "scripts": {
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "analyze": "yarn cra-bundle-analyzer",
     "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -226,6 +226,7 @@
     "@typescript-eslint/parser": "^4.15.0",
     "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
+    "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
     "cypress": "6.2.1",
     "cypress-file-upload": "^4.1.1",
@@ -256,7 +257,6 @@
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
-    "source-map-explorer": "^2.4.2",
     "storybook-addon-designs": "^5.4.0",
     "ts-jest": "^26.5.4",
     "webpack-merge": "^4.2.2",

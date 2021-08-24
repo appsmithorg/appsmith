@@ -1,5 +1,5 @@
 import React, { useContext, useRef, memo, useMemo } from "react";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 
 import {
   WidgetOperations,
@@ -132,7 +132,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Checks if the current resize position has any collisions
   // If yes, set isColliding flag to true.
   // If no, set isColliding flag to false.
-  const isColliding = (newDimensions: UIElementSize, position: XYCoord) => {
+  const isColliding = (newDimensions: UIElementSize, position: XYCord) => {
     // Moving the bounding element calculations inside
     // to make this expensive operation only whne
     const boundingElementClientRect = boundingElement
@@ -231,7 +231,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (newDimensions: UIElementSize, position: XYCoord) => {
+  const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
     const delta: UIElementSize = {
       height: newDimensions.height - dimensions.height,
