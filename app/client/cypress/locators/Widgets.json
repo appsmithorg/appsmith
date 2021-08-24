@@ -118,5 +118,21 @@
     "toggleBackground": ".t--property-control-background .t--js-toggle",
     "toggleItemBackground": ".t--property-control-itembackground .t--js-toggle",
     "chartPlotGroup": "g.raphael-group-63-plot-group",
-    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator"
+    "toggleEnableMultirowselection": ".t--property-control-enablemultirowselection .bp3-control-indicator",
+    "searchField": "[type=search]",
+    "defaultSelectedRowField":".t--property-control-defaultselectedrow .CodeMirror-line",
+    "selectedRow":".selected-row",
+    "removeTableWidget": ".t--delete-widget",
+    "nextPageButton": ".t--table-widget-next-page",
+    "addWidget": ".t--entity.group.widgets > div:nth-child(1) >div:nth-child(5)",
+    "closeWidgetBar": ".t--close-widgets-sidebar",
+    "tabedataField": ".t--property-control-tabledata",
+    "exploreWidget": "[class$=bp3-panel-stack-view] > div:nth-child(1) > div:nth-child(1) > span:nth-child(4)",
+    "widgetRelatedDocument": "div.main > div:nth-child(1) > div:nth-child(1)",
+    "rowHeight":".t--table-compact-mode-toggle-btn",
+    "rowHeightShortOpt":".bp3-popover-content > div > div:nth-child(1)",
+    "tbIndex0": "[class=td][data-colindex='0'][data-rowindex='0']",
+    "filterApplyBtn":".t--apply-filter-btn",
+    "filterCloseBtn":".t--close-filter-btn",
+    "header":"#header-root"
 }

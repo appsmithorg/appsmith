@@ -949,7 +949,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
   cy.get(apiwidget.apiTxt).blur();
@@ -1035,14 +1034,12 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
-    console.log($x);
     expect($x).contain(value.concat(" is already being used."));
   });
 });
@@ -1504,6 +1501,13 @@ Cypress.Commands.add("showColumn", (colId) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("makeColumnVisible", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn).scrollIntoView();
   cy.get(widgetsPage.addColumn)
@@ -1561,7 +1565,18 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
-Cypress.Commands.add("selectShowMsg", (value) => {
+Cypress.Commands.add("onTableAction", (value, value1, value2) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .eq(value)
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.testJsontext(value1, value2);
+});
+
+Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show Message")
@@ -2062,6 +2077,32 @@ Cypress.Commands.add(
     );
     cy.get(datasourceEditor.password).type(
       datasourceFormData["postgres-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillMySQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-databaseName"] + "  "
+      : datasourceFormData["mysql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mysql-password"],
     );
   },
 );
