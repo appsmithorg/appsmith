@@ -58,6 +58,7 @@
         <module>appsmith-interfaces</module>
         <module>appsmith-plugins</module>
         <module>appsmith-server</module>
+        <module>appsmith-git</module>
     </modules>
 
 </project>
