@@ -71,7 +71,7 @@ import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import { AppState } from "reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
-import { mapToPropList } from "utils/AppsmithUtils";
+import { isBlobUrl, mapToPropList, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import { matchPath } from "react-router";
 import {
@@ -87,6 +87,7 @@ import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
 import { ApiResponse } from "api/ApiResponses";
 import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
+import FileDataTypes from "widgets/FileDataTypes";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -143,6 +144,31 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
 };
 
 /**
+ *
+ * @param blobUrl string A blob url with type added a query param
+ * @returns promise that resolves to file content
+ */
+function* readBlob(blobUrl: string): any {
+  const [url, fileType] = parseBlobUrl(blobUrl);
+  const file = yield fetch(url).then((r) => r.blob());
+
+  const data = yield new Promise((resolve) => {
+    const reader = new FileReader();
+    if (fileType === FileDataTypes.Base64) {
+      reader.readAsDataURL(file);
+    } else if (fileType === FileDataTypes.Binary) {
+      reader.readAsBinaryString(file);
+    } else {
+      reader.readAsText(file);
+    }
+    reader.onloadend = () => {
+      resolve(reader.result);
+    };
+  });
+  return data;
+}
+
+/**
  * Api1
  * URL: https://example.com/{{Text1.text}}
  * Body: {
@@ -186,11 +212,15 @@ function* evaluateActionParams(
 
   // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
-  bindings.forEach((key, i) => {
+  for (let i = 0; i < bindings.length; i++) {
+    const key = bindings[i];
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
+    if (isBlobUrl(value)) {
+      value = yield call(readBlob, value);
+    }
     actionParams[key] = value;
-  });
+  }
   return mapToPropList(actionParams);
 }
 

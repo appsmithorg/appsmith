@@ -249,6 +249,14 @@ export const entityDefinitions = {
     files: "[file]",
     isDisabled: "bool",
   },
+  FILE_PICKER_WIDGET_V2: {
+    "!doc":
+      "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+    "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+    isVisible: isVisible,
+    files: "[file]",
+    isDisabled: "bool",
+  },
   LIST_WIDGET: (widget: any) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -301,6 +309,16 @@ export const entityDefinitions = {
       "Icon button widget is just an icon, along with all other button properties.",
     "!url": "https://docs.appsmith.com/widget-reference/icon-button",
     isVisible: isVisible,
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    "!doc":
+      "Checkbox group widget allows users to easily configure multiple checkboxes together.",
+    "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+    selectedValues: "[string]",
   },
 };
 

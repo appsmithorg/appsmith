@@ -77,10 +77,16 @@ describe("Select all hotkey", () => {
     expect(propPane).toBeNull();
     const canvasWidgets = component.queryAllByTestId("test-widget");
     expect(canvasWidgets.length).toBe(2);
-    if (canvasWidgets[1].firstChild) {
-      fireEvent.mouseOver(canvasWidgets[1].firstChild);
-      fireEvent.click(canvasWidgets[1].firstChild);
-    }
+    act(() => {
+      if (canvasWidgets[0].firstChild) {
+        fireEvent.mouseOver(canvasWidgets[0].firstChild);
+        fireEvent.click(canvasWidgets[0].firstChild);
+      }
+    });
+    const tabsWidgetName: any = component.container.querySelector(
+      `span.t--widget-name`,
+    );
+    fireEvent.click(tabsWidgetName);
     propPane = component.queryByTestId("t--propertypane");
     expect(propPane).not.toBeNull();
 
