@@ -72,7 +72,6 @@ function* evaluateTreeSaga(
     evaluationOrder,
     logs,
     unEvalUpdates,
-    updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -80,18 +79,16 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
   yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
 
   const updatedDataTree = yield select(getDataTree);
-
-  const postDiffs = diff(updatedDataTree, dataTree);
-  if (postDiffs && postDiffs.length) {
-    debugger;
-    yield put(setEvaluatedTree(dataTree, []));
-  }
 
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
