@@ -312,3 +312,35 @@ export const retryPromise = (
 export const getRandomPaletteColor = (colorPalette: string[]) => {
   return colorPalette[Math.floor(Math.random() * colorPalette.length)];
 };
+
+export const isBlobUrl = (url: string) => {
+  return typeof url === "string" && url.startsWith("blob:");
+};
+
+/**
+ *
+ * @param data string file data
+ * @param type string file type
+ * @returns string containing blob id and type
+ */
+export const createBlobUrl = (data: string, type: string) => {
+  let url = URL.createObjectURL(data);
+  url = url.replace(
+    `${window.location.protocol}//${window.location.hostname}/`,
+    "",
+  );
+
+  return `${url}?type=${type}`;
+};
+
+/**
+ *
+ * @param blobId string blob id along with type.
+ * @returns [string,string] [blobUrl, type]
+ */
+export const parseBlobUrl = (blobId: string) => {
+  const url = `blob:${window.location.protocol}//${
+    window.location.hostname
+  }/${blobId.substring(5)}`;
+  return url.split("?type=");
+};
