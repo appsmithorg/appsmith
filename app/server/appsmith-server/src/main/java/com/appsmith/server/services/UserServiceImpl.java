@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -433,7 +434,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null);
+        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
     }
 
     private Set<Policy> crudUserPolicy(User user) {
@@ -471,7 +472,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return Publishes the user object, after having been saved.
      */
     @Override
-    public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
@@ -497,7 +498,11 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser);
+                        return repository.save(savedUser).map(updatedUser -> {
+                            UserSignupDTO userSignupDTO = new UserSignupDTO();
+                            userSignupDTO.setUser(updatedUser);
+                            return userSignupDTO;
+                        });
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
@@ -507,24 +512,35 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             .flatMap(tuple -> {
                                 final User savedUser = tuple.getT1();
                                 final String templateOrganizationId = tuple.getT2();
-
+                                final UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                userSignupDTO.setUser(savedUser);
                                 if (!StringUtils.hasText(templateOrganizationId)) {
                                     // Since template organization is not configured, we create an empty default organization.
                                     log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
                                     return organizationService.createDefault(new Organization(), savedUser)
                                             .flatMap(org -> applicationPageService.createDefaultApplication(org)
-                                                    .thenReturn(savedUser)
+                                                    .map(application -> {
+                                                        userSignupDTO.setDefaultApplicationId(application.getId());
+                                                        return userSignupDTO;
+                                                    })
                                             );
                                 }
 
-                                return Mono.just(savedUser);
+                                return Mono.just(userSignupDTO);
                             })
-                            .flatMap(savedUser -> findByEmail(savedUser.getEmail()));
+                            .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
+                                userSignupDTO.setUser(user1);
+                                return userSignupDTO;
+                            }));
                 }))
-                .flatMap(savedUser ->
-                        emailConfig.isWelcomeEmailEnabled()
-                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                                : Mono.just(savedUser)
+                .flatMap(userSignupDTO -> {
+                            User savedUser = userSignupDTO.getUser();
+                            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
+                                    ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                    : Mono.just(savedUser);
+                            return userMono.thenReturn(userSignupDTO);
+                        }
+
                 );
     }
 

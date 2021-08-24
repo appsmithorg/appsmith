@@ -61,12 +61,13 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             WebFilterExchange webFilterExchange,
             Authentication authentication
     ) {
-        return onAuthenticationSuccess(webFilterExchange, authentication, false);
+        return onAuthenticationSuccess(webFilterExchange, authentication, null, false);
     }
 
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
+            String defaultApplicationId,
             boolean isFromSignup
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
@@ -93,8 +94,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
-                ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
-                : handleRedirect(webFilterExchange, isFromSignup);
+                ? handleOAuth2Redirect(webFilterExchange, defaultApplicationId, isFromSignup)
+                : handleRedirect(webFilterExchange, defaultApplicationId, isFromSignup);
 
         final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
@@ -135,7 +136,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
            "JavadocReference"
     )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, String defaultApplicationId, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -157,13 +158,19 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
     }
 
-    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, String defaultApplicationId, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
         return Mono.just(exchange.getRequest())
                 .flatMap(redirectHelper::getRedirectUrl)
+                .flatMap(s -> {
+                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplicationId != null) {
+                        return redirectHelper.buildApplicationUrl(defaultApplicationId, exchange.getRequest().getHeaders());
+                    }
+                    return Mono.just(s);
+                })
                 .map(url -> {
                     if (isFromSignup) {
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
@@ -178,5 +185,4 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private String buildSignupSuccessUrl(String redirectUrl) {
         return SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
     }
-
 }

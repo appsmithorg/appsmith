@@ -23,6 +23,7 @@ public class RedirectHelper {
 
     public static final String DEFAULT_REDIRECT_URL = "/applications";
     public static final String SIGNUP_SUCCESS_URL = "/signup-success";
+    public static final String APPLICATION_PAGE_URL = "/applications/%s/pages/%s/edit";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
     private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
@@ -39,7 +40,6 @@ public class RedirectHelper {
      * @return Publishes the redirection url as a String.
      */
     public Mono<String> getRedirectUrl(ServerHttpRequest request) {
-
         MultiValueMap<String, String> queryParams = request.getQueryParams();
         HttpHeaders httpHeaders = request.getHeaders();
 
@@ -120,7 +120,7 @@ public class RedirectHelper {
 
         if (!(redirectUrl.startsWith("http://") || redirectUrl.startsWith("https://"))
                 && !StringUtils.isEmpty(httpHeaders.getOrigin())) {
-            redirectUrl = httpHeaders.getOrigin() + DEFAULT_REDIRECT_URL;
+            redirectUrl = httpHeaders.getOrigin() + redirectUrl;
         }
 
         return redirectUrl;
@@ -157,6 +157,18 @@ public class RedirectHelper {
         }
 
         return redirectOrigin;
+    }
+
+    public Mono<String> buildApplicationUrl(String applicationId, HttpHeaders httpHeaders) {
+        return applicationService.findById(applicationId, READ_APPLICATIONS).map(application -> {
+            String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
+            if(application.getPages().size() > 0) {
+                ApplicationPage applicationPage = application.getPages().get(0);
+                redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
+            }
+
+            return fulfillRedirectUrl(redirectUrl, httpHeaders);
+        });
     }
 
 }
