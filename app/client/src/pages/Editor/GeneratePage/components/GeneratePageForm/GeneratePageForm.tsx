@@ -383,7 +383,7 @@ function GeneratePageForm() {
       selectedDatasource.value &&
       !isFetchingDatasourceStructure
     ) {
-      // On finished fetching datasource structure
+      // when finished fetching datasource structure
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id] || {};
 
