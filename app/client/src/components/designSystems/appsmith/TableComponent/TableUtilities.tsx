@@ -242,8 +242,10 @@ function IconButton(props: {
         icon={props.iconName}
         loading={loading}
         onClick={() => {
-          setLoading(true);
-          props.onCommandClick(props.action.dynamicTrigger, onComplete);
+          if (props.action.dynamicTrigger) {
+            setLoading(true);
+            props.onCommandClick(props.action.dynamicTrigger, onComplete);
+          }
         }}
       />
     </div>
