@@ -8,7 +8,6 @@ import {
   all,
   call,
   put,
-  putResolve,
   race,
   select,
   take,

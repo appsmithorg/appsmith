@@ -2,12 +2,7 @@ import { useEffect, useCallback } from "react";
 import { connectHits } from "react-instantsearch-dom";
 import { Hit as IHit } from "react-instantsearch-core";
 import { debounce } from "lodash";
-import {
-  DocSearchItem,
-  SearchCategory,
-  SearchItem,
-  SEARCH_ITEM_TYPES,
-} from "./utils";
+import { DocSearchItem, SearchCategory } from "./utils";
 
 type Props = {
   setSearchResults: (
