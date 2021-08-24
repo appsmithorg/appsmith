@@ -25,11 +25,7 @@ export const getFormEvaluationState = (state: AppState) =>
   state.evaluations.formEvaluation;
 
 // Selector to get UIComponent type from the redux state
-export const getUIComponent = (
-  state: AppState,
-  pluginId: string,
-  allPlugins: any,
-) => {
+export const getUIComponent = (pluginId: string, allPlugins: any) => {
   let uiComponent = UIComponentTypes.DbEditorForm;
 
   if (!!pluginId) {

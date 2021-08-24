@@ -82,7 +82,7 @@ function* getFormEvaluation(formId: string, actionConfiguration: any): any {
       ),
     };
   } else {
-    yield;
+    return currentEvalState;
   }
 }
 

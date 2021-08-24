@@ -36,9 +36,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   initFormEvaluations,
   startFormEvaluations,
-} from "../../../actions/evaluationActions";
-import { isObject } from "lodash";
-import { getUIComponent } from "../../../selectors/formSelectors";
+} from "actions/evaluationActions";
+import { getUIComponent } from "selectors/formSelectors";
+import { diff } from "deep-diff";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -82,30 +82,6 @@ type ReduxStateProps = {
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 
 type Props = StateAndRouteProps & ReduxDispatchProps & ReduxStateProps;
-
-// Helper function to deep compare 2 objects, used to debounce calls to the eval saga
-function deepEqual(object1: any, object2: any) {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-
-  for (const key of keys1) {
-    const val1 = object1[key];
-    const val2 = object2[key];
-    const areObjects = isObject(val1) && isObject(val2);
-    if (
-      (areObjects && !deepEqual(val1, val2)) ||
-      (!areObjects && val1 !== val2)
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-}
 
 class QueryEditor extends React.Component<Props> {
   constructor(props: Props) {
@@ -160,7 +136,7 @@ class QueryEditor extends React.Component<Props> {
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
           prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !deepEqual(
+          !!diff(
             prevProps.formData.actionConfiguration,
             this.props.formData.actionConfiguration,
           )))
@@ -265,7 +241,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
-  if (!!pluginId) uiComponent = getUIComponent(state, pluginId, allPlugins);
+  if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   return {
     pluginImages: getPluginImages(state),
