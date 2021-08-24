@@ -12,6 +12,7 @@ import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/data
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Function } from "assets/icons/menu/function.svg";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -32,7 +33,7 @@ const matchingCommands = (
   });
   list = sortBy(list, (a: any) => {
     return (
-      (a.data.ENTITY_TYPE === "WIDGET"
+      (a.data.ENTITY_TYPE === ENTITY_TYPE.WIDGET
         ? recentEntities.indexOf(a.data.widgetId)
         : recentEntities.indexOf(a.data.actionId)) * -1
     );
@@ -164,7 +165,10 @@ export const generateQuickCommands = (
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
     const name = suggestion.name || suggestion.widgetName;
     return {
-      text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
+      text:
+        currentEntityType === ENTITY_TYPE.WIDGET
+          ? `{{${name}.data}}`
+          : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
@@ -214,7 +218,7 @@ export const generateQuickCommands = (
     ...matchingCommands([insertSnippet, newBinding], searchText, []),
   );
   let createNewCommands: any = [];
-  if (currentEntityType === "WIDGET") {
+  if (currentEntityType === ENTITY_TYPE.WIDGET) {
     createNewCommands = [...datasourceCommands];
   }
   const createNewCommandsMatchingSearchText = matchingCommands(
@@ -223,7 +227,7 @@ export const generateQuickCommands = (
     [],
     3,
   );
-  if (currentEntityType === "WIDGET") {
+  if (currentEntityType === ENTITY_TYPE.WIDGET) {
     createNewCommandsMatchingSearchText.push(
       ...matchingCommands([newIntegration], searchText, []),
     );

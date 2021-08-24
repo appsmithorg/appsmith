@@ -872,7 +872,7 @@ function* executeCommand(
         expectedType,
         propertyPath,
       );
-      yield putResolve(
+      yield put(
         setGlobalSearchFilterContext({
           refinements,
           fieldMeta,

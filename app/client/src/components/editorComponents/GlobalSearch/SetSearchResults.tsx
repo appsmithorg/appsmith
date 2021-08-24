@@ -22,10 +22,7 @@ function SearchResults({ category, hits, setSearchResults }: Props) {
   const debouncedSetter = useCallback(debounce(setSearchResults, 100), []);
 
   useEffect(() => {
-    const filteredHits = hits.filter((doc: SearchItem) => {
-      return !doc.kind || doc.kind === SEARCH_ITEM_TYPES.document;
-    });
-    debouncedSetter(filteredHits as any, category);
+    debouncedSetter(hits as any, category);
   }, [hits]);
 
   return null;

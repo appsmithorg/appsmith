@@ -518,12 +518,14 @@ class CodeEditor extends Component<Props, State> {
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
+    /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
       errors = this.props.errors;
     }
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
+    /*  Evaluation results for snippet snippets */
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||

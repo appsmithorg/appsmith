@@ -319,7 +319,7 @@ function GlobalSearch() {
         ? documentationSearchResults
         : defaultDocs.concat(documentationSearchResults);
     }
-    if (!(isSnippet(category) || isMenu(category))) {
+    if (!isSnippet(category)) {
       currentSnippets = [];
     }
 
