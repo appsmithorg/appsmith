@@ -11,6 +11,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.Resources;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
@@ -19,6 +20,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
+import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -119,7 +121,7 @@ public class CreateDBTablePageSolution {
      * @param pageResourceDTO
      * @return generated pageDTO from the template resource
      */
-    public Mono<PageDTO> createPageFromDBTable(String pageId, CRUDPageResourceDTO pageResourceDTO) {
+    public Mono<CRUDPageResponseDTO> createPageFromDBTable(String pageId, CRUDPageResourceDTO pageResourceDTO) {
 
         /*
             1. Fetch page from the application
@@ -349,7 +351,14 @@ public class CreateDBTablePageSolution {
                         || StringUtils.equals(actionDTO.getName(), LIST_QUERY)
                         ? layoutActionService.setExecuteOnLoad(actionDTO.getId(), true) : Mono.just(actionDTO))
                     .then(applicationPageService.getPage(savedPageId, false)
-                        .flatMap(pageDTO -> sendGenerateCRUDPageAnalyticsEvent(pageDTO, datasource, plugin.getName()))
+                        .flatMap(pageDTO -> {
+                            CRUDPageResponseDTO crudPage = new CRUDPageResponseDTO();
+                            crudPage.setPage(pageDTO);
+                            crudPage.setSuccessMessage(createSuccessMessage(plugin));
+                            // Update the S3 image once received
+                            crudPage.setSuccessImageUrl(Resources.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR);
+                            return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName());
+                        })
                     );
             });
     }
@@ -881,7 +890,21 @@ public class CreateDBTablePageSolution {
         return actionConfiguration;
     }
 
-    private Mono<PageDTO> sendGenerateCRUDPageAnalyticsEvent(PageDTO page, Datasource datasource, String pluginName) {
+    private String createSuccessMessage(Plugin plugin) {
+
+        String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "LIST" : "TABLE";
+        String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "FILEPICKER" : "FORM";
+
+        // Field used to send success message after the successful page creation
+        String successMessage = "We have generated the <b>" + displayWidget + "</b> from the <b>" + plugin.getName()
+            + " Datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
+            "data is already connected you can add more queries and modify the bindings";
+
+        return successMessage;
+    }
+
+    private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {
+        PageDTO page = crudPage.getPage();
         return sessionUserService.getCurrentUser()
             .map(currentUser -> {
                 try {
@@ -897,7 +920,7 @@ public class CreateDBTablePageSolution {
                 } catch (Exception e) {
                     log.warn("Error sending generate CRUD DB table page data point", e);
                 }
-                return page;
+                return crudPage;
             });
     }
 
