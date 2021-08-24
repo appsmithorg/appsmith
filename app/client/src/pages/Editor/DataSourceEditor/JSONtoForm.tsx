@@ -107,7 +107,7 @@ export class JSONtoForm<
       const fieldConfig = this.requiredFields[fieldConfigProperty];
       if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
         const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
+        const arrayValues = _.get(values, configProperty[0], []);
         const keyValueArrayErrors: Record<string, string>[] = [];
 
         arrayValues.forEach((value: any, index: number) => {
@@ -165,7 +165,7 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
+        const values = _.get(formData, properties[0], []);
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
