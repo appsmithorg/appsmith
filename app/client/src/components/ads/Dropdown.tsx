@@ -285,6 +285,14 @@ const HeaderWrapper = styled.div`
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+
+  & ${Text} {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const SelectedIcon = styled(Icon)`
