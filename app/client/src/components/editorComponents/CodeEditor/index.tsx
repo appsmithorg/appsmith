@@ -330,7 +330,11 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.editor.getValue().length === 0)
+    const entityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      this.editor.getValue().length === 0
+    )
       this.handleAutocompleteVisibility(this.editor);
   };
 
@@ -376,8 +380,7 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    if (!this.state.isFocused) return;
+  getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
@@ -403,6 +406,12 @@ class CodeEditor extends Component<Props, State> {
       }
       entityInformation.propertyPath = propertyPath;
     }
+    return entityInformation;
+  };
+
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {

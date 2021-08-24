@@ -174,8 +174,6 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
                       <DynamicDropdownFieldWrapper>
                         <DynamicDropdownField
-                          accent="grey"
-                          filled
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}

@@ -61,6 +61,7 @@ import {
   SNIPPET_EXECUTION_SUCCESS,
 } from "constants/messages";
 import { validate } from "workers/validations";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -89,7 +90,6 @@ function* evaluateTreeSaga(
     evaluationOrder,
     logs,
     unEvalUpdates,
-    updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -97,6 +97,10 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
   yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,

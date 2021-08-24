@@ -14,9 +14,9 @@ import {
 } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadowTypes } from "components/propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
@@ -33,7 +33,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
       text: "Submit",
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "PRIMARY",
+      buttonVariant: "SOLID",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",
