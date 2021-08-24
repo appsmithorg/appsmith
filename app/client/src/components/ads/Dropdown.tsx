@@ -89,7 +89,6 @@ export const DropdownContainer = styled.div<{ width: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -508,7 +507,6 @@ export default function Dropdown(props: DropdownProps) {
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={dropdownHeight}
       isOpen={isOpen}
       onClick={onClickHandler}
     >
