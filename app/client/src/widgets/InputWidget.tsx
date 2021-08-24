@@ -492,6 +492,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   handleFocusChange = (focusState: boolean) => {
+    /**
+     * Reason for disabling drag on focusState: true:
+     * 1. In Firefox, draggable="true" property on the parent element
+     *    or <input /> itself, interferes with some input element events
+     *    Bug Ref - https://bugzilla.mozilla.org/show_bug.cgi?id=800050
+     *              https://bugzilla.mozilla.org/show_bug.cgi?id=1189486
+     *
+     *  Eg - input with draggable="true", double clicking the text; won't highlight the text
+     *
+     * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
+     */
+    super.updateWidgetProperty("dragDisabled", focusState);
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
