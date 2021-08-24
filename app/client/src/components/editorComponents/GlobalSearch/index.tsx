@@ -143,13 +143,12 @@ const getSortedResults = (
   );
 };
 
-const filterCategoryList = getFilterCategoryList();
-
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
+  const filterCategoryList = getFilterCategoryList();
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );

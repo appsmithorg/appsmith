@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
+import get from "lodash/get";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -83,6 +84,7 @@ export type SearchCategory = {
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
+  show?: () => boolean;
 };
 
 export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
@@ -97,6 +99,7 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
+    show: () => get(window, "FEATURE_FLAGS.SNIPPET"),
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
@@ -118,7 +121,10 @@ export const isSnippet = (category: SearchCategory) =>
 export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
 
-export const getFilterCategoryList = () => Object.values(filterCategories);
+export const getFilterCategoryList = () =>
+  Object.values(filterCategories).filter((cat: SearchCategory) => {
+    return cat.show ? cat.show() : true;
+  });
 
 export type SearchItem = DocSearchItem | Datasource | any;
 
