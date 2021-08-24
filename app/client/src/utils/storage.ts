@@ -6,7 +6,6 @@ const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
-  DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
@@ -58,43 +57,6 @@ export const getCopiedWidgets = async () => {
   } catch (error) {
     log.error("An error occurred when fetching copied widget: ", error);
     return;
-  }
-};
-
-export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
-  try {
-    await store.setItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-      JSON.stringify(widgets),
-    );
-    return true;
-  } catch (error) {
-    log.error(
-      "An error occurred when temporarily storing delete widget: ",
-      error,
-    );
-    return false;
-  }
-};
-
-export const getDeletedWidgets = async (widgetId: string) => {
-  try {
-    const widgets: string | null = await store.getItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-    );
-    if (widgets && widgets.length > 0) {
-      return JSON.parse(widgets);
-    }
-  } catch (error) {
-    log.error("An error occurred when fetching deleted widget: ", error);
-  }
-};
-
-export const flushDeletedWidgets = async (widgetId: string) => {
-  try {
-    await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
-  } catch (error) {
-    log.error("An error occurred when flushing deleted widgets: ", error);
   }
 };
 

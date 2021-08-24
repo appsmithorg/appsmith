@@ -135,8 +135,6 @@ export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
 export const CANVAS_CLASSNAME = "appsmith_widget_0";
 
-export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
-
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 
 export enum FontStyleTypes {

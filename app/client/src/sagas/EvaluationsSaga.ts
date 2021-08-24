@@ -44,7 +44,12 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { UndoRedoPayload } from "./ReplaySaga";
+import {
+  UndoRedoPayload,
+  openPropertyPaneSaga,
+  postUndoRedoSaga,
+} from "./ReplaySaga";
+
 import { updateAndSaveLayout } from "actions/pageActions";
 import { get } from "lodash";
 
@@ -164,8 +169,20 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     {},
   );
 
-  const { replayWidgets } = workerResponse;
-  if (replayWidgets) yield put(updateAndSaveLayout(replayWidgets, false, true));
+  const { replay, replayWidgetDSL } = workerResponse;
+
+  if (!replayWidgetDSL) return;
+
+  const isPropertyUpdate =
+    replay.widgets &&
+    replay.propertyUpdates &&
+    Object.keys(replay.widgets).length <= 1;
+
+  if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
+
+  yield put(updateAndSaveLayout(replayWidgetDSL, false, true));
+
+  if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {

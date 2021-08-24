@@ -1,11 +1,11 @@
 import * as Y from "yjs";
 import * as Sentry from "@sentry/react";
-import { diff as deepDiff, applyChange, revertChange, Diff } from "deep-diff";
+import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { processDiff, DSLDiff } from "./replayUtils";
 
 const _DIFF_ = "diff";
-type DSLDiff = Diff<CanvasWidgetsReduxState, CanvasWidgetsReduxState>;
 
 export default class ReplayDSL {
   diffMap: any;
@@ -50,8 +50,13 @@ export default class ReplayDSL {
 
     if (this.shouldReplay()) {
       this.undoManager.undo();
-      this.applyDiffs(diffs, revertChange);
-      return this.dsl;
+      const replay = {};
+      this.applyDiffs(diffs, true, replay);
+      console.log("replay undo", replay, diffs, this.dsl);
+      return {
+        replayWidgetDSL: this.dsl,
+        replay,
+      };
     }
 
     return null;
@@ -67,8 +72,13 @@ export default class ReplayDSL {
     const diffs = this.getDiffs();
 
     if (this.shouldReplay()) {
-      this.applyDiffs(diffs, applyChange);
-      return this.dsl;
+      const replay = {};
+      this.applyDiffs(diffs, false, replay);
+      console.log("replay redo", replay, diffs, this.dsl);
+      return {
+        replayWidgetDSL: this.dsl,
+        replay,
+      };
     }
 
     return null;
@@ -97,12 +107,14 @@ export default class ReplayDSL {
    * @param diffs
    * @param diffUpdate
    */
-  applyDiffs(diffs: Array<DSLDiff>, diffUpdate: typeof applyChange) {
+  applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean, replay: any) {
     for (const diff of diffs) {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
         continue;
       }
+      const diffUpdate = isUndo ? revertChange : applyChange;
       try {
+        processDiff(this.dsl, diff, replay, isUndo);
         diffUpdate(this.dsl, true, diff);
       } catch (e) {
         Sentry.captureException(e, {

@@ -186,16 +186,10 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
-        const replayWidgets = replayDSL?.undo();
-        return {
-          replayWidgets,
-        };
+        return replayDSL?.undo();
       }
       case EVAL_WORKER_ACTIONS.REDO: {
-        const replayWidgets = replayDSL?.redo();
-        return {
-          replayWidgets,
-        };
+        return replayDSL?.redo();
       }
       default: {
         console.error("Action not registered on worker", method);
