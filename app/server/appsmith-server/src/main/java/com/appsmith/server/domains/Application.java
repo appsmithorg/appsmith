@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -134,7 +135,19 @@ public class Application extends BaseDomain {
         String branchName;
 
         // Git remote url will be used while pushing and pulling changes
-        String remoteUrl;
+        Map<RemoteUrlType, String> remoteUrl;
+
+        // If the current branch is the default one
+        Boolean isDefault;
+
+        // Default application id used for storing the application files in local volume :
+        // container-volumes/git_repo/defaultApplicationId/branchName/applicationDirectoryStructure...
+        String defaultApplicationId;
+
+        public enum RemoteUrlType {
+            SSH,
+            HTTPS
+        }
     }
 
 }

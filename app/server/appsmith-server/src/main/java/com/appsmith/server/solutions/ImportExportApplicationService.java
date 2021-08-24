@@ -476,39 +476,39 @@ public class ImportExportApplicationService {
                     importedDoc.getPublishedLayoutmongoEscapedWidgets(),
                     importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
                 )
-                    .map(newPage -> {
-                        ApplicationPage unpublishedAppPage = new ApplicationPage();
-                        ApplicationPage publishedAppPage = new ApplicationPage();
+                .map(newPage -> {
+                    ApplicationPage unpublishedAppPage = new ApplicationPage();
+                    ApplicationPage publishedAppPage = new ApplicationPage();
 
-                        if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
-                            unpublishedAppPage.setIsDefault(
-                                StringUtils.equals(
-                                    newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
-                                )
-                            );
-                            unpublishedAppPage.setId(newPage.getId());
-                            pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
-                        }
+                    if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
+                        unpublishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                            )
+                        );
+                        unpublishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getUnpublishedPage().getName(), newPage);
+                    }
 
-                        if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
-                            publishedAppPage.setIsDefault(
-                                StringUtils.equals(
-                                    newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
-                                )
-                            );
-                            publishedAppPage.setId(newPage.getId());
-                            pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
-                        }
-                        if (unpublishedAppPage.getId() != null) {
-                            applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                        }
-                        if (publishedAppPage.getId() != null) {
-                            applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
-                        }
-                        return applicationPages;
-                    })
-                    .then()
-                    .thenReturn(applicationPages);
+                    if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
+                        publishedAppPage.setIsDefault(
+                            StringUtils.equals(
+                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                            )
+                        );
+                        publishedAppPage.setId(newPage.getId());
+                        pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
+                    }
+                    if (unpublishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                    }
+                    if (publishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                    }
+                    return applicationPages;
+                })
+                .then()
+                .thenReturn(applicationPages);
             })
             .flatMap(applicationPageMap -> {
                 assert importedApplication != null;
@@ -814,7 +814,7 @@ public class ImportExportApplicationService {
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<String> saveApplicationWithinServerDirectory(ApplicationJson applicationJson, String branchName) {
+    public Mono<String> saveApplicationToGit(ApplicationJson applicationJson, String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree. This decision has been
         // taken considering the case multiple users can checkout different branches at same time
@@ -889,7 +889,7 @@ public class ImportExportApplicationService {
      * @param branchName for which the application needs to be rehydrate
      * @return application reference from which entire application can be rehydrated
      */
-    public ApplicationJson reconstructApplicationFromServerDirectory(String applicationName, String branchName) {
+    public ApplicationJson reconstructApplicationFromGit(String applicationName, String branchName) {
 
         // For implementing a branching model we are using worktree structure so each branch will have the separate
         // directory, this decision has been taken considering multiple users can checkout different branches at same
