@@ -161,7 +161,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                               params: {
                                 allowedKeys: [
                                   {
-                                    name: "label",
+                                    name: "id",
                                     type: ValidationTypes.TEXT,
                                   },
                                   {
@@ -180,10 +180,75 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
               },
             },
             hidden: (props: MapChartWidgetProps) =>
-              props.chartType !== "maps/custom",
+              props.mapType !== "maps/custom",
             dependencies: ["mapType"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Populates the map with the data",
+            propertyName: "data",
+            label: "Data",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            hidden: (props: MapChartWidgetProps) =>
+              props.mapType === "maps/custom",
+            dependencies: ["mapType"],
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "id",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                          default: 10,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action  the map type is changed to custom",
+            propertyName: "onCustomMapSelected",
+            label: "onCustomMapSelected",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the chart data point is clicked",
+            propertyName: "onDataPointClick",
+            label: "onDataPointClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
           },
         ],
       },
