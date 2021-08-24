@@ -12,6 +12,10 @@ import {
   ButtonBorderRadiusTypes,
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
+  ButtonStyleType,
+  ButtonStyleTypes,
+  ButtonVariant,
+  ButtonVariantTypes,
 } from "components/constants";
 
 const IconButtonContainer = styled.div`
@@ -26,7 +30,7 @@ export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  buttonStyle?: ButtonStyle;
+  buttonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
   dimension: number;
 }
@@ -168,7 +172,7 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  buttonStyle: ButtonStyle;
+  buttonStyle: ButtonStyleType;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;

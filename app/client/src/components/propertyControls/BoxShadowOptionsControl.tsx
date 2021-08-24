@@ -5,21 +5,7 @@ import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
-<<<<<<< HEAD
 import { ButtonBoxShadow, ButtonBoxShadowTypes } from "components/constants";
-=======
-
-export enum ButtonBoxShadowTypes {
-  NONE = "NONE",
-  VARIANT1 = "VARIANT1",
-  VARIANT2 = "VARIANT2",
-  VARIANT3 = "VARIANT3",
-  VARIANT4 = "VARIANT4",
-  VARIANT5 = "VARIANT5",
-}
-
-export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;
->>>>>>> b170a014c6e24a736b42bdeefd98f0e926c990cf
 
 const StyledButtonGroup = styled(ButtonGroup)`
   display: grid !important;

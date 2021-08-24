@@ -32,6 +32,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -881,6 +882,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = 32;
+  }
+
+  if (currentDSL.version === 32) {
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

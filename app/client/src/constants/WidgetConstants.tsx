@@ -139,25 +139,4 @@ export const WIDGET_STATIC_PROPS = {
   noContainerOffset: false,
 };
 
-<<<<<<< HEAD
 export type TextSize = keyof typeof TextSizes;
-=======
-export type RateSize = keyof typeof RateSizes;
-
-export enum ButtonStyleTypes {
-  PRIMARY = "PRIMARY",
-  WARNING = "WARNING",
-  DANGER = "DANGER",
-  INFO = "INFO",
-  SECONDARY = "SECONDARY",
-  CUSTOM = "CUSTOM",
-}
-export type ButtonStyle = keyof typeof ButtonStyleTypes;
-
-export enum ButtonVariantTypes {
-  SOLID = "SOLID",
-  OUTLINE = "OUTLINE",
-  GHOST = "GHOST",
-}
-export type ButtonVariant = keyof typeof ButtonVariantTypes;
->>>>>>> b170a014c6e24a736b42bdeefd98f0e926c990cf

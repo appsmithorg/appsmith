@@ -1,7 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { IconNames } from "@blueprintjs/icons";
-import { ButtonStyleTypes, ButtonVariantTypes } from "./component";
+import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   ButtonBorderRadiusTypes,

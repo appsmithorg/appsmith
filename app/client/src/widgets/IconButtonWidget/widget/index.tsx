@@ -6,12 +6,17 @@ import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import IconButtonComponent, { ButtonStyle, ButtonVariant } from "../component";
-import { ButtonBorderRadius, ButtonBoxShadow } from "components/constants";
+import IconButtonComponent from "../component";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonStyleType,
+  ButtonVariant,
+} from "components/constants";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  buttonStyle: ButtonStyle;
+  buttonStyle: ButtonStyleType;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;

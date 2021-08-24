@@ -7,6 +7,7 @@ import MenuButtonComponent from "../component";
 import { MenuButtonWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
+import { ButtonStyleTypes } from "components/constants";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {

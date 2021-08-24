@@ -8,8 +8,11 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     label: "Open Menu",
-    isDisabled: false,
+    menuStyle: "PRIMARY",
+    menuVariant: "SOLID",
     isCompact: false,
+    isDisabled: false,
+    isVisible: true,
     menuItems: {
       menuItem1: {
         label: "First Menu Item",
@@ -33,12 +36,13 @@ export const CONFIG = {
         widgetId: "",
         isVisible: true,
         isDisabled: false,
-        index: 1,
+        index: 2,
       },
     },
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "MenuButton",
+    version: 1,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

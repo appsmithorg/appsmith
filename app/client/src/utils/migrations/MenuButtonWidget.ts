@@ -1,12 +1,11 @@
-import { WidgetTypes } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DSLWidget } from "widgets/constants";
 
 export const migrateMenuButtonWidgetButtonProperties = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.MENU_BUTTON_WIDGET) {
+    if (child.type === "MENU_BUTTON_WIDGET") {
       if (!("menuStyle" in child)) {
         child.menuStyle = "PRIMARY";
         child.menuVariant = "SOLID";

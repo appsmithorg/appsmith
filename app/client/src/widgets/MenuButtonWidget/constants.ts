@@ -1,6 +1,12 @@
 import { WidgetProps } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
+import {
+  ButtonBorderRadius,
+  ButtonBoxShadow,
+  ButtonStyleType,
+  ButtonVariant,
+} from "components/constants";
 
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
@@ -24,8 +30,8 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       onClick?: string;
     }
   >;
-  menuStyle?: ButtonStyle;
-  prevMenuStyle?: ButtonStyle;
+  menuStyle?: ButtonStyleType;
+  prevMenuStyle?: ButtonStyleType;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;

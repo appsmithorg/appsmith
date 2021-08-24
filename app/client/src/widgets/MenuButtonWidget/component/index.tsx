@@ -5,31 +5,23 @@ import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
-<<<<<<< HEAD:app/client/src/widgets/MenuButtonWidget/component/index.tsx
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
-=======
-import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { darkenActive, darkenHover, Theme } from "constants/DefaultTheme";
 import {
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
-} from "components/propertyControls/BoxShadowOptionsControl";
-import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
-} from "components/propertyControls/ButtonBorderRadiusControl";
-import {
-  ButtonStyle,
+  ButtonStyleType,
   ButtonStyleTypes,
   ButtonVariant,
   ButtonVariantTypes,
-} from "constants/WidgetConstants";
+} from "components/constants";
 import { ThemeProp } from "components/ads/common";
 
 const getCustomTextColor = (
   theme: Theme,
   backgroundColor?: string,
-  prevButtonStyle?: ButtonStyle,
+  prevButtonStyle?: ButtonStyleType,
 ) => {
   if (!backgroundColor)
     return prevButtonStyle
@@ -45,7 +37,7 @@ const getCustomTextColor = (
 
 const getCustomHoverColor = (
   theme: Theme,
-  prevButtonStyle?: ButtonStyle,
+  prevButtonStyle?: ButtonStyleType,
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
@@ -86,7 +78,7 @@ const getCustomHoverColor = (
 
 const getCustomBackgroundColor = (
   theme: Theme,
-  prevButtonStyle?: ButtonStyle,
+  prevButtonStyle?: ButtonStyleType,
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
@@ -101,7 +93,7 @@ const getCustomBackgroundColor = (
 
 const getCustomBorderColor = (
   theme: Theme,
-  prevButtonStyle?: ButtonStyle,
+  prevButtonStyle?: ButtonStyleType,
   buttonVariant?: ButtonVariant,
   backgroundColor?: string,
 ) => {
@@ -113,7 +105,6 @@ const getCustomBorderColor = (
       : "none"
     : "none";
 };
->>>>>>> b170a014c6e24a736b42bdeefd98f0e926c990cf:app/client/src/components/designSystems/appsmith/MenuButtonComponent/index.tsx
 
 export const MenuButtonContainer = styled.div`
   width: 100%;
@@ -137,10 +128,10 @@ export interface BaseStyleProps {
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
   buttonColor?: string;
-  buttonStyle?: ButtonStyle;
+  buttonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
   isCompact?: boolean;
-  prevButtonStyle?: ButtonStyle;
+  prevButtonStyle?: ButtonStyleType;
   textColor?: string;
 }
 
@@ -430,14 +421,14 @@ export interface PopoverTargetButtonProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  buttonStyle?: ButtonStyle;
+  buttonStyle?: ButtonStyleType;
   buttonColor?: string;
   buttonVariant?: ButtonVariant;
   iconName?: IconName;
   iconAlign?: Alignment;
   isDisabled?: boolean;
   label?: string;
-  prevButtonStyle?: ButtonStyle;
+  prevButtonStyle?: ButtonStyleType;
 }
 
 function PopoverTargetButton(props: PopoverTargetButtonProps) {
@@ -514,8 +505,8 @@ export interface MenuButtonComponentProps {
       onClick?: string;
     }
   >;
-  menuStyle?: ButtonStyle;
-  prevMenuStyle?: ButtonStyle;
+  menuStyle?: ButtonStyleType;
+  prevMenuStyle?: ButtonStyleType;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;

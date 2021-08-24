@@ -40,6 +40,7 @@ export enum ButtonBoxShadowTypes {
   VARIANT4 = "VARIANT4",
   VARIANT5 = "VARIANT5",
 }
+
 export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;
 
 export type ButtonStyle =
@@ -54,8 +55,9 @@ export enum ButtonStyleTypes {
   DANGER = "DANGER",
   INFO = "INFO",
   SECONDARY = "SECONDARY",
+  CUSTOM = "CUSTOM",
 }
-export type ButtonStyle = keyof typeof ButtonStyleTypes;
+export type ButtonStyleType = keyof typeof ButtonStyleTypes;
 
 export enum ButtonVariantTypes {
   SOLID = "SOLID",
