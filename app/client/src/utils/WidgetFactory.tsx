@@ -13,6 +13,7 @@ import {
 import { generateReactKey } from "./generators";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { RenderMode } from "constants/WidgetConstants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -153,11 +154,15 @@ class WidgetFactory {
     this.widgetConfigMap.set(widgetType, Object.freeze(config));
   }
 
-  static createWidget(widgetData: WidgetDataProps): React.ReactNode {
+  static createWidget(
+    widgetData: WidgetDataProps,
+    renderMode: RenderMode,
+  ): React.ReactNode {
     const widgetProps: WidgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
+      renderMode,
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {

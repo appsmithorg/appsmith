@@ -12,6 +12,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
+
 export interface WidgetConfiguration {
   type: string;
   name: string;
@@ -45,6 +46,7 @@ export const registerWidget = (
   config: WidgetConfiguration,
 ) => {
   const ProfiledWidget = generateWidget(Widget, !!config.needsMeta);
+
   WidgetFactory.registerWidgetBuilder(
     config.type,
     {

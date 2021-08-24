@@ -120,7 +120,7 @@ class ContainerWidget extends BaseWidget<
 
     childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
   renderChildren = () => {

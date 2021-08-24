@@ -199,7 +199,7 @@ class TabsWidget extends BaseWidget<
       return null;
     }
 
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
   static getWidgetType(): string {

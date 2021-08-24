@@ -42,9 +42,9 @@ import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -275,12 +275,8 @@ export const ResizableComponent = memo(function ResizableComponent(
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
     }
-
-    // Let the propertypane show.
-    // The propertypane decides whether to show itself, based on
-    // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-
+    // Property pane closes after a resize/drag
+    showPropertyPane && showPropertyPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
       widgetType: props.type,

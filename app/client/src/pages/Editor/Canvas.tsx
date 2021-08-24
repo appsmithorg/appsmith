@@ -16,6 +16,7 @@ import {
   APP_COLLAB_EVENTS,
   NAMESPACE_COLLAB_PAGE_EDIT,
 } from "constants/AppCollabConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -65,7 +66,8 @@ const Canvas = memo((props: CanvasProps) => {
           }}
           width={props.dsl.rightColumn}
         >
-          {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
+          {props.dsl.widgetId &&
+            WidgetFactory.createWidget(props.dsl, RenderModes.EDIT)}
           <CanvasMultiPointerArena
             pageEditSocket={pageEditSocket}
             pageId={pageId}

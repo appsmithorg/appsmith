@@ -15,7 +15,7 @@ import { generateClassName } from "utils/generators";
 
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {
@@ -110,7 +110,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = MODAL_SIZE[this.props.size].height;
     childWidgetData.rightColumn = this.getModalWidth();
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
   onModalClose = () => {

@@ -238,7 +238,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       ? componentHeight - LIST_WIDGEY_PAGINATION_HEIGHT
       : componentHeight;
 
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
   /**

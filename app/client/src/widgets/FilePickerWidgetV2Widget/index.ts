@@ -1,14 +1,13 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import FileDataTypes from "./widget/FileDataTypes";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import FileDataTypes from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "FilePicker",
+  name: "FilePickerWidgetV2",
   iconSVG: IconSVG,
   needsMeta: true,
-  hideCard: true,
   defaults: {
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     files: [],

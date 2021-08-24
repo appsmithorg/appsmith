@@ -4,6 +4,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { DSLWidget } from "widgets/constants";
+import { RenderModes } from "constants/WidgetConstants";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -31,7 +32,8 @@ export function AppPage(props: AppPageProps) {
   }, [props.pageId, props.pageName]);
   return (
     <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
-      {props.dsl.widgetId && WidgetFactory.createWidget(props.dsl)}
+      {props.dsl.widgetId &&
+        WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>
   );
 }

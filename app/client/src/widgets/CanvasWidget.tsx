@@ -54,7 +54,7 @@ class CanvasWidget extends ContainerWidget {
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
     childWidgetData.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData);
+    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
 
   getPageView() {
