@@ -13,6 +13,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
+  LIBRARY = "LIBRARY",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -63,6 +64,12 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
     desc: "Search and Insert code snippets to perform complex actions quickly.",
+  },
+  [SEARCH_CATEGORY_ID.LIBRARY]: {
+    title: "Install Libraries",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.LIBRARY,
+    desc: "Search and install libraries from cdnjs.",
   },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,

@@ -56,6 +56,7 @@ import { keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
+import CustomLibrary from "../CustomLibs";
 
 const isNavigation = (category: any) =>
   category.id === SEARCH_CATEGORY_ID.NAVIGATION;
@@ -297,9 +298,7 @@ function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
-      return filterCategoryList.filter(
-        (cat: SearchCategory) => isDocumentation(cat) || isNavigation(cat),
-      );
+      return filterCategoryList;
     }
     if (isSnippet(category)) {
       return snippets;
@@ -473,47 +472,50 @@ function GlobalSearch() {
     <SearchContext.Provider value={searchContext}>
       <GlobalSearchHotKeys {...hotKeyProps}>
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
-          <AlgoliaSearchWrapper
-            query={query}
-            refinements={refinements}
-            setRefinement={setRefinements}
-          >
-            <StyledContainer>
-              <SearchBox
-                category={category}
-                query={query}
-                setCategory={setCategory}
-                setQuery={setQuery}
-              />
-              <div className="main">
-                <SetSearchResults
-                  categoryId={category.id}
-                  setDocumentationSearchResults={setSearchResults}
+          {category.id !== SEARCH_CATEGORY_ID.LIBRARY && (
+            <AlgoliaSearchWrapper
+              query={query}
+              refinements={refinements}
+              setRefinement={setRefinements}
+            >
+              <StyledContainer>
+                <SearchBox
+                  category={category}
+                  query={query}
+                  setCategory={setCategory}
+                  setQuery={setQuery}
                 />
-                {searchResults.length > 0 ? (
-                  <>
-                    <SearchResults
-                      query={query}
-                      refinements={refinements}
-                      searchResults={searchResults}
-                      showFilter={isSnippet(category)}
-                    />
-                    {(isDocumentation(category) || isSnippet(category)) && (
-                      <Description
-                        activeItem={activeItem}
-                        activeItemType={activeItemType}
+                <div className="main">
+                  <SetSearchResults
+                    categoryId={category.id}
+                    setDocumentationSearchResults={setSearchResults}
+                  />
+                  {searchResults.length > 0 ? (
+                    <>
+                      <SearchResults
                         query={query}
-                        scrollPositionRef={scrollPositionRef}
+                        refinements={refinements}
+                        searchResults={searchResults}
+                        showFilter={isSnippet(category)}
                       />
-                    )}
-                  </>
-                ) : (
-                  <ResultsNotFound />
-                )}
-              </div>
-              <Footer />
-            </StyledContainer>
-          </AlgoliaSearchWrapper>
+                      {(isDocumentation(category) || isSnippet(category)) && (
+                        <Description
+                          activeItem={activeItem}
+                          activeItemType={activeItemType}
+                          query={query}
+                          scrollPositionRef={scrollPositionRef}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <ResultsNotFound />
+                  )}
+                </div>
+                <Footer />
+              </StyledContainer>
+            </AlgoliaSearchWrapper>
+          )}
+          {category.id === SEARCH_CATEGORY_ID.LIBRARY && <CustomLibrary />}
         </SearchModal>
       </GlobalSearchHotKeys>
     </SearchContext.Provider>
