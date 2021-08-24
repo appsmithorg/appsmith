@@ -93,17 +93,19 @@ public class UserSignup {
                 )
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
-                    final User savedUser = tuple.getT1();
+                    final User savedUser = tuple.getT1().getUser();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser, null, savedUser.getAuthorities());
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            savedUser, null, savedUser.getAuthorities()
+                    );
                     securityContext.setAuthentication(authentication);
                     session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, tuple.getT1().getDefaultApplicationId(), true)
                             .thenReturn(savedUser);
                 });
     }
