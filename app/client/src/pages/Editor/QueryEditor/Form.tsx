@@ -10,7 +10,7 @@ import {
 import { EditorJSONtoForm, EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { getFormValues } from "redux-form";
 import { QueryAction } from "entities/Action";
-import { getFormEvaluationState } from "../../../selectors/formSelectors";
+import { getFormEvaluationState } from "selectors/formSelectors";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 const mapStateToProps = (state: AppState) => {
