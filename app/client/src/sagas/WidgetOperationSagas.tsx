@@ -1821,7 +1821,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     );
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
-    console.log(error, "Error");
+    log.error(error);
   }
 }
 

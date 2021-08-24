@@ -9,8 +9,8 @@ import Text, { TextType } from "components/ads/Text";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 const HeadingContainer = styled.div`
@@ -35,6 +35,7 @@ const SubHeading = styled.p`
   ${(props) => getTypographyByKey(props, "p1")};
   margin: 20px 0px;
   color: ${Colors.BLACK};
+  text-align: center;
 `;
 
 const Back = styled.span`

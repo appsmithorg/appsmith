@@ -1182,11 +1182,13 @@ type ColorType = {
   };
   gitSyncModal: {
     menuBackgroundColor: string;
+    separator: string;
   };
 };
 
 const gitSyncModal = {
   menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
 };
 
 const tabItemBackgroundFill = {
