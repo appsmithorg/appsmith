@@ -19,12 +19,20 @@ describe("Button Widget Functionality", function() {
 
   it("Button-Style Validation", function() {
     //Changing the style of the button from the property pane and verify it's color.
+    // Change to Warning button sytle
+    cy.changeButtonStyle(2, "rgb(254, 184, 17)", "rgba(0, 0, 0, 0)");
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.openPropertyPane("buttonwidget");
+    // Change to Info button sytle
+    cy.changeButtonStyle(4, "rgb(102, 152, 255)", "rgba(0, 0, 0, 0)");
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.openPropertyPane("buttonwidget");
     // Change to Secondary button sytle
-    cy.changeButtonStyle(2, "rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0)");
+    cy.changeButtonStyle(5, "rgb(133, 130, 130)", "rgba(0, 0, 0, 0)");
     cy.get(publishPage.backToEditor).click({ force: true });
     // Change to Danger button sytle
     cy.openPropertyPane("buttonwidget");
-    cy.changeButtonStyle(3, "rgb(179, 3, 56)", "rgb(139, 2, 43)");
+    cy.changeButtonStyle(3, "rgb(242, 43, 43)", "rgb(139, 2, 43)");
     cy.get(publishPage.backToEditor).click({ force: true });
     // Change to Primary button sytle
     cy.openPropertyPane("buttonwidget");
