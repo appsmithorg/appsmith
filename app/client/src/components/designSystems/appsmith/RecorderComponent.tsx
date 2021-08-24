@@ -48,7 +48,7 @@ const RightContainer = styled.div`
   flex-direction: column;
   justify-content: space-around;
   height: 100%;
-  padding-left: 10%;
+  padding-left: 8%;
 
   & > .controls {
     display: flex;
@@ -113,7 +113,11 @@ const StyledRecorderLeftButton = styled(Button)<
 
   & > svg {
     flex: 1;
-    height: 40%;
+    height: ${({ status }) =>
+      status === RecorderStatusTypes.DEFAULT ||
+      status === RecorderStatusTypes.SAVED
+        ? "50%"
+        : "40%"};
     path {
       ${({ iconColor }) =>
         iconColor &&
