@@ -85,6 +85,13 @@ public class ActionCollectionController {
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
+    @PutMapping("/{id}/refactor")
+    public Mono<ResponseDTO<ActionCollectionDTO>> refactorActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
+        log.debug("Going to refactor action collection with id: {}", id);
+        return actionCollectionService.refactorCollection(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> deleteActionCollection(@PathVariable String id) {
         log.debug("Going to delete unpublished action collection with id: {}", id);

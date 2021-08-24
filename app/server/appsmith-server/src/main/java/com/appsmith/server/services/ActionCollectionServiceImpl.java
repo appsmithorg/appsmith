@@ -201,6 +201,161 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
+    public Mono<ActionCollectionDTO> refactorCollection(String id, ActionCollectionDTO actionCollectionDTO) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+                .cache();
+
+        return actionCollectionMono
+                .map(dbActionCollection -> {
+                    // Make sure that the action related fields and name are not edited
+                    actionCollectionDTO.setName(dbActionCollection.getUnpublishedCollection().getName());
+                    actionCollectionDTO.setActionIds(dbActionCollection.getUnpublishedCollection().getActionIds());
+                    actionCollectionDTO.setArchivedActionIds(dbActionCollection.getUnpublishedCollection().getArchivedActionIds());
+                    copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                    return dbActionCollection;
+                })
+                .flatMap(actionCollection -> this.update(id, actionCollection))
+                .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
+                        .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
+                                actionCollection.getUnpublishedCollection(),
+                                false)));
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO) {
+        // new actions without ids are to be created
+        // new actions with ids are to be updated and added to collection
+        // old actions that are now missing are to be archived
+        // rest are to be updated
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+                .cache();
+
+        final Set<String> validActionIds = actionCollectionDTO
+                .getActions()
+                .stream()
+                .map(ActionDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
+        final Set<String> archivedActionIds = actionCollectionDTO
+                .getArchivedActions()
+                .stream()
+                .map(ActionDTO::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableSet());
+        final Set<String> actionIds = new HashSet<>();
+        actionIds.addAll(validActionIds);
+        actionIds.addAll(archivedActionIds);
+
+        final Mono<Set<String>> newValidActionIdsMono = Mono.just(actionCollectionDTO)
+                .map(ActionCollectionDTO::getActions)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(actionDTO -> {
+                    actionDTO.setCollectionId(id);
+                    actionDTO.setArchivedAt(null);
+                    if (actionDTO.getId() == null) {
+                        actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                        actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
+                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
+                        actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
+                        actionDTO.setPageId(actionCollectionDTO.getPageId());
+                        actionDTO.setPluginType(actionCollectionDTO.getPluginType());
+                        actionDTO.setPluginId(actionCollectionDTO.getPluginId());
+                        // this is a new action, we need to create one
+                        return layoutActionService.createAction(actionDTO);
+                    } else {
+                        return layoutActionService.updateAction(actionDTO.getId(), actionDTO);
+                    }
+                })
+                .map(ActionDTO::getId)
+                .collect(Collectors.toSet());
+
+        final Mono<Set<String>> newArchivedActionIdsMono = Mono.just(actionCollectionDTO)
+                .map(ActionCollectionDTO::getArchivedActions)
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(actionDTO -> {
+                    actionDTO.setCollectionId(id);
+                    actionDTO.setArchivedAt(Instant.now());
+                    if (actionDTO.getId() == null) {
+                        actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                        actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
+                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
+                        actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
+                        actionDTO.setPageId(actionCollectionDTO.getPageId());
+                        // this is a new action, we need to create one
+                        return layoutActionService.createAction(actionDTO)
+                                // return an empty action so that the filter can remove it from the list
+                                .onErrorResume(throwable -> {
+                                    log.debug("Failed to create action with name {} for collection: {}", actionDTO.getName(), actionCollectionDTO.getName());
+                                    log.error(throwable.getMessage());
+                                    return Mono.empty();
+                                });
+                    } else {
+                        return layoutActionService.updateAction(actionDTO.getId(), actionDTO);
+                    }
+                })
+                .map(ActionDTO::getId)
+                .collect(Collectors.toSet());
+        // First collect all valid action ids from before, and diff against incoming action ids
+        return actionCollectionMono
+                .map(actionCollection -> {
+                    // From the existing collection, if an action id is not referenced at all anymore,
+                    // this means the action has been somehow deleted
+                    final Set<String> oldActionIds = new HashSet<>();
+                    if (actionCollection.getUnpublishedCollection().getActionIds() != null) {
+                        oldActionIds.addAll(actionCollection
+                                .getUnpublishedCollection()
+                                .getActionIds());
+                    }
+                    if (actionCollection.getUnpublishedCollection().getArchivedActionIds() != null) {
+                        oldActionIds.addAll(actionCollection
+                                .getUnpublishedCollection()
+                                .getArchivedActionIds());
+                    }
+
+                    return oldActionIds
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .filter(x -> !actionIds.contains(x))
+                            .collect(Collectors.toUnmodifiableSet());
+                })
+                .flatMapMany(Flux::fromIterable)
+                // TODO determine whether we want to simply remove these from the collection instead
+                .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
+                        // return an empty action so that the filter can remove it from the list
+                        .onErrorResume(throwable -> {
+                            log.debug("Failed to delete action with id {} for collection: {}", actionId, actionCollectionDTO.getName());
+                            log.error(throwable.getMessage());
+                            return Mono.empty();
+                        }))
+                .then(Mono.zip(newValidActionIdsMono, newArchivedActionIdsMono))
+                .flatMap(tuple -> {
+                    actionCollectionDTO.setActionIds(tuple.getT1());
+                    actionCollectionDTO.setArchivedActionIds(tuple.getT2());
+                    return actionCollectionMono
+                            .map(dbActionCollection -> {
+                                copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                                return dbActionCollection;
+                            });
+                })
+                .flatMap(actionCollection -> this.update(id, actionCollection))
+                .flatMap(analyticsService::sendUpdateEvent)
+                .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
+                        .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
+                                actionCollection.getUnpublishedCollection(),
+                                false)));
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
         Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
