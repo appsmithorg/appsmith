@@ -34,6 +34,7 @@ export enum WidgetTypes {
   MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
   ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
   CHECKBOX_GROUP_WIDGET = "CHECKBOX_GROUP_WIDGET",
+  MAP_CHART_WIDGET = "MAP_CHART_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;

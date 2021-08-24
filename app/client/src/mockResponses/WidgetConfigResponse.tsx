@@ -1295,6 +1295,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
+    [WidgetTypes.MAP_CHART_WIDGET]: {
+      rows: 8 * GRID_DENSITY_MIGRATION_V1,
+      columns: 6 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "MapChart",
+      version: 1,
+    },
   },
   configVersion: 1,
 };

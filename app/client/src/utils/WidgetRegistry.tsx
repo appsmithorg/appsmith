@@ -131,6 +131,10 @@ import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
 } from "widgets/CheckboxGroupWidget";
+import MapChartWidget, {
+  MapChartWidgetProps,
+  ProfiledMapChartWidget,
+} from "widgets/MapChartWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -571,6 +575,19 @@ export default class WidgetBuilderRegistry {
       CheckboxGroupWidget.getDefaultPropertiesMap(),
       CheckboxGroupWidget.getMetaPropertiesMap(),
       CheckboxGroupWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MAP_CHART_WIDGET,
+      {
+        buildWidget(widgetData: MapChartWidgetProps): JSX.Element {
+          return <ProfiledMapChartWidget {...widgetData} />;
+        },
+      },
+      MapChartWidget.getDerivedPropertiesMap(),
+      MapChartWidget.getDefaultPropertiesMap(),
+      MapChartWidget.getMetaPropertiesMap(),
+      MapChartWidget.getPropertyPaneConfig(),
     );
   }
 }

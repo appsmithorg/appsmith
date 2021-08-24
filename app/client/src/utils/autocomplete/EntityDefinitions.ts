@@ -311,6 +311,12 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {

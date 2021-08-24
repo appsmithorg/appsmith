@@ -139,6 +139,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Checkbox Group",
     key: generateReactKey(),
   },
+  {
+    type: "MAP_CHART_WIDGET",
+    widgetCardName: "Map Chart",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

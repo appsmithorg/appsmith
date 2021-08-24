@@ -143,6 +143,10 @@ export const HelpMap = {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",
   },
+  MAP_CHART_WIDGET: {
+    path: "/widget-reference/map-chart",
+    searchKey: "Map Chart",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
