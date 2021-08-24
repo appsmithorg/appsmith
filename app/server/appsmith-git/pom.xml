@@ -9,14 +9,16 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
+    <groupId>com.appsmith</groupId>
     <artifactId>appsmith-git</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+
+    <name>appsmith-git</name>
+    <description>This is the git server to handle all the git operations</description>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <repositories>
@@ -75,5 +77,26 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
