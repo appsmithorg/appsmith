@@ -1,5 +1,7 @@
 import React from 'react';
 import { DefaultTheme, ThemeProvider } from "./configs";
+import store from "../src/store";
+import { Provider } from "react-redux";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -13,8 +15,10 @@ export const parameters = {
 
 export const decorators = [
   (Story) => (
-    <ThemeProvider theme={DefaultTheme}>
-      <Story />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ThemeProvider theme={DefaultTheme}>
+        <Story />
+      </ThemeProvider>
+    </Provider>
   ),
 ];
