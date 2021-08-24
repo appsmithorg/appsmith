@@ -61,14 +61,17 @@ function main() {
 	});
 
 	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		console.log(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		console.log(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		console.log(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} left the room ${room}`)
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
@@ -85,11 +88,13 @@ function main() {
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
 	// remove this socket from any other app rooms
-	socket.rooms.forEach(roomName => {
-		if(roomName.startsWith(roomPrefix)) {
-			socket.leave(roomName);
-		}
-	});
+	if(socket.rooms) {
+		socket.rooms.forEach(roomName => {
+			if(roomName.startsWith(roomPrefix)) {
+				socket.leave(roomName);
+			}
+		});
+	}
 
 	// add this socket to room with application id
 	let roomName = roomPrefix + roomId;
@@ -133,39 +138,42 @@ async function onPageSocketConnected(socket:Socket, socketIo:Server) {
 async function tryAuth(socket:Socket) {
 	const connectionCookie = socket.handshake.headers.cookie
 	if (connectionCookie != null && connectionCookie !== "") {
-		const sessionCookie = connectionCookie.match(/\bSESSION=\S+/)[0]
-		let response
-		try {
-			response = await axios.request({
-				method: "GET",
-				url: API_BASE_URL + "/applications/new",
-				headers: {
-					Cookie: sessionCookie,
-				},
-			})
-		} catch (error) {
-			if (error.response?.status === 401) {
-				console.info("Couldn't authenticate user with cookie:")
-			} else {
-				console.error("Error authenticating", error)
+		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
+		if(matchedCookie) {
+			const sessionCookie = matchedCookie[0]
+			let response
+			try {
+				response = await axios.request({
+					method: "GET",
+					url: API_BASE_URL + "/applications/new",
+					headers: {
+						Cookie: sessionCookie,
+					},
+				})
+			} catch (error) {
+				if (error.response?.status === 401) {
+					console.info("401 received when authenticating user with cookie: " + sessionCookie)
+				} else if(error.response) {
+					console.error("Error response received while authentication: ", error.response)
+				} else {
+					console.error("Error authenticating", error)
+				}
+				return false
 			}
-			return false
-		}
-	
-		const email = response.data.data.user.email
-		const name = response.data.data.user.name ? response.data.data.user.name : email;
-	
-		socket.data.email = email
-		socket.data.name = name
 		
-		if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
-			joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+			const email = response.data.data.user.email
+			const name = response.data.data.user.name ? response.data.data.user.name : email;
+		
+			socket.data.email = email
+			socket.data.name = name
+			
+			if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
+				joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+			}
+			return true
 		}
-
-		return true
 	}
 	return false
-	
 }
 
 async function watchMongoDB(io) {
@@ -298,6 +306,14 @@ async function watchMongoDB(io) {
 		const eventName = event.operationType + ":" + event.ns.coll
 		io.to("email:" + notification.forUsername).emit(eventName, { notification })
 	})
+
+	process.on('uncaughtExceptionMonitor', (err, origin) => {
+		console.error(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+	});
+
+	process.on('unhandledRejection', (reason, promise) => {
+		console.log('Unhandled Rejection at:', promise, 'reason:', reason);
+	});
 
 	process.on("exit", () => {
 		(commentChangeStream != null ? commentChangeStream.close() : Promise.bind(client).resolve())
