@@ -11,6 +11,7 @@ import authReducer from "./authReducer";
 import orgReducer from "./orgReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
+import commentsDraggingReducer from "./commentsReducer/commentsDragReducer";
 import importedCollectionsReducer from "./importedCollectionsReducer";
 import providersReducer from "./providerReducer";
 import importReducer from "./importReducer";
@@ -69,6 +70,7 @@ const uiReducer = combineReducers({
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
   comments: commentsReducer,
+  commentsDrag: commentsDraggingReducer,
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,

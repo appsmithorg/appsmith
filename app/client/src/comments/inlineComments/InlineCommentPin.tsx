@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch, connect } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -22,8 +22,11 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
 import history from "utils/history";
-import { useDrag } from "react-dnd";
-
+import {
+  dropThread,
+  setDraggingCommentThread,
+} from "actions/commentsDragActions";
+import { CommentPinLocation } from "reducers/uiReducers/commentsReducer/commentsDragReducer";
 /**
  * The relavent pixel position is bottom right for the comment cursor
  * instead of the top left for the default arrow cursor
@@ -77,18 +80,8 @@ function Pin({
   unread?: boolean;
   onClick: () => void;
 }) {
-  const [, dragRef] = useDrag({
-    item: {
-      type: DraggableCommentsItems.INLINE_COMMENT_PIN,
-      commentThreadId,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
   return (
-    <StyledPinContainer onClick={onClick} ref={dragRef} unread={unread}>
+    <StyledPinContainer onClick={onClick} unread={unread}>
       <Icon
         className={`comment-thread-pin-${commentThreadId} t--inline-comment-pin-trigger-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}
@@ -150,17 +143,19 @@ const resetCommentThreadIdInURL = (commentThreadId: string) => {
  * Comment pins that toggle comment thread popover visibility on click
  * They position themselves using position absolute based on top and left values (in percent)
  */
-export const DraggableCommentsItems = {
-  INLINE_COMMENT_PIN: "INLINE_COMMENT_PIN",
+
+type CommentPinDragProps = {
+  setDraggingCommentThread?: (currentThread: string) => void;
+  dropThread?: (dropLocation?: CommentPinLocation | null) => void;
 };
 
-function InlineCommentPin({
-  commentThreadId,
-  focused,
-}: {
+type Props = {
   commentThreadId: string;
   focused: boolean;
-}) {
+} & CommentPinDragProps;
+
+function InlineCommentPin(props: Props) {
+  const { commentThreadId, focused } = props;
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { left, leftPercent, top, topPercent } = get(
     commentThread,
@@ -172,6 +167,7 @@ function InlineCommentPin({
       topPercent: 0,
     },
   );
+  const [shouldHideThread, setHideThread] = useState(false);
 
   const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
@@ -204,18 +200,34 @@ function InlineCommentPin({
     }
   }, [focused]);
 
+  const { dropThread, setDraggingCommentThread } = props;
+
   if (!commentThread) return null;
 
   return isPinVisible ? (
     <CommentTriggerContainer
       data-cy="inline-comment-pin"
-      draggable="true"
+      draggable
       left={left}
       leftPercent={leftPercent}
       onClick={(e: any) => {
         // capture clicks so that create new thread is not triggered
         e.preventDefault();
         e.stopPropagation();
+      }}
+      onDragEnd={(e) => {
+        dropThread &&
+          dropThread({
+            x: e.clientX,
+            y: e.clientY,
+          });
+        setHideThread(false);
+        e.stopPropagation();
+      }}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        setHideThread(true);
+        setDraggingCommentThread && setDraggingCommentThread(commentThreadId);
       }}
       positionAbsolutely={positionAbsolutely}
       top={top}
@@ -231,12 +243,12 @@ function InlineCommentPin({
           <CommentThread
             commentThread={commentThread}
             inline
-            isOpen={!!isCommentThreadVisible}
+            isOpen={!!isCommentThreadVisible && !shouldHideThread}
           />
         }
         enforceFocus={false}
         // isOpen is controlled so that newly created threads are set to be visible
-        isOpen={!!isCommentThreadVisible}
+        isOpen={!!isCommentThreadVisible && !shouldHideThread}
         minimal
         modifiers={modifiers}
         onInteraction={(nextOpenState: boolean) => {
@@ -262,4 +274,8 @@ function InlineCommentPin({
   ) : null;
 }
 
-export default InlineCommentPin;
+const mapDispatchToProps = {
+  setDraggingCommentThread,
+  dropThread,
+};
+export default connect(null, mapDispatchToProps)(InlineCommentPin);
