@@ -17,7 +17,7 @@ import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import { AppState } from "reducers";
 import { getWidget } from "sagas/selectors";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickOpenPropPane";
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 
 const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
   MODAL_SMALL: {

@@ -11,6 +11,7 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorMessages?: Message[];
   errorMessage?: Message["message"];
   errorType?: Message["type"];
+  errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
 }
 

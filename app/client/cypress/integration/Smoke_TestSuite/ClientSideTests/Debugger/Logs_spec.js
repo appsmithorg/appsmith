@@ -11,6 +11,7 @@ describe("Debugger logs", function() {
     cy.get("button")
       .contains("Submit")
       .click({ force: true });
+    cy.openPropertyPane("buttonwidget");
     cy.testJsontext("label", "Test");
     cy.get(".t--debugger").click();
     cy.get(".t--debugger-log-state").contains("Test");
