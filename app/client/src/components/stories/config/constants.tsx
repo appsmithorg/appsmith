@@ -84,5 +84,17 @@ export const storyName = {
       PATH: "Platform/Tabs",
       NAME: "Tabs",
     },
+    text: {
+      PATH: "Platform/Text",
+      NAME: "Text",
+    },
+    toast: {
+      PATH: "Platform/Toast",
+      NAME: "Toast",
+    },
+    tooltip: {
+      PATH: "Platform/Tooltip",
+      NAME: "Tooltip",
+    },
   },
 };
