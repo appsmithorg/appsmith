@@ -166,22 +166,6 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
       : "none"} !important;
 `;
 
-export enum ButtonStyleTypes {
-  PRIMARY = "PRIMARY",
-  WARNING = "WARNING",
-  DANGER = "DANGER",
-  INFO = "INFO",
-  SECONDARY = "SECONDARY",
-}
-export type ButtonStyle = keyof typeof ButtonStyleTypes;
-
-export enum ButtonVariantTypes {
-  SOLID = "SOLID",
-  OUTLINE = "OUTLINE",
-  GHOST = "GHOST",
-}
-export type ButtonVariant = keyof typeof ButtonVariantTypes;
-
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   buttonStyle: ButtonStyle;

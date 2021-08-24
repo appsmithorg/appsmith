@@ -4,7 +4,6 @@ import { IconName } from "@blueprintjs/icons";
 
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
-  textColor?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
@@ -25,7 +24,13 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       onClick?: string;
     }
   >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
   iconName?: IconName;
-  iconColor?: string;
   iconAlign?: Alignment;
 }
