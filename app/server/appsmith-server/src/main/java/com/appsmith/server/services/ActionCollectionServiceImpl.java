@@ -417,6 +417,32 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     @Override
+    public Mono<ActionCollectionDTO> refactorCollection(String id, ActionCollectionDTO actionCollectionDTO) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        Mono<ActionCollection> actionCollectionMono = repository.findById(id, MANAGE_ACTIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
+                .cache();
+
+        return actionCollectionMono
+                .map(dbActionCollection -> {
+                    // Make sure that the action related fields and name are not edited
+                    actionCollectionDTO.setName(dbActionCollection.getUnpublishedCollection().getName());
+                    actionCollectionDTO.setActionIds(dbActionCollection.getUnpublishedCollection().getActionIds());
+                    actionCollectionDTO.setArchivedActionIds(dbActionCollection.getUnpublishedCollection().getArchivedActionIds());
+                    copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+                    return dbActionCollection;
+                })
+                .flatMap(actionCollection -> this.update(id, actionCollection))
+                .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
+                        .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
+                                actionCollection.getUnpublishedCollection(),
+                                false)));
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(String id, ActionCollectionDTO actionCollectionDTO) {
         // new actions without ids are to be created
         // new actions with ids are to be updated and added to collection

@@ -49,6 +49,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -70,9 +71,6 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     OrganizationService organizationService;
-
-    @Autowired
-    ApplicationService applicationService;
 
     @Autowired
     OrganizationRepository organizationRepository;
@@ -99,6 +97,7 @@ public class ActionCollectionServiceTest {
     public void setup() {
 
         User apiUser = userService.findByEmail("api_user").block();
+        assert apiUser != null;
         orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
@@ -106,12 +105,15 @@ public class ActionCollectionServiceTest {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
+            assert organization != null;
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
 
+            assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
+            assert testPage != null;
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
 
@@ -135,11 +137,13 @@ public class ActionCollectionServiceTest {
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        assert testOrg != null;
         orgId = testOrg.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        assert installed_plugin != null;
         datasource.setPluginId(installed_plugin.getId());
     }
 
@@ -235,5 +239,36 @@ public class ActionCollectionServiceTest {
 
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testRefactorCollection_withModifiedName_ignoresName() {
+        ActionCollectionDTO originalActionCollectionDTO = new ActionCollectionDTO();
+        originalActionCollectionDTO.setName("originalName");
+        originalActionCollectionDTO.setApplicationId(testApp.getId());
+        originalActionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        originalActionCollectionDTO.setPageId(testPage.getId());
+        originalActionCollectionDTO.setPluginId(datasource.getPluginId());
+        originalActionCollectionDTO.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO dto = actionCollectionService.createCollection(originalActionCollectionDTO).block();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        assert dto != null;
+        actionCollectionDTO.setId(dto.getId());
+        actionCollectionDTO.setBody("body");
+        actionCollectionDTO.setName("newName");
+
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
+                actionCollectionService.refactorCollection(dto.getId(), actionCollectionDTO);
+
+        StepVerifier.create(actionCollectionDTOMono)
+                .assertNext(actionCollectionDTOResult -> {
+                    assertEquals("originalName", actionCollectionDTOResult.getName());
+                    assertEquals("body", actionCollectionDTOResult.getBody());
+                })
+                .verifyComplete();
+
     }
 }
