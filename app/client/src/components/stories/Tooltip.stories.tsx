@@ -34,13 +34,6 @@ TooltipStory.args = {
   content: "I'm a hover over text.",
   position: Position.RIGHT,
   boundary: "viewport",
-  // minWidth: "250px",
-  // openOnTargetFocus: true,
-  // autoFocus: true,
-  // hoverOpenDelay: 500,
-  // minimal: false,
-  // isOpen: false,
-  // modifiers: { preventOverflow: { enabled: true } },
 };
 
 TooltipStory.argTypes = {};
