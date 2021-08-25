@@ -12,6 +12,7 @@ import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 
 const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
@@ -58,7 +59,7 @@ const Container = styled.div<{ errorCount: number; warningCount: number }>`
 function Debugger() {
   const dispatch = useDispatch();
   const messageCounters = useSelector((state) => {
-    const errorKeys = Object.keys(state.ui.debugger.errors);
+    const errorKeys = Object.keys(getFilteredErrors(state));
     const warnings = errorKeys.filter((key: string) => key.includes("warning"))
       .length;
     const errors = errorKeys.length - warnings;
@@ -66,7 +67,6 @@ function Debugger() {
   });
 
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
-
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
