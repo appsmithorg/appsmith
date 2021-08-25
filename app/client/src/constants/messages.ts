@@ -437,3 +437,18 @@ export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
 export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
+
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
+export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
+export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
+  "Checkout branches, make commits, add deploy your application";
+export const CONNECT = () => "Connect";
+export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
+export const DEPLOY_WITHOUT_GIT = () =>
+  "Deploy your application without version control";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const COMMIT = () => "COMMIT";
+export const PUSH = () => "PUSH";
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
