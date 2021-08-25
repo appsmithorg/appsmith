@@ -18,7 +18,16 @@ import {
 } from "comments/tour/commentsTourSteps";
 
 import { AppState } from "reducers";
-import { dropThread, setAnchorWidget } from "actions/commentsDragActions";
+import { dropThread } from "actions/commentsDragActions";
+
+const stopPropagation = (e: any) => {
+  e.stopPropagation();
+  e.preventDefault();
+};
+
+const preventDefault = (e: any) => {
+  e.preventDefault();
+};
 
 type Props = {
   children: React.ReactNode;
@@ -51,18 +60,10 @@ function OverlayCommentsWrapper(props: Props) {
   const currentThreadId = useSelector(
     (state: AppState) => state.ui.commentsDrag.currentThreadId,
   );
-  const anchorWidget = useSelector(
-    (state: AppState) => state.ui.commentsDrag.anchorWidget,
-  );
 
   const updateCommentPinPosition = useCallback(
     (e: any) => {
-      if (
-        containerRef.current &&
-        currentThreadId &&
-        anchorWidget &&
-        anchorWidget.id === refId
-      ) {
+      if (containerRef.current && currentThreadId) {
         const newPosition = getNewDragPos(
           {
             x: e.clientX + COMMENT_PIN_OFFSET,
@@ -82,28 +83,8 @@ function OverlayCommentsWrapper(props: Props) {
         e.stopPropagation();
       }
     },
-    [refId, widgetType, anchorWidget, currentThreadId],
+    [refId, widgetType, currentThreadId],
   );
-
-  const setDropTarget = useCallback(
-    (e: any) => {
-      if (!anchorWidget || anchorWidget.id !== refId) {
-        dispatch(
-          setAnchorWidget({
-            id: refId,
-            type: widgetType,
-          }),
-        );
-      }
-      e.stopPropagation();
-      e.preventDefault();
-    },
-    [setAnchorWidget, refId, widgetType, anchorWidget],
-  );
-
-  const preventDefault = useCallback((e: any) => {
-    e.preventDefault();
-  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
@@ -141,7 +122,7 @@ function OverlayCommentsWrapper(props: Props) {
       isCommentMode={isCommentMode}
       isDragging={isDragging}
       onClick={clickHandler}
-      onDragEnter={setDropTarget}
+      onDragEnter={stopPropagation}
       onDragLeave={preventDefault}
       onDragOver={preventDefault}
       onDrop={updateCommentPinPosition}
