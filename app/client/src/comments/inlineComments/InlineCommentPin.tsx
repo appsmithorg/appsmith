@@ -45,7 +45,10 @@ const CommentTriggerContainer = styled.div<{
   z-index: 1;
 `;
 
-const StyledPinContainer = styled.div<{ unread?: boolean }>`
+const StyledPinContainer = styled.div<{
+  isDragging?: boolean | null;
+  unread?: boolean;
+}>`
   position: relative;
   & .pin-id {
     position: absolute;
@@ -66,7 +69,7 @@ const StyledPinContainer = styled.div<{ unread?: boolean }>`
     border-radius: 15px;
     overflow: visible;
   }
-  cursor: pointer;
+  cursor: ${(props) => (props.isDragging ? "grabbing" : "pointer")};
 `;
 
 function Pin({
@@ -80,8 +83,15 @@ function Pin({
   unread?: boolean;
   onClick: () => void;
 }) {
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.commentsDrag.isDragging,
+  );
   return (
-    <StyledPinContainer onClick={onClick} unread={unread}>
+    <StyledPinContainer
+      isDragging={isDragging}
+      onClick={onClick}
+      unread={unread}
+    >
       <Icon
         className={`comment-thread-pin-${commentThreadId} t--inline-comment-pin-trigger-${commentThreadId}`}
         data-cy={`t--inline-comment-pin-trigger-${commentThreadId}`}

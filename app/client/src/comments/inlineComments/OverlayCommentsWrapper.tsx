@@ -34,6 +34,8 @@ type Props = {
   widgetType: WidgetType;
 } & CommentPinDropProps;
 
+const COMMENT_PIN_OFFSET = 15;
+
 const Container = styled.div<{ isCommentMode: boolean; isDragging: boolean }>`
   width: 100%;
   height: 100%;
@@ -63,8 +65,8 @@ function OverlayCommentsWrapper(props: Props) {
       ) {
         const newPosition = getNewDragPos(
           {
-            x: e.clientX,
-            y: e.clientY,
+            x: e.clientX + COMMENT_PIN_OFFSET,
+            y: e.clientY + COMMENT_PIN_OFFSET,
           },
           containerRef.current,
         );
