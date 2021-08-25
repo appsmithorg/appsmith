@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Property;
 import com.external.dtos.MultipartFormDataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonSyntaxException;
 import net.minidev.json.JSONArray;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     private static DataUtils dataUtils;
+    private final ObjectMapper objectMapper;
 
     public enum MultipartFormDataType {
         TEXT,
@@ -40,6 +42,8 @@ public class DataUtils {
     }
 
     private DataUtils() {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     public static DataUtils getInstance() {
@@ -146,7 +150,7 @@ public class DataUtils {
                         if (MultipartFormDataType.TEXT.equals(multipartFormDataType)) {
                             bodyBuilder.part(key, property.getValue());
                         } else if (MultipartFormDataType.FILE.equals(multipartFormDataType)) {
-                            ObjectMapper objectMapper = new ObjectMapper();
+
                             MultipartFormDataDTO multipartFormDataDTO = null;
                             try {
                                 multipartFormDataDTO = objectMapper.readValue(

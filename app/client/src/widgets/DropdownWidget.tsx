@@ -48,6 +48,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
@@ -199,6 +200,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });

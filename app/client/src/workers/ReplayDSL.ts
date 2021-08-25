@@ -52,7 +52,7 @@ export default class ReplayDSL {
       this.undoManager.undo();
       const replay = {};
       this.applyDiffs(diffs, true, replay);
-      console.log("replay undo", replay, diffs, this.dsl);
+      //console.log("replay undo", replay, diffs, this.dsl);
       return {
         replayWidgetDSL: this.dsl,
         replay,
@@ -74,7 +74,7 @@ export default class ReplayDSL {
     if (this.shouldReplay()) {
       const replay = {};
       this.applyDiffs(diffs, false, replay);
-      console.log("replay redo", replay, diffs, this.dsl);
+      //console.log("replay redo", replay, diffs, this.dsl);
       return {
         replayWidgetDSL: this.dsl,
         replay,
@@ -91,14 +91,14 @@ export default class ReplayDSL {
    * @param widgets
    */
   update(widgets: CanvasWidgetsReduxState) {
-    const startTime = performance.now();
+    //const startTime = performance.now();
     const diffs = deepDiff(this.dsl, widgets);
     if (diffs && diffs.length) {
       this.dsl = widgets;
       this.diffMap.set(_DIFF_, diffs);
     }
-    const endTime = performance.now();
-    console.log("replay updating,", diffs, endTime - startTime, "ms");
+    //const endTime = performance.now();
+    //console.log("replay updating,", diffs, endTime - startTime, "ms");
   }
 
   /**

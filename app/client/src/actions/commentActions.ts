@@ -265,3 +265,13 @@ export const incrementThreadUnreadCount = () => ({
 export const decrementThreadUnreadCount = () => ({
   type: ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
 });
+
+export const deleteCommentThreadEvent = (thread: CommentThread) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_THREAD_EVENT,
+  payload: thread,
+});
+
+export const deleteCommentEvent = (comment: Comment) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_EVENT,
+  payload: comment,
+});

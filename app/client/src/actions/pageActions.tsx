@@ -355,6 +355,7 @@ export const generateTemplateToUpdatePage = ({
   datasourceId,
   mode,
   pageId,
+  pluginSpecificParams,
   searchColumn,
   tableName,
 }: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
@@ -367,6 +368,7 @@ export const generateTemplateToUpdatePage = ({
       applicationId,
       columns,
       searchColumn,
+      pluginSpecificParams,
     },
     extraParams: {
       mode,

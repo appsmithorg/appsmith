@@ -10,7 +10,7 @@ export type TabProp = {
   key: string;
   title: string;
   count?: number;
-  panelComponent: JSX.Element;
+  panelComponent?: JSX.Element;
   icon?: IconName;
   iconSize?: IconSize;
 };
@@ -129,11 +129,13 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
       : ""}
 `;
 
-function DefaultTabItem(props: {
+export type TabItemProps = {
   tab: TabProp;
   selected: boolean;
   vertical: boolean;
-}) {
+};
+
+function DefaultTabItem(props: TabItemProps) {
   const { selected, tab, vertical } = props;
   return (
     <TabTitleWrapper selected={selected} vertical={vertical}>
@@ -155,7 +157,7 @@ type TabbedViewComponentType = CommonComponentProps & {
   onSelect?: (tabIndex: number) => void;
   overflow?: boolean;
   vertical?: boolean;
-  tabItemComponent?: typeof React.Component;
+  tabItemComponent?: (props: TabItemProps) => JSX.Element;
 };
 
 export function TabComponent(props: TabbedViewComponentType) {

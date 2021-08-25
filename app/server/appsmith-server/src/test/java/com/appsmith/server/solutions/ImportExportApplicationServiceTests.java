@@ -481,7 +481,7 @@ public class ImportExportApplicationServiceTests {
                 final List<Datasource> datasourceList = tuple.getT2();
                 final List<ActionDTO> actionDTOS = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
-                
+
                 assertThat(application.getName()).isEqualTo("valid_application");
                 assertThat(application.getOrganizationId()).isNotNull();
                 assertThat(application.getPages()).hasSize(2);
@@ -543,7 +543,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
             .create(resultMono)
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().contains(AppsmithError.JSON_PROCESSING_ERROR.getMessage(": Unable to find version field in the uploaded file.")))
+                throwable.getMessage().equals(AppsmithError.INVALID_IMPORTED_FILE_ERROR.getMessage()))
             .verify();
     }
 

@@ -189,7 +189,9 @@ export function* fetchApplicationSaga(
     });
 
     yield put(
-      fetchUnreadCommentThreadsCountSuccess(response.data.unreadCommentThreads),
+      fetchUnreadCommentThreadsCountSuccess(
+        response.data?.unreadCommentThreads,
+      ),
     );
   } catch (error) {
     yield put({

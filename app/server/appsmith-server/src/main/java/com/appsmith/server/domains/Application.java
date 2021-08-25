@@ -15,8 +15,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
 @Setter
@@ -63,6 +66,16 @@ public class Application extends BaseDomain {
     AppLayout publishedAppLayout;
 
     Boolean forkingEnabled;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Instant lastDeployedAt; // when this application was last deployed
+
+    public String getLastDeployedAt() {
+        if(lastDeployedAt != null) {
+            return ISO_FORMATTER.format(lastDeployedAt);
+        }
+        return null;
+    }
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.

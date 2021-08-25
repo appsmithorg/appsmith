@@ -88,15 +88,15 @@ public class SqlUtils {
             case "BOOLEAN":
                 return "true";
             case "DATE":
-                return "2021-01-01";
+                return "'2021-01-01'";
             case "TIME":
-                return "00:00:01";
+                return "'00:00:01'";
             case "DATETIME":
             case "TIMESTAMP":
             case "TIMESTAMP_LTZ":
             case "TIMESTAMP_NTZ":
             case "TIMESTAMP_TZ":
-                return "2021-01-01 00:00:01";
+                return "'2021-01-01 00:00:01'";
             case "ARRAY":
                 return "array_construct(1, 2, 3)";
             case "VARIANT":
@@ -142,7 +142,12 @@ public class SqlUtils {
 
                 columnNames.add(name);
                 columnValues.add(value);
-                setFragments.append("\n    ").append(name).append(" = ").append(value);
+                setFragments.append("\n    ").append(name).append(" = ").append(value).append(",");
+            }
+
+            // Delete the last comma
+            if (setFragments.length() > 0) {
+                setFragments.deleteCharAt(setFragments.length() - 1);
             }
 
             final String tableName = table.getSchema() + "." + table.getName();
