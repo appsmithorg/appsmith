@@ -3,11 +3,14 @@ import { IButtonProps, Button } from "@blueprintjs/core";
 import { darkenActive, darkenHover, Theme } from "constants/DefaultTheme";
 import styled, { css } from "styled-components";
 import { omit } from "lodash";
+import { ButtonStyleType, ButtonVariant } from "components/constants";
 export type ButtonStyleName = "primary" | "secondary" | "error";
 
 type ButtonStyleProps = {
   accent?: ButtonStyleName;
   filled?: boolean;
+  buttonStyle?: ButtonStyleType;
+  buttonVariant?: ButtonVariant;
 };
 
 const AccentColorMap: Record<ButtonStyleName, string> = {

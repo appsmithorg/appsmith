@@ -1,6 +1,5 @@
 import { FetchPageResponse } from "api/PageApi";
-import { XYCoord } from "react-dnd";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
   WidgetOperation,
@@ -14,6 +13,7 @@ import defaultTemplate from "templates/default";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { transformDSL } from "./DSLMigrations";
 import { WidgetType } from "./WidgetFactory";
+import { DSLWidget } from "widgets/constants";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -32,7 +32,7 @@ const defaultDSL = defaultTemplate;
 
 export const extractCurrentDSL = (
   fetchPageResponse?: FetchPageResponse,
-): ContainerWidgetProps<WidgetProps> => {
+): DSLWidget => {
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultDSL;
   return transformDSL(currentDSL);
 };
@@ -40,8 +40,8 @@ export const extractCurrentDSL = (
 export const getDropZoneOffsets = (
   colWidth: number,
   rowHeight: number,
-  dragOffset: XYCoord,
-  parentOffset: XYCoord,
+  dragOffset: XYCord,
+  parentOffset: XYCord,
 ) => {
   // Calculate actual drop position by snapping based on x, y and grid cell size
   return snapToGrid(
@@ -95,10 +95,10 @@ export const isWidgetOverflowingParentBounds = (
 };
 
 export const noCollision = (
-  clientOffset: XYCoord,
+  clientOffset: XYCord,
   colWidth: number,
   rowHeight: number,
-  dropTargetOffset: XYCoord,
+  dropTargetOffset: XYCord,
   widgetWidth: number,
   widgetHeight: number,
   widgetId: string,
@@ -114,7 +114,7 @@ export const noCollision = (
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
-      clientOffset as XYCoord,
+      clientOffset as XYCord,
       dropTargetOffset,
     );
     if (left < 0 || top < 0) {
@@ -153,8 +153,8 @@ export const currentDropRow = (
 
 export const widgetOperationParams = (
   widget: WidgetProps & Partial<WidgetConfigProps>,
-  widgetOffset: XYCoord,
-  parentOffset: XYCoord,
+  widgetOffset: XYCord,
+  parentOffset: XYCord,
   parentColumnSpace: number,
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget
@@ -252,7 +252,7 @@ export const generateWidgetProps = (
     renderMode: RenderMode;
   } & Partial<WidgetProps>,
   version: number,
-): ContainerWidgetProps<WidgetProps> => {
+): DSLWidget => {
   if (parent) {
     const sizes = {
       leftColumn,
@@ -262,7 +262,7 @@ export const generateWidgetProps = (
     };
 
     const others = {};
-    const props: ContainerWidgetProps<WidgetProps> = {
+    const props: DSLWidget = {
       // Todo(abhinav): abstraction leak
       isVisible: "MODAL_WIDGET" === type ? undefined : true,
       ...widgetConfig,

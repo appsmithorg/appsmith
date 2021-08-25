@@ -19,7 +19,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import { getNextWidgetName } from "sagas/WidgetOperationSagas";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

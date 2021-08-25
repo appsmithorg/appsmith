@@ -9,7 +9,8 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     text: "Submit",
-    buttonStyle: "PRIMARY_BUTTON",
+    buttonStyle: "PRIMARY",
+    buttonVariant: "SOLID",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
     columns: 2 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Button",

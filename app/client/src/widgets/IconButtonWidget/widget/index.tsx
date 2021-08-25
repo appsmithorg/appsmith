@@ -12,6 +12,7 @@ import {
   ButtonBoxShadow,
   ButtonStyleType,
   ButtonVariant,
+  ButtonBorderRadiusTypes,
 } from "components/constants";
 
 export interface IconButtonWidgetProps extends WidgetProps {
@@ -99,6 +100,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {

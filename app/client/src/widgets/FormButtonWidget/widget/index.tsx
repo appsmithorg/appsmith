@@ -1,14 +1,13 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-
 import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import ButtonComponent, { ButtonType } from "widgets/ButtonWidget/component";
-import { ButtonStyle } from "widgets/ButtonWidget/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { ButtonStyleType } from "components/constants";
 
 class FormButtonWidget extends BaseWidget<
   FormButtonWidgetProps,
@@ -200,8 +199,8 @@ class FormButtonWidget extends BaseWidget<
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
-        disabled={disabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isDisabled={disabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!disabled ? this.onButtonClickBound : undefined}
@@ -221,7 +220,7 @@ class FormButtonWidget extends BaseWidget<
 
 export interface FormButtonWidgetProps extends WidgetProps {
   text?: string;
-  buttonStyle?: ButtonStyle;
+  buttonStyle?: ButtonStyleType;
   onClick?: string;
   isVisible?: boolean;
   buttonType: ButtonType;

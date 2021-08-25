@@ -4,8 +4,17 @@ import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, { ButtonType } from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonStyle } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import {
+  ButtonBoxShadow,
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+  ButtonStyleTypes,
+  ButtonStyleType,
+  ButtonVariant,
+} from "components/constants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -33,39 +42,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the button",
-            options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "PRIMARY_BUTTON",
-                  "SECONDARY_BUTTON",
-                  "DANGER_BUTTON",
-                ],
-              },
-            },
           },
           {
             helpText: "Show helper text with button on hover",
@@ -133,7 +109,221 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "buttonStyle",
+            label: "Button Style",
+            controlType: "DROP_DOWN",
+            helpText: "Changes the style of the button",
+            options: [
+              {
+                label: "Primary",
+                value: "PRIMARY",
+              },
+              {
+                label: "Warning",
+                value: "WARNING",
+              },
+              {
+                label: "Danger",
+                value: "DANGER",
+              },
+              {
+                label: "Info",
+                value: "INFO",
+              },
+              {
+                label: "Secondary",
+                value: "SECONDARY",
+              },
+              {
+                label: "Custom",
+                value: "CUSTOM",
+              },
+            ],
+            updateHook: (
+              props: ButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              let propertiesToUpdate = [
+                { propertyPath, propertyValue },
+                { propertyPath: "prevButtonStyle", propertyValue },
+              ];
+
+              if (propertyValue === "CUSTOM") {
+                propertiesToUpdate = [{ propertyPath, propertyValue }];
+              }
+
+              propertiesToUpdate.push({
+                propertyPath: "buttonColor",
+                propertyValue: "",
+              });
+
+              return propertiesToUpdate;
+            },
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "PRIMARY",
+                  "WARNING",
+                  "DANGER",
+                  "INFO",
+                  "SECONDARY",
+                  "CUSTOM",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "buttonColor",
+            helpText:
+              "Sets the custom color preset based on the button variant",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            hidden: (props: ButtonWidgetProps) =>
+              props.buttonStyle !== ButtonStyleTypes.CUSTOM,
+            dependencies: ["buttonStyle"],
+          },
+          {
+            propertyName: "buttonVariant",
+            label: "Button Variant",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the variant of the icon button",
+            options: [
+              {
+                label: "Solid",
+                value: "SOLID",
+              },
+              {
+                label: "Outline",
+                value: "OUTLINE",
+              },
+              {
+                label: "Ghost",
+                value: "GHOST",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+              },
+            },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "iconName",
+            label: "Icon",
+            helpText: "Sets the icon to be used for the button",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            updateHook: (
+              props: ButtonWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+              if (!props.iconAlign) {
+                propertiesToUpdate.push({
+                  propertyPath: "iconAlign",
+                  propertyValue: Alignment.LEFT,
+                });
+              }
+              return propertiesToUpdate;
+            },
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Icon Alignment",
+            helpText: "Sets the icon alignment of the button",
+            controlType: "ICON_ALIGN",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
+          },
+        ],
+      },
     ];
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      prevButtonStyle: "buttonStyle",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -143,10 +333,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
     return {};
   }
 
@@ -194,14 +380,22 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   getPageView() {
     return (
       <ButtonComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        buttonColor={this.props.buttonColor}
         buttonStyle={this.props.buttonStyle}
+        buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
-        disabled={this.props.isDisabled}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
+        iconAlign={this.props.iconAlign}
+        iconName={this.props.iconName}
+        isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
+        prevButtonStyle={this.props.prevButtonStyle}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         tooltip={this.props.tooltip}
@@ -219,13 +413,21 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
 export interface ButtonWidgetProps extends WidgetProps {
   text?: string;
-  buttonStyle?: ButtonStyle;
   onClick?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
   recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
+  buttonStyle?: ButtonStyleType;
+  prevButtonStyle?: ButtonStyleType;
+  buttonVariant?: ButtonVariant;
+  buttonColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
 }
 
 interface ButtonWidgetState extends WidgetState {

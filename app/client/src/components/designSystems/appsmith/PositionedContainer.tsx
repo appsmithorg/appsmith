@@ -25,7 +25,9 @@ export type PositionedContainerProps = {
   resizeDisabled?: boolean;
 };
 
-const checkIsDropTarget = memoize(function isDropTarget(type: WidgetType) {
+export const checkIsDropTarget = memoize(function isDropTarget(
+  type: WidgetType,
+) {
   return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
 });
 

@@ -1,11 +1,12 @@
-import localforage from "localforage";
-import moment from "moment";
 import log from "loglevel";
+import moment from "moment";
+import localforage from "localforage";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
+  GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",

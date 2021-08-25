@@ -1,13 +1,10 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 import DropdownComponent from "components/editorComponents/DropdownComponent";
-import { ButtonStyleName } from "components/designSystems/appsmith/BaseButton";
 import { DropdownOption } from "components/constants";
 
 interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
-  accent?: ButtonStyleName;
-  filled?: boolean;
   width?: string;
 }
 

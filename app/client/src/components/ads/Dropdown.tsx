@@ -386,7 +386,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
-  return (
+  return options.length > 0 ? (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       width={props.optionWidth || "260px"}
@@ -452,7 +452,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         })}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  );
+  ) : null;
 }
 
 export default function Dropdown(props: DropdownProps) {
@@ -489,7 +489,7 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  const disabled = props.disabled || isLoading || !!errorMsg;
+  const disabled = props.disabled || isLoading;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const dropdownHeight = props.height ? props.height : "38px";

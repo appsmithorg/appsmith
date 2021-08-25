@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { BlankState } from "./helpers";
 import { createMessage, NO_ERRORS } from "constants/messages";
@@ -19,7 +19,7 @@ const ListWrapper = styled.div`
 `;
 
 function Errors(props: { hasShortCut?: boolean }) {
-  const errors = useSelector(getDebuggerErrors);
+  const errors = useSelector(getFilteredErrors);
   const currentUser = useSelector(getCurrentUser);
 
   useEffect(() => {

@@ -12,6 +12,7 @@ export const CONFIG = {
   name: "Modal",
   iconSVG: IconSVG,
   needsMeta: true,
+  isCanvas: true,
   defaults: {
     rows: 6 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,

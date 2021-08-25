@@ -3,7 +3,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { BaseButton } from "widgets/ButtonWidget/component";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
