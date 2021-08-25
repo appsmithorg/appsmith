@@ -410,14 +410,16 @@ export function migrateTabsData(currentDSL: ContainerWidgetProps<WidgetProps>) {
           ...dynamicBindablePropsList,
         ];
       }
-      currentDSL.dynamicPropertyPathList =
-        currentDSL.dynamicPropertyPathList.filter((each) => {
+      currentDSL.dynamicPropertyPathList = currentDSL.dynamicPropertyPathList.filter(
+        (each) => {
           return each.key !== "tabs";
-        });
-      currentDSL.dynamicBindingPathList =
-        currentDSL.dynamicBindingPathList.filter((each) => {
+        },
+      );
+      currentDSL.dynamicBindingPathList = currentDSL.dynamicBindingPathList.filter(
+        (each) => {
           return each.key !== "tabs";
-        });
+        },
+      );
       currentDSL.tabsObj = currentDSL.tabs.reduce(
         (obj: any, tab: any, index: number) => {
           obj = {

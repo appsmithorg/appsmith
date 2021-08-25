@@ -217,10 +217,8 @@ function WidgetsMultiSelectBox(props: {
         left: (e.clientX - bounds.left) / props.snapColumnSpace,
       };
       const top = minBy(selectedWidgets, (rect) => rect.topRow)?.topRow;
-      const left = minBy(
-        selectedWidgets,
-        (rect) => rect.leftColumn,
-      )?.leftColumn;
+      const left = minBy(selectedWidgets, (rect) => rect.leftColumn)
+        ?.leftColumn;
       setDraggingState({
         isDragging: true,
         dragGroupActualParent: parentId || "",

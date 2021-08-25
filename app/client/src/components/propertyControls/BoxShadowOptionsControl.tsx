@@ -99,7 +99,9 @@ const buttonConfigs = [
   },
 ];
 
-class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> {
+class BoxShadowOptionsControl extends BaseControl<
+  BoxShadowOptionsControlProps
+> {
   constructor(props: BoxShadowOptionsControlProps) {
     super(props);
   }

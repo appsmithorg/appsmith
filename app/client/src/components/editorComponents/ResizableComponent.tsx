@@ -59,8 +59,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const { persistDropTargetRows, updateDropTargetRows } =
-    useContext(DropTargetContext);
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
+    DropTargetContext,
+  );
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);

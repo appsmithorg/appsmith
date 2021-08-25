@@ -306,8 +306,11 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const stateWidgets = yield select(getWidgets);
     let widgets = Object.assign({}, stateWidgets);
     // Generate the full WidgetProps of the widget to be added.
-    const childWidgetPayload: GeneratedWidgetPayload =
-      yield generateChildWidgets(stateParent, addChildAction.payload, widgets);
+    const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+      stateParent,
+      addChildAction.payload,
+      widgets,
+    );
     const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
 
     const parentBottomRow = getParentBottomRowAfterAddingWidget(
@@ -329,8 +332,8 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       source: {
         type: ENTITY_TYPE.WIDGET,
         id: childWidgetPayload.widgetId,
-        name: childWidgetPayload.widgets[childWidgetPayload.widgetId]
-          .widgetName,
+        name:
+          childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
       },
     });
     log.debug("add child computations took", performance.now() - start, "ms");
@@ -754,8 +757,10 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
     }));
     const finalWidgets = deletedWidgetGroups.reduce(
       (reducedWidgets, deletedWidgetGroup) => {
-        const { widget: deletedWidget, widgetsToRestore: deletedWidgets } =
-          deletedWidgetGroup;
+        const {
+          widget: deletedWidget,
+          widgetsToRestore: deletedWidgets,
+        } = deletedWidgetGroup;
         let widgets = cloneDeep(reducedWidgets);
 
         // If the deleted widget is in fact available.
@@ -854,8 +859,13 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
     Toaster.clear();
     const start = performance.now();
-    const { bottomRow, leftColumn, rightColumn, topRow, widgetId } =
-      resizeAction.payload;
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+      widgetId,
+    } = resizeAction.payload;
 
     const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
     let widget = { ...stateWidget };
@@ -1054,10 +1064,12 @@ function getPropertiesToUpdate(
   const propertyUpdates: Record<string, unknown> = {
     ...updates,
   };
-  const currentDynamicTriggerPathList: DynamicPath[] =
-    getWidgetDynamicTriggerPathList(widget);
-  const currentDynamicBindingPathList: DynamicPath[] =
-    getEntityDynamicBindingPathList(widget);
+  const currentDynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+    widget,
+  );
+  const currentDynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+    widget,
+  );
   const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
   const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
 
@@ -1166,12 +1178,15 @@ function* batchUpdateWidgetPropertySaga(
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
   try {
-    let dynamicTriggerPathList: DynamicPath[] =
-      getWidgetDynamicTriggerPathList(widget);
-    let dynamicBindingPathList: DynamicPath[] =
-      getEntityDynamicBindingPathList(widget);
-    let dynamicPropertyPathList: DynamicPath[] =
-      getWidgetDynamicPropertyPathList(widget);
+    let dynamicTriggerPathList: DynamicPath[] = getWidgetDynamicTriggerPathList(
+      widget,
+    );
+    let dynamicBindingPathList: DynamicPath[] = getEntityDynamicBindingPathList(
+      widget,
+    );
+    let dynamicPropertyPathList: DynamicPath[] = getWidgetDynamicPropertyPathList(
+      widget,
+    );
 
     paths.forEach((propertyPath) => {
       dynamicTriggerPathList = dynamicTriggerPathList.filter((dynamicPath) => {
@@ -1409,8 +1424,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   const evalTree: DataTree = yield select(getDataTree);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> =
-    yield getSelectedWidgetWhenPasting();
+  const selectedWidget: FlattenedWidgetProps<undefined> = yield getSelectedWidgetWhenPasting();
 
   const pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
     canvasWidgets,
@@ -1445,8 +1459,9 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
   // to avoid invoking old copied widgets
   if (!Array.isArray(copiedWidgetGroups)) return;
 
-  const { topMostWidget } =
-    getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+  const { topMostWidget } = getBoundaryWidgetsFromCopiedGroups(
+    copiedWidgetGroups,
+  );
   const nextAvailableRow: number = nextAvailableRowInContainer(
     pastingIntoWidgetId,
     widgets,
@@ -1454,7 +1469,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
 
   yield all(
     copiedWidgetGroups.map((copiedWidgets) =>
-      call(function* () {
+      call(function*() {
         // Don't try to paste if there is no copied widget
         if (!copiedWidgets) return;
 
@@ -1583,8 +1598,12 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
 
           // If it is the copied widget, update position properties
           if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
-            const { bottomRow, leftColumn, rightColumn, topRow } =
-              newWidgetPosition;
+            const {
+              bottomRow,
+              leftColumn,
+              rightColumn,
+              topRow,
+            } = newWidgetPosition;
             newWidgetId = widget.widgetId;
             widget.leftColumn = leftColumn;
             widget.topRow = topRow;
@@ -1746,12 +1765,16 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       ...widgetConfig,
     };
 
-    const { bottomRow, leftColumn, rightColumn, topRow } =
-      yield calculateNewWidgetPosition(
-        newWidget as WidgetProps,
-        MAIN_CONTAINER_WIDGET_ID,
-        widgets,
-      );
+    const {
+      bottomRow,
+      leftColumn,
+      rightColumn,
+      topRow,
+    } = yield calculateNewWidgetPosition(
+      newWidget as WidgetProps,
+      MAIN_CONTAINER_WIDGET_ID,
+      widgets,
+    );
 
     newWidget = {
       ...newWidget,

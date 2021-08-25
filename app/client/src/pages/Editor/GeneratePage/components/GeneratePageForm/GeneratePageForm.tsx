@@ -161,15 +161,18 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const { applicationId: currentApplicationId, pageId: currentPageId } =
-    useParams<ExplorerURLParams>();
+  const {
+    applicationId: currentApplicationId,
+    pageId: currentPageId,
+  } = useParams<ExplorerURLParams>();
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
   const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
 
-  const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] =
-    useState<string>("");
+  const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
+    string
+  >("");
   const datasourcesStructure = useSelector(getDatasourcesStructure);
 
   const isFetchingDatasourceStructure = useSelector(
@@ -180,18 +183,21 @@ function GeneratePageForm() {
     getGenerateCRUDEnabledPluginMap,
   );
 
-  const [datasourceTableOptions, setSelectedDatasourceTableOptions] =
-    useState<DropdownOptions>([]);
+  const [datasourceTableOptions, setSelectedDatasourceTableOptions] = useState<
+    DropdownOptions
+  >([]);
 
-  const [selectedTableColumnOptions, setSelectedTableColumnOptions] =
-    useState<DropdownOptions>([]);
+  const [selectedTableColumnOptions, setSelectedTableColumnOptions] = useState<
+    DropdownOptions
+  >([]);
 
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const [isSelectedTableEmpty, setIsSelectedTableEmpty] =
-    useState<boolean>(false);
+  const [isSelectedTableEmpty, setIsSelectedTableEmpty] = useState<boolean>(
+    false,
+  );
 
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
   const selectedDatasourcePluginPackageName: string =
@@ -217,8 +223,10 @@ function GeneratePageForm() {
     DEFAULT_DROPDOWN_OPTION,
   );
 
-  const [selectedDatasourceIsInvalid, setSelectedDatasourceIsInvalid] =
-    useState(false);
+  const [
+    selectedDatasourceIsInvalid,
+    setSelectedDatasourceIsInvalid,
+  ] = useState(false);
 
   const [selectedColumn, selectColumn] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,

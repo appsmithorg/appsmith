@@ -22,6 +22,16 @@ import evaluate from "./evaluate";
 import getIsSafeURL from "utils/validation/getIsSafeURL";
 export const UNDEFINED_VALIDATION = "UNDEFINED_VALIDATION";
 
+const flat = (array: Record<string, any>[], uniqueParam: string) => {
+  let result: { value: string }[] = [];
+  array.forEach((a) => {
+    result.push({ value: a[uniqueParam] });
+    if (Array.isArray(a.children)) {
+      result = result.concat(flat(a.children, uniqueParam));
+    }
+  });
+  return result;
+};
 function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
@@ -242,6 +252,7 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       }
       return type;
     case ValidationTypes.ARRAY:
+    case ValidationTypes.NESTED_OBJECT_ARRAY:
       if (config.params?.allowedValues) {
         const allowed = config.params?.allowedValues.join("' | '");
         return `Array<'${allowed}'>`;
@@ -596,44 +607,35 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    const { isValid, message, parsed, transformed } = VALIDATORS.ARRAY(
-      config,
-      value,
-      props,
-    );
+    let response: ValidationResponse = {
+      isValid: false,
+      parsed: config.params?.default || [],
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+    };
+    response = VALIDATORS.ARRAY(config, value, props);
 
-    if (!isValid) {
-      return {
-        isValid,
-        parsed,
-        message,
-        transformed,
-      };
+    if (!response.isValid) {
+      return response;
     }
-    for (const entry of parsed as Record<string, string | []>[]) {
-      if (entry.children && entry.children?.length) {
-        const {
-          isValid,
-          message,
-          parsed,
-          transformed,
-        } = VALIDATORS.NESTED_OBJECT_ARRAY(config, entry.children, props);
-        if (!isValid) {
-          return {
-            isValid,
-            parsed,
-            message,
-            transformed,
-          };
+    // Check if all values and children values are unique
+    if (config.params?.unique && response.parsed.length) {
+      if (isArray(config.params?.unique)) {
+        for (const param of config.params?.unique) {
+          const flattenedArray = flat(response.parsed, param);
+          const shouldBeUnique = flattenedArray.map((entry) =>
+            get(entry, param, ""),
+          );
+          if (uniq(shouldBeUnique).length !== flattenedArray.length) {
+            response = {
+              ...response,
+              isValid: false,
+              message: `Array entry path:${param} must be unique. Duplicate values found`,
+            };
+          }
         }
       }
     }
-    return {
-      isValid,
-      message,
-      parsed,
-      transformed,
-    };
+    return response;
   },
   [ValidationTypes.DATE_ISO_STRING]: (
     config: ValidationConfig,

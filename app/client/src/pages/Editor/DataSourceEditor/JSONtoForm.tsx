@@ -81,7 +81,7 @@ export interface JSONtoFormProps {
 export class JSONtoForm<
   P = unknown,
   S = unknown,
-  SS = any,
+  SS = any
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   requiredFields: Record<string, any> = {};
   configDetails: Record<string, any> = {};

@@ -104,8 +104,8 @@ class IconSelectControl extends BaseControl<
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,
-          popoverTargetWidth:
-            iconSelectTargetElement?.getBoundingClientRect().width,
+          popoverTargetWidth: iconSelectTargetElement?.getBoundingClientRect()
+            .width,
         };
       });
     }, 0);

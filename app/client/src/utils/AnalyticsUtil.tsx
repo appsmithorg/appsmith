@@ -213,8 +213,8 @@ class AnalyticsUtil {
             "off",
             "on",
           ];
-          analytics.factory = function (t: any) {
-            return function () {
+          analytics.factory = function(t: any) {
+            return function() {
               const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
               e.unshift(t);
               analytics.push(e);
@@ -226,7 +226,7 @@ class AnalyticsUtil {
           const e = analytics.methods[t];
           analytics[e] = analytics.factory(e);
         }
-        analytics.load = function (t: any, e: any) {
+        analytics.load = function(t: any, e: any) {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
@@ -321,7 +321,7 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function (scope) {
+    Sentry.configureScope(function(scope) {
       scope.setUser({
         id: userId,
         username: userData.username,

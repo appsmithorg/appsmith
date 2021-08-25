@@ -931,8 +931,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets, stringSegments } =
-              getDynamicBindings(propertyValue);
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
+            );
 
             const js = combineDynamicBindings(jsSnippets, stringSegments);
 
@@ -1154,8 +1155,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets, stringSegments } =
-                        getDynamicBindings(value);
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
+                      );
 
                       const js = combineDynamicBindings(
                         jsSnippets,

@@ -24,7 +24,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
-    const mockGenerator = function* () {
+    const mockGenerator = function*() {
       yield all([]);
     };
     const debounceMocked = jest.spyOn(lodash, "debounce");
@@ -388,8 +388,9 @@ describe("Drag and Drop widgets into Main container", () => {
     });
 
     const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
-    const dropTarget: any =
-      component.container.getElementsByClassName("t--drop-target")[0];
+    const dropTarget: any = component.container.getElementsByClassName(
+      "t--drop-target",
+    )[0];
     let initialLength = dropTarget.style.height;
     act(() => {
       fireEvent(
@@ -422,8 +423,9 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    let updatedDropTarget: any =
-      component.container.getElementsByClassName("t--drop-target")[0];
+    let updatedDropTarget: any = component.container.getElementsByClassName(
+      "t--drop-target",
+    )[0];
     let updatedLength = updatedDropTarget.style.height;
 
     expect(initialLength).not.toEqual(updatedLength);
@@ -444,8 +446,9 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    updatedDropTarget =
-      component.container.getElementsByClassName("t--drop-target")[0];
+    updatedDropTarget = component.container.getElementsByClassName(
+      "t--drop-target",
+    )[0];
     updatedLength = updatedDropTarget.style.height;
     expect(getAbsolutePixels(initialLength) + amountMovedY).toEqual(
       getAbsolutePixels(updatedLength),
@@ -477,8 +480,9 @@ describe("Drag and Drop widgets into Main container", () => {
     const canvasWidgets = component.queryAllByTestId("test-widget");
     // empty canvas
     expect(canvasWidgets.length).toBe(0);
-    const allAddEntityButtons: any =
-      component.container.querySelectorAll(".t--entity-add-btn");
+    const allAddEntityButtons: any = component.container.querySelectorAll(
+      ".t--entity-add-btn",
+    );
     const widgetAddButton = allAddEntityButtons[1];
     act(() => {
       fireEvent.click(widgetAddButton);

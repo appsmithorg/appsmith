@@ -42,7 +42,9 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
   options: any[];
 }
 
-class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlProps> {
+class BorderRadiusOptionsControl extends BaseControl<
+  BorderRadiusOptionsControlProps
+> {
   constructor(props: BorderRadiusOptionsControlProps) {
     super(props);
   }

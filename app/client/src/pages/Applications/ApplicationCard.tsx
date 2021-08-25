@@ -72,8 +72,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         align-items: center;
 
         .overlay {
-          ${
-            props.hasReadPermission &&
+          ${props.hasReadPermission &&
             `text-decoration: none;
              &:after {
                 left: 0;
@@ -86,8 +85,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
               & .control {
                 display: block;
                 z-index: 1;
-              }`
-          }
+              }`}
 
           & div.image-container {
             background: ${
@@ -263,8 +261,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
-    useState(false);
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
+    false,
+  );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 

@@ -383,8 +383,9 @@ class CodeEditor extends Component<Props, State> {
     };
 
     if (dataTreePath) {
-      const { entityName, propertyPath } =
-        getEntityNameAndPropertyPath(dataTreePath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
 
@@ -411,8 +412,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const entityInformation: FieldEntityInformation =
-      this.getEntityInformation();
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
@@ -521,8 +521,11 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const { errors, isInvalid, pathEvaluatedValue } =
-      this.getPropertyValidation(dynamicData, dataTreePath);
+    const {
+      errors,
+      isInvalid,
+      pathEvaluatedValue,
+    } = this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;

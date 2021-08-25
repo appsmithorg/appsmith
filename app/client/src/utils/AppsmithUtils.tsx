@@ -230,7 +230,9 @@ export const getApplicationIcon = (initials: string): AppIconName => {
   return AppIconCollection[asciiSum % AppIconCollection.length];
 };
 
-export function hexToRgb(hex: string): {
+export function hexToRgb(
+  hex: string,
+): {
   r: number;
   g: number;
   b: number;

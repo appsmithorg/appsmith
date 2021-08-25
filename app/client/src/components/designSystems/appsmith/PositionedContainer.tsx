@@ -34,7 +34,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
     return (
       generateClassName(props.widgetId) +
       " positioned-widget " +
-      `t--widget-${props.widgetType.split("_").join("").toLowerCase()}`
+      `t--widget-${props.widgetType
+        .split("_")
+        .join("")
+        .toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
   const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(props);

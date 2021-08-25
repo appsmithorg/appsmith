@@ -270,8 +270,12 @@ export function CanvasSelectionArena({
           left: 0,
         };
         if (canvasRef.current && startPoints) {
-          const { height, left, top, width } =
-            canvasRef.current.getBoundingClientRect();
+          const {
+            height,
+            left,
+            top,
+            width,
+          } = canvasRef.current.getBoundingClientRect();
           const outOfMaxBounds = {
             x: startPoints.x < left + width,
             y: startPoints.y < top + height,
@@ -360,8 +364,11 @@ export function CanvasSelectionArena({
         }
       };
       const onScroll = () => {
-        const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
-          scrollObj;
+        const {
+          lastMouseMoveEvent,
+          lastScrollHeight,
+          lastScrollTop,
+        } = scrollObj;
         if (
           lastMouseMoveEvent &&
           Number.isInteger(lastScrollHeight) &&

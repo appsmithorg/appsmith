@@ -104,8 +104,9 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Search entities"
           onKeyDown={(e: any) => {
-            const widgetSearchInput =
-              document.getElementById(WIDGETS_SEARCH_ID);
+            const widgetSearchInput = document.getElementById(
+              WIDGETS_SEARCH_ID,
+            );
             if (widgetSearchInput) {
               widgetSearchInput.focus();
               e.preventDefault();

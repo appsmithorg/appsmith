@@ -175,8 +175,10 @@ function GlobalSearch() {
   }, []);
   const scrollPositionRef = useRef(0);
 
-  const [documentationSearchResults, setDocumentationSearchResultsInState] =
-    useState<Array<DocSearchItem>>([]);
+  const [
+    documentationSearchResults,
+    setDocumentationSearchResultsInState,
+  ] = useState<Array<DocSearchItem>>([]);
 
   const setSearchResults = useCallback((res, categoryId) => {
     if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);

@@ -41,7 +41,9 @@ export interface ButtonBorderRadiusOptionsControlProps extends ControlProps {
   onChange: (borderRaidus: ButtonBorderRadius) => void;
 }
 
-class ButtonBorderRadiusOptionsControl extends BaseControl<ButtonBorderRadiusOptionsControlProps> {
+class ButtonBorderRadiusOptionsControl extends BaseControl<
+  ButtonBorderRadiusOptionsControlProps
+> {
   constructor(props: ButtonBorderRadiusOptionsControlProps) {
     super(props);
   }
