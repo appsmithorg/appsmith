@@ -1,6 +1,11 @@
-var https = require("https");
-const algoliasearch = require('algoliasearch');
+const https = require("https");
+const algoliasearch = require("algoliasearch");
+const aws = require("aws-sdk");
+
+const SSM = new aws.SSM();
+
 const DOCS_VERSION = "v1.2.1";
+
 const orderArr = [{
     path: "master/core-concepts/building-the-ui",
     order: 0,
@@ -17,9 +22,6 @@ const orderArr = [{
     path: "master/core-concepts/building-the-ui/calling-apis-from-widgets#sending-data-to-apis-queries",
     order: 4
 }];
-
-const client = algoliasearch('AZ2Z9CJSJ0', '8fba8869cacb143db6c295f1686a9d39');
-const index = client.initIndex('test_appsmith');
 
 var options = {
   headers: {
@@ -75,9 +77,13 @@ function swap(arr, index1, index2) {
 }
 
 exports.handler = async (event, context, callback) => {
-  console.log('LogScheduledEvent');
+  const parameters = await loadParametersFromStore("/" + process.env.ENV + "/algolia");
   console.log('Received event:', JSON.stringify(event, null, 2));
-  const response = await new Promise((resolve, reject) => {
+
+  const client = algoliasearch(parameters.application_id, parameters.api_key);
+  const algoliaIndex = client.initIndex("test_appsmith");
+
+  return await new Promise((resolve, reject) => {
     https.get("https://api-beta.gitbook.com/v1/spaces/-Lzuzdhj8LjrQPaeyCxr/content", options, (res) => {
       console.log("Setting up response handlers for GitBook API request");
       res.setEncoding('utf8');
@@ -88,16 +94,16 @@ exports.handler = async (event, context, callback) => {
           const parsedData = JSON.parse(rawData);
           let requiredIndex = parsedData.variants.findIndex(varaint => varaint.uid === DOCS_VERSION);
           let masterPage = parsedData.variants[requiredIndex].page;
-    
+
           pushChildPages(masterPage);
           delete masterPage.pages;
-    
+
           pages.push(masterPage);
 
           let promises = pages.map(page => page.uid).map(getPage);
-          
+
           Promise.all(promises).then(updatedPages => {
-            
+
             updatedPages.forEach((page, index) => {
               page.path = pages[index].path;
               delete page.pages;
@@ -107,16 +113,16 @@ exports.handler = async (event, context, callback) => {
                 delete page.document;
               }
             });
-            
+
             orderArr.forEach(order => {
                 let index = updatedPages.findIndex(i => i.path === order.path);
                 if(index !== -1) {
                     swap(updatedPages, index, order.order);
                 }
             });
-            
+
             updatedPages = updatedPages.map((item, index) => {return {...item, defaultOrder: index}});
-            
+
             // Truncate large docs.
             updatedPages.filter(page => page.document).forEach(page => {
               const size = JSON.stringify(page).length;
@@ -126,15 +132,15 @@ exports.handler = async (event, context, callback) => {
               console.log("Truncating page", page);
               page.document = page.document.substr(0, page.document.length - (JSON.stringify(page).length - 9900));
             });//*/
-            
+
             console.log("Pages:", updatedPages.map(page => ({objectID: page.objectID, size: JSON.stringify(page).length, title: page.title, path: page.path})));
-            
+
             // resolve({
             //   statusCode: 200,
             //   body: JSON.stringify(updatedPages)
             // })
-            
-            index.replaceAllObjects(updatedPages, {
+
+            algoliaIndex.replaceAllObjects(updatedPages, {
               autoGenerateObjectIDIfNotExist: true
             }).then(({ objectIDs }) => {
               console.log("Algolia upload finished", objectIDs);
@@ -167,6 +173,18 @@ exports.handler = async (event, context, callback) => {
       });
     });
   });
-  
-  return response;
+
 };
+
+async function loadParametersFromStore(prefix) {
+  const parametersResponse = await SSM.getParametersByPath({Path: prefix, WithDecryption: true}).promise();
+  console.log("parametersResponse", parametersResponse);
+
+  const parameters = {};
+  for (const paramObject of parametersResponse.Parameters) {
+    parameters[paramObject.Name.replace(prefix + "/", "")] = paramObject.Value;
+  }
+
+  console.log("Parameters", parameters);
+  return parameters;
+}
