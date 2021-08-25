@@ -5,20 +5,19 @@ import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Button, { Category, Size } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
-import { getCrudInfoModalOpen } from "selectors/crudInfoModalSelectors";
-import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
+import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
+import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { Colors } from "constants/Colors";
 import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import Dialog from "components/ads/DialogComponent";
 import { GEN_CRUD_INFO_DIALOG_HEADING } from "../../../../constants/messages";
-import {
-  GEN_CRUD_INFO_DIALOG_SUBTITLE,
-  GEN_CRUD_INFO_DIALOG_TITLE,
-} from "constants/messages";
+import { GenerateCRUDSuccessInfoData } from "../../../../reducers/uiReducers/crudInfoModalReducer";
+import { GEN_CRUD_INFO_DIALOG_SUBTITLE } from "constants/messages";
 
 type Props = {
   crudInfoModalOpen: boolean;
+  generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
 const HeaderContents = styled.div`
@@ -68,10 +67,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   height: 100%;
 
-  .info-title {
-    font-weight: bold;
-  }
-
   .info-subtitle {
     padding-top: 5px;
   }
@@ -101,14 +96,18 @@ const getInfoImage = (): string =>
   `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
 function GenCRUDSuccessModal(props: Props) {
-  const { crudInfoModalOpen } = props;
+  const { crudInfoModalOpen, generateCRUDSuccessInfo } = props;
 
   const dispatch = useDispatch();
 
   const onClose = () => {
     AnalyticsUtil.logEvent("CLOSE_GEN_PAGE_INFO_MODAL");
-    dispatch(setCrudInfoModalOpen(false));
+    dispatch(setCrudInfoModalData({ open: false }));
   };
+
+  const successMessage =
+    (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successMessage) ||
+    GEN_CRUD_INFO_DIALOG_SUBTITLE();
 
   return (
     <Dialog
@@ -120,15 +119,23 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         <Header />
         <Content>
-          <Text className="info-title" type={TextType.H4}>
-            {GEN_CRUD_INFO_DIALOG_TITLE()}
-          </Text>
-
-          <Text className="info-subtitle" type={TextType.P1}>
-            {GEN_CRUD_INFO_DIALOG_SUBTITLE()}
-          </Text>
+          <Text
+            className="info-subtitle"
+            dangerouslySetInnerHTML={{
+              __html: successMessage,
+            }}
+            type={TextType.P1}
+          />
           <ImageWrapper>
-            <InfoImage alt="CRUD Info" src={getInfoImage()} />
+            <InfoImage
+              alt="CRUD Info"
+              src={
+                generateCRUDSuccessInfo &&
+                generateCRUDSuccessInfo.successImageUrl
+                  ? generateCRUDSuccessInfo.successImageUrl
+                  : getInfoImage()
+              }
+            />
           </ImageWrapper>
         </Content>
 
@@ -148,7 +155,8 @@ function GenCRUDSuccessModal(props: Props) {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  crudInfoModalOpen: getCrudInfoModalOpen(state),
+  crudInfoModalOpen: getCrudInfoModalData(state).crudInfoModalOpen,
+  generateCRUDSuccessInfo: getCrudInfoModalData(state).generateCRUDSuccessInfo,
 });
 
 export default connect(mapStateToProps)(GenCRUDSuccessModal);
