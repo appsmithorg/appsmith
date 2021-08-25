@@ -1,20 +1,41 @@
 import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
+import _, { isString } from "lodash";
+import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+  WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
-import { cloneDeep, get, isString, filter, set } from "lodash";
+import { all, call } from "redux-saga/effects";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { select } from "redux-saga/effects";
+import { getCopiedWidgets } from "utils/storage";
+import { WidgetProps } from "widgets/BaseWidget";
+import { getSelectedWidgets } from "selectors/ui";
+import { generateReactKey } from "utils/generators";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { select } from "redux-saga/effects";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import {
-  combineDynamicBindings,
   getDynamicBindings,
+  combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { WidgetProps } from "widgets/BaseWidget";
-import { getWidgetMetaProps } from "./selectors";
+import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
+import { getNextEntityName } from "utils/AppsmithUtils";
+
+export interface CopiedWidgetGroup {
+  widgetId: string;
+  parentId: string;
+  list: WidgetProps[];
+}
 
 /**
  * checks if triggerpaths contains property path passed
@@ -59,14 +80,14 @@ export const handleIfParentIsListWidgetWhilePasting = (
   widget: FlattenedWidgetProps,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ): { [widgetId: string]: FlattenedWidgetProps } => {
-  let root = get(widgets, `${widget.parentId}`);
+  let root = _.get(widgets, `${widget.parentId}`);
 
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === WidgetTypes.LIST_WIDGET) {
       const listWidget = root;
-      const currentWidget = cloneDeep(widget);
-      let template = get(listWidget, "template", {});
-      const dynamicBindingPathList: any[] = get(
+      const currentWidget = _.cloneDeep(widget);
+      let template = _.get(listWidget, "template", {});
+      const dynamicBindingPathList: any[] = _.get(
         listWidget,
         "dynamicBindingPathList",
         [],
@@ -180,7 +201,7 @@ export const handleSpecificCasesWhilePasting = (
       (key) => widgetNameMap[key] === widget.widgetName,
     );
     // get all the button, icon widgets
-    const copiedBtnIcnWidgets = filter(
+    const copiedBtnIcnWidgets = _.filter(
       newWidgetList,
       (copyWidget) =>
         copyWidget.type === "BUTTON_WIDGET" ||
@@ -193,7 +214,7 @@ export const handleSpecificCasesWhilePasting = (
           oldWidgetName,
           widget.widgetName,
         );
-        set(widgets[copyWidget.widgetId], "onClick", newOnClick);
+        _.set(widgets[copyWidget.widgetId], "onClick", newOnClick);
       }
     });
   }
@@ -208,7 +229,7 @@ export function getWidgetChildren(
   widgetId: string,
 ): any {
   const childrenIds: string[] = [];
-  const widget = get(canvasWidgets, widgetId);
+  const widget = _.get(canvasWidgets, widgetId);
   // When a form widget tries to resetChildrenMetaProperties
   // But one or more of its container like children
   // have just been deleted, widget can be undefined
@@ -327,9 +348,418 @@ export const checkIfPastingIntoListWidget = function(
       }
     }
 
-    return get(canvasWidgets, firstChildId);
+    return _.get(canvasWidgets, firstChildId);
   }
   return selectedWidget;
+};
+
+/**
+ * get top, left, right, bottom most widgets from copied groups when pasting
+ *
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const getBoundaryWidgetsFromCopiedGroups = function(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  const topMostWidget = copiedWidgetGroups.sort(
+    (a, b) => a.list[0].topRow - b.list[0].topRow,
+  )[0].list[0];
+  const leftMostWidget = copiedWidgetGroups.sort(
+    (a, b) => a.list[0].leftColumn - b.list[0].leftColumn,
+  )[0].list[0];
+  const rightMostWidget = copiedWidgetGroups.sort(
+    (a, b) => b.list[0].rightColumn - a.list[0].rightColumn,
+  )[0].list[0];
+  const bottomMostWidget = copiedWidgetGroups.sort(
+    (a, b) => b.list[0].bottomRow - a.list[0].bottomRow,
+  )[0].list[0];
+
+  return {
+    topMostWidget,
+    leftMostWidget,
+    rightMostWidget,
+    bottomMostWidget,
+  };
+};
+
+/**
+ * -------------------------------------------------------------------------------
+ * OPERATION = PASTING
+ * -------------------------------------------------------------------------------
+ *
+ * following are the functions are that used in pasting operation
+ */
+
+/**
+ * selects the selectedWidget.
+ * In case of LIST_WIDGET, it selects the list widget instead of selecting the
+ * container inside the list widget
+ *
+ * @param canvasWidgets
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const getSelectedWidgetWhenPasting = function*() {
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const copiedWidgetGroups: CopiedWidgetGroup[] = yield getCopiedWidgets();
+
+  let selectedWidget: FlattenedWidgetProps | undefined = yield select(
+    getSelectedWidget,
+  );
+
+  const focusedWidget: FlattenedWidgetProps | undefined = yield select(
+    getFocusedWidget,
+  );
+
+  selectedWidget = checkIfPastingIntoListWidget(
+    canvasWidgets,
+    selectedWidget || focusedWidget,
+    copiedWidgetGroups,
+  );
+
+  return selectedWidget;
+};
+
+/**
+ * group copied widgets into a container
+ *
+ * @param copiedWidgetGroups
+ * @param pastingIntoWidgetId
+ * @returns
+ */
+export const groupWidgetsIntoContainer = function*(
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  pastingIntoWidgetId: string,
+) {
+  const containerWidgetId = generateReactKey();
+  const evalTree: DataTree = yield select(getDataTree);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const newContainerName = getNextWidgetName(
+    canvasWidgets,
+    WidgetTypes.CONTAINER_WIDGET,
+    evalTree,
+  );
+  const newCanvasName = getNextWidgetName(
+    canvasWidgets,
+    WidgetTypes.CANVAS_WIDGET,
+    evalTree,
+  );
+  const {
+    bottomMostWidget,
+    leftMostWidget,
+    rightMostWidget,
+    topMostWidget,
+  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+
+  const copiedWidgets = copiedWidgetGroups.map((copiedWidgetGroup) =>
+    copiedWidgetGroup.list.find(
+      (w) => w.widgetId === copiedWidgetGroup.widgetId,
+    ),
+  );
+  const parentColumnSpace =
+    copiedWidgetGroups[0].list[0].parentColumnSpace || 1;
+
+  const boundary = {
+    top: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.topRow),
+    left: _.minBy(copiedWidgets, (copiedWidget) => copiedWidget?.leftColumn),
+    bottom: _.maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.bottomRow),
+    right: _.maxBy(copiedWidgets, (copiedWidget) => copiedWidget?.rightColumn),
+  };
+
+  const widthPerColumn =
+    ((rightMostWidget.rightColumn - leftMostWidget.leftColumn) *
+      parentColumnSpace) /
+    GridDefaults.DEFAULT_GRID_COLUMNS;
+  const heightOfCanvas =
+    (bottomMostWidget.bottomRow - topMostWidget.topRow) * parentColumnSpace;
+  const widthOfCanvas =
+    (rightMostWidget.rightColumn - leftMostWidget.leftColumn) *
+    parentColumnSpace;
+
+  const newCanvasWidget: FlattenedWidgetProps = {
+    ..._.omit(
+      _.get(
+        WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET],
+        "blueprint.view[0]",
+      ),
+      ["position"],
+    ),
+    ..._.get(
+      WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET],
+      "blueprint.view[0].props",
+    ),
+    bottomRow: heightOfCanvas,
+    isLoading: false,
+    isVisible: true,
+    leftColumn: 0,
+    minHeight: heightOfCanvas,
+    parentColumnSpace: 1,
+    parentId: pastingIntoWidgetId,
+    parentRowSpace: 1,
+    rightColumn: widthOfCanvas,
+    topRow: 0,
+    renderMode: RenderModes.CANVAS,
+    version: 1,
+    widgetId: generateReactKey(),
+    widgetName: newCanvasName,
+  };
+  const newContainerWidget: FlattenedWidgetProps = {
+    ..._.omit(WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET], [
+      "rows",
+      "columns",
+      "blueprint",
+    ]),
+    parentId: pastingIntoWidgetId,
+    widgetName: newContainerName,
+    type: WidgetTypes.CONTAINER_WIDGET,
+    widgetId: containerWidgetId,
+    leftColumn: boundary.left?.leftColumn || 0,
+    topRow: boundary.top?.topRow || 0,
+    bottomRow: (boundary.bottom?.bottomRow || 0) + 2,
+    rightColumn: boundary.right?.rightColumn || 0,
+    tabId: "",
+    children: [newCanvasWidget.widgetId],
+    renderMode: RenderModes.CANVAS,
+    version: 1,
+    isLoading: false,
+    isVisible: true,
+    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    parentColumnSpace: widthPerColumn,
+  };
+  newCanvasWidget.parentId = newContainerWidget.widgetId;
+  const percentageIncrease = parentColumnSpace / widthPerColumn;
+
+  const list = copiedWidgetGroups.map((copiedWidgetGroup) => {
+    return [
+      ...copiedWidgetGroup.list.map((listItem) => {
+        if (listItem.widgetId === copiedWidgetGroup.widgetId) {
+          newCanvasWidget.children = _.get(newCanvasWidget, "children", []);
+          newCanvasWidget.children = [
+            ...newCanvasWidget.children,
+            listItem.widgetId,
+          ];
+
+          return {
+            ...listItem,
+            leftColumn:
+              (listItem.leftColumn - leftMostWidget.leftColumn) *
+              percentageIncrease,
+            rightColumn:
+              (listItem.rightColumn - leftMostWidget.leftColumn) *
+              percentageIncrease,
+            topRow: listItem.topRow - topMostWidget.topRow,
+            bottomRow: listItem.bottomRow - topMostWidget.topRow,
+            parentId: newCanvasWidget.widgetId,
+            parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            parentColumnSpace: widthPerColumn,
+          };
+        }
+
+        return listItem;
+      }),
+    ];
+  });
+
+  const flatList = _.flattenDeep(list);
+
+  return [
+    {
+      list: [newContainerWidget, newCanvasWidget, ...flatList],
+      widgetId: newContainerWidget.widgetId,
+      parentId: pastingIntoWidgetId,
+    },
+  ];
+};
+
+/**
+ * create copiedWidgets objects from selected widgets
+ *
+ * @returns
+ */
+export const createSelectedWidgetsAsCopiedWidgets = function*() {
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
+  const selectedWidgets = selectedWidgetIDs.map((each) => canvasWidgets[each]);
+
+  if (!selectedWidgets || !selectedWidgets.length) return;
+
+  const widgetListsToStore: {
+    widgetId: string;
+    parentId: string;
+    list: FlattenedWidgetProps[];
+  }[] = yield all(selectedWidgets.map((each) => call(createWidgetCopy, each)));
+
+  return widgetListsToStore;
+};
+
+/**
+ * return canvasWidgets without selectedWidgets and remove the selected widgets
+ * ids in the children of parent widget
+ *
+ * @return
+ */
+export const filterOutSelectedWidgets = function*(
+  parentId: string,
+  copiedWidgetGroups: CopiedWidgetGroup[],
+) {
+  const canvasWidgets: CanvasWidgetsReduxState = yield _.cloneDeep(
+    select(getWidgets),
+  );
+
+  const selectedWidgetIDs: string[] = _.flattenDeep(
+    copiedWidgetGroups.map((copiedWidgetGroup) => {
+      return copiedWidgetGroup.list.map((widget) => widget.widgetId);
+    }),
+  );
+
+  const filteredWidgets: CanvasWidgetsReduxState = _.omit(
+    canvasWidgets,
+    selectedWidgetIDs,
+  );
+
+  return {
+    ...filteredWidgets,
+    [parentId]: {
+      ...filteredWidgets[parentId],
+      // removing the selected widgets ids in the children of parent widget
+      children: _.get(filteredWidgets[parentId], "children", []).filter(
+        (widgetId) => {
+          return !selectedWidgetIDs.includes(widgetId);
+        },
+      ),
+    },
+  };
+};
+
+/**
+ * checks if selected widgets are colliding with other widgets or not
+ *
+ * @param widgets
+ * @param copiedWidgetGroups
+ * @returns
+ */
+export const isSelectedWidgetsColliding = function*(
+  widgets: CanvasWidgetsReduxState,
+  copiedWidgetGroups: CopiedWidgetGroup[],
+  pastingIntoWidgetId: string,
+) {
+  if (!Array.isArray(copiedWidgetGroups)) return false;
+
+  const {
+    bottomMostWidget,
+    leftMostWidget,
+    rightMostWidget,
+    topMostWidget,
+  } = getBoundaryWidgetsFromCopiedGroups(copiedWidgetGroups);
+
+  const widgetsWithSameParent = _.omitBy(widgets, (widget) => {
+    return widget.parentId !== pastingIntoWidgetId;
+  });
+
+  const widgetsArray = Object.values(widgetsWithSameParent).filter(
+    (widget) =>
+      widget.parentId === pastingIntoWidgetId &&
+      widget.type !== WidgetTypes.MODAL_WIDGET,
+  );
+
+  let isColliding = false;
+
+  for (let i = 0; i < widgetsArray.length; i++) {
+    const widget = widgetsArray[i];
+
+    if (
+      widget.bottomRow + 2 < topMostWidget.topRow ||
+      widget.topRow > bottomMostWidget.bottomRow
+    ) {
+      isColliding = false;
+    } else if (
+      widget.rightColumn < leftMostWidget.leftColumn ||
+      widget.leftColumn > rightMostWidget.rightColumn
+    ) {
+      isColliding = false;
+    } else {
+      return true;
+    }
+  }
+
+  return isColliding;
+};
+
+/**
+ * get next widget name to be used
+ *
+ * @param widgets
+ * @param type
+ * @param evalTree
+ * @param options
+ * @returns
+ */
+export function getNextWidgetName(
+  widgets: CanvasWidgetsReduxState,
+  type: WidgetType,
+  evalTree: DataTree,
+  options?: Record<string, unknown>,
+) {
+  // Compute the new widget's name
+  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
+  const entityNames = Object.keys(evalTree);
+  let prefix = defaultConfig.widgetName;
+  if (options && options.prefix) {
+    prefix = `${options.prefix}${
+      widgetNames.indexOf(options.prefix as string) > -1 ? "Copy" : ""
+    }`;
+  }
+
+  return getNextEntityName(
+    prefix,
+    [...widgetNames, ...entityNames],
+    options?.startWithoutIndex as boolean,
+  );
+}
+
+/**
+ * creates widget copied groups
+ *
+ * @param widget
+ * @returns
+ */
+export function* createWidgetCopy(widget: FlattenedWidgetProps) {
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
+  return {
+    widgetId: widget.widgetId,
+    list: widgetsToStore,
+    parentId: widget.parentId,
+  };
+}
+
+/**
+ * get all widgets in tree
+ *
+ * @param widgetId
+ * @param canvasWidgets
+ * @returns
+ */
+export const getAllWidgetsInTree = (
+  widgetId: string,
+  canvasWidgets: CanvasWidgetsReduxState,
+) => {
+  const widget = canvasWidgets[widgetId];
+  const widgetList = [widget];
+  if (widget && widget.children) {
+    widget.children
+      .filter(Boolean)
+      .forEach((childWidgetId: string) =>
+        widgetList.push(...getAllWidgetsInTree(childWidgetId, canvasWidgets)),
+      );
+  }
+  return widgetList;
 };
 
 export const getParentBottomRowAfterAddingWidget = (
