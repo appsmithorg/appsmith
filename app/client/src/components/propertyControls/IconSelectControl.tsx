@@ -81,7 +81,7 @@ type IconType = IconName | typeof NONE;
 const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
-ICON_NAMES.push(NONE);
+ICON_NAMES.unshift(NONE);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -101,10 +101,6 @@ class IconSelectControl extends BaseControl<
   componentDidMount() {
     this.timer = setTimeout(() => {
       const iconSelectTargetElement = this.iconSelectTargetRef.current;
-      console.log(
-        `target width: => `,
-        iconSelectTargetElement?.getBoundingClientRect().width,
-      );
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,

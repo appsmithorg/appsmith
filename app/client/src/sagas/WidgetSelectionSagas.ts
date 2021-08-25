@@ -1,7 +1,19 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, fork, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgetImmediateChildren, getWidgets } from "./selectors";
+import {
+  ReduxAction,
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "constants/ReduxActionConstants";
+import {
+  DroppableWidgets,
+  WidgetTypes,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
+import {
+  getWidgetImmediateChildren,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
 import log from "loglevel";
 import {
   deselectMultipleWidgetsAction,
@@ -14,7 +26,11 @@ import { Toaster } from "components/ads/Toast";
 import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgetChildren } from "./WidgetOperationUtils";
 import { AppState } from "reducers";
 
 // The following is computed to be used in the entity explorer
@@ -24,7 +40,7 @@ function* selectedWidgetAncestrySaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
   try {
-    const canvasWidgets = yield select(getWidgets);
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgetIdsExpandList = [];
     const { isMultiSelect, widgetId: selectedWidget } = action.payload;
 
@@ -35,7 +51,7 @@ function* selectedWidgetAncestrySaga(
     // If there is a parentId for the selectedWidget
     if (widgetId) {
       // Keep including the parent until we reach the main container
-      while (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
+      while (widgetId && widgetId !== MAIN_CONTAINER_WIDGET_ID) {
         widgetIdsExpandList.push(widgetId);
         if (canvasWidgets[widgetId] && canvasWidgets[widgetId].parentId)
           widgetId = canvasWidgets[widgetId].parentId;
@@ -61,20 +77,122 @@ function* selectedWidgetAncestrySaga(
   }
 }
 
-function* selectAllWidgetsInCanvasSaga(
-  action: ReduxAction<{ canvasId: string }>,
-) {
-  const { canvasId } = action.payload;
-  const allWidgetsOnCanvas: string[] = yield select(
-    getWidgetImmediateChildren,
-    canvasId,
-  );
-  if (allWidgetsOnCanvas && allWidgetsOnCanvas.length) {
-    yield put(selectMultipleWidgetsAction(allWidgetsOnCanvas));
-    Toaster.show({
-      text: createMessage(SELECT_ALL_WIDGETS_MSG),
-      variant: Variant.info,
-      duration: 3000,
+function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
+  if (DroppableWidgets.includes(widgetLastSelected.type)) {
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const childWidgets: string[] = yield select(
+      getWidgetImmediateChildren,
+      widgetLastSelected.widgetId,
+    );
+    const firstCanvas = childWidgets.find((each) => {
+      const widget = canvasWidgets[each];
+      return widget.type === WidgetTypes.CANVAS_WIDGET;
+    });
+    if (widgetLastSelected.type === WidgetTypes.TABS_WIDGET) {
+      const tabMetaProps: Record<string, unknown> = yield select(
+        getWidgetMetaProps,
+        widgetLastSelected.widgetId,
+      );
+      return tabMetaProps.selectedTabWidgetId;
+    }
+    if (firstCanvas) {
+      return firstCanvas;
+    }
+  }
+  return widgetLastSelected.parentId;
+}
+
+function* getLastSelectedCanvas() {
+  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetLastSelected =
+    lastSelectedWidget && canvasWidgets[lastSelectedWidget];
+  if (widgetLastSelected) {
+    const canvasToSelect: string = yield call(
+      getDroppingCanvasOfWidget,
+      widgetLastSelected,
+    );
+    return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
+  }
+  return MAIN_CONTAINER_WIDGET_ID;
+}
+
+// used for List widget cases
+const isChildOfDropDisabledCanvas = (
+  canvasWidgets: CanvasWidgetsReduxState,
+  widgetId: string,
+) => {
+  const widget = canvasWidgets[widgetId];
+  const parentId = widget.parentId || MAIN_CONTAINER_WIDGET_ID;
+  const parent = canvasWidgets[parentId];
+  return !!parent?.dropDisabled;
+};
+
+function* getAllSelectableChildren() {
+  const lastSelectedWidget: string = yield select(getSelectedWidget);
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetLastSelected = canvasWidgets[lastSelectedWidget];
+  const canvasId: string = yield call(getLastSelectedCanvas);
+  let allChildren: string[] = [];
+  const selectGrandChildren: boolean = lastSelectedWidget
+    ? widgetLastSelected.type === WidgetTypes.LIST_WIDGET
+    : false;
+  if (selectGrandChildren) {
+    allChildren = yield call(
+      getWidgetChildren,
+      canvasWidgets,
+      lastSelectedWidget,
+    );
+  } else {
+    allChildren = yield select(getWidgetImmediateChildren, canvasId);
+  }
+  if (allChildren && allChildren.length) {
+    const selectableChildren = allChildren.filter((each) => {
+      const isCanvasWidget =
+        each &&
+        canvasWidgets[each] &&
+        canvasWidgets[each].type === WidgetTypes.CANVAS_WIDGET;
+      const isImmovableWidget = isChildOfDropDisabledCanvas(
+        canvasWidgets,
+        each,
+      );
+      return !(isCanvasWidget || isImmovableWidget);
+    });
+    return selectableChildren;
+  }
+  return [];
+}
+
+function* selectAllWidgetsInCanvasSaga() {
+  try {
+    const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const allSelectableChildren: string[] = yield call(
+      getAllSelectableChildren,
+    );
+    if (allSelectableChildren && allSelectableChildren.length) {
+      yield put(selectMultipleWidgetsAction(allSelectableChildren));
+      const isAnyModalSelected = allSelectableChildren.some((each) => {
+        return (
+          each &&
+          canvasWidgets[each] &&
+          canvasWidgets[each].type === WidgetTypes.MODAL_WIDGET
+        );
+      });
+      if (isAnyModalSelected) {
+        Toaster.show({
+          text: createMessage(SELECT_ALL_WIDGETS_MSG),
+          variant: Variant.info,
+          duration: 3000,
+        });
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
+        error,
+      },
     });
   }
 }
@@ -82,79 +200,119 @@ function* selectAllWidgetsInCanvasSaga(
 function* deselectNonSiblingsOfWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
-  const { isMultiSelect, widgetId } = action.payload;
-  if (isMultiSelect) {
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const parentId: any = allWidgets[widgetId].parentId;
-    const childWidgets: string[] = yield select(
-      getWidgetImmediateChildren,
-      parentId,
-    );
-    const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
-
-    const nonSiblings = currentSelectedWidgets.filter(
-      (each) => !childWidgets.includes(each),
-    );
-    if (nonSiblings && nonSiblings.length) {
-      yield put(
-        deselectMultipleWidgetsAction(
-          nonSiblings.filter((each) => each !== widgetId),
-        ),
+  try {
+    const { isMultiSelect, widgetId } = action.payload;
+    if (isMultiSelect) {
+      const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+      const parentId: any = allWidgets[widgetId].parentId;
+      const childWidgets: string[] = yield select(
+        getWidgetImmediateChildren,
+        parentId,
       );
+      const currentSelectedWidgets: string[] = yield select(getSelectedWidgets);
+
+      const nonSiblings = currentSelectedWidgets.filter(
+        (each) => !childWidgets.includes(each),
+      );
+      if (nonSiblings && nonSiblings.length) {
+        yield put(
+          deselectMultipleWidgetsAction(
+            nonSiblings.filter((each) => each !== widgetId),
+          ),
+        );
+      }
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_WIDGET_INIT,
+        error,
+      },
+    });
   }
 }
 
 function* selectWidgetSaga(
   action: ReduxAction<{ widgetId: string; isMultiSelect: boolean }>,
 ) {
-  const { isMultiSelect, widgetId } = action.payload;
-  yield put(selectWidgetAction(widgetId, isMultiSelect));
+  try {
+    const { isMultiSelect, widgetId } = action.payload;
+    yield put(selectWidgetAction(widgetId, isMultiSelect));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_WIDGET_INIT,
+        error,
+      },
+    });
+  }
 }
 
 function* shiftSelectWidgetsSaga(
   action: ReduxAction<{ widgetId: string; siblingWidgets: string[] }>,
 ) {
-  const { siblingWidgets, widgetId } = action.payload;
-  const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const lastSelectedWidget: string = yield select(getSelectedWidget);
-  const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
-  const isWidgetSelected = selectedWidgets.includes(widgetId);
-  if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
-    const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
-    const start =
-      lastSelectedWidgetIndex < selectedWidgetIndex
-        ? lastSelectedWidgetIndex
-        : selectedWidgetIndex;
-    const end =
-      lastSelectedWidgetIndex < selectedWidgetIndex
-        ? selectedWidgetIndex
-        : lastSelectedWidgetIndex;
-    const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
-    if (unSelectedSiblings && unSelectedSiblings.length) {
-      yield put(silentAddSelectionsAction(unSelectedSiblings));
+  try {
+    const { siblingWidgets, widgetId } = action.payload;
+    const selectedWidgets: string[] = yield select(getSelectedWidgets);
+    const lastSelectedWidget: string = yield select(getSelectedWidget);
+    const lastSelectedWidgetIndex = siblingWidgets.indexOf(lastSelectedWidget);
+    const isWidgetSelected = selectedWidgets.includes(widgetId);
+    if (!isWidgetSelected && lastSelectedWidgetIndex > -1) {
+      const selectedWidgetIndex = siblingWidgets.indexOf(widgetId);
+      const start =
+        lastSelectedWidgetIndex < selectedWidgetIndex
+          ? lastSelectedWidgetIndex
+          : selectedWidgetIndex;
+      const end =
+        lastSelectedWidgetIndex < selectedWidgetIndex
+          ? selectedWidgetIndex
+          : lastSelectedWidgetIndex;
+      const unSelectedSiblings = siblingWidgets.slice(start + 1, end);
+      if (unSelectedSiblings && unSelectedSiblings.length) {
+        yield put(silentAddSelectionsAction(unSelectedSiblings));
+      }
     }
+    yield put(selectWidgetInitAction(widgetId, true));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
+        error,
+      },
+    });
   }
-  yield put(selectWidgetInitAction(widgetId, true));
 }
 
 function* selectMultipleWidgetsSaga(
   action: ReduxAction<{ widgetIds: string[] }>,
 ) {
-  const { widgetIds } = action.payload;
-  if (!widgetIds || !widgetIds.length) {
-    return;
-  }
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const parentToMatch = allWidgets[widgetIds[0]].parentId;
-  const doesNotMatchParent = widgetIds.some((each) => {
-    return allWidgets[each].parentId !== parentToMatch;
-  });
-  if (doesNotMatchParent) {
-    return;
-  } else {
-    yield put(selectWidgetAction());
-    yield put(selectMultipleWidgetsAction(widgetIds));
+  try {
+    const { widgetIds } = action.payload;
+    if (!widgetIds || !widgetIds.length) {
+      return;
+    }
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const parentToMatch = allWidgets[widgetIds[0]].parentId;
+    const doesNotMatchParent = widgetIds.some((each) => {
+      return allWidgets[each].parentId !== parentToMatch;
+    });
+    if (doesNotMatchParent) {
+      return;
+    } else {
+      yield put(selectWidgetAction());
+      yield put(selectMultipleWidgetsAction(widgetIds));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
+      payload: {
+        action: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
+        error,
+      },
+    });
   }
 }
 
