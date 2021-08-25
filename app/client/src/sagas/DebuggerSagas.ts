@@ -278,9 +278,9 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
 
-  yield put(debuggerLogInit(payload));
-
   if (!payload.source || !payload.id) return;
+
+  yield put(debuggerLogInit(payload));
 
   const analyticsPayload = {
     entityName: payload.source.name,
