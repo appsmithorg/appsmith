@@ -27,6 +27,7 @@ public enum FeatureFlagEnum {
     JS_EDITOR,
     COMMENT,
     SNIPPET,
-    LINTING;
+    LINTING,
+    MULTIPLAYER;
 }
 

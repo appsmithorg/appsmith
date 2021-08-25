@@ -44,3 +44,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com,moolya.com
+
+    - uid: MULTIPLAYER
+      enable: true
+      description: Enable collaboration by sharing mouse pointers of concurrent app editors
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
