@@ -19,7 +19,7 @@ const Row = styled.div`
   align-items: center;
 `;
 
-// mock
+// mock data
 const options = [
   { label: "Master", value: "master" },
   {
