@@ -74,6 +74,10 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    sortOrder: {
+      column: "string",
+      order: ["asc", "desc"],
+    },
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -245,6 +249,14 @@ export const entityDefinitions = {
     selectedMarker: "mapMarker",
   },
   FILE_PICKER_WIDGET: {
+    "!doc":
+      "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+    "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+    isVisible: isVisible,
+    files: "[file]",
+    isDisabled: "bool",
+  },
+  FILE_PICKER_WIDGET_V2: {
     "!doc":
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
