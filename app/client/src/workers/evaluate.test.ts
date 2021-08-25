@@ -142,7 +142,7 @@ describe("evaluate", () => {
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
-    const response = evaluate(js, dataTree, callbackData);
+    const response = evaluate(js, dataTree, {}, callbackData);
     expect(response.result).toBe("test1");
   });
 });
