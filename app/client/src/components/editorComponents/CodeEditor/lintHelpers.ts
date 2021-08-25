@@ -20,29 +20,28 @@ const buildBoundaryRegex = (key: string) => {
     .replace(/\w+/g, "\\b$&\\b");
 };
 
-export const getAllWordOccurences = (str: string, key: string) => {
-  const indicies = [];
-  const keylen = key.length;
+export const getAllWordOccurrences = (str: string, key: string) => {
+  const indices = [];
   let index, startIndex;
   const regex = new RegExp(buildBoundaryRegex(key));
   index = getIndexOfRegex(str, regex, startIndex);
   while (index > -1) {
-    indicies.push(index);
-    startIndex = index + keylen;
+    indices.push(index);
+    startIndex = index + key.length;
     index = getIndexOfRegex(str, regex, startIndex);
   }
 
-  return indicies;
+  return indices;
 };
 
 export const getKeyPositionInString = (
   str: string,
   key: string,
 ): Position[] => {
-  const indicies = getAllWordOccurences(str, key);
+  const indices = getAllWordOccurrences(str, key);
   let positions: Position[] = [];
   if (str.includes("\n")) {
-    for (const index of indicies) {
+    for (const index of indices) {
       const substr = str.substr(0, index);
       const substrLines = substr.split("\n");
       const ch = _.last(substrLines)?.length || 0;
@@ -51,7 +50,7 @@ export const getKeyPositionInString = (
       positions.push({ line, ch });
     }
   } else {
-    positions = indicies.map((index) => ({ line: 0, ch: index }));
+    positions = indices.map((index) => ({ line: 0, ch: index }));
   }
   return positions;
 };
@@ -73,12 +72,15 @@ export const getLintAnnotations = (
     }
 
     // We find the location of binding in the editor value and then
-    // we find locations of jshint variabls (a, b, c, d) in the binding and highlight them
+    // we find locations of jshint variables (a, b, c, d) in the binding and highlight them
     const bindingPositions = getKeyPositionInString(value, originalBinding);
 
     for (const bindingLocation of bindingPositions) {
       if (variables?.filter((v) => v).length) {
-        for (const variable of variables) {
+        for (let variable of variables) {
+          if (typeof variable === "number") {
+            variable = variable.toString();
+          }
           if (variable && originalBinding.includes(variable)) {
             const variableLocations = getKeyPositionInString(
               originalBinding,

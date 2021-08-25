@@ -335,7 +335,7 @@ export type EvaluationError = {
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
   originalBinding?: string;
-  variables?: (string | undefined | null)[];
+  variables?: (string | undefined | null | number)[];
   code?: string;
 };
 
