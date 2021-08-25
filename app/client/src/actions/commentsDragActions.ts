@@ -1,8 +1,5 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import {
-  AnchorWidget,
-  CommentPinLocation,
-} from "../reducers/uiReducers/commentsReducer/commentsDragReducer";
+import { AnchorWidget } from "../reducers/uiReducers/commentsReducer/commentsDragReducer";
 
 export const setDraggingCommentThread = (
   currentThreadId: string,
@@ -11,11 +8,9 @@ export const setDraggingCommentThread = (
   payload: { currentThreadId },
 });
 
-export const dropThread = (
-  dropLocation?: CommentPinLocation | null,
-): ReduxAction<{ dropLocation?: CommentPinLocation | null }> => ({
+export const dropThread = () => ({
   type: ReduxActionTypes.SET_HAS_DROPPED_THREAD,
-  payload: { dropLocation },
+  payload: {},
 });
 
 export const setAnchorWidget = (

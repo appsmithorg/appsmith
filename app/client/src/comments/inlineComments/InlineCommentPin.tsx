@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch, connect } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
@@ -177,7 +177,11 @@ function InlineCommentPin(props: Props) {
       topPercent: 0,
     },
   );
-  const [shouldHideThread, setHideThread] = useState(false);
+  // if user has opened a thread, we'll close it
+  // as soon as they start to drag the pin
+  const shouldHideThread = !!useSelector(
+    (state: AppState) => state.ui.commentsDrag.currentThreadId,
+  );
 
   const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
 
@@ -231,12 +235,10 @@ function InlineCommentPin(props: Props) {
             x: e.clientX,
             y: e.clientY,
           });
-        setHideThread(false);
         e.stopPropagation();
       }}
       onDragStart={(e) => {
         e.stopPropagation();
-        setHideThread(true);
         setDraggingCommentThread && setDraggingCommentThread(commentThreadId);
       }}
       positionAbsolutely={positionAbsolutely}
