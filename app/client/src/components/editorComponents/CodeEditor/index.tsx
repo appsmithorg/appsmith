@@ -326,7 +326,11 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.editor.getValue().length === 0)
+    const entityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      this.editor.getValue().length === 0
+    )
       this.handleAutocompleteVisibility(this.editor);
   };
 
@@ -372,31 +376,43 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    if (!this.state.isFocused) return;
+  getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        dataTreePath,
-      );
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(dataTreePath);
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
-      if (entity && "ENTITY_TYPE" in entity) {
-        const entityType = entity.ENTITY_TYPE;
-        if (
-          entityType === ENTITY_TYPE.WIDGET ||
-          entityType === ENTITY_TYPE.ACTION
-        ) {
-          entityInformation.entityType = entityType;
+
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE.WIDGET ||
+            entityType === ENTITY_TYPE.ACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
         }
+
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
+        entityInformation.propertyPath = propertyPath;
       }
-      if (isActionEntity(entity)) entityInformation.entityId = entity.actionId;
-      if (isWidgetEntity(entity)) entityInformation.entityId = entity.widgetId;
-      entityInformation.propertyPath = propertyPath;
     }
+    return entityInformation;
+  };
+
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
+    const entityInformation: FieldEntityInformation =
+      this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
@@ -505,11 +521,8 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const { errors, isInvalid, pathEvaluatedValue } =
+      this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;

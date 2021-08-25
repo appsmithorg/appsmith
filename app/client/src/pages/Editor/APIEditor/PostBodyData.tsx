@@ -55,13 +55,8 @@ const expectedPostBody: CodeEditorExpected = {
 };
 
 function PostBodyData(props: Props) {
-  const {
-    apiId,
-    dataTreePath,
-    displayFormat,
-    theme,
-    updateBodyContentType,
-  } = props;
+  const { apiId, dataTreePath, displayFormat, theme, updateBodyContentType } =
+    props;
 
   const tabComponentsMap = (
     key: string,
@@ -102,7 +97,6 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          pushFields
           theme={theme}
         />
       ),

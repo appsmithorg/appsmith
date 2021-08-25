@@ -156,8 +156,16 @@ export type EventName =
   | "CONNECT_DATA_CLICK"
   | "RESPONSE_TAB_RUN_ACTION_CLICK"
   | "ASSOCIATED_ENTITY_DROPDOWN_CLICK"
+  | "PAGES_LIST_LOAD"
+  | "WIDGET_GROUP"
   | "CLOSE_GEN_PAGE_INFO_MODAL"
-  | "PAGES_LIST_LOAD";
+  | "PAGES_LIST_LOAD"
+  | "COMMENTS_TOGGLE_MODE"
+  | "COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK"
+  | "COMMENTS_ONBOARDING_STEP_CHANGE"
+  | "COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK"
+  | "COMMENTS_ONBOARDING_MODAL_DISMISSED"
+  | "COMMENTS_ONBOARDING_MODAL_TRIGGERED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -205,8 +213,8 @@ class AnalyticsUtil {
             "off",
             "on",
           ];
-          analytics.factory = function(t: any) {
-            return function() {
+          analytics.factory = function (t: any) {
+            return function () {
               const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
               e.unshift(t);
               analytics.push(e);
@@ -218,7 +226,7 @@ class AnalyticsUtil {
           const e = analytics.methods[t];
           analytics[e] = analytics.factory(e);
         }
-        analytics.load = function(t: any, e: any) {
+        analytics.load = function (t: any, e: any) {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
@@ -313,7 +321,7 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
+    Sentry.configureScope(function (scope) {
       scope.setUser({
         id: userId,
         username: userData.username,

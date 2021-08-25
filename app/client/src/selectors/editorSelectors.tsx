@@ -19,11 +19,18 @@ import { OccupiedSpace } from "constants/editorConstants";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import _ from "lodash";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { getActions } from "selectors/entitiesSelector";
 
 import { getCanvasWidgets } from "./entitiesSelector";
-import { WidgetTypes } from "../constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetTypes,
+} from "../constants/WidgetConstants";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getWidgetSideBar = (state: AppState) => state.ui.widgetSidebar;
@@ -142,6 +149,17 @@ export const getWidgetCards = createSelector(
   },
 );
 
+const getMainContainer = (
+  canvasWidgets: CanvasWidgetsReduxState,
+  evaluatedDataTree: DataTree,
+) => {
+  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const evaluatedWidget = _.find(evaluatedDataTree, {
+    widgetId: MAIN_CONTAINER_WIDGET_ID,
+  }) as DataTreeWidget;
+  return createCanvasWidget(canvasWidget, evaluatedWidget);
+};
+
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
@@ -151,21 +169,31 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {};
-    Object.keys(canvasWidgets).forEach((widgetKey) => {
-      const canvasWidget = canvasWidgets[widgetKey];
-      const evaluatedWidget = _.find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      }) as DataTreeWidget;
-      if (evaluatedWidget) {
-        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
-      } else {
-        widgets[widgetKey] = createLoadingWidget(canvasWidget);
-      }
-      widgets[widgetKey].isLoading = loadingEntities.has(
-        canvasWidget.widgetName,
-      );
-    });
+    const widgets: Record<string, DataTreeWidget> = {
+      [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
+        canvasWidgets,
+        evaluatedDataTree,
+      ),
+    };
+    Object.keys(canvasWidgets)
+      .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
+      .forEach((widgetKey) => {
+        const canvasWidget = canvasWidgets[widgetKey];
+        const evaluatedWidget = _.find(evaluatedDataTree, {
+          widgetId: widgetKey,
+        }) as DataTreeWidget;
+        if (evaluatedWidget) {
+          widgets[widgetKey] = createCanvasWidget(
+            canvasWidget,
+            evaluatedWidget,
+          );
+        } else {
+          widgets[widgetKey] = createLoadingWidget(canvasWidget);
+        }
+        widgets[widgetKey].isLoading = loadingEntities.has(
+          canvasWidget.widgetName,
+        );
+      });
 
     return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
@@ -231,29 +259,30 @@ export const getOccupiedSpaces = createSelector(
 export function getOccupiedSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {
-  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
-    | OccupiedSpace[]
-    | undefined => {
-    if (containerId === null || containerId === undefined) return undefined;
+  return createSelector(
+    getWidgets,
+    (widgets: CanvasWidgetsReduxState): OccupiedSpace[] | undefined => {
+      if (containerId === null || containerId === undefined) return undefined;
 
-    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+      const containerWidget: FlattenedWidgetProps = widgets[containerId];
 
-    if (!containerWidget || !containerWidget.children) return undefined;
+      if (!containerWidget || !containerWidget.children) return undefined;
 
-    // Get child widgets for the container
-    const childWidgets = Object.keys(widgets).filter(
-      (widgetId) =>
-        containerWidget.children &&
-        containerWidget.children.indexOf(widgetId) > -1 &&
-        !widgets[widgetId].detachFromLayout,
-    );
+      // Get child widgets for the container
+      const childWidgets = Object.keys(widgets).filter(
+        (widgetId) =>
+          containerWidget.children &&
+          containerWidget.children.indexOf(widgetId) > -1 &&
+          !widgets[widgetId].detachFromLayout,
+      );
 
-    const occupiedSpaces = getOccupiedSpacesForContainer(
-      containerId,
-      childWidgets.map((widgetId) => widgets[widgetId]),
-    );
-    return occupiedSpaces;
-  });
+      const occupiedSpaces = getOccupiedSpacesForContainer(
+        containerId,
+        childWidgets.map((widgetId) => widgets[widgetId]),
+      );
+      return occupiedSpaces;
+    },
+  );
 }
 
 export const getActionById = createSelector(

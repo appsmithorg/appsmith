@@ -175,10 +175,8 @@ function GlobalSearch() {
   }, []);
   const scrollPositionRef = useRef(0);
 
-  const [
-    documentationSearchResults,
-    setDocumentationSearchResultsInState,
-  ] = useState<Array<DocSearchItem>>([]);
+  const [documentationSearchResults, setDocumentationSearchResultsInState] =
+    useState<Array<DocSearchItem>>([]);
 
   const setSearchResults = useCallback((res, categoryId) => {
     if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);
@@ -441,7 +439,11 @@ function GlobalSearch() {
 
   const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
     const item = itemArg || activeItem;
-    const type = getItemType(item) as SEARCH_ITEM_TYPES;
+    const type = getItemType(item);
+
+    // When there is no active item(or no search results) do nothing
+    // on pressing enter
+    if (!searchResults.length) return;
 
     AnalyticsUtil.logEvent("NAVIGATE_TO_ENTITY_FROM_OMNIBAR", {
       type,

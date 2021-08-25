@@ -7,6 +7,14 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/propertyControls/BorderRadiusOptionsControl";
+import {
+  ButtonBoxShadow,
+  ButtonBoxShadowTypes,
+} from "components/propertyControls/BoxShadowOptionsControl";
 
 const IconButtonContainer = styled.div`
   display: flex;
@@ -133,7 +141,6 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.CIRCLE
       ? "50%"
@@ -143,20 +150,25 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
+      ? `0px 0px 4px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant1
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
+      ? `3px 3px 4px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant2
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
+      ? `0px 1px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant3
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
+      ? `2px 2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant4
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
+      ? `-2px -2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant5
+        }`
       : "none"} !important;
 `;
 
@@ -175,23 +187,6 @@ export enum ButtonVariantTypes {
   GHOST = "GHOST",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
-
-export enum ButtonBorderRadiusTypes {
-  SHARP = "SHARP",
-  ROUNDED = "ROUNDED",
-  CIRCLE = "CIRCLE",
-}
-export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
-
-export enum ButtonBoxShadowTypes {
-  NONE = "NONE",
-  VARIANT1 = "VARIANT1",
-  VARIANT2 = "VARIANT2",
-  VARIANT3 = "VARIANT3",
-  VARIANT4 = "VARIANT4",
-  VARIANT5 = "VARIANT5",
-}
-export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;

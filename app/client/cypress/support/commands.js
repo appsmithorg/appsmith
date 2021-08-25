@@ -3,6 +3,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
+const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -2052,6 +2053,32 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "fillMySQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-databaseName"] + "  "
+      : datasourceFormData["mysql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mysql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
   "fillUsersMockDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const userMockDatabaseName = shouldAddTrailingSpaces
@@ -2401,14 +2428,14 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = Cypress.moment()
+  const eDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   return eDate;
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = Cypress.moment()
+  const expDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;

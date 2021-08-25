@@ -77,6 +77,7 @@ export enum EventType {
   ON_RATE_CHANGED = "ON_RATE_CHANGED",
   ON_IFRAME_URL_CHANGED = "ON_IFRAME_URL_CHANGED",
   ON_IFRAME_MESSAGE_RECEIVED = "ON_IFRAME_MESSAGE_RECEIVED",
+  ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
 }
 
@@ -108,7 +109,8 @@ export interface ExecuteErrorPayload extends ErrorActionPayload {
 // Group 1 = datasource (https://www.domain.com)
 // Group 2 = path (/nested/path)
 // Group 3 = params (?param=123&param2=12)
-export const urlGroupsRegexExp = /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
+export const urlGroupsRegexExp =
+  /^(https?:\/{2}\S+?)(\/[\s\S]*?)(\?(?![^{]*})[\s\S]*)?$/;
 
 export const EXECUTION_PARAM_KEY = "executionParams";
 export const EXECUTION_PARAM_REFERENCE_REGEX = /this.params/g;

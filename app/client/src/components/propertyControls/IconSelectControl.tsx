@@ -81,7 +81,7 @@ type IconType = IconName | typeof NONE;
 const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
-ICON_NAMES.push(NONE);
+ICON_NAMES.unshift(NONE);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -104,8 +104,8 @@ class IconSelectControl extends BaseControl<
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,
-          popoverTargetWidth: iconSelectTargetElement?.getBoundingClientRect()
-            .width,
+          popoverTargetWidth:
+            iconSelectTargetElement?.getBoundingClientRect().width,
         };
       });
     }, 0);

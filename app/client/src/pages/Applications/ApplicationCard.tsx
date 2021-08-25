@@ -72,7 +72,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         align-items: center;
 
         .overlay {
-          ${props.hasReadPermission &&
+          ${
+            props.hasReadPermission &&
             `text-decoration: none;
              &:after {
                 left: 0;
@@ -85,7 +86,8 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
               & .control {
                 display: block;
                 z-index: 1;
-              }`}
+              }`
+          }
 
           & div.image-container {
             background: ${
@@ -261,9 +263,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isForkApplicationModalopen, setForkApplicationModalOpen] = useState(
-    false,
-  );
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
+    useState(false);
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -356,16 +357,19 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
     link.href = `/api/v1/applications/export/${props.application.id}`;
-    link.target = "_blank";
     link.id = id;
     document.body.appendChild(link);
-    link.click();
+    // will fetch the file manually during cypress test run.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (!window.Cypress) {
+      link.click();
+    }
     setIsMenuOpen(false);
     Toaster.show({
       text: `Successfully exported ${props.application.name}`,
       variant: Variant.success,
     });
-    link.remove();
   };
   const forkApplicationInitiate = () => {
     // open fork application modal

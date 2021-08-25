@@ -11,6 +11,7 @@ import {
   isBoolean,
   omit,
   floor,
+  isEmpty,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -140,9 +141,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
           childrenDefaultPropertiesMap = {
             ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]: defaultProperties[
-              defaultPropertyKey
-            ],
+            [`${key}.${defaultPropertyKey}`]:
+              defaultProperties[defaultPropertyKey],
           };
         });
       });
@@ -241,8 +241,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           type: EventType.ON_ROW_SELECTED,
         },
       });
-    } else {
-      this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
     }
 
     if (!action) return;
@@ -314,11 +312,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
-    const {
-      dynamicBindingPathList,
-      dynamicTriggerPathList,
-      template,
-    } = this.props;
+    const { dynamicBindingPathList, dynamicTriggerPathList, template } =
+      this.props;
     const { widgetName = "" } = widget;
     // Update properties if they're dynamic
     // `template` property should have an array of values
@@ -525,10 +520,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           "children[0]",
         );
         // Set properties of the container's canvas child widget
-        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
-          listItemContainerCanvas,
-          listItemIndex,
-        );
+        const updatedListItemContainerCanvas =
+          this.updateNonTemplateWidgetProperties(
+            listItemContainerCanvas,
+            listItemIndex,
+          );
         // Set the item container's canvas child widget
         set(
           updatedListItemContainer,
@@ -751,7 +747,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.length === 0 &&
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;

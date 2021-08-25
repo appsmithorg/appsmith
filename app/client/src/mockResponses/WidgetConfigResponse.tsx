@@ -14,9 +14,9 @@ import {
 } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadowTypes } from "components/propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
@@ -33,7 +33,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
       text: "Submit",
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "PRIMARY",
+      buttonVariant: "SOLID",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",
@@ -472,6 +473,23 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       expandAll: false,
       placeholderText: "select option",
       labelText: "Label",
+    },
+    FILE_PICKER_WIDGET_V2: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      files: [],
+      selectedFiles: [],
+      defaultSelectedFiles: [],
+      allowedFileTypes: [],
+      label: "Select Files",
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      maxNumFiles: 1,
+      maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
+      widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
     },
     TABS_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
@@ -913,9 +931,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets, stringSegments } = getDynamicBindings(
-              propertyValue,
-            );
+            const { jsSnippets, stringSegments } =
+              getDynamicBindings(propertyValue);
 
             const js = combineDynamicBindings(jsSnippets, stringSegments);
 
@@ -1137,9 +1154,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets, stringSegments } = getDynamicBindings(
-                        value,
-                      );
+                      const { jsSnippets, stringSegments } =
+                        getDynamicBindings(value);
 
                       const js = combineDynamicBindings(
                         jsSnippets,
@@ -1299,8 +1315,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     [WidgetTypes.MENU_BUTTON_WIDGET]: {
       label: "Open Menu",
-      isDisabled: false,
+      menuStyle: "PRIMARY",
+      menuVariant: "SOLID",
       isCompact: false,
+      isDisabled: false,
+      isVisible: true,
       menuItems: {
         menuItem1: {
           label: "First Menu Item",
@@ -1324,12 +1343,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           widgetId: "",
           isVisible: true,
           isDisabled: false,
-          index: 1,
+          index: 2,
         },
       },
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
+      version: 1,
     },
     [WidgetTypes.ICON_BUTTON_WIDGET]: {
       iconName: IconNames.PLUS,
