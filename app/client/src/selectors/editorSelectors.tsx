@@ -17,12 +17,16 @@ import {
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { DataTreeWidget, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  DataTreeWidget,
+  ENTITY_TYPE,
+} from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { getDataTree, getLoadingEntities } from "./dataTreeSelectors";
 import { find, pick } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
+import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 
 const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
@@ -157,6 +161,17 @@ export const getWidgetCards = createSelector(
   },
 );
 
+const getMainContainer = (
+  canvasWidgets: CanvasWidgetsReduxState,
+  evaluatedDataTree: DataTree,
+) => {
+  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const evaluatedWidget = find(evaluatedDataTree, {
+    widgetId: MAIN_CONTAINER_WIDGET_ID,
+  }) as DataTreeWidget;
+  return createCanvasWidget(canvasWidget, evaluatedWidget);
+};
+
 export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
@@ -166,21 +181,31 @@ export const getCanvasWidgetDsl = createSelector(
     evaluatedDataTree,
     loadingEntities,
   ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, DataTreeWidget> = {};
-    Object.keys(canvasWidgets).forEach((widgetKey) => {
-      const canvasWidget = canvasWidgets[widgetKey];
-      const evaluatedWidget = find(evaluatedDataTree, {
-        widgetId: widgetKey,
-      }) as DataTreeWidget;
-      if (evaluatedWidget) {
-        widgets[widgetKey] = createCanvasWidget(canvasWidget, evaluatedWidget);
-      } else {
-        widgets[widgetKey] = createLoadingWidget(canvasWidget);
-      }
-      widgets[widgetKey].isLoading = loadingEntities.has(
-        canvasWidget.widgetName,
-      );
-    });
+    const widgets: Record<string, DataTreeWidget> = {
+      [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
+        canvasWidgets,
+        evaluatedDataTree,
+      ),
+    };
+    Object.keys(canvasWidgets)
+      .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
+      .forEach((widgetKey) => {
+        const canvasWidget = canvasWidgets[widgetKey];
+        const evaluatedWidget = find(evaluatedDataTree, {
+          widgetId: widgetKey,
+        }) as DataTreeWidget;
+        if (evaluatedWidget) {
+          widgets[widgetKey] = createCanvasWidget(
+            canvasWidget,
+            evaluatedWidget,
+          );
+        } else {
+          widgets[widgetKey] = createLoadingWidget(canvasWidget);
+        }
+        widgets[widgetKey].isLoading = loadingEntities.has(
+          canvasWidget.widgetName,
+        );
+      });
 
     return CanvasWidgetsNormalizer.denormalize("0", {
       canvasWidgets: widgets,
