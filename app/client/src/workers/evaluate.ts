@@ -162,12 +162,16 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    Object.keys(resolvedFunctions).forEach((datum: any) => {
-      const resolvedObject = resolvedFunctions[datum];
-      Object.keys(resolvedObject).forEach((key: any) => {
-        self[datum][key] = resolvedObject[key];
+
+    if (!_.isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          self[datum][key] = resolvedObject[key];
+        });
       });
-    });
+    }
+
     errors = getLintingErrors(script, GLOBAL_DATA);
 
     ///// Adding extra libraries separately
