@@ -50,6 +50,14 @@ module.exports = function (plop) {
                     templateFile: 'plop-templates/json-template.hbs'
                 }
                );
+               actions.push(
+                {
+                    type: 'modify',
+                    pattern :/}[\n]*$/,
+                    path: 'fileToEdit.java',
+                    templateFile: 'plop-templates/database-changelog.hbs'
+                }
+               );
 
 
             }
