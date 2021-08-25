@@ -38,7 +38,6 @@ const StyledMenu = styled(Menu)<MenuComponentProps>`
 `;
 const StyledMenuItem = styled(MenuItem)`
   border-radius: 0;
-
   &&&.bp3-active {
     background: ${(props) => props.theme.colors.propertyPane.activeButtonText};
   }
@@ -47,7 +46,6 @@ const StyledMenuItem = styled(MenuItem)`
 class DropdownComponent extends Component<DropdownComponentProps> {
   componentDidMount() {
     const { input, options } = this.props;
-
     // set selected option to first option by default
     if (input && !input.value) {
       input.onChange(options[0].value);

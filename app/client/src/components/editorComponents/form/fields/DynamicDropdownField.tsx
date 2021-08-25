@@ -9,7 +9,6 @@ interface DynamicDropdownFieldOptions {
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;
-
 class DynamicDropdownField extends React.Component<DynamicDropdownFieldProps> {
   render() {
     return <Field component={DropdownComponent} {...this.props} />;
