@@ -62,7 +62,6 @@ export const DropTargetContext: Context<{
     widgetId: string,
     widgetBottomRow: number,
   ) => number | false;
-  persistDropTargetRows?: (widgetId: string, row: number) => void;
 }> = createContext({});
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
@@ -113,24 +112,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       }
     }
   }, [props.bottomRow, props.canExtend]);
-
-  const persistDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
-    const newRows = calculateDropTargetRows(
-      widgetId,
-      widgetBottomRow,
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      occupiedSpacesByChildren,
-    );
-    const rowsToPersist = Math.max(
-      props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
-      newRows,
-    );
-    rowRef.current = rowsToPersist;
-    updateHeight();
-    if (canDropTargetExtend) {
-      updateCanvasSnapRows(props.widgetId, rowsToPersist);
-    }
-  };
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
@@ -183,9 +164,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const contextValue = useMemo(() => {
     return {
       updateDropTargetRows,
-      persistDropTargetRows,
     };
-  }, [updateDropTargetRows, persistDropTargetRows, occupiedSpacesByChildren]);
+  }, [updateDropTargetRows, occupiedSpacesByChildren]);
 
   return (
     <DropTargetContext.Provider value={contextValue}>

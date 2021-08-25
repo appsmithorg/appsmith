@@ -133,6 +133,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { updateCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -875,6 +876,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const {
       bottomRow,
       leftColumn,
+      parentId,
       rightColumn,
       topRow,
       widgetId,
@@ -887,6 +889,18 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
+    const updatedCanvasBottomRow: number = yield call(
+      updateCanvasSizeAfterWidgetMove,
+      parentId,
+      bottomRow,
+    );
+    if (updatedCanvasBottomRow) {
+      const canvasWidget = widgets[parentId];
+      widgets[parentId] = {
+        ...canvasWidget,
+        bottomRow: updatedCanvasBottomRow,
+      };
+    }
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
