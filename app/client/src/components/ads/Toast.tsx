@@ -13,6 +13,7 @@ import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 type ToastProps = ToastOptions &
   CommonComponentProps & {
     text: string;
+    actionElement?: JSX.Element;
     variant?: Variant;
     duration?: number;
     onUndo?: () => void;
@@ -115,6 +116,10 @@ const StyledDebugButton = styled(DebugButton)`
   margin-left: auto;
 `;
 
+const StyledActionText = styled(Text)`
+  color: #f8682b !important;
+`;
+
 function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
   const dispatch = useDispatch();
 
@@ -136,6 +141,11 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
         ) : null}
         <div>
           <Text type={TextType.P1}>{props.text}</Text>
+          {props.actionElement && (
+            <StyledActionText type={TextType.P1}>
+              &nbsp;{props.actionElement}
+            </StyledActionText>
+          )}
           {props.variant === Variant.danger && props.showDebugButton ? (
             <StyledDebugButton source={"TOAST"} />
           ) : null}

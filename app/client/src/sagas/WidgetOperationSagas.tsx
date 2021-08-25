@@ -63,18 +63,11 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WIDGET_DELETE_UNDO_TIMEOUT,
   WidgetType,
   WidgetTypes,
 } from "constants/WidgetConstants";
 import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
-import {
-  flushDeletedWidgets,
-  getCopiedWidgets,
-  getDeletedWidgets,
-  saveCopiedWidgets,
-  saveDeletedWidgets,
-} from "utils/storage";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { generateReactKey } from "utils/generators";
 import { flashElementById } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -114,8 +107,6 @@ import {
   ERROR_WIDGET_CUT_NO_WIDGET_SELECTED,
   WIDGET_COPY,
   WIDGET_CUT,
-  WIDGET_DELETE,
-  WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -133,6 +124,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { showUndoRedoToast } from "utils/UndoRedoHelpers";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
@@ -530,44 +522,28 @@ export function* deleteAllSelectedWidgetsSaga(
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(selectWidgetInitAction(""));
     const bulkDeleteKey = selectedWidgets.join(",");
-    const saveStatus: boolean = yield saveDeletedWidgets(
-      falttendedWidgets,
-      bulkDeleteKey,
-    );
-    if (saveStatus && !disallowUndo) {
+    if (!disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
       yield put(closeTableFilterPane());
-      Toaster.show({
-        text: createMessage(WIDGET_BULK_DELETE, `${selectedWidgets.length}`),
-        hideProgressBar: false,
-        variant: Variant.success,
-        dispatchableAction: {
-          type: ReduxActionTypes.UNDO_DELETE_WIDGET,
-          payload: {
-            widgetId: bulkDeleteKey,
-          },
-        },
-      });
-      setTimeout(() => {
-        if (bulkDeleteKey) {
-          flushDeletedWidgets(bulkDeleteKey);
-          falttendedWidgets.map((widget: any) => {
-            AppsmithConsole.info({
-              logType: LOG_TYPE.ENTITY_DELETED,
-              text: "Widget was deleted",
-              source: {
-                name: widget.widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                id: widget.widgetId,
-              },
-              analytics: {
-                widgetType: widget.type,
-              },
-            });
+      showUndoRedoToast(`${selectedWidgets.length}`, true, false, true);
+
+      if (bulkDeleteKey) {
+        falttendedWidgets.map((widget: any) => {
+          AppsmithConsole.info({
+            logType: LOG_TYPE.ENTITY_DELETED,
+            text: "Widget was deleted",
+            source: {
+              name: widget.widgetName,
+              type: ENTITY_TYPE.WIDGET,
+              id: widget.widgetId,
+            },
+            analytics: {
+              widgetType: widget.type,
+            },
           });
-        }
-      }, WIDGET_DELETE_UNDO_TIMEOUT);
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -649,49 +625,32 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       widgets[parentId] = parent;
 
       const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
-      const saveStatus: boolean = yield saveDeletedWidgets(
-        otherWidgetsToDelete,
-        widgetId,
-      );
       let widgetName = widget.widgetName;
       // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
       if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
         widgetName = widget.tabName;
       }
-      if (saveStatus && !disallowUndo) {
+      if (!disallowUndo) {
         // close property pane after delete
         yield put(closePropertyPane());
-        Toaster.show({
-          text: createMessage(WIDGET_DELETE, widgetName),
-          hideProgressBar: false,
-          variant: Variant.success,
-          dispatchableAction: {
-            type: ReduxActionTypes.UNDO_DELETE_WIDGET,
-            payload: {
-              widgetId,
-            },
-          },
-        });
+        showUndoRedoToast(widgetName, false, false, true);
 
-        setTimeout(() => {
-          if (widgetId) {
-            flushDeletedWidgets(widgetId);
-            otherWidgetsToDelete.map((widget) => {
-              AppsmithConsole.info({
-                logType: LOG_TYPE.ENTITY_DELETED,
-                text: "Widget was deleted",
-                source: {
-                  name: widget.widgetName,
-                  type: ENTITY_TYPE.WIDGET,
-                  id: widget.widgetId,
-                },
-                analytics: {
-                  widgetType: widget.type,
-                },
-              });
+        if (widgetId) {
+          otherWidgetsToDelete.map((widget) => {
+            AppsmithConsole.info({
+              logType: LOG_TYPE.ENTITY_DELETED,
+              text: "Widget was deleted",
+              source: {
+                name: widget.widgetName,
+                type: ENTITY_TYPE.WIDGET,
+                id: widget.widgetId,
+              },
+              analytics: {
+                widgetType: widget.type,
+              },
             });
-          }
-        }, WIDGET_DELETE_UNDO_TIMEOUT);
+          });
+        }
       }
 
       yield call(clearEvalPropertyCacheOfWidget, widgetName);
@@ -759,129 +718,6 @@ export function* updateListWidgetPropertiesOnChildDelete(
   }
 
   return clone;
-}
-
-export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
-  // Get the list of widget and its children which were deleted
-  const deletedWidgets: FlattenedWidgetProps[] = yield getDeletedWidgets(
-    action.payload.widgetId,
-  );
-  const stateWidgets = yield select(getWidgets);
-  const deletedWidgetIds = action.payload.widgetId.split(",");
-  if (
-    deletedWidgets &&
-    Array.isArray(deletedWidgets) &&
-    deletedWidgets.length
-  ) {
-    // Get the current list of widgets from reducer
-    const formTree = deletedWidgets.reduce((widgetTree, each) => {
-      widgetTree[each.widgetId] = each;
-      return widgetTree;
-    }, {} as CanvasWidgetsReduxState);
-    const deletedWidgetGroups = deletedWidgetIds.map((each) => ({
-      widget: formTree[each],
-      widgetsToRestore: getAllWidgetsInTree(each, formTree),
-    }));
-    const finalWidgets = deletedWidgetGroups.reduce(
-      (reducedWidgets, deletedWidgetGroup) => {
-        const {
-          widget: deletedWidget,
-          widgetsToRestore: deletedWidgets,
-        } = deletedWidgetGroup;
-        let widgets = cloneDeep(reducedWidgets);
-
-        // If the deleted widget is in fact available.
-        if (deletedWidget) {
-          // Log an undo event
-          AnalyticsUtil.logEvent("WIDGET_DELETE_UNDO", {
-            widgetName: deletedWidget.widgetName,
-            widgetType: deletedWidget.type,
-          });
-        }
-
-        // For each deleted widget
-        deletedWidgets.forEach((widget: FlattenedWidgetProps) => {
-          // Add it to the widgets list we fetched from reducer
-          widgets[widget.widgetId] = widget;
-          // If the widget in question is the deleted widget
-          if (deletedWidgetIds.includes(widget.widgetId)) {
-            //SPECIAL HANDLING FOR TAB IN A TABS WIDGET
-            if (
-              widget.tabId &&
-              widget.type === WidgetTypes.CANVAS_WIDGET &&
-              widget.parentId &&
-              widgets[widget.parentId]
-            ) {
-              const parent = cloneDeep(widgets[widget.parentId]);
-              if (parent.tabsObj) {
-                try {
-                  const tabs = Object.values(parent.tabsObj);
-                  parent.tabsObj[widget.tabId] = {
-                    id: widget.tabId,
-                    widgetId: widget.widgetId,
-                    label: widget.tabName || widget.widgetName,
-                    isVisible: true,
-                  };
-                  widgets = {
-                    ...widgets,
-                    [widget.parentId]: {
-                      ...widgets[widget.parentId],
-                      tabsObj: parent.tabsObj,
-                    },
-                  };
-                } catch (error) {
-                  log.debug("Error deleting tabs widget: ", { error });
-                }
-              } else {
-                parent.tabs = JSON.stringify([
-                  {
-                    id: widget.tabId,
-                    widgetId: widget.widgetId,
-                    label: widget.tabName || widget.widgetName,
-                  },
-                ]);
-                widgets = {
-                  ...widgets,
-                  [widget.parentId]: parent,
-                };
-              }
-            }
-            let newChildren = [widget.widgetId];
-            if (widget.parentId && widgets[widget.parentId]) {
-              if (widgets[widget.parentId].children) {
-                // Concatenate the list of parents children with the current widgetId
-                newChildren = newChildren.concat(
-                  widgets[widget.parentId].children,
-                );
-              }
-              widgets = {
-                ...widgets,
-                [widget.parentId]: {
-                  ...widgets[widget.parentId],
-                  children: newChildren,
-                },
-              };
-            }
-          }
-        });
-        return widgets;
-      },
-      stateWidgets,
-    );
-    const parentId = deletedWidgets[0].parentId;
-    if (parentId) {
-      resizeCanvasToLowestWidget(finalWidgets, parentId);
-    }
-    yield put(updateAndSaveLayout(finalWidgets));
-    deletedWidgetIds.forEach((widgetId) => {
-      setTimeout(() => flashElementById(widgetId), 100);
-    });
-    yield put(selectMultipleWidgetsInitAction(deletedWidgetIds));
-    if (deletedWidgetIds.length === 1) {
-      yield put(forceOpenPropertyPane(action.payload.widgetId));
-    }
-    yield flushDeletedWidgets(action.payload.widgetId);
-  }
 }
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
@@ -1881,7 +1717,6 @@ export default function* widgetOperationSagas() {
     takeLatest(ReduxActionTypes.UPDATE_CANVAS_SIZE, updateCanvasSize),
     takeLatest(ReduxActionTypes.COPY_SELECTED_WIDGET_INIT, copyWidgetSaga),
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
-    takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
   ]);
