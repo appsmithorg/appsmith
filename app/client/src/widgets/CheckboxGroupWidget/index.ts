@@ -6,7 +6,7 @@ export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "CheckboxGroup",
   iconSVG: IconSVG,
-  withMeta: true,
+  needsMeta: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
     columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
