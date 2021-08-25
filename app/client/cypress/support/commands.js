@@ -2303,7 +2303,8 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
-    .click()
+    .first()
+    .click({ force: true })
     .selectOnClickOption(forSuccess);
 
   cy.wait(2000);
@@ -2320,7 +2321,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .type(forFailure)
     .get("button.t--open-dropdown-Select-type")
     .last()
-    .click()
+    .click({ force: true })
     .selectOnClickOption(forFailure);
 });
 
