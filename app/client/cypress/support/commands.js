@@ -1418,7 +1418,9 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
 
 Cypress.Commands.add("selectColor", (GivenProperty) => {
   // Property pane of the widget is opened, and click given property.
-  cy.get(".t--property-control-" + GivenProperty + " .bp3-input-group").click({
+  cy.get(
+    ".t--property-control-" + GivenProperty + " .bp3-input-group input",
+  ).click({
     force: true,
   });
   cy.get(widgetsPage.colorsAvailable)
