@@ -137,7 +137,7 @@ const PropertyControl = memo((props: Props) => {
    * It also calls the beforeChildPropertyUpdate hook
    */
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
+    (propertyName: string, propertyValue: any, shouldReplay = true) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
@@ -218,6 +218,7 @@ const PropertyControl = memo((props: Props) => {
             propertyName,
             propertyValue,
             RenderModes.CANVAS, // This seems to be not needed anymore.
+            shouldReplay,
           ),
         );
         AppsmithConsole.info({

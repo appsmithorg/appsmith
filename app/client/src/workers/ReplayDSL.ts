@@ -51,6 +51,8 @@ export default class ReplayDSL {
     if (this.shouldReplay()) {
       this.undoManager.undo();
       this.applyDiffs(diffs, revertChange);
+
+      console.log({ dsl: this.dsl });
       return this.dsl;
     }
 
