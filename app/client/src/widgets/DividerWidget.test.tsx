@@ -25,6 +25,9 @@ describe("<DividerWidget />", () => {
         currentThreadId: null,
         anchorWidget: null,
       },
+      debugger: {
+        errors: {},
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

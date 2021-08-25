@@ -1,4 +1,5 @@
 {
     "debuggerIcon": ".t--debugger",
-    "debuggerLogState": ".t--debugger-log-state"
+    "debuggerLogState": ".t--debugger-log-state",
+    "errorCount": ".t--debugger-count"
 }

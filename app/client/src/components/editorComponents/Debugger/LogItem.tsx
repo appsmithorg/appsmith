@@ -290,7 +290,7 @@ function LogItem(props: LogItemProps) {
               return (
                 <MessageWrapper key={e.message}>
                   <span
-                    className="debugger-message"
+                    className="debugger-message t--debugger-message"
                     onClick={(event) => onLogClick(event, e)}
                   >
                     {e.message}

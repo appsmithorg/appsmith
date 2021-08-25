@@ -26,6 +26,9 @@ describe("<ListWidget />", () => {
         currentThreadId: null,
         anchorWidget: null,
       },
+      debugger: {
+        errors: {},
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };
