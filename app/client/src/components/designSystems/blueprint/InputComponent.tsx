@@ -32,10 +32,6 @@ import { InputType, InputTypes } from "widgets/InputWidget";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
-import {
-  createMessage,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -549,10 +545,7 @@ class InputComponent extends React.Component<
         <TextInputWrapper>
           <ErrorTooltip
             isOpen={this.props.isInvalid && this.props.showError}
-            message={
-              this.props.errorMessage ||
-              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
-            }
+            message={this.props.errorMessage || ""}
           >
             {this.renderInputComponent(
               this.props.inputType,
