@@ -88,7 +88,9 @@ function Debugger() {
         warningCount={messageCounters.warnings}
       >
         <Icon name="bug" size={IconSize.XL} />
-        <div className="debugger-count">{totalMessageCount}</div>
+        <div className="debugger-count t--debugger-count">
+          {totalMessageCount}
+        </div>
       </Container>
     );
   return <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />;

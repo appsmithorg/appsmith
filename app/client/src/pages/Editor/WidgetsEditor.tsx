@@ -26,6 +26,7 @@ import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Debugger from "components/editorComponents/Debugger";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 
 const EditorWrapper = styled.div`
@@ -59,7 +60,6 @@ function WidgetsEditor() {
   const { deselectAll, focusWidget, selectWidget } = useWidgetSelection();
   const params = useParams<{ applicationId: string; pageId: string }>();
   const dispatch = useDispatch();
-
   const widgets = useSelector(getCanvasWidgetDsl);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const currentPageId = useSelector(getCurrentPageId);
@@ -104,6 +104,7 @@ function WidgetsEditor() {
     deselectAll && deselectAll();
     dispatch(closePropertyPane());
     dispatch(closeTableFilterPane());
+    dispatch(setCanvasSelectionFromEditor(false));
   }, [focusWidget, deselectAll]);
 
   const pageLoading = (
@@ -117,14 +118,28 @@ function WidgetsEditor() {
   }
 
   if (!isFetchingPage && widgets) {
-    node = <Canvas dsl={widgets} />;
+    node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startPoints = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+    dispatch(setCanvasSelectionFromEditor(true, startPoints));
+  };
 
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <EditorWrapper onClick={handleWrapperClick}>
+      <EditorWrapper
+        data-testid="widgets-editor"
+        draggable
+        onClick={handleWrapperClick}
+        onDragStart={onDragStart}
+      >
         <MainContainerLayoutControl />
         <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}

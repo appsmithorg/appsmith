@@ -123,11 +123,9 @@ export default class DataTreeEvaluator {
   updateDataTree(
     unEvalTree: DataTree,
   ): {
-    updates: Diff<DataTree, DataTree>[];
     evaluationOrder: string[];
     unEvalUpdates: DataTreeDiff[];
   } {
-    const oldEvalTree = _.cloneDeep(this.evalTree);
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -136,7 +134,6 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
-        updates: [],
         evaluationOrder: [],
         unEvalUpdates: [],
       };
@@ -197,8 +194,6 @@ export default class DataTreeEvaluator {
 
     const evalTreeDiffsStart = performance.now();
 
-    const evaluationChanges = diff(oldEvalTree, newEvalTree);
-
     const evalTreeDiffsStop = performance.now();
 
     const totalEnd = performance.now();
@@ -220,7 +215,6 @@ export default class DataTreeEvaluator {
     };
     this.logs.push({ timeTakenForSubTreeEval });
     return {
-      updates: evaluationChanges || [],
       evaluationOrder,
       unEvalUpdates: translatedDiffs,
     };
