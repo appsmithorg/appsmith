@@ -146,9 +146,8 @@ function DatasourceCard(props: DatasourceCardProps) {
             text="Edit Datasource"
           />
           <ActionButton
-            accent="primary"
+            buttonStyle="PRIMARY"
             className="t--create-api"
-            filled
             icon={"plus"}
             onClick={() => props.onCreate(datasource)}
             text="New API"
