@@ -16,6 +16,7 @@ import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
   GEN_CRUD_SUCCESS_DESC,
+  createMessage,
 } from "constants/messages";
 import SuccessGif from "assets/gifs/check_mark_verified.gif";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -157,7 +158,7 @@ function GenCRUDSuccessModal(props: Props) {
 
   const successMessage =
     (generateCRUDSuccessInfo && generateCRUDSuccessInfo.successMessage) ||
-    GEN_CRUD_INFO_DIALOG_SUBTITLE();
+    createMessage(GEN_CRUD_INFO_DIALOG_SUBTITLE);
 
   useEffect(() => {
     setTimeout(() => {
@@ -176,8 +177,8 @@ function GenCRUDSuccessModal(props: Props) {
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
             <SuccessImage alt="Success" src={SuccessGif} width="50px" />
-            <Heading> {GEN_CRUD_SUCCESS_MESSAGE()}</Heading>
-            <Desc>{GEN_CRUD_SUCCESS_DESC()}</Desc>
+            <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
+            <Desc>{createMessage(GEN_CRUD_SUCCESS_DESC)}</Desc>
           </SuccessContentWrapper>
         ) : null}
         {step === STEP.SHOW_INFO ? (
