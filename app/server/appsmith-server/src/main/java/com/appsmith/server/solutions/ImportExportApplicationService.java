@@ -75,9 +75,10 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
+    private final ReleaseNotesService releaseNotesService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
-    public final String INVALID_JSON_FILE = "invalid json file";
+    private static final String INVALID_JSON_FILE = "invalid json file";
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
     }
@@ -119,6 +120,10 @@ public class ImportExportApplicationService {
             .then(applicationMono)
             .flatMap(application -> {
 
+                // Insert the release version for exported file
+                applicationJson.setAppsmithVersion(releaseNotesService.getReleasedVersion());
+
+                // Assign the default page names for published and unpublished field in applicationJson object
                 ApplicationPage unpublishedDefaultPage = application.getPages()
                     .stream()
                     .filter(ApplicationPage::getIsDefault)
@@ -142,7 +147,8 @@ public class ImportExportApplicationService {
                         applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId());
                     }
                 }
-                
+
+                // Refactor application to remove the ids
                 final String organizationId = application.getOrganizationId();
                 application.setOrganizationId(null);
                 application.setPages(null);
@@ -151,6 +157,9 @@ public class ImportExportApplicationService {
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
                     .collectList()
                     .flatMap(newPageList -> {
+                        // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
+                        // field is JsonIgnored. Also remove any ids those are present in the page objects
+
                         Map<String, Set<String>> publishedMongoEscapedWidgetsNames = new HashMap<>();
                         Map<String, Set<String>> unpublishedMongoEscapedWidgetsNames = new HashMap<>();
                         newPageList.forEach(newPage -> {
@@ -348,6 +357,9 @@ public class ImportExportApplicationService {
         
         if(!errorField.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, errorField, INVALID_JSON_FILE));
+        } else if(importedDoc.getAppsmithVersion() == null
+            || !releaseNotesService.getReleasedVersion().equals(importedDoc.getAppsmithVersion())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_IMPORTED_FILE_ERROR));
         }
         
         return pluginRepository.findAll()
@@ -382,7 +394,9 @@ public class ImportExportApplicationService {
                 .collectList()
             )
             .then(
-                
+                // 1. Assign the policies for the imported application
+                // 2. Check for possible duplicate names,
+                // 3. Save the updated application
                 applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication)
                     .flatMap(application -> applicationService
                         .findByOrganizationId(organizationId, AclPermission.MANAGE_APPLICATIONS)
@@ -410,7 +424,8 @@ public class ImportExportApplicationService {
                     PublishType.UNPUBLISHED, new ArrayList<>(),
                     PublishType.PUBLISHED, new ArrayList<>()
                 );
-                
+
+                // Import and save pages, also update the pages related fields in saved application
                 return importAndSavePages(
                     importedNewPageList,
                     importedApplication,
@@ -440,8 +455,12 @@ public class ImportExportApplicationService {
                         publishedAppPage.setId(newPage.getId());
                         pageNameMap.put(newPage.getPublishedPage().getName(), newPage);
                     }
-                    applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
-                    applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                    if (unpublishedAppPage != null && unpublishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.UNPUBLISHED).add(unpublishedAppPage);
+                    }
+                    if (publishedAppPage != null && publishedAppPage.getId() != null) {
+                        applicationPages.get(PublishType.PUBLISHED).add(publishedAppPage);
+                    }
                     return applicationPages;
                 })
                 .then()
@@ -505,6 +524,12 @@ public class ImportExportApplicationService {
             });
     }
 
+    /**
+     * This function will respond with unique suffixed number for the entity to avoid duplicate names
+     * @param sourceEntity for which the suffixed number is required to avoid duplication
+     * @param orgId organisation in which entity should be searched
+     * @return next possible number in case of duplication
+     */
     private Mono<String> getUniqueSuffixForDuplicateNameEntity(BaseDomain sourceEntity, String orgId) {
         if (sourceEntity != null) {
             return sequenceService
@@ -514,6 +539,14 @@ public class ImportExportApplicationService {
         return Mono.just("");
     }
 
+    /**
+     * This function will set the mongoEscapedWidgets if present in the page along with setting the policies for the page
+     * @param pages pagelist extracted from the imported JSON file
+     * @param application saved application where pages needs to be added
+     * @param publishedMongoEscapedWidget widget list those needs to be escaped for published layout
+     * @param unpublishedMongoEscapedWidget widget list those needs to be escaped for unpublished layout
+     * @return saved pages
+     */
     private Flux<NewPage> importAndSavePages(List<NewPage> pages,
                                              Application application,
                                              Map<String, Set<String>> publishedMongoEscapedWidget,
@@ -549,6 +582,14 @@ public class ImportExportApplicationService {
                 .flatMap(newPageService::save);
     }
 
+    /**
+     * This function will be used to sanitise datasource within the actionDTO
+     * @param actionDTO for which the datasource needs to be sanitised as per import format expected
+     * @param datasourceMap datasource id to name map
+     * @param pluginMap plugin id to name map
+     * @param organizationId organisation in which the application supposed to be imported
+     * @return
+     */
     private String sanitizeDatasourceInActionDTO(ActionDTO actionDTO, Map<String, String> datasourceMap, Map<String, String> pluginMap, String organizationId) {
         
         if (actionDTO != null && actionDTO.getDatasource() != null) {
@@ -571,6 +612,7 @@ public class ImportExportApplicationService {
         return "";
     }
 
+    // This method will update the action id in saved page for layoutOnLoadAction
     private void mapActionIdWithPageLayout(NewPage page, Map<String, String> actionIdMap) {
         if (page.getUnpublishedPage().getLayouts() != null) {
 
@@ -593,10 +635,21 @@ public class ImportExportApplicationService {
         }
     }
 
+    /**
+     * This will check if the datasource is already present in the organization and create a new one if unable to find one
+     * @param existingDatasourceFlux already present datasource in the organization
+     * @param datasource which will be checked against existing datasources
+     * @param organizationId organization where duplicate datasource should be checked
+     * @return already present or brand new datasource depending upon the equality check
+     */
     private Mono<Datasource> createUniqueDatasourceIfNotPresent(Flux<Datasource> existingDatasourceFlux,
                                                                 Datasource datasource,
-                                                                String toOrgId) {
+                                                                String organizationId) {
 
+        /*
+            1. If same datasource is present return
+            2. If unable to find the datasource create a new datasource with unique name and return
+         */
         final DatasourceConfiguration datasourceConfig = datasource.getDatasourceConfiguration();
         AuthenticationResponse authResponse = new AuthenticationResponse();
         if (datasourceConfig != null && datasourceConfig.getAuthentication() != null) {
@@ -623,9 +676,9 @@ public class ImportExportApplicationService {
                     }
                     // No matching existing datasource found, so create a new one.
                     return datasourceService
-                        .findByNameAndOrganizationId(datasource.getName(), toOrgId, AclPermission.MANAGE_DATASOURCES)
+                        .findByNameAndOrganizationId(datasource.getName(), organizationId, AclPermission.MANAGE_DATASOURCES)
                         .flatMap(duplicateNameDatasource ->
-                            getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, toOrgId)
+                            getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, organizationId)
                         )
                         .map(suffix -> {
                             datasource.setName(datasource.getName() + suffix);
@@ -635,6 +688,12 @@ public class ImportExportApplicationService {
                 }));
     }
 
+    /**
+     * Here we will be rehydrating the sensitive fields like password, secrets etc. in datasource while importing the application
+     * @param datasource for which sensitive fields should be rehydrated
+     * @param decryptedFields sensitive fields
+     * @return updated datasource with rehydrated sensitive fields
+     */
     private Datasource updateAuthenticationDTO(Datasource datasource, DecryptedSensitiveFields decryptedFields) {
 
         final DatasourceConfiguration dsConfig = datasource.getDatasourceConfiguration();
@@ -665,6 +724,11 @@ public class ImportExportApplicationService {
         return datasource;
     }
 
+    /**
+     * This will be used to dehydrate sensitive fields from the datasource while exporting the application
+     * @param datasource entity from which sensitive fields need to be dehydrated
+     * @return sensitive fields which then will be deserialized and exported in JSON file
+     */
     private DecryptedSensitiveFields getDecryptedFields(Datasource datasource) {
         final AuthenticationDTO authentication = datasource.getDatasourceConfiguration() == null
                 ? null : datasource.getDatasourceConfiguration().getAuthentication();

@@ -49,6 +49,7 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
     if (!isCommentMode) return;
     proceedToNextTourStep();
     e.persist();
+    e.stopPropagation();
     if (containerRef.current) {
       const position = getOffsetPos(e, containerRef.current);
       dispatch(

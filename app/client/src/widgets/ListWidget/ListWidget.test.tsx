@@ -21,6 +21,9 @@ describe("<ListWidget />", () => {
         isVisible: true,
         widgetId: "Widget1",
       },
+      debugger: {
+        errors: {},
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };
@@ -44,6 +47,9 @@ describe("<ListWidget />", () => {
       listData: [],
       version: 16,
       disablePropertyPane: false,
+      updateWidgetMetaProperty: () => {
+        //
+      },
       ...props,
     };
     // Mock store to bypass the error of react-redux

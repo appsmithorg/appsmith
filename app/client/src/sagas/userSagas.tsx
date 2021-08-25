@@ -30,6 +30,9 @@ import {
   verifyInviteError,
   invitedUserSignupError,
   invitedUserSignupSuccess,
+  fetchFeatureFlagsSuccess,
+  fetchFeatureFlagsError,
+  fetchFeatureFlagsInit,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
@@ -98,6 +101,11 @@ export function* getCurrentUserSaga() {
         response.data.username !== ANONYMOUS_USERNAME
       ) {
         AnalyticsUtil.identifyUser(response.data);
+        // make fetch feature call only if logged in
+        yield put(fetchFeatureFlagsInit());
+      } else {
+        // reset the flagsFetched flag
+        yield put(fetchFeatureFlagsSuccess());
       }
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
@@ -310,9 +318,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {
@@ -381,6 +393,20 @@ function* updatePhoto(
   }
 }
 
+function* fetchFeatureFlags() {
+  try {
+    const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      (window as any).FEATURE_FLAGS = response.data;
+      yield put(fetchFeatureFlagsSuccess());
+    }
+  } catch (error) {
+    log.error(error);
+    yield put(fetchFeatureFlagsError(error));
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -405,6 +431,7 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
     takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
+    takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
   ]);
 }
 

@@ -7,7 +7,10 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import withMeta, { WithMeta } from "widgets/MetaHOC";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
-import { CustomFusionChartConfig } from "components/designSystems/appsmith/ChartComponent";
+import {
+  CustomFusionChartConfig,
+  ChartSelectedDataPoint,
+} from "components/designSystems/appsmith/ChartComponent";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -28,7 +31,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return propertyConfig;
   }
 
-  onDataPointClick = (selectedDataPoint: { x: any; y: any }) => {
+  onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {
     this.props.updateWidgetMetaProperty(
       "selectedDataPoint",
       selectedDataPoint,

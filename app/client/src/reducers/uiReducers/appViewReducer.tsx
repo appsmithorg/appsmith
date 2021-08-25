@@ -1,5 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "constants/ReduxActionConstants";
 
 const initialState: AppViewReduxState = {
   isFetchingPage: false,
@@ -18,7 +21,9 @@ const appViewReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT]: (state: AppViewReduxState) => {
     return { ...state, isFetchingPage: true };
   },
-  [ReduxActionTypes.FETCH_PUBLISHED_PAGE_ERROR]: (state: AppViewReduxState) => {
+  [ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR]: (
+    state: AppViewReduxState,
+  ) => {
     return { ...state, isFetchingPage: false };
   },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: (

@@ -31,14 +31,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Test_Validate the Api data is updated on List widget", function() {
     cy.SearchEntityandOpen("List1");
-    cy.getCodeMirror().then(($cm) => {
-      cy.get(".CodeMirror textarea")
-        .first()
-        .type(`{{Api1.data.users}}`, {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
-    });
+    cy.testJsontext("items", "{{Api1.data.users}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(".t--draggable-textwidget span").should("have.length", 8);
 
@@ -61,15 +54,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Test_Validate the list widget ", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.SearchEntityandOpen("List1");
-
-    cy.getCodeMirror().then(($cm) => {
-      cy.get(".CodeMirror textarea")
-        .last()
-        .type(`50`, {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
-    });
+    cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.get(".t--draggable-textwidget span").should("have.length", 6);
     cy.get(".t--draggable-textwidget span")

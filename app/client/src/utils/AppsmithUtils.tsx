@@ -8,7 +8,6 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
@@ -44,7 +43,6 @@ export const createImmerReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
-  FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init({
@@ -303,4 +301,36 @@ export const retryPromise = (
 
 export const getRandomPaletteColor = (colorPalette: string[]) => {
   return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+};
+
+export const isBlobUrl = (url: string) => {
+  return typeof url === "string" && url.startsWith("blob:");
+};
+
+/**
+ *
+ * @param data string file data
+ * @param type string file type
+ * @returns string containing blob id and type
+ */
+export const createBlobUrl = (data: string, type: string) => {
+  let url = URL.createObjectURL(data);
+  url = url.replace(
+    `${window.location.protocol}//${window.location.hostname}/`,
+    "",
+  );
+
+  return `${url}?type=${type}`;
+};
+
+/**
+ *
+ * @param blobId string blob id along with type.
+ * @returns [string,string] [blobUrl, type]
+ */
+export const parseBlobUrl = (blobId: string) => {
+  const url = `blob:${window.location.protocol}//${
+    window.location.hostname
+  }/${blobId.substring(5)}`;
+  return url.split("?type=");
 };

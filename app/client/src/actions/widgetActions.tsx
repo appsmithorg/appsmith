@@ -3,6 +3,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
   ExecuteActionPayload,
@@ -120,9 +121,12 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = () => {
+export const pasteWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: {
+      groupWidgets: groupWidgets,
+    },
   };
 };
 
@@ -131,7 +135,7 @@ export const deleteSelectedWidget = (
   disallowUndo = false,
 ) => {
   return {
-    type: ReduxActionTypes.WIDGET_DELETE,
+    type: WidgetReduxActionTypes.WIDGET_DELETE,
     payload: {
       isShortcut,
       disallowUndo,
@@ -149,5 +153,17 @@ export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
     type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
     payload,
+  };
+};
+
+/**
+ * action to group selected widgets into container
+ *
+ * @param queryName
+ * @returns
+ */
+export const groupWidgets = () => {
+  return {
+    type: ReduxActionTypes.GROUP_WIDGETS_INIT,
   };
 };

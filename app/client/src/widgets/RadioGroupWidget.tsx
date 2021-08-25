@@ -25,20 +25,28 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.ARRAY,
+              unique: ["value"],
               params: {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
-                        isUnique: true,
                         type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                       {
                         name: "value",
-                        isUnique: true,
                         type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
                       },
                     ],
                   },
@@ -136,7 +144,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         key={this.props.widgetId}
         label={`${this.props.label}`}
         onRadioSelectionChange={this.onRadioSelectionChange}
-        options={this.props.options}
+        options={this.props.options || []}
         selectedOptionValue={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
       />
@@ -165,7 +173,7 @@ export interface RadioOption {
 
 export interface RadioGroupWidgetProps extends WidgetProps, WithMeta {
   label: string;
-  options: RadioOption[];
+  options?: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;

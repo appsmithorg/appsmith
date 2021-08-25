@@ -1,5 +1,4 @@
 import React from "react";
-import { Position } from "@blueprintjs/core";
 import AddCommentInput from "./AddCommentInput";
 import { ThreadContainer } from "./StyledComponents";
 import { useDispatch } from "react-redux";
@@ -117,7 +116,6 @@ function UnpublishedCommentThread({
           placement={"right-start"}
           popoverClassName="comment-thread"
           portalClassName="inline-comment-thread"
-          position={Position.RIGHT_TOP}
         >
           <Icon keepColors name="unread-pin" />
         </Popover2>

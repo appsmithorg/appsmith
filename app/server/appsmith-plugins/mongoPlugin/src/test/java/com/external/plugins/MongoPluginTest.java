@@ -862,7 +862,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testBsonSmartSubstitution() {
+    public void testBsonSmartSubstitution_withBSONValue() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
@@ -947,7 +947,98 @@ public class MongoPluginTest {
                             "    }";
                     // check that bindings are not replaced with actual values and not '$i' or '?'
                     assertEquals(expectedQuery,
-                            ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testBsonSmartSubstitution_withEscapedStringValue() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("{\n" +
+                "      find: {{Input4.text}},\n" +
+                "      filter: { age: { {{Input1.text}} : 30 } },\n" +
+                "      sort: { id: {{Input2.text}} },\n" +
+                "      limit: {{Input3.text}}\n" +
+                "    }");
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        pluginSpecifiedTemplates.add(null);
+        pluginSpecifiedTemplates.add(new Property("command", "RAW"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("$gte");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("1");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input3.text");
+        param4.setValue("10");
+        params.add(param4);
+        Param param5 = new Param();
+        param5.setKey("Input4.text");
+        param5.setValue("users");
+        params.add(param5);
+        executeActionDTO.setParams(params);
+
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn,
+                executeActionDTO,
+                datasourceConfiguration,
+                actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(2, ((ArrayNode) result.getBody()).size());
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    assertEquals(parameters.size(), 4);
+
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "users");
+                    assertEquals(parameterEntry.getValue(), "STRING");
+
+                    parameterEntry = parameters.get(1);
+                    assertEquals(parameterEntry.getKey(), "$gte");
+                    assertEquals(parameterEntry.getValue(), "STRING");
+
+                    parameterEntry = parameters.get(2);
+                    assertEquals(parameterEntry.getKey(), "1");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    parameterEntry = parameters.get(3);
+                    assertEquals(parameterEntry.getKey(), "10");
+                    assertEquals(parameterEntry.getValue(), "INTEGER");
+
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+
+                    String expectedQuery = "{\n" +
+                            "      find: \"users\",\n" +
+                            "      filter: { age: { \"$gte\" : 30 } },\n" +
+                            "      sort: { id: 1 },\n" +
+                            "      limit: 10\n" +
+                            "    }";
+                    // check that bindings are not replaced with actual values and not '$i' or '?'
+                    assertEquals(expectedQuery,
+                            ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getValue());
                 })
                 .verifyComplete();
     }
@@ -994,7 +1085,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1017,7 +1107,9 @@ public class MongoPluginTest {
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "INSERT");
         configMap.put(COLLECTION, "users");
-        configMap.put(INSERT_DOCUMENT, "[{\"name\" : \"ZZZ Insert Form Array Test\", \"gender\" : \"F\", \"age\" : 40, \"tag\" : \"test\"}]");
+        configMap.put(INSERT_DOCUMENT, "[{name : \"ZZZ Insert Form Array Test 1\", gender : \"F\", age : 40, tag : \"test\"}," +
+                "{name : \"ZZZ Insert Form Array Test 2\", gender : \"F\", age : 40, tag : \"test\"}" +
+                "]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
@@ -1026,7 +1118,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1070,7 +1161,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1116,7 +1206,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1152,7 +1241,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1198,7 +1286,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1245,7 +1332,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1275,7 +1361,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1306,7 +1391,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1329,14 +1413,13 @@ public class MongoPluginTest {
         configMap.put(INPUT_TYPE, "FORM");
         configMap.put(COMMAND, "AGGREGATE");
         configMap.put(COLLECTION, "users");
-        configMap.put(AGGREGATE_PIPELINE, "[{\"$count\": \"userCount\"}]");
+        configMap.put(AGGREGATE_PIPELINE, "[ {$sort :{ _id  : 1 }}, { $project: { age : 1}}, {$count: \"userCount\"} ]");
 
         actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
 
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
@@ -1367,7 +1450,6 @@ public class MongoPluginTest {
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
         StepVerifier.create(executeMono)
                 .assertNext(obj -> {
-                    System.out.println(obj);
                     ActionExecutionResult result = (ActionExecutionResult) obj;
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());

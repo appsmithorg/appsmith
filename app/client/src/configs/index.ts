@@ -43,7 +43,6 @@ export type INJECTED_CONFIGS = {
   disableTelemetry: boolean;
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
-  onboardingFormEnabled: boolean;
   supportEmail: string;
 };
 declare global {
@@ -120,7 +119,6 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
-    onboardingFormEnabled: !!process.env.REACT_APP_SHOW_ONBOARDING_FORM,
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
   };
 };
@@ -285,7 +283,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     cloudServicesBaseUrl:
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
-    onboardingFormEnabled: ENV_CONFIG.onboardingFormEnabled,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
   };
 };

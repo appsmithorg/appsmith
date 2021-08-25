@@ -9,6 +9,7 @@ describe("Onboarding", function() {
 
     cy.get(".t--welcome-tour").click();
     cy.get(".t--onboarding-action").click();
+    cy.get(".t--close--button").should("not.exist");
 
     cy.wait("@createNewApplication").should(
       "have.nested.property",
@@ -40,6 +41,7 @@ describe("Onboarding", function() {
 
         // Create and run query
         // Using the cheat option to create the action with 30 sec timeout
+        cy.get(".t--close--button").should("not.exist");
         cy.get(".t--onboarding-cheat-action")
           .should("be.visible")
           .click();
@@ -59,6 +61,7 @@ describe("Onboarding", function() {
         cy.get(".t--onboarding-action")
           .should("be.visible")
           .click({ force: true });
+        cy.get(".t--close--button").should("not.exist");
         cy.get(".t--onboarding-cheat-action")
           .should("be.visible")
           .click();
@@ -77,6 +80,7 @@ describe("Onboarding", function() {
           ".t--onboarding-helper-title",
           "Deploy the Standup Dashboard",
         );
+        cy.get(".t--close--button").should("not.exist");
       });
   });
 
@@ -100,6 +104,15 @@ describe("Onboarding", function() {
 
     cy.url().should("include", "/pages");
     cy.log("pagename: " + localStorage.getItem("PageName"));
+
+    // check close button exist and working
+    cy.get(".t--close--button")
+      .should("be.visible")
+      .click();
+
+    cy.get(".t--side-sticky-bar")
+      .should("be.visible")
+      .click();
 
     cy.get(".t--onboarding-secondary-action").click();
   });

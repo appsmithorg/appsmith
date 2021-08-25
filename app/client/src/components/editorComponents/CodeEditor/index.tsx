@@ -31,7 +31,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
-  HintEntityInformation,
+  FieldEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -57,12 +57,19 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
+import {
+  getInputValue,
+  isActionEntity,
+  isWidgetEntity,
+  removeNewLineChars,
+} from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -83,6 +90,12 @@ interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
 }
 
+export type CodeEditorExpected = {
+  type: string;
+  example: ExpectedValueExample;
+  autocompleteDataType: AutocompleteDataType;
+};
+
 export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
@@ -96,7 +109,7 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
@@ -313,7 +326,11 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.editor.getValue().length === 0)
+    const entityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      this.editor.getValue().length === 0
+    )
       this.handleAutocompleteVisibility(this.editor);
   };
 
@@ -359,26 +376,43 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    if (!this.state.isFocused) return;
+  getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
-    const entityInformation: HintEntityInformation = {
-      expectedType: expected?.type,
+    const entityInformation: FieldEntityInformation = {
+      expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
-      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
-      if (entity && "ENTITY_TYPE" in entity) {
-        const entityType = entity.ENTITY_TYPE;
-        if (
-          entityType === ENTITY_TYPE.WIDGET ||
-          entityType === ENTITY_TYPE.ACTION
-        ) {
-          entityInformation.entityType = entityType;
+
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE.WIDGET ||
+            entityType === ENTITY_TYPE.ACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
         }
+
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
+        entityInformation.propertyPath = propertyPath;
       }
     }
+    return entityInformation;
+  };
+
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
@@ -600,7 +634,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
+  recentEntities: getRecentEntityIds(state),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({

@@ -14,7 +14,8 @@ describe("Duplicate application", function() {
   it("Check whether the duplicate application has the same dsl as the original", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type("A");
+    cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
+    cy.testJsontext("defaulttext", "A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait(4000);
     cy.wait("@updateLayout").then((interception) => {
