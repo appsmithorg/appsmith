@@ -819,11 +819,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 33;
   }
 
   if (currentDSL.version === 32) {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL.version = 33;
+  }
+
+  if (currentDSL.version === 33) {
+    currentDSL = migrateButtonWidgetValidation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
   return currentDSL;
@@ -878,6 +883,25 @@ export const migrateToNewMultiSelect = (
   }
   return currentDSL;
 };
+
+const migrateButtonWidgetValidation = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.INPUT_WIDGET) {
+    if (!has(currentDSL, "validation")) {
+      currentDSL.validation = true;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.map(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateButtonWidgetValidation(eachWidgetDSL);
+      },
+    );
+  }
+  return currentDSL;
+};
+
 const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
