@@ -65,7 +65,10 @@ function* evaluate(
           }
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      log.error(e);
+      Sentry.captureException(e);
+    }
   });
   return currentEvalState;
 }

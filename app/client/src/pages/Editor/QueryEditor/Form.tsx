@@ -23,11 +23,11 @@ const mapStateToProps = (state: AppState) => {
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as QueryAction;
 
   // State to manage the evaluations for the form
-  let evalState = {};
+  let formEvaluationState = {};
 
   // Fetching evaluations state only once the formData is populated
   if (!!formData) {
-    evalState = getFormEvaluationState(state)[formData.id];
+    formEvaluationState = getFormEvaluationState(state)[formData.id];
   }
 
   return {
@@ -38,7 +38,7 @@ const mapStateToProps = (state: AppState) => {
     documentationLink: documentationLinks[pluginId],
     formName: QUERY_EDITOR_FORM_NAME,
     formData: formData,
-    evalState,
+    formEvaluationState,
   };
 };
 

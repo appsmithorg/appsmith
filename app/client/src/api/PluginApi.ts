@@ -15,6 +15,10 @@ export enum UIComponentTypes {
   RapidApiEditorForm = "RapidApiEditorForm",
 }
 
+export enum DatasourceComponentTypes {
+  RestAPIDatasourceForm = "RestAPIDatasourceForm",
+  AutoForm = "AutoForm",
+}
 export interface Plugin {
   id: string;
   name: string;
@@ -22,7 +26,7 @@ export interface Plugin {
   packageName: string;
   iconLocation?: string;
   uiComponent: UIComponentTypes;
-  datasourceComponent: "RestAPIDatasourceForm" | "AutoForm";
+  datasourceComponent: DatasourceComponentTypes;
   allowUserDatasources?: boolean;
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";
