@@ -68,6 +68,7 @@ export interface Message {
   // More contextual message than `text`
   message: string;
   type?: ErrorType;
+  subType?: string;
   // The section of code being referred to
   // codeSegment?: string;
 }

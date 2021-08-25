@@ -20,7 +20,7 @@ const COLOR_COUNT = 7;
 const POINTER_MARGIN = 12;
 const POINTER_PADDING_X = 15;
 const POINTER_PADDING_Y = 5;
-const PX_PER_CHAR = 8.67;
+const TEXT_PADDING = 5;
 const TWO_MINS = 120000; // in ms
 
 const Canvas = styled.canvas`
@@ -40,7 +40,7 @@ const drawMousePointer = (
   x: number,
   y: number,
   width: number,
-  height = 24,
+  height = 22,
   radius = 2,
 ) => {
   if (width < 2 * radius) radius = width / 2;
@@ -168,12 +168,12 @@ function CanvasMultiPointerArena({
         ctx,
         eventData.data.x,
         eventData.data.y,
-        userName.length * PX_PER_CHAR * 1.054 || 0,
+        ctx.measureText(userName).width + 2 * TEXT_PADDING,
       );
       ctx.fillStyle = Colors.BLACK;
       ctx.fillText(
         `${userName}`,
-        eventData.data.x + POINTER_MARGIN + POINTER_PADDING_Y,
+        eventData.data.x + POINTER_MARGIN + TEXT_PADDING,
         eventData.data.y + POINTER_MARGIN + POINTER_PADDING_X,
       );
     });

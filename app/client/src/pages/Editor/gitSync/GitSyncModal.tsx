@@ -8,6 +8,7 @@ import styled from "styled-components";
 import Menu from "./Menu";
 import { MENU_ITEM, MENU_ITEMS } from "./constants";
 import GitConnection from "./GitConnection";
+import Deploy from "./Deploy/Deploy";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
@@ -17,12 +18,16 @@ const Container = styled.div`
   width: 100%;
   display: flex;
   position: relative;
+  overflow-y: hidden;
 `;
 
 const BodyContainer = styled.div`
   flex: 3;
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[13]}px;
+  padding-bottom: ${(props) => props.theme.spaces[13]}px;
+  overflow-y: auto;
+  height: 100%;
 `;
 
 const MenuContainer = styled.div`
@@ -50,7 +55,7 @@ function NoopComponent() {
 
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
-  [MENU_ITEM.DEPLOY]: NoopComponent,
+  [MENU_ITEM.DEPLOY]: Deploy,
   [MENU_ITEM.MERGE]: NoopComponent,
   [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
   [MENU_ITEM.SETTINGS]: NoopComponent,

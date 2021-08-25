@@ -17,6 +17,7 @@ import {
 } from "actions/commentActions";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import log from "loglevel";
 
 export const options = [
   { label: "Show all comments", value: "show-all" },
@@ -49,7 +50,7 @@ const useSetResolvedFilterFromQuery = () => {
   useEffect(() => {
     const url = new URL(window.location.href);
     const searchParams = url.searchParams;
-    console.log(window.location.href, "window.location.href");
+    log.debug(window.location.href, "window.location.href");
     if (searchParams.get("isResolved")) {
       dispatch(setShouldShowResolvedComments(true));
     }

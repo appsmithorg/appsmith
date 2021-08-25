@@ -14,6 +14,8 @@ import com.appsmith.server.dtos.MockDataCredentials;
 import com.appsmith.server.dtos.MockDataDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -99,10 +102,14 @@ public class MockDataServiceImpl implements MockDataService {
             } else {
                 datasourceConfiguration = getPostgresDataSourceConfiguration(mockDataSource.getName(), mockDataDTO);
             }
+            if( datasourceConfiguration.getAuthentication() == null) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
+                        " Couldn't find any mock datasource with the given name - " + mockDataSource.getName()));
+            }
             Datasource datasource = new Datasource();
             datasource.setOrganizationId(mockDataSource.getOrganizationId());
             datasource.setPluginId(mockDataSource.getPluginId());
-            datasource.setName(mockDataSource.getName().toUpperCase(Locale.ROOT)+" - Mock");
+            datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             return addAnalyticsForMockDataCreation(name, mockDataSource.getOrganizationId())
                     .then(createSuffixedDatasource(datasource));
@@ -119,8 +126,12 @@ public class MockDataServiceImpl implements MockDataService {
         List<Property> listProperty = new ArrayList<>();
         SSLDetails sslDetails = new SSLDetails();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+            return datasourceConfiguration;
+        }
 
+        MockDataCredentials credentials = credentialsList.get();
         property.setKey("Use Mongo Connection String URI");
         property.setValue("Yes");
         listProperty.add(property);
@@ -154,8 +165,12 @@ public class MockDataServiceImpl implements MockDataService {
         Endpoint endpoint = new Endpoint();
         List<Endpoint> endpointList = new ArrayList<>();
 
-        MockDataCredentials credentials = mockDataSet.getCredentials().stream().filter( cred -> cred.getDbname().equals(name)).collect(Collectors.toList()).get(0);
+        Optional<MockDataCredentials> credentialsList = mockDataSet.getCredentials().stream().filter(cred -> cred.getDbname().equalsIgnoreCase(name)).findFirst();
+        if(Boolean.TRUE.equals(credentialsList.isEmpty())) {
+            return datasourceConfiguration;
+        }
 
+        MockDataCredentials credentials = credentialsList.get();
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);
         connection.setSsl(sslDetails);
         connection.setMode(Connection.Mode.READ_WRITE);
