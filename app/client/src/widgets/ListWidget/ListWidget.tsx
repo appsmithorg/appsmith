@@ -11,6 +11,7 @@ import {
   isBoolean,
   omit,
   floor,
+  isEmpty,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -745,7 +746,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.length === 0 &&
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
