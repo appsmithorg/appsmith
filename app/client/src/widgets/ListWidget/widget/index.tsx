@@ -11,6 +11,7 @@ import {
   isBoolean,
   omit,
   floor,
+  isEmpty,
 } from "lodash";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -198,8 +199,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           type: EventType.ON_ROW_SELECTED,
         },
       });
-    } else {
-      this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
     }
 
     if (!action) return;
@@ -668,7 +667,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.length === 0 &&
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
