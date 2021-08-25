@@ -78,6 +78,7 @@ import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { getLintAnnotations } from "./lintHelpers";
+import getFeatureFlags from "utils/featureFlags";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -564,7 +565,9 @@ class CodeEditor extends Component<Props, State> {
       evaluated = pathEvaluatedValue;
     }
 
-    this.lintCode();
+    if (getFeatureFlags().LINTING) {
+      this.lintCode();
+    }
 
     const showEvaluatedValue =
       this.state.isFocused &&

@@ -39,6 +39,7 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import getFeatureFlags from "utils/featureFlags";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -68,11 +69,17 @@ function logLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const allEvalErrors: EvaluationError[] = get(
+      let allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
+      // If linting flag is not own, filter out all lint errors
+      if (!getFeatureFlags().LINTING) {
+        allEvalErrors = allEvalErrors.filter(
+          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+        );
+      }
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
@@ -121,12 +128,10 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            const formattedError = {
+            return {
               message: e.errorMessage,
               type: e.errorType,
             };
-
-            return formattedError;
           });
 
           const analyticsData = isWidget(entity)
