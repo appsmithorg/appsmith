@@ -5,7 +5,7 @@ import Comments from "./Comments";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   createUnpublishedCommentThreadRequest,
-  dragCommentThreadEvent,
+  dragCommentThread,
 } from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.svg";
 import { getNewDragPos, getOffsetPos } from "comments/utils";
@@ -67,7 +67,7 @@ function OverlayCommentsWrapper(props: Props) {
           containerRef.current,
         );
         dispatch(
-          dragCommentThreadEvent({
+          dragCommentThread({
             id: currentThreadId,
             position: newPosition,
             refId,

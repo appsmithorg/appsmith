@@ -120,7 +120,7 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   payload,
 });
 
-export const dragCommentThreadEvent = (payload: Partial<CommentThread>) => ({
+export const dragCommentThread = (payload: Partial<CommentThread>) => ({
   type: ReduxActionTypes.DRAG_COMMENT_THREAD,
   payload,
 });
