@@ -36,53 +36,28 @@ const StyledButton = styled(Button)<ThemeProp & IButtonProps>`
   }
 `;
 
-export interface BorderRadiusOptionsControlProps extends ControlProps {
+export interface ButtonBorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: ButtonBorderRadius | undefined;
   onChange: (borderRaidus: ButtonBorderRadius) => void;
-  options: any[];
 }
 
-class BorderRadiusOptionsControl extends BaseControl<
-  BorderRadiusOptionsControlProps
+class ButtonBorderRadiusOptionsControl extends BaseControl<
+  ButtonBorderRadiusOptionsControlProps
 > {
-  constructor(props: BorderRadiusOptionsControlProps) {
+  constructor(props: ButtonBorderRadiusOptionsControlProps) {
     super(props);
   }
 
   static getControlType() {
-    return "BORDER_RADIUS_OPTIONS";
+    return "BUTTON_BORDER_RADIUS_OPTIONS";
   }
 
   public render() {
-    const { options, propertyValue } = this.props;
+    const { propertyValue } = this.props;
 
     return (
       <StyledButtonGroup fill>
-        {options.map((option: ButtonBorderRadius) => {
-          const active =
-            option === ButtonBorderRadiusTypes.SHARP
-              ? propertyValue === option || propertyValue === undefined
-              : propertyValue === option;
-          const icon =
-            option === ButtonBorderRadiusTypes.SHARP ? (
-              <ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />
-            ) : option === ButtonBorderRadiusTypes.ROUNDED ? (
-              <ControlIcons.BORDER_RADIUS_ROUNDED color="#979797" width={15} />
-            ) : (
-              <ControlIcons.BORDER_RADIUS_CIRCLE color="#979797" width={15} />
-            );
-
-          return (
-            <StyledButton
-              active={active}
-              icon={icon}
-              key={option}
-              large
-              onClick={() => this.toggleOption(option)}
-            />
-          );
-        })}
-        {/* <StyledButton
+        <StyledButton
           active={propertyValue === ButtonBorderRadiusTypes.SHARP || undefined}
           icon={<ControlIcons.BORDER_RADIUS_SHARP color="#979797" width={15} />}
           large
@@ -96,14 +71,6 @@ class BorderRadiusOptionsControl extends BaseControl<
           large
           onClick={() => this.toggleOption(ButtonBorderRadiusTypes.ROUNDED)}
         />
-        <StyledButton
-          active={propertyValue === ButtonBorderRadiusTypes.CIRCLE}
-          icon={
-            <ControlIcons.BORDER_RADIUS_CIRCLE color="#979797" width={15} />
-          }
-          large
-          onClick={() => this.toggleOption(ButtonBorderRadiusTypes.CIRCLE)}
-        /> */}
       </StyledButtonGroup>
     );
   }
@@ -113,4 +80,4 @@ class BorderRadiusOptionsControl extends BaseControl<
   };
 }
 
-export default BorderRadiusOptionsControl;
+export default ButtonBorderRadiusOptionsControl;
