@@ -2,10 +2,6 @@ import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetType } from "../../../constants/WidgetConstants";
 
-export type CommentPinLocation = {
-  x: number;
-  y: number;
-};
 export type AnchorWidget = { id: string; type: WidgetType };
 
 export type CommentDragState = {

@@ -387,7 +387,7 @@ export default function* commentSagas() {
       setCommentResolution,
     ),
     takeLatest(
-      ReduxActionTypes.DRAG_COMMENT_THREAD_EVENT,
+      ReduxActionTypes.DRAG_COMMENT_THREAD,
       updateCommentThreadPosition,
     ),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),

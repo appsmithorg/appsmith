@@ -121,7 +121,7 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
 });
 
 export const dragCommentThreadEvent = (payload: Partial<CommentThread>) => ({
-  type: ReduxActionTypes.DRAG_COMMENT_THREAD_EVENT,
+  type: ReduxActionTypes.DRAG_COMMENT_THREAD,
   payload,
 });
 

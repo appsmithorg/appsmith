@@ -22,11 +22,8 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
 import history from "utils/history";
-import {
-  dropThread,
-  setDraggingCommentThread,
-} from "actions/commentsDragActions";
-import { CommentPinLocation } from "reducers/uiReducers/commentsReducer/commentsDragReducer";
+import { setDraggingCommentThread } from "actions/commentsDragActions";
+
 /**
  * The relavent pixel position is bottom right for the comment cursor
  * instead of the top left for the default arrow cursor
@@ -156,7 +153,6 @@ const resetCommentThreadIdInURL = (commentThreadId: string) => {
 
 type CommentPinDragProps = {
   setDraggingCommentThread?: (currentThread: string) => void;
-  dropThread?: (dropLocation?: CommentPinLocation | null) => void;
 };
 
 type Props = {
@@ -214,7 +210,7 @@ function InlineCommentPin(props: Props) {
     }
   }, [focused]);
 
-  const { dropThread, setDraggingCommentThread } = props;
+  const { setDraggingCommentThread } = props;
 
   if (!commentThread) return null;
 
@@ -227,14 +223,6 @@ function InlineCommentPin(props: Props) {
       onClick={(e: any) => {
         // capture clicks so that create new thread is not triggered
         e.preventDefault();
-        e.stopPropagation();
-      }}
-      onDragEnd={(e) => {
-        dropThread &&
-          dropThread({
-            x: e.clientX,
-            y: e.clientY,
-          });
         e.stopPropagation();
       }}
       onDragStart={(e) => {
@@ -288,6 +276,5 @@ function InlineCommentPin(props: Props) {
 
 const mapDispatchToProps = {
   setDraggingCommentThread,
-  dropThread,
 };
 export default connect(null, mapDispatchToProps)(InlineCommentPin);

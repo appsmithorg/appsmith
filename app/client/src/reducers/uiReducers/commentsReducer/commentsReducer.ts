@@ -139,7 +139,7 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
   },
-  [ReduxActionTypes.DRAG_COMMENT_THREAD_EVENT]: (
+  [ReduxActionTypes.DRAG_COMMENT_THREAD]: (
     state: CommentsReduxState,
     action: ReduxAction<CommentThread>,
   ) => {

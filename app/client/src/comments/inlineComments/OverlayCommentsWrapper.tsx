@@ -18,7 +18,7 @@ import {
 } from "comments/tour/commentsTourSteps";
 
 import { AppState } from "reducers";
-import { setAnchorWidget } from "actions/commentsDragActions";
+import { dropThread, setAnchorWidget } from "actions/commentsDragActions";
 import { AnchorWidget } from "reducers/uiReducers/commentsReducer/commentsDragReducer";
 
 type CommentPinDropProps = {
@@ -78,6 +78,7 @@ function OverlayCommentsWrapper(props: Props) {
             widgetType,
           }),
         );
+        dispatch(dropThread());
         e.stopPropagation();
       }
     },
