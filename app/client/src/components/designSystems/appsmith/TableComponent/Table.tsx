@@ -7,6 +7,7 @@ import {
   useResizeColumns,
   useRowSelect,
   Row,
+  HeaderGroup,
 } from "react-table";
 import {
   TableWrapper,
@@ -27,12 +28,15 @@ import {
   TABLE_SIZES,
   CompactMode,
   CompactModeTypes,
+  TableSizes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
+import { FixedSizeList } from "react-window";
+import { scrollbarWidth } from "utils/helpers";
 
 interface TableProps {
   width: number;
@@ -93,6 +97,144 @@ function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
 }
 
+function Header(
+  props: TableProps & {
+    tableSizes: TableSizes;
+    currentPageIndex: number;
+    pageCount: number;
+    pageOptions: number[];
+    columnString: string;
+  },
+) {
+  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
+  const tableHeadercolumns = React.useMemo(
+    () =>
+      props.columns.filter((column: ReactTableColumnProps) => {
+        return column.accessor !== "actions";
+      }),
+    [props.columnString],
+  );
+  return (
+    <TableHeaderWrapper
+      backgroundColor={Colors.WHITE}
+      ref={tableHeaderWrapperRef}
+      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+      tableSizes={props.tableSizes}
+      width={props.width}
+    >
+      <Scrollbars
+        renderThumbHorizontal={ScrollbarHorizontalThumb}
+        renderThumbVertical={ScrollbarVerticalThumb}
+        style={{ width: props.width, height: 38 }}
+      >
+        <TableHeaderInnerWrapper
+          backgroundColor={Colors.WHITE}
+          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+          tableSizes={props.tableSizes}
+          width={props.width}
+        >
+          <TableHeader
+            applyFilter={props.applyFilter}
+            columns={tableHeadercolumns}
+            compactMode={props.compactMode}
+            currentPageIndex={props.currentPageIndex}
+            delimiter={props.delimiter}
+            filters={props.filters}
+            isVisibleCompactMode={props.isVisibleCompactMode}
+            isVisibleDownload={props.isVisibleDownload}
+            isVisibleFilters={props.isVisibleFilters}
+            isVisiblePagination={props.isVisiblePagination}
+            isVisibleSearch={props.isVisibleSearch}
+            nextPageClick={props.nextPageClick}
+            pageCount={props.pageCount}
+            pageNo={props.pageNo}
+            pageOptions={props.pageOptions}
+            prevPageClick={props.prevPageClick}
+            searchKey={props.searchKey}
+            searchTableData={props.searchTableData}
+            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+            tableColumns={props.columns}
+            tableData={props.data}
+            tableSizes={props.tableSizes}
+            updateCompactMode={props.updateCompactMode}
+            updatePageNo={props.updatePageNo}
+            widgetId={props.widgetId}
+            widgetName={props.widgetName}
+          />
+        </TableHeaderInnerWrapper>
+      </Scrollbars>
+    </TableHeaderWrapper>
+  );
+}
+
+function TableHead(
+  props: TableProps & {
+    prepareRow: (row: Row<Record<string, unknown>>) => void;
+    subPage: Row<Record<string, unknown>>[];
+    isResizingColumn: boolean;
+    handleAllRowSelectClick: (
+      e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    ) => void;
+    headerGroups: HeaderGroup<Record<string, unknown>>[];
+    rowSelectionState: 0 | 1 | 2 | null;
+  },
+) {
+  const {
+    handleAllRowSelectClick,
+    headerGroups,
+    isResizingColumn,
+    prepareRow,
+    rowSelectionState,
+    subPage,
+  } = props;
+  return (
+    <div
+      className="thead"
+      onMouseLeave={props.enableDrag}
+      onMouseOver={props.disableDrag}
+    >
+      {headerGroups.map((headerGroup: any, index: number) => {
+        const headerRowProps = {
+          ...headerGroup.getHeaderGroupProps(),
+          style: { display: "flex" },
+        };
+        return (
+          <div {...headerRowProps} className="tr" key={index}>
+            {props.multiRowSelection &&
+              renderCheckBoxHeaderCell(
+                handleAllRowSelectClick,
+                rowSelectionState,
+              )}
+            {headerGroup.headers.map((column: any, columnIndex: number) => {
+              return (
+                <TableHeaderCell
+                  column={column}
+                  columnIndex={columnIndex}
+                  columnName={column.Header}
+                  isAscOrder={column.isAscOrder}
+                  isHidden={column.isHidden}
+                  isResizingColumn={isResizingColumn}
+                  key={columnIndex}
+                  sortTableColumn={props.sortTableColumn}
+                />
+              );
+            })}
+          </div>
+        );
+      })}
+      {headerGroups.length === 0 &&
+        renderEmptyRows(
+          1,
+          props.columns,
+          props.width,
+          subPage,
+          prepareRow,
+          props.multiRowSelection,
+        )}
+    </div>
+  );
+}
+
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
 
@@ -119,13 +261,6 @@ export function Table(props: TableProps) {
     columnSizeMap: props.columnSizeMap,
   });
   const columns = React.useMemo(() => props.columns, [columnString]);
-  const tableHeadercolumns = React.useMemo(
-    () =>
-      props.columns.filter((column: ReactTableColumnProps) => {
-        return column.accessor !== "actions";
-      }),
-    [columnString],
-  );
   const pageCount = Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
@@ -135,7 +270,9 @@ export function Table(props: TableProps) {
     page,
     pageOptions,
     prepareRow,
+    rows,
     state,
+    totalColumnsWidth,
   } = useTable(
     {
       columns: columns,
@@ -178,7 +315,6 @@ export function Table(props: TableProps) {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
-  const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
@@ -208,6 +344,49 @@ export function Table(props: TableProps) {
     props.isVisibleDownload ||
     props.isVisibleCompactMode ||
     props.isVisiblePagination;
+  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+  const RenderRow = React.useCallback(
+    ({ index, style }) => {
+      const row = rows[index];
+
+      prepareRow(row);
+      const rowProps = {
+        ...row.getRowProps(),
+        style: { ...style, display: "flex" },
+      };
+      const isRowSelected =
+        row.index === selectedRowIndex ||
+        selectedRowIndices.includes(row.index);
+      return (
+        <div
+          {...rowProps}
+          className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
+          key={index}
+          onClick={(e) => {
+            row.toggleRowSelected();
+            props.selectTableRow(row);
+            e.stopPropagation();
+          }}
+        >
+          {props.multiRowSelection && renderCheckBoxCell(isRowSelected)}
+          {row.cells.map((cell, cellIndex) => {
+            return (
+              <div
+                {...cell.getCellProps()}
+                className="td"
+                data-colindex={cellIndex}
+                data-rowindex={index}
+                key={cellIndex}
+              >
+                {cell.render("Cell")}
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    [prepareRow, rows],
+  );
 
   return (
     <TableWrapper
@@ -219,57 +398,15 @@ export function Table(props: TableProps) {
       triggerRowSelection={props.triggerRowSelection}
       width={props.width}
     >
-      {isHeaderVisible && (
-        <TableHeaderWrapper
-          backgroundColor={Colors.WHITE}
-          ref={tableHeaderWrapperRef}
-          serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-          tableSizes={tableSizes}
-          width={props.width}
-        >
-          <Scrollbars
-            renderThumbHorizontal={ScrollbarHorizontalThumb}
-            renderThumbVertical={ScrollbarVerticalThumb}
-            style={{ width: props.width, height: 38 }}
-          >
-            <TableHeaderInnerWrapper
-              backgroundColor={Colors.WHITE}
-              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableSizes={tableSizes}
-              width={props.width}
-            >
-              <TableHeader
-                applyFilter={props.applyFilter}
-                columns={tableHeadercolumns}
-                compactMode={props.compactMode}
-                currentPageIndex={currentPageIndex}
-                delimiter={props.delimiter}
-                filters={props.filters}
-                isVisibleCompactMode={props.isVisibleCompactMode}
-                isVisibleDownload={props.isVisibleDownload}
-                isVisibleFilters={props.isVisibleFilters}
-                isVisiblePagination={props.isVisiblePagination}
-                isVisibleSearch={props.isVisibleSearch}
-                nextPageClick={props.nextPageClick}
-                pageCount={pageCount}
-                pageNo={props.pageNo}
-                pageOptions={pageOptions}
-                prevPageClick={props.prevPageClick}
-                searchKey={props.searchKey}
-                searchTableData={props.searchTableData}
-                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-                tableColumns={columns}
-                tableData={props.data}
-                tableSizes={tableSizes}
-                updateCompactMode={props.updateCompactMode}
-                updatePageNo={props.updatePageNo}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
-              />
-            </TableHeaderInnerWrapper>
-          </Scrollbars>
-        </TableHeaderWrapper>
-      )}
+      {isHeaderVisible &&
+        Header({
+          ...props,
+          tableSizes,
+          columnString,
+          currentPageIndex,
+          pageCount,
+          pageOptions,
+        })}
       <div
         className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
@@ -282,52 +419,15 @@ export function Table(props: TableProps) {
           }}
         >
           <div {...getTableProps()} className="table">
-            <div
-              className="thead"
-              onMouseLeave={props.enableDrag}
-              onMouseOver={props.disableDrag}
-            >
-              {headerGroups.map((headerGroup: any, index: number) => {
-                const headerRowProps = {
-                  ...headerGroup.getHeaderGroupProps(),
-                  style: { display: "flex" },
-                };
-                return (
-                  <div {...headerRowProps} className="tr" key={index}>
-                    {props.multiRowSelection &&
-                      renderCheckBoxHeaderCell(
-                        handleAllRowSelectClick,
-                        rowSelectionState,
-                      )}
-                    {headerGroup.headers.map(
-                      (column: any, columnIndex: number) => {
-                        return (
-                          <TableHeaderCell
-                            column={column}
-                            columnIndex={columnIndex}
-                            columnName={column.Header}
-                            isAscOrder={column.isAscOrder}
-                            isHidden={column.isHidden}
-                            isResizingColumn={isResizingColumn.current}
-                            key={columnIndex}
-                            sortTableColumn={props.sortTableColumn}
-                          />
-                        );
-                      },
-                    )}
-                  </div>
-                );
-              })}
-              {headerGroups.length === 0 &&
-                renderEmptyRows(
-                  1,
-                  props.columns,
-                  props.width,
-                  subPage,
-                  prepareRow,
-                  props.multiRowSelection,
-                )}
-            </div>
+            {TableHead({
+              ...props,
+              handleAllRowSelectClick,
+              headerGroups,
+              rowSelectionState,
+              isResizingColumn: isResizingColumn.current,
+              subPage,
+              prepareRow,
+            })}
             <div
               {...getTableBodyProps()}
               className={`tbody ${
@@ -335,44 +435,14 @@ export function Table(props: TableProps) {
               }`}
               ref={tableBodyRef}
             >
-              {subPage.map((row, rowIndex) => {
-                prepareRow(row);
-                const rowProps = {
-                  ...row.getRowProps(),
-                  style: { display: "flex" },
-                };
-                const isRowSelected =
-                  row.index === selectedRowIndex ||
-                  selectedRowIndices.includes(row.index);
-                return (
-                  <div
-                    {...rowProps}
-                    className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
-                    key={rowIndex}
-                    onClick={(e) => {
-                      row.toggleRowSelected();
-                      props.selectTableRow(row);
-                      e.stopPropagation();
-                    }}
-                  >
-                    {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
-                    {row.cells.map((cell, cellIndex) => {
-                      return (
-                        <div
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-colindex={cellIndex}
-                          data-rowindex={rowIndex}
-                          key={cellIndex}
-                        >
-                          {cell.render("Cell")}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+              <FixedSizeList
+                height={props.height}
+                itemCount={subPage.length}
+                itemSize={tableSizes.ROW_HEIGHT}
+                width={totalColumnsWidth + scrollBarSize}
+              >
+                {RenderRow}
+              </FixedSizeList>
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
                   props.pageSize - subPage.length,
