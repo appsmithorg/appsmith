@@ -155,7 +155,7 @@ function getWidgetProps(
       return {
         type: suggestedWidget.type,
         props: {
-          [fieldName]: `{{JSON.stringify(${actionName}.${suggestedWidget.bindingQuery})}}`,
+          [fieldName]: `{{JSON.stringify(${actionName}.${suggestedWidget.bindingQuery}, null, 2)}}`,
           dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
         },
       };
