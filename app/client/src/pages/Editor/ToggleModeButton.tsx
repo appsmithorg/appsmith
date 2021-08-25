@@ -38,8 +38,6 @@ import {
   matchViewerPath,
 } from "constants/routes";
 
-import { createMessage, UNREAD_MESSAGE } from "constants/messages";
-
 import localStorage from "utils/localStorage";
 
 import { getAppMode } from "selectors/applicationSelectors";
@@ -49,6 +47,7 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -149,6 +148,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
+      AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
       dispatch(showCommentsIntroCarousel());
       setCommentModeInUrl(false);
     } else {
@@ -371,6 +371,10 @@ function ToggleCommentModeButton({
   const mode = useSelector((state: AppState) => state.entities.app.mode);
 
   const handleSetCommentModeButton = useCallback(() => {
+    AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+      mode: "COMMENT",
+      source: "CLICK",
+    });
     setCommentModeInUrl(true);
     proceedToNextTourStep();
     setShowCommentButtonDiscoveryTooltipInState(false);
@@ -389,25 +393,24 @@ function ToggleCommentModeButton({
           <ModeButton
             active={!isCommentMode}
             className="t--switch-comment-mode-off"
-            onClick={() => setCommentModeInUrl(false)}
+            onClick={() => {
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode,
+                source: "CLICK",
+              });
+              setCommentModeInUrl(false);
+            }}
             showSelectedMode={showSelectedMode}
             type="fill"
           >
             <ViewOrEditMode mode={mode} />
           </ModeButton>
-          <TooltipComponent
-            content={createMessage(UNREAD_MESSAGE)}
-            isOpen={showCommentButtonDiscoveryTooltip}
-          >
-            <CommentModeBtn
-              {...{
-                handleSetCommentModeButton,
-                isCommentMode: isCommentMode || isTourStepActive, // Highlight the button during the tour
-                showUnreadIndicator,
-                showSelectedMode,
-              }}
-            />
-          </TooltipComponent>
+          <CommentModeBtn
+            handleSetCommentModeButton={handleSetCommentModeButton}
+            isCommentMode={isCommentMode || isTourStepActive} // Highlight the button during the tour
+            showSelectedMode={showSelectedMode}
+            showUnreadIndicator={showUnreadIndicator}
+          />
         </div>
       </TourTooltipWrapper>
     </Container>

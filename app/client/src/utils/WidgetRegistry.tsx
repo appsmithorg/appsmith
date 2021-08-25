@@ -67,6 +67,11 @@ import FilePickerWidget, {
   FilePickerWidgetProps,
   ProfiledFilePickerWidget,
 } from "widgets/FilepickerWidget";
+
+import FilePickerWidgetV2, {
+  FilePickerWidgetV2Props,
+  ProfiledFilePickerWidgetV2,
+} from "widgets/FilepickerWidgetV2";
 import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
@@ -127,6 +132,10 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import CheckboxGroupWidget, {
+  CheckboxGroupWidgetProps,
+  ProfiledCheckboxGroupWidget,
+} from "widgets/CheckboxGroupWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -286,6 +295,20 @@ export default class WidgetBuilderRegistry {
       FilePickerWidget.getMetaPropertiesMap(),
       FilePickerWidget.getPropertyPaneConfig(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FILE_PICKER_WIDGET_V2",
+      {
+        buildWidget(widgetData: FilePickerWidgetV2Props): JSX.Element {
+          return <ProfiledFilePickerWidgetV2 {...widgetData} />;
+        },
+      },
+      FilePickerWidgetV2.getDerivedPropertiesMap(),
+      FilePickerWidgetV2.getDefaultPropertiesMap(),
+      FilePickerWidgetV2.getMetaPropertiesMap(),
+      FilePickerWidgetV2.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
       {
@@ -554,6 +577,19 @@ export default class WidgetBuilderRegistry {
       IconButtonWidget.getDefaultPropertiesMap(),
       IconButtonWidget.getMetaPropertiesMap(),
       IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.CHECKBOX_GROUP_WIDGET,
+      {
+        buildWidget(widgetData: CheckboxGroupWidgetProps): JSX.Element {
+          return <ProfiledCheckboxGroupWidget {...widgetData} />;
+        },
+      },
+      CheckboxGroupWidget.getDerivedPropertiesMap(),
+      CheckboxGroupWidget.getDefaultPropertiesMap(),
+      CheckboxGroupWidget.getMetaPropertiesMap(),
+      CheckboxGroupWidget.getPropertyPaneConfig(),
     );
   }
 }

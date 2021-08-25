@@ -9,7 +9,6 @@ import com.appsmith.server.services.ConfigService;
 import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONObject;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.ParameterizedTypeReference;
@@ -71,10 +70,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                             Objects.requireNonNull(responseEntity.getBody()).getResponseMeta().getError().getMessage()));
                 })
                 .flatMap(instanceId -> configService
-                        .updateByName(Appsmith.APPSMITH_REGISTERED, new Config(
-                                new JSONObject(Map.of("value", true)),
-                                Appsmith.APPSMITH_REGISTERED
-                        ))
+                        .save(Appsmith.APPSMITH_REGISTERED, Map.of("value", true))
                 );
     }
 }

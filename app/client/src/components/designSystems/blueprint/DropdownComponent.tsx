@@ -145,6 +145,7 @@ const DropdownStyles = createGlobalStyle`
 const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
+const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
@@ -170,10 +171,17 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             className={this.props.isLoading ? Classes.SKELETON : ""}
             disabled={this.props.disabled}
             filterable={this.props.isFilterable}
-            itemListPredicate={this.itemListPredicate}
+            itemListPredicate={
+              !this.props.serverSideFiltering
+                ? this.itemListPredicate
+                : undefined
+            }
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             onItemSelect={this.onItemSelect}
+            onQueryChange={
+              this.props.serverSideFiltering ? this.serverSideSearch : undefined
+            }
             popoverProps={{
               boundary: "window",
               minimal: true,
@@ -218,6 +226,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     });
     return optionIndex === this.props.selectedIndex;
   };
+  serverSideSearch = _.debounce((filterValue: string) => {
+    this.props.onFilterChange(filterValue);
+  }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
     option: DropdownOption,
@@ -250,6 +261,8 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   width: number;
   height: number;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
 
 export default DropDownComponent;

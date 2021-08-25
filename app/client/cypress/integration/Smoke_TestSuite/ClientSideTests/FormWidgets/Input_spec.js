@@ -49,24 +49,18 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .should("contain", this.data.para);
     //cy.openPropertyPane("inputwidget");
-    cy.get(widgetsPage.defaultInput)
-      .type(this.data.command)
-      .type(this.data.defaultdata);
+    cy.testJsontext("defaulttext", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
-    cy.get(widgetsPage.placeholder)
-      .type(this.data.command)
-      .type(this.data.placeholder);
+    cy.testJsontext("placeholder", this.data.placeholder);
     /**
      * @param{Widget} Widget InnerCss
      */
     cy.get(widgetsPage.innertext)
       .invoke("attr", "placeholder")
       .should("contain", this.data.placeholder);
-    cy.get(widgetsPage.Regex)
-      .click()
-      .type(this.data.regex);
+    cy.testJsontext("regex", this.data.regex);
     /**
      * @param{Show Alert} Css for InputChange
      */
@@ -163,6 +157,35 @@ describe("Input Widget Functionality", function() {
       .then((text) => {
         expect(text).to.equal("13,242.2");
       });
+  });
+
+  it("Input label wrapper do not show if lable and tooltip is empty", () => {
+    cy.get(".t--input-label-wrapper").should("not.exist");
+  });
+
+  it("Input label renders if label prop is not empty", () => {
+    // enter label in property pan
+    cy.get(widgetsPage.inputLabelControl).type("Label1");
+    // test if label shows up with correct text
+    cy.get(".t--input-widget-label").contains("Label1");
+  });
+
+  it("Input tooltip renders if tooltip prop is not empty", () => {
+    // enter tooltip in property pan
+    cy.get(widgetsPage.inputTooltipControl).type("Helpfull text for input");
+    // tooltip help icon shows
+    cy.get(".t--input-widget-tooltip").should("be.visible");
+  });
+
+  it("Input icon shows on icon select", () => {
+    cy.selectDropdownValue(commonlocators.dataType, "Text");
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+    cy.get(".bp3-icon-add")
+      .first()
+      .click({ force: true });
+    cy.get(".bp3-input-group .bp3-icon-add").should("exist");
   });
 });
 afterEach(() => {

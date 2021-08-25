@@ -52,7 +52,6 @@ import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
-  executePageLoadActionsComplete,
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
@@ -72,7 +71,7 @@ import {
   isActionSaving,
 } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
-import { mapToPropList } from "utils/AppsmithUtils";
+import { isBlobUrl, mapToPropList, parseBlobUrl } from "utils/AppsmithUtils";
 import { validateResponse } from "sagas/ErrorSagas";
 import { TypeOptions } from "react-toastify";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
@@ -115,10 +114,12 @@ import {
   resetWidgetMetaProperty,
 } from "actions/metaActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+import { hideDebuggerErrors } from "actions/debuggerActions";
+import FileDataTypes from "widgets/FileDataTypes";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -481,11 +482,16 @@ export function* evaluateActionParams(
 
   // Convert to object and transform non string values
   const actionParams: Record<string, string> = {};
-  bindings.forEach((key, i) => {
+  for (let i = 0; i < bindings.length; i++) {
+    const key = bindings[i];
     let value = values[i];
     if (typeof value === "object") value = JSON.stringify(value);
+    if (isBlobUrl(value)) {
+      value = yield call(readBlob, value);
+    }
+
     actionParams[key] = value;
-  });
+  }
   return mapToPropList(actionParams);
 }
 
@@ -565,7 +571,8 @@ export function* executeActionSaga(
       }),
     );
     if (isErrorResponse(response)) {
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -574,7 +581,15 @@ export function* executeActionSaga(
           id: actionId,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: payload.body as string }],
+        messages: [
+          {
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            message: isString(payload.body)
+              ? payload.body
+              : JSON.stringify(payload.body, null, 2),
+            subType: response.data.errorType,
+          },
+        ],
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -902,7 +917,8 @@ function* runActionSaga(
           },
         });
       } else {
-        AppsmithConsole.error({
+        AppsmithConsole.addError({
+          id: actionId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           text: `Execution failed with status ${response.data.statusCode}`,
           source: {
@@ -915,6 +931,8 @@ function* runActionSaga(
               message: !isString(payload.body)
                 ? JSON.stringify(payload.body)
                 : payload.body,
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+              subType: response.data.errorType,
             },
           ],
           state: response.data?.request ?? null,
@@ -931,7 +949,8 @@ function* runActionSaga(
         error = response.data.body.toString();
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: actionId,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode} `,
         source: {
@@ -1016,7 +1035,8 @@ function* executePageLoadAction(pageAction: PageAction) {
         message += `\nERROR: "${body}"`;
       }
 
-      AppsmithConsole.error({
+      AppsmithConsole.addError({
+        id: pageAction.id,
         logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
         text: `Execution failed with status ${response.data.statusCode}`,
         source: {
@@ -1025,7 +1045,13 @@ function* executePageLoadAction(pageAction: PageAction) {
           id: pageAction.id,
         },
         state: response.data?.request ?? null,
-        messages: [{ message: JSON.stringify(body) }],
+        messages: [
+          {
+            message: JSON.stringify(body),
+            type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+            subType: response.data.errorType,
+          },
+        ],
       });
 
       yield put(
@@ -1096,7 +1122,9 @@ function* executePageLoadActionsSaga() {
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
 
-    yield put(executePageLoadActionsComplete());
+    // We show errors in the debugger once onPageLoad actions
+    // are executed
+    yield put(hideDebuggerErrors(false));
   } catch (e) {
     log.error(e);
 
@@ -1121,4 +1149,29 @@ export function* watchActionExecutionSagas() {
       executePageLoadActionsSaga,
     ),
   ]);
+}
+
+/**
+ *
+ * @param blobUrl string A blob url with type added a query param
+ * @returns promise that resolves to file content
+ */
+function* readBlob(blobUrl: string): any {
+  const [url, fileType] = parseBlobUrl(blobUrl);
+  const file = yield fetch(url).then((r) => r.blob());
+
+  const data = yield new Promise((resolve) => {
+    const reader = new FileReader();
+    if (fileType === FileDataTypes.Base64) {
+      reader.readAsDataURL(file);
+    } else if (fileType === FileDataTypes.Binary) {
+      reader.readAsBinaryString(file);
+    } else {
+      reader.readAsText(file);
+    }
+    reader.onloadend = () => {
+      resolve(reader.result);
+    };
+  });
+  return data;
 }

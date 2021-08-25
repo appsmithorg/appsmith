@@ -10,6 +10,7 @@ import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { getType, Types } from "utils/TypeHelpers";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -106,7 +107,7 @@ export class JSONtoForm<
       const fieldConfig = this.requiredFields[fieldConfigProperty];
       if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
         const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
+        const arrayValues = _.get(values, configProperty[0], []);
         const keyValueArrayErrors: Record<string, string>[] = [];
 
         arrayValues.forEach((value: any, index: number) => {
@@ -151,6 +152,7 @@ export class JSONtoForm<
 
   normalizeValues = () => {
     let { formData } = this.props;
+
     const checked: Record<string, any> = {};
     const configProperties = Object.keys(this.configDetails);
 
@@ -163,7 +165,7 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
+        const values = _.get(formData, properties[0], []);
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
@@ -205,6 +207,24 @@ export class JSONtoForm<
       }
     }
 
+    return formData;
+  };
+
+  getTrimmedData = (formData: any) => {
+    const dataType = getType(formData);
+    const isArrayorObject = (type: ReturnType<typeof getType>) =>
+      type === Types.ARRAY || type === Types.OBJECT;
+
+    if (isArrayorObject(dataType)) {
+      Object.keys(formData).map((key) => {
+        const valueType = getType(formData[key]);
+        if (isArrayorObject(valueType)) {
+          this.getTrimmedData(formData[key]);
+        } else if (valueType === Types.STRING) {
+          formData[key] = formData[key].trim();
+        }
+      });
+    }
     return formData;
   };
 

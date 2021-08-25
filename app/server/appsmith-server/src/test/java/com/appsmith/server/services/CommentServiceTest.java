@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
 import com.segment.analytics.Analytics;
@@ -33,6 +34,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +72,9 @@ public class CommentServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @MockBean
     private Analytics analytics;
@@ -157,6 +162,27 @@ public class CommentServiceTest {
         Comment.Reaction reaction = new Comment.Reaction();
         reaction.setEmoji(emoji);
         return reaction;
+    }
+
+    private void mentionUser(Comment comment, String username) {
+        Comment.EntityData.Mention mention = new Comment.EntityData.Mention();
+        mention.setName(username);
+
+        Comment.EntityData entityData = new Comment.EntityData();
+        entityData.setMention(mention);
+
+        Comment.Entity commentEntity = new Comment.Entity();
+        commentEntity.setType("mention");
+        commentEntity.setData(entityData);
+
+        Map<String, Comment.Entity> entityMap = comment.getBody().getEntityMap();
+        if(entityMap == null) {
+            entityMap = new HashMap<>();
+        }
+        String mentionMapKey = (entityMap.keySet().size() + 1) + "";
+
+        entityMap.put(mentionMapKey, commentEntity);
+        comment.getBody().setEntityMap(entityMap);
     }
 
     @Test
@@ -439,6 +465,47 @@ public class CommentServiceTest {
                 .assertNext(commentThreadList -> {
                     assertThat(commentThreadList.size()).isEqualTo(1);
                     assertThat(commentThreadList.get(0).getComments().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenSomeoneTaggedInFirstComment_NotificationCreated() {
+        // mock the user data so that bot comment is not created
+        UserData userData = new UserData();
+        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Organization organization = new Organization();
+        organization.setName("CreateThreadTestOrg");
+
+        String testUsernameForNotification = "test_username_for_notification";
+
+        Mono<Long> notificationCount = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("CreateThreadsTestApplication");
+                    return applicationPageService
+                            .createApplication(testApplication, org.getId());
+                })
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    Comment testComment = makePlainTextComment("Test Comment");
+                    mentionUser(testComment, testUsernameForNotification);
+                    thread.setComments(List.of(testComment));
+                    return commentService.createThread(thread, "https://app.appsmith.com");
+                })
+                .flatMap(commentThread ->
+                    notificationRepository.countByForUsername(testUsernameForNotification)
+                );
+
+        StepVerifier
+                .create(notificationCount)
+                .assertNext(aLong -> {
+                    assertThat(aLong).isEqualTo(1);
                 })
                 .verifyComplete();
     }

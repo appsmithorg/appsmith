@@ -89,10 +89,12 @@ Issues are inevitable. When you have one, our entire team is around to help—
 
 Check out the instructions for the deploying Appsmith on different services:
 
-| **Cloud Provider** |                                                                                                                 **Link**                                                                                                                 |                                 **Additional Information**                                  |
+| **Cloud Provider** |                                                                                                                 **Link**                                                                                                                 |                                     **Documentation**                                  |
 | :----------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
-|    DigitalOcean    | [![Deploy to DigitalOcean](https://img.shields.io/badge/Digital_Ocean-0080FF?style=for-the-badge&logo=DigitalOcean&logoColor=white.png)](https://cloud.digitalocean.com/droplets/new?onboarding_origin=marketplace&image=appsmith-18-04) | [docs](https://blog.appsmith.com/self-host-appsmith-in-just-a-few-minutes-on-digital-ocean) |
-|      AWS AMI       |                    [![Deploy to DigitalOcean](https://img.shields.io/badge/Amazon_AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white.png)](https://aws.amazon.com/marketplace/pp/prodview-mclslaty46ah4)                     |                       [docs](https://docs.appsmith.com/setup/aws-ami)                       |
+|    DigitalOcean    | [![Deploy to DigitalOcean](https://img.shields.io/badge/Digital_Ocean-0080FF?style=for-the-badge&logo=DigitalOcean&logoColor=white.png)](https://cloud.digitalocean.com/droplets/new?onboarding_origin=marketplace&image=appsmith-18-04) | [Link](https://blog.appsmith.com/self-host-appsmith-in-just-a-few-minutes-on-digital-ocean) |
+|      AWS AMI       | [![Deploy to DigitalOcean](https://img.shields.io/badge/Amazon_AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white.png)](https://aws.amazon.com/marketplace/pp/prodview-mclslaty46ah4) | [Link](https://docs.appsmith.com/setup/aws-ami) |
+|        Docker      |  | [Link](https://docs.appsmith.com/setup/docker) |
+|      Kubernetes    |  | [Link](https://docs.appsmith.com/setup/kubernetes) |
 
 ## Demos
 
