@@ -5,7 +5,7 @@ import FileDataTypes from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "FilePickerWidgetV2",
+  name: "FilePicker",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {

@@ -23,7 +23,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { find, pick } from "lodash";
+import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
@@ -133,31 +133,28 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    return cards
-      .map((config) => {
-        const {
-          columns,
-          detachFromLayout = false,
-          displayName,
-          iconSVG,
-          key,
-          rows,
-          type,
-        } = config;
-        return {
-          key,
-          type,
-          rows,
-          columns,
-          detachFromLayout,
-          displayName,
-          icon: iconSVG,
-        };
-      })
-      .sort(
-        ({ displayName: widgetACardName }, { displayName: widgetBCardName }) =>
-          widgetACardName.localeCompare(widgetBCardName),
-      );
+    const _cards = cards.map((config) => {
+      const {
+        columns,
+        detachFromLayout = false,
+        displayName,
+        iconSVG,
+        key,
+        rows,
+        type,
+      } = config;
+      return {
+        key,
+        type,
+        rows,
+        columns,
+        detachFromLayout,
+        displayName,
+        icon: iconSVG,
+      };
+    });
+    const sortedCards = sortBy(_cards, ["displayName"]);
+    return sortedCards;
   },
 );
 

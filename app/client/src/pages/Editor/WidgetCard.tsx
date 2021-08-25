@@ -19,7 +19,6 @@ export const Wrapper = styled.div`
   position: relative;
   color: ${Colors.ALTO};
   height: 72px;
-  width: 74px;
   display: flex;
   align-items: center;
   justify-content: center;

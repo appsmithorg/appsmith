@@ -10,7 +10,7 @@ import {
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "IconButton",
+  name: "Icon Button",
   iconSVG: IconSVG,
   defaults: {
     iconName: IconNames.PLUS,
