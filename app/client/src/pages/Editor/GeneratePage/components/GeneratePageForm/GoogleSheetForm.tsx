@@ -324,7 +324,7 @@ function GoogleSheetForm(props: Props) {
             </Row>
 
             <TextInput
-              dataType="number"
+              dataType="text"
               fill
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
