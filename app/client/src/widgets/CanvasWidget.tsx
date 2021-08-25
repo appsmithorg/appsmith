@@ -25,6 +25,7 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
+      detachFromLayout: true,
     };
   }
 
@@ -109,6 +110,7 @@ export const CONFIG = {
     columns: 0,
     widgetName: "Canvas",
     version: 1,
+    detachFromLayout: true,
   },
   properties: {
     derived: CanvasWidget.getDerivedPropertiesMap(),

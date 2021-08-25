@@ -14,14 +14,11 @@ import {
   SUGGESTED_WIDGET_TOOLTIP,
 } from "constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
-import WidgetFactory from "utils/WidgetFactory";
 
 import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-
-const WidgetTypes = WidgetFactory.widgetTypes;
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -66,42 +63,42 @@ type WidgetBindingInfo = {
 };
 
 export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
-  [WidgetTypes.LIST_WIDGET]: {
+  LIST_WIDGET: {
     label: "items",
     propertyName: "listData",
     widgetName: "List",
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/list.svg",
   },
-  [WidgetTypes.TABLE_WIDGET]: {
+  TABLE_WIDGET: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table.svg",
   },
-  [WidgetTypes.CHART_WIDGET]: {
+  CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
   },
-  [WidgetTypes.DROP_DOWN_WIDGET]: {
+  DROP_DOWN_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/dropdown.svg",
   },
-  [WidgetTypes.TEXT_WIDGET]: {
+  TEXT_WIDGET: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
     image:
       "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
   },
-  [WidgetTypes.INPUT_WIDGET]: {
+  INPUT_WIDGET: {
     label: "text",
     propertyName: "defaultText",
     widgetName: "Input",
@@ -118,16 +115,16 @@ function getWidgetProps(
 ) {
   const fieldName = widgetInfo.propertyName;
   switch (suggestedWidget.type) {
-    case WidgetTypes.TABLE_WIDGET:
+    case "TABLE_WIDGET":
       return {
-        type: WidgetTypes.TABLE_WIDGET,
+        type: "TABLE_WIDGET",
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
         },
         parentRowSpace: 10,
       };
-    case WidgetTypes.CHART_WIDGET:
+    case "CHART_WIDGET":
       const reactKey = generateReactKey();
 
       return {
@@ -142,7 +139,7 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case WidgetTypes.DROP_DOWN_WIDGET:
+    case "DROP_DOWN_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {

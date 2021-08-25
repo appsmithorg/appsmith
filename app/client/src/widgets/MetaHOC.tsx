@@ -1,6 +1,7 @@
 import React from "react";
 import BaseWidget, { WidgetProps } from "./BaseWidget";
 import _ from "lodash";
+import { EditorContext } from "../components/editorComponents/EditorContextProvider";
 import { clearEvalPropertyCache } from "sagas/EvaluationsSaga";
 import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -27,10 +28,10 @@ export interface WithMeta {
 }
 
 const withMeta = (WrappedWidget: typeof BaseWidget) => {
-  const MetaHOC = class MetaHOC extends React.PureComponent<WidgetProps, any> {
+  return class MetaHOC extends React.PureComponent<WidgetProps, any> {
+    static contextType = EditorContext;
     updatedProperties = new Map<string, true>();
     propertyTriggers = new Map<string, DebouncedExecuteActionPayload>();
-    static displayName: string;
 
     debouncedHandleUpdateWidgetMetaProperty = _.debounce(
       this.handleUpdateWidgetMetaProperty.bind(this),
@@ -114,20 +115,17 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       propertyName: string,
       propertyValue: any,
     ): void => {
+      const { updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       this.setState({
         [propertyName]: propertyValue,
       });
       clearEvalPropertyCache(`${widgetName}.${propertyName}`);
-      this.props.updateWidgetMetaProperty(
-        widgetId,
-        propertyName,
-        propertyValue,
-      );
+      updateWidgetMetaProperty(widgetId, propertyName, propertyValue);
     };
 
     handleUpdateWidgetMetaProperty() {
-      const { executeAction, updateWidgetMetaProperty } = this.props;
+      const { executeAction, updateWidgetMetaProperty } = this.context;
       const { widgetId, widgetName } = this.props;
       const metaOptions = this.props.__metaOptions;
       /*
@@ -191,10 +189,6 @@ const withMeta = (WrappedWidget: typeof BaseWidget) => {
       return <WrappedWidget {...this.updatedProps()} />;
     }
   };
-
-  MetaHOC.displayName = "WidgetMetaHOC";
-
-  return MetaHOC;
 };
 
 export default withMeta;

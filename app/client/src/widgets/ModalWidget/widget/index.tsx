@@ -224,8 +224,5 @@ const mapStateToProps = (state: AppState) => {
   };
   return props;
 };
-export default ModalWidget;
-export const ProfiledModalWidget = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ModalWidget);
+
+export default connect(mapStateToProps, mapDispatchToProps)(ModalWidget);
