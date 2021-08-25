@@ -397,7 +397,7 @@ export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 
 export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
   "Hurray! Your application is ready to use.";
-export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
+// export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "Search through your data in the table and update it using the form.";
 
