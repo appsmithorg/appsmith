@@ -14,6 +14,11 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 
+export interface XYCord {
+  x: number;
+  y: number;
+}
+
 export const useCanvasDragging = (
   canvasRef: React.RefObject<HTMLDivElement>,
   canvasDrawRef: React.RefObject<HTMLCanvasElement>,
