@@ -81,7 +81,9 @@ function Pin({
   onClick: () => void;
 }) {
   const isDragging = useSelector(
-    (state: AppState) => state.ui.commentsDrag.isDragging,
+    (state: AppState) =>
+      state.ui.commentsDrag.isDragging &&
+      state.ui.commentsDrag.currentThreadId === commentThreadId,
   );
   return (
     <StyledPinContainer
