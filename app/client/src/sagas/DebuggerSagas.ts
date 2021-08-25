@@ -266,6 +266,7 @@ function* logDebuggerErrorAnalyticsSaga(
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
+        errorSubType: payload.errorSubType,
       });
     }
   } catch (e) {
@@ -277,9 +278,9 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
 
-  yield put(debuggerLogInit(payload));
-
   if (!payload.source || !payload.id) return;
+
+  yield put(debuggerLogInit(payload));
 
   const analyticsPayload = {
     entityName: payload.source.name,
@@ -312,6 +313,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
+              errorSubType: errorMessage.subType,
             },
           }),
         ),
@@ -338,6 +340,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
               errorMessage: updatedErrorMessage.message,
               errorType: updatedErrorMessage.type,
+              errorSubType: updatedErrorMessage.subType,
             },
           });
         }
@@ -361,6 +364,7 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
               errorMessage: existingErrorMessage.message,
               errorType: existingErrorMessage.type,
+              errorSubType: existingErrorMessage.subType,
             },
           });
         }
@@ -405,6 +409,7 @@ function* deleteDebuggerErrorLogSaga(
             eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
             errorMessage: errorMessage.message,
             errorType: errorMessage.type,
+            errorSubType: errorMessage.subType,
           },
         });
       }),
