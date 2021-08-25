@@ -50,7 +50,7 @@ type Props = PostDataProps;
 
 const expectedPostBody: CodeEditorExpected = {
   type: FIELD_VALUES.API_ACTION.body,
-  example: "",
+  example: '{\n  "color":"blue",\n  "isVisible": true \n}',
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
