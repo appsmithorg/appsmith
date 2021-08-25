@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch, connect } from "react-redux";
+import React, { useCallback, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -151,14 +151,10 @@ const resetCommentThreadIdInURL = (commentThreadId: string) => {
  * They position themselves using position absolute based on top and left values (in percent)
  */
 
-type CommentPinDragProps = {
-  setDraggingCommentThread?: (currentThread: string) => void;
-};
-
 type Props = {
   commentThreadId: string;
   focused: boolean;
-} & CommentPinDragProps;
+};
 
 function InlineCommentPin(props: Props) {
   const { commentThreadId, focused } = props;
@@ -210,7 +206,13 @@ function InlineCommentPin(props: Props) {
     }
   }, [focused]);
 
-  const { setDraggingCommentThread } = props;
+  const onCommentPinDragStart = useCallback(
+    (e: any) => {
+      e.stopPropagation();
+      dispatch(setDraggingCommentThread(commentThreadId));
+    },
+    [commentThreadId, setDraggingCommentThread, dispatch],
+  );
 
   if (!commentThread) return null;
 
@@ -225,10 +227,7 @@ function InlineCommentPin(props: Props) {
         e.preventDefault();
         e.stopPropagation();
       }}
-      onDragStart={(e) => {
-        e.stopPropagation();
-        setDraggingCommentThread && setDraggingCommentThread(commentThreadId);
-      }}
+      onDragStart={onCommentPinDragStart}
       positionAbsolutely={positionAbsolutely}
       top={top}
       topPercent={topPercent}
@@ -274,7 +273,4 @@ function InlineCommentPin(props: Props) {
   ) : null;
 }
 
-const mapDispatchToProps = {
-  setDraggingCommentThread,
-};
-export default connect(null, mapDispatchToProps)(InlineCommentPin);
+export default InlineCommentPin;

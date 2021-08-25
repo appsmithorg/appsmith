@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { useSelector, useDispatch, connect } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import {
@@ -19,20 +19,12 @@ import {
 
 import { AppState } from "reducers";
 import { dropThread, setAnchorWidget } from "actions/commentsDragActions";
-import { AnchorWidget } from "reducers/uiReducers/commentsReducer/commentsDragReducer";
-
-type CommentPinDropProps = {
-  isDragging?: boolean;
-  currentThreadId?: string | null;
-  anchorWidget?: AnchorWidget | null;
-  setAnchorWidget?: (anchorWidget?: AnchorWidget | null) => void;
-};
 
 type Props = {
   children: React.ReactNode;
   refId: string;
   widgetType: WidgetType;
-} & CommentPinDropProps;
+};
 
 const COMMENT_PIN_OFFSET = 15;
 
@@ -53,7 +45,15 @@ const Container = styled.div<{ isCommentMode: boolean; isDragging: boolean }>`
 function OverlayCommentsWrapper(props: Props) {
   const { children, refId, widgetType } = props;
 
-  const { anchorWidget, currentThreadId, isDragging, setAnchorWidget } = props;
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.commentsDrag.isDragging,
+  );
+  const currentThreadId = useSelector(
+    (state: AppState) => state.ui.commentsDrag.currentThreadId,
+  );
+  const anchorWidget = useSelector(
+    (state: AppState) => state.ui.commentsDrag.anchorWidget,
+  );
 
   const updateCommentPinPosition = useCallback(
     (e: any) => {
@@ -88,11 +88,12 @@ function OverlayCommentsWrapper(props: Props) {
   const setDropTarget = useCallback(
     (e: any) => {
       if (!anchorWidget || anchorWidget.id !== refId) {
-        setAnchorWidget &&
+        dispatch(
           setAnchorWidget({
             id: refId,
             type: widgetType,
-          });
+          }),
+        );
       }
       e.stopPropagation();
       e.preventDefault();
@@ -138,7 +139,7 @@ function OverlayCommentsWrapper(props: Props) {
       data-cy="overlay-comments-wrapper"
       id={`comment-overlay-wrapper-${refId}`}
       isCommentMode={isCommentMode}
-      isDragging={!!isDragging}
+      isDragging={isDragging}
       onClick={clickHandler}
       onDragEnter={setDropTarget}
       onDragLeave={preventDefault}
@@ -152,19 +153,4 @@ function OverlayCommentsWrapper(props: Props) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    isDragging: state.ui.commentsDrag.isDragging,
-    currentThreadId: state.ui.commentsDrag.currentThreadId,
-    anchorWidget: state.ui.commentsDrag.anchorWidget,
-  };
-};
-
-const mapDispatchToProps = {
-  setAnchorWidget,
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OverlayCommentsWrapper);
+export default OverlayCommentsWrapper;
