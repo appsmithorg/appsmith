@@ -17,7 +17,7 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { isEmpty } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
@@ -110,8 +110,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const getSnappedXY = (
     parentColumnWidth: number,
     parentRowHeight: number,
-    currentOffset: XYCoord,
-    parentOffset: XYCoord,
+    currentOffset: XYCord,
+    parentOffset: XYCord,
   ) => {
     // TODO(abhinav): There is a simpler math to use.
     const [leftColumn, topRow] = snapToGrid(
@@ -278,7 +278,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         {
           x: bottomMostBlock.left,
           y: bottomMostBlock.top + bottomMostBlock.height,
-        } as XYCoord,
+        } as XYCord,
         { x: 0, y: 0 },
       );
       if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {

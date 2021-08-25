@@ -101,7 +101,8 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
       <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
-          accent="secondary"
+          buttonStyle="PRIMARY"
+          buttonVariant="OUTLINE"
           onClick={() => {
             this.openModal();
           }}

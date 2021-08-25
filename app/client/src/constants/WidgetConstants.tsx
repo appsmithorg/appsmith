@@ -104,7 +104,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 32;
+export const LATEST_PAGE_VERSION = 33;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -120,6 +120,7 @@ export const DroppableWidgets: WidgetType[] = [
   WidgetTypes.FORM_WIDGET,
   WidgetTypes.LIST_WIDGET,
   WidgetTypes.TABS_WIDGET,
+  WidgetTypes.MODAL_WIDGET,
 ];
 
 // Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
@@ -178,3 +179,20 @@ export const RATE_SIZES = {
 };
 
 export type RateSize = keyof typeof RateSizes;
+
+export enum ButtonStyleTypes {
+  PRIMARY = "PRIMARY",
+  WARNING = "WARNING",
+  DANGER = "DANGER",
+  INFO = "INFO",
+  SECONDARY = "SECONDARY",
+  CUSTOM = "CUSTOM",
+}
+export type ButtonStyle = keyof typeof ButtonStyleTypes;
+
+export enum ButtonVariantTypes {
+  SOLID = "SOLID",
+  OUTLINE = "OUTLINE",
+  GHOST = "GHOST",
+}
+export type ButtonVariant = keyof typeof ButtonVariantTypes;

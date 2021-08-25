@@ -180,7 +180,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
               : null}
             <SaveButtonContainer>
               <ActionButton
-                accent="error"
+                // accent="error"
+                buttonStyle="DANGER"
+                buttonVariant="SOLID"
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() =>
