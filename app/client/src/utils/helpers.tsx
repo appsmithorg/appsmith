@@ -146,20 +146,39 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 
 export const flashElement = (el: HTMLElement) => {
   el.style.backgroundColor = "#FFCB33";
+
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
   }, 1000);
 };
 
-export const flashElementById = (id: string) => {
-  const el = document.getElementById(id);
-  el?.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-    inline: "center",
-  });
+/**
+ * flash elements with a background color
+ *
+ * @param id
+ */
+export const flashElementsById = (id: string | string[], timeout = 0) => {
+  let ids: string[] = [];
 
-  if (el) flashElement(el);
+  if (Array.isArray(id)) {
+    ids = ids.concat(id);
+  } else {
+    ids = ids.concat([id]);
+  }
+
+  ids.forEach((id) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+
+      el?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+
+      if (el) flashElement(el);
+    }, timeout);
+  });
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {

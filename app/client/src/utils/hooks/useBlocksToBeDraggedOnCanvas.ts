@@ -8,6 +8,7 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/editorConstants";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import {
@@ -16,7 +17,7 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { isEmpty } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
@@ -55,6 +56,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const { selectWidget } = useWidgetSelection();
   const containerPadding = noPad ? 0 : CONTAINER_GRID_PADDING;
 
+  // check any table filter is open or not
+  // if filter pane open, close before property pane open
+  const tableFilterPaneState = useSelector(getTableFilterState);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
   // which canvas is active(being dragged on),
@@ -106,8 +110,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const getSnappedXY = (
     parentColumnWidth: number,
     parentRowHeight: number,
-    currentOffset: XYCoord,
-    parentOffset: XYCoord,
+    currentOffset: XYCord,
+    parentOffset: XYCord,
   ) => {
     // TODO(abhinav): There is a simpler math to use.
     const [leftColumn, topRow] = snapToGrid(
@@ -244,6 +248,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams.widgetId,
         updateWidgetParams.payload,
       );
+    // close filter pane if any open, before property pane open
+    tableFilterPaneState.isVisible &&
+      dispatch({
+        type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
+        payload: { widgetId: tableFilterPaneState.widgetId },
+      });
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
@@ -268,7 +278,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         {
           x: bottomMostBlock.left,
           y: bottomMostBlock.top + bottomMostBlock.height,
-        } as XYCoord,
+        } as XYCord,
         { x: 0, y: 0 },
       );
       if (top > rows - GridDefaults.CANVAS_EXTENSION_OFFSET) {

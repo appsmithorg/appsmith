@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   copyWidget,
   cutWidget,
+  groupWidgets,
   deleteSelectedWidget,
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
@@ -127,6 +128,7 @@ export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
 const CopyIcon = ControlIcons.COPY2_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
+const GroupIcon = ControlIcons.GROUP_CONTROL;
 
 /**
  * helper text that comes in popover on hover of actions in context menu
@@ -146,6 +148,11 @@ const cutHelpText = (
 const deleteHelpText = (
   <>
     Click or <b> Del </b>
+  </>
+);
+const groupHelpText = (
+  <>
+    Click or <b>{modText()} + G to group</b>
   </>
 );
 
@@ -299,6 +306,20 @@ function WidgetsMultiSelectBox(props: {
     dispatch(deleteSelectedWidget(true));
   };
 
+  /**
+   * group widgets into container
+   *
+   * @param e
+   */
+  const onGroupWidgets = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dispatch(groupWidgets());
+  };
+
   if (!shouldRender) return false;
 
   return (
@@ -369,6 +390,21 @@ function WidgetsMultiSelectBox(props: {
               onClickCapture={onDeleteSelectedWidgets}
             >
               <DeleteIcon color="black" height={16} width={16} />
+            </StyledAction>
+          </Tooltip>
+          {/* group widgets */}
+          <Tooltip
+            boundary="viewport"
+            content={groupHelpText}
+            maxWidth="400px"
+            modifiers={PopoverModifiers}
+            position={Position.RIGHT}
+          >
+            <StyledAction
+              onClick={stopEventPropagation}
+              onClickCapture={onGroupWidgets}
+            >
+              <GroupIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
         </StyledActions>

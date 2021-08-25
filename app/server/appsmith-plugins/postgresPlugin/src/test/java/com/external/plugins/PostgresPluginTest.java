@@ -118,7 +118,8 @@ public class PostgresPluginTest {
                         "    created_on_tz TIMESTAMP WITH TIME ZONE ,\n" +
                         "    interval1 INTERVAL HOUR ,\n" +
                         "    numbers INTEGER[3] ,\n" +
-                        "    texts VARCHAR[2] \n" +
+                        "    texts VARCHAR[2] ,\n" +
+                        "    rating FLOAT4 \n" +
                         ")");
 
                 statement.execute("CREATE TABLE possessions (\n" +
@@ -150,7 +151,7 @@ public class PostgresPluginTest {
                                 " '18:32:45', '04:05:06 PST'," +
                                 " TIMESTAMP '2018-11-30 20:45:15', TIMESTAMP WITH TIME ZONE '2018-11-30 20:45:15 CET'," +
                                 " '1.2 years 3 months 2 hours'," +
-                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
                                 ")");
             }
 
@@ -161,7 +162,7 @@ public class PostgresPluginTest {
                                 " '15:45:30', '04:05:06 PST'," +
                                 " TIMESTAMP '2019-11-30 23:59:59', TIMESTAMP WITH TIME ZONE '2019-11-30 23:59:59 CET'," +
                                 " '2 years'," +
-                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}', 2.0" +
                                 ")");
             }
 
@@ -172,7 +173,7 @@ public class PostgresPluginTest {
                                 " '15:45:30', '04:05:06 PST'," +
                                 " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
                                 " '0 years'," +
-                                " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                " '{1, 2, 3}', '{\"a\", \"b\"}', 3.0" +
                                 ")");
             }
 
@@ -332,6 +333,7 @@ public class PostgresPluginTest {
                                     "interval1",
                                     "numbers",
                                     "texts",
+                                    "rating"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -422,7 +424,7 @@ public class PostgresPluginTest {
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" (\"title\", \"user_id\")\n" +
                                             "  VALUES ('', 1);", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
-                                            "    \"title\" = ''\n" +
+                                            "    \"title\" = '',\n" +
                                             "    \"user_id\" = 1\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
@@ -449,6 +451,7 @@ public class PostgresPluginTest {
                                     new DatasourceStructure.Column("interval1", "interval", null, false),
                                     new DatasourceStructure.Column("numbers", "_int4", null, false),
                                     new DatasourceStructure.Column("texts", "_varchar", null, false),
+                                    new DatasourceStructure.Column("rating", "float4", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -463,21 +466,22 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
                                     new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", null),
-                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\", \"numbers\", \"texts\")\n" +
-                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}');", null),
+                                    new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\", \"email\", \"spouse_dob\", \"dob\", \"time1\", \"time_tz\", \"created_on\", \"created_on_tz\", \"interval1\", \"numbers\", \"texts\", \"rating\")\n" +
+                                            "  VALUES ('', '', '', '2019-07-01', '2019-07-01', '18:32:45', '04:05:06 PST', TIMESTAMP '2019-07-01 10:00:00', TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET', 1, '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
-                                            "    \"username\" = ''\n" +
-                                            "    \"password\" = ''\n" +
-                                            "    \"email\" = ''\n" +
-                                            "    \"spouse_dob\" = '2019-07-01'\n" +
-                                            "    \"dob\" = '2019-07-01'\n" +
-                                            "    \"time1\" = '18:32:45'\n" +
-                                            "    \"time_tz\" = '04:05:06 PST'\n" +
-                                            "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00'\n" +
-                                            "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET'\n" +
-                                            "    \"interval1\" = 1\n" +
-                                            "    \"numbers\" = '{1, 2, 3}'\n" +
-                                            "    \"texts\" = '{\"first\", \"second\"}'\n" +
+                                            "    \"username\" = '',\n" +
+                                            "    \"password\" = '',\n" +
+                                            "    \"email\" = '',\n" +
+                                            "    \"spouse_dob\" = '2019-07-01',\n" +
+                                            "    \"dob\" = '2019-07-01',\n" +
+                                            "    \"time1\" = '18:32:45',\n" +
+                                            "    \"time_tz\" = '04:05:06 PST',\n" +
+                                            "    \"created_on\" = TIMESTAMP '2019-07-01 10:00:00',\n" +
+                                            "    \"created_on_tz\" = TIMESTAMP WITH TIME ZONE '2019-07-01 06:30:00 CET',\n" +
+                                            "    \"interval1\" = 1,\n" +
+                                            "    \"numbers\" = '{1, 2, 3}',\n" +
+                                            "    \"texts\" = '{\"first\", \"second\"}',\n" +
+                                            "    \"rating\" = 1.0\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
@@ -550,6 +554,7 @@ public class PostgresPluginTest {
                     assertEquals("2018-11-30T19:45:15Z", node.get("created_on_tz").asText());
                     assertEquals("1 years 5 mons 0 days 2 hours 0 mins 0.0 secs", node.get("interval1").asText());
                     assertTrue(node.get("spouse_dob").isNull());
+                    assertEquals(1.0, node.get("rating").asDouble(), 0.0);
 
                     // Check the order of the columns.
                     assertArrayEquals(
@@ -567,6 +572,7 @@ public class PostgresPluginTest {
                                     "interval1",
                                     "numbers",
                                     "texts",
+                                    "rating"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -639,6 +645,7 @@ public class PostgresPluginTest {
                                     "interval1",
                                     "numbers",
                                     "texts",
+                                    "rating"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -721,6 +728,7 @@ public class PostgresPluginTest {
                                     "interval1",
                                     "numbers",
                                     "texts",
+                                    "rating"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -1217,5 +1225,68 @@ public class PostgresPluginTest {
                     assertEquals(expectedBody, result.getBody());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testPreparedStatementWithJsonDataType() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        String query = "INSERT INTO dataTypeTest VALUES ({{id}}, {{jsonObject1}}::json, {{jsonObject2}}::json, {{stringValue}})";
+        actionConfiguration.setBody(query);
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        params.add(new Param("id", "10"));
+        params.add(new Param("jsonObject1", "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}"));
+        params.add(new Param("jsonObject2", "{\"country\":\"japan\", \"city\":\"kyoto\"}"));
+        params.add(new Param("stringValue", "Something here"));
+        executeActionDTO.setParams(params);
+
+        Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
+
+        Mono<ActionExecutionResult> resultMono = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+
+                    assertTrue(result.getIsExecutionSuccess());
+                    final JsonNode node = ((ArrayNode) result.getBody()).get(0);
+                    assertEquals(node.get("affectedRows").asText(), "1");
+
+                    List<RequestParamDTO>  requestParams = (List<RequestParamDTO>) result.getRequest().getRequestParams();
+                    RequestParamDTO requestParamDTO = requestParams.get(0);
+                    Map<String, Object> substitutedParams = requestParamDTO.getSubstitutedParams();
+                    for (Map.Entry<String, Object> substitutedParam : substitutedParams.entrySet()) {
+                        PsParameterDTO psParameter = (PsParameterDTO) substitutedParam.getValue();
+                        switch (psParameter.getValue()) {
+                            case "10" :
+                                assertEquals(psParameter.getType(), "INTEGER");
+                                break;
+                            case "{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}":
+
+                            case "{\"country\":\"japan\", \"city\":\"kyoto\"}" :
+                                assertEquals(psParameter.getType(), "JSON_OBJECT");
+                                break;
+                            case "Something here" :
+                                assertEquals(psParameter.getType(), "STRING");
+                                break;
+                        }
+                    }
+
+                })
+                .verifyComplete();
+
+        // Delete the newly added row to not affect any other test case
+        actionConfiguration.setBody("DELETE FROM users dataTypeTest id = 10");
+        connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
     }
 }

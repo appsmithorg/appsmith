@@ -7,10 +7,7 @@ import {
   InputGroup,
   IMenuProps,
 } from "@blueprintjs/core";
-import {
-  BaseButton,
-  ButtonStyleName,
-} from "components/designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import {
   ItemRenderer,
   Select,
@@ -85,8 +82,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 
     const displayMode = (
       <BaseButton
-        accent="primary"
-        filled
+        buttonStyle="PRIMARY"
         icon-right="plus"
         onClick={this.showTextBox}
         text={addItem?.displayText}
@@ -95,11 +91,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     const editMode = (
       <ControlGroup fill>
         <InputGroup inputRef={this.setNewItemTextInput} />
-        <BaseButton
-          filled
-          onClick={this.handleAddItem}
-          text={addItem?.displayText}
-        />
+        <BaseButton onClick={this.handleAddItem} text={addItem?.displayText} />
       </ControlGroup>
     );
     return (
@@ -154,15 +146,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   };
 
   render() {
-    const {
-      accent,
-      autocomplete,
-      filled,
-      input,
-      options,
-      selected,
-      width,
-    } = this.props;
+    const { autocomplete, input, options, selected, width } = this.props;
 
     return (
       <StyledDropdown
@@ -181,8 +165,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              accent={accent || "secondary"}
-              filled={!!filled}
+              buttonStyle="PRIMARY"
+              buttonVariant="OUTLINE"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
@@ -207,8 +191,6 @@ export interface DropdownComponentProps {
     addItemHandler: (name: string) => void;
   };
   toggle?: ReactNode;
-  accent?: ButtonStyleName;
-  filled?: boolean;
   input?: WrappedFieldInputProps;
   width?: string;
 }

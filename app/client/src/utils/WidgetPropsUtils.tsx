@@ -1,6 +1,6 @@
 import { FetchPageResponse } from "api/PageApi";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
@@ -30,6 +30,7 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimiterProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -42,6 +43,7 @@ import WidgetConfigResponse, {
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { theme } from "../../src/constants/DefaultTheme";
+import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -811,7 +813,17 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 32) {
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
   return currentDSL;
@@ -1078,8 +1090,8 @@ export const extractCurrentDSL = (
 export const getDropZoneOffsets = (
   colWidth: number,
   rowHeight: number,
-  dragOffset: XYCoord,
-  parentOffset: XYCoord,
+  dragOffset: XYCord,
+  parentOffset: XYCord,
 ) => {
   // Calculate actual drop position by snapping based on x, y and grid cell size
   return snapToGrid(
@@ -1133,10 +1145,10 @@ export const isWidgetOverflowingParentBounds = (
 };
 
 export const noCollision = (
-  clientOffset: XYCoord,
+  clientOffset: XYCord,
   colWidth: number,
   rowHeight: number,
-  dropTargetOffset: XYCoord,
+  dropTargetOffset: XYCord,
   widgetWidth: number,
   widgetHeight: number,
   widgetId: string,
@@ -1152,7 +1164,7 @@ export const noCollision = (
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
-      clientOffset as XYCoord,
+      clientOffset as XYCord,
       dropTargetOffset,
     );
     if (left < 0 || top < 0) {
@@ -1191,8 +1203,8 @@ export const currentDropRow = (
 
 export const widgetOperationParams = (
   widget: WidgetProps & Partial<WidgetConfigProps>,
-  widgetOffset: XYCoord,
-  parentOffset: XYCoord,
+  widgetOffset: XYCord,
+  parentOffset: XYCord,
   parentColumnSpace: number,
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget
