@@ -115,7 +115,6 @@ import {
   WIDGET_BULK_DELETE,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
-import produce from "immer";
 
 // Todo(abhinav): abstraction leak
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -141,15 +140,8 @@ function* getChildWidgetProps(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, newWidgetId, topRow, type } = params;
-  let {
-    columns,
-    parentColumnSpace,
-    parentRowSpace,
-    props,
-    rows,
-    widgetName,
-  } = params;
+  const { leftColumn, newWidgetId, props, topRow, type } = params;
+  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
   let minHeight = undefined;
   const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
     "blueprint",
@@ -170,14 +162,14 @@ function* getChildWidgetProps(
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
     minHeight = rows;
-
-    if (props) {
-      props = produce((draft: WidgetProps) => {
-        if (!draft.children || !Array.isArray(draft.children)) {
-          draft.children = [];
-        }
-      });
-    }
+    if (props) props.children = [];
+    // if (props) {
+    //   props = produce((draft: WidgetProps) => {
+    //     if (!draft.children || !Array.isArray(draft.children)) {
+    //       draft.children = [];
+    //     }
+    //   });
+    // }
   }
 
   const widgetProps = {
@@ -222,12 +214,13 @@ function* generateChildWidgets(
   widgets[widget.widgetId] = widget;
 
   // Get the default config for the widget from WidgetConfigResponse
-  const defaultConfig = WidgetFactory.widgetConfigMap.get(widget.type);
+  const defaultConfig = { ...WidgetFactory.widgetConfigMap.get(widget.type) };
 
   // If blueprint is provided in the params, use that
   // else use the blueprint available in WidgetConfigResponse
   // else there is no blueprint for this widget
-  const blueprint = propsBlueprint || defaultConfig?.blueprint || undefined;
+  const blueprint =
+    propsBlueprint || { ...defaultConfig?.blueprint } || undefined;
 
   // If there is a blueprint.view
   // We need to generate the children based on the view
