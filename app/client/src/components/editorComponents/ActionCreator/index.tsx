@@ -97,11 +97,22 @@ const baseOptions: any = [
     label: "Reset Widget",
     value: ActionType.resetWidget,
   },
-  isJSEditorEnabled && {
-    label: "Execute a JS Function",
-    value: ActionType.jsFunction,
-  },
 ];
+
+const getBaseOptions = () => {
+  if (isJSEditorEnabled) {
+    const jsoption = baseOptions.find(
+      (option: any) => option.value === ActionType.jsFunction,
+    );
+    if (!jsoption) {
+      baseOptions.push({
+        label: "Execute a JS Function",
+        value: ActionType.jsFunction,
+      });
+    }
+  }
+  return baseOptions;
+};
 
 function getFieldFromValue(
   value: string | undefined,
@@ -503,7 +514,7 @@ function useIntegrationsOptionTree() {
     pageId,
     applicationId,
     pluginGroups,
-    baseOptions,
+    getBaseOptions(),
     actions,
     jsActions,
     datasources,
