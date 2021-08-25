@@ -21,15 +21,18 @@ describe("Form Widget Functionality", function() {
       .scrollIntoView()
       .should("be.visible");
   });
-  // it("Add Multiple widgets in Form", function() {
-  //   cy.get(explorer.addWidget).click();
-  //   cy.get(commonlocators.entityExplorersearch).should("be.visible");
-  //   cy.get(commonlocators.entityExplorersearch)
-  //     .clear()
-  //     .type("button");
-  //   cy.dragAndDropToCanvas("buttonwidget", { x: 400, y: 530 });
-  //   cy.wait(500);
-  // });
+  it("Add Multiple widgets in Form", function() {
+    cy.get(explorer.addWidget).click();
+    cy.get(commonlocators.entityExplorersearch).should("be.visible");
+    cy.dragAndDropToWidget("multiselectwidget", "formwidget", {
+      x: 100,
+      y: 100,
+    });
+    cy.dragAndDropToWidget("inputwidget", "formwidget", { x: 50, y: 200 });
+    cy.get(formWidgetsPage.multiselectWidget).should("be.visible");
+    cy.get(widgetsPage.inputWidget).should("be.visible");
+    cy.PublishtheApp();
+  });
   it("Form_Widget Minimize and maximize General Validation", function() {
     cy.openPropertyPane("formwidget");
     cy.get(commonlocators.generalChevran).click({ force: true });

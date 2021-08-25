@@ -2205,6 +2205,21 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 });
 
+Cypress.Commands.add(
+  "dragAndDropToWidget",
+  (widgetType, destinationWidget, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.get(selector)
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    const selector2 = `.t--draggable-${destinationWidget}`;
+    cy.get(selector2)
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
