@@ -127,11 +127,11 @@ export const deletePageSuccess = () => {
 export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
   isRetry?: boolean,
-  isReplay?: boolean,
+  shouldReplay?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets, isRetry, isReplay },
+    payload: { widgets, isRetry, shouldReplay },
   };
 };
 

@@ -204,7 +204,7 @@ export default class DataTreeEvaluator {
     const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = unEvalTree;
+    this.oldUnEvalTree = _.cloneDeep(unEvalTree);
     this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
