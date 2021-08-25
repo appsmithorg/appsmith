@@ -37,14 +37,12 @@ type Props = {
 
 const COMMENT_PIN_OFFSET = 15;
 
-const Container = styled.div<{ isCommentMode: boolean; isDragging: boolean }>`
+const Container = styled.div<{ isCommentMode: boolean }>`
   width: 100%;
   height: 100%;
   position: relative;
   ${(props) =>
-    props.isCommentMode &&
-    !props.isDragging &&
-    `cursor: url("${commentIcon}") 25 20 , auto;`}
+    props.isCommentMode && `cursor: url("${commentIcon}") 25 20 , auto;`}
 `;
 
 /**
@@ -54,9 +52,6 @@ const Container = styled.div<{ isCommentMode: boolean; isDragging: boolean }>`
 function OverlayCommentsWrapper(props: Props) {
   const { children, refId, widgetType } = props;
 
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.commentsDrag.isDragging,
-  );
   const currentThreadId = useSelector(
     (state: AppState) => state.ui.commentsDrag.currentThreadId,
   );
@@ -120,7 +115,6 @@ function OverlayCommentsWrapper(props: Props) {
       data-cy="overlay-comments-wrapper"
       id={`comment-overlay-wrapper-${refId}`}
       isCommentMode={isCommentMode}
-      isDragging={isDragging}
       onClick={clickHandler}
       onDragEnter={stopPropagation}
       onDragLeave={preventDefault}
