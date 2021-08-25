@@ -18,13 +18,14 @@ import {
   GEN_CRUD_SUCCESS_DESC,
   createMessage,
 } from "constants/messages";
-import SuccessGif from "assets/gifs/check_mark_verified.gif";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 type Props = {
   crudInfoModalOpen: boolean;
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
+
+const getSuccessGIF = () => `${S3_BUCKET_URL}/crud/check_mark_verified.gif`;
 
 const Heading = styled.div`
   color: ${Colors.CODE_GRAY};
@@ -176,7 +177,7 @@ function GenCRUDSuccessModal(props: Props) {
       <Wrapper>
         {step === STEP.SHOW_SUCCESS_GIF ? (
           <SuccessContentWrapper>
-            <SuccessImage alt="Success" src={SuccessGif} width="50px" />
+            <SuccessImage alt="Success" src={getSuccessGIF()} width="50px" />
             <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
             <Desc>{createMessage(GEN_CRUD_SUCCESS_DESC)}</Desc>
           </SuccessContentWrapper>
