@@ -79,6 +79,10 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.italics).click({ force: true });
     // Verify the font style is italic
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
+    // Change the font style to underline
+    cy.get(widgetsPage.underline).click({ force: true });
+    // Verify the font style is underline
+    cy.readTabledataValidateCSS("1", "0", "text-decoration", "underline");
   });
 
   it("Test to validate vertical allignment", function() {

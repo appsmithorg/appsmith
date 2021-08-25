@@ -74,6 +74,7 @@
     "leftAlign": ".t--icon-tab-LEFT",
     "bold": ".t--button-tab-BOLD",
     "italics": ".t--button-tab-ITALIC",
+    "underline": ".t--button-tab-UNDERLINE",
     "verticalTop": ".t--icon-tab-TOP",
     "verticalCenter": ".t--icon-tab-CENTER",
     "verticalBottom": ".t--icon-tab-BOTTOM",
