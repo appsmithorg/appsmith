@@ -322,7 +322,6 @@ function GoogleSheetForm(props: Props) {
                 </Tooltip>
               </TooltipWrapper>
             </Row>
-
             <TextInput
               dataType="text"
               fill
