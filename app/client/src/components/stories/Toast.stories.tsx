@@ -35,14 +35,14 @@ export function ToastStory(args: ToastProps) {
         transition={Slide}
       />
       <Button
-        category={Category.tertiary}
+        category={Category.primary}
         onClick={() => {
           action("button-clicked");
           Toaster.show(args);
         }}
         size={Size.large}
+        tag={"button"}
         text="Show toast message"
-        variant={Variant.info}
       />
     </StoryWrapper>
   );
