@@ -15,6 +15,8 @@ import { DropdownWidgetProps } from "widgets/DropdownWidget";
 import { CheckboxWidgetProps } from "widgets/CheckboxWidget";
 import { RadioGroupWidgetProps } from "widgets/RadioGroupWidget";
 import { FilePickerWidgetProps } from "widgets/FilepickerWidget";
+import { FilePickerWidgetV2Props } from "widgets/FilepickerWidgetV2";
+
 import {
   TabsWidgetProps,
   TabContainerWidgetProps,
@@ -76,6 +78,7 @@ export interface WidgetConfigReducerState {
     SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
+    FILE_PICKER_WIDGET_V2: Partial<FilePickerWidgetV2Props> & WidgetConfigProps;
     TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
       WidgetConfigProps;
     TABS_MIGRATOR_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &

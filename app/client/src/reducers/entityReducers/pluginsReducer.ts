@@ -10,15 +10,19 @@ import {
   PluginFormsPayload,
   GetPluginFormConfigRequest,
 } from "actions/pluginActions";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  FormEditorConfigs,
+  FormSettingsConfigs,
+  FormDependencyConfigs,
+} from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
   formConfigs: Record<string, any[]>;
-  editorConfigs: Record<string, any[]>;
-  settingConfigs: Record<string, any[]>;
-  dependencies: Record<string, DependencyMap>;
+  editorConfigs: FormEditorConfigs;
+  settingConfigs: FormSettingsConfigs;
+  dependencies: FormDependencyConfigs;
   fetchingSinglePluginForm: Record<string, boolean>;
 }
 

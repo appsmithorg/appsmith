@@ -18,7 +18,6 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { Diff } from "deep-diff";
 
 const ctx: Worker = self as any;
 
@@ -46,12 +45,11 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { overrideUpdate, unevalTree, widgetTypeConfigMap } = requestData;
+        const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
-        let updates: Diff<DataTree, DataTree>[] = [];
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
@@ -65,12 +63,9 @@ ctx.addEventListener(
           } else {
             dataTree = {};
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
-            if (overrideUpdate) {
-              dataTree = JSON.parse(JSON.stringify(updateResponse.dataTree));
-            }
-            updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
+            dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -98,7 +93,6 @@ ctx.addEventListener(
           errors,
           evaluationOrder,
           logs,
-          updates,
           unEvalUpdates,
         };
       }

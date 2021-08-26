@@ -43,6 +43,7 @@ import {
 } from "./PostEvaluationSagas";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -56,14 +57,12 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const overrideUpdate = localStorage.getItem("shouldOverrideUpdate") || false;
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     {
       unevalTree,
       widgetTypeConfigMap,
-      overrideUpdate,
     },
   );
   const {
@@ -73,7 +72,6 @@ function* evaluateTreeSaga(
     evaluationOrder,
     logs,
     unEvalUpdates,
-    updates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -81,6 +79,10 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
   yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,

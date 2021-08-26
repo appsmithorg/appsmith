@@ -3,7 +3,6 @@ import { applyChange, Diff } from "deep-diff";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createImmerReducer } from "utils/AppsmithUtils";
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -19,7 +18,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }>,
   ) => {
     const { dataTree, updates } = action.payload;
-    if (Object.keys(dataTree).length) {
+    if (updates.length === 0) {
       return dataTree;
     }
     for (const update of updates) {
@@ -30,7 +29,6 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
       try {
         applyChange(state, undefined, update);
       } catch (e) {
-        log.error(e);
         Sentry.captureException(e, {
           extra: {
             update,
