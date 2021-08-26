@@ -64,6 +64,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
   return stringSegments;
 }
 
+//{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
@@ -333,6 +334,9 @@ export type EvaluationError = {
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
+  originalBinding?: string;
+  variables?: (string | undefined | null | number)[];
+  code?: string;
 };
 
 export interface DataTreeEvaluationProps {
