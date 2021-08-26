@@ -3,6 +3,7 @@ import { DefaultTheme, ThemeProvider } from "./configs";
 import store from "../src/store";
 import { Provider } from "react-redux";
 import GlobalStyles from "../src/globalStyles/index";
+import "../src/index.css";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
