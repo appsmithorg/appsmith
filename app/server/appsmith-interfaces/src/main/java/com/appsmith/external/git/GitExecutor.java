@@ -1,4 +1,4 @@
 package com.appsmith.external.git;
 
-public interface GitServiceCE {
+public interface GitExecutor {
 }
