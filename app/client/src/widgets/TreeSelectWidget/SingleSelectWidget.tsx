@@ -47,9 +47,10 @@ class TreeSingleSelectWidget extends BaseWidget<
             isTriggerProperty: false,
             isJSConvertible: false,
             validation: {
-              type: ValidationTypes.ARRAY,
-              unique: ["value"],
+              type: ValidationTypes.NESTED_OBJECT_ARRAY,
               params: {
+                unique: ["value"],
+                default: [],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -72,8 +73,7 @@ class TreeSingleSelectWidget extends BaseWidget<
                       },
                       {
                         name: "children",
-                        type: ValidationTypes.NESTED_OBJECT_ARRAY,
-                        unique: ["value"],
+                        type: ValidationTypes.ARRAY,
                         required: false,
                         params: {
                           children: {
