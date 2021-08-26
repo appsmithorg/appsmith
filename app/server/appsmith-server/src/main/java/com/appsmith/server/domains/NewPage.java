@@ -15,6 +15,10 @@ public class NewPage extends BaseDomain {
 
     String applicationId;
 
+    // This field will only be used for git related functionality to sync the page object across different instances.
+    // Once created no-one has access to update this field
+    String gitSyncId;
+
     PageDTO unpublishedPage;
 
     PageDTO publishedPage;

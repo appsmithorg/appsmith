@@ -141,9 +141,6 @@ public class Application extends BaseDomain {
     // git repo.
     @Data
     public static class GitMetadata {
-        @Transient
-        String applicationId;
-
         // Git branch corresponding to this application
         String branchName;
 

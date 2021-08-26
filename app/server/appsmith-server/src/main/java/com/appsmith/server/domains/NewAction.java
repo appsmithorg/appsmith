@@ -35,4 +35,8 @@ public class NewAction extends BaseDomain {
 
     ActionDTO publishedAction;
 
+    // This field will only be used for git related functionality to sync the action object across different instances.
+    // Once created no-one has access to update this field
+    String gitSyncId;
+
 }
