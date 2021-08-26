@@ -28,7 +28,7 @@ export default class ReplayDSL {
   shouldReplay() {
     const diffs = this.getDiffs();
 
-    return diffs && diffs.length;
+    return diffs && diffs.length > 0;
   }
 
   /**
