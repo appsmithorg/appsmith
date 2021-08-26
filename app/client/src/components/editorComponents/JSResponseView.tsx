@@ -23,6 +23,8 @@ import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { sortBy } from "lodash";
+import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
+import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -48,33 +50,24 @@ const ResponseTabActionsList = styled.ul`
   height: 100%;
   width: 20%;
   list-style: none;
-  padding-left: 20px;
+  padding-left: 0;
 `;
 
 const ResponseTabAction = styled.li`
-  padding: 10px 0;
+  padding: 10px 0px 10px 20px;
+  display: flex;
+  align-items: center;
   &:hover {
     cursor: pointer;
     background-color: #f0f0f0;
   }
-  &::before {
-    content: "{}";
-    color: #6a86ce;
-    padding-right: 5px;
-    padding-left: 10px;
-  }
-  &::after {
-    content: "";
+  .function-name {
+    margin-left: 5px;
     display: inline-block;
-    box-sizing: border-box;
-    float: right;
-    width: 0;
-    height: 8px;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 12px solid #a9a7a7;
-    padding-right: 10px;
-    border-radius: 4px;
+  }
+  .run-button {
+    margin-left: auto;
+    margin-right: 15px;
   }
   &.active {
     background-color: #f0f0f0;
@@ -91,8 +84,7 @@ const TabbedViewWrapper = styled.div`
   }
 `;
 
-const ReponseViewer = styled.div`
-  margin-left: 10px;
+const ResponseViewer = styled.div`
   width: 80%;
 `;
 
@@ -103,7 +95,7 @@ const NoResponseContainer = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  &.run {
+  &.empty {
     background-color: #fafafa;
   }
   .${Classes.ICON} {
@@ -152,7 +144,7 @@ function JSResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           {sortedActionList && !sortedActionList?.length ? (
-            <NoResponseContainer> Create function now! </NoResponseContainer>
+            <NoResponseContainer> Create JS Object </NoResponseContainer>
           ) : (
             <>
               <ResponseTabActionsList>
@@ -167,19 +159,23 @@ function JSResponseView(props: Props) {
                           runAction(action);
                         }}
                       >
-                        {action.name}
+                        <JSFunction />{" "}
+                        <div className="function-name">{action.name}</div>
+                        <RunFunction className="run-button" />
                       </ResponseTabAction>
                     );
                   })}
               </ResponseTabActionsList>
-              <ReponseViewer>
+              <ResponseViewer>
                 {isRunning ? (
                   <LoadingOverlayScreen theme={props.theme}>
                     Executing function
                   </LoadingOverlayScreen>
                 ) : !responses.hasOwnProperty(selectActionId) ? (
-                  <NoResponseContainer className="run">
-                    <Text type={TextType.P1}> Run function now! </Text>
+                  <NoResponseContainer className="empty">
+                    <Text type={TextType.P1}>
+                      Click <RunFunction /> to get response
+                    </Text>
                   </NoResponseContainer>
                 ) : (
                   <ReadOnlyEditor
@@ -190,7 +186,7 @@ function JSResponseView(props: Props) {
                     }}
                   />
                 )}
-              </ReponseViewer>
+              </ResponseViewer>
             </>
           )}
         </ResponseTabWrapper>
