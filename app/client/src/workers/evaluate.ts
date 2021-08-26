@@ -10,6 +10,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
+import { Position } from "codemirror";
 
 export type EvalResult = {
   result: any;
@@ -23,31 +24,47 @@ export enum EvaluationScriptType {
   TRIGGERS = "TRIGGERS",
 }
 
-const evaluationScripts: Record<
-  EvaluationScriptType,
-  (script: string) => string
-> = {
-  [EvaluationScriptType.EXPRESSION]: (script: string) => `
+// Some errors in jshint give the character postion after the error.
+// W116 (using == instead of ===) this returns position after == but we want to highlight the == so -2
+const lintErrorOffsets: Record<string, number> = {
+  W116: -2,
+};
+
+const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
+  [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
-    const result = ${script}
+    const result = <<script>>
     return result;
   }
   closedFunction()
   `,
-  [EvaluationScriptType.ANONYMOUS_FUNCTION]: (script) => `
+  [EvaluationScriptType.ANONYMOUS_FUNCTION]: `
   function callback (script) {
     const userFunction = script;
     const result = userFunction.apply(self, ARGUMENTS);
     return result;
   }
-  callback(${script})
+  callback(<<script>>)
   `,
-  [EvaluationScriptType.TRIGGERS]: (script) => `
+  [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
-    const result = ${script}
+    const result = <<script>>
   }
   closedFunction()
   `,
+};
+
+const getPositionInEvaluationScript = (
+  type: EvaluationScriptType,
+): Position => {
+  const script = evaluationScriptsPos[type];
+
+  const index = script.indexOf("<<script>>");
+  const substr = script.substr(0, index);
+  const lines = substr.split("\n");
+  const lastLine = _.last(lines) || "";
+
+  return { line: lines.length, ch: lastLine.length };
 };
 
 const getScriptType = (
@@ -65,17 +82,16 @@ const getScriptType = (
 
 const getScriptToEval = (
   userScript: string,
-  evalArguments?: Array<any>,
-  isTriggerBased = false,
+  type: EvaluationScriptType,
 ): string => {
-  const scriptType = getScriptType(evalArguments, isTriggerBased);
-  return evaluationScripts[scriptType](userScript);
+  return evaluationScriptsPos[type].replace("<<script>>", userScript);
 };
 
 const getLintingErrors = (
   script: string,
   data: Record<string, unknown>,
   originalBinding: string,
+  scriptPos: Position,
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
@@ -91,9 +107,14 @@ const getLintingErrors = (
     worker: true,
     globals: globalData,
   };
+
   jshint(script, options);
 
   return jshint.errors.map((lintError) => {
+    const offset = lintErrorOffsets[lintError.code];
+    const ch = _.isUndefined(offset)
+      ? lintError.character
+      : lintError.character + offset;
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
@@ -106,6 +127,8 @@ const getLintingErrors = (
       // By keeping track of these variables we can highlight the exact text that caused the error.
       variables: [lintError.a, lintError.b, lintError.c, lintError.d],
       code: lintError.code,
+      line: lintError.line - scriptPos.line,
+      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
     };
   });
 };
@@ -122,7 +145,11 @@ export default function evaluate(
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
-  const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
+  const scriptType = getScriptType(evalArguments, isTriggerBased);
+  const script = getScriptToEval(unescapedJS, scriptType);
+  // We are linting original js binding,
+  // This will make sure that the characted count is not messed up when we do unescapejs
+  const scriptToLint = getScriptToEval(js, scriptType);
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
@@ -172,7 +199,12 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
+    errors = getLintingErrors(
+      scriptToLint,
+      GLOBAL_DATA,
+      js,
+      getPositionInEvaluationScript(scriptType),
+    );
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {

@@ -337,6 +337,8 @@ export type EvaluationError = {
   originalBinding?: string;
   variables?: (string | undefined | null)[];
   code?: string;
+  line?: number;
+  ch?: number;
 };
 
 export interface DataTreeEvaluationProps {
