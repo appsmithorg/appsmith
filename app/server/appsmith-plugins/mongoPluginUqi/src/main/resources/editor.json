@@ -11,12 +11,12 @@
           "initialValue": "FIND",
           "options": [
             {
-              "label": "Insert Document(s)",
-              "value": "INSERT"
+              "label": "Fetch Many",
+              "value": "FIND"
             },
             {
-              "label": "Find Document(s)",
-              "value": "FIND"
+              "label": "Insert Document(s)",
+              "value": "INSERT"
             },
             {
               "label": "Update Document(s)",
@@ -45,10 +45,52 @@
           ]
         },
         {
-          "label": "Collection Name",
-          "configProperty": "actionConfiguration.formData.collection",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
+          "label": "Entity",
+          "_comment": "(Entity Selector)",
+          "controlType": "ENTITY_SELECTOR",
+          "children": [
+            {
+              "label": "Sheet",
+              "controlType": "DROP_DOWN",
+              "configProperty": "actionConfiguration.formData.collection.sheet",
+              "conditionals": {
+                "enable": true,
+                "trigger": {
+                  "url": "/datasources/{datasourceId}/structure/entities/",
+                  "params": {
+                    "component": "DROP_DOWN"
+                  },
+                  "body": ""
+                }
+              }
+            },
+            {
+              "label": "Sub-Sheet",
+              "controlType": "DROP_DOWN",
+              "configProperty": "actionConfiguration.formData.collection.subSheet",
+              "options": [],
+              "conditionals": {
+                "enable": "{{!!actionConfiguration.formData.collection.sheet && options.length>0}}",
+                "trigger": {
+                  "url": "/datasources/{{datasourceId}}/structure/entities/",
+                  "params": {
+                    "entity1Value": "{{actionConfiguration.formData.collection.sheet}}",
+                    "component": "DROP_DOWN"
+                  },
+                  "body": ""
+                }
+              }
+            },
+            {
+              "label": "Header Row Index",
+              "controlType": "QUERY",
+              "configProperty": "actionConfiguration.formData.collection.headerRowIndex",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "conditionals": {
+                "enable": "{{!!actionConfiguration.formData.collection.subSheet}}"
+              }
+            }
+          ],
           "conditionals": {
             "hide": "{{actionConfiguration.formData.command === 'RAW'}}"
           }
