@@ -7,7 +7,8 @@ import Dropdown, {
 import { ReactComponent as ChevronDown } from "assets/icons/ads/chevron-down.svg";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
-import { AuthTypeOptions } from "../constants";
+import { DropdownOption } from "components/ads/Dropdown";
+import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
 
 const SelectedValueNodeContainer = styled.div`
   color: ${Colors.CRUSTA};
@@ -37,15 +38,22 @@ const DropdownContainer = styled.div`
   }
 `;
 
-function SelectAuthType() {
+type OptionSelectorProps = {
+  options: DropdownOption[];
+  selected: DropdownOption;
+  onSelect?: (value?: string, dropdownOption?: any) => void;
+};
+
+function OptionSelector({ onSelect, options, selected }: OptionSelectorProps) {
   return (
-    <DropdownContainer>
+    <DropdownContainer className={GitSyncClasses.OPTION_SELECTOR_WRAPPER}>
       <Dropdown
         SelectedValueNode={SelectedValueNode}
         bgColor={"transparent"}
         className="auth-type-dropdown"
-        options={AuthTypeOptions}
-        selected={AuthTypeOptions[0]}
+        onSelect={onSelect}
+        options={options}
+        selected={selected}
         showDropIcon={false}
         showLabelOnly
       />
@@ -53,4 +61,4 @@ function SelectAuthType() {
   );
 }
 
-export default SelectAuthType;
+export default OptionSelector;

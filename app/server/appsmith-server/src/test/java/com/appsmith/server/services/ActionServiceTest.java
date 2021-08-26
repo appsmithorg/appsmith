@@ -732,7 +732,7 @@ public class ActionServiceTest {
         Mono<List<ActionViewDTO>> actionsListMono = layoutActionService.createAction(action)
                 .then(layoutActionService.createAction(action1))
                 .then(layoutActionService.createAction(action2))
-                .then(applicationPageService.publish(testPage.getApplicationId()))
+                .then(applicationPageService.publish(testPage.getApplicationId(), true))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
@@ -843,7 +843,7 @@ public class ActionServiceTest {
         Mono<ActionDTO> createActionMono = layoutActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
                 // Publish the application before fetching the action in view mode
-                .then(applicationPageService.publish(testApp.getId()))
+                .then(applicationPageService.publish(testApp.getId(), true))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)

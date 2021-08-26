@@ -215,7 +215,7 @@ function RenderOptions(props: {
     trigger: {
       content: (
         <DropdownTrigger className={props.className}>
-          <AutoToolTipComponentWrapper isCellVisible title={selectedValue}>
+          <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
           <Icon color={Colors.SLATE_GRAY} icon="caret-down" iconSize={16} />
