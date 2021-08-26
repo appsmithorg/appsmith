@@ -13,6 +13,7 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
@@ -106,7 +107,7 @@ public class ImportExportApplicationService {
      * @param applicationId which needs to be exported
      * @return application reference from which entire application can be rehydrated
      */
-    public Mono<ApplicationJson> exportApplicationById(String applicationId) {
+    public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
         /*
             1. Fetch application by id
@@ -280,9 +281,11 @@ public class ImportExportApplicationService {
                             datasource.setOrganizationId(null);
                             datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
                             datasource.setStructure(null);
-                            // TODO : If we are exporting the doc for git functionality, remove the datasourceConfiguration
-                            //  object as user will configure it once imported to other instance
-                            if (datasource.getDatasourceConfiguration() != null) {
+                            if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
+                                // If we are exporting the doc for git functionality, remove the datasourceConfiguration
+                                // object as user will configure it once imported to other instance
+                                datasource.setDatasourceConfiguration(null);
+                            } else if (datasource.getDatasourceConfiguration() != null) {
                                 datasource.getDatasourceConfiguration().setAuthentication(null);
                             }
                         });
@@ -292,6 +295,10 @@ public class ImportExportApplicationService {
             })
             .then()
             .thenReturn(applicationJson);
+    }
+
+    public Mono<ApplicationJson> exportApplicationById(String applicationId) {
+        return exportApplicationById(applicationId, SerialiseApplicationObjective.SHARE);
     }
 
     /**
@@ -342,7 +349,7 @@ public class ImportExportApplicationService {
      * @return saved application in DB
      */
     public Mono<Application> importApplicationInOrganization(String organizationId, ApplicationJson importedDoc) {
-        return importApplicationInOrganization(organizationId, importedDoc, "61271c1de2a6b928fd5cdded");
+        return importApplicationInOrganization(organizationId, importedDoc, null);
     }
 
     /**
