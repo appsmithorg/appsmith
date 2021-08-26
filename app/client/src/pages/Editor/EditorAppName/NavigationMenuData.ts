@@ -153,6 +153,13 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
+      text: "Export Application",
+      onClick: () =>
+        openExternalLink(`/api/v1/applications/export/${applicationId}`),
+      type: MenuTypes.MENU,
+      isVisible: isApplicationIdPresent,
+    },
+    {
       text: "Delete Application",
       confirmText: "Are you sure?",
       onClick: deleteApplication,
