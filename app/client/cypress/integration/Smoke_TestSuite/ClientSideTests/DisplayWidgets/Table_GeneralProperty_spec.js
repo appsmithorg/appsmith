@@ -80,12 +80,15 @@ describe("Table Widget property pane feature validation", function() {
     // Verify the font style is italic
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
     // Change the font style to underline
+    cy.editColumn("id");
     cy.get(widgetsPage.underline).click({ force: true });
     // Verify the font style is underline
-    cy.readTabledataValidateCSS("1", "0", "text-decoration", "underline");
+    cy.readTabledataValidateCSS("1", "0", "text-decoration-line", "underline");
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Test to validate vertical allignment", function() {
+    cy.openPropertyPane("tablewidget");
     // Select the top vertical alignment
     cy.get(widgetsPage.verticalTop).click({ force: true });
     // verify vertical alignment is top
