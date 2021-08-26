@@ -60,6 +60,7 @@ public class Datasource extends BaseDomain {
 
     // This field will only be used for git related functionality to sync the action object across different instances.
     // Once created no-one has access to update this field
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String gitSyncId;
 
     /**
