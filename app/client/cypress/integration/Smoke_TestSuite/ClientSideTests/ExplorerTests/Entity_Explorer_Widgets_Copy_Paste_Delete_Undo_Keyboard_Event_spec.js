@@ -5,7 +5,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const dsl = require("../../../../fixtures/formWidgetdsl.json");
+const dsl = require("../../../../fixtures/formWithInputdsl.json");
 
 const pageid = "MyPage";
 before(() => {
@@ -51,6 +51,22 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
+      cy.contains("FormTestCopy");
+      cy.get($lis.eq(1))
+        .contains("{{FormTestCopy.data}}")
+        .click({ force: true });
+      //cy.get('.clipboard-message success')
+      //  .contains('Copied to clipboard!')
+      //  .should('be.visible');
+      cy.wait(10000);
+      cy.GlobalSearchEntity("Input1");
+      cy.wait(10000);
+      cy.get(".bp3-input")
+        .first()
+        .click({ force: true });
+      cy.get(".bp3-input")
+        .first()
+        .type(`{${modifierKey}}v`, { force: true });
     });
   });
 });

@@ -986,6 +986,15 @@ export default [
         isBindProperty: true,
         isTriggerProperty: true,
       },
+      {
+        helpText: "Triggers an action when a table column is sorted",
+        propertyName: "onSort",
+        label: "onSort",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {

@@ -1,4 +1,4 @@
-import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, Log, Severity } from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
@@ -39,8 +39,17 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import getFeatureFlags from "utils/featureFlags";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
+/**
+ * Errors in this array will not be shown in the debugger.
+ * We do this to avoid same error showing multiple times.
+ *
+ * Errors ignored:
+ * W117: `x` is undefined
+ */
+const errorCodesToIgnoreInDebugger = ["W117"];
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
@@ -60,70 +69,102 @@ function logLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const allEvalErrors: EvaluationError[] = get(
+      let allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
+      // If linting flag is not own, filter out all lint errors
+      if (!getFeatureFlags().LINTING) {
+        allEvalErrors = allEvalErrors.filter(
+          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+        );
+      }
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
       );
-      const evalErrors = allEvalErrors.filter(
-        (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
-      );
+      const evalErrors: EvaluationError[] = [];
+      const evalWarnings: EvaluationError[] = [];
+
+      for (const err of allEvalErrors) {
+        if (
+          err.severity === Severity.WARNING &&
+          !errorCodesToIgnoreInDebugger.includes(err.code || "")
+        ) {
+          evalWarnings.push(err);
+        }
+        if (err.severity === Severity.ERROR) {
+          evalErrors.push(err);
+        }
+      }
+
       const idField = isWidget(entity) ? entity.widgetId : entity.actionId;
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
         : ENTITY_TYPE.ACTION;
-      const debuggerKey = idField + "-" + propertyPath;
-      // if dataTree has error but debugger does not -> add
-      // if debugger has error and data tree has error -> update error
-      // if debugger has error but data tree does not -> remove
-      // if debugger or data tree does not have an error -> no change
+      const debuggerKeys = [
+        {
+          key: `${idField}-${propertyPath}`,
+          errors: evalErrors,
+        },
+        {
+          key: `${idField}-${propertyPath}-warning`,
+          errors: evalWarnings,
+          isWarning: true,
+        },
+      ];
 
-      if (evalErrors.length) {
-        // TODO Rank and set the most critical error
-        // const error = evalErrors[0];
-        // Reformatting eval errors here to a format usable by the debugger
-        const errorMessages = evalErrors.map((e) => {
-          // Error format required for the debugger
-          const formattedError = {
-            message: e.errorMessage,
-            type: e.errorType,
-          };
+      for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
+        // if dataTree has error but debugger does not -> add
+        // if debugger has error and data tree has error -> update error
+        // if debugger has error but data tree does not -> remove
+        // if debugger or data tree does not have an error -> no change
 
-          return formattedError;
-        });
+        if (errors.length) {
+          // TODO Rank and set the most critical error
+          // const error = evalErrors[0];
+          // Reformatting eval errors here to a format usable by the debugger
+          const errorMessages = errors.map((e) => {
+            // Error format required for the debugger
+            return {
+              message: e.errorMessage,
+              type: e.errorType,
+            };
+          });
 
-        const analyticsData = isWidget(entity)
-          ? {
-              widgetType: entity.type,
-            }
-          : {};
+          const analyticsData = isWidget(entity)
+            ? {
+                widgetType: entity.type,
+              }
+            : {};
 
-        // Add or update
-        AppsmithConsole.addError({
-          id: debuggerKey,
-          logType: LOG_TYPE.EVAL_ERROR,
-          // Unless the intention is to change the message shown in the debugger please do not
-          // change the text shown here
-          text: createMessage(VALUE_IS_INVALID, propertyPath),
-          messages: errorMessages,
-          source: {
-            id: idField,
-            name: nameField,
-            type: entityType,
-            propertyPath: propertyPath,
-          },
-          state: {
-            [propertyPath]: evaluatedValue,
-          },
-          analytics: analyticsData,
-        });
-      } else if (debuggerKey in updatedDebuggerErrors) {
-        AppsmithConsole.deleteError(debuggerKey);
+          // Add or update
+          AppsmithConsole.addError(
+            {
+              id: debuggerKey,
+              logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
+              // Unless the intention is to change the message shown in the debugger please do not
+              // change the text shown here
+              text: createMessage(VALUE_IS_INVALID, propertyPath),
+              messages: errorMessages,
+              source: {
+                id: idField,
+                name: nameField,
+                type: entityType,
+                propertyPath: propertyPath,
+              },
+              state: {
+                [propertyPath]: evaluatedValue,
+              },
+              analytics: analyticsData,
+            },
+            isWarning ? Severity.WARNING : Severity.ERROR,
+          );
+        } else if (debuggerKey in updatedDebuggerErrors) {
+          AppsmithConsole.deleteError(debuggerKey);
+        }
       }
     }
   }
