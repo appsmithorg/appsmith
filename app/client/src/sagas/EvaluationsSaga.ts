@@ -176,8 +176,8 @@ export function* clearEvalCache() {
  * @returns
  */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode = select(commentModeSelector);
-  const isSnipingMode = select(snipingModeSelector);
+  const isCommentMode = yield select(commentModeSelector);
+  const isSnipingMode = yield select(snipingModeSelector);
 
   // if the app is in snipping or comments mode, don't do anything
   if (isCommentMode || isSnipingMode) return;
