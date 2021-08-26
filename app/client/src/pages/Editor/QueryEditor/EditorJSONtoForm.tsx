@@ -551,23 +551,25 @@ export function EditorJSONtoForm(props: Props) {
           if (!allowToRender) return null;
         }
 
-        if (formControlOrSection.hasOwnProperty("children")) {
+        // If component is type section, render it's children
+        if (
+          formControlOrSection.hasOwnProperty("controlType") &&
+          formControlOrSection.controlType === "SECTION" &&
+          formControlOrSection.hasOwnProperty("children")
+        ) {
           return renderEachConfigV2(formName)(formControlOrSection);
-        } else {
-          try {
-            const { configProperty } = formControlOrSection;
-            return (
-              <FieldWrapper key={`${configProperty}_${idx}`}>
-                <FormControl
-                  config={formControlOrSection}
-                  formName={formName}
-                />
-              </FieldWrapper>
-            );
-          } catch (e) {
-            log.error(e);
-          }
         }
+        try {
+          const { configProperty } = formControlOrSection;
+          return (
+            <FieldWrapper key={`${configProperty}_${idx}`}>
+              <FormControl config={formControlOrSection} formName={formName} />
+            </FieldWrapper>
+          );
+        } catch (e) {
+          log.error(e);
+        }
+
         return null;
       },
     );

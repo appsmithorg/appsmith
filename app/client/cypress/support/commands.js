@@ -2304,10 +2304,9 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
-    .click()
-    .get("a.single-select div")
-    .contains(forSuccess)
-    .click();
+    .first()
+    .click({ force: true })
+    .selectOnClickOption(forSuccess);
 
   cy.wait(2000);
   // For Failure
@@ -2323,10 +2322,8 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .type(forFailure)
     .get("button.t--open-dropdown-Select-type")
     .last()
-    .click()
-    .get("a.single-select div")
-    .contains(forFailure)
-    .click();
+    .click({ force: true })
+    .selectOnClickOption(forFailure);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
