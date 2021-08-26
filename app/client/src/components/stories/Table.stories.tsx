@@ -5,6 +5,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { StoryWrapper, Variant } from "components/ads/common";
+import { noop } from "utils/AppsmithUtils";
 
 export default {
   title: "Table",
@@ -59,7 +60,7 @@ const data = [
     col2: "dustin_01@jlegue.com",
     col3: (
       <TableDropdown
-        onSelect={(selectedValue) => console.log(selectedValue)}
+        onSelect={noop}
         options={options}
         position={Position.BOTTOM}
         selectedIndex={0}
@@ -81,7 +82,7 @@ const data = [
     col2: "dustin_02@jlegue.com",
     col3: (
       <TableDropdown
-        onSelect={(selectedValue) => console.log(selectedValue)}
+        onSelect={noop}
         options={options}
         position={Position.BOTTOM}
         selectedIndex={1}
@@ -103,7 +104,7 @@ const data = [
     col2: "dustin_03@jlegue.com",
     col3: (
       <TableDropdown
-        onSelect={(selectedValue) => console.log(selectedValue)}
+        onSelect={noop}
         options={options}
         position={Position.BOTTOM}
         selectedIndex={2}

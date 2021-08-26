@@ -24,6 +24,9 @@ public class UserData extends BaseDomain {
     @JsonIgnore
     String userId;
 
+    // Role of the user in their organization, example, Designer, Developer, Product Lead etc.
+    private String role;
+
     // The ID of the asset which has the profile photo of this user.
     private String profilePhotoAssetId;
 
