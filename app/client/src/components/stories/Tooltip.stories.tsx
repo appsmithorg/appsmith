@@ -22,7 +22,7 @@ export default {
 export function TooltipStory(args: TooltipProps) {
   return (
     <StoryWrapper style={{ height: 350 }}>
-      <TooltipComponent {...args}>
+      <TooltipComponent {...args} onOpening={action("tooltip-opened")}>
         <Button
           size={Size.large}
           tag={"button"}
@@ -37,7 +37,7 @@ export function TooltipStory(args: TooltipProps) {
 TooltipStory.args = {
   content: "I'm a hover over text.",
   position: Position.BOTTOM,
-  isOpen: true,
+  // isOpen: true,
 };
 
 TooltipStory.argTypes = {};
