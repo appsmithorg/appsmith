@@ -32,7 +32,7 @@ export default function* handleSocketEvent(event: any) {
 
       const { thread } = event.payload[0];
       const isForCurrentApplication =
-        thread?.applicationId === currentApplication.id;
+        thread?.applicationId === currentApplication?.id;
 
       const isCreatedByMe = thread?.authorUsername === currentUser.username;
       if (!isCreatedByMe && isForCurrentApplication)
