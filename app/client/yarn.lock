@@ -12711,7 +12711,8 @@ os-browserify@^0.3.0:
 
 os-tmpdir@~1.0.2:
   version "1.0.2"
-  resolved "https://registry.npmjs.org/os-tmpdir/-/os-tmpdir-1.0.2.tgz"
+  resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
+  integrity sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=
 
 ospath@^1.2.2:
   version "1.2.2"
