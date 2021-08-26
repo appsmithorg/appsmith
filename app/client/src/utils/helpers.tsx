@@ -145,12 +145,12 @@ export const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const flashElement = (el: HTMLElement) => {
+export const flashElement = (el: HTMLElement, flashTimeout = 1000) => {
   el.style.backgroundColor = "#FFCB33";
 
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
-  }, 1000);
+  }, flashTimeout);
 };
 
 /**
@@ -158,7 +158,11 @@ export const flashElement = (el: HTMLElement) => {
  *
  * @param id
  */
-export const flashElementsById = (id: string | string[], timeout = 0) => {
+export const flashElementsById = (
+  id: string | string[],
+  timeout = 0,
+  flashTimeout?: number,
+) => {
   let ids: string[] = [];
 
   if (Array.isArray(id)) {
@@ -177,7 +181,7 @@ export const flashElementsById = (id: string | string[], timeout = 0) => {
         inline: "center",
       });
 
-      if (el) flashElement(el);
+      if (el) flashElement(el, flashTimeout);
     }, timeout);
   });
 };

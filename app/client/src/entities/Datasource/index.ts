@@ -9,6 +9,7 @@ export interface DatasourceAuthentication {
   value?: string;
   addTo?: string;
   bearerToken?: string;
+  authenticationStatus?: string;
 }
 
 export interface DatasourceColumns {
