@@ -180,6 +180,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {

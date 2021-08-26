@@ -507,6 +507,7 @@ export const ReduxActionTypes = {
   SET_CRUD_INFO_MODAL_OPEN: "SET_CRUD_INFO_MODAL_OPEN",
   SET_PAGE_ORDER_INIT: "SET_PAGE_ORDER_INIT",
   SET_PAGE_ORDER_SUCCESS: "SET_PAGE_ORDER_SUCCESS",
+  GROUP_WIDGETS_INIT: "GROUP_WIDGETS_INIT",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
