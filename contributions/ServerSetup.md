@@ -121,7 +121,7 @@ Please note when setting **Working directory** option. If the path is not correc
 
 After configuring settings as mentioned above, please also add the following to your IntelliJ IDEA setup.
 
-1.  As shown in the image below, please enable the **Store as Project** checkbox to run the application from the main class specified. 
+1.  [Optional] As shown in the image below, please enable the **Store as Project** checkbox to run the application from the main class specified. 
 <img width="1070" alt="intellij config_1" src="./images/intellij_config_1.png">
 
 2. Please enable the **Always update snapshots** checkbox so that the most recent build is picked up. 
