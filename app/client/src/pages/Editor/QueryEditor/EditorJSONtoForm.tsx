@@ -64,7 +64,7 @@ import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
-import TooltipComponent from "../../../components/ads/Tooltip";
+import TooltipComponent from "components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
   display: flex;
