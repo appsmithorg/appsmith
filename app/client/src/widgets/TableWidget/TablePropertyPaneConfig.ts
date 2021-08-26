@@ -899,6 +899,15 @@ export default [
       },
       {
         helpText:
+          "Allow table to have infinite scroll, bind the Table.pageNo property in your API and call it onPageChange",
+        propertyName: "infiniteScroll",
+        label: "Infinite Scroll",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
+        helpText:
           "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
         label: "Server Side Pagination",

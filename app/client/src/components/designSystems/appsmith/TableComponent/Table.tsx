@@ -37,6 +37,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { FixedSizeList } from "react-window";
 import { scrollbarWidth } from "utils/helpers";
+import InfiniteLoader from "react-window-infinite-loader";
 
 interface TableProps {
   width: number;
@@ -61,6 +62,7 @@ interface TableProps {
   multiRowSelection?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
+  infiniteScroll: boolean;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
   selectedRowIndices: number[];
@@ -388,6 +390,25 @@ export function Table(props: TableProps) {
     [prepareRow, rows],
   );
 
+  const loadMoreItems = React.useCallback(
+    (startIndex: number, stopIndex: number) => {
+      // eslint-disable-next-line no-console
+      console.log({ startIndex, stopIndex });
+      props.nextPageClick();
+      return Promise.resolve();
+    },
+    [],
+  );
+
+  const isItemLoaded = React.useCallback((index: number) => {
+    // eslint-disable-next-line no-console
+    console.log({ index });
+    return props.isLoading ? false : true;
+  }, []);
+
+  const tableHeight = isHeaderVisible ? props.height - 80 : props.height - 40;
+  const tableWidth = totalColumnsWidth + scrollBarSize;
+
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
@@ -435,14 +456,36 @@ export function Table(props: TableProps) {
               }`}
               ref={tableBodyRef}
             >
-              <FixedSizeList
-                height={props.height}
-                itemCount={subPage.length}
-                itemSize={tableSizes.ROW_HEIGHT}
-                width={totalColumnsWidth + scrollBarSize}
-              >
-                {RenderRow}
-              </FixedSizeList>
+              {props.infiniteScroll ? (
+                <InfiniteLoader
+                  isItemLoaded={isItemLoaded}
+                  itemCount={1000}
+                  loadMoreItems={loadMoreItems}
+                >
+                  {({ onItemsRendered, ref }) => (
+                    <FixedSizeList
+                      className="List"
+                      height={tableHeight}
+                      itemCount={1000}
+                      itemSize={tableSizes.ROW_HEIGHT}
+                      onItemsRendered={onItemsRendered}
+                      ref={ref}
+                      width={tableWidth}
+                    >
+                      {RenderRow}
+                    </FixedSizeList>
+                  )}
+                </InfiniteLoader>
+              ) : (
+                <FixedSizeList
+                  height={tableHeight}
+                  itemCount={subPage.length}
+                  itemSize={tableSizes.ROW_HEIGHT}
+                  width={tableWidth}
+                >
+                  {RenderRow}
+                </FixedSizeList>
+              )}
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
                   props.pageSize - subPage.length,

@@ -716,6 +716,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
+          infiniteScroll={this.props.infiniteScroll}
           isLoading={this.props.isLoading}
           isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}

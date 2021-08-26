@@ -54,6 +54,7 @@ interface ReactTableComponentProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  infiniteScroll: boolean;
   serverSidePaginationEnabled: boolean;
   selectedRowIndex: number;
   selectedRowIndices: number[];
@@ -90,6 +91,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     height,
+    infiniteScroll,
     isLoading,
     isVisibleCompactMode,
     isVisibleDownload,
@@ -259,6 +261,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
+      infiniteScroll={infiniteScroll}
       isLoading={isLoading}
       isVisibleCompactMode={isVisibleCompactMode}
       isVisibleDownload={isVisibleDownload}
@@ -314,6 +317,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.searchTableData === next.searchTableData &&
     prev.selectedRowIndex === next.selectedRowIndex &&
     prev.selectedRowIndices === next.selectedRowIndices &&
+    prev.infiniteScroll === next.infiniteScroll &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
     prev.triggerRowSelection === next.triggerRowSelection &&

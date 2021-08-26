@@ -21,6 +21,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   onSearchTextChanged: string;
   selectedRowIndex?: number;
   selectedRowIndices: number[];
+  infiniteScroll?: boolean;
   serverSidePaginationEnabled?: boolean;
   multiRowSelection?: boolean;
   hiddenColumns?: string[];
