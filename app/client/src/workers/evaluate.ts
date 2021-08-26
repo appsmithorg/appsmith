@@ -79,6 +79,7 @@ const getLintingErrors = (
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
+  globalData.console = true;
   const options = {
     indent: 2,
     esversion: 7,
