@@ -128,8 +128,6 @@ const GENERATE_PAGE_MODE = {
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
 
-//
-
 function GeneratePageSubmitBtn({
   disabled,
   isLoading,
