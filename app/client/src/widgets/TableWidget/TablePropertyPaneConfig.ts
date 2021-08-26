@@ -845,7 +845,7 @@ export default [
                 },
                 {
                   propertyName: "iconButtonStyle",
-                  label: "Button Color",
+                  label: "Icon Color",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
