@@ -144,7 +144,10 @@ function JSResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           {sortedActionList && !sortedActionList?.length ? (
-            <NoResponseContainer> Create JS Object </NoResponseContainer>
+            <NoResponseContainer>
+              {" "}
+              Nothing to show, write some code to get response{" "}
+            </NoResponseContainer>
           ) : (
             <>
               <ResponseTabActionsList>
