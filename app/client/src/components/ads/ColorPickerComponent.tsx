@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -102,7 +102,9 @@ function ColorBoard(props: ColorBoardProps) {
           className={Classes.POPOVER_DISMISS}
           color={color}
           key={index}
-          onClick={() => props.selectColor(color)}
+          onClick={(e) => {
+            props.selectColor(color);
+          }}
         >
           {props.selectedColor === color && <CheckedIcon />}
         </ColorTab>
@@ -161,6 +163,15 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debouncedOnChange(value);
     setColor(value);
   };
+
+  // if props.color changes and state color is different,
+  // sets the state color to props color
+  useEffect(() => {
+    if (props.color !== color) {
+      setColor(props.color);
+    }
+  }, [props.color]);
+
   return (
     <Popover
       enforceFocus={false}
@@ -197,7 +208,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           // to prevent that make sure to wait for color update before onBlur
           setTimeout(() => {
             setOpen(false);
-          }, 100);
+          }, 150);
         }}
         onChange={handleChangeColor}
         onFocus={() => setOpen(true)}
