@@ -102,7 +102,7 @@ function ColorBoard(props: ColorBoardProps) {
           className={Classes.POPOVER_DISMISS}
           color={color}
           key={index}
-          onClick={(e) => {
+          onClick={() => {
             props.selectColor(color);
           }}
         >

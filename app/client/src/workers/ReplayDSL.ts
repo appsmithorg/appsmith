@@ -53,7 +53,7 @@ export default class ReplayDSL {
       this.undoManager.undo();
       const replay = this.applyDiffs(diffs, true);
       this.logs.push({
-        log: "replay redo",
+        log: "replay undo",
         replay,
         diffs,
         dsl: this.dsl,

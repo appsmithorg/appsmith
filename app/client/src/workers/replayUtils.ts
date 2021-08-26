@@ -1,4 +1,4 @@
-import { set } from "lodash";
+import { set, isString } from "lodash";
 import { Diff } from "deep-diff";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -68,6 +68,9 @@ export function processDiff(
       }
       break;
     case "E":
+      const propertyName = diff.path[diff.path.length - 1];
+      if (!isString(propertyName)) break;
+
       if (isPositionUpdate(diff.path[diff.path.length - 1])) {
         set(replay, [WIDGETS, widgetId, FOCUSES], true);
       } else {
