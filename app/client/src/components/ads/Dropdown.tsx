@@ -37,6 +37,7 @@ export interface RenderDropdownOptionType {
   isSelectedNode?: boolean;
   extraProps?: any;
   errorMsg?: string;
+  optionWidth?: string;
 }
 
 type RenderOption = ({
@@ -44,6 +45,7 @@ type RenderOption = ({
   index,
   option,
   optionClickHandler,
+  optionWidth,
 }: RenderDropdownOptionType) => ReactElement<any, any>;
 
 export type DropdownProps = CommonComponentProps &
@@ -67,6 +69,7 @@ export type DropdownProps = CommonComponentProps &
     isLoading?: boolean;
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     helperText?: string;
+    fillOptions?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -374,10 +377,16 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption;
+  dropdownWrapperWidth: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const { onSearch, optionClickHandler, renderOption } = props;
+  const {
+    dropdownWrapperWidth,
+    onSearch,
+    optionClickHandler,
+    renderOption,
+  } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -394,10 +403,13 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
+
   return options.length > 0 ? (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
-      width={props.optionWidth || "260px"}
+      width={
+        props.fillOptions ? dropdownWrapperWidth : props.optionWidth || "260px"
+      }
     >
       {props.enableSearch && (
         <SearchComponent
@@ -418,6 +430,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               option,
               index,
               optionClickHandler,
+              optionWidth: dropdownWrapperWidth,
             });
           }
           return (
@@ -508,6 +521,20 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
+
+  const dropdownWrapperRef = useCallback(
+    (ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setDropdownWrapperWidth(`${width}px`);
+      }
+    },
+    [setDropdownWrapperWidth],
+  );
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
@@ -518,7 +545,7 @@ export default function Dropdown(props: DropdownProps) {
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <DropdownSelect>
+    <DropdownSelect ref={dropdownWrapperRef}>
       <Selected
         bgColor={props.bgColor}
         className={props.className}
@@ -571,6 +598,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         {dropdownTrigger}
         <RenderDropdownOptions
+          dropdownWrapperWidth={dropdownWrapperWidth}
           optionClickHandler={optionClickHandler}
           {...props}
         />
