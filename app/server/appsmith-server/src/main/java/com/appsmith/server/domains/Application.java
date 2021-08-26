@@ -66,8 +66,6 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
-    Boolean forkingEnabled;
-
     GitMetadata gitMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -79,6 +77,8 @@ public class Application extends BaseDomain {
         }
         return null;
     }
+
+    Boolean forkingEnabled;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -151,7 +151,7 @@ public class Application extends BaseDomain {
         Boolean isDefault;
 
         // Default application id used for storing the application files in local volume :
-        // container-volumes/git_repo/defaultApplicationId/branchName/applicationDirectoryStructure...
+        // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
         String defaultApplicationId;
 
         public enum RemoteUrlType {
