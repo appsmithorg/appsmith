@@ -116,3 +116,16 @@ export const CUSTOM_CHART_DEFAULT_PARSED = {
     data: [],
   },
 };
+
+export enum LabelOrientation {
+  AUTO = "auto",
+  SLANT = "slant",
+  ROTATE = "rotate",
+  STAGGER = "stagger",
+}
+
+export const LABEL_ORIENTATION_COMPATIBLE_CHARTS = [
+  "LINE_CHART",
+  "AREA_CHART",
+  "COLUMN_CHART",
+];
