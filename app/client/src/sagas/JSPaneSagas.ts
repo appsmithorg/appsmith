@@ -253,11 +253,7 @@ export default function* root() {
       ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
       handleJSActionCreatedSaga,
     ),
-    debounce(
-      1500,
-      ReduxActionTypes.UPDATE_JS_ACTION_INIT,
-      handleUpdateJSAction,
-    ),
+    debounce(100, ReduxActionTypes.UPDATE_JS_ACTION_INIT, handleUpdateJSAction),
     takeEvery(
       ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
       handleJSObjectNameChangeSuccessSaga,
