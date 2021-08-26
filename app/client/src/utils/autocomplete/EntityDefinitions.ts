@@ -323,6 +323,13 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },
+  BUTTON_GROUP_WIDGET: {
+    "!doc":
+      "Button Groups are used to group and organise buttons to increase ease of use.",
+    "!url": "https://docs.appsmith.com/widget-reference/button-group",
+    isVisible: isVisible,
+    isDisabled: "bool",
+  },
 };
 
 export const GLOBAL_DEFS = {

@@ -2,6 +2,7 @@ import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 
 export enum WidgetTypes {
   BUTTON_WIDGET = "BUTTON_WIDGET",
+  BUTTON_GROUP_WIDGET = "BUTTON_GROUP_WIDGET",
   TEXT_WIDGET = "TEXT_WIDGET",
   IMAGE_WIDGET = "IMAGE_WIDGET",
   INPUT_WIDGET = "INPUT_WIDGET",

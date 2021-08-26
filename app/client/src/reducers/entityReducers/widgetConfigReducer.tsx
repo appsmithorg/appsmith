@@ -38,6 +38,7 @@ import { IframeWidgetProps } from "widgets/IframeWidget";
 import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
 import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
+import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -100,6 +101,7 @@ export interface WidgetConfigReducerState {
     ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
     CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
       WidgetConfigProps;
+    BUTTON_GROUP_WIDGET: Partial<ButtonGroupWidgetProps> & WidgetConfigProps;
   };
   configVersion: number;
 }

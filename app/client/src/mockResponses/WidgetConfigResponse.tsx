@@ -1317,6 +1317,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
+    [WidgetTypes.BUTTON_GROUP_WIDGET]: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 2 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "ButtonGroup",
+      isVisible: true,
+      version: 1,
+    },
   },
   configVersion: 1,
 };
