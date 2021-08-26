@@ -2,7 +2,7 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { isMac } from "./helpers";
+import { modText } from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -13,15 +13,24 @@ import {
   BULK_WIDGET_REMOVED,
 } from "constants/messages";
 
-export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");
-
-export const redoElement = (
-  <>
-    REDO ({modText()}+<span>&#8682;</span>+Z)
-  </>
-);
-
-export const undoElement = <>UNDO ({modText()}+Z) </>;
+/**
+ * get the text for toast
+ *
+ * @param replayType
+ * @returns
+ */
+export const getReplayToastActionText = (replayType = "undo") => {
+  switch (replayType) {
+    case "undo":
+      return <>UNDO ({modText()}+Z) </>;
+    case "redo":
+      return (
+        <>
+          REDO ({modText()}+<span>&#8682;</span>+Z){" "}
+        </>
+      );
+  }
+};
 
 export const processUndoRedoToasts = (
   undoRedoToasts: {
@@ -45,7 +54,7 @@ export const showUndoRedoToast = (
   isCreated: boolean,
   shouldUndo: boolean,
 ) => {
-  if (shouldNotShowToast(shouldUndo)) return;
+  if (shouldDisallowToast(shouldUndo)) return;
 
   const actionDescription = isCreated
     ? isMultiple
@@ -56,7 +65,7 @@ export const showUndoRedoToast = (
     : WIDGET_REMOVED;
 
   const text = createMessage(actionDescription, widgetName);
-  const actionElement = shouldUndo ? undoElement : redoElement;
+  const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
 
   Toaster.show({
     text,
@@ -64,6 +73,11 @@ export const showUndoRedoToast = (
   });
 };
 
+/**
+ * search the dom with id of element and scroll the page to its position
+ *
+ * @param id
+ */
 export const scrollWidgetIntoView = (id: string) => {
   const el = document.getElementById(id);
   if (el)
@@ -74,7 +88,14 @@ export const scrollWidgetIntoView = (id: string) => {
     });
 };
 
-function shouldNotShowToast(shouldUndo: boolean): boolean {
+/**
+ * checks if toast should be shown to user or not
+ * if the item key is true, then disallowing showing toast
+ *
+ * @param shouldUndo
+ * @returns
+ */
+export function shouldDisallowToast(shouldUndo: boolean): boolean {
   const itemKey = shouldUndo ? "undoToastShown" : "redoToastShown";
 
   const flag = localStorage.getItem(itemKey);

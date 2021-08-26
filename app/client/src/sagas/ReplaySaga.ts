@@ -19,7 +19,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   scrollWidgetIntoView,
   processUndoRedoToasts,
-} from "utils/UndoRedoHelpers";
+} from "utils/replayHelpers";
 
 export type UndoRedoPayload = {
   operation: ReplayOperation;

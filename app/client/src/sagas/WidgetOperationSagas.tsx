@@ -127,7 +127,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { showUndoRedoToast } from "utils/UndoRedoHelpers";
+import { showUndoRedoToast } from "utils/replayHelpers";
 
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,

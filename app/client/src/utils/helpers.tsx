@@ -1,3 +1,4 @@
+import React from "react";
 import { GridDefaults } from "constants/WidgetConstants";
 import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
@@ -431,3 +432,10 @@ export function bootIntercom(user?: User) {
     });
   }
 }
+
+/**
+ * returns the modText ( ctrl or command ) based on the user machine
+ *
+ * @returns
+ */
+export const modText = () => (isMac() ? <span>&#8984;</span> : "CTRL");

@@ -102,9 +102,7 @@ function ColorBoard(props: ColorBoardProps) {
           className={Classes.POPOVER_DISMISS}
           color={color}
           key={index}
-          onClick={(e) => {
-            props.selectColor(color);
-          }}
+          onClick={() => props.selectColor(color)}
         >
           {props.selectedColor === color && <CheckedIcon />}
         </ColorTab>
