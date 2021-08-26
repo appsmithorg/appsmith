@@ -80,10 +80,13 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
     private static final int CUSTOM_ENDPOINT_INDEX = 0;
     private static final int DEFAULT_URL_EXPIRY_IN_MINUTES = 5; // max 7 days is possible
+    private static final int GOOGLE_CLOUD_DEFAULT_BUCKET = 3;
     private static final String YES = "YES";
     private static final String NO = "NO";
     private static final String BASE64_DELIMITER = ";base64,";
     private static final String AMAZON_S3_SERVICE_PROVIDER = "amazon-s3";
+    private static final String GOOGLE_CLOUD_SERVICE_PROVIDER = "google-cloud-storage";
+    private static final String AUTO = "auto";
 
     public AmazonS3Plugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -670,8 +673,9 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
+                String s3Provider = (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
                 final boolean usingCustomEndpoint =
-                        !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+                        !AMAZON_S3_SERVICE_PROVIDER.equals(s3Provider);
 
                 if (!usingCustomEndpoint
                         && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
@@ -703,6 +707,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 }
 
                 if (usingCustomEndpoint
+                        && !s3Provider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)
                         && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                         || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
                         || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
@@ -716,9 +721,27 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String region = (String) (usingCustomEndpoint ?
-                                        properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue() :
-                                        properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue());
+                final String region;
+
+                // In case of google cloud storage, region is set to a fixed value
+                if (s3Provider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)) {
+                    region = AUTO;
+                    if (properties.size() < GOOGLE_CLOUD_DEFAULT_BUCKET + 1
+                            || StringUtils.isEmpty((String) properties.get(GOOGLE_CLOUD_DEFAULT_BUCKET).getValue())) {
+                        return Mono.error(
+                                new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        "Mandatory field 'Default Bucket' is missing. Did you forget to edit the " +
+                                                "'Default Bucket' field in the datasource creation form ? You need " +
+                                                "to fill it with a bucket you have access to."
+                                )
+                        );
+                    }
+                } else {
+                    region = (String) (usingCustomEndpoint ?
+                                            properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue() :
+                                            properties.get(AWS_S3_REGION_PROPERTY_INDEX).getValue());
+                }
 
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
                 if (authentication == null
@@ -754,7 +777,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         .withCredentials(new AWSStaticCredentialsProvider(awsCreds));
 
                 if (!usingCustomEndpoint) {
-                    Regions clientRegion = null;
+                    Regions clientRegion;
 
                     try {
                         clientRegion = Regions.fromName(region);
@@ -849,8 +872,10 @@ public class AmazonS3Plugin extends BasePlugin {
                 invalids.add("Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
                         "reach out to Appsmith customer support to resolve this.");
             }
+
+            String s3Provider = (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
             final boolean usingCustomEndpoint =
-                    !AMAZON_S3_SERVICE_PROVIDER.equals(properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+                    !AMAZON_S3_SERVICE_PROVIDER.equals(s3Provider);
 
             if (!usingCustomEndpoint
                     && (properties.size() < (AWS_S3_REGION_PROPERTY_INDEX + 1)
@@ -871,7 +896,9 @@ public class AmazonS3Plugin extends BasePlugin {
                         "the endpoint URL of your S3 instance.");
             }
 
+            // For google cloud storage, region concept does not exist while creating the datasource
             if (usingCustomEndpoint
+                    && !s3Provider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)
                     && (properties.size() < (CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX + 1)
                     || properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX) == null
                     || StringUtils.isEmpty((String) properties.get(CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX).getValue()))) {
@@ -880,6 +907,16 @@ public class AmazonS3Plugin extends BasePlugin {
                         "your S3 instance is hosted.");
             }
 
+
+            if (usingCustomEndpoint
+                    && s3Provider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)
+                    && (properties.size() < (GOOGLE_CLOUD_DEFAULT_BUCKET + 1)
+                    || properties.get(GOOGLE_CLOUD_DEFAULT_BUCKET) == null
+                    || StringUtils.isEmpty((String) properties.get(GOOGLE_CLOUD_DEFAULT_BUCKET).getValue()))) {
+                invalids.add("Mandatory field 'Default Bucket' is missing. Did you forget to edit the " +
+                        "'Default Bucket' field in the datasource creation form ? You need to fill it with a bucket " +
+                        "you have access to.");
+            }
             return invalids;
         }
 
@@ -896,12 +933,28 @@ public class AmazonS3Plugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .map(connection -> {
-                        /*
-                         * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
-                         *   object with wrong credentials does not throw any exception.
-                         * - Hence, adding a listBuckets() method call to test the connection.
-                         */
-                        connection.listBuckets();
+                        List<Property> properties = datasourceConfiguration.getProperties();
+                        // If we have reached here, it means that all the configurations required are present and a valid
+                        // connection may have been created.
+                        String s3Provider = (String) properties
+                                .get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
+
+                        if (!s3Provider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)) {
+                            /*
+                             * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
+                             *   object with wrong credentials does not throw any exception.
+                             * - Hence, adding a listBuckets() method call to test the connection.
+                             */
+                            connection.listBuckets();
+                        } else {
+                            if (properties.size() < GOOGLE_CLOUD_DEFAULT_BUCKET + 1) {
+                                return new DatasourceTestResult("Mandatory field 'Default Bucket' is missing. " +
+                                        "Did you forget to edit the 'Default Bucket' field in the datasource creation " +
+                                        "form ? You need to fill it with a bucket you have access to.");
+                            }
+                            String bucketName = (String) properties.get(GOOGLE_CLOUD_DEFAULT_BUCKET).getValue();;
+                            connection.listObjects(bucketName, "");
+                        }
 
                         try {
                             connection.shutdown();
