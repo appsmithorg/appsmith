@@ -21,6 +21,8 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
+import { redoAction, undoAction } from "actions/pageActions";
+
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
@@ -516,5 +518,60 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+  });
+});
+
+describe("Undo/Redo hotkey", () => {
+  it("should dispatch undo Action on cmd + z", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Z",
+        90,
+        false,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(undoAction());
+  });
+  it("should dispatch redo Action on cmd + shift + z", () => {
+    const dispatchSpy = jest.spyOn(store, "dispatch");
+    const component = render(
+      <MockPageDSL>
+        <GlobalHotKeys>
+          <MockCanvas />
+        </GlobalHotKeys>
+      </MockPageDSL>,
+    );
+
+    dispatchSpy.mockClear();
+
+    act(() => {
+      dispatchTestKeyboardEventWithCode(
+        component.container,
+        "keydown",
+        "Z",
+        90,
+        true,
+        true,
+      );
+    });
+
+    expect(dispatchSpy).toBeCalledTimes(1);
+    expect(dispatchSpy).toBeCalledWith(redoAction());
   });
 });
