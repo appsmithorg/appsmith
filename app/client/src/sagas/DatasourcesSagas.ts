@@ -902,7 +902,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
 }
 
 function* executeDatasourceQuerySaga(
-  action: executeDatasourceQueryReduxAction,
+  action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(

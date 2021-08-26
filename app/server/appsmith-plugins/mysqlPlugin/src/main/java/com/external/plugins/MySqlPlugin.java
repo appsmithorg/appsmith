@@ -763,7 +763,12 @@ public class MySqlPlugin extends BasePlugin {
 
                     columnNames.add(name);
                     columnValues.add(value);
-                    setFragments.append("\n    ").append(name).append(" = ").append(value);
+                    setFragments.append("\n    ").append(name).append(" = ").append(value).append(",");
+                }
+
+                // Delete the last comma
+                if (setFragments.length() > 0) {
+                    setFragments.deleteCharAt(setFragments.length() - 1);
                 }
 
                 final String tableName = table.getName();
@@ -779,8 +784,6 @@ public class MySqlPlugin extends BasePlugin {
                                 + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
-
-            return;
         }
 
         @Override

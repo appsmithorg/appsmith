@@ -41,6 +41,7 @@ export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
+  value?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
