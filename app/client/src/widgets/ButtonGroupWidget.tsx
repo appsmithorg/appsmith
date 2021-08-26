@@ -1,6 +1,8 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import ButtonGroupComponent from "components/designSystems/blueprint/ButtonGroupComponent";
 import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
@@ -15,6 +17,25 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Controls widget orientation",
+            propertyName: "orientation",
+            label: "Orientation",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Horizontal",
+                value: "horizontal",
+              },
+              {
+                label: "Vertical",
+                value: "vertical",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
@@ -40,25 +61,6 @@ class ButtonGroupWidget extends BaseWidget<
       {
         sectionName: "Styles",
         children: [
-          {
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-            ],
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-              },
-            },
-          },
           {
             propertyName: "buttonVariant",
             label: "Button Variant",
@@ -88,6 +90,62 @@ class ButtonGroupWidget extends BaseWidget<
               },
             },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  "NONE",
+                  "VARIANT1",
+                  "VARIANT2",
+                  "VARIANT3",
+                  "VARIANT4",
+                  "VARIANT5",
+                ],
+              },
+            },
+          },
+          {
+            propertyName: "boxShadowColor",
+            helpText: "Sets the shadow color of the widget",
+            label: "Shadow Color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
         ],
       },
     ];
@@ -96,7 +154,12 @@ class ButtonGroupWidget extends BaseWidget<
   getPageView() {
     return (
       <ButtonGroupComponent
-        isHorizontal={false}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        boxShadowColor={this.props.boxShadowColor}
+        buttonVariant={this.props.buttonVariant}
+        isDisabled={this.props.isDisabled}
+        orientation={this.props.orientation}
         widgetId={this.props.widgetId}
       />
     );
@@ -109,11 +172,11 @@ class ButtonGroupWidget extends BaseWidget<
 
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
-  capType: string;
-  capSide?: number;
-  strokeStyle?: "solid" | "dashed" | "dotted";
-  dividerColor?: string;
-  thickness?: number;
+  isDisabled: boolean;
+  buttonVariant: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default ButtonGroupWidget;

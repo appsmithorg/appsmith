@@ -1,4 +1,6 @@
 import React from "react";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import styled from "styled-components";
 
@@ -18,7 +20,8 @@ const ButtonGroupWrapper = styled.div<{
 
 class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
   render() {
-    const { isHorizontal } = this.props;
+    const { orientation } = this.props;
+    const isHorizontal = orientation === "horizontal";
 
     return (
       <ButtonGroupWrapper isHorizontal={isHorizontal}>
@@ -29,7 +32,12 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 }
 
 export interface ButtonGroupComponentProps extends ComponentProps {
-  isHorizontal: boolean;
+  orientation: string;
+  isDisabled: boolean;
+  buttonVariant: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
 }
 
 export default ButtonGroupComponent;

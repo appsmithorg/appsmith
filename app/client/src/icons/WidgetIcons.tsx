@@ -29,6 +29,7 @@ import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
+import { ReactComponent as ButtonGroupIcon } from "assets/icons/widget/button-group.svg";
 
 /* eslint-disable react/display-name */
 
@@ -187,7 +188,7 @@ export const WidgetIcons: {
   ),
   BUTTON_GROUP_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <ButtonIcon />
+      <ButtonGroupIcon />
     </IconWrapper>
   ),
 };
