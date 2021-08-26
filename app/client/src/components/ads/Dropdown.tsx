@@ -524,20 +524,6 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
-  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
-    "100%",
-  );
-
-  const dropdownWrapperRef = useCallback(
-    (ref: HTMLDivElement) => {
-      if (ref) {
-        const { width } = ref.getBoundingClientRect();
-        setDropdownWrapperWidth(`${width}px`);
-      }
-    },
-    [setDropdownWrapperWidth],
-  );
-
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
@@ -547,7 +533,7 @@ export default function Dropdown(props: DropdownProps) {
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <DropdownSelect ref={dropdownWrapperRef}>
+    <DropdownSelect>
       <Selected
         bgColor={props.bgColor}
         className={props.className}
@@ -583,12 +569,15 @@ export default function Dropdown(props: DropdownProps) {
       )}
     </DropdownSelect>
   );
+
+  const dropdownWidth = props.width || "260px";
+
   return (
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       tabIndex={0}
-      width={props.width || "260px"}
+      width={dropdownWidth}
     >
       <Popover
         boundary="scrollParent"
@@ -600,7 +589,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         {dropdownTrigger}
         <RenderDropdownOptions
-          dropdownWrapperWidth={dropdownWrapperWidth}
+          dropdownWrapperWidth={dropdownWidth}
           optionClickHandler={optionClickHandler}
           {...props}
         />
