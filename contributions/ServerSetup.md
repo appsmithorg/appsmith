@@ -127,12 +127,14 @@ After configuring settings as mentioned above, please also add the following to 
 2. Please enable the **Always update snapshots** checkbox so that the most recent build is picked up. 
 <img width="1070" alt="intellij config_2" src="./images/intellij_config_2.png"> 
 
-Happy hacking.
+Happy hacking ✌️
 
-#### Note
-In case ther server doesn't work with the above config then one may try the following and then try running the server locally.
-* mvn -B clean compile
-* ./build.sh -DskipTests
+#### Note:
+In case the server doesn't work with the above config, please try re-compiling the code using the steps
+
+```sh
+mvn -B clean compile && ./build.sh -DskipTests
+```
 
 ## Need Assistance
 - If you are unable to resolve any issue while doing the setup, please feel free to ask questions on our [Discord channel](https://discord.com/invite/rBTTVJp) or initiate a [Github discussion](https://github.com/appsmithorg/appsmith/discussions) or send an email to `support@appsmith.com`. We'll be happy to help you. 
