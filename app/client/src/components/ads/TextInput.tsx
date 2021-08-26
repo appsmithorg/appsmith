@@ -10,6 +10,7 @@ import {
 import { isEmail } from "utils/formhelpers";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
+import { noop } from "lodash";
 
 export type Validator = (
   value: string,
@@ -48,6 +49,8 @@ export type TextInputProps = CommonComponentProps & {
   dataType?: string;
   theme?: any;
   rightSideComponent?: React.ReactNode;
+  onBlur?: typeof noop;
+  onFocus?: typeof noop;
 };
 
 type boxReturnType = {

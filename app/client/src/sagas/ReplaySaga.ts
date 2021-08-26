@@ -54,7 +54,7 @@ export function* postUndoRedoSaga(replay: any) {
     processUndoRedoToasts(replay.toasts);
   }
 
-  if (replay.widgets && Object.keys(replay.widgets).length <= 0) return;
+  if (!replay.widgets || Object.keys(replay.widgets).length <= 0) return;
 
   const widgetIds = Object.keys(replay.widgets);
 

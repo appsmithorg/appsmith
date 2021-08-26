@@ -39,7 +39,13 @@ export function processDiff(
   switch (diff.kind) {
     case "N":
       if (diff.path.length == 1) {
-        const toast = createToast(diff.rhs, dsl[widgetId], isUndo, !isUndo);
+        const toast = createToast(
+          diff.rhs,
+          dsl[widgetId],
+          widgetId,
+          isUndo,
+          !isUndo,
+        );
         addToArray(replay, TOAST, toast);
       } else {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
@@ -48,7 +54,13 @@ export function processDiff(
       break;
     case "D":
       if (diff.path.length == 1) {
-        const toast = createToast(diff.lhs, dsl[widgetId], isUndo, isUndo);
+        const toast = createToast(
+          diff.lhs,
+          dsl[widgetId],
+          widgetId,
+          isUndo,
+          isUndo,
+        );
         addToArray(replay, TOAST, toast);
       } else {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
@@ -71,6 +83,7 @@ export function processDiff(
 function createToast(
   diffWidget: CanvasWidgetsReduxState,
   dslWidget: CanvasWidgetsReduxState | undefined,
+  widgetId: string,
   isUndo: boolean,
   isCreated: boolean,
 ) {
@@ -79,6 +92,7 @@ function createToast(
     isCreated,
     isUndo,
     widgetName,
+    widgetId,
   };
 }
 
