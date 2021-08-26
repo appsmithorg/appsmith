@@ -16,6 +16,7 @@ import {
   selectWidgetAction,
 } from "actions/widgetSelectionActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { flashElementsById } from "utils/helpers";
 import {
   scrollWidgetIntoView,
   processUndoRedoToasts,
@@ -32,17 +33,27 @@ export default function* undoRedoListenerSaga() {
 export function* openPropertyPaneSaga(replay: any) {
   const replayWidgetId = Object.keys(replay.widgets)[0];
 
-  if (!replayWidgetId) return;
+  if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
+    return;
 
   scrollWidgetIntoView(replayWidgetId);
 
   const isPropertyPaneVisible = yield select(getIsPropertyPaneVisible);
   const selectedWidgetId = yield select(getCurrentWidgetId);
 
+  let flashTimeout = 500;
+
   if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
     yield put(selectWidgetAction(replayWidgetId, false));
     yield put(forceOpenPropertyPane(replayWidgetId));
+    flashTimeout = 1000;
   }
+
+  flashElementsById(
+    btoa(replay.widgets[replayWidgetId].propertyUpdates.join(".")),
+    0,
+    flashTimeout,
+  );
 }
 
 export function* postUndoRedoSaga(replay: any) {

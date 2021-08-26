@@ -341,10 +341,13 @@ const PropertyControl = memo((props: Props) => {
       return false;
     };
 
+    const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+
     try {
       return (
         <ControlWrapper
           className={`t--property-control-${className}`}
+          id={uniqId}
           key={config.id}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
