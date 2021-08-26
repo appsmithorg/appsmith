@@ -96,6 +96,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             dependencies: ["selectionType"],
           },
           {
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter placeholder text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isFilterable",
             label: "Filterable",
             helpText: "Makes the dropdown list filterable",

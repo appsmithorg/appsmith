@@ -53,6 +53,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
     currencyCountryCode: {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",

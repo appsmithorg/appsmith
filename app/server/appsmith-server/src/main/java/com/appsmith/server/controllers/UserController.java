@@ -75,13 +75,18 @@ public class UserController extends BaseController<UserService, User, String> {
         return userSignup.signupAndLoginFromFormData(exchange);
     }
 
-    @PostMapping("/super")
+    @PostMapping(value = "/super", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseDTO<User>> createSuperUser(
             @Valid @RequestBody UserSignupRequestDTO resource,
             ServerWebExchange exchange
     ) {
         return userSignup.signupAndLoginSuper(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @PostMapping(value = "/super", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    public Mono<Void> createSuperUserFromFormData(ServerWebExchange exchange) {
+        return userSignup.signupAndLoginSuperFromFormData(exchange);
     }
 
     @PutMapping()
