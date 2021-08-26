@@ -63,7 +63,8 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { UIComponentTypes } from "../../../api/PluginApi";
+import TooltipComponent from "../../../components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -365,6 +366,7 @@ type QueryFormProps = {
   isRunning: boolean;
   dataSources: Datasource[];
   DATASOURCES_OPTIONS: any;
+  uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
@@ -386,6 +388,7 @@ type ReduxProps = {
   responseType: string | undefined;
   pluginId: string;
   documentationLink: string | undefined;
+  formEvaluationState: Record<string, any>;
 };
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
@@ -409,6 +412,7 @@ export function EditorJSONtoForm(props: Props) {
     responseType,
     runErrorMessage,
     settingConfig,
+    uiComponent,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
@@ -505,6 +509,71 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
+  // Added function to handle the render of the configs
+  const renderConfig = (editorConfig: any) => {
+    // Selectively rendering form based on uiComponent prop
+    return uiComponent === UIComponentTypes.UQIDbEditorForm
+      ? editorConfig.map(renderEachConfigV2(formName))
+      : editorConfig.map(renderEachConfig(formName));
+  };
+
+  // V2 call to make rendering more flexible, used for UQI forms
+  const renderEachConfigV2 = (formName: string) => (section: any): any => {
+    return section.children.map(
+      (formControlOrSection: ControlProps, idx: number) => {
+        if (
+          !!formControlOrSection &&
+          props.hasOwnProperty("formEvaluationState") &&
+          !!props.formEvaluationState
+        ) {
+          let allowToRender = true;
+          if (
+            formControlOrSection.hasOwnProperty("configProperty") &&
+            props.formEvaluationState.hasOwnProperty(
+              formControlOrSection.configProperty,
+            )
+          ) {
+            allowToRender =
+              props?.formEvaluationState[formControlOrSection.configProperty]
+                .visible;
+          } else if (
+            formControlOrSection.hasOwnProperty("serverLabel") &&
+            !!formControlOrSection.serverLabel &&
+            props.formEvaluationState.hasOwnProperty(
+              formControlOrSection.serverLabel,
+            )
+          ) {
+            allowToRender =
+              props?.formEvaluationState[formControlOrSection.serverLabel]
+                .visible;
+          }
+
+          if (!allowToRender) return null;
+        }
+
+        if (formControlOrSection.hasOwnProperty("children")) {
+          return renderEachConfigV2(formName)(formControlOrSection);
+        } else {
+          try {
+            const { configProperty } = formControlOrSection;
+            return (
+              <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FormControl
+                  config={formControlOrSection}
+                  formName={formName}
+                />
+              </FieldWrapper>
+            );
+          } catch (e) {
+            log.error(e);
+          }
+        }
+        return null;
+      },
+    );
+  };
+
+  // Recursive call to render forms pre UQI
   const renderEachConfig = (formName: string) => (section: any): any => {
     return section.children.map(
       (formControlOrSection: ControlProps, idx: number) => {
@@ -712,7 +781,7 @@ export function EditorJSONtoForm(props: Props) {
                     panelComponent: (
                       <SettingsWrapper>
                         {editorConfig && editorConfig.length > 0 ? (
-                          editorConfig.map(renderEachConfig(formName))
+                          renderConfig(editorConfig)
                         ) : (
                           <>
                             <ErrorMessage>
