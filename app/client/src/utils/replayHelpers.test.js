@@ -1,7 +1,5 @@
 import { shouldDisallowToast } from "./replayHelpers";
 
-import myLocalStorage, { getLocalStorage } from "utils/localStorage";
-
 describe("Checks ReplayDSL functionality", () => {
   var localStorage = {};
   localStorage.setItem = function(key, val) {
