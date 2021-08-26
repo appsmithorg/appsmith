@@ -20,7 +20,7 @@ import { flashElementsById } from "utils/helpers";
 import {
   scrollWidgetIntoView,
   processUndoRedoToasts,
-} from "utils/UndoRedoHelpers";
+} from "utils/replayHelpers";
 
 export type UndoRedoPayload = {
   operation: ReplayOperation;
