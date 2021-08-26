@@ -53,6 +53,8 @@ import {
 import { updateAndSaveLayout } from "actions/pageActions";
 import { get } from "lodash";
 import { diff } from "deep-diff";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -166,7 +168,20 @@ export function* clearEvalCache() {
   return true;
 }
 
+/**
+ * saga that listen for UNDO_REDO_OPERATION
+ * it won't do anything in case of sniping
+ *
+ * @param action
+ * @returns
+ */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
+  const isCommentMode: boolean = yield select(commentModeSelector);
+  const isSnipingMode: boolean = yield select(snipingModeSelector);
+
+  // if the app is in snipping or comments mode, don't do anything
+  if (isCommentMode || isSnipingMode) return;
+
   const workerResponse = yield call(
     worker.request,
     action.payload.operation,
