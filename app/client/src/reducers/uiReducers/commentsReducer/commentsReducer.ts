@@ -39,6 +39,7 @@ const initialState: CommentsReduxState = {
   isIntroCarouselVisible: false,
   unsubscribed: false,
   draggingCommentThreadId: null,
+  dragPointerOffset: null,
 };
 
 /**
@@ -268,16 +269,22 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<{
       threadId: string;
+      offset: {
+        x: number;
+        y: number;
+      };
     }>,
   ) => ({
     ...state,
     draggingCommentThreadId: action.payload.threadId,
+    dragPointerOffset: action.payload.offset,
   }),
   [ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD]: (
     state: CommentsReduxState,
   ) => ({
     ...state,
     draggingCommentThreadId: null,
+    dragPointerOffset: null,
   }),
 });
 

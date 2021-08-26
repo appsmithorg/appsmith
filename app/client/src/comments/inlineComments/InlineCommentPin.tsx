@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import CommentThread from "comments/CommentThread/CommentThread";
@@ -24,6 +24,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
 import history from "utils/history";
 
+const COMMENT_PIN_SIZE = 30;
 /**
  * The relavent pixel position is bottom right for the comment cursor
  * instead of the top left for the default arrow cursor
@@ -159,6 +160,7 @@ type Props = {
 
 function InlineCommentPin(props: Props) {
   const { commentThreadId, focused } = props;
+  const inlineCommentPinRef = useRef<HTMLDivElement>(null);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
   const { left, leftPercent, top, topPercent } = get(
     commentThread,
@@ -207,13 +209,18 @@ function InlineCommentPin(props: Props) {
     }
   }, [focused]);
 
-  const onCommentPinDragStart = useCallback(
-    (e: any) => {
-      e.stopPropagation();
-      dispatch(setDraggingCommentThread(commentThreadId));
-    },
-    [commentThreadId, setDraggingCommentThread, dispatch],
-  );
+  const onCommentPinDragStart = (e: any) => {
+    e.stopPropagation();
+    let offset = null;
+    if (inlineCommentPinRef.current) {
+      const pinElm = inlineCommentPinRef.current.getBoundingClientRect();
+      offset = {
+        x: COMMENT_PIN_SIZE - (e.clientX - pinElm.x),
+        y: COMMENT_PIN_SIZE - (e.clientY - pinElm.y),
+      };
+    }
+    dispatch(setDraggingCommentThread(commentThreadId, offset));
+  };
 
   if (!commentThread) return null;
 
@@ -230,6 +237,7 @@ function InlineCommentPin(props: Props) {
       }}
       onDragStart={onCommentPinDragStart}
       positionAbsolutely={positionAbsolutely}
+      ref={inlineCommentPinRef}
       top={top}
       topPercent={topPercent}
       xOffset={-1}

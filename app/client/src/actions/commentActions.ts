@@ -283,9 +283,19 @@ export const deleteCommentEvent = (comment: Comment) => ({
 
 export const setDraggingCommentThread = (
   threadId: string,
-): ReduxAction<{ threadId: string }> => ({
+  offset: {
+    x: number;
+    y: number;
+  } | null,
+): ReduxAction<{
+  threadId: string;
+  offset: {
+    x: number;
+    y: number;
+  } | null;
+}> => ({
   type: ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD,
-  payload: { threadId },
+  payload: { threadId, offset },
 });
 
 export const setHasDroppedCommentThread = () => ({
