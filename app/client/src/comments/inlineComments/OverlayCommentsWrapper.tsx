@@ -18,8 +18,6 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 
-import { AppState } from "reducers";
-
 const stopPropagation = (e: any) => {
   e.stopPropagation();
   e.preventDefault();
@@ -52,13 +50,9 @@ const Container = styled.div<{ isCommentMode: boolean }>`
 function OverlayCommentsWrapper(props: Props) {
   const { children, refId, widgetType } = props;
 
-  const draggingCommentThreadId = useSelector(
-    (state: AppState) => state.ui.comments.draggingCommentThreadId,
-  );
-
   const updateCommentPinPosition = useCallback(
     (e: any) => {
-      if (containerRef.current && draggingCommentThreadId) {
+      if (containerRef.current) {
         const newPosition = getNewDragPos(
           {
             x: e.clientX + COMMENT_PIN_OFFSET,
@@ -68,7 +62,6 @@ function OverlayCommentsWrapper(props: Props) {
         );
         dispatch(
           dragCommentThread({
-            id: draggingCommentThreadId,
             position: newPosition,
             refId,
             widgetType,
@@ -78,7 +71,7 @@ function OverlayCommentsWrapper(props: Props) {
         e.stopPropagation();
       }
     },
-    [refId, widgetType, draggingCommentThreadId],
+    [refId, widgetType],
   );
 
   const containerRef = useRef<HTMLDivElement>(null);

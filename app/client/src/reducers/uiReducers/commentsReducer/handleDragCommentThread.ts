@@ -9,7 +9,9 @@ const handleDragCommentThread = (
   action: ReduxAction<Partial<CommentThread & { _id: string }>>,
 ) => {
   const { refId } = action.payload;
-  const id = (action.payload._id || action.payload.id) as string;
+  const threadBeingDragged = state.draggingCommentThreadId;
+  if (!threadBeingDragged) return state;
+  const id = threadBeingDragged as string;
   const commentThreadInStore = state.commentThreadsMap[id];
   const { applicationId } = commentThreadInStore;
   if (!applicationId || !refId) return;

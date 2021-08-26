@@ -44,6 +44,7 @@ import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
 import { WidgetType } from "../../constants/WidgetConstants";
+import store from "store";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -85,7 +86,6 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
 
 function* updateCommentThreadPosition(
   action: ReduxAction<{
-    id: string;
     refId: string;
     position: {
       top: number;
@@ -97,10 +97,13 @@ function* updateCommentThreadPosition(
   }>,
 ) {
   try {
-    const { id, position, refId, widgetType } = action.payload;
+    const threadBeingDragged = store.getState().ui.comments
+      .draggingCommentThreadId;
+    if (!threadBeingDragged) return;
+    const { position, refId, widgetType } = action.payload;
     const response = yield CommentsApi.updateCommentThread(
       { position, refId, widgetType },
-      id,
+      threadBeingDragged,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
