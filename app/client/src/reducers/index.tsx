@@ -52,7 +52,6 @@ import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
-import { CommentDragState } from "./uiReducers/commentsReducer/commentsDragReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 
 const appReducer = combineReducers({
@@ -96,7 +95,6 @@ export interface AppState {
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     comments: CommentsReduxState;
-    commentsDrag: CommentDragState;
     websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;

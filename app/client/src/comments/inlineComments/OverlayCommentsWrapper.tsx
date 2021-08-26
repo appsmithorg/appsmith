@@ -6,6 +6,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   createUnpublishedCommentThreadRequest,
   dragCommentThread,
+  setHasDroppedCommentThread,
 } from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.svg";
 import { getNewDragPos, getOffsetPos } from "comments/utils";
@@ -18,7 +19,6 @@ import {
 } from "comments/tour/commentsTourSteps";
 
 import { AppState } from "reducers";
-import { dropThread } from "actions/commentsDragActions";
 
 const stopPropagation = (e: any) => {
   e.stopPropagation();
@@ -52,13 +52,13 @@ const Container = styled.div<{ isCommentMode: boolean }>`
 function OverlayCommentsWrapper(props: Props) {
   const { children, refId, widgetType } = props;
 
-  const currentThreadId = useSelector(
-    (state: AppState) => state.ui.commentsDrag.currentThreadId,
+  const draggingCommentThreadId = useSelector(
+    (state: AppState) => state.ui.comments.draggingCommentThreadId,
   );
 
   const updateCommentPinPosition = useCallback(
     (e: any) => {
-      if (containerRef.current && currentThreadId) {
+      if (containerRef.current && draggingCommentThreadId) {
         const newPosition = getNewDragPos(
           {
             x: e.clientX + COMMENT_PIN_OFFSET,
@@ -68,17 +68,17 @@ function OverlayCommentsWrapper(props: Props) {
         );
         dispatch(
           dragCommentThread({
-            id: currentThreadId,
+            id: draggingCommentThreadId,
             position: newPosition,
             refId,
             widgetType,
           }),
         );
-        dispatch(dropThread());
+        dispatch(setHasDroppedCommentThread());
         e.stopPropagation();
       }
     },
-    [refId, widgetType, currentThreadId],
+    [refId, widgetType, draggingCommentThreadId],
   );
 
   const containerRef = useRef<HTMLDivElement>(null);

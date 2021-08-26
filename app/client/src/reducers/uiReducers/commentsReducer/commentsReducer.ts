@@ -38,6 +38,7 @@ const initialState: CommentsReduxState = {
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   unsubscribed: false,
+  draggingCommentThreadId: null,
 };
 
 /**
@@ -263,6 +264,21 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<CommentThread>,
   ) => handleDeleteCommentThreadEvent(state, action),
+  [ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{
+      threadId: string;
+    }>,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: action.payload.threadId,
+  }),
+  [ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: null,
+  }),
 });
 
 export default commentsReducer;

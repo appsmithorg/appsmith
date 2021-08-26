@@ -13,6 +13,7 @@ import {
   setVisibleThread,
   resetVisibleThread,
   markThreadAsReadRequest,
+  setDraggingCommentThread,
 } from "actions/commentActions";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { AppState } from "reducers";
@@ -22,7 +23,6 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { getPosition, getShouldPositionAbsolutely } from "comments/utils";
 import history from "utils/history";
-import { setDraggingCommentThread } from "actions/commentsDragActions";
 
 /**
  * The relavent pixel position is bottom right for the comment cursor
@@ -82,8 +82,7 @@ function Pin({
 }) {
   const isDragging = useSelector(
     (state: AppState) =>
-      state.ui.commentsDrag.isDragging &&
-      state.ui.commentsDrag.currentThreadId === commentThreadId,
+      state.ui.comments.draggingCommentThreadId === commentThreadId,
   );
   return (
     <StyledPinContainer
@@ -174,7 +173,7 @@ function InlineCommentPin(props: Props) {
   // if user has opened a thread, we'll close it
   // as soon as they start to drag the pin
   const shouldHideThread = !!useSelector(
-    (state: AppState) => state.ui.commentsDrag.currentThreadId,
+    (state: AppState) => state.ui.comments.draggingCommentThreadId,
   );
 
   const positionAbsolutely = getShouldPositionAbsolutely(commentThread);

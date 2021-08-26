@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
@@ -279,4 +279,16 @@ export const deleteCommentThreadEvent = (thread: CommentThread) => ({
 export const deleteCommentEvent = (comment: Comment) => ({
   type: ReduxActionTypes.DELETE_COMMENT_EVENT,
   payload: comment,
+});
+
+export const setDraggingCommentThread = (
+  threadId: string,
+): ReduxAction<{ threadId: string }> => ({
+  type: ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD,
+  payload: { threadId },
+});
+
+export const setHasDroppedCommentThread = () => ({
+  type: ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD,
+  payload: {},
 });
