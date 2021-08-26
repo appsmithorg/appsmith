@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Image Widget Functionality", function() {
   before(() => {
@@ -21,9 +20,8 @@ describe("Image Widget Functionality", function() {
       viewWidgetsPage.imageWidget,
       viewWidgetsPage.imagecontainer,
     );
-    cy.get(viewWidgetsPage.defaultImage)
-      .click({ force: true })
-      .type(this.data.defaultimage);
+    cy.testJsontext("defaultimage", this.data.defaultimage);
+    cy.wait(1000);
     /**
      * @param{URL} ImageUrl
      */

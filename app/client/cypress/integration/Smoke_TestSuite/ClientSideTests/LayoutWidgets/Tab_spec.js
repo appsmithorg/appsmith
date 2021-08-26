@@ -3,7 +3,6 @@ const Layoutpage = require("../../../../locators/Layout.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/layoutdsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Tab widget test", function() {
   before(() => {
@@ -24,9 +23,7 @@ describe("Tab widget test", function() {
     cy.tabVerify(0, "Aditya");
     cy.tabVerify(1, "test");
     //Default  tab selection and validation
-    cy.get(Layoutpage.tabDefault)
-      .type(this.data.command)
-      .type("test");
+    cy.testJsontext("defaulttab", "test");
     cy.get(Layoutpage.tabWidget)
       .contains("test")
       .click({ force: true })

@@ -1,23 +1,20 @@
-import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-
-import { AppState } from "reducers";
-import ContextMenuTrigger from "../ContextMenuTrigger";
-
 import {
-  moveActionRequest,
   copyActionRequest,
   deleteAction,
+  moveActionRequest,
 } from "actions/actionActions";
-
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
-import { noop } from "lodash";
-import { useNewActionName } from "./helpers";
-import { useParams } from "react-router";
 import { BUILDER_PAGE_URL } from "constants/routes";
+import { noop } from "lodash";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
+import ContextMenuTrigger from "../ContextMenuTrigger";
+import { ContextMenuPopoverModifiers, ExplorerURLParams } from "../helpers";
+import { useNewActionName } from "./helpers";
 
 type EntityContextMenuProps = {
   id: string;
@@ -58,13 +55,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageListAsOptions);
 
   const editActionName = useCallback(
     () => dispatch(initExplorerEntityNameEdit(props.id)),

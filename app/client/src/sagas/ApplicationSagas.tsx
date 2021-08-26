@@ -48,7 +48,7 @@ import {
   DUPLICATING_APPLICATION,
 } from "constants/messages";
 import { Toaster } from "components/ads/Toast";
-import { APP_MODE } from "../reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { Organization } from "constants/orgConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
@@ -189,7 +189,9 @@ export function* fetchApplicationSaga(
     });
 
     yield put(
-      fetchUnreadCommentThreadsCountSuccess(response.data.unreadCommentThreads),
+      fetchUnreadCommentThreadsCountSuccess(
+        response.data?.unreadCommentThreads,
+      ),
     );
   } catch (error) {
     yield put({

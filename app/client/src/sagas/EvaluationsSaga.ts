@@ -41,6 +41,9 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -48,7 +51,6 @@ const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-  isFirstEvaluation = false,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
@@ -69,7 +71,7 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
-    updates,
+    unEvalUpdates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -77,6 +79,10 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
   yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
@@ -87,18 +93,17 @@ function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
-  yield fork(
-    logSuccessfulBindings,
-    unevalTree,
-    updatedDataTree,
-    evaluationOrder,
-  );
-  yield fork(
-    updateTernDefinitions,
-    updatedDataTree,
-    isFirstEvaluation,
-    updates,
-  );
+  const appMode = yield select(getAppMode);
+  if (appMode !== APP_MODE.PUBLISHED) {
+    yield fork(
+      logSuccessfulBindings,
+      unevalTree,
+      updatedDataTree,
+      evaluationOrder,
+    );
+
+    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  }
 
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
@@ -231,7 +236,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, true);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -240,12 +245,8 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    if (FIRST_EVAL_REDUX_ACTIONS.includes(action.type)) {
-      yield call(evaluateTreeSaga, initAction.postEvalActions, true);
-    } else {
-      if (shouldProcessBatchedAction(action)) {
-        yield call(evaluateTreeSaga, action.postEvalActions);
-      }
+    if (shouldProcessBatchedAction(action)) {
+      yield call(evaluateTreeSaga, action.postEvalActions);
     }
   }
 }

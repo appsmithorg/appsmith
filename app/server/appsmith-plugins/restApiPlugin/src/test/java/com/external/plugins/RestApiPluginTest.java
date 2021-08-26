@@ -72,7 +72,7 @@ public class RestApiPluginTest {
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals("https://postman-echo.com/post", request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    assertEquals(requestBody, request.getBody());
+                    assertEquals(requestBody, request.getBody().toString());
                     final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
                         if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
@@ -100,6 +100,7 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");
                     assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
+                    assertEquals("key=value&key1=value1", result.getRequest().getBody());
                 })
                 .verifyComplete();
     }
@@ -408,8 +409,11 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "multipart/form-data")));
 
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key\":\"skdjfh&kjsd\"}";
-        List<Property> formData = List.of(new Property("key", "skdjfh&kjsd"));
+        String requestBody = "{\"key1\":\"onlyValue\"}";
+        final Property key1 = new Property("key1", "onlyValue");
+        final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        key2.setType("FILE");
+        List<Property> formData = List.of(key1, key2);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -417,8 +421,14 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals(requestBody, data.toString());
+                    assertEquals(Map.of(
+                            "key1", "onlyValue",
+                            "key2", "<file>"),
+                            result.getRequest().getBody());
+                    JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
+                    assertEquals(requestBody, formDataResponse.toString());
+                    JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
+                    assertEquals("{\"key2\":\"{key=value}\"}", fileDataResponse.toString());
                 })
                 .verifyComplete();
     }

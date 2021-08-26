@@ -30,6 +30,7 @@ import {
   SuggestedWidget,
   SuggestedWidget as SuggestedWidgetsType,
 } from "api/ActionAPI";
+import { Colors } from "constants/Colors";
 
 const SideBar = styled.div`
   padding: ${(props) => props.theme.spaces[0]}px
@@ -37,6 +38,8 @@ const SideBar = styled.div`
   overflow: auto;
   height: 100%;
   width: 100%;
+  -webkit-animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  animation: slide-left 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 
   & > div {
     margin-top: ${(props) => props.theme.spaces[11]}px;
@@ -60,6 +63,28 @@ const SideBar = styled.div`
     margin-left: ${(props) => props.theme.spaces[2] + 1}px;
     padding-bottom: ${(props) => props.theme.spaces[7]}px;
   }
+
+  @-webkit-keyframes slide-left {
+    0% {
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    100% {
+      -webkit-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-left {
+    0% {
+      -webkit-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    100% {
+      -webkit-transform: translateX(0);
+      transform: translateX(0);
+    }
+  }
+
 `;
 
 const Label = styled.span`
@@ -117,7 +142,8 @@ const BackButton = styled.div`
   cursor: pointer;
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   .${Classes.TEXT} {
-    margin-left: ${(props) => props.theme.spaces[4] + 1}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
+    letter-spacing: 0;
   }
 `;
 
@@ -141,7 +167,7 @@ export function Collapsible({
   return (
     <CollapsibleWrapper isOpen={isOpen}>
       <Label className="icon-text" onClick={() => setIsOpen(!isOpen)}>
-        <Icon name="downArrow" size={IconSize.XXS} />
+        <Icon keepColors name="downArrow" size={IconSize.XS} />
         <span className="label">{label}</span>
       </Label>
       <Collapse isOpen={isOpen} keepChildrenMounted>
@@ -208,7 +234,12 @@ function ActionSidebar({
   return (
     <SideBar>
       <BackButton onClick={navigeteToCanvas}>
-        <Icon keepColors name="chevron-left" size={IconSize.XXS} />
+        <Icon
+          fillColor={Colors.DOVE_GRAY}
+          keepColors
+          name="chevron-left"
+          size={IconSize.XS}
+        />
         <Text type={TextType.H6}>{createMessage(BACK_TO_CANVAS)}</Text>
       </BackButton>
 
@@ -227,7 +258,7 @@ function ActionSidebar({
       )}
       {hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
-          <div className="description">Go to canvas and select widgets</div>
+          {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button
               category={Category.tertiary}

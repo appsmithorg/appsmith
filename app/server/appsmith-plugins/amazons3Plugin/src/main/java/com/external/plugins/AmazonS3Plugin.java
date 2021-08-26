@@ -8,6 +8,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -56,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -72,6 +74,7 @@ public class AmazonS3Plugin extends BasePlugin {
     private static final int READ_WITH_BASE64_ENCODING_PROPERTY_INDEX = 5;
     private static final int USING_FILEPICKER_FOR_UPLOAD_PROPERTY_INDEX = 6;
     private static final int URL_EXPIRY_DURATION_FOR_UPLOAD_PROPERTY_INDEX = 7;
+    private static final int GET_UNSIGNED_URL_PROPERTY_INDEX = 8;
     private static final int AWS_S3_REGION_PROPERTY_INDEX = 0;
     private static final int S3_SERVICE_PROVIDER_PROPERTY_INDEX = 1;
     private static final int CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX = 2;
@@ -327,8 +330,10 @@ public class AmazonS3Plugin extends BasePlugin {
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(ACTION_PROPERTY_INDEX),
                         properties.get(ACTION_PROPERTY_INDEX).getValue(), null, null, null));
 
-                if (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
-                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null) {
+                // If the action_type is LIST_BUCKET, remove the bucket name requirement
+                if (s3Action != AmazonS3Action.LIST_BUCKETS
+                    && (properties.size() < (1 + BUCKET_NAME_PROPERTY_INDEX)
+                        || properties.get(BUCKET_NAME_PROPERTY_INDEX) == null)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -338,12 +343,13 @@ public class AmazonS3Plugin extends BasePlugin {
                     );
                 }
 
-                final String bucketName = (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
+                final String bucketName = (s3Action == AmazonS3Action.LIST_BUCKETS) ?
+                        null : (String) properties.get(BUCKET_NAME_PROPERTY_INDEX).getValue();
                 requestProperties.put("bucket", bucketName == null ? "" : bucketName);
                 requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(BUCKET_NAME_PROPERTY_INDEX),
                         bucketName, null, null, null));
 
-                if (StringUtils.isEmpty(bucketName)) {
+                if (StringUtils.isEmpty(bucketName) && (s3Action != AmazonS3Action.LIST_BUCKETS)) {
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
@@ -463,6 +469,25 @@ public class AmazonS3Plugin extends BasePlugin {
                                 ((ArrayList<Object>) actionResult).add(fileInfo);
                             }
                         }
+
+                        if (properties.size() > GET_UNSIGNED_URL_PROPERTY_INDEX
+                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX) != null
+                                && properties.get(GET_UNSIGNED_URL_PROPERTY_INDEX).getValue().equals(YES)) {
+                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), YES, null,
+                                    null, null));
+                            ((ArrayList<Object>) actionResult).stream()
+                                    .forEach(item -> ((Map) item)
+                                            .put(
+                                                    "url", // key
+                                                    connection.getUrl(bucketName, (String) ((Map) item).get("fileName")).toString() // value
+                                            )
+                                    );
+                        }
+                        else {
+                            requestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(GET_UNSIGNED_URL_PROPERTY_INDEX), NO, null,
+                                    null, null));
+                        }
+
                         break;
                     case UPLOAD_FILE_FROM_BODY:
                         requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
@@ -545,6 +570,14 @@ public class AmazonS3Plugin extends BasePlugin {
                         connection.deleteObject(bucketName, path);
                         actionResult = Map.of("status", "File deleted successfully");
                         break;
+                    case LIST_BUCKETS:
+                        List<String> bucketNames = connection.listBuckets()
+                            .stream()
+                            .map(Bucket::getName)
+                            .collect(Collectors.toList());
+                        actionResult = Map.of("bucketList", bucketNames);
+                        break;
+
                     default:
                         return Mono.error(new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_ERROR,
@@ -889,6 +922,20 @@ public class AmazonS3Plugin extends BasePlugin {
              * Not sure if it make sense to list all buckets as part of structure ? Leaving it empty for now.
              */
             return Mono.empty();
+        }
+
+        // This function executes the DB query to fetch details about the datasource from plugin specified templates
+        // when we don't want to create new action just to get the information about the datasource in this case we can
+        // get list of S3 buckets etc.
+        @Override
+        public Mono<ActionExecutionResult> getDatasourceMetadata(List<Property> pluginSpecifiedTemplates,
+                                                                 DatasourceConfiguration datasourceConfiguration) {
+
+            // Get the metadata from the datasource using pluginSpecifiedTemplate by executing the DB query
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+            return datasourceCreate(datasourceConfiguration)
+                .flatMap(connection -> execute(connection, datasourceConfiguration, actionConfiguration));
         }
     }
 }

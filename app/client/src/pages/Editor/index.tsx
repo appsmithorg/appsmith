@@ -33,6 +33,7 @@ import { handlePathUpdated } from "actions/recentEntityActions";
 import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
 
@@ -133,6 +134,7 @@ class Editor extends Component<Props> {
               <AppComments />
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
+              <GitSyncModal />
             </GlobalHotKeys>
           </div>
           <ConfirmRunModal />

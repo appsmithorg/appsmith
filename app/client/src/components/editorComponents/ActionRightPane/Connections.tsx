@@ -3,15 +3,10 @@ import { Collapsible } from ".";
 import Icon, { IconSize } from "components/ads/Icon";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
-import Tooltip from "components/ads/Tooltip";
 import { useEntityLink } from "../Debugger/hooks";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useSelector } from "store";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isAction, isWidget } from "workers/evaluationUtils";
-import { useCallback } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
@@ -19,19 +14,14 @@ import {
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
-  SEE_CONNECTED_ENTITIES,
 } from "constants/messages";
+import { Connection } from "../Debugger/EntityDependecies";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {
     padding-left: ${(props) => props.theme.spaces[2] - 1}px;
   }
   padding-bottom: ${(props) => props.theme.spaces[2]}px;
-`;
-
-const ConnectionWrapper = styled.div`
-  margin: ${(props) => props.theme.spaces[1]}px
-    ${(props) => props.theme.spaces[0] + 2}px;
 `;
 
 const NoConnections = styled.div`
@@ -83,49 +73,26 @@ const ConnectionsContainer = styled.span`
   }
 `;
 
-const useGetEntityType = () => {
-  const dataTree = useSelector(getDataTree);
-
-  const getEntityType = useCallback((name) => {
-    if (isWidget(dataTree[name])) {
-      return "widget";
-    } else if (isAction(dataTree[name])) {
-      return "integration";
-    }
-  }, []);
-
-  return getEntityType;
-};
-
 function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
-  const getEntityType = useGetEntityType();
 
-  const onClick = (entityName: string) => {
+  const onClick = (entityName: string, entityType: string) => {
     navigateToEntity(entityName);
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
-      screen: "INTEGRATION",
+      source: "INTEGRATION",
+      entityType: entityType,
     });
   };
 
   return props.dependencies.length ? (
     <ConnectionsContainer>
       {props.dependencies.map((entityName: string) => {
-        const entityType = getEntityType(entityName);
-
         return (
-          <Tooltip
-            content={`Open ${entityType}`}
-            disabled={!entityType}
-            hoverOpenDelay={1000}
+          <Connection
+            entityName={entityName}
             key={entityName}
-          >
-            <ConnectionWrapper>
-              <span className="connection" onClick={() => onClick(entityName)}>
-                {entityName}
-              </span>
-            </ConnectionWrapper>
-          </Tooltip>
+            onClick={onClick}
+          />
         );
       })}
     </ConnectionsContainer>
@@ -147,9 +114,6 @@ type ConnectionsProps = {
 function Connections(props: ConnectionsProps) {
   return (
     <Collapsible label="Relationships">
-      <span className="description">
-        {createMessage(SEE_CONNECTED_ENTITIES)}
-      </span>
       <ConnectionType className="icon-text">
         <Icon keepColors name="trending-flat" size={IconSize.MEDIUM} />
         <span className="connection-type">
@@ -162,9 +126,9 @@ function Connections(props: ConnectionsProps) {
         placeholder={createMessage(NO_INCOMING_ENTITIES)}
       />
       <ConnectionFlow>
-        <img src={LongArrowSVG} />
+        <img height="32" src={LongArrowSVG} />
         {props.actionName}
-        <img src={LongArrowSVG} />
+        <img height="32" src={LongArrowSVG} />
       </ConnectionFlow>
       <ConnectionType className="icon-text">
         <span className="connection-type">

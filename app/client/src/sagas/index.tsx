@@ -33,9 +33,11 @@ import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./SelectionCanvasSagas";
+import draggingCanvasSagas from "./DraggingCanvasSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-
+import formEvaluationChangeListener from "./FormEvaluationSaga";
 const sagas = [
   initSagas,
   pageSagas,
@@ -61,6 +63,7 @@ const sagas = [
   evaluationsSaga,
   onboardingSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
   recentEntitiesSagas,
@@ -71,6 +74,7 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  draggingCanvasSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

@@ -1,7 +1,6 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 const homePage = require("../../../../locators/HomePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -15,7 +14,7 @@ describe("Fork application across orgs", function() {
     const appname = localStorage.getItem("AppName");
     cy.SearchEntityandOpen("Input1");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
-    cy.get(widgetsPage.defaultInput).type("A");
+    cy.testJsontext("defaulttext", "A");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@inputUpdate").then((response) => {
       parentApplicationDsl = response.response.body.data.dsl;

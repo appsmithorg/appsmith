@@ -2,7 +2,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 
 describe("Text Widget Functionality", function() {
   before(() => {
@@ -74,22 +73,7 @@ describe("Text Widget Functionality", function() {
   });
 
   it("Text widget depends on itself", function() {
-    cy.getCodeMirror().then(($cm) => {
-      if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
-          .first()
-          .clear({
-            force: true,
-          });
-      }
-
-      cy.get(".CodeMirror textarea")
-        .first()
-        .type(`{{${this.data.TextName}}}`, {
-          force: true,
-          parseSpecialCharSequences: false,
-        });
-    });
+    cy.testJsontext("text", `{{${this.data.TextName}}}`);
     cy.get(commonlocators.toastBody)
       .first()
       .contains("Cyclic");

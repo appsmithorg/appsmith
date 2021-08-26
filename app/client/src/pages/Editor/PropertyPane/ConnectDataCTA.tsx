@@ -19,7 +19,7 @@ import {
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -63,7 +63,13 @@ export const excludeList = [
 export const actionsExist = (state: AppState): boolean =>
   !!state.entities.actions.length;
 
-function ConnectDataCTA() {
+type ConnectDataCTAProps = {
+  widgetTitle: string;
+  widgetId?: string;
+  widgetType?: WidgetType;
+};
+
+function ConnectDataCTA(props: ConnectDataCTAProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
@@ -77,15 +83,20 @@ function ConnectDataCTA() {
   }, []);
 
   const onClick = () => {
+    const { widgetId, widgetTitle, widgetType } = props;
     history.push(
       INTEGRATION_EDITOR_URL(
         applicationId,
         pageId,
         INTEGRATION_TABS.NEW,
-        INTEGRATION_EDITOR_MODES.MOCK,
+        INTEGRATION_EDITOR_MODES.AUTO,
       ),
     );
-    AnalyticsUtil.logEvent("CONNECT_DATA_CLICK");
+    AnalyticsUtil.logEvent("CONNECT_DATA_CLICK", {
+      widgetTitle,
+      widgetId,
+      widgetType,
+    });
   };
 
   return (

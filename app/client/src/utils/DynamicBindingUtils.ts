@@ -12,6 +12,9 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import forge from "node-forge";
 
 export type DependencyMap = Record<string, Array<string>>;
+export type FormEditorConfigs = Record<string, any[]>;
+export type FormSettingsConfigs = Record<string, any[]>;
+export type FormDependencyConfigs = Record<string, DependencyMap>;
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -64,6 +67,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
   return stringSegments;
 }
 
+//{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
@@ -84,6 +88,21 @@ export const getDynamicBindings = (
     return "";
   });
   return { stringSegments: stringSegments, jsSnippets: paths };
+};
+
+export const combineDynamicBindings = (
+  jsSnippets: string[],
+  stringSegments: string[],
+) => {
+  return stringSegments
+    .map((segment, index) => {
+      if (jsSnippets[index] && jsSnippets[index].length > 0) {
+        return jsSnippets[index];
+      } else {
+        return `'${segment}'`;
+      }
+    })
+    .join(" + ");
 };
 
 export enum EvalErrorTypes {
@@ -318,6 +337,9 @@ export type EvaluationError = {
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
+  originalBinding?: string;
+  variables?: (string | undefined | null | number)[];
+  code?: string;
 };
 
 export interface DataTreeEvaluationProps {

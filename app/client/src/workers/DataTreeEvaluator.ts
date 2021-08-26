@@ -122,8 +122,10 @@ export default class DataTreeEvaluator {
 
   updateDataTree(
     unEvalTree: DataTree,
-  ): { updates: Diff<DataTree, DataTree>[]; evaluationOrder: string[] } {
-    const oldEvalTree = _.cloneDeep(this.evalTree);
+  ): {
+    evaluationOrder: string[];
+    unEvalUpdates: DataTreeDiff[];
+  } {
     const totalStart = performance.now();
     // Calculate diff
     const diffCheckTimeStart = performance.now();
@@ -132,10 +134,14 @@ export default class DataTreeEvaluator {
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
       return {
-        updates: [],
         evaluationOrder: [],
+        unEvalUpdates: [],
       };
     }
+    const translatedDiffs = _.flatten(
+      differences.map(translateDiffEventToDataTreeDiffEvent),
+    );
+    this.logs.push({ differences, translatedDiffs });
     const diffCheckTimeStop = performance.now();
     // Check if dependencies have changed
     const updateDependenciesStart = performance.now();
@@ -145,7 +151,7 @@ export default class DataTreeEvaluator {
     const {
       dependenciesOfRemovedPaths,
       removedPaths,
-    } = this.updateDependencyMap(differences, unEvalTree);
+    } = this.updateDependencyMap(translatedDiffs, unEvalTree);
     const updateDependenciesStop = performance.now();
 
     const calculateSortOrderStart = performance.now();
@@ -188,8 +194,6 @@ export default class DataTreeEvaluator {
 
     const evalTreeDiffsStart = performance.now();
 
-    const evaluationChanges = diff(oldEvalTree, newEvalTree);
-
     const evalTreeDiffsStop = performance.now();
 
     const totalEnd = performance.now();
@@ -211,8 +215,8 @@ export default class DataTreeEvaluator {
     };
     this.logs.push({ timeTakenForSubTreeEval });
     return {
-      updates: evaluationChanges || [],
       evaluationOrder,
+      unEvalUpdates: translatedDiffs,
     };
   }
 
@@ -732,7 +736,7 @@ export default class DataTreeEvaluator {
   }
 
   updateDependencyMap(
-    differences: Array<Diff<any, any>>,
+    translatedDiffs: Array<DataTreeDiff>,
     unEvalDataTree: DataTree,
   ): {
     dependenciesOfRemovedPaths: Array<string>;
@@ -747,12 +751,8 @@ export default class DataTreeEvaluator {
     // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
     // TODO: Optimise by only getting paths of changed node
     this.allKeys = getAllPaths(unEvalDataTree);
-    const translatedDiffs = differences.map(
-      translateDiffEventToDataTreeDiffEvent,
-    );
-    this.logs.push({ differences, translatedDiffs });
     // Transform the diff library events to Appsmith evaluator events
-    _.flatten(translatedDiffs).forEach((dataTreeDiff) => {
+    translatedDiffs.forEach((dataTreeDiff) => {
       const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
       let entity = unEvalDataTree[entityName];
       if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {

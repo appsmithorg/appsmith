@@ -1,8 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/inputBindingdsl.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -13,7 +10,7 @@ describe("aTob and bToa library tests ", function() {
 
   it("Input widget test with default value for atob method", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.atobInput);
+    cy.testJsontext("defaulttext", testdata.atobInput + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -24,7 +21,7 @@ describe("aTob and bToa library tests ", function() {
 
   it("Input widget test with default value for btoa method", function() {
     cy.SearchEntityandOpen("Input2");
-    cy.get(widgetsPage.defaultInput).type(testdata.btoaInput);
+    cy.testJsontext("defaulttext", testdata.btoaInput + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",

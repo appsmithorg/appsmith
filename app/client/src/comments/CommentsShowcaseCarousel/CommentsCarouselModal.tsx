@@ -1,8 +1,13 @@
 import React from "react";
 import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { Layers } from "constants/Layers";
+import { useDispatch } from "react-redux";
+import { hideCommentsIntroCarousel } from "actions/commentActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
+  const dispatch = useDispatch();
+
   return (
     <ModalComponent
       bottom={25}
@@ -13,7 +18,8 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
       isOpen
       left={25}
       onClose={() => {
-        // TODO (rishabh) handle close
+        dispatch(hideCommentsIntroCarousel());
+        AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_DISMISSED");
       }}
       overlayClassName="comments-onboarding-carousel"
       portalClassName="comments-onboarding-carousel-portal"

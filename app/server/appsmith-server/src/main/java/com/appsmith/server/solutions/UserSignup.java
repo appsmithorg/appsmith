@@ -1,13 +1,23 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
+import com.appsmith.server.constants.AnalyticsEvents;
+import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +37,14 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
 
+import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
+import static com.appsmith.server.helpers.ValidationUtils.validateLoginPassword;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Component
@@ -37,8 +53,12 @@ import static org.springframework.security.web.server.context.WebSessionServerSe
 public class UserSignup {
 
     private final UserService userService;
+    private final UserDataService userDataService;
     private final CaptchaService captchaService;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final ConfigService configService;
+    private final AnalyticsService analyticsService;
+    private final PolicyUtils policyUtils;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -57,6 +77,12 @@ public class UserSignup {
 
         if (!validateEmail(user.getUsername())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+        }
+
+        if (!validateLoginPassword(user.getPassword())) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
+            );
         }
 
         return Mono
@@ -91,15 +117,15 @@ public class UserSignup {
         String recaptchaToken = exchange.getRequest().getQueryParams().getFirst("recaptchaToken");
 
         return captchaService.verify(recaptchaToken).flatMap(verified -> {
-                  if (!verified) {
-                    return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
-                  }
-                  return exchange.getFormData();
+                    if (!Boolean.TRUE.equals(verified)) {
+                        return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+                    }
+                    return exchange.getFormData();
                 })
                 .map(formData -> {
                     final User user = new User();
                     user.setEmail(formData.getFirst(FieldName.EMAIL));
-                    user.setPassword(formData.getFirst("password"));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
@@ -117,7 +143,97 @@ public class UserSignup {
                 .flatMap(user -> signupAndLogin(user, exchange))
                 .then()
                 .onErrorResume(error -> {
-                    final String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer == null) {
+                        referer = DEFAULT_ORIGIN_HEADER;
+                    }
+                    final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
+                    URI redirectUri;
+                    try {
+                        redirectUri = redirectUriBuilder.build();
+                    } catch (URISyntaxException e) {
+                        log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
+                        redirectUri = URI.create(referer);
+                    }
+                    return redirectStrategy.sendRedirect(exchange, redirectUri);
+                });
+    }
+
+    public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
+        return userService.isUsersEmpty()
+                .flatMap(isEmpty -> {
+                    if (!Boolean.TRUE.equals(isEmpty)) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+
+                    final User user = new User();
+                    user.setEmail(userFromRequest.getEmail());
+                    user.setName(userFromRequest.getName());
+                    user.setSource(userFromRequest.getSource());
+                    user.setState(userFromRequest.getState());
+                    user.setIsEnabled(userFromRequest.isEnabled());
+                    user.setPassword(userFromRequest.getPassword());
+
+                    policyUtils.addPoliciesToExistingObject(Map.of(
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_ENV.getValue()).users(Set.of(user.getEmail())).build()
+                    ), user);
+
+                    return signupAndLogin(user, exchange);
+                })
+                .flatMap(user -> {
+                    final UserData userData = new UserData();
+                    userData.setRole(userFromRequest.getRole());
+
+                    if (userFromRequest.isSignupForNewsletter()) {
+                        analyticsService.sendEvent(
+                                AnalyticsEvents.SUBSCRIBE_MARKETING_EMAILS.name(),
+                                user.getEmail(),
+                                Map.of("id", user.getEmail())
+                        );
+                    }
+
+                    return Mono.when(
+                            userDataService.updateForUser(user, userData),
+                            configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName())),
+                            analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
+                    ).thenReturn(user);
+                });
+    }
+
+    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .map(formData -> {
+                    final UserSignupRequestDTO user = new UserSignupRequestDTO();
+                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
+                    user.setSource(LoginSource.FORM);
+                    user.setState(UserState.ACTIVATED);
+                    user.setEnabled(true);
+                    if (formData.containsKey(FieldName.NAME)) {
+                        user.setName(formData.getFirst(FieldName.NAME));
+                    }
+                    if (formData.containsKey("role")) {
+                        user.setRole(formData.getFirst("role"));
+                    }
+                    if (formData.containsKey("companyName")) {
+                        user.setCompanyName(formData.getFirst("companyName"));
+                    }
+                    if (formData.containsKey("allowCollectingAnonymousData")) {
+                        user.setAllowCollectingAnonymousData("true".equals(formData.getFirst("allowCollectingAnonymousData")));
+                    }
+                    if (formData.containsKey("signupForNewsletter")) {
+                        user.setSignupForNewsletter("true".equals(formData.getFirst("signupForNewsletter")));
+                    }
+                    return user;
+                })
+                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .then()
+                .onErrorResume(error -> {
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer == null) {
+                        referer = DEFAULT_ORIGIN_HEADER;
+                    }
                     final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
                     URI redirectUri;
                     try {

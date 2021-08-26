@@ -29,6 +29,18 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
+export const getWidgetOptionsTree = createSelector(getWidgets, (widgets) =>
+  Object.values(widgets)
+    .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
+    .map((w) => {
+      return {
+        label: w.widgetName,
+        id: w.widgetName,
+        value: `"${w.widgetName}"`,
+      };
+    }),
+);
+
 export const getEditorConfigs = (
   state: AppState,
 ): { pageId: string; layoutId: string } | undefined => {
@@ -118,6 +130,14 @@ export const getWidgetByName = (
   );
 };
 
+export const getWidgetById = (
+  state: AppState,
+  id: string,
+): FlattenedWidgetProps | undefined => {
+  const widgets = state.entities.canvasWidgets;
+  return widgets[id];
+};
+
 export const getAllPageIds = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => page.pageId);
 };
@@ -130,6 +150,10 @@ export const getPluginIdOfPackageName = (
   const plugin = _.find(plugins, { packageName: name });
   if (plugin) return plugin.id;
   return undefined;
+};
+
+export const getDragDetails = (state: AppState) => {
+  return state.ui.widgetDragResize.dragDetails;
 };
 
 export const getSelectedWidget = (state: AppState) => {

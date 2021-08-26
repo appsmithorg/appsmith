@@ -1,8 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/tabInputDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -13,7 +10,7 @@ describe("Binding the input Widget with tab Widget", function() {
 
   it("Input widget test with default value from tab widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(widgetsPage.defaultInput).type(testdata.tabBinding);
+    cy.testJsontext("defaulttext", testdata.tabBinding + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",

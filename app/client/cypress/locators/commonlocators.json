@@ -58,6 +58,7 @@
   "toastMsg": ".Toastify__toast.Toastify__toast--default span",
   "callApi": ".t--property-control-onpagechange .t--open-dropdown-Select-Action",
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
+  "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
   "selectMenuItem": ".bp3-menu li>a>div",
   "evaluatedTypeTitle": ".t--CodeEditor-evaluatedValue > p:first-of-type",
   "evaluatedType": ".t--CodeEditor-evaluatedValue > div:first-of-type pre",
@@ -114,5 +115,7 @@
   "currencyType": ".t--property-control-currency  .bp3-popover-target",
   "decimalType": ".t--property-control-decimals  .bp3-popover-target",
   "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
-  "inputCurrencyChangeType": ".t--input-currency-change"
+  "inputCurrencyChangeType": ".t--input-currency-change",
+  "viewerPage": ".t--app-viewer-page",
+  "dropDownOptSelected": "//span[@type='p1']"
 }
