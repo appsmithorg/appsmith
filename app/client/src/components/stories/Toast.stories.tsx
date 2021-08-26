@@ -18,33 +18,23 @@ export default {
   decorators: [withDesign],
   parameters: {
     status: {
-      type: statusType.BETA,
+      type: statusType.STABLE,
     },
   },
 };
 
 export function ToastStory(args: ToastProps) {
   return (
-    <StoryWrapper>
-      <StyledToastContainer
-        autoClose={5000}
-        closeButton={false}
-        draggable={false}
-        hideProgressBar
-        pauseOnHover={false}
-        transition={Slide}
-      />
-      <Button
-        category={Category.primary}
-        onClick={() => {
-          action("button-clicked");
-          Toaster.show(args);
-        }}
-        size={Size.large}
-        tag={"button"}
-        text="Show toast message"
-      />
-    </StoryWrapper>
+    <Button
+      category={Category.primary}
+      onClick={() => {
+        action("button-clicked");
+        Toaster.show(args);
+      }}
+      size={Size.large}
+      tag={"button"}
+      text="Show toast message"
+    />
   );
 }
 
