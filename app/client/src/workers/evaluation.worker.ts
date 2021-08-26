@@ -70,7 +70,6 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
-            //console.log({ shouldReplay });
             shouldReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
@@ -81,6 +80,8 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
+          logs = logs.concat(replayDSL?.logs);
+          replayDSL?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
@@ -184,10 +185,18 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {
-        return replayDSL?.undo();
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.undo();
+        replayDSL.clearLogs();
+        return replayResult;
       }
       case EVAL_WORKER_ACTIONS.REDO: {
-        return replayDSL?.redo();
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.redo();
+        replayDSL.clearLogs();
+        return replayResult;
       }
       default: {
         console.error("Action not registered on worker", method);

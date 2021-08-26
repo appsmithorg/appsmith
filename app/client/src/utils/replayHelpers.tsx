@@ -2,7 +2,7 @@ import React from "react";
 
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { modText } from "./helpers";
+import { modText, flashElementsById } from "./helpers";
 import localStorage from "./localStorage";
 import { Toaster } from "components/ads/Toast";
 import {
@@ -37,6 +37,7 @@ export const processUndoRedoToasts = (
     isCreated: boolean;
     isUndo: boolean;
     widgetName: string | undefined;
+    widgetId: string;
   }[],
 ) => {
   const { isCreated, isUndo } = undoRedoToasts[0];
@@ -45,6 +46,11 @@ export const processUndoRedoToasts = (
     ? `${undoRedoToasts.length}`
     : undoRedoToasts[0].widgetName;
 
+  if (isCreated)
+    flashElementsById(
+      undoRedoToasts.map((toast) => toast.widgetId),
+      100,
+    );
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
 

@@ -11,13 +11,14 @@ export default class ReplayDSL {
   diffMap: any;
   undoManager: Y.UndoManager;
   dsl: CanvasWidgetsReduxState;
+  logs: any[] = [];
 
   constructor(widgets: CanvasWidgetsReduxState) {
     const doc = new Y.Doc();
     this.diffMap = doc.get("map", Y.Map);
     this.dsl = widgets;
     this.diffMap.set(_DIFF_, []);
-    this.undoManager = new Y.UndoManager(this.diffMap);
+    this.undoManager = new Y.UndoManager(this.diffMap, { captureTimeout: 100 });
   }
 
   /**
@@ -50,12 +51,17 @@ export default class ReplayDSL {
 
     if (this.shouldReplay()) {
       this.undoManager.undo();
-      const replay = {};
-      this.applyDiffs(diffs, true, replay);
-      //console.log("replay undo", replay, diffs, this.dsl);
+      const replay = this.applyDiffs(diffs, true);
+      this.logs.push({
+        log: "replay undo",
+        replay,
+        diffs,
+        dsl: this.dsl,
+      });
       return {
         replayWidgetDSL: this.dsl,
         replay,
+        logs: this.logs,
       };
     }
 
@@ -72,15 +78,19 @@ export default class ReplayDSL {
     const diffs = this.getDiffs();
 
     if (this.shouldReplay()) {
-      const replay = {};
-      this.applyDiffs(diffs, false, replay);
-      //console.log("replay redo", replay, diffs, this.dsl);
+      const replay = this.applyDiffs(diffs, false);
+      this.logs.push({
+        log: "replay redo",
+        replay,
+        diffs,
+        dsl: this.dsl,
+      });
       return {
         replayWidgetDSL: this.dsl,
         replay,
+        logs: this.logs,
       };
     }
-
     return null;
   }
 
@@ -91,14 +101,22 @@ export default class ReplayDSL {
    * @param widgets
    */
   update(widgets: CanvasWidgetsReduxState) {
-    //const startTime = performance.now();
+    const startTime = performance.now();
     const diffs = deepDiff(this.dsl, widgets);
     if (diffs && diffs.length) {
       this.dsl = widgets;
       this.diffMap.set(_DIFF_, diffs);
     }
-    //const endTime = performance.now();
-    //console.log("replay updating,", diffs, endTime - startTime, "ms");
+    const endTime = performance.now();
+    this.logs.push({
+      log: "replay updating",
+      diffs,
+      updateTime: `${endTime - startTime} ms`,
+    });
+  }
+
+  clearLogs() {
+    this.logs = [];
   }
 
   /**
@@ -107,7 +125,9 @@ export default class ReplayDSL {
    * @param diffs
    * @param diffUpdate
    */
-  applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean, replay: any) {
+  applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean) {
+    const replay = {};
+
     for (const diff of diffs) {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
         continue;
@@ -125,5 +145,7 @@ export default class ReplayDSL {
         });
       }
     }
+
+    return replay;
   }
 }

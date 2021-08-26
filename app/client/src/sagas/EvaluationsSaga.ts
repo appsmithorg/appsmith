@@ -188,7 +188,9 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     {},
   );
 
-  const { replay, replayWidgetDSL } = workerResponse;
+  const { logs, replay, replayWidgetDSL } = workerResponse;
+
+  logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
   if (!replayWidgetDSL) return;
 
