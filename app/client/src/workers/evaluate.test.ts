@@ -47,10 +47,12 @@ describe("evaluate", () => {
       triggers: [],
       errors: [
         {
+          ch: 1,
           code: "W117",
           errorMessage: "'wrongJS' is not defined.",
           errorSegment: "    const result = wrongJS",
           errorType: "LINT",
+          line: 0,
           raw: `
   function closedFunction () {
     const result = wrongJS
