@@ -49,6 +49,7 @@ import { isEllipsisActive } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { getExportAppAPIRoute } from "constants/ApiConstants";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -355,17 +356,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
     const existingLink = document.getElementById(id);
     existingLink && existingLink.remove();
     const link = document.createElement("a");
-    link.href = `/api/v1/applications/export/${props.application.id}`;
-    link.target = "_blank";
+
+    link.href = getExportAppAPIRoute(props.application.id);
     link.id = id;
     document.body.appendChild(link);
-    link.click();
+    // will fetch the file manually during cypress test run.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (!window.Cypress) {
+      link.click();
+    }
     setIsMenuOpen(false);
     Toaster.show({
       text: `Successfully exported ${props.application.name}`,
       variant: Variant.success,
     });
-    link.remove();
   };
   const forkApplicationInitiate = () => {
     // open fork application modal

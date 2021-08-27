@@ -122,6 +122,7 @@ export interface GenerateTemplatePageRequest {
   columns?: string[];
   searchColumn?: string;
   mode?: string;
+  pluginSpecificParams?: Record<any, any>;
 }
 
 export type GenerateTemplatePageRequestResponse = ApiResponse & {

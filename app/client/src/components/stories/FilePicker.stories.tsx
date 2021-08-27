@@ -1,5 +1,6 @@
 import React from "react";
 import FilePicker, { CloudinaryUploader, FileType } from "../ads/FilePicker";
+import log from "loglevel";
 
 export default {
   title: "FilePicker",
@@ -7,7 +8,7 @@ export default {
 };
 
 function ShowUploadedFile(data: any) {
-  console.log(data);
+  log.debug(data);
 }
 
 export const withDynamicProps = () => (

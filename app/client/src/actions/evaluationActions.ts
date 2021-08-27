@@ -7,6 +7,7 @@ import _ from "lodash";
 import { DataTree } from "../entities/DataTree/dataTreeFactory";
 import { DependencyMap } from "../utils/DynamicBindingUtils";
 import { Diff } from "deep-diff";
+import { QueryActionConfig } from "../entities/Action";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages
@@ -78,5 +79,28 @@ export const setDependencyMap = (
   return {
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap },
+  };
+};
+
+// Called when a form is being setup, for setting up the base condition evaluations for the form
+export const initFormEvaluations = (
+  editorConfig: any,
+  settingConfig: any,
+  formId: string,
+) => {
+  return {
+    type: ReduxActionTypes.INIT_FORM_EVALUATION,
+    payload: { editorConfig, settingConfig, formId },
+  };
+};
+
+// Called when there is change in the data of the form, re evaluates the whole form
+export const startFormEvaluations = (
+  formId: string,
+  formData: QueryActionConfig,
+) => {
+  return {
+    type: ReduxActionTypes.RUN_FORM_EVALUATION,
+    payload: { formId, actionConfiguration: formData },
   };
 };

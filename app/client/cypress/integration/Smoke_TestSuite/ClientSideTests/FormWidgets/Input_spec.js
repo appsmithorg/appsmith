@@ -159,6 +159,19 @@ describe("Input Widget Functionality", function() {
       });
   });
 
+  it("Input Functionality To check phone number input type", function() {
+    // cy.openPropertyPane("inputwidget");
+    cy.get(widgetsPage.innertext)
+      .click()
+      .clear();
+    cy.selectDropdownValue(commonlocators.dataType, "Phone Number");
+    cy.get(commonlocators.inputCountryCodeChangeType)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal("🇺🇸+1");
+      });
+  });
+
   it("Input label wrapper do not show if lable and tooltip is empty", () => {
     cy.get(".t--input-label-wrapper").should("not.exist");
   });
