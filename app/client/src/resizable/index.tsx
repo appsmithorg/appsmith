@@ -6,11 +6,11 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-const ResizeWrapper = styled.div<{ pevents: boolean }>`
+const ResizeWrapper = styled.div<{ prevents: boolean }>`
   display: block;
   & {
     * {
-      pointer-events: ${(props) => !props.pevents && "none"};
+      pointer-events: ${(props) => !props.prevents && "none"};
     }
   }
 `;
@@ -27,6 +27,7 @@ const getSnappedValues = (
 };
 
 type ResizableHandleProps = {
+  allowResize: boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -40,6 +41,9 @@ type ResizableHandleProps = {
 function ResizableHandle(props: ResizableHandleProps) {
   const bind = useDrag(
     ({ first, last, dragging, movement: [mx, my], memo }) => {
+      if (!props.allowResize) {
+        return;
+      }
       const snapped = getSnappedValues(mx, my, props.snapGrid);
       if (dragging && memo && (snapped.x !== memo.x || snapped.y !== memo.y)) {
         props.dragCallback(snapped.x, snapped.y);
@@ -53,11 +57,16 @@ function ResizableHandle(props: ResizableHandleProps) {
       return snapped;
     },
   );
+  const propsToPass = {
+    ...bind(),
+    showAsBorder: !props.allowResize,
+  };
 
-  return <props.component {...bind()} />;
+  return <props.component {...propsToPass} />;
 }
 
 type ResizableProps = {
+  allowResize: boolean;
   handles: {
     left?: StyledComponent<"div", Record<string, unknown>>;
     top?: StyledComponent<"div", Record<string, unknown>>;
@@ -156,6 +165,20 @@ export const Resizable = forwardRef(function Resizable(
     });
   }
 
+  if (props.handles.top) {
+    handles.push({
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: newDimensions.width,
+          height: props.componentHeight - y,
+          y: y,
+          x: newDimensions.x,
+        });
+      },
+      component: props.handles.top,
+    });
+  }
+
   if (props.handles.right) {
     handles.push({
       dragCallback: (x: number) => {
@@ -181,6 +204,34 @@ export const Resizable = forwardRef(function Resizable(
         });
       },
       component: props.handles.bottom,
+    });
+  }
+
+  if (props.handles.topLeft) {
+    handles.push({
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth - x,
+          height: props.componentHeight - y,
+          x: x,
+          y: y,
+        });
+      },
+      component: props.handles.topLeft,
+    });
+  }
+
+  if (props.handles.topRight) {
+    handles.push({
+      dragCallback: (x: number, y: number) => {
+        setNewDimensions({
+          width: props.componentWidth + x,
+          height: props.componentHeight - y,
+          x: newDimensions.x,
+          y: y,
+        });
+      },
+      component: props.handles.topRight,
     });
   }
 
@@ -211,49 +262,6 @@ export const Resizable = forwardRef(function Resizable(
       component: props.handles.bottomLeft,
     });
   }
-
-  if (props.handles.topRight) {
-    handles.push({
-      dragCallback: (x: number, y: number) => {
-        setNewDimensions({
-          width: props.componentWidth + x,
-          height: props.componentHeight - y,
-          x: newDimensions.x,
-          y: y,
-        });
-      },
-      component: props.handles.topRight,
-    });
-  }
-
-  if (props.handles.topLeft) {
-    handles.push({
-      dragCallback: (x: number, y: number) => {
-        setNewDimensions({
-          width: props.componentWidth - x,
-          height: props.componentHeight - y,
-          x: x,
-          y: y,
-        });
-      },
-      component: props.handles.topLeft,
-    });
-  }
-
-  if (props.handles.top) {
-    handles.push({
-      dragCallback: (x: number, y: number) => {
-        setNewDimensions({
-          width: newDimensions.width,
-          height: props.componentHeight - y,
-          y: y,
-          x: newDimensions.x,
-        });
-      },
-      component: props.handles.top,
-    });
-  }
-
   const onResizeStop = () => {
     togglePointerEvents(true);
     props.onStop(
@@ -271,6 +279,7 @@ export const Resizable = forwardRef(function Resizable(
   const renderHandles = handles.map((handle, index) => (
     <ResizableHandle
       {...handle}
+      allowResize={props.allowResize}
       key={index}
       onStart={() => {
         togglePointerEvents(false);
@@ -302,7 +311,7 @@ export const Resizable = forwardRef(function Resizable(
       {(_props) => (
         <ResizeWrapper
           className={props.className}
-          pevents={pointerEvents}
+          prevents={pointerEvents}
           ref={ref}
           style={_props}
         >

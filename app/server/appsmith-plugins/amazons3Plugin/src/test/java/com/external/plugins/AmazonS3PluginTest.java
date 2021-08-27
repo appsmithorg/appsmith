@@ -1,6 +1,7 @@
 package com.external.plugins;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
@@ -814,4 +815,48 @@ public class AmazonS3PluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testListBuckets() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Bucket mockS3Bucket = mock(Bucket.class);
+        mockS3Bucket.setName("dummy_bucket");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        String dummyBody = "";
+        actionConfiguration.setBody(dummyBody);
+
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("action", "LIST_BUCKETS"));
+        actionConfiguration.setPluginSpecifiedTemplates(properties);
+
+        AmazonS3 mockConnection = mock(AmazonS3.class);
+        when(mockConnection.listBuckets()).thenReturn(List.of(mockS3Bucket));
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.execute(
+            mockConnection,
+            datasourceConfiguration,
+            actionConfiguration);
+        StepVerifier.create(resultMono)
+            .assertNext(result -> {
+                assertTrue(result.getIsExecutionSuccess());
+
+                Map<String, List<String>> node = (Map<String, List<String>>) result.getBody();
+                List<String> buckets = node.get("bucketList");
+                assertTrue(buckets.size() == 1);
+                assertEquals(buckets.get(0), mockS3Bucket.getName());
+                /*
+                 * - RequestParamDTO object only have attributes configProperty and value at this point.
+                 */
+                List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(0), "LIST_BUCKETS",
+                    null, null, null)); // Action
+                expectedRequestParams.add(new RequestParamDTO(getActionConfigurationPropertyPath(1), null,
+                    null, null, null)); // Bucket name
+                assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
+            })
+            .verifyComplete();
+    }
+
 }

@@ -57,6 +57,7 @@ type Props = {
   activeIndex: number;
   setActiveIndex: (index: number) => void;
   onClose: () => void;
+  onStepChange: (current: number, next: number) => void;
 };
 
 type DotsProps = {
@@ -81,7 +82,14 @@ function Dots(props: DotsProps) {
 
 export default function ShowcaseCarousel(props: Props) {
   const { steps } = props;
-  const [activeIndex, setCurrentIdx] = useState(props.activeIndex || 0);
+  const [activeIndex, setCurrentIdxInState] = useState(props.activeIndex || 0);
+
+  const setCurrentIdx = (index: number) => {
+    if (activeIndex !== index) props.onStepChange(activeIndex, index);
+    setCurrentIdxInState(index);
+    props.setActiveIndex(index);
+  };
+
   const currentStep = steps[activeIndex];
   const { component: ContentComponent, props: componentProps } = currentStep;
   const length = steps.length;

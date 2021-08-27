@@ -24,7 +24,6 @@ const StyledButton = styled(Button)`
   border: none !important;
   border-radius: 0;
   background-color: #ffffff !important;
-
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
@@ -38,7 +37,6 @@ const StyledMenu = styled(Menu)`
   max-height: 170px !important;
   padding-left: 5px !important;
   padding-right: 5px !important;
-
   &::-webkit-scrollbar {
     width: 8px;
     background-color: #eeeeee;
@@ -54,13 +52,11 @@ const StyledMenuItem = styled(MenuItem)`
   flex-direction: column;
   align-items: center;
   padding: 13px 5px;
-
   &:active,
   &:hover,
   &.bp3-active {
     background-color: #eeeeee !important;
   }
-
   > span.bp3-icon {
     margin-right: 0;
     color: #939090 !important;

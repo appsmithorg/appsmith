@@ -27,6 +27,7 @@ import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
 import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
 import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
+import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
 
 /* eslint-disable react/display-name */
 
@@ -113,7 +114,7 @@ export const WidgetIcons: {
       <ImageIcon />
     </IconWrapper>
   ),
-  FILE_PICKER_WIDGET: (props: IconProps) => (
+  FILE_PICKER_WIDGET_V2: (props: IconProps) => (
     <IconWrapper {...props}>
       <FilePickerIcon />
     </IconWrapper>
@@ -171,6 +172,11 @@ export const WidgetIcons: {
   MENU_BUTTON_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <MenuButtonIcon />
+    </IconWrapper>
+  ),
+  ICON_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IconButtonIcon />
     </IconWrapper>
   ),
 };

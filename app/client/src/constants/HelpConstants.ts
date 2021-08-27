@@ -63,6 +63,10 @@ export const HelpMap = {
     path: "/widget-reference/filepicker",
     searchKey: "File picker",
   },
+  FILE_PICKER_WIDGET_V2: {
+    path: "/widget-reference/filepicker",
+    searchKey: "File picker",
+  },
   FORM_BUTTON_WIDGET: {
     path: "",
     searchKey: "",
@@ -134,6 +138,10 @@ export const HelpMap = {
   MENU_BUTTON_WIDGET: {
     path: "/widget-reference/menu-button",
     searchKey: "Menu Button",
+  },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
   },
 };
 

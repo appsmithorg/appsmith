@@ -347,7 +347,7 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: ["p", "r", "q"],
+        parsed: [],
         message: "Invalid entry at index: 2. Value is not allowed",
       },
       {
@@ -389,7 +389,7 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: ["a", "b", "a", "c"],
+        parsed: [],
         message: "Array must be unique. Duplicate values found",
       },
     ];
@@ -405,6 +405,8 @@ describe("Validate Validators", () => {
       `[{"label": 123, "value": 234}]`,
       [{ labels: 123, value: 234 }],
       [{ label: "abcd", value: 234 }],
+      [{}],
+      [],
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -446,13 +448,24 @@ describe("Validate Validators", () => {
       },
       {
         isValid: false,
-        parsed: [{ labels: 123, value: 234 }],
+        parsed: [],
         message: "Invalid entry at index: 0. Missing required key: label",
       },
       {
         isValid: false,
-        parsed: [{ label: 0, value: 234 }],
-        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type "number"`,
+        parsed: [],
+        message: `Invalid entry at index: 0. Value of key: label is invalid: This value does not evaluate to type \"number\"`,
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "Invalid entry at index: 0. Missing required key: label Missing required key: value",
+      },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
       },
     ];
     inputs.forEach((input, index) => {
@@ -525,6 +538,9 @@ describe("Validate Validators", () => {
       [],
       123,
       "abcd",
+      [null],
+      [{ apple: 1 }, null, { banana: "2" }, undefined],
+      `[{ "apple": 1, "orange": 2, "mango": "fruit", "watermelon": false }, null]`,
     ];
 
     const config = {
@@ -577,6 +593,21 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [{ id: 1, name: "alpha" }],
         message: "This value does not evaluate to type Array of objects",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "Invalid object at index 0",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "Invalid object at index 1",
+      },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "Invalid object at index 1",
       },
     ];
 

@@ -47,6 +47,7 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -147,6 +148,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
 
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
+      AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
       dispatch(showCommentsIntroCarousel());
       setCommentModeInUrl(false);
     } else {
@@ -267,11 +269,14 @@ function CommentModeBtn({
   showSelectedMode: boolean;
 }) {
   const CommentModeIcon = showUnreadIndicator ? CommentModeUnread : CommentMode;
+  const commentModeClassName = showUnreadIndicator
+    ? `t--toggle-comment-mode-on--unread`
+    : `t--toggle-comment-mode-on`;
 
   return (
     <ModeButton
       active={isCommentMode}
-      className="t--switch-comment-mode-on"
+      className={`t--switch-comment-mode-on ${commentModeClassName}`}
       onClick={handleSetCommentModeButton}
       showSelectedMode={showSelectedMode}
       type="stroke"
@@ -318,8 +323,9 @@ const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
   ];
 };
 
-const useShouldHide = () => {
+export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(false);
+  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const location = useLocation();
   useEffect(() => {
     const pathName = window.location.pathname;
@@ -327,7 +333,7 @@ const useShouldHide = () => {
     setShouldHide(!shouldShow);
   }, [location]);
 
-  return shouldHide;
+  return !commentsEnabled || shouldHide;
 };
 
 type ToggleCommentModeButtonProps = {
@@ -337,7 +343,6 @@ type ToggleCommentModeButtonProps = {
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
-  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const isCommentMode = useSelector(commentModeSelector);
   const currentUser = useSelector(getCurrentUser);
 
@@ -366,6 +371,10 @@ function ToggleCommentModeButton({
   const mode = useSelector((state: AppState) => state.entities.app.mode);
 
   const handleSetCommentModeButton = useCallback(() => {
+    AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+      mode: "COMMENT",
+      source: "CLICK",
+    });
     setCommentModeInUrl(true);
     proceedToNextTourStep();
     setShowCommentButtonDiscoveryTooltipInState(false);
@@ -373,9 +382,9 @@ function ToggleCommentModeButton({
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
   // Show comment mode button only on the canvas editor and viewer
-  const shouldHide = useShouldHide();
+  const isHideComments = useHideComments();
 
-  if (!commentsEnabled || shouldHide) return null;
+  if (isHideComments) return null;
 
   return (
     <Container>
@@ -383,7 +392,14 @@ function ToggleCommentModeButton({
         <div style={{ display: "flex" }}>
           <ModeButton
             active={!isCommentMode}
-            onClick={() => setCommentModeInUrl(false)}
+            className="t--switch-comment-mode-off"
+            onClick={() => {
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode,
+                source: "CLICK",
+              });
+              setCommentModeInUrl(false);
+            }}
             showSelectedMode={showSelectedMode}
             type="fill"
           >

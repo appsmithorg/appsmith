@@ -1,8 +1,11 @@
 package com.appsmith.server.authentication.handlers;
 
+import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,6 +39,19 @@ public class CustomFormLoginServiceImpl implements ReactiveUserDetailsService {
                     return error;
                 })
                 // This seemingly useless call to `.map` is required to Java's type checker to compile.
-                .map(user -> user);
+                .map(user -> {
+                    // As this will be used for form login only, if the password field is null we can assume this login
+                    // request will fail because of invalid credentials but actual reason might be user has signed up
+                    // using form and then used OAuth for login which removes the password field from user object for
+                    // more details refer AuthenticationSuccessHandler
+                    if (user.getPassword() == null && !LoginSource.FORM.equals(user.getSource())) {
+                        // We can have a implementation to give which login method user should use but this will
+                        // expose the sign-in source for external world and in turn to spammers
+                        throw new InternalAuthenticationServiceException(
+                            AppsmithError.INVALID_LOGIN_METHOD.getMessage(user.getSource().toString())
+                        );
+                    }
+                    return user;
+                });
     }
 }

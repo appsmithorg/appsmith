@@ -59,6 +59,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
       .type(this.data.command)
+      .click({ force: true })
       .type(this.data.ylabel);
 
     //Close edit prop
@@ -339,9 +340,6 @@ describe("Chart Widget Functionality", function() {
         .eq(k)
         .should("have.text", labels[k]);
     });
-
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
     cy.PublishtheApp();
   });
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { get, minBy, maxBy } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
@@ -21,9 +21,12 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { WidgetTypes } from "constants/WidgetConstants";
+import { AppState } from "reducers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
+  cursor: grab;
 `;
 
 const StyledActionsContainer = styled.div`
@@ -156,6 +159,8 @@ interface OffsetBox {
 function WidgetsMultiSelectBox(props: {
   widgetId: string;
   widgetType: string;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 }): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
@@ -164,7 +169,9 @@ function WidgetsMultiSelectBox(props: {
     (widgetID) => canvasWidgets[widgetID],
   );
   const { focusWidget } = useWidgetSelection();
-
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   /**
    * the multi-selection bounding box should only render when:
    *
@@ -173,6 +180,9 @@ function WidgetsMultiSelectBox(props: {
    * 3. multiple widgets are selected
    */
   const shouldRender = useMemo(() => {
+    if (isDragging) {
+      return false;
+    }
     const parentIDs = selectedWidgets
       .filter(Boolean)
       .map((widget) => widget.parentId);
@@ -185,7 +195,34 @@ function WidgetsMultiSelectBox(props: {
       hasCommonParent &&
       get(selectedWidgets, "0.parentId") === props.widgetId
     );
-  }, [selectedWidgets]);
+  }, [selectedWidgets, isDragging]);
+  const draggableRef = useRef<HTMLDivElement>(null);
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (draggableRef.current) {
+      const bounds = draggableRef.current.getBoundingClientRect();
+      const parentId = get(selectedWidgets, "0.parentId");
+      const startPoints = {
+        top: (e.clientY - bounds.top) / props.snapRowSpace,
+        left: (e.clientX - bounds.left) / props.snapColumnSpace,
+      };
+      const top = minBy(selectedWidgets, (rect) => rect.topRow)?.topRow;
+      const left = minBy(selectedWidgets, (rect) => rect.leftColumn)
+        ?.leftColumn;
+      setDraggingState({
+        isDragging: true,
+        dragGroupActualParent: parentId || "",
+        draggingGroupCenter: {
+          top,
+          left,
+        },
+        startPoints,
+      });
+    }
+  };
 
   /**
    * calculate bounding box
@@ -267,9 +304,13 @@ function WidgetsMultiSelectBox(props: {
   return (
     <StyledSelectionBox
       className="t--multi-selection-box"
+      data-testid="t--selection-box"
+      draggable
       key={`selection-box-${props.widgetId}`}
+      onDragStart={onDragStart}
       onMouseMove={() => focusWidget()}
       onMouseOver={() => focusWidget()}
+      ref={draggableRef}
       style={{
         left: left?.left,
         top: top?.top,

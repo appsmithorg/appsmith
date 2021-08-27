@@ -208,7 +208,7 @@ public class CreateDBTablePageSolutionTests {
             .create(resultMono)
             .assertNext(page -> {
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -406,7 +406,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -458,7 +458,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
@@ -509,7 +509,7 @@ public class CreateDBTablePageSolutionTests {
                 PageDTO page = tuple.getT1();
                 List<NewAction> actions = tuple.getT2();
                 Layout layout = page.getLayouts().get(0);
-                assertThat(page.getName()).containsIgnoringCase("Admin Page:");
+                assertThat(page.getName()).isEqualTo("SampleTable");
                 assertThat(page.getLayouts()).isNotEmpty();
                 assertThat(layout.getDsl()).isNotEmpty();
                 assertThat(layout.getActionsUsedInDynamicBindings()).isNotEmpty();

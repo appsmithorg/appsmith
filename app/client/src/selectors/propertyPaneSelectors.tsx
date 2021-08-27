@@ -16,7 +16,7 @@ export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
 };
 
-const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
+export const getPropertyPaneState = (state: AppState): PropertyPaneReduxState =>
   state.ui.propertyPane;
 
 export const getCurrentWidgetId = createSelector(

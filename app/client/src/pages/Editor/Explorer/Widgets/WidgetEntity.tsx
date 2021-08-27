@@ -89,7 +89,7 @@ export type WidgetEntityProps = {
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
   const widgetsToExpand = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestory,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
   let shouldExpand = false;
   if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;

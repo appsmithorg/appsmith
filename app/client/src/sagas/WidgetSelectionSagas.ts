@@ -1,6 +1,6 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, fork, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgetImmediateChildren, getWidgets } from "./selectors";
 import log from "loglevel";
 import {
@@ -15,6 +15,7 @@ import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { AppState } from "reducers";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -157,25 +158,55 @@ function* selectMultipleWidgetsSaga(
   }
 }
 
+function* canPerformSelectionSaga(saga: any, action: any) {
+  const isDragging: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  if (!isDragging) {
+    yield fork(saga, action);
+  }
+}
+
+function* deselectAllWidgetsSaga() {
+  yield put(selectMultipleWidgetsAction([]));
+}
+
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(
       ReduxActionTypes.SHIFT_SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
       shiftSelectWidgetsSaga,
     ),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectWidgetSaga),
-    takeLatest(ReduxActionTypes.SELECT_WIDGET_INIT, selectedWidgetAncestrySaga),
     takeLatest(
       ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
+      selectWidgetSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
+      selectedWidgetAncestrySaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SELECT_WIDGET_INIT,
+      canPerformSelectionSaga,
       deselectNonSiblingsOfWidgetSaga,
     ),
     takeLatest(
       ReduxActionTypes.SELECT_ALL_WIDGETS_IN_CANVAS_INIT,
+      canPerformSelectionSaga,
       selectAllWidgetsInCanvasSaga,
     ),
     takeLatest(
       ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
+      canPerformSelectionSaga,
       selectMultipleWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
+      canPerformSelectionSaga,
+      deselectAllWidgetsSaga,
     ),
   ]);
 }

@@ -41,7 +41,7 @@ describe("Input Widget Functionality", function() {
       .click({ force: true })
       .children()
       .contains("Text")
-      .click();
+      .click({ force: true });
     cy.get(widgetsPage.innertext)
       .click({ force: true })
       .type(this.data.para);
@@ -118,14 +118,14 @@ describe("Input Widget Functionality", function() {
     cy.openPropertyPane("inputwidget");
     cy.get(commonlocators.dataType)
       .last()
-      .click();
+      .click({ force: true });
     /*cy.get(
       `${commonlocators.dataType} .single-select:contains("Number")`,
     ).click();*/
     cy.get(".t--dropdown-option")
       .children()
       .contains("Number")
-      .click();
+      .click({ force: true });
     cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
     cy.get(widgetsPage.innertext)
       .click()
@@ -135,7 +135,7 @@ describe("Input Widget Functionality", function() {
       expect($x).contain("Invalid input");
     });
     cy.get(widgetsPage.innertext)
-      .click()
+      .click({ force: true })
       .clear();
     cy.closePropertyPane("inputwidget");
   });

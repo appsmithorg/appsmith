@@ -48,6 +48,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
+                    required: true,
                     allowedKeys: [
                       {
                         name: "label",
@@ -178,6 +179,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
   getPageView() {
     const options = _.isArray(this.props.options) ? this.props.options : [];
+
     const selectedIndex = _.findIndex(this.props.options, {
       value: this.props.defaultValue,
     });
@@ -204,9 +206,10 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
 
     // Check if the value has changed. If no option
     // selected till now, there is a change
-    if (this.props.selectedOption) {
-      isChanged = !(this.props.selectedOption.value === selectedOption.value);
+    if (this.props.selectedOptionValue) {
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
+
     if (isChanged) {
       this.props.updateWidgetMetaProperty(
         "defaultValue",
