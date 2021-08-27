@@ -361,7 +361,7 @@ function GoogleSheetForm(props: Props) {
         </>
       ) : null}
 
-      {selectedSheet.value && columnHeaderList.length
+      {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
             disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
