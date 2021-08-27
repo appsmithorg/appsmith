@@ -1,8 +1,8 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.GitGlobalConfigDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class GitController extends BaseController<GitService, UserData, String> 
     }
 
     @PostMapping("/user")
-    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
+    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitGlobalConfigDTO) {
         //Add to the userData object - git config data
         return gitService.saveGitConfigData(gitGlobalConfigDTO)
                 .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
@@ -36,7 +36,7 @@ public class GitController extends BaseController<GitService, UserData, String> 
     }
 
     @PostMapping("/update")
-    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitGlobalConfigDTO gitGlobalConfigDTO) {
+    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitConfig gitGlobalConfigDTO) {
         //Add to the userData object - git config data
         return gitService.updateGitConfigData(gitGlobalConfigDTO)
                 .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));

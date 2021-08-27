@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.GitGlobalConfigDTO;
 import com.appsmith.server.repositories.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -36,9 +35,9 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
     }
 
     @Override
-    public Mono<UserData> saveGitConfigData(GitGlobalConfigDTO gitConfig) {
+    public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
         //update the user object to store the user credentials which will be used in future git operations
-        return userService.findByEmail(gitConfig.getUserEmail())
+        return userService.findByEmail(gitConfig.getUserName())
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
@@ -46,7 +45,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             GitConfig gitLocalConfig = new GitConfig();
                             gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
                             gitLocalConfig.setUserName(user.getUsername());
-                            gitLocalConfig.setCommitEmail(gitConfig.getUserEmail());
+                            gitLocalConfig.setCommitEmail(gitConfig.getCommitEmail());
                             gitLocalConfig.setRemoteUrl(gitConfig.getRemoteUrl());
                             gitLocalConfig.setPassword(gitConfig.getPassword());
                             gitLocalConfig.setSshKey(gitConfig.getSshKey());
@@ -58,8 +57,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
     }
 
     @Override
-    public Mono<UserData> updateGitConfigData(GitGlobalConfigDTO gitConfig) {
-        return userService.findByEmail(gitConfig.getUserEmail())
+    public Mono<UserData> updateGitConfigData(GitConfig gitConfig) {
+        return userService.findByEmail(gitConfig.getUserName())
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
@@ -68,7 +67,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                                 if( gitLocalConfig.getRemoteUrl().equals(gitConfig.getRemoteUrl())) {
                                     gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
                                     gitLocalConfig.setUserName(user.getUsername());
-                                    gitLocalConfig.setCommitEmail(gitConfig.getUserEmail());
+                                    gitLocalConfig.setCommitEmail(gitConfig.getCommitEmail());
                                     gitLocalConfig.setPassword(gitConfig.getPassword());
                                     gitLocalConfig.setSshKey(gitConfig.getSshKey());
                                     gitLocalConfig.setProfileName(gitConfig.getProfileName());
