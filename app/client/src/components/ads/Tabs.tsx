@@ -67,6 +67,10 @@ const TabsWrapper = styled.div<{
       content: none;
     }
   }
+
+  .react-tabs__tab--selected {
+    background-color: transparent;
+  }
 `;
 
 export const TabTitle = styled.span`
@@ -75,6 +79,8 @@ export const TabTitle = styled.span`
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
   letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
   margin: 0;
+  display: flex;
+  align-items: center;
 `;
 
 export const TabCount = styled.div`

@@ -11,6 +11,7 @@ export interface LogDebuggerErrorAnalyticsPayload {
   errorMessages?: Message[];
   errorMessage?: Message["message"];
   errorType?: Message["type"];
+  errorSubType?: Message["subType"];
   analytics?: Log["analytics"];
 }
 
@@ -65,5 +66,10 @@ export const logDebuggerErrorAnalytics = (
   payload: LogDebuggerErrorAnalyticsPayload,
 ) => ({
   type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+  payload,
+});
+
+export const hideDebuggerErrors = (payload: boolean) => ({
+  type: ReduxActionTypes.HIDE_DEBUGGER_ERRORS,
   payload,
 });

@@ -21,7 +21,7 @@ import {
 } from "./helpers";
 import history from "utils/history";
 import { getSelectedWidget } from "selectors/ui";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { isEqual, keyBy } from "lodash";
 import {
   getPluginIcon,
@@ -158,7 +158,7 @@ export const useEntityLink = () => {
 
 export const useGetEntityInfo = (name: string) => {
   const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
-  const debuggerErrors = useSelector(getDebuggerErrors);
+  const debuggerErrors = useSelector(getFilteredErrors);
   const action = useSelector((state: AppState) =>
     isAction(entity) ? getAction(state, entity.actionId) : undefined,
   );
