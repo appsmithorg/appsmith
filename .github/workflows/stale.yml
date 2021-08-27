@@ -18,10 +18,11 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-pr-stale: 7
+        days-before-issue-stale: 90
         stale-issue-message: 'This issue has not seen activity for a while. It will be closed in 7 days unless further activity is detected.'
         stale-pr-message: 'This PR has not seen activitiy for a while. It will be closed in 7 days unless further activity is detected.'
-        close-issue-message: 'This issue has been closed cause of inactivity.'
-        close-pr-message: 'This PR has been closed cause of inactivity.'
+        close-issue-message: 'This issue has been closed because of inactivity.'
+        close-pr-message: 'This PR has been closed because of inactivity.'
         exempt-issue-labels: 'Low'
         exempt-pr-labels: 'Dont merge,WIP'
         
