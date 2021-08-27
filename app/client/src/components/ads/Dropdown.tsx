@@ -89,7 +89,6 @@ export const DropdownContainer = styled.div<{ width: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -153,6 +152,10 @@ const Selected = styled.div<{
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: calc(100% - 10px);
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
@@ -285,6 +288,14 @@ const HeaderWrapper = styled.div`
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+
+  & ${Text} {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const SelectedIcon = styled(Icon)`
@@ -386,7 +397,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
-  return (
+  return options.length > 0 ? (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       width={props.optionWidth || "260px"}
@@ -452,7 +463,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         })}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  );
+  ) : null;
 }
 
 export default function Dropdown(props: DropdownProps) {
@@ -489,7 +500,7 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  const disabled = props.disabled || isLoading || !!errorMsg;
+  const disabled = props.disabled || isLoading;
   const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
 
   const dropdownHeight = props.height ? props.height : "38px";
@@ -503,7 +514,6 @@ export default function Dropdown(props: DropdownProps) {
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={dropdownHeight}
       isOpen={isOpen}
       onClick={onClickHandler}
     >

@@ -3,6 +3,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
+const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -2205,6 +2206,21 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 });
 
+Cypress.Commands.add(
+  "dragAndDropToWidget",
+  (widgetType, destinationWidget, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.get(selector)
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    const selector2 = `.t--draggable-${destinationWidget}`;
+    cy.get(selector2)
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
@@ -2303,10 +2319,9 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
-    .click()
-    .get("a.single-select div")
-    .contains(forSuccess)
-    .click();
+    .first()
+    .click({ force: true })
+    .selectOnClickOption(forSuccess);
 
   cy.wait(2000);
   // For Failure
@@ -2322,10 +2337,8 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .type(forFailure)
     .get("button.t--open-dropdown-Select-type")
     .last()
-    .click()
-    .get("a.single-select div")
-    .contains(forFailure)
-    .click();
+    .click({ force: true })
+    .selectOnClickOption(forFailure);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
@@ -2427,14 +2440,14 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = Cypress.moment()
+  const eDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   return eDate;
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = Cypress.moment()
+  const expDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;

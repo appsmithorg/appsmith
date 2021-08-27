@@ -1135,6 +1135,7 @@ type ColorType = {
       shadow: string;
       errorCount: string;
       noErrorCount: string;
+      warningCount: string;
     };
     blankState: {
       shortcut: string;
@@ -1931,6 +1932,7 @@ export const dark: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#D4D4D4",
@@ -2509,6 +2511,7 @@ export const light: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#090707",

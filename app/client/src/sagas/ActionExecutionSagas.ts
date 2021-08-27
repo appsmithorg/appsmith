@@ -52,7 +52,6 @@ import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import {
   executeApiActionRequest,
   executeApiActionSuccess,
-  executePageLoadActionsComplete,
   showRunActionConfirmModal,
   updateAction,
 } from "actions/actionActions";
@@ -121,6 +120,7 @@ import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { matchPath } from "react-router";
 import { setDataUrl } from "./PageSagas";
+import { hideDebuggerErrors } from "actions/debuggerActions";
 import FileDataTypes from "widgets/FileDataTypes";
 
 enum ActionResponseDataTypes {
@@ -1124,7 +1124,9 @@ function* executePageLoadActionsSaga() {
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
 
-    yield put(executePageLoadActionsComplete());
+    // We show errors in the debugger once onPageLoad actions
+    // are executed
+    yield put(hideDebuggerErrors(false));
   } catch (e) {
     log.error(e);
 
