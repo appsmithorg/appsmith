@@ -51,7 +51,7 @@ import {
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
-import { executeActionTriggers } from "./ActionExecutionSagas";
+import { executeActionTriggers } from "./ActionExecution/ActionExecutionSagas";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -287,9 +287,11 @@ export function* evaluateSnippetSaga(action: any) {
     );
     const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {
-      yield call(executeActionTriggers, triggers[0], {
-        type: EventType.ON_SNIPPET_EXECUTE,
-      });
+      yield call(
+        executeActionTriggers,
+        triggers[0],
+        EventType.ON_SNIPPET_EXECUTE,
+      );
     } else {
       yield put(
         setEvaluatedSnippet(
