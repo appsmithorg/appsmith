@@ -89,7 +89,6 @@ export const DropdownContainer = styled.div<{ width: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -153,6 +152,10 @@ const Selected = styled.div<{
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: calc(100% - 10px);
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
@@ -286,6 +289,7 @@ const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
+  width: 100%;
   overflow: hidden;
 
   & ${Text} {
@@ -511,7 +515,6 @@ export default function Dropdown(props: DropdownProps) {
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={dropdownHeight}
       isOpen={isOpen}
       onClick={onClickHandler}
     >
