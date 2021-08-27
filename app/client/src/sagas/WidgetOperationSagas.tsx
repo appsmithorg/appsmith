@@ -1148,15 +1148,9 @@ function getPropertiesToUpdate(
   };
 }
 
-function* batchUpdateWidgetPropertySaga(
-  action: ReduxAction<UpdateWidgetPropertyPayload>,
-) {
-  const start = performance.now();
-  const { updates, widgetId } = action.payload;
-  if (!widgetId) {
-    // Handling the case where sometimes widget id is not passed through here
-    return;
-  }
+function* getPropertiesUpdatedWidget(updatesObj: UpdateWidgetPropertyPayload) {
+  const { updates, widgetId } = updatesObj;
+
   const { modify = {}, remove = [], triggerPaths } = updates;
 
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
@@ -1190,9 +1184,24 @@ function* batchUpdateWidgetPropertySaga(
   if (Array.isArray(remove) && remove.length > 0) {
     widget = yield removeWidgetProperties(widget, remove);
   }
+  return widget;
+}
 
+function* batchUpdateWidgetPropertySaga(
+  action: ReduxAction<UpdateWidgetPropertyPayload>,
+) {
+  const start = performance.now();
+  const { widgetId } = action.payload;
+  if (!widgetId) {
+    // Handling the case where sometimes widget id is not passed through here
+    return;
+  }
+  const updatedWidget: WidgetProps = yield call(
+    getPropertiesUpdatedWidget,
+    action.payload,
+  );
   const stateWidgets = yield select(getWidgets);
-  const widgets = { ...stateWidgets, [widgetId]: widget };
+  const widgets = { ...stateWidgets, [widgetId]: updatedWidget };
   log.debug(
     "Batch widget property update calculations took: ",
     performance.now() - start,
@@ -1201,6 +1210,37 @@ function* batchUpdateWidgetPropertySaga(
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
+}
+
+function* batchUpdateMultipleWidgetsPropertiesSaga(
+  action: ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }>,
+) {
+  const start = performance.now();
+  const { updatesArray } = action.payload;
+  const stateWidgets = yield select(getWidgets);
+  const updatedWidgets: WidgetProps[] = yield all(
+    updatesArray.map((eachUpdate) => {
+      return call(getPropertiesUpdatedWidget, eachUpdate);
+    }),
+  );
+  const updatedStateWidgets = updatedWidgets.reduce(
+    (allWidgets, eachUpdatedWidget) => {
+      return {
+        ...allWidgets,
+        [eachUpdatedWidget.widgetId]: eachUpdatedWidget,
+      };
+    },
+    stateWidgets,
+  );
+
+  log.debug(
+    "Batch widget property update calculations took: ",
+    performance.now() - start,
+    "ms",
+  );
+
+  // Save the layout
+  yield put(updateAndSaveLayout(updatedStateWidgets));
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -1871,6 +1911,10 @@ export default function* widgetOperationSagas() {
     takeEvery(
       ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
       batchUpdateWidgetPropertySaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
+      batchUpdateMultipleWidgetsPropertiesSaga,
     ),
     takeEvery(
       ReduxActionTypes.DELETE_WIDGET_PROPERTY,

@@ -1,12 +1,10 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { RenderMode } from "constants/WidgetConstants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
   propertyPath: string,
   propertyValue: any,
-  renderMode: RenderMode,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -14,7 +12,6 @@ export const updateWidgetPropertyRequest = (
       widgetId,
       propertyPath,
       propertyValue,
-      renderMode,
     },
   };
 };
@@ -33,6 +30,23 @@ export const batchUpdateWidgetProperty = (
   payload: {
     widgetId,
     updates,
+  },
+});
+export const batchUpdateMultipleWidgetProperties = (
+  updatesArray: UpdateWidgetPropertyPayload[],
+): ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }> => ({
+  type: ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
+  payload: {
+    updatesArray,
+  },
+});
+
+export const batchUpdateMultipleWidgetsProperty = (
+  updatesArray: UpdateWidgetPropertyPayload[],
+): ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }> => ({
+  type: ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
+  payload: {
+    updatesArray,
   },
 });
 
@@ -66,7 +80,6 @@ export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyPath: string;
   propertyValue: any;
-  renderMode: RenderMode;
 }
 
 export interface UpdateWidgetPropertyPayload {

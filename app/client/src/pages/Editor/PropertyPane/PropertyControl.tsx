@@ -11,12 +11,12 @@ import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
   deleteWidgetProperty,
   setWidgetDynamicProperty,
-  updateWidgetPropertyRequest,
+  UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
 import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
@@ -114,22 +114,134 @@ const PropertyControl = memo((props: Props) => {
       ),
     [widgetProperties.widgetId],
   );
-  // this function updates the properties of widget passed
-  const onBatchUpdatePropertiesOfWidget = useCallback(
-    (
-      allUpdates: Record<string, unknown>,
-      widgetId: string,
-      triggerPaths: string[],
-    ) => {
-      dispatch(
-        batchUpdateWidgetProperty(widgetId, {
-          modify: allUpdates,
-          triggerPaths,
-        }),
-      );
+  const onBatchUpdatePropertiesOfMultipleWidgets = useCallback(
+    (updatesArray: UpdateWidgetPropertyPayload[]) => {
+      dispatch(batchUpdateMultipleWidgetProperties(updatesArray));
     },
     [],
   );
+
+  const getWidgetsOwnUpdatesOnPropertyChange = (
+    propertyName: string,
+    propertyValue: any,
+  ) => {
+    let propertiesToUpdate:
+      | Array<{
+          propertyPath: string;
+          propertyValue: any;
+        }>
+      | undefined;
+    // To support updating multiple properties of same widget.
+    if (props.updateHook) {
+      propertiesToUpdate = props.updateHook(
+        widgetProperties,
+        propertyName,
+        propertyValue,
+      );
+    }
+    if (propertiesToUpdate) {
+      const allUpdates: Record<string, unknown> = {};
+      propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
+        allUpdates[propertyPath] = propertyValue;
+      });
+      allUpdates[propertyName] = propertyValue;
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget properties were updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: widgetProperties.widgetName,
+          id: widgetProperties.widgetId,
+          // TODO: Check whether these properties have
+          // dependent properties
+          propertyPath: propertiesToUpdate[0].propertyPath,
+        },
+        state: allUpdates,
+      });
+      return {
+        widgetId: widgetProperties.widgetId,
+        updates: {
+          modify: allUpdates,
+        },
+      };
+    }
+    if (!propertiesToUpdate) {
+      const modify: Record<string, unknown> = {
+        [propertyName]: propertyValue,
+      };
+      AppsmithConsole.info({
+        logType: LOG_TYPE.WIDGET_UPDATE,
+        text: "Widget properties were updated",
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          name: widgetProperties.widgetName,
+          id: widgetProperties.widgetId,
+          propertyPath: propertyName,
+        },
+        state: {
+          [propertyName]: propertyValue,
+        },
+      });
+      return {
+        widgetId: widgetProperties.widgetId,
+        updates: {
+          modify,
+        },
+      };
+    }
+  };
+
+  const getOtherWidgetPropertyChanges = (
+    propertyName: string,
+    propertyValue: any,
+  ) => {
+    const otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+
+    // enhancements are one way to update property of another widget but will have leaks into the dsl
+    // would recommend NOT TO FOLLOW this path for upcoming widgets.
+
+    // if there are enhancements related to the widget, calling them here
+    // enhancements are basically group of functions that are called before widget propety
+    // is changed on propertypane. For e.g - set/update parent property
+    if (childWidgetPropertyUpdateEnhancementFn) {
+      const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
+        widgetProperties.widgetName,
+        propertyName,
+        propertyValue,
+        props.isTriggerProperty,
+      );
+
+      if (
+        Array.isArray(hookPropertiesUpdates) &&
+        hookPropertiesUpdates.length > 0
+      ) {
+        const allUpdates: Record<string, unknown> = {};
+        const triggerPaths: string[] = [];
+        hookPropertiesUpdates.forEach(
+          ({ isDynamicTrigger, propertyPath, propertyValue }) => {
+            allUpdates[propertyPath] = propertyValue;
+            if (isDynamicTrigger) triggerPaths.push(propertyPath);
+          },
+        );
+
+        const parentEnhancementUpdates: UpdateWidgetPropertyPayload = {
+          widgetId: parentIdWithEnhancementFn,
+          updates: {
+            modify: allUpdates,
+            triggerPaths,
+          },
+        };
+        otherWidgetPropertiesToUpdates.push(parentEnhancementUpdates);
+      }
+    }
+    //
+    if (props.updateRelatedWidgetProperties) {
+      otherWidgetPropertiesToUpdates.concat(
+        props.updateRelatedWidgetProperties(props, propertyName, propertyValue),
+      );
+    }
+    return otherWidgetPropertiesToUpdates;
+  };
 
   /**
    * this function is called whenever we change any property in the property pane
@@ -144,95 +256,29 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         updatedValue: propertyValue,
       });
-      let propertiesToUpdate:
-        | Array<{
-            propertyPath: string;
-            propertyValue: any;
-          }>
-        | undefined;
-      if (props.updateHook) {
-        propertiesToUpdate = props.updateHook(
-          widgetProperties,
-          propertyName,
-          propertyValue,
-        );
-      }
 
-      // if there are enhancements related to the widget, calling them here
-      // enhancements are basically group of functions that are called before widget propety
-      // is changed on propertypane. For e.g - set/update parent property
-      if (childWidgetPropertyUpdateEnhancementFn) {
-        const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
-          widgetProperties.widgetName,
-          propertyName,
-          propertyValue,
-          props.isTriggerProperty,
-        );
-
-        if (
-          Array.isArray(hookPropertiesUpdates) &&
-          hookPropertiesUpdates.length > 0
-        ) {
-          const allUpdates: Record<string, unknown> = {};
-          const triggerPaths: string[] = [];
-          hookPropertiesUpdates.forEach(
-            ({ isDynamicTrigger, propertyPath, propertyValue }) => {
-              allUpdates[propertyPath] = propertyValue;
-              if (isDynamicTrigger) triggerPaths.push(propertyPath);
-            },
-          );
-
-          onBatchUpdatePropertiesOfWidget(
-            allUpdates,
-            parentIdWithEnhancementFn,
-            triggerPaths,
-          );
+      const selfUpdates:
+        | UpdateWidgetPropertyPayload
+        | undefined = getWidgetsOwnUpdatesOnPropertyChange(
+        propertyName,
+        propertyValue,
+      );
+      const enhancementsToOtherWidgets: UpdateWidgetPropertyPayload[] = getOtherWidgetPropertyChanges(
+        propertyName,
+        propertyValue,
+      );
+      const allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+      if (selfUpdates) {
+        allPropertiesToUpdates.push(selfUpdates);
+        // ideally we should not allow updating another widget without any updates on its own.
+        if (enhancementsToOtherWidgets && enhancementsToOtherWidgets.length) {
+          allPropertiesToUpdates.concat(enhancementsToOtherWidgets);
         }
       }
-
-      if (propertiesToUpdate) {
-        const allUpdates: Record<string, unknown> = {};
-        propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-          allUpdates[propertyPath] = propertyValue;
-        });
-        allUpdates[propertyName] = propertyValue;
-        onBatchUpdateProperties(allUpdates);
-        AppsmithConsole.info({
-          logType: LOG_TYPE.WIDGET_UPDATE,
-          text: "Widget properties were updated",
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: widgetProperties.widgetName,
-            id: widgetProperties.widgetId,
-            // TODO: Check whether these properties have
-            // dependent properties
-            propertyPath: propertiesToUpdate[0].propertyPath,
-          },
-          state: allUpdates,
-        });
-      }
-      if (!propertiesToUpdate) {
-        dispatch(
-          updateWidgetPropertyRequest(
-            widgetProperties.widgetId,
-            propertyName,
-            propertyValue,
-            RenderModes.CANVAS, // This seems to be not needed anymore.
-          ),
-        );
-        AppsmithConsole.info({
-          logType: LOG_TYPE.WIDGET_UPDATE,
-          text: "Widget properties were updated",
-          source: {
-            type: ENTITY_TYPE.WIDGET,
-            name: widgetProperties.widgetName,
-            id: widgetProperties.widgetId,
-            propertyPath: propertyName,
-          },
-          state: {
-            [propertyName]: propertyValue,
-          },
-        });
+      if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
+        // updating properties of a widget(s) should be done only once when property value changes.
+        // to make sure dsl updates are atomic which is a necessity for undo/redo.
+        onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
       }
     },
     [widgetProperties],

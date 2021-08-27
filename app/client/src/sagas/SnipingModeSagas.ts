@@ -12,7 +12,7 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
-import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
+import { WidgetTypes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
@@ -128,7 +128,6 @@ export function* bindDataToWidgetSaga(
         action.payload.widgetId,
         propertyPath,
         propertyValue,
-        RenderModes.CANVAS,
       ),
     );
     yield put({

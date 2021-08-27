@@ -5,6 +5,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { UpdateWidgetPropertyPayload } from "actions/controlActions";
 const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
@@ -40,6 +41,11 @@ export type PropertyPaneControlConfig = {
   dataTreePath?: string;
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
+  updateRelatedWidgetProperties?: (
+    props: any,
+    propertyName: string,
+    propertyValue: any,
+  ) => UpdateWidgetPropertyPayload[];
   updateHook?: (
     props: any,
     propertyName: string,

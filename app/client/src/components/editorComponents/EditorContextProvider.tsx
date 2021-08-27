@@ -13,7 +13,6 @@ import {
 } from "actions/controlActions";
 
 import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { RenderModes } from "constants/WidgetConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
 import {
@@ -102,13 +101,7 @@ const mapDispatchToProps = {
     widgetId: string,
     propertyName: string,
     propertyValue: any,
-  ) =>
-    updateWidgetPropertyRequest(
-      widgetId,
-      propertyName,
-      propertyValue,
-      RenderModes.CANVAS,
-    ),
+  ) => updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
 
   executeAction,
   updateWidget,

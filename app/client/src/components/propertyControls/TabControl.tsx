@@ -234,7 +234,7 @@ class TabControl extends BaseControl<ControlProps> {
 
   updateOption = (index: number, updatedLabel: string) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
+    const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
