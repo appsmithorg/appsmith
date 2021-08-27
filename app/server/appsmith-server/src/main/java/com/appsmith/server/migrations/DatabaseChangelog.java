@@ -19,6 +19,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
@@ -2958,6 +2959,16 @@ public class DatabaseChangelog {
                 plugin.setGenerateCRUDPageComponent(plugin.getName());
             }
             mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "082", id = "add-git-config-to-user-object", author = "")
+    public void addGitConfigToUserObject(MongockTemplate mongockTemplate) {
+        //Add the gitConfig field to the user data class
+        for (UserData userData : mongockTemplate.findAll(UserData.class)) {
+            List<GitConfig> gitConfigs = new ArrayList<>();
+            userData.setGitLocalConfigData(gitConfigs);
+            mongockTemplate.save(userData);
         }
     }
 }

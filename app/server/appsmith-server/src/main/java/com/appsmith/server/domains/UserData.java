@@ -39,6 +39,8 @@ public class UserData extends BaseDomain {
     // last event triggered by comment bot for this user
     private CommentBotEvent latestCommentEvent;
 
+    private List<GitConfig> gitLocalConfigData;
+
     public UserData(String userId) {
         this.userId = userId;
     }
