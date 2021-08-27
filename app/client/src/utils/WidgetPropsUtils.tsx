@@ -819,7 +819,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
-    currentDSL.version = 33;
+    currentDSL.version = 32;
   }
 
   if (currentDSL.version === 32) {

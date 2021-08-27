@@ -32,9 +32,14 @@ import { InputType, InputTypes } from "widgets/InputWidget";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import Icon, { IconSize } from "components/ads/Icon";
+import CurrencyTypeDropdown, {
+  CurrencyDropdownOptions,
+  getSelectedCurrency,
+} from "components/ads/CurrencyCodeDropdown";
+import ISDCodeDropdown, {
+  ISDCodeDropdownOptions,
+  getSelectedISDCode,
+} from "components/ads/ISDCodeDropdown";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -49,11 +54,13 @@ const InputComponentWrapper = styled((props) => (
   multiline: string;
   hasError: boolean;
   allowCurrencyChange?: boolean;
+  disabled?: boolean;
   inputType: InputType;
 }>`
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   &&&& {
-    .currency-type-filter {
+    .currency-type-filter,
+    .country-type-filter {
       width: 40px;
       height: 32px;
       position: absolute;
@@ -77,6 +84,8 @@ const InputComponentWrapper = styled((props) => (
         !props.allowCurrencyChange &&
         `
       padding-left: 35px;`};
+      ${(props) =>
+        props.inputType === InputTypes.PHONE_NUMBER && `padding-left: 85px;`};
       box-shadow: none;
       border: 1px solid;
       border-color: ${({ hasError }) =>
@@ -167,116 +176,14 @@ const TextInputWrapper = styled.div`
   flex: 1;
 `;
 
-const DropdownTriggerIconWrapper = styled.div`
-  height: 19px;
-  padding: 9px 5px 9px 12px;
-  width: 40px;
-  height: 19px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: -0.24px;
-  color: #090707;
-`;
-
-const CurrencyIconWrapper = styled.span`
-  height: 100%;
-  padding: 6px 4px 6px 12px;
-  width: 28px;
-  position: absolute;
-  left: 0;
-  z-index: 16;
-  font-size: 14px;
-  line-height: 19px;
-  letter-spacing: -0.24px;
-  color: #090707;
-`;
-
-interface CurrencyDropdownProps {
-  onCurrencyTypeChange: (code?: string) => void;
-  options: Array<DropdownOption>;
-  selected: DropdownOption;
-  allowCurrencyChange?: boolean;
-}
-
-function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
-  if (!props.allowCurrencyChange) {
-    return (
-      <CurrencyIconWrapper>
-        {getSelectedItem(props.selected.value).id}
-      </CurrencyIconWrapper>
-    );
-  }
-  const dropdownTriggerIcon = (
-    <DropdownTriggerIconWrapper className="t--input-currency-change">
-      {getSelectedItem(props.selected.value).id}
-      <Icon name="downArrow" size={IconSize.XXS} />
-    </DropdownTriggerIconWrapper>
-  );
+export const isNumberInputType = (inputType: InputType) => {
   return (
-    <Dropdown
-      containerClassName="currency-type-filter"
-      dropdownHeight="195px"
-      dropdownTriggerIcon={dropdownTriggerIcon}
-      enableSearch
-      onSelect={props.onCurrencyTypeChange}
-      optionWidth="260px"
-      options={props.options}
-      searchPlaceholder="Search by currency or country"
-      selected={props.selected}
-      showLabelOnly
-    />
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
   );
-}
-
-const getSelectedItem = (currencyCountryCode?: string): DropdownOption => {
-  let selectedCurrency: CurrencyOptionProps | undefined = currencyCountryCode
-    ? CurrencyTypeOptions.find((item: CurrencyOptionProps) => {
-        return item.code === currencyCountryCode;
-      })
-    : undefined;
-  if (!selectedCurrency) {
-    selectedCurrency = {
-      code: "US",
-      currency: "USD",
-      currency_name: "US Dollar",
-      label: "United States",
-      phone: "1",
-      symbol_native: "$",
-    };
-  }
-  return {
-    label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
-    searchText: selectedCurrency.label,
-    value: selectedCurrency.code,
-    id: selectedCurrency.symbol_native,
-  };
 };
-
-const countryToFlag = (isoCode: string) => {
-  return typeof String.fromCodePoint !== "undefined"
-    ? isoCode
-        .toUpperCase()
-        .replace(/./g, (char) =>
-          String.fromCodePoint(char.charCodeAt(0) + 127397),
-        )
-    : isoCode;
-};
-
-export const getCurrencyOptions = (): Array<DropdownOption> => {
-  return CurrencyTypeOptions.map((item: CurrencyOptionProps) => {
-    return {
-      leftElement: countryToFlag(item.code),
-      searchText: item.label,
-      label: `${item.currency} - ${item.currency_name}`,
-      value: item.code,
-      id: item.symbol_native,
-    };
-  });
-};
-
 class InputComponent extends React.Component<
   InputComponentProps,
   InputComponentState
@@ -330,18 +237,39 @@ class InputComponent extends React.Component<
     }
   };
 
-  isNumberInputType(inputType: InputType) {
-    return (
-      inputType === "INTEGER" ||
-      inputType === "NUMBER" ||
-      inputType === "CURRENCY"
-    );
-  }
+  getLeftIcon = (inputType: InputType, disabled: boolean) => {
+    if (inputType === InputTypes.PHONE_NUMBER) {
+      const selectedISDCode = getSelectedISDCode(
+        this.props.phoneNumberCountryCode,
+      );
+      return (
+        <ISDCodeDropdown
+          disabled={disabled}
+          onISDCodeChange={this.props.onISDCodeChange}
+          options={ISDCodeDropdownOptions}
+          selected={selectedISDCode}
+        />
+      );
+    } else if (inputType === InputTypes.CURRENCY) {
+      const selectedCurrencyCountryCode = getSelectedCurrency(
+        this.props.currencyCountryCode,
+      );
+      return (
+        <CurrencyTypeDropdown
+          allowCurrencyChange={this.props.allowCurrencyChange && !disabled}
+          onCurrencyTypeChange={this.props.onCurrencyTypeChange}
+          options={CurrencyDropdownOptions}
+          selected={selectedCurrencyCountryCode}
+        />
+      );
+    } else if (this.props.iconName && this.props.iconAlign === "left") {
+      return this.props.iconName;
+    }
+    return this.props.leftIcon;
+  };
 
   getIcon(inputType: InputType) {
     switch (inputType) {
-      case "PHONE_NUMBER":
-        return "phone";
       case "SEARCH":
         return "search";
       case "EMAIL":
@@ -380,6 +308,10 @@ class InputComponent extends React.Component<
   };
 
   private numericInputComponent = () => {
+    const leftIcon = this.getLeftIcon(
+      this.props.inputType,
+      !!this.props.disabled,
+    );
     const minorStepSize =
       this.props.inputType === InputTypes.CURRENCY
         ? this.props.decimalsInCurrency || 0
@@ -390,25 +322,14 @@ class InputComponent extends React.Component<
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}
-        leftIcon={
-          this.props.inputType === "PHONE_NUMBER" ? (
-            "phone"
-          ) : this.props.inputType === InputTypes.CURRENCY ? (
-            <CurrencyTypeDropdown
-              allowCurrencyChange={this.props.allowCurrencyChange}
-              onCurrencyTypeChange={this.props.onCurrencyTypeChange}
-              options={getCurrencyOptions()}
-              selected={getSelectedItem(this.props.currencyCountryCode)}
-            />
-          ) : this.props.iconName && this.props.iconAlign === "left" ? (
-            this.props.iconName
-          ) : (
-            undefined
-          )
-        }
+        leftIcon={leftIcon}
         max={this.props.maxNum}
         maxLength={this.props.maxChars}
-        min={this.props.minNum}
+        min={
+          this.props.inputType === InputTypes.PHONE_NUMBER
+            ? 0
+            : this.props.minNum
+        }
         minorStepSize={
           minorStepSize === 0 ? undefined : Math.pow(10, -1 * minorStepSize)
         }
@@ -418,7 +339,6 @@ class InputComponent extends React.Component<
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={minorStepSize === 0 ? this.props.stepSize : undefined}
-        type={this.props.inputType === "PHONE_NUMBER" ? "tel" : undefined}
         value={this.props.value}
       />
     );
@@ -480,7 +400,7 @@ class InputComponent extends React.Component<
       />
     );
   private renderInputComponent = (inputType: InputType, isTextArea: boolean) =>
-    this.isNumberInputType(inputType)
+    isNumberInputType(inputType)
       ? this.numericInputComponent()
       : this.textInputComponent(isTextArea);
 
@@ -498,6 +418,7 @@ class InputComponent extends React.Component<
       <InputComponentWrapper
         allowCurrencyChange={this.props.allowCurrencyChange}
         compactMode={this.props.compactMode}
+        disabled={this.props.disabled}
         fill
         hasError={this.props.isInvalid}
         inputType={this.props.inputType}
@@ -505,7 +426,7 @@ class InputComponent extends React.Component<
         labelTextColor={labelTextColor}
         labelTextSize={labelTextSize ? TEXT_SIZES[labelTextSize] : "inherit"}
         multiline={this.props.multiline.toString()}
-        numeric={this.isNumberInputType(this.props.inputType)}
+        numeric={isNumberInputType(this.props.inputType)}
       >
         {showLabelHeader && (
           <TextLableWrapper
@@ -567,9 +488,10 @@ export interface InputComponentProps extends ComponentProps {
   inputType: InputType;
   disabled?: boolean;
   intent?: Intent;
-  defaultValue?: string;
+  defaultValue?: string | number;
   currencyCountryCode?: string;
   noOfDecimals?: number;
+  phoneNumberCountryCode?: string;
   allowCurrencyChange?: boolean;
   decimalsInCurrency?: number;
   label: string;
@@ -586,6 +508,7 @@ export interface InputComponentProps extends ComponentProps {
   minNum?: number;
   onValueChange: (valueAsString: string) => void;
   onCurrencyTypeChange: (code?: string) => void;
+  onISDCodeChange: (code?: string) => void;
   stepSize?: number;
   placeholder?: string;
   isLoading: boolean;

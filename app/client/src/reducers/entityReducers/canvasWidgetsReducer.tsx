@@ -11,9 +11,11 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: CanvasWidgetsReduxState = {};
 
-export type FlattenedWidgetProps = WidgetProps & {
-  children?: string[];
-};
+export type FlattenedWidgetProps<orType = never> =
+  | (WidgetProps & {
+      children?: string[];
+    })
+  | orType;
 
 const canvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (

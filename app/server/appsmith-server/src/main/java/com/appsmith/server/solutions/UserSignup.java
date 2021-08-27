@@ -125,7 +125,7 @@ public class UserSignup {
                 .map(formData -> {
                     final User user = new User();
                     user.setEmail(formData.getFirst(FieldName.EMAIL));
-                    user.setPassword(formData.getFirst("password"));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
@@ -198,6 +198,51 @@ public class UserSignup {
                             configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
+                });
+    }
+
+    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .map(formData -> {
+                    final UserSignupRequestDTO user = new UserSignupRequestDTO();
+                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
+                    user.setSource(LoginSource.FORM);
+                    user.setState(UserState.ACTIVATED);
+                    user.setEnabled(true);
+                    if (formData.containsKey(FieldName.NAME)) {
+                        user.setName(formData.getFirst(FieldName.NAME));
+                    }
+                    if (formData.containsKey("role")) {
+                        user.setRole(formData.getFirst("role"));
+                    }
+                    if (formData.containsKey("companyName")) {
+                        user.setCompanyName(formData.getFirst("companyName"));
+                    }
+                    if (formData.containsKey("allowCollectingAnonymousData")) {
+                        user.setAllowCollectingAnonymousData("true".equals(formData.getFirst("allowCollectingAnonymousData")));
+                    }
+                    if (formData.containsKey("signupForNewsletter")) {
+                        user.setSignupForNewsletter("true".equals(formData.getFirst("signupForNewsletter")));
+                    }
+                    return user;
+                })
+                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .then()
+                .onErrorResume(error -> {
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer == null) {
+                        referer = DEFAULT_ORIGIN_HEADER;
+                    }
+                    final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
+                    URI redirectUri;
+                    try {
+                        redirectUri = redirectUriBuilder.build();
+                    } catch (URISyntaxException e) {
+                        log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
+                        redirectUri = URI.create(referer);
+                    }
+                    return redirectStrategy.sendRedirect(exchange, redirectUri);
                 });
     }
 
