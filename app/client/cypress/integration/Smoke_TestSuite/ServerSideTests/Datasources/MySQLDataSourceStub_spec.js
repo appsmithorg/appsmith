@@ -19,9 +19,7 @@ describe("MySQL datasource test cases", function() {
       datasourceName = `MySQL MOCKDS ${UUID}`;
       cy.renameDatasource(datasourceName);
     });
-    cy.intercept("PUT", "/api/v1/datasources/*", {
-      fixture: "saveAction.json",
-    }).as("saveDatasource");
+
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
