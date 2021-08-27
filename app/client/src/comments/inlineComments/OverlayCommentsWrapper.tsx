@@ -1,9 +1,13 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import Comments from "./Comments";
 import { commentModeSelector } from "selectors/commentsSelectors";
-import { createUnpublishedCommentThreadRequest } from "actions/commentActions";
+import {
+  createUnpublishedCommentThreadRequest,
+  dragCommentThread,
+  setHasDroppedCommentThread,
+} from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.svg";
 import { getOffsetPos } from "comments/utils";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
@@ -13,6 +17,15 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
+
+const stopPropagation = (e: any) => {
+  e.stopPropagation();
+  e.preventDefault();
+};
+
+const preventDefault = (e: any) => {
+  e.preventDefault();
+};
 
 type Props = {
   children: React.ReactNode;
@@ -32,7 +45,30 @@ const Container = styled.div<{ isCommentMode: boolean }>`
  * 1. Renders inline comment threads down the tree
  * 2. Calculates pin offset while creating a new comment
  */
-function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
+function OverlayCommentsWrapper(props: Props) {
+  const { children, refId, widgetType } = props;
+  const updateCommentPinPosition = useCallback(
+    (e: any) => {
+      if (containerRef.current) {
+        const boundingClientRect = containerRef.current.getBoundingClientRect();
+        dispatch(
+          dragCommentThread({
+            dragPosition: {
+              x: e.clientX,
+              y: e.clientY,
+            },
+            containerSizePosition: boundingClientRect,
+            refId,
+            widgetType,
+          }),
+        );
+        dispatch(setHasDroppedCommentThread());
+        e.stopPropagation();
+      }
+    },
+    [refId, widgetType],
+  );
+
   const containerRef = useRef<HTMLDivElement>(null);
   const isCommentMode = useSelector(commentModeSelector);
   const dispatch = useDispatch();
@@ -65,9 +101,14 @@ function OverlayCommentsWrapper({ children, refId, widgetType }: Props) {
   return (
     <Container
       data-cy="overlay-comments-wrapper"
+      id={`comment-overlay-wrapper-${refId}`}
       isCommentMode={isCommentMode}
       onClick={clickHandler}
-      ref={isCommentMode ? containerRef : null}
+      onDragEnter={stopPropagation}
+      onDragLeave={preventDefault}
+      onDragOver={preventDefault}
+      onDrop={updateCommentPinPosition}
+      ref={containerRef}
     >
       {children}
       {isCommentMode && <Comments refId={refId} />}

@@ -212,7 +212,7 @@ export const ERROR_DATEPICKER_MIN_DATE = () =>
 export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
-export const ERROR_API_EXECUTE = (actionName: string) =>
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
@@ -395,11 +395,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 
-export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready to use.";
+export const GEN_CRUD_SUCCESS_DESC = () =>
+  "Search through your data in the table and update it using the form";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "Search through your data in the table and update it using the form.";
+  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
 
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
@@ -438,6 +440,8 @@ export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
 
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
   "Checkout branches, make commits, add deploy your application";
@@ -445,3 +449,10 @@ export const CONNECT = () => "Connect";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const COMMIT = () => "COMMIT";
+export const PUSH = () => "PUSH";
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";

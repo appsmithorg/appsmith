@@ -17,7 +17,6 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
-
 import { APP_MODE } from "entities/App";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
