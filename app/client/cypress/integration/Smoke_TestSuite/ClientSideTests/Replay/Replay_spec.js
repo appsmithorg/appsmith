@@ -43,4 +43,17 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetsPage.inputLabelControl).contains("Label1");
     cy.get(`${publish.checkboxWidget} label`).should("have.text", "Label1");
   });
+
+  it("checks undo/redo for deletion of widgets", function() {
+    cy.deleteWidget(widgetsPage.checkboxWidget);
+    cy.get(widgetsPage.buttonWidget).should("not.exist");
+
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.wait(100);
+    cy.get(widgetsPage.checkboxWidget).should("exist");
+
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.wait(100);
+    cy.get(widgetsPage.buttonWidget).should("not.exist");
+  });
 });

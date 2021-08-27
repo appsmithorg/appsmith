@@ -2362,7 +2362,6 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
 Cypress.Commands.add("deleteWidget", (widget) => {
   // Delete the button widget
   cy.get(widgetsPage.removeWidget).click({ force: true });
-  cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {

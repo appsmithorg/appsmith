@@ -6,6 +6,7 @@
     "inputPropsDataType": ".t--property-control-datatype",
     "inputdatatypeplaceholder": ".t--property-control-placeholder",
     "buttonWidget": ".t--draggable-buttonwidget",
+    "checkboxWidget": ".t--draggable-checkboxwidget",
     "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
     "copyWidget": ".t--copy-widget svg",
