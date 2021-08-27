@@ -173,7 +173,7 @@ const Selected = styled.div<{
 const DropdownSelect = styled.div``;
 
 export const DropdownWrapper = styled.div<{
-  width: string;
+  width?: string;
 }>`
   width: ${(props) => props.width};
   z-index: 1;
@@ -380,7 +380,6 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption;
-  optionWidth: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
@@ -599,7 +598,9 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           optionClickHandler={optionClickHandler}
-          optionWidth={props.fillOptions ? dropdownWrapperWidth : dropdownWidth}
+          optionWidth={
+            props.fillOptions ? dropdownWrapperWidth : props.optionWidth
+          }
         />
       </Popover>
     </DropdownContainer>
