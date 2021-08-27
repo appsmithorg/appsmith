@@ -41,15 +41,6 @@ export const batchUpdateMultipleWidgetProperties = (
   },
 });
 
-export const batchUpdateMultipleWidgetsProperty = (
-  updatesArray: UpdateWidgetPropertyPayload[],
-): ReduxAction<{ updatesArray: UpdateWidgetPropertyPayload[] }> => ({
-  type: ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY,
-  payload: {
-    updatesArray,
-  },
-});
-
 export const deleteWidgetProperty = (
   widgetId: string,
   propertyPaths: string[],
