@@ -20,9 +20,8 @@ function PropertyHelpLabel(props: Props) {
       content={
         <Text
           style={{
-            whiteSpace: "pre",
             color: "#FAFAFA",
-            display: "flex",
+            maxWidth: "320px",
             textAlign: "center",
           }}
           type={TextType.P1}
