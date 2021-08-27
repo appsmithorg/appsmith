@@ -601,6 +601,7 @@ function RecorderComponent(props: RecorderComponentProps) {
   useEffect(() => {
     if (error === "permission_denied") {
       setIsPermissionDenied(true);
+      setStatusMessage("Permission not given");
     }
   }, [error]);
 
