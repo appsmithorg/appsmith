@@ -16,7 +16,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
   apiIcon,
   getPluginIcon,
-  jsFileIcon,
+  jsFunctionIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -53,6 +53,7 @@ import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSAction } from "actions/jsPaneActions";
 import getFeatureFlags from "utils/featureFlags";
 import { JSSubAction, variable } from "entities/JSAction";
+
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
@@ -451,9 +452,7 @@ function getIntegrationOptionsWithChildren(
           value: jsAction.config.name,
           type: jsOption.value,
         };
-        (jsOption.children as TreeDropdownOption[]).push(
-          jsObject as TreeDropdownOption,
-        );
+        (jsOption.children as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
           const createJSFunction: TreeDropdownOption = {
             label: "Create New JS Function",
@@ -481,7 +480,7 @@ function getIntegrationOptionsWithChildren(
               id: js.id,
               value: jsAction.config.name + "." + js.name,
               type: jsOption.value,
-              icon: jsFileIcon,
+              icon: jsFunctionIcon,
               args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(

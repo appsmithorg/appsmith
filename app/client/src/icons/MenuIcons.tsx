@@ -19,6 +19,7 @@ import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-
 import { ReactComponent as JSIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
+import { ReactComponent as JSFunctionIcon } from "assets/icons/menu/js-function.svg";
 import { Icon } from "@blueprintjs/core";
 /* eslint-disable react/display-name */
 
@@ -40,6 +41,11 @@ export const MenuIcons: {
   JS_FILE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <JSFileIcon />
+    </IconWrapper>
+  ),
+  JS_FUNCTION_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <JSFunctionIcon />
     </IconWrapper>
   ),
   APIS_ICON: (props: IconProps) => (

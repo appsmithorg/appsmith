@@ -68,6 +68,15 @@ export const jsFileIcon = (
   <JSFileIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
+const JSFunctionIcon = MenuIcons.JS_FUNCTION_ICON;
+export const jsFunctionIcon = (
+  <JSFunctionIcon
+    height={ENTITY_ICON_SIZE}
+    keepColors
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 export const settingsIcon = (
   <SettingsIcon color={Colors.ALTO} height={12} width={12} />
