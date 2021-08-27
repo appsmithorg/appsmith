@@ -19,63 +19,7 @@
     "parentColumnSpace": 1,
     "leftColumn": 0,
     "children": [
-      {
-        "backgroundColor": "#FFFFFF",
-        "widgetName": "Container3",
-        "type": "CONTAINER_WIDGET",
-        "containerStyle": "card",
-        "isVisible": true,
-        "isLoading": false,
-        "parentColumnSpace": 75.25,
-        "parentRowSpace": 38,
-        "dynamicBindingPathList": [],
-        "leftColumn": 0,
-        "rightColumn": 15,
-        "topRow": 0,
-        "bottomRow": 20,
-        "snapColumns": 16,
-        "orientation": "VERTICAL",
-        "children": [
-          {
-            "backgroundColor": "transparent",
-            "widgetName": "7hf8kkvvgv",
-            "type": "CANVAS_WIDGET",
-            "containerStyle": "none",
-            "isVisible": true,
-            "isLoading": false,
-            "parentColumnSpace": 1,
-            "parentRowSpace": 1,
-            "leftColumn": 0,
-            "rightColumn": 1204,
-            "topRow": 0,
-            "bottomRow": 532,
-            "snapColumns": 16,
-            "orientation": "VERTICAL",
-            "children": [
-              {
-                "isVisible": true,
-                "label": "Label",
-                "defaultCheckedState": true,
-                "widgetName": "Checkbox1",
-                "type": "CHECKBOX_WIDGET",
-                "isLoading": false,
-                "parentColumnSpace": 71.75,
-                "parentRowSpace": 38,
-                "leftColumn": 10,
-                "rightColumn": 13,
-                "topRow": 4,
-                "bottomRow": 5,
-                "parentId": "e3tq9qwta6",
-                "widgetId": "szjhneuog5"
-              }
-            ],
-            "widgetId": "e3tq9qwta6",
-            "detachFromLayout": true,
-            "canExtend": false
-          }
-        ],
-        "widgetId": "jaftzrmtin"
-      }
+
     ]
   }
 }
