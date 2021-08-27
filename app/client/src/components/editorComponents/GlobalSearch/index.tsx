@@ -432,7 +432,7 @@ function GlobalSearch() {
       );
       return;
     }
-    dispatch(insertSnippet(get(item, "body.examples[0].code", "")));
+    dispatch(insertSnippet(get(item, "body.snippet", "")));
     toggleShow();
   };
 
