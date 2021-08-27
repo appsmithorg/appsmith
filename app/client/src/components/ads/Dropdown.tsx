@@ -380,16 +380,11 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption;
-  dropdownWrapperWidth: string;
+  optionWidth: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const {
-    dropdownWrapperWidth,
-    onSearch,
-    optionClickHandler,
-    renderOption,
-  } = props;
+  const { onSearch, optionClickHandler, optionWidth, renderOption } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -410,9 +405,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
   return options.length > 0 ? (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
-      width={
-        props.fillOptions ? dropdownWrapperWidth : props.optionWidth || "260px"
-      }
+      width={optionWidth}
     >
       {props.enableSearch && (
         <SearchComponent
@@ -433,7 +426,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               option,
               index,
               optionClickHandler,
-              optionWidth: dropdownWrapperWidth,
+              optionWidth,
             });
           }
           return (
@@ -600,9 +593,13 @@ export default function Dropdown(props: DropdownProps) {
       >
         {dropdownTrigger}
         <RenderDropdownOptions
-          dropdownWrapperWidth={dropdownWrapperWidth}
-          optionClickHandler={optionClickHandler}
           {...props}
+          optionClickHandler={optionClickHandler}
+          optionWidth={
+            props.fillOptions
+              ? dropdownWrapperWidth
+              : props.optionWidth || "260px"
+          }
         />
       </Popover>
     </DropdownContainer>
