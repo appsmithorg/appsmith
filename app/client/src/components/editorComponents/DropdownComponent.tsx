@@ -7,10 +7,7 @@ import {
   InputGroup,
   IMenuProps,
 } from "@blueprintjs/core";
-import {
-  BaseButton,
-  ButtonStyleName,
-} from "components/designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import {
   ItemRenderer,
   Select,
@@ -41,7 +38,6 @@ const StyledMenu = styled(Menu)<MenuComponentProps>`
 `;
 const StyledMenuItem = styled(MenuItem)`
   border-radius: 0;
-
   &&&.bp3-active {
     background: ${(props) => props.theme.colors.propertyPane.activeButtonText};
   }
@@ -49,8 +45,11 @@ const StyledMenuItem = styled(MenuItem)`
 
 class DropdownComponent extends Component<DropdownComponentProps> {
   componentDidMount() {
-    const { input, selected } = this.props;
-    input && input.onChange(selected?.value);
+    const { input, options } = this.props;
+    // set selected option to first option by default
+    if (input && !input.value) {
+      input.onChange(options[0].value);
+    }
   }
   private newItemTextInput: HTMLInputElement | null = null;
   private setNewItemTextInput = (element: HTMLInputElement | null) => {
@@ -85,8 +84,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 
     const displayMode = (
       <BaseButton
-        accent="primary"
-        filled
+        buttonStyle="PRIMARY"
         icon-right="plus"
         onClick={this.showTextBox}
         text={addItem?.displayText}
@@ -95,11 +93,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     const editMode = (
       <ControlGroup fill>
         <InputGroup inputRef={this.setNewItemTextInput} />
-        <BaseButton
-          filled
-          onClick={this.handleAddItem}
-          text={addItem?.displayText}
-        />
+        <BaseButton onClick={this.handleAddItem} text={addItem?.displayText} />
       </ControlGroup>
     );
     return (
@@ -119,8 +113,9 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     );
   };
   onItemSelect = (item: DropdownOption): void => {
-    this.props.input?.onChange(item.value);
-    this.props.selectHandler(item.value);
+    const { input, selectHandler } = this.props;
+    input && input.onChange(item.value);
+    selectHandler && selectHandler(item.value);
   };
 
   renderItem: ItemRenderer<DropdownOption> = (
@@ -141,32 +136,42 @@ class DropdownComponent extends Component<DropdownComponentProps> {
       />
     );
   };
-  getSelectedDisplayText = () => {
-    if (this.props.selected) {
-      const selectedValue = this.props.selected.value;
-      const item: DropdownOption | undefined = this.props.options.find(
-        (option) => option.value === selectedValue,
-      );
 
+  getDropdownOption = (value: string): DropdownOption | undefined => {
+    return this.props.options.find((option) => option.value === value);
+  };
+
+  getSelectedDisplayText = () => {
+    const { input, selected } = this.props;
+
+    if (input) {
+      const item = this.getDropdownOption(input.value);
+      return item && item.label;
+    }
+    if (selected) {
+      const item = this.getDropdownOption(selected.value);
       return item && item.label;
     }
     return "";
   };
 
+  getActiveOption = (): DropdownOption => {
+    const { input, options, selected } = this.props;
+    const defaultActiveOption = options[0];
+
+    if (input) {
+      return this.getDropdownOption(input.value) || defaultActiveOption;
+    } else {
+      return selected || defaultActiveOption;
+    }
+  };
+
   render() {
-    const {
-      accent,
-      autocomplete,
-      filled,
-      input,
-      options,
-      selected,
-      width,
-    } = this.props;
+    const { autocomplete, input, options, width } = this.props;
 
     return (
       <StyledDropdown
-        activeItem={selected}
+        activeItem={this.getActiveOption()}
         filterable={!!autocomplete}
         itemListRenderer={this.renderItemList}
         itemPredicate={this.searchItem}
@@ -181,8 +186,8 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              accent={accent || "secondary"}
-              filled={!!filled}
+              buttonStyle="PRIMARY"
+              buttonVariant="OUTLINE"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
@@ -196,7 +201,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 export interface DropdownComponentProps {
   hasLabel?: boolean;
   options: DropdownOption[];
-  selectHandler: (selectedValue: string) => void;
+  selectHandler?: (selectedValue: string) => void;
   selected?: DropdownOption;
   multiselectDisplayType?: "TAGS" | "CHECKBOXES";
   checked?: boolean;
@@ -207,8 +212,6 @@ export interface DropdownComponentProps {
     addItemHandler: (name: string) => void;
   };
   toggle?: ReactNode;
-  accent?: ButtonStyleName;
-  filled?: boolean;
   input?: WrappedFieldInputProps;
   width?: string;
 }

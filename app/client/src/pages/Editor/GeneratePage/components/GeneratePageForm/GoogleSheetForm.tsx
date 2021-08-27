@@ -322,9 +322,8 @@ function GoogleSheetForm(props: Props) {
                 </Tooltip>
               </TooltipWrapper>
             </Row>
-
             <TextInput
-              dataType="number"
+              dataType="text"
               fill
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
@@ -362,7 +361,7 @@ function GoogleSheetForm(props: Props) {
         </>
       ) : null}
 
-      {selectedSheet.value && columnHeaderList.length
+      {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
             disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
