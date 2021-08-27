@@ -541,7 +541,7 @@ function GlobalSearch() {
                 component requires Hits component as its children to display the
                 results. SetSearchResults is the custom hits component. */}
                 {(isMenu(category) || isSnippet(category)) && (
-                  <Index indexName={algolia.snippetIndex}>
+                  <Index indexName="snippet">
                     <Configure
                       optionalFilters={getOptionalFilters(optionalFilterMeta)}
                     />
