@@ -50,23 +50,32 @@ const evaluationScripts: Record<
   `,
 };
 
-const getScriptToEval = (
-  userScript: string,
+const getScriptType = (
   evalArguments?: Array<any>,
   isTriggerBased = false,
-): string => {
+): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
   if (evalArguments) {
     scriptType = EvaluationScriptType.ANONYMOUS_FUNCTION;
   } else if (isTriggerBased) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
+  return scriptType;
+};
+
+const getScriptToEval = (
+  userScript: string,
+  evalArguments?: Array<any>,
+  isTriggerBased = false,
+): string => {
+  const scriptType = getScriptType(evalArguments, isTriggerBased);
   return evaluationScripts[scriptType](userScript);
 };
 
 const getLintingErrors = (
   script: string,
   data: Record<string, unknown>,
+  originalBinding: string,
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = false));
@@ -93,6 +102,10 @@ const getLintingErrors = (
         : Severity.ERROR,
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
+      originalBinding,
+      // By keeping track of these variables we can highlight the exact text that caused the error.
+      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+      code: lintError.code,
     };
   });
 };
@@ -159,7 +172,7 @@ export default function evaluate(
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
-    errors = getLintingErrors(script, GLOBAL_DATA);
+    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
 
     ///// Adding extra libraries separately
     extraLibraries.forEach((library) => {
@@ -188,6 +201,7 @@ export default function evaluate(
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
+        originalBinding: js,
       });
     }
 

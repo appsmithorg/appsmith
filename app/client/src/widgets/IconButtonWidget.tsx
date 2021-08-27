@@ -8,11 +8,14 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent, {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonStyle,
   ButtonVariant,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
@@ -99,6 +102,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {

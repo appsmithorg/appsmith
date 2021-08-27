@@ -188,6 +188,8 @@ We love our contributors! We're committed to fostering an open and welcoming env
   <tr>
     <td align="center"><a href="http://www.navdeepsingh.in/"><img src="https://avatars.githubusercontent.com/u/2968787?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Navdeep Singh</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=navdeepsingh" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/aswathkk"><img src="https://avatars.githubusercontent.com/u/10436935?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aswath K</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=aswathkk" title="Code">💻</a></td>
+    <td align="center"><a href="http://appsmith.com"><img src="https://avatars.githubusercontent.com/u/11089579?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Somangshu Goswami</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Asomangshu" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=somangshu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/akshayrangasaid"><img src="https://avatars.githubusercontent.com/u/76783810?v=4?s=100" width="100px;" alt=""/><br /><sub><b>akshayrangasaid</b></sub></a><br /><a href="#content-akshayrangasaid" title="Content">🖋</a> <a href="#ideas-akshayrangasaid" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
