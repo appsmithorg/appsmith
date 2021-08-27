@@ -503,7 +503,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
      *
      * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
      */
-    super.updateWidgetProperty("dragDisabled", focusState);
+    this.props.updateWidgetMetaProperty("dragDisabled", focusState);
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 
