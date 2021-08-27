@@ -46,6 +46,7 @@
   "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
+  "sortedColumn": "{{Table1.sortOrder.column",
   "deafultDropDownWidget": [
     {
       "label": "{{Table1.selectedRow.email}}",

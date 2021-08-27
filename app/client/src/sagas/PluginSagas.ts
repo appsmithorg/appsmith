@@ -28,7 +28,11 @@ import { GenericApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
 import { PluginType } from "entities/Action";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  FormEditorConfigs,
+  FormSettingsConfigs,
+  FormDependencyConfigs,
+} from "utils/DynamicBindingUtils";
 
 function* fetchPluginsSaga() {
   try {
@@ -82,9 +86,9 @@ function* fetchPluginFormConfigsSaga() {
       pluginIdFormsToFetch.add(jsPlugin.id);
     }
     const formConfigs: Record<string, any[]> = {};
-    const editorConfigs: Record<string, any[]> = {};
-    const settingConfigs: Record<string, any[]> = {};
-    const dependencies: Record<string, DependencyMap> = {};
+    const editorConfigs: FormEditorConfigs = {};
+    const settingConfigs: FormSettingsConfigs = {};
+    const dependencies: FormDependencyConfigs = {};
 
     Array.from(pluginIdFormsToFetch).forEach((pluginId, index) => {
       const plugin = plugins.find((plugin) => plugin.id === pluginId);

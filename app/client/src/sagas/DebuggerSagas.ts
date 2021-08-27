@@ -190,6 +190,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       AppsmithConsole.deleteError(payload.source?.id ?? "");
       break;
     case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {

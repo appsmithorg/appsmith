@@ -412,11 +412,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 
-export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready to use.";
+export const GEN_CRUD_SUCCESS_DESC = () =>
+  "Search through your data in the table and update it using the form";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "Search through your data in the table and update it using the form.";
+  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
 
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
@@ -467,3 +469,5 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";

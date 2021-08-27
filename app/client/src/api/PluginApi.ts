@@ -8,18 +8,26 @@ export type PluginId = string;
 export type PluginPackageName = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
 
+export enum UIComponentTypes {
+  DbEditorForm = "DbEditorForm",
+  UQIDbEditorForm = "UQIDbEditorForm",
+  ApiEditorForm = "ApiEditorForm",
+  RapidApiEditorForm = "RapidApiEditorForm",
+  JsEditorForm = "JsEditorForm",
+}
+
+export enum DatasourceComponentTypes {
+  RestAPIDatasourceForm = "RestAPIDatasourceForm",
+  AutoForm = "AutoForm",
+}
 export interface Plugin {
   id: string;
   name: string;
   type: PluginType;
   packageName: string;
   iconLocation?: string;
-  uiComponent:
-    | "ApiEditorForm"
-    | "RapidApiEditorForm"
-    | "DbEditorForm"
-    | "JsEditorForm";
-  datasourceComponent?: "RestAPIDatasourceForm" | "AutoForm";
+  uiComponent: UIComponentTypes;
+  datasourceComponent: DatasourceComponentTypes;
   allowUserDatasources?: boolean;
   templates: Record<string, string>;
   responseType?: "TABLE" | "JSON";

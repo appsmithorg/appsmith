@@ -31,6 +31,7 @@ import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
 import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "../src/sagas/DraggingCanvasSagas";
+import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -54,6 +55,7 @@ export const sagasToRunForTests = [
   batchSagas,
   themeSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   saaSPaneSagas,
   globalSearchSagas,
