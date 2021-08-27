@@ -391,12 +391,6 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
-const HelperText = styled.span`
-  ${(props) => getTypographyByKey(props, "p3")};
-  color: ${Colors.GRAY};
-  margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
-
 function DefaultDropDownValueNode({
   errorMsg,
   placeholder,
