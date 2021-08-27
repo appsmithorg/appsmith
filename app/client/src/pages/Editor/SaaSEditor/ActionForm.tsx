@@ -15,7 +15,7 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { RouteComponentProps } from "react-router";
-import { deleteAction, runActionInit } from "actions/actionActions";
+import { deleteAction, runAction } from "actions/pluginActionActions";
 import {
   EditorJSONtoForm,
   EditorJSONtoFormProps,
@@ -23,10 +23,7 @@ import {
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { Datasource } from "entities/Datasource";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "../../../constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 
 type StateAndRouteProps = EditorJSONtoFormProps &
   RouteComponentProps<{
@@ -52,7 +49,7 @@ function ActionForm(props: Props) {
   };
 
   const onRunClick = () => {
-    dispatch(runActionInit(apiId));
+    dispatch(runAction(apiId));
   };
   const onCreateDatasourceClick = () => {
     history.push(
