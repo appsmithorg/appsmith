@@ -10,9 +10,24 @@ import withMeta, { WithMeta } from "./MetaHOC";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_MAP_TYPES } from "constants/CustomMapConstants ";
+import {
+  dataSetForAfrica,
+  dataSetForAsia,
+  dataSetForEurope,
+  dataSetForNorthAmerica,
+  dataSetForOceania,
+  dataSetForSouthAmerica,
+  dataSetForWorld,
+  dataSetForWorldWithAntarctica,
+  MapType,
+  MapTypes,
+} from "components/designSystems/appsmith/MapChartComponent";
 
 export interface MapChartWidgetProps extends WidgetProps, WithMeta {
-  isVisible: boolean;
+  mapTitle?: string;
+  mapType: MapType;
+  onEntityClick?: string;
+  showLabels: boolean;
 }
 
 const MapChartComponent = lazy(() =>
@@ -37,57 +52,114 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             options: [
               {
                 label: "World",
-                value: "maps/world",
+                value: MapTypes.WORLD,
               },
               {
                 label: "World with Antarctica",
-                value: "maps/worldwithantarctica",
+                value: MapTypes.WORLD_WITH_ANTARCTICA,
               },
               {
                 label: "Europe",
-                value: "maps/europe",
+                value: MapTypes.EUROPE,
               },
               {
                 label: "North America",
-                value: "maps/northamerica",
+                value: MapTypes.NORTH_AMERICA,
               },
               {
                 label: "South America",
-                value: "maps/southamerica",
+                value: MapTypes.SOURTH_AMERICA,
               },
               {
                 label: "Asia",
-                value: "maps/asia",
+                value: MapTypes.ASIA,
               },
               {
                 label: "Oceania",
-                value: "maps/oceania",
+                value: MapTypes.OCEANIA,
               },
               {
                 label: "Africa",
-                value: "maps/africa",
-              },
-              {
-                label: "Custom",
-                value: "maps/custom",
+                value: MapTypes.AFRICA,
               },
             ],
             isJSconvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            updateHook: (
+              props: MapChartWidgetProps,
+              propertyPath: string,
+              propertyValue: any,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+              switch (propertyValue) {
+                case MapTypes.WORLD_WITH_ANTARCTICA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForWorldWithAntarctica,
+                  });
+                  break;
+                case MapTypes.EUROPE:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForEurope,
+                  });
+                  break;
+                case MapTypes.NORTH_AMERICA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForNorthAmerica,
+                  });
+                  break;
+                case MapTypes.SOURTH_AMERICA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForSouthAmerica,
+                  });
+                  break;
+                case MapTypes.ASIA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForAsia,
+                  });
+                  break;
+                case MapTypes.OCEANIA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForOceania,
+                  });
+                  break;
+                case MapTypes.AFRICA:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForAfrica,
+                  });
+                  break;
+
+                default:
+                  propertiesToUpdate.push({
+                    propertyPath: "data",
+                    propertyValue: dataSetForWorld,
+                  });
+                  break;
+              }
+
+              return propertiesToUpdate;
+            },
             validation: {
               type: ValidationTypes.TEXT,
               params: {
                 allowedValues: [
-                  "maps/world",
-                  "maps/worldwithantarctica",
-                  "maps/europe",
-                  "maps/northamerica",
-                  "maps/southamerica",
-                  "maps/asia",
-                  "maps/oceania",
-                  "maps/africa",
-                  "maps/custom",
+                  MapTypes.WORLD,
+                  MapTypes.WORLD_WITH_ANTARCTICA,
+                  MapTypes.EUROPE,
+                  MapTypes.NORTH_AMERICA,
+                  MapTypes.SOURTH_AMERICA,
+                  MapTypes.ASIA,
+                  MapTypes.OCEANIA,
+                  MapTypes.AFRICA,
+                  MapTypes.CUSTOM,
                 ],
               },
             },
@@ -115,7 +187,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Map Data",
+        sectionName: "Map Chart Data",
         children: [
           {
             helpText:
@@ -180,7 +252,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
               },
             },
             hidden: (props: MapChartWidgetProps) =>
-              props.mapType !== "maps/custom",
+              props.mapType !== MapTypes.CUSTOM,
             dependencies: ["mapType"],
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
@@ -193,7 +265,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             hidden: (props: MapChartWidgetProps) =>
-              props.mapType === "maps/custom",
+              props.mapType === MapTypes.CUSTOM,
             dependencies: ["mapType"],
             validation: {
               type: ValidationTypes.ARRAY,
@@ -207,16 +279,16 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                         name: "id",
                         type: ValidationTypes.TEXT,
                         params: {
-                          required: true,
-                          default: "",
+                          // required: true,
+                          // default: "",
                         },
                       },
                       {
                         name: "value",
-                        type: ValidationTypes.NUMBER,
+                        type: ValidationTypes.TEXT,
                         params: {
-                          required: true,
-                          default: 10,
+                          // required: true,
+                          // default: 1,
                         },
                       },
                     ],
@@ -227,24 +299,34 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+          {
+            propertyName: "showLabels",
+            label: "Show Labels",
+            helpText: "Sets whether entity labels will be shown or hidden",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
         sectionName: "Actions",
         children: [
-          {
-            helpText: "Triggers an action  the map type is changed to custom",
-            propertyName: "onCustomMapSelected",
-            label: "onCustomMapSelected",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
+          // {
+          //   helpText: "Triggers an action  the map type is changed to custom",
+          //   propertyName: "onCustomMapSelected",
+          //   label: "onCustomMapSelected",
+          //   controlType: "ACTION_SELECTOR",
+          //   isJSConvertible: true,
+          //   isBindProperty: true,
+          //   isTriggerProperty: true,
+          // },
           {
             helpText: "Triggers an action when the chart data point is clicked",
-            propertyName: "onDataPointClick",
-            label: "onDataPointClick",
+            propertyName: "onEntityClick",
+            label: "onEntityClick",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -255,12 +337,47 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     ];
   }
 
+  handleEntityClick = () => {
+    const { onEntityClick } = this.props;
+
+    if (onEntityClick) {
+      super.executeAction({
+        triggerPropertyName: "onEntityClick",
+        dynamicString: onEntityClick,
+        event: {
+          type: EventType.ON_ENTITY_CLICK,
+        },
+      });
+    }
+  };
+
   getPageView() {
-    const { isVisible } = this.props;
+    const {
+      bottomRow,
+      data,
+      isVisible,
+      leftColumn,
+      mapTitle,
+      mapType,
+      parentColumnSpace,
+      parentRowSpace,
+      rightColumn,
+      showLabels,
+      topRow,
+    } = this.props;
 
     return (
       <Suspense fallback={<Skeleton />}>
-        <MapChartComponent isVisible={isVisible} />
+        <MapChartComponent
+          caption={mapTitle}
+          data={data}
+          height={(bottomRow - topRow) * parentRowSpace}
+          isVisible={isVisible}
+          onEntityClick={this.handleEntityClick}
+          showLabels={showLabels}
+          type={mapType}
+          width={(rightColumn - leftColumn) * parentColumnSpace}
+        />
       </Suspense>
     );
   }

@@ -20,6 +20,7 @@ import {
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import { MapTypes } from "components/designSystems/appsmith/MapChartComponent";
 
 /*
  ********************************{Grid Density Migration}*********************************
@@ -1300,8 +1301,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MapChart",
       version: 1,
-      mapType: "maps/world",
+      mapType: MapTypes.WORLD,
       mapTitle: "Global Population",
+      showLabels: true,
       data: [
         {
           id: "NA",
@@ -1314,7 +1316,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         {
           id: "AS",
           value: "3875",
-          showLabel: "1",
         },
         {
           id: "EU",
@@ -1323,7 +1324,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         {
           id: "AF",
           value: "885",
-          showLabel: "1",
         },
         {
           id: "AU",
