@@ -592,7 +592,12 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+            renderOption={({
+              isSelectedNode,
+              option,
+              optionClickHandler,
+              optionWidth,
+            }) => (
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}
@@ -600,6 +605,7 @@ function GeneratePageForm() {
                 key={option.id}
                 option={option}
                 optionClickHandler={optionClickHandler}
+                optionWidth={optionWidth}
               />
             )}
             selected={selectedDatasource}

@@ -77,6 +77,7 @@ export interface DefaultDropDownValueNodeProps {
   isOpen?: boolean;
   errorMsg?: string;
   renderNode?: RenderOption;
+  optionWidth: string;
 }
 
 export interface RenderDropdownOptionType {
@@ -341,6 +342,7 @@ const HelperText = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  optionWidth,
   renderNode,
   selected,
   showLabelOnly,
@@ -357,7 +359,12 @@ function DefaultDropDownValueNode({
   return (
     <SelectedDropDownHolder>
       {renderNode ? (
-        renderNode({ isSelectedNode: true, option: selected, errorMsg })
+        renderNode({
+          isSelectedNode: true,
+          option: selected,
+          errorMsg,
+          optionWidth,
+        })
       ) : (
         <>
           {selected.icon ? (
@@ -531,6 +538,10 @@ export default function Dropdown(props: DropdownProps) {
     [setDropdownWrapperWidth],
   );
 
+  const dropdownOptionWidth = props.fillOptions
+    ? dropdownWrapperWidth
+    : props.optionWidth || "260px";
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
@@ -554,6 +565,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          optionWidth={dropdownOptionWidth}
           renderNode={renderOption}
           selected={selected}
           showLabelOnly={props.showLabelOnly}
@@ -599,11 +611,7 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           optionClickHandler={optionClickHandler}
-          optionWidth={
-            props.fillOptions
-              ? dropdownWrapperWidth
-              : props.optionWidth || "260px"
-          }
+          optionWidth={dropdownOptionWidth}
         />
       </Popover>
     </DropdownContainer>
