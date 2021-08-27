@@ -49,6 +49,7 @@ import { isEllipsisActive } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { getExportAppAPIRoute } from "constants/ApiConstants";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -355,7 +356,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
     const existingLink = document.getElementById(id);
     existingLink && existingLink.remove();
     const link = document.createElement("a");
-    link.href = `/api/v1/applications/export/${props.application.id}`;
+
+    link.href = getExportAppAPIRoute(props.application.id);
     link.id = id;
     document.body.appendChild(link);
     // will fetch the file manually during cypress test run.

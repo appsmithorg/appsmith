@@ -19,9 +19,11 @@ import {
   NewCommentEventPayload,
   NewCommentThreadPayload,
   Comment,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import handleDragCommentThread from "./handleDragCommentThread";
 import { deleteCommentFromState, deleteCommentThreadFromState } from "./common";
 
 const initialState: CommentsReduxState = {
@@ -37,6 +39,8 @@ const initialState: CommentsReduxState = {
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   unsubscribed: false,
+  draggingCommentThreadId: null,
+  dragPointerOffset: null,
 };
 
 /**
@@ -137,6 +141,12 @@ const commentsReducer = createReducer(initialState, {
     action: ReduxAction<CommentThread>,
   ) => {
     return handleUpdateCommentThreadEvent(state, action);
+  },
+  [ReduxActionTypes.DRAG_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<DraggedCommentThread>,
+  ) => {
+    return handleDragCommentThread(state, action);
   },
   [ReduxActionTypes.DELETE_COMMENT_SUCCESS]: (
     state: CommentsReduxState,
@@ -256,6 +266,27 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<CommentThread>,
   ) => handleDeleteCommentThreadEvent(state, action),
+  [ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{
+      threadId: string;
+      offset: {
+        x: number;
+        y: number;
+      };
+    }>,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: action.payload.threadId,
+    dragPointerOffset: action.payload.offset,
+  }),
+  [ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    draggingCommentThreadId: null,
+    dragPointerOffset: null,
+  }),
 });
 
 export default commentsReducer;
