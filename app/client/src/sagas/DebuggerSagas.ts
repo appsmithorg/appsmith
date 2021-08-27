@@ -380,7 +380,7 @@ function* deleteDebuggerErrorLogSaga(
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
   const error = errors[action.payload.id];
 
-  if (!error.source) return;
+  if (!error?.source) return;
 
   const analyticsPayload = {
     entityName: error.source.name,
