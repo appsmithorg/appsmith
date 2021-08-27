@@ -54,21 +54,25 @@ export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
 
 const getRelativePos = (
   absPosition: { x: number; y: number },
-  containerRef: HTMLDivElement,
+  boundingRectSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  },
 ) => {
-  const boundingClientRect = containerRef.getBoundingClientRect();
   const containerPosition = {
-    left: boundingClientRect.left,
-    top: boundingClientRect.top,
+    left: boundingRectSizePosition.left,
+    top: boundingRectSizePosition.top,
   };
   const offsetLeft = absPosition.x - containerPosition.left;
   const offsetTop = absPosition.y - containerPosition.top;
 
   const offsetLeftPercent = parseFloat(
-    `${(offsetLeft / boundingClientRect.width) * 100}`,
+    `${(offsetLeft / boundingRectSizePosition.width) * 100}`,
   );
   const offsetTopPercent = parseFloat(
-    `${(offsetTop / boundingClientRect.height) * 100}`,
+    `${(offsetTop / boundingRectSizePosition.height) * 100}`,
   );
 
   return {
@@ -84,9 +88,14 @@ export const getNewDragPos = (
     x: number;
     y: number;
   },
-  containerRef: HTMLDivElement,
+  boundingRectSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  },
 ) => {
-  return getRelativePos(absolutePos, containerRef);
+  return getRelativePos(absolutePos, boundingRectSizePosition);
 };
 
 /**
@@ -103,7 +112,8 @@ export const getOffsetPos = (
     x: clickEvent.clientX,
     y: clickEvent.clientY,
   };
-  return getRelativePos(clickPosition, containerRef);
+  const boundingClientRect = containerRef.getBoundingClientRect();
+  return getRelativePos(clickPosition, boundingClientRect);
 };
 
 export const getCommentThreadURL = ({

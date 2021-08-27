@@ -19,6 +19,7 @@ import {
   decrementThreadUnreadCount,
 } from "actions/commentActions";
 import {
+  getNewDragPos,
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
 } from "comments/utils";
@@ -37,13 +38,13 @@ import {
   AddCommentToCommentThreadRequestPayload,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 import { AppState } from "reducers";
 import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
-import { WidgetType } from "../../constants/WidgetConstants";
 import store from "store";
 
 function* createUnpublishedCommentThread(
@@ -85,25 +86,31 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
 }
 
 function* updateCommentThreadPosition(
-  action: ReduxAction<{
-    refId: string;
-    position: {
-      top: number;
-      left: number;
-      leftPercent: number;
-      topPercent: number;
-    };
-    widgetType?: WidgetType;
-  }>,
+  action: ReduxAction<DraggedCommentThread>,
 ) {
   try {
-    const threadBeingDragged = store.getState().ui.comments
-      .draggingCommentThreadId;
-    if (!threadBeingDragged) return;
-    const { position, refId, widgetType } = action.payload;
+    const {
+      draggingCommentThreadId,
+      dragPointerOffset,
+    } = store.getState().ui.comments;
+
+    if (!draggingCommentThreadId) return;
+    const {
+      containerSizePosition,
+      dragPosition,
+      refId,
+      widgetType,
+    } = action.payload;
+    const position = getNewDragPos(
+      {
+        x: dragPosition.x + (dragPointerOffset ? dragPointerOffset.x : 0),
+        y: dragPosition.y + (dragPointerOffset ? dragPointerOffset.y : 0),
+      },
+      containerSizePosition,
+    );
     const response = yield CommentsApi.updateCommentThread(
       { position, refId, widgetType },
-      threadBeingDragged,
+      draggingCommentThreadId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

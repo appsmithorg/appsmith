@@ -9,7 +9,7 @@ import {
   setHasDroppedCommentThread,
 } from "actions/commentActions";
 import commentIcon from "assets/icons/comments/commentCursor.svg";
-import { getNewDragPos, getOffsetPos } from "comments/utils";
+import { getOffsetPos } from "comments/utils";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { TourType } from "entities/Tour";
 import { WidgetType } from "constants/WidgetConstants";
@@ -17,7 +17,6 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
-import { AppState } from "reducers";
 
 const stopPropagation = (e: any) => {
   e.stopPropagation();
@@ -34,8 +33,6 @@ type Props = {
   widgetType: WidgetType;
 };
 
-const COMMENT_PIN_OFFSET = 15;
-
 const Container = styled.div<{ isCommentMode: boolean }>`
   width: 100%;
   height: 100%;
@@ -50,26 +47,17 @@ const Container = styled.div<{ isCommentMode: boolean }>`
  */
 function OverlayCommentsWrapper(props: Props) {
   const { children, refId, widgetType } = props;
-  const dragPointerOffset = useSelector(
-    (state: AppState) => state.ui.comments.dragPointerOffset,
-  );
   const updateCommentPinPosition = useCallback(
     (e: any) => {
       if (containerRef.current) {
-        const newPosition = getNewDragPos(
-          {
-            x:
-              e.clientX +
-              (dragPointerOffset ? dragPointerOffset.x : COMMENT_PIN_OFFSET),
-            y:
-              e.clientY +
-              (dragPointerOffset ? dragPointerOffset.y : COMMENT_PIN_OFFSET),
-          },
-          containerRef.current,
-        );
+        const boundingClientRect = containerRef.current.getBoundingClientRect();
         dispatch(
           dragCommentThread({
-            position: newPosition,
+            dragPosition: {
+              x: e.clientX,
+              y: e.clientY,
+            },
+            containerSizePosition: boundingClientRect,
             refId,
             widgetType,
           }),
@@ -78,7 +66,7 @@ function OverlayCommentsWrapper(props: Props) {
         e.stopPropagation();
       }
     },
-    [refId, widgetType, dragPointerOffset],
+    [refId, widgetType],
   );
 
   const containerRef = useRef<HTMLDivElement>(null);

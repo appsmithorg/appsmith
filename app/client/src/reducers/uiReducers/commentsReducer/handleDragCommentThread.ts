@@ -1,17 +1,30 @@
-import { CommentThread } from "entities/Comments/CommentsInterfaces";
+import { DraggedCommentThread } from "entities/Comments/CommentsInterfaces";
 import { ReduxAction } from "constants/ReduxActionConstants";
 import { get } from "lodash";
 import { CommentsReduxState } from "./interfaces";
+import { getNewDragPos } from "comments/utils";
 
-// TODO verify cases where commentThread can be undefined for update event
 const handleDragCommentThread = (
   state: CommentsReduxState,
-  action: ReduxAction<Partial<CommentThread & { _id: string }>>,
+  action: ReduxAction<DraggedCommentThread>,
 ) => {
-  const { refId } = action.payload;
-  const threadBeingDragged = state.draggingCommentThreadId;
-  if (!threadBeingDragged) return state;
-  const id = threadBeingDragged as string;
+  const {
+    containerSizePosition,
+    dragPosition,
+    refId,
+    widgetType,
+  } = action.payload;
+  const { draggingCommentThreadId, dragPointerOffset } = state;
+
+  const position = getNewDragPos(
+    {
+      x: dragPosition.x + (dragPointerOffset ? dragPointerOffset.x : 0),
+      y: dragPosition.y + (dragPointerOffset ? dragPointerOffset.y : 0),
+    },
+    containerSizePosition,
+  );
+  if (!draggingCommentThreadId) return state;
+  const id = draggingCommentThreadId as string;
   const commentThreadInStore = state.commentThreadsMap[id];
   const { applicationId } = commentThreadInStore;
   if (!applicationId || !refId) return;
@@ -19,7 +32,9 @@ const handleDragCommentThread = (
   const oldContainerRef = commentThreadInStore.refId;
   state.commentThreadsMap[id] = {
     ...(commentThreadInStore || {}),
-    ...action.payload,
+    position,
+    refId,
+    widgetType,
   };
   if (refId === oldContainerRef) return { ...state };
 

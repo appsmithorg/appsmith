@@ -11,6 +11,7 @@ import {
   AddCommentToCommentThreadRequestPayload,
   NewCommentEventPayload,
   NewCommentThreadPayload,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
 import { RawDraftContentState } from "draft-js";
@@ -120,7 +121,7 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   payload,
 });
 
-export const dragCommentThread = (payload: Partial<CommentThread>) => ({
+export const dragCommentThread = (payload: DraggedCommentThread) => ({
   type: ReduxActionTypes.DRAG_COMMENT_THREAD,
   payload,
 });

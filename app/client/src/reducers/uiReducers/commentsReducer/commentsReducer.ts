@@ -19,6 +19,7 @@ import {
   NewCommentEventPayload,
   NewCommentThreadPayload,
   Comment,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
@@ -143,7 +144,7 @@ const commentsReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.DRAG_COMMENT_THREAD]: (
     state: CommentsReduxState,
-    action: ReduxAction<CommentThread>,
+    action: ReduxAction<DraggedCommentThread>,
   ) => {
     return handleDragCommentThread(state, action);
   },
