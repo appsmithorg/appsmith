@@ -2232,7 +2232,7 @@ export const light: ColorType = {
   },
   checkbox: {
     disabled: lightShades[3],
-    unchecked: lightShades[4],
+    unchecked: lightShades[5],
     disabledCheck: lightShades[6],
     normalCheck: lightShades[11],
     labelColor: lightShades[9],
