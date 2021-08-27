@@ -536,6 +536,7 @@ export default function Dropdown(props: DropdownProps) {
       disabled={props.disabled}
       isOpen={isOpen}
       onClick={onClickHandler}
+      ref={dropdownWrapperRef}
     >
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
@@ -576,12 +577,15 @@ export default function Dropdown(props: DropdownProps) {
       )}
     </DropdownSelect>
   );
+
+  const dropdownWidth = props.width || "260px";
+
   return (
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       tabIndex={0}
-      width={props.width || "260px"}
+      width={dropdownWidth}
     >
       <Popover
         boundary="scrollParent"
@@ -595,11 +599,7 @@ export default function Dropdown(props: DropdownProps) {
         <RenderDropdownOptions
           {...props}
           optionClickHandler={optionClickHandler}
-          optionWidth={
-            props.fillOptions
-              ? dropdownWrapperWidth
-              : props.optionWidth || "260px"
-          }
+          optionWidth={props.fillOptions ? dropdownWrapperWidth : dropdownWidth}
         />
       </Popover>
     </DropdownContainer>
