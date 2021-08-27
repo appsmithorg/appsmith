@@ -3,7 +3,7 @@ import algoliasearch from "algoliasearch/lite";
 import { InstantSearch } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 import { debounce } from "lodash";
-import { SearchCategory } from "./utils";
+import { isSnippet, SearchCategory } from "./utils";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
@@ -16,7 +16,13 @@ type SearchProps = {
   category: SearchCategory;
 };
 
-function Search({ children, query, refinements, setRefinement }: SearchProps) {
+function Search({
+  category,
+  children,
+  query,
+  refinements,
+  setRefinement,
+}: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),
@@ -29,7 +35,7 @@ function Search({ children, query, refinements, setRefinement }: SearchProps) {
 
   return (
     <InstantSearch
-      indexName={algolia.indexName}
+      indexName={isSnippet(category) ? "snippet" : algolia.indexName}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}
