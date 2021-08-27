@@ -15,6 +15,7 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
+import { sha256 } from "js-sha256";
 
 const { intercomAppID } = getAppsmithConfigs();
 
@@ -425,9 +426,9 @@ export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
     window.Intercom("boot", {
       app_id: intercomAppID,
-      user_id: user?.username,
-      name: user?.name,
-      email: user?.email,
+      user_id: sha256(user?.username || ""),
+      name: sha256(user?.name || ""),
+      email: sha256(user?.email || ""),
     });
   }
 }
