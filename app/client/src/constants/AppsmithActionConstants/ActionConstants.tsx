@@ -16,14 +16,14 @@ export type ExecutionResult = {
   success: boolean;
 };
 
-export type ExecuteActionPayload = {
+export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
 };
 
 // triggerPropertyName was added as a requirement for logging purposes
-export type WidgetExecuteActionPayload = ExecuteActionPayload & {
+export type WidgetExecuteActionPayload = ExecuteTriggerPayload & {
   triggerPropertyName?: string;
 };
 
@@ -80,17 +80,6 @@ export enum EventType {
   ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
 }
-
-export type ActionType =
-  | "API"
-  | "QUERY"
-  | "NAVIGATION"
-  | "ALERT"
-  | "JS_FUNCTION"
-  | "SET_VALUE"
-  | "DOWNLOAD";
-
-export type DownloadFiletype = "CSV" | "XLS" | "JSON" | "TXT";
 
 export interface PageAction {
   id: string;
