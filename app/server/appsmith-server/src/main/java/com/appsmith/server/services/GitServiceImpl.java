@@ -50,6 +50,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             gitLocalConfig.setRemoteUrl(gitConfig.getRemoteUrl());
                             gitLocalConfig.setPassword(gitConfig.getPassword());
                             gitLocalConfig.setSshKey(gitConfig.getSshKey());
+                            gitLocalConfig.setProfileName(gitConfig.getProfileName());
                             gitConfigs.add(gitLocalConfig);
                             userData.setGitLocalConfigData(gitConfigs);
                             return userDataService.updateForCurrentUser(userData);
@@ -70,6 +71,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                                     gitLocalConfig.setCommitEmail(gitConfig.getUserEmail());
                                     gitLocalConfig.setPassword(gitConfig.getPassword());
                                     gitLocalConfig.setSshKey(gitConfig.getSshKey());
+                                    gitLocalConfig.setProfileName(gitConfig.getProfileName());
                                     gitConfigs.add(gitLocalConfig);
                                     userData.setGitLocalConfigData(gitConfigs);
                                 }

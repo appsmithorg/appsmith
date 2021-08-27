@@ -19,4 +19,6 @@ public class GitGlobalConfigDTO {
 
     String organizationId;
 
+    String profileName;
+
 }

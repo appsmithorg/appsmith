@@ -51,12 +51,13 @@ public class GitServiceTest {
         orgId = testOrg == null ? "" : testOrg.getId();
     }
 
-    private GitGlobalConfigDTO getConnectRequest(String url, String userName, String password, String sshKey, boolean isSshKey) {
+    private GitGlobalConfigDTO getConnectRequest(String url, String userName, String password, String sshKey, boolean isSshKey, String profileName) {
         GitGlobalConfigDTO gitGlobalConfigDTO = new GitGlobalConfigDTO();
         gitGlobalConfigDTO.setUserEmail(userName);
         gitGlobalConfigDTO.setPassword(password);
         gitGlobalConfigDTO.setRemoteUrl(url);
         gitGlobalConfigDTO.setOrganizationId(orgId);
+        gitGlobalConfigDTO.setProfileName(profileName);
         return gitGlobalConfigDTO;
     }
 
@@ -64,7 +65,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void saveConfig_gitConfigValues_SaveToUserObject() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest(url,"", "", "", false);
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest(url,"", "", "", false, "test1");
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
 
         StepVerifier
@@ -78,7 +79,7 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void saveConfig_gitConfigValues_updateUserObject() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest(url,"anagh@appsmith.com", "Test123", "", false);
+        GitGlobalConfigDTO gitGlobalConfigDTO = getConnectRequest(url,"anagh@appsmith.com", "Test123", "", false, "test2");
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
 
         StepVerifier

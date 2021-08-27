@@ -6,6 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GitConfig {
+
+    String profileName;
+
     String userName;
 
     String commitEmail;
