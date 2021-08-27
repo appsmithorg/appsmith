@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
-import get from "lodash/get";
+import getFeatureFlags from "utils/featureFlags";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -99,7 +99,7 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
-    show: () => get(window, "FEATURE_FLAGS.SNIPPET"),
+    show: () => getFeatureFlags().SNIPPET,
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",

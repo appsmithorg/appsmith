@@ -13,7 +13,7 @@ import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Function } from "assets/icons/menu/function.svg";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import get from "lodash/get";
+import getFeatureFlags from "utils/featureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -216,7 +216,7 @@ export const generateQuickCommands = (
     5,
   );
   const actionCommands = [newBinding];
-  if (get(window, "FEATURE_FLAGS.SNIPPET")) {
+  if (getFeatureFlags().SNIPPET) {
     actionCommands.push(insertSnippet);
   }
 

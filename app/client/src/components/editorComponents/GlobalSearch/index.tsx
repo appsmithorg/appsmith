@@ -318,7 +318,7 @@ function GlobalSearch() {
         ? documentationSearchResults
         : defaultDocs.concat(documentationSearchResults);
     }
-    if (!isSnippet(category)) {
+    if (isNavigation(category) || isDocumentation(category)) {
       currentSnippets = [];
     }
 
