@@ -25,16 +25,26 @@ export default {
 
 export function ToastStory(args: ToastProps) {
   return (
-    <Button
-      category={Category.primary}
-      onClick={() => {
-        action("button-clicked");
-        Toaster.show(args);
-      }}
-      size={Size.large}
-      tag={"button"}
-      text="Show toast message"
-    />
+    <StoryWrapper style={{ height: 300 }}>
+      <StyledToastContainer
+        autoClose={5000}
+        closeButton={false}
+        draggable={false}
+        hideProgressBar
+        pauseOnHover={false}
+        transition={Slide}
+      />
+      <Button
+        category={Category.primary}
+        onClick={() => {
+          action("button-clicked");
+          Toaster.show(args);
+        }}
+        size={Size.large}
+        tag={"button"}
+        text="Show toast message"
+      />
+    </StoryWrapper>
   );
 }
 

@@ -16,7 +16,11 @@ export const CONNECT_NEW_DATASOURCE_OPTION_ID = _.uniqueId();
 
 //  ---------- Styles ----------
 
-const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
+const OptionWrapper = styled.div<{
+  disabled?: boolean;
+  selected?: boolean;
+  width?: string;
+}>`
   padding: ${(props) =>
     props.selected
       ? `${props.theme.spaces[1]}px 0px`
@@ -25,6 +29,7 @@ const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
   display: flex;
   align-items: center;
   user-select: none;
+  width: ${(props) => props.width};
 
   &&& svg {
     rect {
@@ -67,6 +72,7 @@ const OptionWrapper = styled.div<{ disabled?: boolean; selected?: boolean }>`
 
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
+  cursor: pointer;
 `;
 
 const ImageWrapper = styled.div`
@@ -84,6 +90,7 @@ const DatasourceImage = styled.img`
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
+  optionWidth?: string;
 }
 
 function DataSourceOption({
@@ -92,6 +99,7 @@ function DataSourceOption({
   isSelectedNode,
   option: dropdownOption,
   optionClickHandler,
+  optionWidth,
 }: DataSourceOptionType) {
   const { label } = dropdownOption;
   const { routeToCreateNewDatasource = () => null } = extraProps;
@@ -131,6 +139,7 @@ function DataSourceOption({
           }
         }}
         selected={isSelectedNode}
+        width={optionWidth}
       >
         {isConnectNewDataSourceBtn ? (
           <CreateIconWrapper>

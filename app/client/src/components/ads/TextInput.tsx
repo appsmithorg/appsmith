@@ -42,6 +42,7 @@ export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
+  value?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
@@ -108,6 +109,7 @@ const StyledInput = styled((props) => {
 >`
   width: ${(props) => (props.fill ? "100%" : "260px")};
   border-radius: 0;
+  caret-color: white;
   outline: 0;
   box-shadow: none;
   border: 1.2px solid ${(props) => props.inputStyle.borderColor};

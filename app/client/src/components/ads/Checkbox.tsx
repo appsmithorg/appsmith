@@ -28,13 +28,17 @@ const Checkmark = styled.span<{
       ? props.disabled
         ? props.theme.colors.checkbox.disabled
         : props.backgroundColor || props.theme.colors.info.main
+      : props.disabled
+      ? props.theme.colors.checkbox.disabled
       : "transparent"};
-  border: 2px solid
+  border: 1.8px solid
     ${(props) =>
       props.isChecked
         ? props.disabled
           ? props.theme.colors.checkbox.disabled
           : props.backgroundColor || props.theme.colors.info.main
+        : props.disabled
+        ? props.theme.colors.checkbox.disabled
         : props.theme.colors.checkbox.unchecked};
 
   &::after {

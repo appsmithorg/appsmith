@@ -185,7 +185,10 @@ function* handleUpdateBodyContentType(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
-  if (displayFormatObject.value === POST_BODY_FORMATS[1]) {
+  if (
+    displayFormatObject.value === POST_BODY_FORMATS[1] ||
+    displayFormatObject.value === POST_BODY_FORMATS[2]
+  ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
         change(
