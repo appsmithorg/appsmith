@@ -212,7 +212,7 @@ export const ERROR_DATEPICKER_MIN_DATE = () =>
 export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
-export const ERROR_API_EXECUTE = (actionName: string) =>
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
@@ -467,3 +467,5 @@ export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";

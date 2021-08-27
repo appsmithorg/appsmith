@@ -27,7 +27,7 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
   SearchCategory,
