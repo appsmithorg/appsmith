@@ -174,8 +174,9 @@ function InlineCommentPin(props: Props) {
   );
   // if user has opened a thread, we'll close it
   // as soon as they start to drag the pin
-  const shouldHideThread = !!useSelector(
-    (state: AppState) => state.ui.comments.draggingCommentThreadId,
+  const shouldHideThread = useSelector(
+    (state: AppState) =>
+      state.ui.comments.draggingCommentThreadId === commentThreadId,
   );
 
   const positionAbsolutely = getShouldPositionAbsolutely(commentThread);
