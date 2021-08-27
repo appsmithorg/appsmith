@@ -29,8 +29,12 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import { fetchActions, fetchActionsForView } from "actions/actionActions";
 import { fetchJSActions } from "actions/jsActionActions";
+import {
+  executePageLoadActions,
+  fetchActions,
+  fetchActionsForView,
+} from "actions/pluginActionActions";
 import { fetchApplication } from "actions/applicationActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
@@ -48,7 +52,6 @@ import { resetEditorSuccess } from "actions/initActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { executePageLoadActions } from "actions/widgetActions";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchJSActionsForView } from "actions/jsActionActions";

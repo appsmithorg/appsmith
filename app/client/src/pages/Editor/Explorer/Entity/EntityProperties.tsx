@@ -79,6 +79,10 @@ export const EntityProperties = memo(
                 value = "Function";
                 actionProperty = actionProperty + "()";
               }
+              if (actionProperty === "clear") {
+                value = "Function";
+                actionProperty = actionProperty + "()";
+              }
               if (actionProperty === "data") {
                 if (
                   isEmpty(entity.data) ||

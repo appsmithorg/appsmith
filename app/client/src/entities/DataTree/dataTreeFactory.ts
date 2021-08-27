@@ -16,15 +16,16 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { variable } from "entities/JSAction";
+import {
+  ActionDescription,
+  ClearPluginActionDescription,
+  RunPluginActionDescription,
+} from "entities/DataTree/actionTriggers";
+import { AppsmithPromise } from "workers/Actions";
 
-export type ActionDescription<T> = {
-  type: string;
-  payload: T;
-};
-
-export type ActionDispatcher<T, A extends string[]> = (
-  ...args: A
-) => ActionDescription<T>;
+export type ActionDispatcher = (
+  ...args: any[]
+) => ActionDescription | AppsmithPromise;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -32,13 +33,6 @@ export enum ENTITY_TYPE {
   APPSMITH = "APPSMITH",
   JSACTION = "JSACTION",
 }
-
-export type RunActionPayload = {
-  actionId: string;
-  onSuccess: string;
-  onError: string;
-  params: Record<string, any> | string;
-};
 
 export enum EvaluationSubstitutionType {
   TEMPLATE = "TEMPLATE",
@@ -53,9 +47,11 @@ export interface DataTreeAction
   config: Partial<ActionConfig>;
   pluginType: PluginType;
   name: string;
-  run:
-    | ActionDispatcher<RunActionPayload, [string, string, string]>
-    | Record<string, any>;
+  run: ActionDispatcher | RunPluginActionDescription | Record<string, unknown>;
+  clear:
+    | ActionDispatcher
+    | ClearPluginActionDescription
+    | Record<string, unknown>;
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
@@ -100,11 +96,11 @@ export type DataTreeObjectEntity =
 export type DataTreeEntity =
   | DataTreeObjectEntity
   | PageListPayload
-  | ActionDispatcher<any, any>;
+  | ActionDispatcher;
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
-} & { actionPaths?: string[] };
+};
 
 type DataTreeSeed = {
   actions: ActionDataState;

@@ -3,7 +3,8 @@ import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
@@ -47,6 +48,7 @@ const sagas = [
   watchActionSagas,
   watchJSActionSagas,
   watchActionExecutionSagas,
+  watchPluginActionExecutionSagas,
   widgetOperationSagas,
   errorSagas,
   watchDatasourcesSagas,

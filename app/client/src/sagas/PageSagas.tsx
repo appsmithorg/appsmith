@@ -66,7 +66,6 @@ import {
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { executePageLoadActions } from "actions/widgetActions";
 import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
@@ -75,9 +74,10 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import {
+  executePageLoadActions,
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "./EvaluationsSaga";
