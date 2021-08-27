@@ -599,7 +599,9 @@ export default function Dropdown(props: DropdownProps) {
           {...props}
           optionClickHandler={optionClickHandler}
           optionWidth={
-            props.fillOptions ? dropdownWrapperWidth : props.optionWidth
+            props.fillOptions
+              ? dropdownWrapperWidth
+              : props.optionWidth || "260px"
           }
         />
       </Popover>
