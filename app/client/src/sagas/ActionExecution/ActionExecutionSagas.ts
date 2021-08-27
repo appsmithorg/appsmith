@@ -6,7 +6,6 @@ import {
 import * as log from "loglevel";
 import { all, call, put, takeEvery } from "redux-saga/effects";
 import { evaluateDynamicTrigger } from "sagas/EvaluationsSaga";
-import AppsmithConsole from "utils/AppsmithConsole";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
 import storeValueLocally from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
@@ -20,6 +19,10 @@ import {
   ActionTriggerType,
 } from "entities/DataTree/actionTriggers";
 import { clearActionResponse } from "actions/pluginActionActions";
+import {
+  openModalSaga,
+  closeModalSaga,
+} from "sagas/ActionExecution/ModalSagas";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -48,13 +51,10 @@ export function* executeActionTriggers(
       yield call(showAlertSaga, trigger.payload);
       break;
     case ActionTriggerType.SHOW_MODAL_BY_NAME:
-      yield put(trigger);
+      yield call(openModalSaga, trigger);
       break;
     case ActionTriggerType.CLOSE_MODAL:
-      yield put(trigger);
-      AppsmithConsole.info({
-        text: `closeModal(${trigger.payload.modalName}) was triggered`,
-      });
+      yield call(closeModalSaga, trigger);
       break;
     case ActionTriggerType.STORE_VALUE:
       yield call(storeValueLocally, trigger.payload);
