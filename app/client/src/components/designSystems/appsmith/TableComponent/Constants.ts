@@ -62,6 +62,11 @@ export enum OperatorTypes {
   AND = "AND",
 }
 
+export enum SortOrderTypes {
+  asc = "asc",
+  desc = "desc",
+}
+
 export interface TableStyles {
   cellBackground?: string;
   textColor?: string;

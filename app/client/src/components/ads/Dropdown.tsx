@@ -84,7 +84,7 @@ export interface RenderDropdownOptionType {
   optionClickHandler?: (dropdownOption: DropdownOption) => void;
 }
 
-export const DropdownContainer = styled.div<{ width: string; height: string }>`
+export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
   position: relative;
@@ -93,7 +93,6 @@ export const DropdownContainer = styled.div<{ width: string; height: string }>`
 const DropdownTriggerWrapper = styled.div<{
   isOpen: boolean;
   disabled?: boolean;
-  height: string;
 }>`
   height: 100%;
   display: flex;
@@ -117,6 +116,7 @@ const Selected = styled.div<{
   bgColor?: string;
   hasError?: boolean;
   selected?: boolean;
+  isLoading?: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2]}px
     ${(props) => props.theme.spaces[3]}px;
@@ -138,7 +138,8 @@ const Selected = styled.div<{
   justify-content: space-between;
   width: 100%;
   height: ${(props) => props.height};
-  cursor: pointer;
+  cursor: ${(props) =>
+    props.disabled || props.isLoading ? "not-allowed" : "pointer"};
   ${(props) =>
     props.hasError
       ? `.sub-text {
@@ -164,6 +165,10 @@ const Selected = styled.div<{
       ? "box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
       : null};
   .${Classes.TEXT} {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: calc(100% - 10px);
     ${(props) =>
       props.disabled
         ? `color: ${props.theme.colors.dropdown.header.disabledText}`
@@ -189,7 +194,7 @@ export const DropdownWrapper = styled.div<{
   width: string;
 }>`
   width: ${(props) => props.width};
-  height: 32px;
+  height: fit-content;
   z-index: 1;
   background-color: ${(props) => props.theme.colors.dropdown.menuBg};
   box-shadow: ${(props) => props.theme.colors.dropdown.menuShadow};
@@ -316,6 +321,15 @@ const HeaderWrapper = styled.div`
 const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+
+  & ${Text} {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;
 
 const SelectedIcon = styled(Icon)`
@@ -363,7 +377,7 @@ const DropdownIcon = styled(Icon)`
 const ErrorMsg = styled.span`
   ${(props) => getTypographyByKey(props, "p3")};
   color: ${Colors.POMEGRANATE2};
-  margin: 6px 0px 10px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 const HelperMsg = styled.span`
@@ -375,6 +389,12 @@ const HelperMsg = styled.span`
 const ErrorLabel = styled.span`
   ${(props) => getTypographyByKey(props, "p1")};
   color: ${Colors.POMEGRANATE2};
+`;
+
+const HelperText = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: ${Colors.GRAY};
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
 function DefaultDropDownValueNode({
@@ -457,8 +477,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
-  return (
-    <DropdownWrapper width={props.optionWidth || "260px"}>
+  return options.length > 0 ? (
+    <DropdownWrapper
+      className="ads-dropdown-options-wrapper"
+      width={props.optionWidth || "260px"}
+    >
       {props.enableSearch && (
         <SearchComponent
           className="dropdown-search"
@@ -520,7 +543,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
         })}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
-  );
+  ) : null;
 }
 
 export default function Dropdown(props: DropdownProps) {
@@ -537,8 +560,15 @@ export default function Dropdown(props: DropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<DropdownOption>(props.selected);
 
+  const closeIfOpen = () => {
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     setSelected(props.selected);
+    closeIfOpen();
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
@@ -551,14 +581,20 @@ export default function Dropdown(props: DropdownProps) {
     [onSelect],
   );
 
-  const disabled = props.disabled || isLoading || !!errorMsg;
-  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : "";
+  const disabled = props.disabled || isLoading;
+  const downIconColor = errorMsg ? Colors.POMEGRANATE2 : Colors.DARK_GRAY;
+
+  const onClickHandler = () => {
+    if (!props.disabled) {
+      setIsOpen(!isOpen);
+    }
+  };
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
-      height={props.height || "36px"}
       isOpen={isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={onClickHandler}
     >
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
@@ -615,7 +651,7 @@ export default function Dropdown(props: DropdownProps) {
         isOpen={isOpen && !disabled}
         minimal
         modifiers={{ arrow: { enabled: true } }}
-        onInteraction={(state) => setIsOpen(state)}
+        onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
       >
