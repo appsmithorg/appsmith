@@ -1,6 +1,12 @@
 import React from "react";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import {
+  ButtonStyle,
+  WidgetType,
+  ButtonVariant,
+} from "constants/WidgetConstants";
 import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import ButtonGroupComponent from "components/designSystems/blueprint/ButtonGroupComponent";
@@ -59,37 +65,167 @@ class ButtonGroupWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Buttons",
         children: [
           {
-            propertyName: "buttonVariant",
-            label: "Button Variant",
-            controlType: "DROP_DOWN",
-            helpText: "Sets the variant of the icon button",
-            options: [
-              {
-                label: "Solid",
-                value: "SOLID",
-              },
-              {
-                label: "Outline",
-                value: "OUTLINE",
-              },
-              {
-                label: "Ghost",
-                value: "GHOST",
-              },
-            ],
-            isJSConvertible: true,
+            helpText: "Group Buttons",
+            propertyName: "groupButtons",
+            controlType: "MENU_ITEMS",
+            label: "",
             isBindProperty: false,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedVAlues: ["SOLID", "OUTLINE", "GHOST"],
+            panelConfig: {
+              editableTitle: true,
+              titlePropertyName: "label",
+              panelIdPropertyName: "id",
+              updateHook: (
+                props: any,
+                propertyPath: string,
+                propertyValue: string,
+              ) => {
+                return [
+                  {
+                    propertyPath,
+                    propertyValue,
+                  },
+                ];
               },
+              children: [
+                {
+                  sectionName: "General",
+                  children: [
+                    {
+                      propertyName: "label",
+                      helpText: "Sets the label of a menu item",
+                      label: "Label",
+                      controlType: "INPUT_TEXT",
+                      placeholderText: "Enter label",
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
+                      propertyName: "buttonVariant",
+                      label: "Button Variant",
+                      controlType: "DROP_DOWN",
+                      helpText: "Sets the variant of the icon button",
+                      options: [
+                        {
+                          label: "Solid",
+                          value: "SOLID",
+                        },
+                        {
+                          label: "Outline",
+                          value: "OUTLINE",
+                        },
+                        {
+                          label: "Ghost",
+                          value: "GHOST",
+                        },
+                      ],
+                      isJSConvertible: true,
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
+                      helpText: "Controls button color",
+                      propertyName: "buttonStyle",
+                      label: "Button Style",
+                      controlType: "DROP_DOWN",
+                      options: [
+                        {
+                          label: "Primary",
+                          value: "PRIMARY",
+                        },
+                        {
+                          label: "Warning",
+                          value: "WARNING",
+                        },
+                        {
+                          label: "Danger",
+                          value: "DANGER",
+                        },
+                        {
+                          label: "Info",
+                          value: "INFO",
+                        },
+                        {
+                          label: "Secondary",
+                          value: "SECONDARY",
+                        },
+                      ],
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
+                      propertyName: "isDisabled",
+                      helpText: "Disables input to the widget",
+                      label: "Disabled",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.BOOLEAN },
+                    },
+                    {
+                      propertyName: "isVisible",
+                      helpText: "Controls the visibility of the widget",
+                      label: "Visible",
+                      controlType: "SWITCH",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.BOOLEAN },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Icon Options",
+                  children: [
+                    {
+                      propertyName: "iconName",
+                      label: "Icon",
+                      helpText: "Sets the icon to be used for a button",
+                      controlType: "ICON_SELECT",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
+                      propertyName: "iconAlign",
+                      label: "Icon alignment",
+                      helpText: "Sets the icon alignment of a button",
+                      controlType: "ICON_ALIGN",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Actions",
+                  children: [
+                    {
+                      helpText: "Triggers an action when the button is clicked",
+                      propertyName: "onClick",
+                      label: "onClick",
+                      controlType: "ACTION_SELECTOR",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: true,
+                    },
+                  ],
+                },
+              ],
             },
           },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
           {
             propertyName: "borderRadius",
             label: "Border Radius",
@@ -157,7 +293,7 @@ class ButtonGroupWidget extends BaseWidget<
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
-        buttonVariant={this.props.buttonVariant}
+        groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         orientation={this.props.orientation}
         widgetId={this.props.widgetId}
@@ -173,10 +309,25 @@ class ButtonGroupWidget extends BaseWidget<
 export interface ButtonGroupWidgetProps extends WidgetProps {
   orientation: string;
   isDisabled: boolean;
-  buttonVariant: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  groupButtons: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      buttonStyle?: ButtonStyle;
+      buttonVariant: ButtonVariant;
+      iconName?: IconName;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
 }
 
 export default ButtonGroupWidget;
