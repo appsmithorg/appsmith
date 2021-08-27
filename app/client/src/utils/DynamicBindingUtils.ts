@@ -271,7 +271,6 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
-  "Promise",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",
