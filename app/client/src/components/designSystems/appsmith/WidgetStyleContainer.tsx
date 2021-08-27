@@ -58,26 +58,29 @@ const getBoxShadow = ({
 };
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
-  ${(props) =>
-    props.containerStyle !== "none"
-      ? `
-  border-width: ${props.borderWidth}px;
-  border-color: ${props.borderColor || "transparent"};
-  border-style: solid;
-  border-radius: 0;`
-      : ""}
   height: 100%;
   width: 100%;
   overflow: hidden;
   border-radius: ${(props) => props.borderRadius}px;
   box-shadow: ${(props) => getBoxShadow(props)} !important;
+  & > div {
+    ${(props) =>
+      props.containerStyle !== "none"
+        ? `
+    border-width: ${props.borderWidth}px;
+    border-color: ${props.borderColor || "transparent"};
+    border-style: solid;`
+        : ""}
+    height: 100%;
+    width: 100%;
+  }
 }`;
 
 // wrapper component for apply styles on any widget boundary
 function WidgetStyleContainer(props: WidgetStyleContainerProps) {
   return (
     <WidgetStyle {...props} data-testid={`container-wrapper-${props.widgetId}`}>
-      {props.children}
+      <div>{props.children}</div>
     </WidgetStyle>
   );
 }
