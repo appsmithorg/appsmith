@@ -196,6 +196,7 @@ const DropdownOptionsWrapper = styled.div<{
   height: ${(props) => props.height};
   max-height: ${(props) => props.maxHeight};
   overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const OptionWrapper = styled.div<{
