@@ -7,6 +7,7 @@ class SwitchControl extends BaseControl<ControlProps> {
     return (
       <Switch
         checked={this.props.propertyValue}
+        className={this.props.propertyValue ? "checked" : "unchecked"}
         defaultChecked={this.props.propertyValue}
         large
         onChange={this.onToggle}
