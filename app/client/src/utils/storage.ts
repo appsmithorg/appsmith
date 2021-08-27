@@ -1,11 +1,12 @@
-import localforage from "localforage";
-import moment from "moment";
 import log from "loglevel";
+import moment from "moment";
+import localforage from "localforage";
 
 const STORAGE_KEYS: { [id: string]: string } = {
   AUTH_EXPIRATION: "Auth.expiration",
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
+  GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
@@ -23,7 +24,8 @@ export const resetAuthExpiration = () => {
     .add(1, "h")
     .format();
   store.setItem(STORAGE_KEYS.AUTH_EXPIRATION, expireBy).catch((error) => {
-    console.log("Unable to set expiration time", error);
+    log.error("Unable to set expiration time");
+    log.error(error);
   });
 };
 
@@ -203,29 +205,6 @@ export const getCommentsIntroSeen = async () => {
     return commentsIntroSeen;
   } catch (error) {
     log.error("An error occurred while fetching COMMENTS_INTRO_SEEN");
-    log.error(error);
-  }
-};
-
-export const setOnboardingFormInProgress = async (flag?: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting ONBOARDING_FORM_IN_PROGRESS");
-    log.error(error);
-    return false;
-  }
-};
-
-export const getOnboardingFormInProgress = async () => {
-  try {
-    const onboardingFormInProgress = await store.getItem(
-      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
-    );
-    return onboardingFormInProgress;
-  } catch (error) {
-    log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
     log.error(error);
   }
 };

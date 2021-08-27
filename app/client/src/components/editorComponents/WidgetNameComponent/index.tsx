@@ -17,6 +17,7 @@ import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
+import { hideErrors } from "selectors/debuggerSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -77,6 +78,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
+  const shouldHideErrors = useSelector(hideErrors);
+
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
   const togglePropertyEditor = (e: any) => {
@@ -133,7 +136,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           ((focusedWidget === props.widgetId || showAsSelected) &&
             !isDragging &&
             !isResizing) ||
-          !!props.errorCount)
+          (!!props.errorCount && !shouldHideErrors))
     );
   };
 
@@ -165,7 +168,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
-          errorCount={props.errorCount}
+          errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
         />

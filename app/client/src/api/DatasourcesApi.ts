@@ -25,7 +25,7 @@ export interface EmbeddedRestDatasourceRequest {
   pluginId: string;
 }
 
-type executeQueryData = Array<{ key: string; value?: string }>;
+type executeQueryData = Array<{ key?: string; value?: string }>;
 
 export interface executeDatasourceQueryRequest {
   datasourceId: string;

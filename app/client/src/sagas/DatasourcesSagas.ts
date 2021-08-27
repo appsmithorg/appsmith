@@ -58,7 +58,7 @@ import { AppState } from "reducers";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { setActionProperty } from "actions/actionActions";
+import { setActionProperty } from "actions/pluginActionActions";
 import SaasApi from "api/SaasApi";
 import { authorizeSaasWithAppsmithToken } from "api/CloudServicesApi";
 import {
@@ -902,7 +902,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
 }
 
 function* executeDatasourceQuerySaga(
-  action: executeDatasourceQueryReduxAction,
+  action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
     const response: GenericApiResponse<any> = yield DatasourcesApi.executeDatasourceQuery(

@@ -12,6 +12,9 @@ import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import forge from "node-forge";
 
 export type DependencyMap = Record<string, Array<string>>;
+export type FormEditorConfigs = Record<string, any[]>;
+export type FormSettingsConfigs = Record<string, any[]>;
+export type FormDependencyConfigs = Record<string, DependencyMap>;
 
 export const removeBindingsFromActionObject = (obj: Action) => {
   const string = JSON.stringify(obj);
@@ -64,6 +67,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
   return stringSegments;
 }
 
+//{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
@@ -267,7 +271,6 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
-  "Promise",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",
@@ -333,6 +336,9 @@ export type EvaluationError = {
   errorMessage: string;
   severity: Severity.WARNING | Severity.ERROR;
   errorSegment?: string;
+  originalBinding?: string;
+  variables?: (string | undefined | null | number)[];
+  code?: string;
 };
 
 export interface DataTreeEvaluationProps {

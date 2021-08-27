@@ -8,6 +8,7 @@ describe("Create, test, save then delete a user mock datasource", function() {
   it("Create, test, save then delete a user mock datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.mockUserDatabase).click();
+    cy.wait(1000);
     cy.get(datasource.mockUserDatasources)
       .last()
       .click({ force: true });
@@ -18,6 +19,7 @@ describe("Create, test, save then delete a user mock datasource", function() {
   it("Create with whitespaces in host address and database name, test, save then delete a user mock datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.mockUserDatabase).click();
+    cy.wait(1000);
     cy.get(datasource.mockUserDatasources)
       .last()
       .click({ force: true });
