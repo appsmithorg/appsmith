@@ -20,11 +20,11 @@ const positionProps = [
   "noContainerOffset",
 ];
 
-const TOAST = "toasts";
-const FOCUSES = "needsFocus";
-const UPDATES = "propertyUpdates";
+export const TOASTS = "toasts";
+export const FOCUSES = "needsFocus";
+export const UPDATES = "propertyUpdates";
 
-const WIDGETS = "widgets";
+export const WIDGETS = "widgets";
 
 export function processDiff(
   dsl: CanvasWidgetsReduxState,
@@ -46,7 +46,7 @@ export function processDiff(
           isUndo,
           !isUndo,
         );
-        addToArray(replay, TOAST, toast);
+        addToArray(replay, TOASTS, toast);
       } else {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         set(replay, UPDATES, true);
@@ -61,7 +61,7 @@ export function processDiff(
           isUndo,
           isUndo,
         );
-        addToArray(replay, TOAST, toast);
+        addToArray(replay, TOASTS, toast);
       } else {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         set(replay, UPDATES, true);
@@ -99,9 +99,7 @@ function createToast(
   };
 }
 
-function isPositionUpdate(widgetProperty: string | number) {
-  if (typeof widgetProperty == "number") return true;
-
+function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
 
