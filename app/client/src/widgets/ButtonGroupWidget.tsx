@@ -7,6 +7,7 @@ import {
   WidgetType,
   ButtonVariant,
 } from "constants/WidgetConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import ButtonGroupComponent from "components/designSystems/blueprint/ButtonGroupComponent";
@@ -287,12 +288,25 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
+  handleClick = (onClick: string | undefined): void => {
+    if (onClick) {
+      super.executeAction({
+        triggerPropertyName: "onClick",
+        dynamicString: onClick,
+        event: {
+          type: EventType.ON_CLICK,
+        },
+      });
+    }
+  };
+
   getPageView() {
     return (
       <ButtonGroupComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
+        buttonClickHandler={this.handleClick}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         orientation={this.props.orientation}

@@ -1,5 +1,6 @@
 import React from "react";
-import { Alignment } from "@blueprintjs/core";
+import { sortBy } from "lodash";
+import { Alignment, Icon } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
@@ -68,16 +69,20 @@ interface ButtonStyleProps {
   isHorizontal: boolean;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
   buttonStyle?: ButtonStyle; // primary | warning ...
+  iconAlign?: string;
   isDisabled?: boolean;
 }
 
 const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
   flex: 1;
   display: flex;
-  justify-content: center;
+  cursor: pointer;
+  justify-content: space-evenly;
   align-items: center;
+  flex-direction: ${({ iconAlign }) =>
+    iconAlign === "right" ? "row-reverse" : "row"};
 
-  ${({ buttonStyle, buttonVariant, theme }) => `
+  ${({ buttonStyle, buttonVariant, isDisabled, theme }) => `
     & {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
@@ -94,7 +99,9 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
             : "none"
           : buttonStyle === ButtonStyleTypes.SECONDARY
           ? Colors.WHITE
-          : theme.colors.button.primary.solid.bgColor
+          : buttonVariant === ButtonVariantTypes.SOLID
+          ? theme.colors.button.primary.solid.bgColor
+          : "none"
       } !important;
     }
 
@@ -116,7 +123,7 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
             : theme.colors.button.info.outline.hoverColor
           : buttonStyle === ButtonStyleTypes.SECONDARY
           ? buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.secondary.outline.hoverColor
+            ? theme.colors.button.secondary.ghost.hoverColor
             : buttonVariant === ButtonVariantTypes.GHOST
             ? theme.colors.button.secondary.ghost.hoverColor
             : Colors.ALABASTER_ALT
@@ -128,14 +135,8 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
       } !important;
     }
 
-    &:disabled {
-      background-color: ${theme.colors.button.disabled.bgColor} !important;
-      color: ${theme.colors.button.disabled.textColor} !important;
-    }
-
     border: ${
-      buttonVariant === ButtonVariantTypes.OUTLINE ||
-      buttonVariant === ButtonVariantTypes.SOLID
+      buttonVariant === ButtonVariantTypes.OUTLINE
         ? buttonStyle === ButtonStyleTypes.WARNING
           ? `1px solid ${theme.colors.button.warning.outline.borderColor}`
           : buttonStyle === ButtonStyleTypes.DANGER
@@ -143,37 +144,67 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
           : buttonStyle === ButtonStyleTypes.INFO
           ? `1px solid ${theme.colors.button.info.outline.borderColor}`
           : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? `0.5px solid ${Colors.ALTO2}`
+          ? `1px solid ${Colors.ALTO2}`
           : `1px solid ${theme.colors.button.primary.outline.borderColor}`
+        : buttonVariant === ButtonVariantTypes.SOLID
+        ? buttonStyle === ButtonStyleTypes.WARNING
+          ? `0.5px solid ${theme.colors.button.warning.solid.hoverColor}`
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? `0.5px solid ${theme.colors.button.danger.solid.hoverColor}`
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? `0.5px solid ${theme.colors.button.info.solid.hoverColor}`
+          : buttonStyle === ButtonStyleTypes.SECONDARY
+          ? `0.5px solid ${Colors.ALTO2}`
+          : `0.5px solid ${theme.colors.button.primary.solid.hoverColor}`
         : "none"
     } !important;
 
-    color: ${
-      buttonVariant === ButtonVariantTypes.SOLID
-        ? buttonStyle === ButtonStyleTypes.SECONDARY
+    & span {
+      color: ${
+        buttonVariant === ButtonVariantTypes.SOLID
+          ? buttonStyle === ButtonStyleTypes.SECONDARY
+            ? `${Colors.CHARCOAL}`
+            : `${Colors.WHITE}`
+          : buttonStyle === ButtonStyleTypes.WARNING
+          ? `${theme.colors.button.warning.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.DANGER
+          ? `${theme.colors.button.danger.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.INFO
+          ? `${theme.colors.button.info.outline.textColor}`
+          : buttonStyle === ButtonStyleTypes.SECONDARY
           ? `${Colors.CHARCOAL}`
-          : `${Colors.WHITE}`
-        : buttonStyle === ButtonStyleTypes.WARNING
-        ? `${theme.colors.button.warning.outline.textColor}`
-        : buttonStyle === ButtonStyleTypes.DANGER
-        ? `${theme.colors.button.danger.outline.textColor}`
-        : buttonStyle === ButtonStyleTypes.INFO
-        ? `${theme.colors.button.info.outline.textColor}`
-        : buttonStyle === ButtonStyleTypes.SECONDARY
-        ? `${Colors.CHARCOAL}`
-        : `${theme.colors.button.primary.outline.textColor}`
-    } !important;
+          : `${theme.colors.button.primary.outline.textColor}`
+      } !important;
+    }
+
+    ${isDisabled &&
+      `
+      & {
+        pointer-events: none;
+        border: 1px solid ${Colors.ALTO2} !important;
+        background: ${Colors.ALABASTER_ALT} !important;
+        span {
+          color: ${Colors.ALTO2} !important;
+        }
+      }
+    `}
   `}
 `;
 
 class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
+  onButtonClick = (onClick: string | undefined) => () => {
+    this.props.buttonClickHandler(onClick);
+  };
+
   render() {
     const { groupButtons, orientation } = this.props;
     const isHorizontal = orientation === "horizontal";
 
-    const items = Object.keys(groupButtons)
+    let items = Object.keys(groupButtons)
       .map((itemKey) => groupButtons[itemKey])
       .filter((item) => item.isVisible === true);
+    // sort btns by index
+    items = sortBy(items, ["index"]);
 
     return (
       <ButtonGroupWrapper
@@ -187,10 +218,14 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
             <StyledButton
               buttonStyle={button.buttonStyle}
               buttonVariant={button.buttonVariant}
+              iconAlign={button.iconAlign}
+              isDisabled={button.isDisabled}
               isHorizontal={isHorizontal}
               key={button.id}
+              onClick={this.onButtonClick(button.onClick)}
             >
-              {button.label}
+              {button.iconName && <Icon icon={button.iconName} />}
+              <span>{button.label}</span>
             </StyledButton>
           );
         })}
@@ -205,6 +240,7 @@ export interface ButtonGroupComponentProps extends ComponentProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<
     string,
     {
