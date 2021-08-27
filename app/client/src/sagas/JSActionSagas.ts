@@ -12,7 +12,7 @@ import {
   select,
   call,
 } from "redux-saga/effects";
-import { FetchActionsPayload } from "actions/actionActions";
+import { FetchActionsPayload } from "actions/pluginActionActions";
 import { JSAction, JSSubAction } from "entities/JSAction";
 import {
   createJSActionSuccess,
