@@ -38,6 +38,7 @@ import draggingCanvasSagas from "./DraggingCanvasSagas";
 
 import log from "loglevel";
 import * as sentry from "@sentry/react";
+import formEvaluationChangeListener from "./FormEvaluationSaga";
 const sagas = [
   initSagas,
   pageSagas,
@@ -64,6 +65,7 @@ const sagas = [
   evaluationsSaga,
   onboardingSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
   recentEntitiesSagas,

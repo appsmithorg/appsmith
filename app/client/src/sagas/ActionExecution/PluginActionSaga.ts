@@ -8,7 +8,6 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  executePageLoadActionsComplete,
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
@@ -88,6 +87,7 @@ import { ApiResponse } from "api/ApiResponses";
 import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
 import FileDataTypes from "widgets/FileDataTypes";
+import { hideDebuggerErrors } from "actions/debuggerActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -602,7 +602,9 @@ function* executePageLoadActionsSaga() {
       PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
     );
 
-    yield put(executePageLoadActionsComplete());
+    // We show errors in the debugger once onPageLoad actions
+    // are executed
+    yield put(hideDebuggerErrors(false));
   } catch (e) {
     log.error(e);
 

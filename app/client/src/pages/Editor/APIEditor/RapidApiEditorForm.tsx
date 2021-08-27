@@ -163,14 +163,13 @@ function RapidApiEditorForm(props: Props) {
 
           <ActionButtons>
             <ActionButton
-              accent="error"
+              buttonStyle="DANGER"
               loading={isDeleting}
               onClick={onDeleteClick}
               text="Delete"
             />
             <ActionButton
-              accent="primary"
-              filled
+              buttonStyle="PRIMARY"
               loading={isRunning}
               onClick={() => {
                 onRunClick();

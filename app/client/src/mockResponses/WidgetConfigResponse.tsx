@@ -14,12 +14,13 @@ import {
 } from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadowTypes } from "components/propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import { LabelOrientation } from "constants/ChartConstants";
 
 /*
  ********************************{Grid Density Migration}*********************************
@@ -33,7 +34,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
       text: "Submit",
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "PRIMARY",
+      buttonVariant: "SOLID",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",
@@ -672,6 +674,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {

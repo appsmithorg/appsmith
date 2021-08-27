@@ -9,6 +9,7 @@ import Menu from "./Menu";
 import { MENU_ITEM, MENU_ITEMS } from "./constants";
 import GitConnection from "./GitConnection";
 import Deploy from "./Deploy/Deploy";
+import Merge from "./Merge";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
@@ -56,7 +57,7 @@ function NoopComponent() {
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
   [MENU_ITEM.DEPLOY]: Deploy,
-  [MENU_ITEM.MERGE]: NoopComponent,
+  [MENU_ITEM.MERGE]: Merge,
   [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
   [MENU_ITEM.SETTINGS]: NoopComponent,
 };
