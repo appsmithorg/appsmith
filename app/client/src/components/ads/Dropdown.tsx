@@ -37,7 +37,7 @@ export interface RenderDropdownOptionType {
   isSelectedNode?: boolean;
   extraProps?: any;
   errorMsg?: string;
-  optionWidth?: string;
+  optionWidth: string;
 }
 
 type RenderOption = ({
@@ -173,7 +173,7 @@ const Selected = styled.div<{
 const DropdownSelect = styled.div``;
 
 export const DropdownWrapper = styled.div<{
-  width?: string;
+  width: string;
 }>`
   width: ${(props) => props.width};
   z-index: 1;
@@ -380,6 +380,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption;
+  optionWidth: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
