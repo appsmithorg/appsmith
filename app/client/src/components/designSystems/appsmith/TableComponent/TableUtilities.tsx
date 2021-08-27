@@ -31,9 +31,9 @@ import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
+import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonStyle,
   ButtonVariant,
   StyledButton,
