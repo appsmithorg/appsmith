@@ -1,11 +1,9 @@
 import React, { useState, useCallback, useEffect } from "react";
 import algoliasearch from "algoliasearch/lite";
-import { Configure, InstantSearch } from "react-instantsearch-dom";
+import { InstantSearch } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 import { debounce } from "lodash";
-import { useSelector } from "store";
-import { AppState } from "reducers";
-import { isSnippet, SearchCategory } from "./utils";
+import { SearchCategory } from "./utils";
 
 const { algolia } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
@@ -18,20 +16,11 @@ type SearchProps = {
   category: SearchCategory;
 };
 
-function Search({
-  category,
-  children,
-  query,
-  refinements,
-  setRefinement,
-}: SearchProps) {
+function Search({ children, query, refinements, setRefinement }: SearchProps) {
   const [queryInState, setQueryInState] = useState(query);
   const debouncedSetQueryInState = useCallback(
     debounce(setQueryInState, 100),
     [],
-  );
-  const optionalFilterMeta = useSelector(
-    (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
   );
 
   useEffect(() => {
@@ -40,7 +29,7 @@ function Search({
 
   return (
     <InstantSearch
-      indexName={isSnippet(category) ? algolia.snippetIndex : algolia.indexName}
+      indexName={algolia.indexName}
       onSearchStateChange={(searchState) => {
         setRefinement(searchState.refinementList || {});
       }}
@@ -50,16 +39,9 @@ function Search({
         refinementList: refinements,
       }}
     >
-      <Configure optionalFilters={getOptionalFilters(optionalFilterMeta)} />
       {children}
     </InstantSearch>
   );
 }
 
 export default Search;
-
-function getOptionalFilters(optionalFilterMeta: any) {
-  return Object.keys(optionalFilterMeta || {}).map(
-    (field) => `${field}:${optionalFilterMeta[field]}`,
-  );
-}

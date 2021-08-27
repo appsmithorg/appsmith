@@ -48,6 +48,7 @@ import {
   isSnippet,
   isDocumentation,
   SelectEvent,
+  getOptionalFilters,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -63,7 +64,8 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
-import { Index } from "react-instantsearch-dom";
+import { Configure, Index } from "react-instantsearch-dom";
+import { getAppsmithConfigs } from "configs";
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -89,6 +91,8 @@ const StyledContainer = styled.div`
     font-weight: bold;
   }
 `;
+
+const { algolia } = getAppsmithConfigs();
 
 const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
@@ -148,6 +152,9 @@ function GlobalSearch() {
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
+  const optionalFilterMeta = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
+  );
   const filterCategoryList = getFilterCategoryList();
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
@@ -474,14 +481,6 @@ function GlobalSearch() {
     itemClickHandlerByType[type](event, item);
   };
 
-  const setSearchResults = useCallback((res, category) => {
-    if (isSnippet(category)) {
-      setSnippetsState(res);
-    } else {
-      setDocumentationSearchResultsInState(res);
-    }
-  }, []);
-
   const searchContext = {
     handleItemLinkClick,
     setActiveItemIndex,
@@ -529,16 +528,23 @@ function GlobalSearch() {
                 refinements.entities &&
                 refinements.entities.length && <SnippetRefinements />}
               <div className="main">
-                <SetSearchResults
-                  category={category}
-                  setSearchResults={setSearchResults}
-                />
+                {(isMenu(category) || isDocumentation(category)) && (
+                  <Index indexName={algolia.indexName}>
+                    <SetSearchResults
+                      category={category}
+                      setSearchResults={setDocumentationSearchResultsInState}
+                    />
+                  </Index>
+                )}
                 {/* Search from default menu should search multiple indexes.
                 Below is the code to search in the index-snippet. Index
                 component requires Hits component as its children to display the
                 results. SetSearchResults is the custom hits component. */}
-                {isMenu(category) && (
-                  <Index indexName="snippet">
+                {(isMenu(category) || isSnippet(category)) && (
+                  <Index indexName={algolia.snippetIndex}>
+                    <Configure
+                      optionalFilters={getOptionalFilters(optionalFilterMeta)}
+                    />
                     <SetSearchResults
                       category={category}
                       setSearchResults={setSnippetsState}

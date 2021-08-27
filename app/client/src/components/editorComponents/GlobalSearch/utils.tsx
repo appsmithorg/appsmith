@@ -87,6 +87,12 @@ export type SearchCategory = {
   show?: () => boolean;
 };
 
+export function getOptionalFilters(optionalFilterMeta: any) {
+  return Object.keys(optionalFilterMeta || {}).map(
+    (field) => `${field}:${optionalFilterMeta[field]}`,
+  );
+}
+
 export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
   [SEARCH_CATEGORY_ID.NAVIGATION]: {
     title: "Navigate",
