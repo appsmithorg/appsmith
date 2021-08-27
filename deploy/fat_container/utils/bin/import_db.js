@@ -2,7 +2,7 @@
 var shell = require('shelljs')
 
 // Load env configuration
-const RESTORE_PATH = '/opt/appsmith/data/restore'
+const RESTORE_PATH = '/opt/appsmith/stacks/data/restore'
 
 function import_database() {
 	console.log('import_database  ....')
@@ -10,7 +10,7 @@ function import_database() {
 	shell.exec(cmd)
 	console.log('import_database done')
 }
-  
+
 function stop_application() {
 	shell.exec('/usr/bin/supervisorctl stop backend rts')
 }
@@ -21,27 +21,29 @@ function start_application() {
 
 // Main application workflow
 function main() {
+	let errorCode = 0
 	try {
 		check_supervisord_status_cmd = '/usr/bin/supervisorctl'
-    shell.exec(check_supervisord_status_cmd, function(code) {
-      if(code > 0  ) {
-        shell.echo('application is not running, starting supervisord')
-        shell.exec('/usr/bin/supervisord')
-      }
-    })
-
+		shell.exec(check_supervisord_status_cmd, function (code) {
+			if (code > 0) {
+				shell.echo('application is not running, starting supervisord')
+				shell.exec('/usr/bin/supervisord')
+			}
+		})
 
 		shell.echo('stop backend & rts application before import database')
 		stop_application()
 		import_database()
 		shell.echo('start backend & rts application after import database')
-		start_application()
-		process.exit(0);
 	} catch (err) {
-		console.log(err);
 		shell.echo(err)
-		process.exit(1);
+		errorCode = 1
+	} finally {
+		start_application();
+		process.exit(errorCode);
 	}
 }
 
-module.exports = {runImportDatabase: main};
+module.exports = {
+	runImportDatabase: main
+};

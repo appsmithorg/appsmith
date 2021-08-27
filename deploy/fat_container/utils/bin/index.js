@@ -1,18 +1,17 @@
 #! /usr/bin/env node
 
-const utils = require('./utils.js')
+const utils = require('./utils')
 const export_db = require('./export_db.js')
 const import_db = require('./import_db.js')
 const yargs = require("yargs");
 
-const APPLICATION_CONFIG_PATH='/opt/appsmith/configuration/docker.env'
+const APPLICATION_CONFIG_PATH='/opt/appsmith/stacks/configuration/docker.env'
 
 // Loading latest application configuration
 require('dotenv').config(
   { path: APPLICATION_CONFIG_PATH }
 )
 
-console.log(process.env.APPSMITH_MONGODB_URI);
 if(yargs.argv._[0] == 'export_db' || yargs.argv._[0] == 'ex'){
     console.log('Exporting database')
     export_db.runExportDatabase();

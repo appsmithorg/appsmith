@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "description": "appsmith utils tool",
   "main": "bin/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+	"author": "",
+  "license": "Apache-2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appsmithorg/appsmith.git",
+    "directory": "deploy/fat_container"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "boxen": "^5.0.1",
     "chalk": "^4.1.2",

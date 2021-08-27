@@ -29,23 +29,14 @@ services:
       - "80:80"
       - "443:443"
       - "9001:9001"
-    volumes: 
-      - ./stacks/data:/opt/appsmith/data
-      - ./stacks/configuration:/opt/appsmith/configuration
-      - ./stacks/letsencrypt:/etc/letsencrypt
-    networks:
-      - appsmith
+    volumes:
+      - ./stacks:/opt/appsmith/stacks
   auto_update:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check interval in seconds.
     command: --interval 300 --label-enable --cleanup
-    networks:
-      - appsmith
-networks:
-  appsmith:
-    driver: bridge
 ```
 2. Start application
 ```
@@ -69,7 +60,7 @@ To host Appsmith on a custom domain, you can contact your domain registrar and u
 * [Domain.com](https://www.domain.com/help/article/domain-management-how-to-update-subdomains)
 
 Then, you can update your custom domain from the application's configuration UI
-## 4. Utils Script
+## 4. Instance Management Utilities
 > Fat container provide some utils to support you easy to maintenance application
 ### 4.1 Export database
 Our container also supports exporting data from the internal database for backup or reuse purpose
@@ -78,7 +69,7 @@ Export the internal database (You can use command `docker ps` to check the name 
 ```
 docker exec appsmith_fat appsmith export_db
 ```
-The output file will be stored in mounted directory `<mount-point-path>/backup/data.archive` 
+The output file will be stored in mounted directory `<mount-point-path>/data/backup/data.archive` 
 
 In case of you have changed the mounted point in the docker-compose file, please change the prefix `./deploy/fat_container/stacks` to the correct one
 
@@ -86,24 +77,24 @@ Now, you can use this output file as a backup or as a migration file
 ### 4.2 Import database
 It is also available to import data from another database into application's internal database
 
-First of all, you need to copy or move the gzip file to the container's mounted folder `<mount-point-path>/stacks/restore/data.archive` 
+First of all, you need to copy or move the gzip file to the container's mounted folder `<mount-point-path>/data/restore/data.archive` 
 (*Note: file name must be `data.archive` to ensure the absolute path works as expected*)
 
 Or you can copy directly to the running container using `docker cp` command
 ```
-docker cp <path-to-file/data.archive> appsmith_fat:/opt/appsmith/data/restore
+docker cp <path-to-file/data.archive> appsmith_fat:/opt/appsmith/stacks/data/restore
 ```
 
 Then, simply run following command to import data to internal database
 ```
-docker exec appsmith_fat import_db
+docker exec appsmith_fat appsmith import_db
 ```
 ### 4.3 Supervisord UI
 To manage the application's processes using supervisord, you can use the supervisord UI
 
 You can use the browser to access port `9001` of the host (`http://localhost:9001` if you run the container on your local machine)
 <p>
-  <img src="./images/appsmith_supervisord_ui.png" width="80%">
+  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
 </p>
 
 In this UI, you can manage your application's process. You should stop application's service (MongoDB, Redis) in case of using external service

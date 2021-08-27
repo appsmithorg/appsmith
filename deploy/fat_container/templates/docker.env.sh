@@ -57,13 +57,10 @@ APPSMITH_MAIL_SMTP_TLS_ENABLED=
 # Disable all telemetry
 # Note: This only takes effect in self-hosted scenarios. 
 # Please visit: https://docs.appsmith.com/v/v1.2.1/setup/telemetry to read more about anonymized data collected by Appsmith
-# APPSMITH_DISABLE_TELEMETRY=false
+APPSMITH_DISABLE_TELEMETRY=false
 
 #APPSMITH_SENTRY_DSN=
 #APPSMITH_SENTRY_ENVIRONMENT=
-
-# Configure cloud services
-# APPSMITH_CLOUD_SERVICES_BASE_URL="https://release-cs.appsmith.com"
 
 # Google Recaptcha Config
 APPSMITH_RECAPTCHA_SITE_KEY=

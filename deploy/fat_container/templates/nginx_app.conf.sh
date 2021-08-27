@@ -2,28 +2,22 @@
 
 set -o nounset
 
-# In the config file, there's three types of variables, all represented with the syntax `$name`. The ones that are not
-# escaped with a backslash are rendered within this script. Among the ones that are escaped with a backslash, the ones
-# starting with `APPSMITH_` will be rendered at boot-up time by appsmith-editor docker container. The rest (like $scheme
-# and $host) are for nginx to work out.
-
 NGINX_SSL_CMNT="$1"
 CUSTOM_DOMAIN="$2"
 
 cat <<EOF
 server {
-    listen 80;
-$NGINX_SSL_CMNT    server_name $CUSTOM_DOMAIN ;
-    client_max_body_size 100m;
+  listen 80;
+$NGINX_SSL_CMNT  server_name $CUSTOM_DOMAIN ;
+  client_max_body_size 100m;
 
-    gzip on;
+	gzip on;
 
-    root /opt/appsmith/editor;
-    index index.html index.htm;
+	root /opt/appsmith/editor;
+	index index.html index.htm;
 
     location /.well-known/acme-challenge/ {
-        # root /var/www/certbot;
-		root /opt/appsmith/data/certificate/certbot;
+		root /opt/appsmith/stacks/data/certificate/certbot;
     }
 
     proxy_set_header X-Forwarded-Proto \$scheme;
@@ -72,12 +66,12 @@ $NGINX_SSL_CMNT    server_name $CUSTOM_DOMAIN ;
     }
 
 	location /socket.io {
-        proxy_pass http://localhost:8091;
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Upgrade \$http_upgrade;
-    }
+		proxy_pass http://localhost:8091;
+		proxy_http_version 1.1;
+		proxy_set_header Host \$host;
+		proxy_set_header Connection 'upgrade';
+		proxy_set_header Upgrade \$http_upgrade;
+	}
 }
 
 $NGINX_SSL_CMNT server {
@@ -88,8 +82,8 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    ssl_certificate /etc/letsencrypt/live/$CUSTOM_DOMAIN/fullchain.pem;
 $NGINX_SSL_CMNT    ssl_certificate_key /etc/letsencrypt/live/$CUSTOM_DOMAIN/privkey.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    include /opt/appsmith/data/certificate/conf/options-ssl-nginx.conf;
-$NGINX_SSL_CMNT    ssl_dhparam /opt/appsmith/data/certificate/conf/ssl-dhparams.pem;
+$NGINX_SSL_CMNT    include /opt/appsmith/stacks/data/certificate/conf/options-ssl-nginx.conf;
+$NGINX_SSL_CMNT    ssl_dhparam /opt/appsmith/stacks/data/certificate/conf/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
 $NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
