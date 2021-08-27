@@ -1,5 +1,9 @@
 import { Toaster } from "components/ads/Toast";
-import { createMessage, ERROR_WIDGET_DOWNLOAD } from "constants/messages";
+import {
+  createMessage,
+  DOWNLOAD_FILE_NAME_ERROR,
+  ERROR_WIDGET_DOWNLOAD,
+} from "constants/messages";
 import { Variant } from "components/ads/common";
 import { getType, isURL, Types } from "utils/TypeHelpers";
 import downloadjs from "downloadjs";
@@ -20,8 +24,8 @@ export default async function downloadSaga(
 ) {
   const { data, name, type } = action;
   if (!name) {
-    displayWidgetDownloadError("File name was not provided");
-    throw new TriggerFailureError("File name was not provided");
+    displayWidgetDownloadError(createMessage(DOWNLOAD_FILE_NAME_ERROR));
+    throw new TriggerFailureError(createMessage(DOWNLOAD_FILE_NAME_ERROR));
   }
   const dataType = getType(data);
   if (dataType === Types.ARRAY || dataType === Types.OBJECT) {

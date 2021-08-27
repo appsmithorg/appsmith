@@ -454,3 +454,5 @@ export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
