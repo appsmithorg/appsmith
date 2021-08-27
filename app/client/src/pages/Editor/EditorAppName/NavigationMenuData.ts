@@ -15,6 +15,7 @@ import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
+import { getExportAppAPIRoute } from "constants/ApiConstants";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -155,7 +156,7 @@ export const GetNavigationMenuData = ({
     {
       text: "Export Application",
       onClick: () =>
-        openExternalLink(`/api/v1/applications/export/${applicationId}`),
+        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent,
     },
