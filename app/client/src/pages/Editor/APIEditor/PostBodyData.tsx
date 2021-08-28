@@ -102,7 +102,6 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
-          pushFields
           theme={theme}
         />
       ),

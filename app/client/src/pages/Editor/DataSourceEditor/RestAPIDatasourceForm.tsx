@@ -26,7 +26,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,
   redirectAuthorizationCode,
@@ -332,7 +332,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     return (
       <SaveButtonContainer>
         <ActionButton
-          accent="error"
+          // accent="error"
+          buttonStyle="DANGER"
+          buttonVariant="SOLID"
           className="t--delete-datasource"
           loading={isDeleting}
           onClick={() => deleteDatasource(datasourceId)}

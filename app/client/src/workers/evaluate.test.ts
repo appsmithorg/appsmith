@@ -47,6 +47,7 @@ describe("evaluate", () => {
       triggers: [],
       errors: [
         {
+          code: "W117",
           errorMessage: "'wrongJS' is not defined.",
           errorSegment: "    const result = wrongJS",
           errorType: "LINT",
@@ -58,6 +59,8 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "warning",
+          originalBinding: "wrongJS",
+          variables: ["wrongJS", undefined, undefined, undefined],
         },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
@@ -70,6 +73,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "wrongJS",
         },
       ],
     });
@@ -89,6 +93,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "{}.map()",
         },
       ],
     });
@@ -104,10 +109,18 @@ describe("evaluate", () => {
     expect(response.result).toBe(undefined);
     expect(response.triggers).toStrictEqual([
       {
-        type: "SHOW_ALERT",
+        type: "PROMISE",
         payload: {
-          message: "message",
-          style: "info",
+          executor: [
+            {
+              type: "SHOW_ALERT",
+              payload: {
+                message: "message",
+                style: "info",
+              },
+            },
+          ],
+          then: [],
         },
       },
     ]);
@@ -130,6 +143,7 @@ describe("evaluate", () => {
   closedFunction()
   `,
           severity: "error",
+          originalBinding: "setTimeout(() => {}, 100)",
         },
       ],
     });

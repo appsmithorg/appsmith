@@ -248,6 +248,22 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.12) !important;
       overflow: scroll;
     }
-
+  }
+  .CodeMirror-lint-tooltip {
+    border: none;
+    background: ${(props) =>
+      props.editorTheme === EditorTheme.DARK ? "#23292e" : "#fff"};
+    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+    padding: 7px 12px;
+    border-radius: 0;
+  }
+  .CodeMirror-lint-message {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-family: ${(props) => props.theme.fonts.text};
+    color: #4B4848;
+  }
+  .CodeMirror-lint-mark-warning{
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJDw4cOCW1/KIAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAHElEQVQI12NggIL/DAz/GdA5/xkY/qPKMDAwAADLZwf5rvm+LQAAAABJRU5ErkJggg==")
   }
 `;

@@ -201,8 +201,6 @@ public class ImportExportApplicationServiceTests {
 
                     NewPage defaultPage = pageList.get(0);
 
-                    assertThat(applicationJson.getAppsmithVersion()).isNotNull();
-
                     assertThat(exportedApp.getId()).isNull();
                     assertThat(exportedApp.getOrganizationId()).isNull();
                     assertThat(exportedApp.getPages()).isNull();
@@ -481,7 +479,7 @@ public class ImportExportApplicationServiceTests {
                 final List<Datasource> datasourceList = tuple.getT2();
                 final List<ActionDTO> actionDTOS = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
-
+                
                 assertThat(application.getName()).isEqualTo("valid_application");
                 assertThat(application.getOrganizationId()).isNotNull();
                 assertThat(application.getPages()).hasSize(2);
@@ -523,28 +521,6 @@ public class ImportExportApplicationServiceTests {
                 assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
             })
             .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void importApplicationWithoutVersionTest() {
-
-        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-file-without-version.json");
-
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
-
-        final Mono<Application> resultMono = organizationService
-            .create(newOrganization)
-            .flatMap(organization -> importExportApplicationService
-                .extractFileAndSaveApplication(organization.getId(), filePart)
-            );
-
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_IMPORTED_FILE_ERROR.getMessage()))
-            .verify();
     }
 
     private FilePart createFilePart(String filePath) {
