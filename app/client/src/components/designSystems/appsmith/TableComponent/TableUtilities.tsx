@@ -231,6 +231,12 @@ function IconButton(props: {
       e.stopPropagation();
     }
   };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
   return (
     <div onClick={handlePropagation}>
       <StyledButton
@@ -241,12 +247,7 @@ function IconButton(props: {
         buttonVariant={props.buttonVariant}
         icon={props.iconName}
         loading={loading}
-        onClick={() => {
-          if (props.action.dynamicTrigger) {
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }
-        }}
+        onClick={handleClick}
       />
     </div>
   );
