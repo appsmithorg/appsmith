@@ -1,6 +1,19 @@
+import {
+  createMessage,
+  DOC_DESCRIPTION,
+  NAV_DESCRIPTION,
+  SNIPPET_DESCRIPTION,
+} from "constants/messages";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
+import getFeatureFlags from "utils/featureFlags";
+
+export type SelectEvent =
+  | React.MouseEvent
+  | React.KeyboardEvent
+  | KeyboardEvent;
 
 export type RecentEntity = {
   type: string;
@@ -39,31 +52,67 @@ export type DocSearchItem = {
   path: string;
 };
 
+export type Snippet = {
+  entities?: [string];
+  fields?: [string];
+  dataType?: string;
+  language: string;
+  body: SnippetBody;
+};
+
+export type SnippetBody = {
+  title: string;
+  snippet: string;
+  isTrigger?: boolean;
+  args: [SnippetArgument];
+  summary: string;
+  template: string;
+  additionalInfo?: [
+    {
+      header: string;
+      content: string;
+    },
+  ];
+};
+
+export type SnippetArgument = {
+  name: string;
+  type: ValidationTypes;
+};
+
 export type SearchCategory = {
   id: SEARCH_CATEGORY_ID;
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
+  show?: () => boolean;
 };
+
+export function getOptionalFilters(optionalFilterMeta: any) {
+  return Object.keys(optionalFilterMeta || {}).map(
+    (field) => `${field}:${optionalFilterMeta[field]}`,
+  );
+}
 
 export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
   [SEARCH_CATEGORY_ID.NAVIGATION]: {
     title: "Navigate",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.NAVIGATION,
-    desc: "Navigate to any page, widget or file across this project.",
+    desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: createMessage(SNIPPET_DESCRIPTION),
+    show: () => getFeatureFlags().SNIPPET,
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: createMessage(DOC_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.LIBRARY]: {
     title: "Install Libraries",
@@ -76,7 +125,19 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
   },
 };
 
-export const getFilterCategoryList = () => Object.values(filterCategories);
+export const isNavigation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
+export const isDocumentation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+export const isSnippet = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
+export const isMenu = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.INIT;
+
+export const getFilterCategoryList = () =>
+  Object.values(filterCategories).filter((cat: SearchCategory) => {
+    return cat.show ? cat.show() : true;
+  });
 
 export type SearchItem = DocSearchItem | Datasource | any;
 

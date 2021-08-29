@@ -9,16 +9,14 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
 import {
   deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
-import {
-  setGlobalSearchFilterContext,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -29,7 +27,7 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
   SearchCategory,
@@ -47,6 +45,7 @@ type Props = {
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
+  groupSelectedWidget: () => void;
   toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
@@ -55,7 +54,6 @@ type Props = {
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
-  setGlobalSearchFilterContext: (payload: { category: any }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -85,9 +83,6 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    // this.props.setGlobalSearchFilterContext({
-    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    // });
     this.props.toggleShowGlobalSearchModal(
       filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
     );
@@ -264,6 +259,17 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
+        <Hotkey
+          combo="mod + g"
+          global
+          group="Canvas"
+          label="Cut Widgets for grouping"
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.groupSelectedWidget();
+            }
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -287,6 +293,7 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
+    groupSelectedWidget: () => dispatch(groupWidgets()),
     toggleShowGlobalSearchModal: (category: SearchCategory) =>
       dispatch(toggleShowGlobalSearchModal(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
@@ -296,8 +303,6 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
-    setGlobalSearchFilterContext: (payload: { category: any }) =>
-      dispatch(setGlobalSearchFilterContext(payload)),
   };
 };
 

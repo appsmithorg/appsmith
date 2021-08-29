@@ -20,6 +20,12 @@ describe("<DividerWidget />", () => {
         isVisible: true,
         widgetId: "Widget1",
       },
+      debugger: {
+        errors: {},
+      },
+      comments: {
+        dragPointerOffset: null,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

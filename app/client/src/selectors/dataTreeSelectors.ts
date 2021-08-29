@@ -53,7 +53,8 @@ export const getLoadingEntities = (state: AppState) =>
  *
  * @param state
  */
-export const getDataTree = (state: AppState) => state.evaluations.tree;
+export const getDataTree = (state: AppState): DataTree =>
+  state.evaluations.tree;
 
 // For autocomplete. Use actions cached responses if
 // there isn't a response already
