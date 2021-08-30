@@ -8,6 +8,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
+import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
@@ -47,6 +48,8 @@ export type TextInputProps = CommonComponentProps & {
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
+  leftIcon?: IconName;
+  helperText?: string;
   rightSideComponent?: React.ReactNode;
 };
 
@@ -101,18 +104,21 @@ const StyledInput = styled((props) => {
     inputStyle: boxReturnType;
     isValid: boolean;
     rightSideComponentWidth: number;
+    hasLeftIcon: boolean;
   }
 >`
-  width: ${(props) => (props.fill ? "100%" : "320px")};
+  width: ${(props) => (props.fill ? "100%" : "260px")};
   border-radius: 0;
   caret-color: white;
   outline: 0;
   box-shadow: none;
-  border: 1px solid ${(props) => props.inputStyle.borderColor};
-  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  border: 1.2px solid ${(props) => props.inputStyle.borderColor};
+  padding: 0px ${(props) => props.theme.spaces[5]}px;
+  height: 36px;
   padding-right: ${(props) =>
-    props.rightSideComponentWidth + props.theme.spaces[6]}px;
-  height: 38px;
+    props.rightSideComponentWidth + props.theme.spaces[5]}px;
+  padding-left: ${(props) =>
+    props.hasLeftIcon ? "35" : props.theme.spaces[5]}px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
 
@@ -123,7 +129,12 @@ const StyledInput = styled((props) => {
     -webkit-box-shadow: 0 0 0 30px ${(props) => props.inputStyle.bgColor} inset !important;
     -webkit-text-fill-color: ${(props) => props.inputStyle.color} !important;
   }
-
+  &:hover {
+    background-color: ${(props) =>
+      props.disabled
+        ? props.inputStyle.bgColor
+        : props.theme.colors.textInput.hover.bg};
+  }
   &::placeholder {
     color: ${(props) => props.theme.colors.textInput.placeholder};
   }
@@ -156,10 +167,19 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   position: relative;
   width: 100%;
-
-  .${Classes.TEXT} {
+  ​ .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
+  ​ .helper {
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.textInput.helper};
+    }
+  }
+`;
+
+const MsgWrapper = styled.div`
+  position: absolute;
+  bottom: -20px;
 `;
 
 const RightSideContainer = styled.div`
@@ -169,9 +189,10 @@ const RightSideContainer = styled.div`
   top: 0;
 `;
 
-const ErrorWrapper = styled.div`
+const IconWrapper = styled.div`
   position: absolute;
-  bottom: -17px;
+  top: 10.37px;
+  left: 14.37px;
 `;
 const TextInput = forwardRef(
   (props: TextInputProps, ref: Ref<HTMLInputElement>) => {
@@ -219,11 +240,23 @@ const TextInput = forwardRef(
     );
 
     const ErrorMessage = (
-      <ErrorWrapper>
+      <MsgWrapper>
         <Text type={TextType.P3}>{validation.message}</Text>
-      </ErrorWrapper>
+      </MsgWrapper>
     );
 
+    const HelperMessage = (
+      <MsgWrapper className="helper">
+        <Text type={TextType.P3}>* {props.helperText}</Text>
+      </MsgWrapper>
+    );
+    const iconColor = !validation.isValid
+      ? props.theme.colors.danger.main
+      : props.theme.colors.textInput.icon;
+
+    const hasLeftIcon = props.leftIcon
+      ? IconCollection.includes(props.leftIcon)
+      : false;
     return (
       <InputWrapper>
         <StyledInput
@@ -234,12 +267,26 @@ const TextInput = forwardRef(
           type={props.dataType || "text"}
           {...props}
           data-cy={props.cypressSelector}
+          hasLeftIcon={hasLeftIcon}
           inputRef={ref}
           onChange={memoizedChangeHandler}
           placeholder={props.placeholder}
           readOnly={props.readOnly}
           rightSideComponentWidth={rightSideComponentWidth}
         />
+        {props.leftIcon && (
+          <IconWrapper>
+            <Icon
+              fillColor={iconColor}
+              name={props.leftIcon}
+              size={IconSize.MEDIUM}
+            />
+          </IconWrapper>
+        )}
+        {validation.isValid &&
+          props.helperText &&
+          props.helperText.length > 0 &&
+          HelperMessage}
         {ErrorMessage}
         <RightSideContainer ref={setRightSideRef}>
           {props.rightSideComponent}
