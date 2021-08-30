@@ -86,7 +86,7 @@ export interface RenderDropdownOptionType {
 
 export const DropdownContainer = styled.div<{ width: string; height?: string }>`
   width: ${(props) => props.width};
-  height: ${(props) => props.height};
+  height: ${(props) => props.height || `36px`};
   position: relative;
 `;
 
@@ -391,6 +391,12 @@ const ErrorLabel = styled.span`
   color: ${Colors.POMEGRANATE2};
 `;
 
+const HelperText = styled.span`
+  ${(props) => getTypographyByKey(props, "p3")};
+  color: ${Colors.GRAY};
+  margin-top: ${(props) => props.theme.spaces[3]}px;
+`;
+
 function DefaultDropDownValueNode({
   errorMsg,
   placeholder,
@@ -630,6 +636,9 @@ export default function Dropdown(props: DropdownProps) {
         <HelperMsg>* {helperText}</HelperMsg>
       )}
       {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+      {helperText && !isOpen && !errorMsg && (
+        <HelperText>{helperText}</HelperText>
+      )}
     </DropdownSelect>
   );
   return (
