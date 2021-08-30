@@ -174,43 +174,57 @@ export const renderActions = (
   );
 };
 
+function RenderTagsCell(props: {
+  labels: string[];
+  cellProperties: CellLayoutProperties;
+}) {
+  const { cellProperties, labels } = props;
+  const { labelColors } = cellProperties;
+  const ref = React.createRef<HTMLDivElement>();
+  const [useToolTip, toggleToolTip] = React.useState(false);
+  React.useEffect(() => {
+    const element = ref.current;
+    if (element && element.offsetWidth < element.scrollWidth) {
+      toggleToolTip(true);
+    }
+  }, [ref]);
+  return (
+    <TagWrapper cellProperties={props.cellProperties} ref={ref}>
+      {useToolTip ? (
+        <TooltipComponent content={labels.join(", ")} position={Position.TOP}>
+          <TagComponent
+            color="transparent"
+            label={`+${labels.length}`}
+            tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
+            type="HELP"
+          />
+        </TooltipComponent>
+      ) : null}
+      {!useToolTip &&
+        labels.map((label: string, labelIdx: number) => {
+          const trimmedLabel = label.trim();
+          return (
+            <TagComponent
+              color={labelColors && labelColors[trimmedLabel]}
+              key={labelIdx}
+              label={trimmedLabel}
+              tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
+            />
+          );
+        })}
+    </TagWrapper>
+  );
+}
+
 export const renderTags = (
   value: any,
   cellProperties: CellLayoutProperties,
 ) => {
-  const { labelColors } = cellProperties;
-  const labels = value.split(",").filter((value: string) => value !== "");
+  const labels: string[] = value
+    .split(",")
+    .filter((value: string) => value !== "");
   if (labels.length > 0 && labels[0].length > 0) {
-    return (
-      <TagWrapper cellProperties={cellProperties}>
-        {labels.map((label: string, labelIdx: number) => {
-          const trimmedLabel = label.trim();
-          if (labelIdx < 2) {
-            return (
-              <TagComponent
-                color={labelColors && labelColors[trimmedLabel]}
-                key={labelIdx}
-                label={trimmedLabel}
-                tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
-              />
-            );
-          }
-        })}
-        {labels.length > 2 && (
-          <TooltipComponent
-            content={labels.slice(2).join(", ")}
-            position={Position.TOP}
-          >
-            <TagComponent
-              color={"transparent"}
-              label={`+${labels.length - 2}`}
-              tagSize={cellProperties ? cellProperties.tagSize : "SMALL"}
-              type="HELP"
-            />
-          </TooltipComponent>
-        )}
-      </TagWrapper>
-    );
+    return RenderTagsCell({ labels, cellProperties });
   } else {
     return <span />;
   }
