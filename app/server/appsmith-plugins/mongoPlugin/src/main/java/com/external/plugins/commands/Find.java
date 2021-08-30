@@ -64,21 +64,12 @@ public class Find extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
-        if (super.isValid()) {
-            if (!StringUtils.isNullOrEmpty(query)) {
-                return Boolean.TRUE;
-            } else {
-                fieldNamesWithNoConfiguration.add("Query");
-            }
-        }
-
-        return Boolean.FALSE;
-    }
-
-    @Override
     public Document parseCommand() {
         Document document = new Document();
+
+        if (!StringUtils.isNullOrEmpty(this.query)) {
+            this.query = "{}";
+        }
 
         document.put("find", this.collection);
 

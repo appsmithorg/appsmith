@@ -37,15 +37,10 @@ public class Distinct extends MongoCommand {
     @Override
     public Boolean isValid() {
         if (super.isValid()) {
-            if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(key)) {
+            if (!StringUtils.isNullOrEmpty(key)) {
                 return Boolean.TRUE;
-            } else {
-                if (StringUtils.isNullOrEmpty(query)) {
-                    fieldNamesWithNoConfiguration.add("Query");
-                }
-                if (StringUtils.isNullOrEmpty(key)) {
+            } else if (StringUtils.isNullOrEmpty(key)) {
                     fieldNamesWithNoConfiguration.add("Key/Field");
-                }
             }
         }
 
@@ -57,6 +52,10 @@ public class Distinct extends MongoCommand {
         Document document = new Document();
 
         document.put("distinct", this.collection);
+
+        if (!StringUtils.isNullOrEmpty(this.query)) {
+            this.query = "{}";
+        }
 
         document.put("query", parseSafely("Query", this.query));
 

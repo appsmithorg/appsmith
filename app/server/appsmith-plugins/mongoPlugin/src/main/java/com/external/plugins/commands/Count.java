@@ -29,22 +29,14 @@ public class Count extends MongoCommand {
     }
 
     @Override
-    public Boolean isValid() {
-        if (super.isValid()) {
-            if (!StringUtils.isNullOrEmpty(query)) {
-                return Boolean.TRUE;
-            } else {
-                fieldNamesWithNoConfiguration.add("Query");
-            }
-        }
-        return Boolean.FALSE;
-    }
-
-    @Override
     public Document parseCommand() {
         Document document = new Document();
 
         document.put("count", this.collection);
+
+        if (!StringUtils.isNullOrEmpty(this.query)) {
+            this.query = "{}";
+        }
 
         document.put("query", parseSafely("Query", this.query));
 
