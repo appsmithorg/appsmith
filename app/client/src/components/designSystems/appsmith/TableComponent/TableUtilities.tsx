@@ -213,6 +213,7 @@ export function EditableCell(props: {
           multiline={false}
           onCurrencyTypeChange={noop}
           onFocusChange={noop}
+          onISDCodeChange={noop}
           onValueChange={(value) => {
             setValue(value);
             props.handleInputChange(props.fieldName, value);
