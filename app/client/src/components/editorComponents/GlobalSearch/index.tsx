@@ -47,6 +47,12 @@ import {
   filterCategories,
   getFilterCategoryList,
   SearchCategory,
+  isNavigation,
+  isMenu,
+  isSnippet,
+  isDocumentation,
+  SelectEvent,
+  getOptionalFilters,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -60,18 +66,14 @@ import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
-import { keyBy, noop } from "lodash";
+import { get, keyBy, noop } from "lodash";
 import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-
-const isNavigation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
-const isDocumentation = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
-const isSnippet = (category: any) =>
-  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
-const isMenu = (category: any) => category.id === SEARCH_CATEGORY_ID.INIT;
+import SnippetsFilter from "./SnippetsFilter";
+import SnippetRefinements from "./SnippetRefinements";
+import { Configure, Index } from "react-instantsearch-dom";
+import { getAppsmithConfigs } from "configs";
 
 const StyledContainer = styled.div`
   width: 785px;
@@ -98,6 +100,8 @@ const StyledContainer = styled.div`
   }
 `;
 
+const { algolia } = getAppsmithConfigs();
+
 const isModalOpenSelector = (state: AppState) =>
   state.ui.globalSearch.modalOpen;
 
@@ -121,9 +125,10 @@ const getSortedResults = (
   filteredEntities: Array<any>,
   documentationSearchResults: Array<any>,
   recentEntityIndex: (entity: any) => number,
+  snippets: Array<any>,
   currentPageId?: string,
 ) => {
-  return [...filteredEntities, ...documentationSearchResults].sort(
+  return [...filteredEntities, ...documentationSearchResults, ...snippets].sort(
     (a: any, b: any) => {
       const queryIndexA = getQueryIndexForSorting(a, query);
       const queryIndexB = getQueryIndexForSorting(b, query);
@@ -150,13 +155,15 @@ const getSortedResults = (
   );
 };
 
-const filterCategoryList = getFilterCategoryList();
-
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId);
   const modalOpen = useSelector(isModalOpenSelector);
   const dispatch = useDispatch();
   const [snippets, setSnippetsState] = useState([]);
+  const optionalFilterMeta = useSelector(
+    (state: AppState) => state.ui.globalSearch.filterContext.fieldMeta,
+  );
+  const filterCategoryList = getFilterCategoryList();
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
@@ -188,11 +195,6 @@ function GlobalSearch() {
     setDocumentationSearchResultsInState,
   ] = useState<Array<DocSearchItem>>([]);
 
-  const setSearchResults = useCallback((res, categoryId) => {
-    if (categoryId === SEARCH_CATEGORY_ID.SNIPPETS) setSnippetsState(res);
-    else setDocumentationSearchResultsInState(res);
-  }, []);
-
   const [activeItemIndex, setActiveItemIndexInState] = useState(0);
   const setActiveItemIndex = useCallback((index) => {
     scrollPositionRef.current = 0;
@@ -207,6 +209,10 @@ function GlobalSearch() {
       setActiveItemIndex(0);
     }
   }, [category.id]);
+
+  useEffect(() => {
+    setActiveItemIndex(0);
+  }, [refinements]);
 
   const allWidgets = useSelector(getAllPageWidgets);
 
@@ -317,14 +323,13 @@ function GlobalSearch() {
 
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
-      return filterCategoryList.filter(
-        (cat: SearchCategory) => isDocumentation(cat) || isNavigation(cat),
-      );
+      return filterCategoryList.filter((cat: SearchCategory) => !isMenu(cat));
     }
     if (isSnippet(category)) {
       return snippets;
     }
 
+    let currentSnippets = snippets;
     let filteredEntities: any = [];
     let documents: DocSearchItem[] = [];
     if (isNavigation(category) || isMenu(category)) {
@@ -341,12 +346,16 @@ function GlobalSearch() {
         ? documentationSearchResults
         : defaultDocs.concat(documentationSearchResults);
     }
+    if (isNavigation(category) || isDocumentation(category)) {
+      currentSnippets = [];
+    }
 
     return getSortedResults(
       query,
       filteredEntities,
       documents,
       recentEntityIndex,
+      currentSnippets,
       currentPageId,
     );
   }, [
@@ -357,6 +366,7 @@ function GlobalSearch() {
     filteredDatasources,
     query,
     recentEntities,
+    snippets,
   ]);
 
   const activeItem = useMemo(() => {
@@ -451,25 +461,43 @@ function GlobalSearch() {
     history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
   };
 
-  const handleSnippetClick = (item: any) => {
-    dispatch(insertSnippet(item.body.snippet));
+  const handleSnippetClick = (event: SelectEvent, item: any) => {
+    if (event.type === "click") {
+      setActiveItemIndex(
+        searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
+      );
+      return;
+    }
+    dispatch(insertSnippet(get(item, "body.snippet", "")));
     toggleShow();
   };
 
   const itemClickHandlerByType = {
-    [SEARCH_ITEM_TYPES.document]: handleDocumentationItemClick,
-    [SEARCH_ITEM_TYPES.widget]: handleWidgetClick,
-    [SEARCH_ITEM_TYPES.action]: handleActionClick,
-    [SEARCH_ITEM_TYPES.jsAction]: handleJSActionClick,
-    [SEARCH_ITEM_TYPES.datasource]: handleDatasourceClick,
-    [SEARCH_ITEM_TYPES.page]: handlePageClick,
+    [SEARCH_ITEM_TYPES.document]: (e: SelectEvent, item: any) =>
+      handleDocumentationItemClick(item),
+    [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
+      handleWidgetClick(item),
+    [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
+      handleActionClick(item),
+    [SEARCH_ITEM_TYPES.datasource]: (e: SelectEvent, item: any) =>
+      handleDatasourceClick(item),
+    [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
+      handlePageClick(item),
+    [SEARCH_ITEM_TYPES.jsAction]: (e: SelectEvent, item: any) =>
+      handleJSActionClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
-    [SEARCH_ITEM_TYPES.category]: setCategory,
-    [SEARCH_ITEM_TYPES.snippet]: handleSnippetClick,
+    [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>
+      setCategory(item),
+    [SEARCH_ITEM_TYPES.snippet]: (e: SelectEvent, item: any) =>
+      handleSnippetClick(e, item),
   };
 
-  const handleItemLinkClick = (itemArg?: SearchItem, source?: string) => {
+  const handleItemLinkClick = (
+    event: SelectEvent,
+    itemArg?: SearchItem,
+    source?: string,
+  ) => {
     const item = itemArg || activeItem;
     const type = getItemType(item);
 
@@ -481,8 +509,7 @@ function GlobalSearch() {
       type,
       source,
     });
-
-    itemClickHandlerByType[type](item);
+    itemClickHandlerByType[type](event, item);
   };
 
   const searchContext = {
@@ -499,6 +526,14 @@ function GlobalSearch() {
     handleItemLinkClick,
   };
 
+  const showDescription = useMemo(() => {
+    return (
+      isDocumentation(category) ||
+      isSnippet(category) ||
+      (isMenu(category) && query)
+    );
+  }, [category, query]);
+
   const activeItemType = useMemo(() => {
     return activeItem ? getItemType(activeItem) : undefined;
   }, [activeItem]);
@@ -508,6 +543,7 @@ function GlobalSearch() {
       <GlobalSearchHotKeys {...hotKeyProps}>
         <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
           <AlgoliaSearchWrapper
+            category={category}
             query={query}
             refinements={refinements}
             setRefinement={setRefinements}
@@ -519,11 +555,33 @@ function GlobalSearch() {
                 setCategory={setCategory}
                 setQuery={setQuery}
               />
+              {refinements &&
+                refinements.entities &&
+                refinements.entities.length && <SnippetRefinements />}
               <div className="main">
-                <SetSearchResults
-                  categoryId={category.id}
-                  setDocumentationSearchResults={setSearchResults}
-                />
+                {(isMenu(category) || isDocumentation(category)) && (
+                  <Index indexName={algolia.indexName}>
+                    <SetSearchResults
+                      category={category}
+                      setSearchResults={setDocumentationSearchResultsInState}
+                    />
+                  </Index>
+                )}
+                {/* Search from default menu should search multiple indexes.
+                Below is the code to search in the index-snippet. Index
+                component requires Hits component as its children to display the
+                results. SetSearchResults is the custom hits component. */}
+                {(isMenu(category) || isSnippet(category)) && (
+                  <Index indexName="snippet">
+                    <Configure
+                      optionalFilters={getOptionalFilters(optionalFilterMeta)}
+                    />
+                    <SetSearchResults
+                      category={category}
+                      setSearchResults={setSnippetsState}
+                    />
+                  </Index>
+                )}
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
@@ -532,7 +590,7 @@ function GlobalSearch() {
                       searchResults={searchResults}
                       showFilter={isSnippet(category)}
                     />
-                    {(isDocumentation(category) || isSnippet(category)) && (
+                    {showDescription && (
                       <Description
                         activeItem={activeItem}
                         activeItemType={activeItemType}
@@ -543,6 +601,12 @@ function GlobalSearch() {
                   </>
                 ) : (
                   <ResultsNotFound />
+                )}
+                {isSnippet(category) && (
+                  <SnippetsFilter
+                    refinements={refinements}
+                    snippetsEmpty={snippets.length === 0}
+                  />
                 )}
               </div>
               <Footer />

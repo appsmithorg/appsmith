@@ -31,6 +31,7 @@ import redis.clients.jedis.util.SafeEncoder;
 import java.net.URI;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +102,7 @@ public class RedisPlugin extends BasePlugin {
                 }
 
                 ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-                actionExecutionResult.setBody(objectMapper.valueToTree(processCommandOutput(commandOutput)));
+                actionExecutionResult.setBody(objectMapper.valueToTree(removeQuotes(processCommandOutput(commandOutput))));
                 actionExecutionResult.setIsExecutionSuccess(true);
 
                 System.out.println(Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
@@ -136,6 +137,32 @@ public class RedisPlugin extends BasePlugin {
                         }
                     })
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * - This method removes the outermost quotes - single or double quotes - so that end users don't have to do
+         * it via javascript on the UI editor.
+         * - Some example inputs and outputs:
+         *  o "my val" -> my val
+         *  o 'my val' -> my val
+         *  o '{"key": "val"}' -> {"key": "val"}
+         */
+        private Object removeQuotes(Object result) {
+            if (result instanceof String) {
+                return ((String) result).replaceAll("^\\\"|^'|\\\"$|'$", "");
+            }
+            else if (result instanceof Collection) {
+                return ((Collection) result).stream()
+                        .map(this::removeQuotes)
+                        .collect(Collectors.toList());
+            }
+            else if (result instanceof Map) {
+                return ((Map<String, Object>) result).entrySet().stream()
+                        .map(item -> Map.entry(item.getKey(), removeQuotes(item.getValue())))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }
+
+            return result;
         }
 
         private Map getCommandAndArgs(String query) {
