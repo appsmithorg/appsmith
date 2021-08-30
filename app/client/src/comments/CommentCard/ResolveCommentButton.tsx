@@ -2,6 +2,8 @@ import React from "react";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
+import Tooltip from "components/ads/Tooltip";
+import { createMessage, RESOLVE_THREAD } from "constants/messages";
 
 const Container = styled.div`
   display: flex;
@@ -52,14 +54,16 @@ const ResolveCommentButton = withTheme(
 
     return (
       <Container onClick={_handleClick}>
-        <StyledResolveIcon
-          fillColor={fillColor}
-          keepColors
-          name="oval-check"
-          size={IconSize.XXL}
-          strokeColorCircle={strokeColorCircle}
-          strokeColorPath={strokeColorPath}
-        />
+        <Tooltip content={createMessage(RESOLVE_THREAD)}>
+          <StyledResolveIcon
+            fillColor={fillColor}
+            keepColors
+            name="oval-check"
+            size={IconSize.XXL}
+            strokeColorCircle={strokeColorCircle}
+            strokeColorPath={strokeColorPath}
+          />
+        </Tooltip>
       </Container>
     );
   },

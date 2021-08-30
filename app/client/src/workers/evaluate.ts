@@ -1,6 +1,4 @@
-import { ActionDescription, DataTree } from "entities/DataTree/dataTreeFactory";
-import { addFunctions } from "workers/evaluationUtils";
-import _ from "lodash";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
   extraLibraries,
@@ -10,10 +8,12 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
+import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
 
 export type EvalResult = {
   result: any;
-  triggers?: ActionDescription<any>[];
+  triggers?: ActionDescription[];
   errors: EvaluationError[];
 };
 
@@ -44,9 +44,9 @@ const evaluationScripts: Record<
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
-    const result = ${script}
+    const result = ${script};
   }
-  closedFunction()
+  closedFunction();
   `,
 };
 
@@ -132,32 +132,14 @@ export default function evaluate(
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
+    GLOBAL_DATA.Promise = AppsmithPromise;
     if (isTriggerBased) {
       //// Add internal functions to dataTree;
-      const dataTreeWithFunctions = addFunctions(data);
+      const dataTreeWithFunctions = enhanceDataTreeWithFunctions(data);
       ///// Adding Data tree with functions
       Object.keys(dataTreeWithFunctions).forEach((datum) => {
         GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
       });
-      ///// Fixing action paths and capturing their execution response
-      if (dataTreeWithFunctions.actionPaths) {
-        GLOBAL_DATA.triggers = [];
-        const pusher = function(
-          this: DataTree,
-          action: any,
-          ...payload: any[]
-        ) {
-          const actionPayload = action(...payload);
-          GLOBAL_DATA.triggers.push(actionPayload);
-        };
-        GLOBAL_DATA.actionPaths.forEach((path: string) => {
-          const action = _.get(GLOBAL_DATA, path);
-          const entity = _.get(GLOBAL_DATA, path.split(".")[0]);
-          if (action) {
-            _.set(GLOBAL_DATA, path, pusher.bind(data, action.bind(entity)));
-          }
-        });
-      }
     } else {
       ///// Adding Data tree
       Object.keys(data).forEach((datum) => {
@@ -191,9 +173,8 @@ export default function evaluate(
     try {
       result = eval(script);
       if (isTriggerBased) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         triggers = [...self.triggers];
+        self.triggers = [];
       }
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;

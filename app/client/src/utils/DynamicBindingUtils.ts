@@ -128,6 +128,7 @@ export enum EVAL_WORKER_ACTIONS {
   CLEAR_PROPERTY_CACHE_OF_WIDGET = "CLEAR_PROPERTY_CACHE_OF_WIDGET",
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
+  EVAL_EXPRESSION = "EVAL_EXPRESSION",
 }
 
 export type ExtraLibrary = {
@@ -271,7 +272,6 @@ export const unsafeFunctionForEval = [
   "setTimeout",
   "fetch",
   "setInterval",
-  "Promise",
   "setImmediate",
   "XMLHttpRequest",
   "importScripts",

@@ -525,28 +525,6 @@ public class ImportExportApplicationServiceTests {
             .verifyComplete();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void importApplicationWithoutVersionTest() {
-
-        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-file-without-version.json");
-
-        Organization newOrganization = new Organization();
-        newOrganization.setName("Template Organization");
-
-        final Mono<Application> resultMono = organizationService
-            .create(newOrganization)
-            .flatMap(organization -> importExportApplicationService
-                .extractFileAndSaveApplication(organization.getId(), filePart)
-            );
-
-        StepVerifier
-            .create(resultMono)
-            .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                throwable.getMessage().equals(AppsmithError.INVALID_IMPORTED_FILE_ERROR.getMessage()))
-            .verify();
-    }
-
     private FilePart createFilePart(String filePath) {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils

@@ -1,7 +1,9 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
+const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/multiSelectDsl.json");
+const pages = require("../../../../locators/Pages.json");
 const data = require("../../../../fixtures/example.json");
 
 describe("MultiSelect Widget Functionality", function() {

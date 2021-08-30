@@ -29,6 +29,7 @@ export const entityDefinitions = {
         "!type": "?",
       },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+      clear: "fn() -> void",
     };
   },
   CONTAINER_WIDGET: {
@@ -53,6 +54,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
     currencyCountryCode: {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",
