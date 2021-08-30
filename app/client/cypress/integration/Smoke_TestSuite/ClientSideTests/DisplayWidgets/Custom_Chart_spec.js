@@ -6,7 +6,7 @@ const pages = require("../../../../locators/Pages.json");
 const modalWidgetPage = require("../../../../locators/ModalWidget.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
-describe("Chart Widget Functionality around custom chart", function() {
+describe("Chart Widget Functionality around custom chart feature", function() {
   before(() => {
     cy.addDsl(dsl);
   });
