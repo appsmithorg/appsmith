@@ -30,6 +30,7 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { createMessage, DEBUGGER_TRIGGER_ERROR } from "constants/messages";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -133,7 +134,7 @@ function* initiateActionTriggerExecution(
     AppsmithConsole.addError({
       id: `${source?.id}-${triggerPropertyName}`,
       logType: LOG_TYPE.EVAL_ERROR,
-      text: `Error occurred while evaluating trigger at ${triggerPropertyName}`,
+      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
       source: {
         type: ENTITY_TYPE.WIDGET,
         id: source?.id ?? "",

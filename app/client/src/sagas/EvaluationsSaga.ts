@@ -57,6 +57,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import {
   createMessage,
+  DEBUGGER_TRIGGER_ERROR,
   SNIPPET_EXECUTION_FAILED,
   SNIPPET_EXECUTION_SUCCESS,
 } from "constants/messages";
@@ -175,7 +176,7 @@ export function* evaluateDynamicTrigger(
       AppsmithConsole.addError({
         logType: LOG_TYPE.EVAL_ERROR,
         id: `${source?.id}-${triggerPropertyName}`,
-        text: `Error occurred while evaluating trigger at ${triggerPropertyName}`,
+        text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
         source: {
           type: ENTITY_TYPE.WIDGET,
           id: source?.id ?? "",
