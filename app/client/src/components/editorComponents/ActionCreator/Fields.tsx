@@ -361,7 +361,7 @@ const fieldConfigs: FieldConfigs = {
           value = `${value}.run`;
           break;
         case ActionType.navigateTo:
-          defaultParams = `'#', {}`;
+          defaultParams = `{}`;
           break;
         default:
           break;
