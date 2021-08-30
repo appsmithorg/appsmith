@@ -24,7 +24,7 @@ import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
-import { setActionTabsInitialIndex } from "actions/actionActions";
+import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

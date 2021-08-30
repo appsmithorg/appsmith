@@ -23,6 +23,9 @@ describe("<DividerWidget />", () => {
       debugger: {
         errors: {},
       },
+      comments: {
+        dragPointerOffset: null,
+      },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },
   };

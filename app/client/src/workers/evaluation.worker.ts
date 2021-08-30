@@ -18,6 +18,7 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import evaluate from "./evaluate";
 
 const ctx: Worker = self as any;
 
@@ -173,6 +174,13 @@ ctx.addEventListener(
           validateWidgetProperty(validation, value, props),
         );
       }
+      case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
+        const { expression, isTrigger } = requestData;
+        const evalTree = dataTreeEvaluator?.evalTree;
+        if (!evalTree) return {};
+        return isTrigger
+          ? evaluate(expression, evalTree, [], true)
+          : evaluate(expression, evalTree);
       default: {
         console.error("Action not registered on worker", method);
       }
