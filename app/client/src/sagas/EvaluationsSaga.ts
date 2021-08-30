@@ -44,6 +44,9 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { diff } from "deep-diff";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -133,6 +136,11 @@ export function* evaluateActionBindings(
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   callbackData?: Array<any>,
+  triggerPropertyName?: string,
+  source?: {
+    id: string;
+    name: string;
+  },
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
 
@@ -143,7 +151,31 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
+
+  errors.map((error: any) => {
+    if (error.errorMessage && error.errorType) {
+      AppsmithConsole.addError({
+        logType: LOG_TYPE.EVAL_ERROR,
+        id: `${source?.id}-${triggerPropertyName}`,
+        text: `Error occurred while evaluating trigger at ${triggerPropertyName}`,
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: source?.id ?? "",
+          name: source?.name ?? "",
+          propertyPath: triggerPropertyName,
+        },
+        messages: [
+          {
+            message: error.errorMessage,
+            type: error.errorType,
+          },
+        ],
+      });
+    }
+  });
+
   yield call(evalErrorHandler, errors);
+
   return triggers;
 }
 

@@ -244,9 +244,6 @@ export function* evalErrorHandler(
           variant: Variant.danger,
           showDebugButton: true,
         });
-        AppsmithConsole.error({
-          text: message,
-        });
         throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {

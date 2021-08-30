@@ -398,7 +398,10 @@ function* fetchFeatureFlags() {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      (window as any).FEATURE_FLAGS = response.data;
+      (window as any).FEATURE_FLAGS = {
+        LINTING: true,
+        JS_EDITOR: true,
+      };
       yield put(fetchFeatureFlagsSuccess());
     }
   } catch (error) {

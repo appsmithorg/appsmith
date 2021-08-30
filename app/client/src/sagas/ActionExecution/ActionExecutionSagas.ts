@@ -23,6 +23,9 @@ import {
   openModalSaga,
   closeModalSaga,
 } from "sagas/ActionExecution/ModalSagas";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -79,15 +82,20 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     event: { type },
     responseData,
+    source,
+    triggerPropertyName,
   } = payload;
   log.debug({ dynamicString, responseData });
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
+
   const triggers = yield call(
     evaluateDynamicTrigger,
     dynamicString,
     responseData,
+    triggerPropertyName,
+    source,
   );
 
   log.debug({ triggers });
@@ -103,18 +111,37 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
 function* initiateActionTriggerExecution(
   action: ReduxAction<ExecuteTriggerPayload>,
 ) {
-  const { event } = action.payload;
+  const { event, source, triggerPropertyName } = action.payload;
   try {
     yield call(executeAppAction, action.payload);
+
     if (event.callback) {
       event.callback({ success: true });
     }
+    AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   } catch (e) {
     // handle errors here
     if (event.callback) {
       event.callback({ success: false });
     }
     log.error(e);
+
+    AppsmithConsole.addError({
+      id: `${source?.id}-${triggerPropertyName}`,
+      logType: LOG_TYPE.EVAL_ERROR,
+      text: `Error occurred while evaluating trigger at ${triggerPropertyName}`,
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: source?.id ?? "",
+        name: source?.name ?? "",
+        propertyPath: triggerPropertyName,
+      },
+      messages: [
+        {
+          message: e.message,
+        },
+      ],
+    });
   }
 }
 

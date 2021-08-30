@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   addErrorLog,
   debuggerLog,
@@ -167,6 +168,21 @@ function* logDependentEntityProperties(payload: Log) {
   );
 }
 
+function* onTriggerPropertyUpdates(payload: Log) {
+  const dataTree: DataTree = yield select(getDataTree);
+  const source = payload.source;
+
+  if (!source || !source.propertyPath) return;
+  const widget = dataTree[source.name];
+  // If property is not a trigger property we ignore
+  if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
+    return;
+  // If the value of the property is empty(or set to 'No Action')
+  if (widget[source.propertyPath] === "") {
+    AppsmithConsole.deleteError(`${source.id}-${source.propertyPath}`);
+  }
+}
+
 function* debuggerLogSaga(action: ReduxAction<Log>) {
   const { payload } = action;
 
@@ -174,6 +190,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.WIDGET_UPDATE:
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
+      yield call(onTriggerPropertyUpdates, payload);
       return;
     case LOG_TYPE.ACTION_UPDATE:
       yield put(debuggerLog(payload));
@@ -378,9 +395,9 @@ function* deleteDebuggerErrorLogSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }>,
 ) {
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
-  const error = errors[action.payload.id];
-
-  if (!error.source) return;
+  const error: Log | undefined = errors[action.payload.id];
+  // If the error does not exist we return
+  if (!error || !error.source) return;
 
   const analyticsPayload = {
     entityName: error.source.name,
