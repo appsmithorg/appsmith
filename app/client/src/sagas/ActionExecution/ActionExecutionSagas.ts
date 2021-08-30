@@ -4,8 +4,12 @@ import {
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import * as log from "loglevel";
-import { all, call, put, takeEvery } from "redux-saga/effects";
-import { evaluateDynamicTrigger } from "sagas/EvaluationsSaga";
+import { all, call, put, takeEvery, takeLatest } from "redux-saga/effects";
+import {
+  evaluateDynamicTrigger,
+  evaluateSnippetSaga,
+  evaluateArgumentSaga,
+} from "sagas/EvaluationsSaga";
 import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
 import storeValueLocally from "sagas/ActionExecution/StoreActionSaga";
 import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
@@ -151,5 +155,7 @@ export function* watchActionExecutionSagas() {
       ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
       initiateActionTriggerExecution,
     ),
+    takeLatest(ReduxActionTypes.EVALUATE_SNIPPET, evaluateSnippetSaga),
+    takeLatest(ReduxActionTypes.EVALUATE_ARGUMENT, evaluateArgumentSaga),
   ]);
 }
