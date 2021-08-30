@@ -424,16 +424,18 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
 
 export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
-    let { email, username } = user || {};
+    let { email, name, username } = user || {};
     if (!isAppsmithCloud) {
       username = sha256(username || "");
       email = sha256(email || "");
+      name = "";
     }
 
     window.Intercom("boot", {
       app_id: intercomAppID,
       user_id: username,
-      email: email,
+      email,
+      name,
     });
   }
 }
