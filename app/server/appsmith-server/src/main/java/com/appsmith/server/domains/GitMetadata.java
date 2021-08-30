@@ -8,7 +8,7 @@ import java.util.Map;
 // git repo.
 @Data
 public class GitMetadata {
-    // Git branch corresponding to this application
+    // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     String branchName;
 
     // Git remote url will be used while pushing and pulling changes

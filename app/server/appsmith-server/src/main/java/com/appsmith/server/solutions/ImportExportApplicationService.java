@@ -7,11 +7,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
@@ -26,6 +24,7 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -39,12 +38,9 @@ import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -55,21 +51,13 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 @Slf4j
@@ -89,14 +77,11 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
-    private final CommonConfig commonConfig;
     private final ReleaseNotesService releaseNotesService;
+    private final GitFileUtils gitFileUtils;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
-    private static final String PAGE_DIRECTORY = "/Pages/";
-    private static final String ACTION_DIRECTORY = "/Actions/";
-    private static final String DATASOURCE_DIRECTORY = "/Datasources/";
 
     private enum PublishType {
         UNPUBLISHED, PUBLISHED
@@ -291,7 +276,8 @@ public class ImportExportApplicationService {
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
                         return applicationJson;
-                    });
+                    })
+                    .map(applicationJson1 -> gitFileUtils.saveApplicationToGitRepo(organizationId, applicationId, applicationJson1, "release"));
             })
             .then()
             .thenReturn(applicationJson);
@@ -428,11 +414,11 @@ public class ImportExportApplicationService {
                 return Mono.just(new ArrayList<Datasource>());
             })
             .flatMap(existingDatasources -> {
-                Map<String, Datasource> savedDatasourcesGitIdToActionsIdMap = new HashMap<>();
+                Map<String, Datasource> savedDatasourcesGitIdToDatasourceMap = new HashMap<>();
 
                 existingDatasources.stream()
                     .filter(datasource -> datasource.getGitSyncId() != null)
-                    .forEach(datasource -> savedDatasourcesGitIdToActionsIdMap.put(datasource.getGitSyncId(), datasource));
+                    .forEach(datasource -> savedDatasourcesGitIdToDatasourceMap.put(datasource.getGitSyncId(), datasource));
 
                 return Flux.fromIterable(importedDatasourceList)
                     //Check for duplicate datasources to avoid duplicates in target organization
@@ -440,11 +426,11 @@ public class ImportExportApplicationService {
 
                         // Check if the datasource has gitSyncId and if it's already in DB
                         if (datasource.getGitSyncId() != null
-                            && savedDatasourcesGitIdToActionsIdMap.containsKey(datasource.getGitSyncId())) {
+                            && savedDatasourcesGitIdToDatasourceMap.containsKey(datasource.getGitSyncId())) {
 
                             //Since the resource is already present in DB, just update resource
-                            Datasource existingDatasource = savedDatasourcesGitIdToActionsIdMap.get(datasource.getGitSyncId());
-                            datasource.setId(savedDatasourcesGitIdToActionsIdMap.get(datasource.getGitSyncId()).getId());
+                            Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
+                            datasource.setId(savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId()).getId());
                             // Don't update datasource config as the saved datasource is already configured as per user
                             // for this instance
                             datasource.setDatasourceConfiguration(null);
@@ -571,11 +557,11 @@ public class ImportExportApplicationService {
             })
             .flatMap(existingActions -> {
 
-                Map<String, NewAction> savedActionsGitIdToActionsIdMap = new HashMap<>();
+                Map<String, NewAction> savedActionsGitIdToActionsMap = new HashMap<>();
 
                 existingActions.stream()
                     .filter(newAction -> newAction.getGitSyncId() != null)
-                    .forEach(newAction -> savedActionsGitIdToActionsIdMap.put(newAction.getGitSyncId(), newAction));
+                    .forEach(newAction -> savedActionsGitIdToActionsMap.put(newAction.getGitSyncId(), newAction));
 
                 assert importedNewActionList != null;
 
@@ -604,11 +590,11 @@ public class ImportExportApplicationService {
 
                         // Check if the action has gitSyncId and if it's already in DB
                         if (newAction.getGitSyncId() != null
-                            && savedActionsGitIdToActionsIdMap.containsKey(newAction.getGitSyncId())) {
+                            && savedActionsGitIdToActionsMap.containsKey(newAction.getGitSyncId())) {
 
                             //Since the resource is already present in DB, just update resource
-                            NewAction existingAction = savedActionsGitIdToActionsIdMap.get(newAction.getGitSyncId());
-                            newAction.setId(savedActionsGitIdToActionsIdMap.get(newAction.getGitSyncId()).getId());
+                            NewAction existingAction = savedActionsGitIdToActionsMap.get(newAction.getGitSyncId());
+                            newAction.setId(savedActionsGitIdToActionsMap.get(newAction.getGitSyncId()).getId());
                             BeanCopyUtils.copyNewFieldValuesIntoOldObject(newAction, existingAction);
                             return newActionService.update(newAction.getId(), existingAction);
                         }
@@ -705,19 +691,19 @@ public class ImportExportApplicationService {
         });
 
         return existingPages.flatMapMany(existingSavedPages -> {
-            Map<String, NewPage> savedPagesGitIdToPageIdMap = new HashMap<>();
+            Map<String, NewPage> savedPagesGitIdToPageMap = new HashMap<>();
 
             existingSavedPages.stream()
                 .filter(newPage -> newPage.getGitSyncId() != null)
-                .forEach(newPage -> savedPagesGitIdToPageIdMap.put(newPage.getGitSyncId(), newPage));
+                .forEach(newPage -> savedPagesGitIdToPageMap.put(newPage.getGitSyncId(), newPage));
 
             return Flux.fromIterable(pages)
                 .flatMap(newPage -> {
                     // Check if the page has gitSyncId and if it's already in DB
-                    if (newPage.getGitSyncId() != null && savedPagesGitIdToPageIdMap.containsKey(newPage.getGitSyncId())) {
+                    if (newPage.getGitSyncId() != null && savedPagesGitIdToPageMap.containsKey(newPage.getGitSyncId())) {
                         //Since the resource is already present in DB, just update resource
-                        NewPage existingPage = savedPagesGitIdToPageIdMap.get(newPage.getGitSyncId());
-                        newPage.setId(savedPagesGitIdToPageIdMap.get(newPage.getGitSyncId()).getId());
+                        NewPage existingPage = savedPagesGitIdToPageMap.get(newPage.getGitSyncId());
+                        newPage.setId(savedPagesGitIdToPageMap.get(newPage.getGitSyncId()).getId());
                         BeanCopyUtils.copyNewFieldValuesIntoOldObject(newPage, existingPage);
                         return newPageService.update(newPage.getId(), existingPage);
                     }
@@ -900,162 +886,6 @@ public class ImportExportApplicationService {
             return dsDecryptedFields;
         }
         return null;
-    }
-
-    /**
-     * This method will save the complete application in the local repo directory.
-     * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param defaultApplicationId application which needs to dehydrated from the DB, this will be used for creating the path
-     * @param organizationId organization from which application needs to dehydrated from the DB
-     * @param applicationJson application reference object from which entire application can be rehydrated
-     * @param branchName name of the branch for the current application
-     * @return repo path where the application is stored
-     */
-    public Mono<String> saveApplicationToGitRepo(String organizationId,
-                                                 String defaultApplicationId,
-                                                 ApplicationJson applicationJson,
-                                                 String branchName) {
-
-        // The repoPath will contain the actual path of branch as we will be using worktree. This decision has been
-        // taken considering the case multiple users can checkout different branches at same time
-        // API reference for worktree : https://git-scm.com/docs/git-worktree
-        String baseRepoPath = commonConfig.gitRepoPath + "/" + organizationId + "/" + defaultApplicationId + "/" + branchName;
-
-        /*
-        Application will be stored in the following structure :
-        repo
-        --Application
-        ----Datasource
-            --datasource1Name
-            --datasource2Name
-        ----Actions (Only requirement here is the filename should be unique)
-            --action1_page1
-            --action2_page2
-        ----Pages
-            --page1
-            --page2
-         */
-
-        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-
-        // Save application
-        saveFile(applicationJson.getExportedApplication(), baseRepoPath + "/application.json", gson);
-
-        // Save pages
-        applicationJson.getPageList().forEach(newPage -> {
-            String pageName = "";
-            if (newPage.getUnpublishedPage() != null) {
-                pageName = newPage.getUnpublishedPage().getName();
-            } else if (newPage.getPublishedPage() != null) {
-                pageName = newPage.getPublishedPage().getName();
-            }
-            saveFile(newPage, baseRepoPath + PAGE_DIRECTORY + pageName + ".json", gson);
-        });
-
-        // Save actions
-        applicationJson.getActionList().forEach(newAction -> {
-            String prefix = newAction.getUnpublishedAction() != null ?
-                newAction.getUnpublishedAction().getName() + "_" + newAction.getUnpublishedAction().getPageId()
-                : newAction.getPublishedAction().getName() + "_" + newAction.getPublishedAction().getPageId();
-            saveFile(newAction, baseRepoPath + ACTION_DIRECTORY + prefix + ".json", gson);
-        });
-
-        // Save datasources ref
-        applicationJson.getDatasourceList().forEach(
-            datasource -> saveFile(datasource, baseRepoPath + DATASOURCE_DIRECTORY + datasource.getName() + ".json", gson)
-        );
-
-        return Mono.just(baseRepoPath);
-    }
-
-    private boolean saveFile (BaseDomain sourceEntity, String path, Gson gson) {
-        File file = new File(path);
-        try {
-            // Create a file if absent
-            FileUtils.write(file, "", StandardCharsets.UTF_8);
-            FileWriter fileWriter = new FileWriter(file);
-            gson.toJson(sourceEntity, fileWriter);
-            fileWriter.close();
-            return file.isFile() && file.length() > 0;
-        } catch (IOException e) {
-            log.debug(e.getMessage());
-        }
-        return false;
-    }
-
-    /**
-     * This will reconstruct the application from the repo
-     * @param organisationId To which organisation application needs to be rehydrated
-     * @param defaultApplicationId To which organisation application needs to be rehydrated
-     * @param branchName for which the application needs to be rehydrate
-     * @return application reference from which entire application can be rehydrated
-     */
-    public ApplicationJson reconstructApplicationFromGit(String organisationId, String defaultApplicationId, String branchName) {
-
-        // For implementing a branching model we are using worktree structure so each branch will have the separate
-        // directory, this decision has been taken considering multiple users can checkout different branches at same
-        // time
-        // API reference for worktree : https://git-scm.com/docs/git-worktree
-
-        String baseRepo = commonConfig.getGitRepoPath() + "/" + organisationId + "/" + defaultApplicationId + "/" + branchName;
-        ApplicationJson applicationJson = new ApplicationJson();
-
-        Gson gson = new GsonBuilder()
-            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-            .create();
-
-        // Extract application data from the json
-        applicationJson.setExportedApplication(
-            (Application) readFile( baseRepo + "/application.json", gson, Application.class)
-        );
-
-        // Extract actions
-        List<NewAction> importedActions = new ArrayList<>();
-        applicationJson.setActionList(
-            (List<NewAction>) readFiles(baseRepo + ACTION_DIRECTORY, gson, importedActions, NewAction.class)
-        );
-
-        // Extract pages
-        List<NewPage> importedPages = new ArrayList<>();
-        applicationJson.setPageList(
-            (List<NewPage>) readFiles(baseRepo + PAGE_DIRECTORY, gson, importedPages, NewPage.class)
-        );
-
-        // Extract datasources
-        List<Datasource> importedDatasources = new ArrayList<>();
-        applicationJson.setDatasourceList(
-            (List<Datasource>) readFiles(baseRepo + DATASOURCE_DIRECTORY, gson, importedDatasources, Datasource.class)
-        );
-
-        return applicationJson;
-    }
-
-    private BaseDomain readFile(String filePath, Gson gson, Class<? extends BaseDomain> domain) {
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader(filePath));
-        } catch (FileNotFoundException e) {
-            log.debug(e.getMessage());
-        }
-        assert reader != null;
-        return gson.fromJson(reader, domain);
-    }
-
-    private List<? extends BaseDomain> readFiles(String directoryPath,
-                                                 Gson gson,
-                                                 List<? extends BaseDomain> domainList,
-                                                 Class<? extends BaseDomain> domainClass) {
-        File directory = new File(directoryPath);
-        if (directory.isDirectory()) {
-            Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
-                try {
-                    domainList.add(gson.fromJson(new JsonReader(new FileReader(file)), domainClass));
-                } catch (FileNotFoundException e) {
-                    log.debug(e.getMessage());
-                }
-            });
-        }
-        return domainList;
     }
 
 }

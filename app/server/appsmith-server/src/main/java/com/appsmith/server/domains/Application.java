@@ -18,7 +18,6 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
@@ -134,29 +133,6 @@ public class Application extends BaseDomain {
             TABLET,
             MOBILE,
             FLUID,
-        }
-    }
-
-    // This class will be used for one-to-one mapping for the DB application and the application present in the
-    // git repo.
-    @Data
-    public static class GitMetadata {
-        // Git branch corresponding to this application
-        String branchName;
-
-        // Git remote url will be used while pushing and pulling changes
-        Map<RemoteUrlType, String> remoteUrl;
-
-        // If the current branch is the default one
-        Boolean isDefault;
-
-        // Default application id used for storing the application files in local volume :
-        // container-volumes/git_repo/defaultApplicationId/branchName/applicationDirectoryStructure...
-        String defaultApplicationId;
-
-        public enum RemoteUrlType {
-            SSH,
-            HTTPS
         }
     }
 
