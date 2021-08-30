@@ -77,7 +77,7 @@ module.exports = function (plop) {
                actions.push(
                 {
                     type: 'modify',
-                    pattern :/    <\/modules><\/project>/,
+                    pattern :/<\/modules>\n<\/project>/,
                     path: '../../server/appsmith-plugins/pom.xml',
                     templateFile: 'plop-templates/super-plugins-pom.hbs'
                 }
@@ -87,7 +87,7 @@ module.exports = function (plop) {
                 {
                     type: 'modify',
                     pattern :/}[\n]*$/,
-                    path: 'fileToEdit.java',
+                    path: '../../server/appsmith-server/src/main/java/com/appsmith/server/migrations/DatabaseChangelog.java',
                     templateFile: 'plop-templates/database-changelog.hbs'
                 }
                );
