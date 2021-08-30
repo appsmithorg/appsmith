@@ -16,10 +16,7 @@ import {
   deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
-import {
-  setGlobalSearchFilterContext,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -58,7 +55,6 @@ type Props = {
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
-  setGlobalSearchFilterContext: (payload: { category: any }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -90,9 +86,6 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    // this.props.setGlobalSearchFilterContext({
-    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    // });
     this.props.toggleShowGlobalSearchModal(
       filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
     );
@@ -329,8 +322,6 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
-    setGlobalSearchFilterContext: (payload: { category: any }) =>
-      dispatch(setGlobalSearchFilterContext(payload)),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
   };

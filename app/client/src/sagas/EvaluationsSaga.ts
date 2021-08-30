@@ -21,7 +21,10 @@ import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import {
+  EVAL_WORKER_ACTIONS,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -52,6 +55,21 @@ import {
 
 import { updateAndSaveLayout } from "actions/pageActions";
 import { get } from "lodash";
+import {
+  setEvaluatedArgument,
+  setEvaluatedSnippet,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { executeActionTriggers } from "./ActionExecution/ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  SNIPPET_EXECUTION_FAILED,
+  SNIPPET_EXECUTION_SUCCESS,
+} from "constants/messages";
+import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 
 import AnalyticsUtil from "../utils/AnalyticsUtil";
@@ -317,6 +335,105 @@ function* evaluationChangeListenerSaga() {
         get(action, "payload.shouldReplay"),
       );
     }
+  }
+}
+
+export function* evaluateSnippetSaga(action: any) {
+  try {
+    let { expression } = action.payload;
+    const { dataType, isTrigger } = action.payload;
+    if (isTrigger) {
+      expression = `function() { ${expression} }`;
+    }
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression,
+        dataType,
+        isTrigger,
+      },
+    );
+    const { errors, result, triggers } = workerResponse;
+    if (triggers && triggers.length > 0) {
+      yield call(
+        executeActionTriggers,
+        triggers[0],
+        EventType.ON_SNIPPET_EXECUTE,
+      );
+    } else {
+      yield put(
+        setEvaluatedSnippet(
+          result
+            ? JSON.stringify(result, null, 2)
+            : errors && errors.length
+            ? JSON.stringify(errors, null, 2)
+            : "",
+        ),
+      );
+    }
+    Toaster.show({
+      text: createMessage(
+        result || triggers
+          ? SNIPPET_EXECUTION_SUCCESS
+          : SNIPPET_EXECUTION_FAILED,
+      ),
+      variant: result || triggers ? Variant.success : Variant.danger,
+    });
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+  } catch (e) {
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateArgumentSaga(action: any) {
+  const { name, type, value } = action.payload;
+  try {
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression: value,
+      },
+    );
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {});
+      if (!validation.isValid)
+        lintErrors.unshift({
+          ...validation,
+          ...{
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: validation.message,
+          },
+        });
+    }
+    yield put(
+      setEvaluatedArgument({
+        [name]: {
+          type,
+          value: workerResponse.result,
+          name,
+          errors: lintErrors,
+          isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
   }
 }
 

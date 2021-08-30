@@ -130,6 +130,7 @@ export enum EVAL_WORKER_ACTIONS {
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   UNDO = "undo",
   REDO = "redo",
+  EVAL_EXPRESSION = "EVAL_EXPRESSION",
 }
 
 export type ExtraLibrary = {

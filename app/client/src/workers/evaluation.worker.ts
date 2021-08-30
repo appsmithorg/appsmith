@@ -19,6 +19,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
+import evaluate from "./evaluate";
 
 const ctx: Worker = self as any;
 
@@ -198,6 +199,13 @@ ctx.addEventListener(
         replayDSL.clearLogs();
         return replayResult;
       }
+      case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
+        const { expression, isTrigger } = requestData;
+        const evalTree = dataTreeEvaluator?.evalTree;
+        if (!evalTree) return {};
+        return isTrigger
+          ? evaluate(expression, evalTree, [], true)
+          : evaluate(expression, evalTree);
       default: {
         console.error("Action not registered on worker", method);
       }
