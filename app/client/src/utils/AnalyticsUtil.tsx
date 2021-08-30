@@ -165,7 +165,9 @@ export type EventName =
   | "COMMENTS_ONBOARDING_STEP_CHANGE"
   | "COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK"
   | "COMMENTS_ONBOARDING_MODAL_DISMISSED"
-  | "COMMENTS_ONBOARDING_MODAL_TRIGGERED";
+  | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
+  | "REPLAY_UNDO"
+  | "REPLAY_REDO";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

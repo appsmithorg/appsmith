@@ -2,8 +2,8 @@ import * as Y from "yjs";
 import * as Sentry from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
+import { processDiff, DSLDiff, getPathsFromDiff } from "./replayUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { processDiff, DSLDiff } from "./replayUtils";
 
 const _DIFF_ = "diff";
 
@@ -47,21 +47,28 @@ export default class ReplayDSL {
    * @returns
    */
   undo() {
+    const start = performance.now();
     const diffs = this.getDiffs();
 
     if (this.shouldReplay()) {
       this.undoManager.undo();
       const replay = this.applyDiffs(diffs, true);
+      const stop = performance.now();
+
       this.logs.push({
         log: "replay undo",
         replay,
         diffs,
         dsl: this.dsl,
       });
+
       return {
         replayWidgetDSL: this.dsl,
         replay,
         logs: this.logs,
+        event: "REPLAY_UNDO",
+        timeTaken: stop - start,
+        paths: getPathsFromDiff(diffs),
       };
     }
 
@@ -74,6 +81,7 @@ export default class ReplayDSL {
    * @returns
    */
   redo() {
+    const start = performance.now();
     this.undoManager.redo();
     const diffs = this.getDiffs();
 
@@ -85,10 +93,16 @@ export default class ReplayDSL {
         diffs,
         dsl: this.dsl,
       });
+
+      const stop = performance.now();
+
       return {
         replayWidgetDSL: this.dsl,
         replay,
         logs: this.logs,
+        event: "REPLAY_UNDO",
+        timeTaken: stop - start,
+        paths: getPathsFromDiff(diffs),
       };
     }
     return null;

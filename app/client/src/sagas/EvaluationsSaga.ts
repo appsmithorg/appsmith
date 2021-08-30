@@ -53,6 +53,8 @@ import {
 import { updateAndSaveLayout } from "actions/pageActions";
 import { get } from "lodash";
 import { diff } from "deep-diff";
+
+import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 
@@ -170,7 +172,7 @@ export function* clearEvalCache() {
 
 /**
  * saga that listen for UNDO_REDO_OPERATION
- * it won't do anything in case of sniping
+ * it won't do anything in case of sniping/comment mode
  *
  * @param action
  * @returns
@@ -182,22 +184,32 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   // if the app is in snipping or comments mode, don't do anything
   if (isCommentMode || isSnipingMode) return;
 
-  const workerResponse = yield call(
+  const workerResponse: any = yield call(
     worker.request,
     action.payload.operation,
     {},
   );
 
-  const { logs, replay, replayWidgetDSL } = workerResponse;
+  const {
+    event,
+    logs,
+    paths,
+    replay,
+    replayWidgetDSL,
+    timeTaken,
+  } = workerResponse;
 
   logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
+  // if there is no change, then don't do anything
   if (!replayWidgetDSL) return;
 
   const isPropertyUpdate =
     replay.widgets &&
     replay.propertyUpdates &&
     Object.keys(replay.widgets).length <= 1;
+
+  AnalyticsUtil.logEvent(event, { paths, timeTaken });
 
   if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
 
