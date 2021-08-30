@@ -434,7 +434,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
+        return createUserAndSendEmail(user, null, false).map(UserSignupDTO::getUser);
     }
 
     private Set<Policy> crudUserPolicy(User user) {
@@ -472,7 +472,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return Publishes the user object, after having been saved.
      */
     @Override
-    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, boolean createDefaultApplication) {
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
@@ -518,12 +518,18 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                                     // Since template organization is not configured, we create an empty default organization.
                                     log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
                                     return organizationService.createDefault(new Organization(), savedUser)
-                                            .flatMap(org -> applicationPageService.createDefaultApplication(org)
-                                                    .map(application -> {
-                                                        userSignupDTO.setDefaultApplicationId(application.getId());
-                                                        return userSignupDTO;
-                                                    })
-                                            );
+                                            .flatMap(org -> {
+                                                if(createDefaultApplication) {
+                                                    return applicationPageService.createDefaultApplication(org)
+                                                            .map(application -> {
+                                                                userSignupDTO.setDefaultApplicationId(application.getId());
+                                                                return userSignupDTO;
+                                                            });
+                                                } else {
+                                                    return Mono.just(userSignupDTO);
+                                                }
+
+                                });
                                 }
 
                                 return Mono.just(userSignupDTO);
