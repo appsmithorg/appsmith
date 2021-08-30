@@ -115,5 +115,10 @@
   "currencyType": ".t--property-control-currency  .bp3-popover-target",
   "decimalType": ".t--property-control-decimals  .bp3-popover-target",
   "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
-  "inputCurrencyChangeType": ".t--input-currency-change"
+  "inputCurrencyChangeType": ".t--input-currency-change",
+  "inputCountryCodeChangeType": ".t--input-country-code-change",
+  "viewerPage": ".t--app-viewer-page",
+  "dropDownOptSelected": "//span[@type='p1']",
+  "generalChevran":".t--property-pane-section-collapse-general  [icon=chevron-right]",
+  "generalSection":".t--property-pane-section-general"
 }

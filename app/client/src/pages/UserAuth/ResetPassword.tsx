@@ -57,12 +57,12 @@ const validate = (values: ResetPasswordFormValues) => {
 type ResetPasswordProps = InjectedFormProps<
   ResetPasswordFormValues,
   {
-    verifyToken: (token: string, email: string) => void;
+    verifyToken: (token: string) => void;
     isTokenValid: boolean;
     validatingToken: boolean;
   }
 > & {
-  verifyToken: (token: string, email: string) => void;
+  verifyToken: (token: string) => void;
   isTokenValid: boolean;
   validatingToken: boolean;
   theme: Theme;
@@ -83,11 +83,10 @@ export function ResetPassword(props: ResetPasswordProps) {
   } = props;
 
   useLayoutEffect(() => {
-    if (initialValues.token && initialValues.email)
-      verifyToken(initialValues.token, initialValues.email);
-  }, [initialValues.token, initialValues.email, verifyToken]);
+    if (initialValues.token) verifyToken(initialValues.token);
+  }, [initialValues.token, verifyToken]);
 
-  const showInvalidMessage = !initialValues.token || !initialValues.email;
+  const showInvalidMessage = !initialValues.token;
   const showExpiredMessage = !isTokenValid && !validatingToken;
   const showSuccessMessage = submitSucceeded && !pristine;
   const showFailureMessage = submitFailed && !!error;
@@ -209,7 +208,6 @@ export default connect(
     const queryParams = new URLSearchParams(props.location.search);
     return {
       initialValues: {
-        email: queryParams.get("email") || undefined,
         token: queryParams.get("token") || undefined,
       },
       isTokenValid: getIsTokenValid(state),
@@ -217,17 +215,17 @@ export default connect(
     };
   },
   (dispatch: any) => ({
-    verifyToken: (token: string, email: string) =>
+    verifyToken: (token: string) =>
       dispatch({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
-        payload: { token, email },
+        payload: { token },
       }),
   }),
 )(
   reduxForm<
     ResetPasswordFormValues,
     {
-      verifyToken: (token: string, email: string) => void;
+      verifyToken: (token: string) => void;
       validatingToken: boolean;
       isTokenValid: boolean;
     }

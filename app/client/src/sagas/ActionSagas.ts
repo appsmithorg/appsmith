@@ -8,6 +8,7 @@ import {
   all,
   call,
   put,
+  race,
   select,
   take,
   takeEvery,
@@ -33,7 +34,7 @@ import {
   updateAction,
   updateActionProperty,
   updateActionSuccess,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import {
   DynamicPath,
   isChildPropertyPath,
@@ -43,6 +44,7 @@ import {
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
+  getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -89,8 +91,25 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  createNewQueryName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { getSelectedWidget, getWidgetById } from "./selectors";
+import {
+  onApiEditor,
+  onQueryEditor,
+} from "components/editorComponents/Debugger/helpers";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -758,6 +777,71 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta: { dataType: string; fields?: string } = {
+    dataType: expectedType,
+  };
+  if (propertyPath) {
+    const relevantField = propertyPath
+      .split(".")
+      .slice(-1)
+      .pop();
+    fieldMeta.fields = `${relevantField}<score=2>`;
+  }
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION && entityId) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "")
+      .toLowerCase()
+      .replace("-plugin", "")
+      .split("-")
+      .join(" ");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = (currentEntity.type || "")
+      .replace("_WIDGET", "")
+      .toLowerCase()
+      .split("_")
+      .join("");
+    refinements.entities = [type];
+  }
+  return { refinements, fieldMeta };
+}
+
+function* getCurrentEntity(
+  applicationId: string,
+  pageId: string,
+  params: Record<string, string>,
+) {
+  let entityId = "",
+    entityType = "";
+  if (
+    onApiEditor(applicationId, pageId) ||
+    onQueryEditor(applicationId, pageId)
+  ) {
+    const id = params.apiId || params.queryId;
+    const action = yield select(getAction, id);
+    entityId = action.actionId;
+    entityType = ENTITY_TYPE.ACTION;
+  } else {
+    const widget = yield select(getSelectedWidget);
+    entityId = widget.widgetId;
+    entityType = ENTITY_TYPE.WIDGET;
+  }
+  return { entityId, entityType };
+}
+
 function* executeCommand(
   actionPayload: ReduxAction<{
     actionType: string;
@@ -767,7 +851,48 @@ function* executeCommand(
 ) {
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
+  const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      let { entityId, entityType } = get(actionPayload, "payload.args");
+      const { expectedType, propertyPath } = get(actionPayload, "payload.args");
+      // Entity is derived using the dataTreePath property.
+      // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
+      if (!entityId) {
+        const currentEntity = yield getCurrentEntity(
+          applicationId,
+          pageId,
+          params,
+        );
+        entityId = currentEntity.entityId;
+        entityType = currentEntity.entityType;
+      }
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+        propertyPath,
+      );
+      yield put(
+        setGlobalSearchFilterContext({
+          refinements,
+          fieldMeta,
+        }),
+      );
+      yield put(
+        toggleShowGlobalSearchModal(
+          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+        ),
+      );
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(
+        `{{ ${effectRaceResult.success.payload} }}`,
+      );
+      break;
     case "NEW_INTEGRATION":
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),

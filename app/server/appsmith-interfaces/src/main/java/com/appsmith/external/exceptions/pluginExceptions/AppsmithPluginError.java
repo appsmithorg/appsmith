@@ -1,6 +1,7 @@
 package com.appsmith.external.exceptions.pluginExceptions;
 
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.models.ErrorType;
 import lombok.Getter;
 
 import java.text.MessageFormat;
@@ -8,25 +9,28 @@ import java.text.MessageFormat;
 @Getter
 public enum AppsmithPluginError {
 
-    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error"),
+    PLUGIN_ERROR(500, 5000, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Query execution error", ErrorType.INTERNAL_ERROR),
     PLUGIN_GET_STRUCTURE_ERROR(500, 5001, "{0}", AppsmithErrorAction.DEFAULT, "Failed to get datasource " +
-            "structure"),
+            "structure", ErrorType.INTERNAL_ERROR),
     PLUGIN_QUERY_TIMEOUT_ERROR(504, 5002, "{0} timed out in {1} milliseconds. " +
             "Please increase timeout. This can be found in Settings tab of {0}.", AppsmithErrorAction.DEFAULT, "Timed" +
-            " out on query execution"),
+            " out on query execution", ErrorType.CONNECTIVITY_ERROR),
+    PLUGIN_MAX_RESULT_SIZE_EXCEEDED(504, 5009, "Result size exceeded the supported"
+            + " size in Appsmith. Please limit the number of data points returned.",
+            AppsmithErrorAction.DEFAULT, "Large Result Set Not Supported", ErrorType.INTERNAL_ERROR),
     PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR(504, 5003, "{0}", AppsmithErrorAction.LOG_EXTERNALLY, "Timed out when fetching" +
-            " datasource structure"),
+            " datasource structure", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_DATASOURCE_ARGUMENT_ERROR(500, 5004, "{0}", AppsmithErrorAction.DEFAULT, "Datasource configuration is " +
-            "invalid"),
-    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT, "Query configuration is invalid"),
+            "invalid", ErrorType.ARGUMENT_ERROR),
+    PLUGIN_EXECUTE_ARGUMENT_ERROR(500, 5005, "{0}", AppsmithErrorAction.DEFAULT, "Query configuration is invalid", ErrorType.ARGUMENT_ERROR),
     PLUGIN_JSON_PARSE_ERROR(500, 5006, "Plugin failed to parse JSON \"{0}\" with error: {1}",
-            AppsmithErrorAction.DEFAULT, "Invalid JSON found"),
+            AppsmithErrorAction.DEFAULT, "Invalid JSON found", ErrorType.INTERNAL_ERROR),
     PLUGIN_DATASOURCE_TEST_GENERIC_ERROR(500, 5007, "Plugin failed to test with the given configuration. Please reach out to Appsmith customer support to report this",
-            AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid"),
+            AppsmithErrorAction.LOG_EXTERNALLY, "Datasource configuration is invalid", ErrorType.INTERNAL_ERROR),
     PLUGIN_DATASOURCE_TIMEOUT_ERROR(504, 5008, "{0}", AppsmithErrorAction.DEFAULT, "Timed out when connecting to " +
-            "datasource"),
+            "datasource", ErrorType.CONNECTIVITY_ERROR),
     PLUGIN_AUTHENTICATION_ERROR(401, 4000, "Invalid authentication credentials. Please check datasource configuration.",
-            AppsmithErrorAction.DEFAULT, "Datasource authentication error"),
+            AppsmithErrorAction.DEFAULT, "Datasource authentication error", ErrorType.AUTHENTICATION_ERROR),
     ;
 
     private final Integer httpErrorCode;
@@ -34,11 +38,13 @@ public enum AppsmithPluginError {
     private final String message;
     private final String title;
     private final AppsmithErrorAction errorAction;
+    private final ErrorType errorType;
 
     AppsmithPluginError(Integer httpErrorCode, Integer appErrorCode, String message, AppsmithErrorAction errorAction,
-                        String title, Object... args) {
+                        String title, ErrorType errorType, Object... args) {
         this.httpErrorCode = httpErrorCode;
         this.appErrorCode = appErrorCode;
+        this.errorType = errorType;
         MessageFormat fmt = new MessageFormat(message);
         this.errorAction = errorAction;
         this.message = fmt.format(args);
@@ -48,5 +54,7 @@ public enum AppsmithPluginError {
     public String getMessage(Object... args) {
         return new MessageFormat(this.message).format(args);
     }
+
+    public String getErrorType() { return this.errorType.toString(); }
 
 }

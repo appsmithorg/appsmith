@@ -90,6 +90,7 @@ export function Login(props: LoginFormProps) {
   if (queryParams.get("error")) {
     showError = true;
   }
+  const errorMsg = showError && queryParams.get("message");
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
@@ -121,17 +122,25 @@ export function Login(props: LoginFormProps) {
       </SignUpLinkSection>
       {showError && (
         <FormMessage
-          actions={[
-            {
-              url: FORGOT_PASSWORD_URL,
-              text: createMessage(
-                LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
-              ),
-              intent: "success",
-            },
-          ]}
+          actions={
+            !!errorMsg
+              ? []
+              : [
+                  {
+                    url: FORGOT_PASSWORD_URL,
+                    text: createMessage(
+                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    ),
+                    intent: "success",
+                  },
+                ]
+          }
           intent="warning"
-          message={createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)}
+          message={
+            !!errorMsg
+              ? errorMsg
+              : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
+          }
         />
       )}
       {SocialLoginList.length > 0 && (

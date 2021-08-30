@@ -45,7 +45,7 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
-    type: "FILE_PICKER_WIDGET",
+    type: "FILE_PICKER_WIDGET_V2",
     widgetCardName: "FilePicker",
     key: generateReactKey(),
   },
@@ -58,7 +58,6 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     type: "LIST_WIDGET",
     widgetCardName: "List",
     key: generateReactKey(),
-    isBeta: true,
   },
   {
     type: "IMAGE_WIDGET",
@@ -133,6 +132,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
   {
     type: "ICON_BUTTON_WIDGET",
     widgetCardName: "Icon Button",
+    key: generateReactKey(),
+  },
+  {
+    type: "CHECKBOX_GROUP_WIDGET",
+    widgetCardName: "Checkbox Group",
     key: generateReactKey(),
   },
 ];

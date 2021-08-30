@@ -113,6 +113,7 @@ const SecondaryWrapper = styled.div`
   flex-direction: column;
   flex-grow: 1;
   height: 100%;
+  width: 100%;
   ${HelpSection} {
     margin-bottom: 10px;
   }

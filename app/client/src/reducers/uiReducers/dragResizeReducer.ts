@@ -5,11 +5,12 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
   isDragging: false,
+  dragDetails: {},
   isResizing: false,
   lastSelectedWidget: undefined,
   selectedWidgets: [],
   focusedWidget: undefined,
-  selectedWidgetAncestory: [],
+  selectedWidgetAncestry: [],
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -19,11 +20,42 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   ) => {
     state.isDraggingDisabled = action.payload.isDraggingDisabled;
   },
+  [ReduxActionTypes.SET_DRAGGING_CANVAS]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{
+      draggedOn: string;
+    }>,
+  ) => {
+    state.dragDetails.draggedOn = action.payload.draggedOn;
+  },
   [ReduxActionTypes.SET_WIDGET_DRAGGING]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ isDragging: boolean }>,
+    action: ReduxAction<{
+      isDragging: boolean;
+      dragGroupActualParent: string;
+      draggingGroupCenter: DraggingGroupCenter;
+      startPoints: any;
+    }>,
   ) => {
     state.isDragging = action.payload.isDragging;
+    state.dragDetails = {
+      dragGroupActualParent: action.payload.dragGroupActualParent,
+      draggingGroupCenter: action.payload.draggingGroupCenter,
+      dragOffset: action.payload.startPoints,
+    };
+  },
+  [ReduxActionTypes.SET_NEW_WIDGET_DRAGGING]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<{
+      isDragging: boolean;
+      newWidgetProps: any;
+    }>,
+  ) => {
+    state.isDragging = action.payload.isDragging;
+    state.dragDetails = {
+      newWidget: action.payload.newWidgetProps,
+      draggedOn: MAIN_CONTAINER_WIDGET_ID,
+    };
   },
   [ReduxActionTypes.SET_WIDGET_RESIZING]: (
     state: WidgetDragResizeState,
@@ -102,17 +134,31 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<string[]>,
   ) => {
-    state.selectedWidgetAncestory = action.payload;
+    state.selectedWidgetAncestry = action.payload;
   },
 });
+
+type DraggingGroupCenter = {
+  widgetId?: string;
+  top?: number;
+  left?: number;
+};
+export type DragDetails = {
+  dragGroupActualParent?: string;
+  draggingGroupCenter?: DraggingGroupCenter;
+  newWidget?: any;
+  draggedOn?: string;
+  dragOffset?: any;
+};
 
 export type WidgetDragResizeState = {
   isDraggingDisabled: boolean;
   isDragging: boolean;
+  dragDetails: DragDetails;
   isResizing: boolean;
   lastSelectedWidget?: string;
   focusedWidget?: string;
-  selectedWidgetAncestory: string[];
+  selectedWidgetAncestry: string[];
   selectedWidgets: string[];
 };
 

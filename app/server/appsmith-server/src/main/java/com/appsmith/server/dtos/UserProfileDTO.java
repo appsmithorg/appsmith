@@ -1,19 +1,22 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.Organization;
-import com.appsmith.server.domains.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
-@Getter
-@Setter
+@Data
 public class UserProfileDTO {
 
-    User user;
+    String email;
 
-    Organization currentOrganization;
+    Set<String> organizationIds;
 
-    List<ApplicationNameIdDTO> applications;
+    String username;
+
+    String name;
+
+    String gender;
+
+    boolean isEmptyInstance = false;
+
 }

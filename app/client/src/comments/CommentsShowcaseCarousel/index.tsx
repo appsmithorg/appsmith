@@ -28,12 +28,13 @@ import { S3_BUCKET_URL } from "constants/ThirdPartyConstants";
 
 import { getCurrentAppOrg } from "selectors/organizationSelectors";
 import useOrg from "utils/hooks/useOrg";
-import { getCanManage } from "utils/helpers";
+import { getCanCreateApplications } from "utils/helpers";
 
 import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
 import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
@@ -143,6 +144,13 @@ function IntroStep(props: {
 
 const IntroStepThemed = withTheme(IntroStep);
 
+const handleStepChange = (currentStep: number, nextStep: number) => {
+  AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_STEP_CHANGE", {
+    currentStep,
+    nextStep,
+  });
+};
+
 const getSteps = (
   isSubmitProfileFormDisabled: boolean,
   finalSubmit: () => void,
@@ -214,13 +222,16 @@ export default function CommentsShowcaseCarousel() {
 
   const { id } = useSelector(getCurrentAppOrg) || {};
   const currentOrg = useOrg(id);
-  const canManage = getCanManage(currentOrg);
+  const canManage = getCanCreateApplications(currentOrg);
 
   const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
 
   const [activeIndex, setActiveIndex] = useState(initialStep);
 
   const finalSubmit = async () => {
+    AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK", {
+      skipped: isSkipped,
+    });
     dispatch(hideCommentsIntroCarousel());
     await setCommentsIntroSeen(true);
 
@@ -237,6 +248,7 @@ export default function CommentsShowcaseCarousel() {
   };
 
   const onSkip = () => {
+    AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK");
     setActiveIndex(finalStep);
     setIsSkipped(true);
   };
@@ -251,11 +263,21 @@ export default function CommentsShowcaseCarousel() {
     isSkipped,
   );
 
+  const handleClose = () => {
+    dispatch(hideCommentsIntroCarousel());
+  };
+
   if (steps.length === 0 || !isIntroCarouselVisible) return null;
 
   return (
     <CommentsCarouselModal>
-      <ShowcaseCarousel activeIndex={activeIndex} steps={steps as Steps} />
+      <ShowcaseCarousel
+        activeIndex={activeIndex}
+        onClose={handleClose}
+        onStepChange={handleStepChange}
+        setActiveIndex={setActiveIndex}
+        steps={steps as Steps}
+      />
     </CommentsCarouselModal>
   );
 }

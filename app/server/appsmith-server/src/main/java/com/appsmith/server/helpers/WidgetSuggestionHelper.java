@@ -87,8 +87,12 @@ public class WidgetSuggestionHelper {
                             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                         } else {
                             String nestedFieldName = objectFields.get(0);
-                            collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
-                            widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            if(node.get(nestedFieldName).size() == 0) {
+                                widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                            } else {
+                                collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
+                                widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            }
                         }
                     }
 

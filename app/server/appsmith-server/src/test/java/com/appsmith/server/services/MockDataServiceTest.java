@@ -139,7 +139,7 @@ public class MockDataServiceTest {
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
-        mockDataSource.setName("movies");
+        mockDataSource.setName("Movies");
         mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
@@ -149,7 +149,7 @@ public class MockDataServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
-                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock (2)");
+                    assertThat(createdDatasource.getName()).isEqualTo("Movies (2)");
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))
                             .build();
@@ -178,7 +178,7 @@ public class MockDataServiceTest {
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
-        mockDataSource.setName("users");
+        mockDataSource.setName("Users");
         mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
@@ -188,7 +188,7 @@ public class MockDataServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
-                    assertThat(createdDatasource.getName()).isEqualTo("USERS - Mock");
+                    assertThat(createdDatasource.getName()).isEqualTo("Users");
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))
                             .build();
@@ -216,7 +216,7 @@ public class MockDataServiceTest {
 
         Plugin pluginMono = pluginService.findByName("Installed Plugin Name").block();
         MockDataSource mockDataSource = new MockDataSource();
-        mockDataSource.setName("movies");
+        mockDataSource.setName("Movies");
         mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
@@ -229,7 +229,7 @@ public class MockDataServiceTest {
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
-                    assertThat(createdDatasource.getName()).isEqualTo("MOVIES - Mock (1)");
+                    assertThat(createdDatasource.getName()).isEqualTo("Movies (1)");
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
                             .users(Set.of("api_user"))
                             .build();
@@ -259,7 +259,7 @@ public class MockDataServiceTest {
 
         Plugin plugin = pluginService.findByPackageName("postgres-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
-        mockDataSource.setName("users");
+        mockDataSource.setName("Users");
         mockDataSource.setOrganizationId(orgId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(plugin.getId());

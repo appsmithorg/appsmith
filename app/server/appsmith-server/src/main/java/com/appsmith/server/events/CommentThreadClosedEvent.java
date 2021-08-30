@@ -9,8 +9,8 @@ import lombok.Getter;
 public class CommentThreadClosedEvent extends AbstractCommentEvent {
     private final CommentThread commentThread;
 
-    public CommentThreadClosedEvent(String authorUserName, Organization organization, Application application, String originHeader, CommentThread commentThread) {
-        super(authorUserName, organization, application, originHeader);
+    public CommentThreadClosedEvent(String authorUserName, Organization organization, Application application, String originHeader, CommentThread commentThread, String pagename) {
+        super(authorUserName, organization, application, originHeader, pagename);
         this.commentThread = commentThread;
     }
 }

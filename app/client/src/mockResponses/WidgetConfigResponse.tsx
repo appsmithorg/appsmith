@@ -8,15 +8,19 @@ import { generateReactKey } from "utils/generators";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "sagas/WidgetBlueprintSagasEnums";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { Colors } from "constants/Colors";
 import FileDataTypes from "widgets/FileDataTypes";
+import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadowTypes } from "components/propertyControls/BoxShadowOptionsControl";
 import {
-  ButtonBorderRadiusTypes,
-  ButtonBoxShadowTypes,
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import { LabelOrientation } from "constants/ChartConstants";
 
 /*
  ********************************{Grid Density Migration}*********************************
@@ -30,7 +34,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
       text: "Submit",
-      buttonStyle: "PRIMARY_BUTTON",
+      buttonStyle: "PRIMARY",
+      buttonVariant: "SOLID",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Button",
@@ -64,7 +69,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage: "https://source.unsplash.com/random/1500x600",
+      defaultImage:
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
@@ -79,12 +85,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     INPUT_WIDGET: {
       inputType: "TEXT",
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-      label: "",
+      label: "Label",
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      maxChars: 255,
+      iconAlign: "left",
+      autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
+      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },
@@ -165,6 +175,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
       columns: 9 * GRID_DENSITY_MIGRATION_V1,
+      defaultSelectedRow: "0",
       label: "Data",
       widgetName: "Table",
       searchKey: "",
@@ -199,6 +210,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "step",
           computedValue:
@@ -215,6 +227,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "task",
           computedValue:
@@ -231,6 +244,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
           isDerived: false,
           label: "status",
           computedValue:
@@ -247,6 +261,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isCellVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "action",
           onClick:
@@ -312,6 +328,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleDownload: true,
       isVisibleCompactMode: true,
       isVisiblePagination: true,
+      delimiter: ",",
       version: 1,
     },
     DROP_DOWN_WIDGET: {
@@ -324,6 +341,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Green", value: "GREEN" },
         { label: "Red", value: "RED" },
       ],
+      serverSideFiltering: false,
       widgetName: "Select",
       defaultOptionValue: "GREEN",
       version: 1,
@@ -345,6 +363,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         { label: "Naruto Uzumaki", value: "Seventh" },
       ],
       widgetName: "MultiSelect",
+      serverSideFiltering: false,
       defaultOptionValue: ["First", "Seventh"],
       version: 1,
       isRequired: false,
@@ -377,6 +396,23 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isDisabled: false,
     },
     FILE_PICKER_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      files: [],
+      selectedFiles: [],
+      defaultSelectedFiles: [],
+      allowedFileTypes: [],
+      label: "Select Files",
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      maxNumFiles: 1,
+      maxFileSize: 5,
+      fileDataType: FileDataTypes.Base64,
+      widgetName: "FilePicker",
+      isDefaultClickDisabled: true,
+      version: 1,
+      isRequired: false,
+      isDisabled: false,
+    },
+    FILE_PICKER_WIDGET_V2: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       files: [],
       selectedFiles: [],
@@ -639,9 +675,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
+          seriesName: "Revenue",
           chart: {
             caption: "Last week's revenue",
             xAxisName: "Last Week",
@@ -807,7 +845,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.LIST_WIDGET]: {
-      backgroundColor: "",
+      backgroundColor: "transparent",
       itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
@@ -832,22 +870,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             if (!parentProps.widgetId) return [];
 
-            const { jsSnippets } = getDynamicBindings(propertyValue);
-
-            const modifiedAction = jsSnippets.reduce(
-              (prev: string, next: string) => {
-                return `${prev}${next}`;
-              },
-              "",
+            const { jsSnippets, stringSegments } = getDynamicBindings(
+              propertyValue,
             );
 
-            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+            const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
               return (function(){
-                return ( ${modifiedAction} );
+                return  ${js};
               })();
             })}}`;
 
-            if (!modifiedAction) {
+            if (!js) {
               value = propertyValue;
             }
 
@@ -958,7 +993,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://source.unsplash.com/random/1500x600",
+                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
@@ -1059,16 +1094,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                     let value = childWidget[key];
 
                     if (isString(value) && value.indexOf("currentItem") > -1) {
-                      const { jsSnippets } = getDynamicBindings(value);
-
-                      const modifiedAction = jsSnippets.reduce(
-                        (prev: string, next: string) => {
-                          return prev + `${next}`;
-                        },
-                        "",
+                      const { jsSnippets, stringSegments } = getDynamicBindings(
+                        value,
                       );
 
-                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${modifiedAction})}}`;
+                      const js = combineDynamicBindings(
+                        jsSnippets,
+                        stringSegments,
+                      );
+
+                      value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
 
                       childWidget[key] = value;
 
@@ -1214,15 +1249,18 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       capType: "nc",
       capSide: 0,
       strokeStyle: "solid",
-      dividerColor: "black",
+      dividerColor: Colors.LIGHT_GREY2,
       thickness: 2,
       isVisible: true,
       version: 1,
     },
     [WidgetTypes.MENU_BUTTON_WIDGET]: {
       label: "Open Menu",
-      isDisabled: false,
+      menuStyle: "PRIMARY",
+      menuVariant: "SOLID",
       isCompact: false,
+      isDisabled: false,
+      isVisible: true,
       menuItems: {
         menuItem1: {
           label: "First Menu Item",
@@ -1246,12 +1284,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           widgetId: "",
           isVisible: true,
           isDisabled: false,
-          index: 1,
+          index: 2,
         },
       },
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "MenuButton",
+      version: 1,
     },
     [WidgetTypes.ICON_BUTTON_WIDGET]: {
       iconName: IconNames.PLUS,
@@ -1264,6 +1303,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 1 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "IconButton",
+      version: 1,
+    },
+    [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
+      options: [
+        { label: "Apple", value: "apple" },
+        { label: "Orange", value: "orange" },
+        { label: "Lemon", value: "lemon" },
+      ],
+      defaultSelectedValues: "apple",
+      isDisabled: false,
+      isRequired: false,
+      isVisible: true,
+      widgetName: "CheckboxGroup",
       version: 1,
     },
   },

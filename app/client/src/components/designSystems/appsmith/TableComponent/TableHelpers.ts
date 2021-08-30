@@ -1,8 +1,8 @@
 import { uniq, without } from "lodash";
 import { ColumnProperties } from "./Constants";
 
-export const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\s/;
+const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
     .join("_")
@@ -10,16 +10,18 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 };
 
 export const getAllTableColumnKeys = (
-  tableData: Array<Record<string, unknown>>,
+  tableData?: Array<Record<string, unknown>>,
 ) => {
   const columnKeys: string[] = [];
-  for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
-    const row = tableData[i];
-    for (const key in row) {
-      // Replace all special characters to _, limit key length to 200 characters.
-      const sanitizedKey = removeSpecialChars(key, 200);
-      if (!columnKeys.includes(sanitizedKey)) {
-        columnKeys.push(sanitizedKey);
+  if (tableData) {
+    for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
+      const row = tableData[i];
+      for (const key in row) {
+        // Replace all special characters to _, limit key length to 200 characters.
+        const sanitizedKey = removeSpecialChars(key, 200);
+        if (!columnKeys.includes(sanitizedKey)) {
+          columnKeys.push(sanitizedKey);
+        }
       }
     }
   }

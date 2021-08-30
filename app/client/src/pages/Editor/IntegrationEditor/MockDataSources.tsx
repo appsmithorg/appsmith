@@ -114,7 +114,8 @@ function MockDatasourceCard(props: MockDatasourceCardProps) {
     });
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       mockDatasourceName: datasource.name,
-      plugin: currentPlugin,
+      pluginName: currentPlugin.name,
+      pluginPackageName: currentPlugin.packageName,
     });
     const queryParams = getQueryParams();
     dispatch(

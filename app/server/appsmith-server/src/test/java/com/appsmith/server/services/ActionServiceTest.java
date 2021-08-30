@@ -732,7 +732,7 @@ public class ActionServiceTest {
         Mono<List<ActionViewDTO>> actionsListMono = layoutActionService.createAction(action)
                 .then(layoutActionService.createAction(action1))
                 .then(layoutActionService.createAction(action2))
-                .then(applicationPageService.publish(testPage.getApplicationId()))
+                .then(applicationPageService.publish(testPage.getApplicationId(), true))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier
@@ -843,7 +843,7 @@ public class ActionServiceTest {
         Mono<ActionDTO> createActionMono = layoutActionService.createAction(action);
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
                 // Publish the application before fetching the action in view mode
-                .then(applicationPageService.publish(testApp.getId()))
+                .then(applicationPageService.publish(testApp.getId(), true))
                 .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
@@ -2039,6 +2039,49 @@ public class ActionServiceTest {
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
+        mockResult.setSuggestedWidgets(widgetTypeList);
+
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionExecute");
+        action.setDatasource(datasource);
+        ActionDTO createdAction = layoutActionService.createAction(action).block();
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setActionId(createdAction.getId());
+        executeActionDTO.setViewMode(false);
+
+        executeAndAssertAction(executeActionDTO, actionConfiguration, mockResult,
+                List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetSuggestionNestedData() throws JsonProcessingException {
+
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        ActionExecutionResult mockResult = new ActionExecutionResult();
+        final String data = "{\"data\": {\n" +
+                "    \"next\": \"https://mock-api.appsmith.com/users?page=2&pageSize=10\",\n" +
+                "    \"previous\": null,\n" +
+                "    \"users\": []\n" +
+                "}}";
+        final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");;
+
+        mockResult.setIsExecutionSuccess(true);
+        mockResult.setBody(arrNode);
+        mockResult.setStatusCode("200");
+        mockResult.setHeaders(objectMapper.valueToTree(Map.of("response-header-key", "response-header-value")));
+        mockResult.setDataTypes(List.of(new ParsedDataType(DisplayDataType.RAW)));
+
+        List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
+        widgetTypeList.add(WidgetSuggestionHelper.getWidgetNestedData(WidgetType.TEXT_WIDGET,"users"));
         mockResult.setSuggestedWidgets(widgetTypeList);
 
         ActionDTO action = new ActionDTO();

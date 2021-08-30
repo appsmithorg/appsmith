@@ -101,6 +101,11 @@ export function* getCurrentUserSaga() {
         response.data.username !== ANONYMOUS_USERNAME
       ) {
         AnalyticsUtil.identifyUser(response.data);
+        // make fetch feature call only if logged in
+        yield put(fetchFeatureFlagsInit());
+      } else {
+        // reset the flagsFetched flag
+        yield put(fetchFeatureFlagsSuccess());
       }
       if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
@@ -116,8 +121,6 @@ export function* getCurrentUserSaga() {
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
-
-      yield put(fetchFeatureFlagsInit());
     }
   } catch (error) {
     PerformanceTracker.stopAsyncTracking(
@@ -315,9 +318,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {

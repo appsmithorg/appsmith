@@ -17,6 +17,7 @@ import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
+import { hideErrors } from "selectors/debuggerSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -77,6 +78,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
+  const shouldHideErrors = useSelector(hideErrors);
+
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
   const togglePropertyEditor = (e: any) => {
@@ -120,16 +123,27 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
+  const shouldShowWidgetName = () => {
+    return (
+      !isMultiSelectedWidget &&
+      (isSnipingMode
+        ? focusedWidget === props.widgetId
+        : props.showControls ||
+          ((focusedWidget === props.widgetId || showAsSelected) &&
+            !isDragging &&
+            !isResizing) ||
+          (!!props.errorCount && !shouldHideErrors))
+    );
+  };
+
   // in sniping mode we only show the widget name tag if it's focused.
   // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
   // with sniping mode.
-  const showWidgetName = isSnipingMode
-    ? focusedWidget === props.widgetId
-    : props.showControls ||
-      ((focusedWidget === props.widgetId || showAsSelected) &&
-        !isDragging &&
-        !isResizing) ||
-      !!props.errorCount;
+  const showWidgetName = shouldShowWidgetName();
 
   let currentActivity =
     props.type === WidgetTypes.MODAL_WIDGET
@@ -154,7 +168,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
-          errorCount={props.errorCount}
+          errorCount={shouldHideErrors ? 0 : props.errorCount}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
         />

@@ -567,6 +567,27 @@ type buttonVariant = {
   darkest: string;
 };
 
+type ButtonVariantColor = {
+  solid: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  outline: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  ghost: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor?: Color;
+  };
+};
+
 type ColorType = {
   overlayColor: string;
   button: {
@@ -587,116 +608,35 @@ type ColorType = {
     /**
      * PRIMARY style
      */
-    primary: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    primary: ButtonVariantColor;
+
     /**
      * WARNING style
      */
-    warning: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    warning: ButtonVariantColor;
     /**
      * DANGER style
      */
-    danger: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    danger: ButtonVariantColor;
     /**
      * INFO style
      */
-    info: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    info: ButtonVariantColor;
     /**
      * SECONDARY style
      */
-    secondary: {
+    secondary: ButtonVariantColor;
+    /**
+     * CUSTOM style
+     */
+    custom: {
       solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
+        dark: {
+          textColor: Color;
+        };
+        light: {
+          textColor: Color;
+        };
       };
     };
   };
@@ -1038,10 +978,12 @@ type ColorType = {
   globalSearch: {
     containerBackground: string;
     activeSearchItemBackground: string;
+    activeCategory: string;
     searchInputText: string;
     containerShadow: string;
     separator: string;
     searchItemHighlight: string;
+    searchItemAltText: string;
     searchItemText: string;
     searchItemSubText: string;
     highlightedTextUnderline: string;
@@ -1057,6 +999,13 @@ type ColorType = {
     helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
+    mainContainerBackground: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+    };
   };
   gif: {
     overlay: string;
@@ -1186,6 +1135,7 @@ type ColorType = {
       shadow: string;
       errorCount: string;
       noErrorCount: string;
+      warningCount: string;
     };
     blankState: {
       shortcut: string;
@@ -1224,6 +1174,32 @@ type ColorType = {
     connectionHover: string;
     collapsibleIcon: string;
   };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+    separator: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
 };
 
 const notifications = {
@@ -1258,6 +1234,10 @@ const mentionSuggestion = {
   nameText: "#090707",
   usernameText: "#716E6E",
   hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
 };
 
 const comments = {
@@ -1346,28 +1326,37 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "rgba(0, 0, 0, 0.24)",
-  searchInputText: "#fff",
+  activeSearchItemBackground: "#6A86CE",
+  activeCategory: "#6A86CE",
+  searchInputText: "#484848",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
-  searchItemText: "rgba(255, 255, 255, 0.6)",
-  searchItemSubText: "rgba(255, 255, 255, 0.4)",
+  searchItemAltText: "#fff",
+  searchItemText: "#484848",
+  searchItemSubText: "#A9A7A7",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
-  emptyStateText: "#ABABAB",
+  emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#494949",
-  documentLink: "#54a9fb",
+  codeBackground: "#F0F0F0",
+  documentLink: "#69B5FF",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
   helpBarBorder: "#404040",
   helpButtonBorder: "#404040",
-  sectionTitle: "#D4D4D4",
+  sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
+  mainContainerBackground: "#F0F0F0",
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+  },
 };
 
 const mentionsInput = {
@@ -1396,7 +1385,15 @@ const navigationMenu = {
   warningBackground: "#3A3628",
 };
 
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -1440,61 +1437,61 @@ export const dark: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -1510,6 +1507,16 @@ export const dark: ColorType = {
       },
       ghost: {
         hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
       },
     },
   },
@@ -1925,6 +1932,7 @@ export const dark: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#D4D4D4",
@@ -1950,9 +1958,13 @@ export const dark: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
   overlayColor: "#090707cc",
   notifications,
   displayImageUpload,
@@ -2003,61 +2015,61 @@ export const light: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -2073,6 +2085,16 @@ export const light: ColorType = {
       },
       ghost: {
         hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
       },
     },
   },
@@ -2489,6 +2511,7 @@ export const light: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#090707",
@@ -2514,6 +2537,7 @@ export const light: ColorType = {
     actionActiveBg: "#e1e1e1",
   },
   actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -2624,11 +2648,22 @@ export const theme: Theme = {
       fontSize: 28,
       lineHeight: 36,
     },
+    docHeader: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 17,
+    },
     spacedOutP1: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 14,
       lineHeight: 24,
+    },
+    categoryBtn: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.2,
+      fontWeight: 500,
     },
   },
   iconSizes: {
@@ -2676,6 +2711,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -2692,6 +2728,7 @@ export const theme: Theme = {
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -2717,6 +2754,8 @@ export const theme: Theme = {
     dropdownIconBg: Colors.ALTO2,
     welcomeTourStickySidebarColor: Colors.WHITE,
     welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
 
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],

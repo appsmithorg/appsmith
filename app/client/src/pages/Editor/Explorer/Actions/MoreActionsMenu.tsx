@@ -7,7 +7,7 @@ import {
   moveActionRequest,
   copyActionRequest,
   deleteAction,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";

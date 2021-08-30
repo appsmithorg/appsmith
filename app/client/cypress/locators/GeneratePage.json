@@ -6,6 +6,5 @@
   "selectTableDropdown":"[data-cy=t--table-dropdown]",
   "dropdownOption": ".bp3-popover-content .t--dropdown-option",
   "selectSearchColumnDropdown":"[data-cy=t--searchColumn-dropdown]",
-  "generatePageFormSubmitBtn":"[data-cy=t--generate-page-form-submit]",
-  "datasourceCardGeneratePageBtn": ".t--generate-template"
+  "generatePageFormSubmitBtn":"[data-cy=t--generate-page-form-submit]"
 }

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { submit } from "redux-form";
 import ApiEditorForm from "./Form";
 import RapidApiEditorForm from "./RapidApiEditorForm";
-import { deleteAction, runActionInit } from "actions/actionActions";
+import { deleteAction, runAction } from "actions/pluginActionActions";
 import { PaginationField } from "api/ActionAPI";
 import { AppState } from "reducers";
 import { RouteComponentProps } from "react-router";
@@ -205,7 +205,6 @@ class ApiEditor extends React.Component<Props> {
             settingsConfig={this.props.settingsConfig}
           />
         )}
-
         {formUiComponent === "RapidApiEditorForm" && (
           <RapidApiEditorForm
             apiId={this.props.match.params.apiId}
@@ -223,7 +222,6 @@ class ApiEditor extends React.Component<Props> {
             paginationType={paginationType}
           />
         )}
-
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
             SAAS_EDITOR_API_ID_URL(
@@ -265,7 +263,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   runAction: (id: string, paginationField?: PaginationField) =>
-    dispatch(runActionInit(id, paginationField)),
+    dispatch(runAction(id, paginationField)),
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   changeAPIPage: (actionId: string, isSaas: boolean) =>
