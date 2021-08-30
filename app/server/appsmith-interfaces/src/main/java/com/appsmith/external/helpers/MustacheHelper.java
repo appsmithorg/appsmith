@@ -31,11 +31,10 @@ import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
 public class MustacheHelper {
 
     /*
-     * - This pattern will match all the Strings which indicate an action's data being used inside a mustache binding.
-     * - Examples:
-     * {{JSON.stringify(fetchUsers.data)}}: group1 = fetchUsers
-     * {{JSON.stringify(jsObject.data.foo)}}: group1 = jsObject, group3 = foo
-     * {{JSON.stringify(jsObject.data.)}}: this does not match the pattern.
+     * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
+     * e.g. for the given JS function using action with name "fetchUsers"
+     * {{JSON.stringify(fetchUsers)}}
+     * This pattern should return ["JSON.stringify", "fetchUsers"]
      */
     private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
     /**
