@@ -363,7 +363,19 @@ export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 
-// js actions
+//action creator menu
+export const NO_ACTION = () => `No Action`;
+export const EXECUTE_A_QUERY = () => `Execute a Query`;
+export const NAVIGATE_TO = () => `Navigate To`;
+export const SHOW_MESSAGE = () => `Show Message`;
+export const OPEN_MODAL = () => `Open Modal`;
+export const CLOSE_MODAL = () => `Close Modal`;
+export const STORE_VALUE = () => `Store Value`;
+export const DOWNLOAD = () => `Download`;
+export const COPY_TO_CLIPBOARD = () => `Copy to Clipboard`;
+export const RESET_WIDGET = () => `Reset Widget`;
+export const EXECUTE_JS_FUNCTION = () => `Execute a JS Function`;
+//js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} copied to page ${pageName} successfully`;
 export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
@@ -381,6 +393,9 @@ export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
 export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
   `Syntax error: ${message}`;
 
+export const EXECUTING_FUNCTION = () => `Executing function`;
+export const EMPTY_JS_OBJECT = () =>
+  `Nothing to show, write some code to get response`;
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;

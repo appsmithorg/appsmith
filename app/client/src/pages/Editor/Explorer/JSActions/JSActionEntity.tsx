@@ -50,7 +50,7 @@ export const ExplorerJSActionEntity = memo(
       <Entity
         action={navigateToJSAction}
         active={active}
-        className="jsaction"
+        className="t--jsaction"
         contextMenu={contextMenu}
         entityId={props.action.config.id}
         icon={props.icon}

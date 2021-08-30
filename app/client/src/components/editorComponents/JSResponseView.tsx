@@ -8,6 +8,8 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  EXECUTING_FUNCTION,
+  EMPTY_JS_OBJECT,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -145,8 +147,7 @@ function JSResponseView(props: Props) {
         <ResponseTabWrapper>
           {sortedActionList && !sortedActionList?.length ? (
             <NoResponseContainer>
-              {" "}
-              Nothing to show, write some code to get response{" "}
+              {createMessage(EMPTY_JS_OBJECT)}
             </NoResponseContainer>
           ) : (
             <>
@@ -172,7 +173,7 @@ function JSResponseView(props: Props) {
               <ResponseViewer>
                 {isRunning ? (
                   <LoadingOverlayScreen theme={props.theme}>
-                    Executing function
+                    {createMessage(EXECUTING_FUNCTION)}
                   </LoadingOverlayScreen>
                 ) : !responses.hasOwnProperty(selectActionId) ? (
                   <NoResponseContainer className="empty">

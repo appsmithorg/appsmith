@@ -2,6 +2,7 @@ import API from "api/Api";
 import { AxiosPromise } from "axios";
 import { JSAction, JSActionViewMode } from "entities/JSAction";
 import { ApiResponse, GenericApiResponse } from "./ApiResponses";
+
 export interface JSActionCreateUpdateResponse extends ApiResponse {
   id: string;
 }

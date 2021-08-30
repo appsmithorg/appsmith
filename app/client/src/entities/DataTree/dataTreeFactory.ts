@@ -15,7 +15,7 @@ import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ValidationConfig } from "constants/PropertyControlConstants";
-import { variable } from "entities/JSAction";
+import { Variable } from "entities/JSAction";
 import {
   ActionDescription,
   ClearPluginActionDescription,
@@ -73,7 +73,7 @@ export interface DataTreeJSAction {
 }
 
 export interface MetaArgs {
-  arguments: variable[];
+  arguments: Variable[];
 }
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;

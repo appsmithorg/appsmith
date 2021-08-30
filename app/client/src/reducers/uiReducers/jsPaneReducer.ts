@@ -6,9 +6,9 @@ import {
 } from "constants/ReduxActionConstants";
 import { JSAction } from "entities/JSAction";
 export interface JsPaneReduxState {
-  isCreating: boolean; // RR
-  isFetching: boolean; // RR
-  isSaving: Record<string, boolean>; // RN
+  isCreating: boolean;
+  isFetching: boolean;
+  isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
 }

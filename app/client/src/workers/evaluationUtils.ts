@@ -23,7 +23,7 @@ import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { variable } from "entities/JSAction";
+import { Variable } from "entities/JSAction";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -399,7 +399,6 @@ export const getAllPaths = (
 ): Record<string, true> => {
   // Add the key if it exists
   if (curKey) result[curKey] = true;
-  // add all js action paths
   if (Array.isArray(records)) {
     for (let i = 0; i < records.length; i++) {
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
@@ -468,7 +467,7 @@ export const ARGUMENT_NAMES = /([^\s,]+)/g;
 
 export function getParams(func: any) {
   const fnStr = func.toString().replace(STRIP_COMMENTS, "");
-  const args: Array<variable> = [];
+  const args: Array<Variable> = [];
   let result = fnStr
     .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
     .match(ARGUMENT_NAMES);

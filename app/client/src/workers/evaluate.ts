@@ -129,7 +129,6 @@ export default function evaluate(
     let errors: EvaluationError[] = [];
     let result;
     let triggers: any[] = [];
-    // debugger;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data

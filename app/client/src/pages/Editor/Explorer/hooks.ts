@@ -52,7 +52,6 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
       const datasourceIds = new Set();
       value.forEach((action) => {
         if (
-          "datasource" in action.config &&
           isStoredDatasource(action.config.datasource) &&
           action.config.datasource.id
         ) {

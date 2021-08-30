@@ -24,7 +24,7 @@ import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { getAction } from "selectors/entitiesSelector";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "pages/Editor/SaaSEditor/constants";
-import { getQueryParams } from "../../../../utils/AppsmithUtils";
+import { getQueryParams } from "utils/AppsmithUtils";
 
 type ExplorerDatasourceEntityProps = {
   plugin: Plugin;
@@ -99,11 +99,7 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
   let isDefaultExpanded = false;
   if (expandDatasourceId === props.datasource.id) {
     isDefaultExpanded = true;
-  } else if (
-    queryAction &&
-    "datasource" in queryAction &&
-    isStoredDatasource(queryAction.datasource)
-  ) {
+  } else if (queryAction && isStoredDatasource(queryAction.datasource)) {
     isDefaultExpanded = queryAction.datasource.id === props.datasource.id;
   }
 

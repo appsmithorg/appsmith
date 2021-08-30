@@ -52,50 +52,63 @@ import _ from "lodash";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { createNewJSAction } from "actions/jsPaneActions";
 import getFeatureFlags from "utils/featureFlags";
-import { JSSubAction, variable } from "entities/JSAction";
-
+import { JSSubAction, Variable } from "entities/JSAction";
+import {
+  createMessage,
+  EXECUTE_JS_FUNCTION,
+  RESET_WIDGET,
+  COPY_TO_CLIPBOARD,
+  DOWNLOAD,
+  STORE_VALUE,
+  CLOSE_MODAL,
+  OPEN_MODAL,
+  SHOW_MESSAGE,
+  NAVIGATE_TO,
+  EXECUTE_A_QUERY,
+  NO_ACTION,
+} from "constants/messages";
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
 const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 const baseOptions: any = [
   {
-    label: "No Action",
+    label: createMessage(NO_ACTION),
     value: ActionType.none,
   },
   {
-    label: "Execute a Query",
+    label: createMessage(EXECUTE_A_QUERY),
     value: ActionType.integration,
   },
   {
-    label: "Navigate To",
+    label: createMessage(NAVIGATE_TO),
     value: ActionType.navigateTo,
   },
   {
-    label: "Show Message",
+    label: createMessage(SHOW_MESSAGE),
     value: ActionType.showAlert,
   },
   {
-    label: "Open Modal",
+    label: createMessage(OPEN_MODAL),
     value: ActionType.showModal,
   },
   {
-    label: "Close Modal",
+    label: createMessage(CLOSE_MODAL),
     value: ActionType.closeModal,
   },
   {
-    label: "Store Value",
+    label: createMessage(STORE_VALUE),
     value: ActionType.storeValue,
   },
   {
-    label: "Download",
+    label: createMessage(DOWNLOAD),
     value: ActionType.download,
   },
   {
-    label: "Copy to Clipboard",
+    label: createMessage(COPY_TO_CLIPBOARD),
     value: ActionType.copyToClipboard,
   },
   {
-    label: "Reset Widget",
+    label: createMessage(RESET_WIDGET),
     value: ActionType.resetWidget,
   },
 ];
@@ -107,7 +120,7 @@ const getBaseOptions = () => {
     );
     if (!jsoption) {
       baseOptions.push({
-        label: "Execute a JS Function",
+        label: createMessage(EXECUTE_JS_FUNCTION),
         value: ActionType.jsFunction,
       });
     }
@@ -471,7 +484,7 @@ function getIntegrationOptionsWithChildren(
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];
             if (jsArguments && jsArguments.length) {
-              jsArguments.forEach((arg: variable) => {
+              jsArguments.forEach((arg: Variable) => {
                 argValue.push(arg.value);
               });
             }

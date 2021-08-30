@@ -1,15 +1,15 @@
 //check difference for after body change and parsing
-import { JSAction, JSSubAction, variable } from "entities/JSAction";
+import { JSAction, JSSubAction, Variable } from "entities/JSAction";
 
 export type ParsedJSSubAction = {
   name: string;
   body: string;
-  arguments: Array<variable>;
+  arguments: Array<Variable>;
 };
 
 export type ParsedBody = {
   actions: Array<ParsedJSSubAction>;
-  variables: Array<variable>;
+  variables: Array<Variable>;
 };
 
 export const getDifferenceInJSAction = (

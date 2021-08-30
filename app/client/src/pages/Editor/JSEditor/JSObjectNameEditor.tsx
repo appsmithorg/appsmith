@@ -16,7 +16,7 @@ import log from "loglevel";
 import { Action } from "entities/Action";
 import { saveJSObjectName } from "actions/jsActionActions";
 
-const ApiNameWrapper = styled.div<{ page?: string }>`
+const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
   margin-right: 10px;
   display: flex;
@@ -147,7 +147,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
   }, [saveStatus.isSaving, saveStatus.error]);
 
   return (
-    <ApiNameWrapper page={props.page}>
+    <JSObjectNameWrapper page={props.page}>
       <div
         style={{
           display: "flex",
@@ -167,7 +167,7 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
           valueTransform={removeSpecialChars}
         />
       </div>
-    </ApiNameWrapper>
+    </JSObjectNameWrapper>
   );
 }
 
