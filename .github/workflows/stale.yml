@@ -23,7 +23,7 @@ jobs:
         stale-pr-message: 'This PR has not seen activitiy for a while. It will be closed in 7 days unless further activity is detected.'
         close-issue-message: 'This issue has been closed because of inactivity.'
         close-pr-message: 'This PR has been closed because of inactivity.'
-        exempt-issue-labels: 'Low'
+        only-issue-labels: 'Critical'
         exempt-pr-labels: 'Dont merge,WIP'
         
         
