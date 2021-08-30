@@ -1630,7 +1630,8 @@ public class MongoPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    int valuesSize = ((ArrayNode) result.getBody()).size();
+                    ArrayNode valuesNode = (ArrayNode) ((ObjectNode) result.getBody()).get("values");
+                    int valuesSize = valuesNode.size();
                     assertEquals(valuesSize, 3);
                 })
                 .verifyComplete();
