@@ -166,6 +166,13 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
