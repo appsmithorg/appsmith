@@ -1,3 +1,0 @@
-{{ header 'Hello Burger Lover!' }}
-
-Here's your burger {{ properCase name }}!
