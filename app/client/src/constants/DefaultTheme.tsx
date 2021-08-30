@@ -706,15 +706,23 @@ type ColorType = {
     header: {
       text: ShadeColor;
       disabledText: ShadeColor;
+      defaultBg: ShadeColor;
       bg: ShadeColor;
       disabledBg: ShadeColor;
     };
-    menuBg: ShadeColor;
+    menu: {
+      bg: ShadeColor;
+      hover: ShadeColor;
+      text: ShadeColor;
+      hoverText: ShadeColor;
+      subText: ShadeColor;
+    };
     menuShadow: string;
     selected: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
+      subtext?: ShadeColor;
     };
     hovered: {
       text: ShadeColor;
@@ -738,6 +746,7 @@ type ColorType = {
       off: ShadeColor;
     };
     spinner: ShadeColor;
+    spinnerBg: ShadeColor;
   };
   textInput: {
     disable: {
@@ -751,10 +760,15 @@ type ColorType = {
       border: ShadeColor;
     };
     placeholder: ShadeColor;
+    helper: ShadeColor;
+    icon: ShadeColor;
     readOnly: {
       bg: ShadeColor;
       border: ShadeColor;
       text: ShadeColor;
+    };
+    hover: {
+      bg: ShadeColor;
     };
   };
   menuBorder: ShadeColor;
@@ -1606,10 +1620,17 @@ export const dark: ColorType = {
     header: {
       text: darkShades[7],
       disabledText: darkShades[6],
+      defaultBg: "#090707",
       bg: "#090707",
       disabledBg: darkShades[2],
     },
-    menuBg: darkShades[3],
+    menu: {
+      bg: darkShades[3],
+      text: darkShades[9],
+      hover: darkShades[4],
+      hoverText: darkShades[9],
+      subText: darkShades[9],
+    },
     menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
@@ -1638,6 +1659,7 @@ export const dark: ColorType = {
       off: darkShades[5],
     },
     spinner: darkShades[6],
+    spinnerBg: darkShades[4],
   },
   textInput: {
     disable: {
@@ -1651,10 +1673,15 @@ export const dark: ColorType = {
       text: darkShades[7],
     },
     placeholder: darkShades[5],
+    helper: darkShades[5],
+    icon: darkShades[7],
     readOnly: {
       bg: darkShades[0],
       border: darkShades[0],
       text: darkShades[7],
+    },
+    hover: {
+      bg: darkShades[0],
     },
   },
   menuBorder: darkShades[4],
@@ -2175,64 +2202,78 @@ export const light: ColorType = {
   },
   checkbox: {
     disabled: lightShades[3],
-    unchecked: lightShades[4],
+    unchecked: lightShades[5],
     disabledCheck: lightShades[6],
     normalCheck: lightShades[11],
     labelColor: lightShades[9],
   },
   dropdown: {
     header: {
-      text: lightShades[9],
+      text: lightShades[8],
       disabledText: darkShades[6],
-      bg: lightShades[2],
+      defaultBg: lightShades[11],
+      bg: lightShades[14],
       disabledBg: lightShades[1],
     },
-    menuBg: lightShades[11],
-    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menu: {
+      bg: lightShades[11],
+      text: lightShades[8],
+      hover: lightShades[2],
+      hoverText: lightShades[10],
+      subText: lightShades[15],
+    },
+    menuShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
     selected: {
-      text: lightShades[9],
+      text: lightShades[10],
       bg: lightShades[2],
-      icon: lightShades[8],
+      icon: lightShades[15],
+      subtext: lightShades[7],
     },
     hovered: {
-      text: lightShades[11],
-      bg: lightShades[12],
+      text: lightShades[10],
+      bg: lightShades[14],
       icon: lightShades[11],
     },
     icon: lightShades[7],
   },
   toggle: {
-    bg: lightShades[4],
+    bg: lightShades[13],
     hover: {
-      on: "#E4500E",
+      on: "#BF4109",
       off: lightShades[5],
     },
     disable: {
-      on: "#FDE0D2",
-      off: lightShades[3],
+      on: "#FEEDE5",
+      off: lightShades[13],
     },
     disabledSlider: {
       off: lightShades[11],
       on: lightShades[11],
     },
-    spinner: lightShades[6],
+    spinner: lightShades[5],
+    spinnerBg: lightShades[3],
   },
   textInput: {
     disable: {
-      bg: lightShades[1],
-      text: darkShades[6],
-      border: lightShades[1],
-    },
-    normal: {
       bg: lightShades[2],
-      text: lightShades[9],
+      text: darkShades[5],
       border: lightShades[2],
     },
-    placeholder: lightShades[7],
+    normal: {
+      bg: lightShades[11],
+      text: lightShades[10],
+      border: lightShades[13],
+    },
+    placeholder: lightShades[5],
+    helper: lightShades[15],
+    icon: lightShades[7],
     readOnly: {
       bg: lightShades[2],
       border: lightShades[2],
       text: lightShades[7],
+    },
+    hover: {
+      bg: lightShades[0],
     },
   },
   menuBorder: lightShades[3],
