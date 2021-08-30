@@ -27,7 +27,7 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
-import SnippetsFilter from "./SnippetsFilter";
+import { APPLY_SEARCH_CATEGORY, createMessage } from "constants/messages";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -385,7 +385,11 @@ function CategoryItem({
           <span className="category-title">{item.title}</span>
           <span className="category-desc">{item.desc}</span>
         </div>
-        {isActiveItem && <div className="action-msg">Hit ⏎ to insert</div>}
+        {isActiveItem && (
+          <div className="action-msg">
+            {createMessage(APPLY_SEARCH_CATEGORY)}
+          </div>
+        )}
       </CategoryListItem>
     </CategoryContainer>
   );
@@ -440,13 +444,13 @@ function SearchItemComponent(props: ItemProps) {
       className="t--docHit"
       isActiveItem={isActiveItem}
       itemType={itemType}
-      onClick={() => {
+      onClick={(e: React.MouseEvent) => {
         if (
           itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
           itemType !== SEARCH_ITEM_TYPES.placeholder
         ) {
           setActiveItemIndex(index);
-          searchContext?.handleItemLinkClick(item, "SEARCH_ITEM");
+          searchContext?.handleItemLinkClick(e, item, "SEARCH_ITEM");
         }
       }}
       ref={itemRef}
@@ -470,9 +474,7 @@ const SearchResultsContainer = styled.div`
 
 function SearchResults({
   query,
-  refinements,
   searchResults,
-  showFilter,
 }: {
   searchResults: SearchItem[];
   query: string;
@@ -491,7 +493,6 @@ function SearchResults({
           />
         ))}
       </div>
-      {showFilter && <SnippetsFilter refinements={refinements} />}
     </SearchResultsContainer>
   );
 }

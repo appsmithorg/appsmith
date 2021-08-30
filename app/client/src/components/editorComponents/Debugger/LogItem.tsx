@@ -23,6 +23,7 @@ import {
 } from "constants/messages";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getAppsmithConfigs } from "configs";
+import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
@@ -221,7 +222,11 @@ function LogItem(props: LogItemProps) {
           errorType: PropertyEvaluationErrorType.VALIDATION,
         });
         dispatch(setGlobalSearchQuery(text || ""));
-        dispatch(toggleShowGlobalSearchModal());
+        dispatch(
+          toggleShowGlobalSearchModal(
+            filterCategories[SEARCH_CATEGORY_ID.INIT],
+          ),
+        );
         break;
       default:
         // Prefill the error in intercom
@@ -290,7 +295,7 @@ function LogItem(props: LogItemProps) {
               return (
                 <MessageWrapper key={e.message}>
                   <span
-                    className="debugger-message"
+                    className="debugger-message t--debugger-message"
                     onClick={(event) => onLogClick(event, e)}
                   >
                     {e.message}

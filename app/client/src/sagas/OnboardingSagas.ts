@@ -71,7 +71,7 @@ import {
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { createActionRequest, runActionInit } from "actions/actionActions";
+import { createActionRequest, runAction } from "actions/pluginActionActions";
 import {
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
@@ -447,7 +447,7 @@ function* listenForCreateAction() {
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
     ReduxActionTypes.QUERY_PANE_CHANGE,
-    ReduxActionTypes.RUN_ACTION_INIT,
+    ReduxActionTypes.RUN_ACTION_REQUEST,
   ]);
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
@@ -656,7 +656,7 @@ function* executeQuery() {
   const queryId = getQueryIdFromURL();
 
   if (queryId) {
-    yield put(runActionInit(queryId));
+    yield put(runAction(queryId));
   }
 }
 

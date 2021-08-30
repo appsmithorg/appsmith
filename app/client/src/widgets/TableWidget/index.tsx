@@ -27,7 +27,10 @@ import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/Constants";
+import {
+  OperatorTypes,
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -38,6 +41,7 @@ import {
   ColumnTypes,
   CompactModeTypes,
   CompactMode,
+  SortOrderTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -62,6 +66,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
     };
   }
 
@@ -574,6 +582,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
+      // Set filter to default
+      const defaultFilter = [
+        {
+          column: "",
+          operator: OperatorTypes.OR,
+          value: "",
+          condition: "",
+        },
+      ];
+      this.applyFilters(defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -590,6 +608,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
+
+    //handle selected pageNo does not exist due to change of totalRecordsCount
+    if (
+      this.props.serverSidePaginationEnabled &&
+      this.props.totalRecordsCount
+    ) {
+      const maxAllowedPageNumber = Math.ceil(
+        this.props.totalRecordsCount / this.props.pageSize,
+      );
+      if (this.props.pageNo > maxAllowedPageNumber) {
+        this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
+      }
+    } else if (
+      this.props.serverSidePaginationEnabled !==
+      prevProps.serverSidePaginationEnabled
+    ) {
+      //reset pageNo when serverSidePaginationEnabled is toggled
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
 
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -616,6 +653,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
+      //reset current page number when page size changes
+      this.props.updateWidgetMetaProperty("pageNo", 1);
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -670,6 +709,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      totalRecordsCount,
       delimiter,
       pageSize,
       filteredTableData = [],
@@ -730,6 +770,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
+          totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
           updateCompactMode={this.handleCompactModeChange}
@@ -758,14 +799,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
-    if (column === "") {
-      this.props.updateWidgetMetaProperty("sortedColumn", undefined);
-    } else {
-      this.props.updateWidgetMetaProperty("sortedColumn", {
-        column: column,
-        asc: asc,
-      });
-    }
+    const sortOrderProps =
+      column === ""
+        ? {
+            column: "",
+            order: null,
+          }
+        : {
+            column: column,
+            order: asc ? SortOrderTypes.asc : SortOrderTypes.desc,
+          };
+    this.props.updateWidgetMetaProperty("sortOrder", sortOrderProps, {
+      triggerPropertyName: "onSort",
+      dynamicString: this.props.onSort,
+      event: {
+        type: EventType.ON_SORT,
+      },
+    });
   };
 
   handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {

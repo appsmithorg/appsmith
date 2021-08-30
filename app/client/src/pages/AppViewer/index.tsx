@@ -14,8 +14,8 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { getIsInitialized } from "selectors/appViewSelectors";
-import { executeAction } from "actions/widgetActions";
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { executeTrigger } from "actions/widgetActions";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
@@ -63,7 +63,7 @@ export type AppViewerProps = {
   initializeAppViewer: (applicationId: string, pageId?: string) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
-  executeAction: (actionPayload: ExecuteActionPayload) => void;
+  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
@@ -150,8 +150,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  executeAction: (actionPayload: ExecuteActionPayload) =>
-    dispatch(executeAction(actionPayload)),
+  executeAction: (actionPayload: ExecuteTriggerPayload) =>
+    dispatch(executeTrigger(actionPayload)),
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,

@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
-import { executeAction, disableDragAction } from "actions/widgetActions";
+import { executeTrigger, disableDragAction } from "actions/widgetActions";
 import {
   updateWidgetPropertyRequest,
   deleteWidgetProperty as deletePropertyAction,
@@ -12,7 +12,7 @@ import {
   BatchPropertyUpdatePayload,
 } from "actions/controlActions";
 
-import { ExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { OccupiedSpace } from "constants/editorConstants";
 
 import {
@@ -21,7 +21,7 @@ import {
 } from "actions/metaActions";
 
 export type EditorContextType = {
-  executeAction?: (actionPayloads: ExecuteActionPayload) => void;
+  executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
@@ -103,7 +103,7 @@ const mapDispatchToProps = {
     propertyValue: any,
   ) => updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
 
-  executeAction,
+  executeAction: executeTrigger,
   updateWidget,
   updateWidgetMetaProperty,
   resetChildrenMetaProperty,

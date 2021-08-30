@@ -12,7 +12,7 @@ import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
 import Button, { Category, Size } from "components/ads/Button";
-import { bindDataOnCanvas } from "../../../actions/actionActions";
+import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useDispatch, useSelector } from "react-redux";
