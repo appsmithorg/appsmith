@@ -42,7 +42,7 @@ const TabsContainerWrapper = styled.div<{
 `;
 
 const ChildrenWrapper = styled.div`
-  height: calc(100% - 40px);
+  height: 100%;
   width: 100%;
   position: relative;
   background: ${(props) => props.theme.colors.builderBodyBG};
