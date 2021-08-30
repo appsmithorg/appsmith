@@ -60,7 +60,9 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+import ActionRightPane, {
+  useEntityDependencies,
+} from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { UIComponentTypes } from "../../../api/PluginApi";
@@ -707,6 +709,9 @@ export function EditorJSONtoForm(props: Props) {
 
     setSelectedIndex(index);
   };
+  const { entityDependencies, hasDependencies } = useEntityDependencies(
+    props.actionName,
+  );
 
   return (
     <>
@@ -862,9 +867,11 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper show={!!output}>
+          <SidebarWrapper show={hasDependencies || !!output}>
             <ActionRightPane
               actionName={actionName}
+              entityDependencies={entityDependencies}
+              hasConnections={hasDependencies}
               hasResponse={!!output}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />

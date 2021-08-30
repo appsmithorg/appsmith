@@ -40,6 +40,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     column: string;
     order: SortOrderTypes | null;
   };
+  totalRecordsCount?: number;
 }
 
 export const getCurrentRowBinding = (
