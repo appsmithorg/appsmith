@@ -79,7 +79,7 @@ export default {
     const separatorRegex = /\W+/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
-      return props.tableData.map((entry) => {
+      return props.tableData.map((entry, index) => {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
@@ -87,7 +87,12 @@ export default {
             .split(separatorRegex)
             .join("_")
             .slice(0, 200);
-          sanitizedData[sanitizedKey] = value;
+          if (_.has(props.editedRowData, `${index}.${sanitizedKey}`)) {
+            sanitizedData[sanitizedKey] =
+              props.editedRowData[index][sanitizedKey];
+          } else {
+            sanitizedData[sanitizedKey] = value;
+          }
         }
         return sanitizedData;
       });
@@ -222,6 +227,10 @@ export default {
             ...derivedTableData[index],
             [columnId]: computedValues[index],
           };
+          if (_.has(props.editedRowData, `${index}.${columnId}`)) {
+            derivedTableData[index][columnId] =
+              props.editedRowData[index][columnId];
+          }
         }
       });
     }

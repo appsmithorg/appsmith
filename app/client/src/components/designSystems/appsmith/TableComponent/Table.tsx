@@ -18,6 +18,9 @@ import {
   renderEmptyRows,
   renderCheckBoxCell,
   renderCheckBoxHeaderCell,
+  renderOperationHeaderCell,
+  renderEditCell,
+  renderUpdateCell,
 } from "./TableUtilities";
 import TableHeader from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
@@ -78,6 +81,11 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  isRowEditing?: number;
+  handleRowEdit: (rowIndex: number) => void;
+  handleRowSave: (rowIndex: number) => void;
+  handleRowReset: (rowIndex: number) => void;
+  enableInlineEditing?: boolean;
 }
 
 const defaultColumn = {
@@ -315,6 +323,7 @@ export function Table(props: TableProps) {
                         );
                       },
                     )}
+                    {props.enableInlineEditing && renderOperationHeaderCell()}
                   </div>
                 );
               })}
@@ -326,6 +335,7 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.enableInlineEditing,
                 )}
             </div>
             <div
@@ -370,6 +380,15 @@ export function Table(props: TableProps) {
                         </div>
                       );
                     })}
+                    {props.enableInlineEditing
+                      ? props.isRowEditing === row.index
+                        ? renderUpdateCell(
+                            row.index,
+                            props.handleRowSave,
+                            props.handleRowReset,
+                          )
+                        : renderEditCell(row.index, props.handleRowEdit)
+                      : null}
                   </div>
                 );
               })}
@@ -381,6 +400,7 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.enableInlineEditing,
                 )}
             </div>
           </div>

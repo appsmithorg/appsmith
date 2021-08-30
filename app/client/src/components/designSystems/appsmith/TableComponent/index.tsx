@@ -75,6 +75,11 @@ interface ReactTableComponentProps {
   isVisibleCompactMode?: boolean;
   isVisiblePagination?: boolean;
   delimiter: string;
+  isRowEditing?: number;
+  handleRowEdit: (rowIndex: number) => void;
+  handleRowSave: (rowIndex: number) => void;
+  handleRowReset: (rowIndex: number) => void;
+  enableInlineEditing?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -86,11 +91,16 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     delimiter,
     disableDrag,
     editMode,
+    enableInlineEditing,
     filters,
     handleReorderColumn,
     handleResizeColumn,
+    handleRowEdit,
+    handleRowReset,
+    handleRowSave,
     height,
     isLoading,
+    isRowEditing,
     isVisibleCompactMode,
     isVisibleDownload,
     isVisibleFilters,
@@ -256,10 +266,15 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       enableDrag={() => {
         disableDrag(false);
       }}
+      enableInlineEditing={enableInlineEditing}
       filters={filters}
       handleResizeColumn={handleResizeColumn}
+      handleRowEdit={handleRowEdit}
+      handleRowReset={handleRowReset}
+      handleRowSave={handleRowSave}
       height={height}
       isLoading={isLoading}
+      isRowEditing={isRowEditing}
       isVisibleCompactMode={isVisibleCompactMode}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
@@ -295,11 +310,13 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.delimiter === next.delimiter &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
+    prev.enableInlineEditing === next.enableInlineEditing &&
     prev.filters === next.filters &&
     prev.handleReorderColumn === next.handleReorderColumn &&
     prev.handleResizeColumn === next.handleResizeColumn &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
+    prev.isRowEditing === next.isRowEditing &&
     prev.isVisibleCompactMode === next.isVisibleCompactMode &&
     prev.isVisibleDownload === next.isVisibleDownload &&
     prev.isVisibleFilters === next.isVisibleFilters &&

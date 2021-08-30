@@ -9,6 +9,10 @@ import {
   xor,
   without,
   isBoolean,
+  cloneDeep,
+  set,
+  get,
+  isArray,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -21,6 +25,7 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  EditableCell,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -44,7 +49,6 @@ import {
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { isArray } from "lodash";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -65,6 +69,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
+      // The following meta property is used for keep inline changed data for temp.
+      isRowEditing: -1,
+      editedRowTempData: {}, // update when handleInputChange called
+      editedRowData: {}, // update when save button clicked
     };
   }
 
@@ -152,6 +160,63 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
     };
     return cellProperties;
+  };
+
+  handleRowEdit = (rowIndex: number) => {
+    // set editing index
+    this.props.updateWidgetMetaProperty("isRowEditing", rowIndex);
+    // set same index for selectedRowIndex, stopPropagation will not call handleRowClick
+    this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
+  };
+
+  handleInputChange = (fieldName: string, value: any) => {
+    const editedRowTempData = cloneDeep(this.props.editedRowTempData);
+    set(
+      editedRowTempData,
+      `${this.props.selectedRowIndex}.${fieldName}`,
+      value,
+    );
+    this.props.updateWidgetMetaProperty("editedRowTempData", editedRowTempData);
+  };
+
+  handleRowSave = () => {
+    let isRowUpdated = false;
+    for (const [key, value] of Object.entries(this.props.selectedRow)) {
+      const editedValue = get(
+        this.props,
+        `editedRowTempData.${this.props.isRowEditing}.${key}`,
+      );
+      if (!isNil(editedValue)) {
+        isRowUpdated = editedValue !== value;
+        if (isRowUpdated) break;
+      }
+    }
+    // fire action if data is updated
+    if (isRowUpdated) {
+      this.props.updateWidgetMetaProperty(
+        "editedRowData",
+        this.props.editedRowTempData,
+        {
+          triggerPropertyName: "onRowUpdate",
+          dynamicString: this.props.onRowUpdate,
+          event: {
+            type: EventType.ON_ROW_UPDATE,
+          },
+        },
+      );
+    }
+    this.props.updateWidgetMetaProperty("isRowEditing", -1);
+  };
+
+  handleRowReset = (rowIndex: number) => {
+    // reset temparaty meta data
+    const editedRowData = cloneDeep(this.props.editedRowData);
+    const editedRowTempData = cloneDeep(this.props.editedRowTempData);
+    set(editedRowTempData, rowIndex, cloneDeep(editedRowData[rowIndex]));
+    // set editedRowData into editedRowTempData
+    this.props.updateWidgetMetaProperty("editedRowTempData", editedRowTempData);
+    // reset if clicked row is selected
+    this.props.updateWidgetMetaProperty("isRowEditing", -1);
   };
 
   getTableColumns = () => {
@@ -249,6 +314,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
 
+            const showInputField =
+              this.props.isRowEditing === rowIndex &&
+              columnProperties.columnType !== ColumnTypes.VIDEO;
+
+            if (showInputField) {
+              return (
+                <EditableCell
+                  cellProperties={cellProperties}
+                  columnType={columnProperties.columnType}
+                  dateOutputFormat={columnProperties.outputFormat}
+                  fieldName={accessor}
+                  handleInputChange={this.handleInputChange}
+                  initialValue={props.cell.value}
+                  isCellVisible={isCellVisible}
+                  isHidden={isHidden}
+                  widgetId={this.props.widgetId}
+                />
+              );
+            }
             return renderCell(
               props.cell.value,
               columnProperties.columnType,
@@ -622,6 +706,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       }
     }
 
+    // if user has enabled editing and now disable it
+    if (this.props.enableInlineEditing !== prevProps.enableInlineEditing) {
+      if (!this.props.enableInlineEditing) {
+        // clear meta props related to editing
+        this.props.updateWidgetMetaProperty("isRowEditing", -1);
+        this.props.updateWidgetMetaProperty("editedRowTempData", {});
+        this.props.updateWidgetMetaProperty("editedRowData", {});
+      }
+    }
+
     // If the user changed the defaultSelectedRow(s)
     if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
@@ -712,11 +806,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
           editMode={this.props.renderMode === RenderModes.CANVAS}
+          enableInlineEditing={this.props.enableInlineEditing}
           filters={this.props.filters}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
+          handleRowEdit={this.handleRowEdit}
+          handleRowReset={this.handleRowReset}
+          handleRowSave={this.handleRowSave}
           height={componentHeight}
           isLoading={this.props.isLoading}
+          isRowEditing={this.props.isRowEditing}
           isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
@@ -870,6 +969,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         : -1;
 
       if (selectedRowIndex !== index) {
+        // on new row clicked, disable row editing
+        if (this.props.isRowEditing !== index) {
+          this.props.updateWidgetMetaProperty("isRowEditing", -1);
+        }
         this.props.updateWidgetMetaProperty("selectedRowIndex", index, {
           triggerPropertyName: "onRowSelected",
           dynamicString: this.props.onRowSelected,
@@ -928,6 +1031,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
       );
     }
+    // revert editing when index reset
+    this.props.updateWidgetMetaProperty("isRowEditing", -1);
   };
 
   handlePrevPageClick = () => {

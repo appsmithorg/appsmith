@@ -7,6 +7,11 @@ import {
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
+  TableOperationHeaderCell,
+  TableEditCell,
+  TableUpdateCell,
+  OperationCellWrapper,
+  InputCellWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -31,6 +36,9 @@ import { IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
+import InputComponent from "components/designSystems/blueprint/InputComponent";
+import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent2";
+import { InputTypes } from "widgets/InputWidget";
 
 export const renderCell = (
   value: any,
@@ -156,6 +164,67 @@ export const renderCell = (
       );
   }
 };
+
+export function EditableCell(props: {
+  initialValue: any;
+  fieldName: string;
+  columnType: string;
+  isHidden: boolean;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  handleInputChange: any;
+  widgetId: string;
+  dateOutputFormat?: string;
+}) {
+  const [value, setValue] = useState(props.initialValue);
+  const inputType =
+    props.columnType === ColumnTypes.NUMBER
+      ? InputTypes.NUMBER
+      : InputTypes.TEXT;
+  return (
+    <InputCellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+    >
+      {props.columnType === ColumnTypes.DATE ? (
+        <DatePickerComponent
+          closeOnSelection={false}
+          dateFormat={props.dateOutputFormat || "YYYY-MM-DD HH:mm"}
+          datePickerType={"DATE_PICKER"}
+          isDisabled={false}
+          isLoading={false}
+          label=""
+          onDateSelected={(selectedDate) => {
+            setValue(selectedDate);
+            props.handleInputChange(props.fieldName, selectedDate);
+          }}
+          selectedDate={value}
+          shortcuts={false}
+          widgetId={`date-${props.widgetId}`}
+        />
+      ) : (
+        <InputComponent
+          compactMode={false}
+          inputType={inputType}
+          isInvalid={false}
+          isLoading={false}
+          label=""
+          multiline={false}
+          onCurrencyTypeChange={noop}
+          onFocusChange={noop}
+          onValueChange={(value) => {
+            setValue(value);
+            props.handleInputChange(props.fieldName, value);
+          }}
+          showError={false}
+          value={value}
+          widgetId={`input-${props.widgetId}`}
+        />
+      )}
+    </InputCellWrapper>
+  );
+}
 
 interface RenderActionProps {
   isSelected: boolean;
@@ -315,6 +384,7 @@ export const renderEmptyRows = (
   page: any,
   prepareRow: any,
   multiRowSelection = false,
+  enableInlineEditing = false,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
@@ -333,6 +403,7 @@ export const renderEmptyRows = (
               <div {...cell.getCellProps()} className="td" key={cellIndex} />
             );
           })}
+          {enableInlineEditing && <TableEditCell className="td" />}
         </div>
       );
     });
@@ -366,6 +437,7 @@ export const renderEmptyRows = (
                   />
                 );
               })}
+              {enableInlineEditing && <TableEditCell className="td" />}
             </div>
           );
         })}
@@ -607,5 +679,87 @@ export const renderDropdown = (props: {
         />
       </StyledSingleDropDown>
     </div>
+  );
+};
+
+export const renderOperationHeaderCell = () => {
+  return (
+    <TableOperationHeaderCell className="th header-reorder" role="columnheader">
+      <div>Operation</div>
+    </TableOperationHeaderCell>
+  );
+};
+
+export const renderEditCell = (
+  rowIndex: number,
+  handleRowEdit: (rowIndex: number) => void,
+) => {
+  return (
+    <TableEditCell className="td" role="cell">
+      <CellWrapper isCellVisible isHidden={false}>
+        <OperationCellWrapper
+          background={Colors.GREEN}
+          buttonLabelColor={Colors.WHITE}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowEdit(rowIndex);
+          }}
+        >
+          <Button
+            filled
+            intent="PRIMARY_BUTTON"
+            loading={false}
+            size="small"
+            text="Edit"
+          />
+        </OperationCellWrapper>
+      </CellWrapper>
+    </TableEditCell>
+  );
+};
+
+export const renderUpdateCell = (
+  rowIndex: number,
+  handleRowSave: (rowIndex: number) => void,
+  handleRowReset: (rowIndex: number) => void,
+) => {
+  return (
+    <TableUpdateCell className="td" role="cell">
+      <CellWrapper isCellVisible isHidden={false}>
+        <OperationCellWrapper
+          background={Colors.GREEN}
+          buttonLabelColor={Colors.WHITE}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowSave(rowIndex);
+          }}
+        >
+          <Button
+            filled
+            intent="PRIMARY_BUTTON"
+            loading={false}
+            size="small"
+            text="Save"
+          />
+        </OperationCellWrapper>
+        <OperationCellWrapper
+          background={Colors.WHITE}
+          borderColor={Colors.GREEN}
+          buttonLabelColor={Colors.GREEN}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRowReset(rowIndex);
+          }}
+        >
+          <Button
+            filled
+            intent="PRIMARY_BUTTON"
+            loading={false}
+            size="small"
+            text="Cancle"
+          />
+        </OperationCellWrapper>
+      </CellWrapper>
+    </TableUpdateCell>
   );
 };

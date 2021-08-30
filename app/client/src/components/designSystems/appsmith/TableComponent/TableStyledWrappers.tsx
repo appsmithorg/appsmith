@@ -582,3 +582,42 @@ export const MenuCategoryWrapper = styled.div`
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
+
+export const TableOperationHeaderCell = styled.div`
+  width: 150px;
+  padding-left: 10px !important;
+`;
+
+export const TableEditCell = styled.div`
+  width: 150px;
+`;
+
+export const TableUpdateCell = styled.div`
+  width: 150px;
+  display: flex;
+`;
+
+export const InputCellWrapper = styled(CellWrapper)`
+  & > div {
+    height: unset !important;
+  }
+`;
+
+export const OperationCellWrapper = styled.div<{
+  background: string;
+  buttonLabelColor: string;
+  borderColor?: string;
+}>`
+  margin: 0 5px 0 0;
+  &&&&&& {
+    .bp3-button {
+      background: ${(props) => props.background};
+      color: ${(props) => props.buttonLabelColor};
+      border: ${(props) =>
+        props.borderColor ? `1px solid ${props.borderColor}` : "none"};
+    }
+    .bp3-button span {
+      font-weight: 400;
+    }
+  }
+`;
