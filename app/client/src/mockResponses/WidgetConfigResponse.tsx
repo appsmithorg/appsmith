@@ -1305,8 +1305,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
-      rows: 2 * GRID_DENSITY_MIGRATION_V1,
-      columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       options: [
         { label: "Apple", value: "apple" },
         { label: "Orange", value: "orange" },
@@ -1314,6 +1314,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       ],
       defaultSelectedValues: "apple",
       isDisabled: false,
+      isInline: true,
       isRequired: false,
       isVisible: true,
       widgetName: "CheckboxGroup",

@@ -8,6 +8,7 @@ import { generateReactKey } from "utils/generators";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
+  optionCount: number;
   valid?: boolean;
 }
 
@@ -20,7 +21,8 @@ const CheckboxGroupContainer = styled.div<
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: space-between;
+  justify-content: ${({ inline, optionCount }) =>
+    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -35,19 +37,35 @@ const CheckboxGroupContainer = styled.div<
 
 export interface StyledCheckboxProps {
   disabled?: boolean;
+  optionCount: number;
   rowspace: number;
 }
 
 const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
   height: ${({ rowspace }) => rowspace}px;
 
+  &.bp3-control.bp3-checkbox {
+    color: ${({ theme }) => theme.colors.comments.resolved};
+    margin-bottom: ${({ inline, optionCount }) =>
+      (inline || optionCount === 1) && `6px`};
+  }
+
   &.bp3-control input:checked ~ .bp3-control-indicator {
     box-shadow: none;
+    border: none;
     background-image: none;
-    background-color: #03b365;
+    background-color: ${({ theme }) =>
+      theme.colors.button.primary.solid.bgColor};
+  }
+
+  &.bp3-control input:not(:disabled):active ~ .bp3-control-indicator {
+    background: none;
+    box-shadow: none;
   }
 
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
+    border: ${({ theme }) =>
+      `1.5px solid ${theme.colors.button.disabled.bgColor}`};
     border-radius: 0;
   }
 `;
@@ -83,7 +101,11 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   } = props;
 
   return (
-    <CheckboxGroupContainer inline={isInline} valid={isValid}>
+    <CheckboxGroupContainer
+      inline={isInline}
+      optionCount={options.length}
+      valid={isValid}
+    >
       {options &&
         options.length > 0 &&
         [...options].map((option: OptionProps) => (
@@ -94,6 +116,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             key={generateReactKey()}
             label={option.label}
             onChange={onChange(option.value)}
+            optionCount={options.length}
             rowspace={rowSpace}
           />
         ))}
