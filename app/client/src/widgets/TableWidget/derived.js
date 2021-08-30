@@ -149,8 +149,8 @@ export default {
         .filter(Boolean);
       idsNotToShow.forEach((id) => delete allColumns[id]);
     }
-    const sortColumn = props.sortedColumn?.column;
-    const sortOrder = props.sortedColumn?.asc;
+    const sortColumn = props.sortOrder.column;
+    const sortOrder = props.sortOrder.order === "asc" ? true : false;
     if (
       props.columnOrder &&
       Array.isArray(props.columnOrder) &&
@@ -239,13 +239,11 @@ export default {
       ...item,
       __originalIndex__: index,
     }));
-
     const columns = props.tableColumns;
-
+    const sortedColumn = props.sortOrder.column;
     let sortedTableData;
-    if (props.sortedColumn) {
-      const sortedColumn = props.sortedColumn.column;
-      const sortOrder = props.sortedColumn.asc;
+    if (sortedColumn) {
+      const sortOrder = props.sortOrder.order === "asc" ? true : false;
       const column = columns.find((column) => column.id === sortedColumn);
       const columnType =
         column && column.columnType ? column.columnType : "text";

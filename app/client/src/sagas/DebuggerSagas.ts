@@ -180,6 +180,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
@@ -278,9 +279,9 @@ function* addDebuggerErrorLogSaga(action: ReduxAction<Log>) {
   const payload = action.payload;
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
 
-  yield put(debuggerLogInit(payload));
-
   if (!payload.source || !payload.id) return;
+
+  yield put(debuggerLogInit(payload));
 
   const analyticsPayload = {
     entityName: payload.source.name,
@@ -377,6 +378,9 @@ function* deleteDebuggerErrorLogSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }>,
 ) {
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
+  // If no error exists with this id
+  if (!(action.payload.id in errors)) return;
+
   const error = errors[action.payload.id];
 
   if (!error.source) return;

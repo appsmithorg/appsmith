@@ -18,7 +18,7 @@ import { SuggestedWidget } from "api/ActionAPI";
 import { useSelector } from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgets } from "sagas/selectors";
-import { getNextWidgetName } from "sagas/WidgetOperationSagas";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -149,6 +149,14 @@ function getWidgetProps(
             { key: widgetInfo.propertyName },
             { key: "defaultOptionValue" },
           ],
+        },
+      };
+    case WidgetTypes.TEXT_WIDGET:
+      return {
+        type: suggestedWidget.type,
+        props: {
+          [fieldName]: `{{JSON.stringify(${actionName}.${suggestedWidget.bindingQuery}, null, 2)}}`,
+          dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
         },
       };
     default:
