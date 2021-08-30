@@ -2,7 +2,7 @@ import {
   copyActionRequest,
   deleteAction,
   moveActionRequest,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { noop } from "lodash";

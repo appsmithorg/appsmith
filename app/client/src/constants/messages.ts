@@ -212,7 +212,7 @@ export const ERROR_DATEPICKER_MIN_DATE = () =>
 export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
-export const ERROR_API_EXECUTE = (actionName: string) =>
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute. Please check it's configuration`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
@@ -395,11 +395,13 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 
-export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready to use.";
+export const GEN_CRUD_SUCCESS_DESC = () =>
+  "Search through your data in the table and update it using the form";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "Search through your data in the table and update it using the form.";
+  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
 
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
@@ -419,6 +421,12 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
+export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
+
+export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
+
+export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
 export const GIT_CONNECTION = () => "GIT Connection";
 export const DEPLOY = () => "Deploy";
@@ -450,3 +458,20 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+
+export const SNIPPET_DESCRIPTION = () =>
+  `Search and Insert code snippets to perform complex actions quickly.`;
+export const DOC_DESCRIPTION = () =>
+  `Find answers through appsmith documentation.`;
+export const NAV_DESCRIPTION = () =>
+  `Navigate to any page, widget or file across this project.`;
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+
+// Comment card tooltips
+export const MORE_OPTIONS = () => "More Options";
+export const ADD_REACTION = () => "Add Reaction";
+export const RESOLVE_THREAD = () => "Resolve Thread";
+export const EMOJI = () => "Emoji";

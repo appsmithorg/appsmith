@@ -1,40 +1,22 @@
 import {
   ReduxActionTypes,
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionWithoutPayload,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  ExecuteActionPayload,
-  ExecuteErrorPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { WidgetProps } from "widgets/BaseWidget";
 
-export const executeAction = (
-  payload: ExecuteActionPayload,
-): BatchAction<ExecuteActionPayload> =>
+export const executeTrigger = (
+  payload: ExecuteTriggerPayload,
+): BatchAction<ExecuteTriggerPayload> =>
   batchAction({
-    type: ReduxActionTypes.EXECUTE_ACTION,
+    type: ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
     payload,
   });
-
-export const executeActionError = (
-  executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => {
-  return {
-    type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-    payload: executeErrorPayload,
-  };
-};
-
-export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-});
 
 export const disableDragAction = (
   isDraggingDisabled: boolean,
@@ -121,9 +103,12 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = () => {
+export const pasteWidget = (groupWidgets = false) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: {
+      groupWidgets: groupWidgets,
+    },
   };
 };
 
@@ -150,5 +135,17 @@ export const addSuggestedWidget = (payload: Partial<WidgetProps>) => {
   return {
     type: ReduxActionTypes.ADD_SUGGESTED_WIDGET,
     payload,
+  };
+};
+
+/**
+ * action to group selected widgets into container
+ *
+ * @param queryName
+ * @returns
+ */
+export const groupWidgets = () => {
+  return {
+    type: ReduxActionTypes.GROUP_WIDGETS_INIT,
   };
 };
