@@ -14,6 +14,8 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -64,6 +66,31 @@ type RenderComponentProps = {
   toggleVisibility?: (index: number) => void;
   onEdit?: (props: any) => void;
 };
+
+function AddTabButtonComponent({ widgetId }: any) {
+  const dispatch = useDispatch();
+  const addOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
+      payload: {
+        widgetId,
+      },
+    });
+  };
+  return (
+    <StyledPropertyPaneButtonWrapper>
+      <StyledPropertyPaneButton
+        category={Category.tertiary}
+        icon="plus"
+        onClick={addOption}
+        size={Size.medium}
+        tag="button"
+        text="Add a Tab"
+        type="button"
+      />
+    </StyledPropertyPaneButtonWrapper>
+  );
+}
 
 function TabControlComponent(props: RenderComponentProps) {
   const { deleteOption, index, item, updateOption } = props;
@@ -156,7 +183,6 @@ class TabControl extends BaseControl<ControlProps> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-
   render() {
     const tabs: Array<{
       id: string;
@@ -176,17 +202,9 @@ class TabControl extends BaseControl<ControlProps> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButton
-            category={Category.tertiary}
-            icon="plus"
-            onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add a Tab"
-            type="button"
-          />
-        </StyledPropertyPaneButtonWrapper>
+        <AddTabButtonComponent
+          widgetId={this.props.widgetProperties.widgetId}
+        />
       </TabsWrapper>
     );
   }

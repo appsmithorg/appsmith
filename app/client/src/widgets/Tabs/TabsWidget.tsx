@@ -13,7 +13,6 @@ import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export function selectedTabValidation(
@@ -217,54 +216,6 @@ class TabsWidget extends BaseWidget<
     return "TABS_WIDGET";
   }
 
-  addTabContainer = (widgetIds: string[]) => {
-    const tabs = Object.values(this.props.tabsObj || {});
-    widgetIds.forEach((newWidgetId: string) => {
-      const tab = _.find(tabs, {
-        widgetId: newWidgetId,
-      });
-      if (tab) {
-        const columns =
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace;
-        // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-        const rows =
-          (this.props.bottomRow -
-            this.props.topRow -
-            GRID_DENSITY_MIGRATION_V1) *
-          this.props.parentRowSpace;
-        const config = {
-          type: WidgetTypes.CANVAS_WIDGET,
-          columns: columns,
-          rows: rows,
-          topRow: 1,
-          newWidgetId,
-          widgetId: this.props.widgetId,
-          leftColumn: 0,
-          rightColumn:
-            (this.props.rightColumn - this.props.leftColumn) *
-            this.props.parentColumnSpace,
-          bottomRow:
-            (this.props.bottomRow - this.props.topRow) *
-            this.props.parentRowSpace,
-          props: {
-            tabId: tab.id,
-            tabName: tab.label,
-            containerStyle: "none",
-            canExtend: false,
-            detachFromLayout: true,
-            children: [],
-          },
-        };
-        this.updateWidget(
-          WidgetOperations.ADD_CHILD,
-          this.props.widgetId,
-          config,
-        );
-      }
-    });
-  };
-
   updateTabContainerNames = () => {
     this.props.children.forEach((each) => {
       const tab = this.props.tabsObj[each.tabId];
@@ -303,13 +254,6 @@ class TabsWidget extends BaseWidget<
           childWidgetIds,
           ...tabWidgetIds,
         );
-        const widgetIdsToCreate: string[] = _.without(
-          tabWidgetIds,
-          ...childWidgetIds,
-        );
-        if (widgetIdsToCreate && widgetIdsToCreate.length) {
-          this.addTabContainer(widgetIdsToCreate);
-        }
         if (widgetIdsToRemove && widgetIdsToRemove.length) {
           this.removeTabContainer(widgetIdsToRemove);
         }

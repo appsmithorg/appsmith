@@ -42,9 +42,9 @@ export type PropertyPaneControlConfig = {
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
   updateRelatedWidgetProperties?: (
-    props: any,
     propertyName: string,
     propertyValue: any,
+    props: any,
   ) => UpdateWidgetPropertyPayload[];
   updateHook?: (
     props: any,

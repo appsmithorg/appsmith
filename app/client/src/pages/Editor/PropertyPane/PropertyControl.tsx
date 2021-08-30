@@ -237,7 +237,7 @@ const PropertyControl = memo((props: Props) => {
     //
     if (props.updateRelatedWidgetProperties) {
       otherWidgetPropertiesToUpdates.concat(
-        props.updateRelatedWidgetProperties(props, propertyName, propertyValue),
+        props.updateRelatedWidgetProperties(propertyName, propertyValue, props),
       );
     }
     return otherWidgetPropertiesToUpdates;

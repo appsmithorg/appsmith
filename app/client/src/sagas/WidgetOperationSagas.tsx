@@ -7,8 +7,6 @@ import {
 import {
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
-  WidgetAddChild,
-  WidgetAddChildren,
   WidgetDelete,
   WidgetResize,
 } from "actions/pageActions";
@@ -17,7 +15,6 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
-import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import {
   all,
   call,
@@ -27,7 +24,7 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import { convertToString, getNextEntityName } from "utils/AppsmithUtils";
+import { convertToString } from "utils/AppsmithUtils";
 import {
   batchUpdateWidgetProperty,
   DeleteWidgetPropertyPayload,
@@ -48,11 +45,6 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import _, { cloneDeep, flattenDeep, isString, set, remove } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import {
-  buildWidgetBlueprint,
-  executeWidgetBlueprintOperations,
-  traverseTreeAndExecuteBlueprintChildOperations,
-} from "sagas/WidgetBlueprintSagas";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
   GridDefaults,
@@ -93,7 +85,6 @@ import {
   clearEvalPropertyCacheOfWidget,
   validateProperty,
 } from "./EvaluationsSaga";
-import { WidgetBlueprint } from "reducers/entityReducers/widgetConfigReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
@@ -137,295 +128,7 @@ import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { updateCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
-
-function* getChildWidgetProps(
-  parent: FlattenedWidgetProps,
-  params: WidgetAddChild,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-) {
-  const { leftColumn, newWidgetId, props, topRow, type } = params;
-  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
-  let minHeight = undefined;
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const { blueprint = undefined, ...restDefaultConfig } = {
-    ...(WidgetConfigResponse as any).config[type],
-  };
-  if (!widgetName) {
-    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
-
-    widgetName = getNextEntityName(restDefaultConfig.widgetName, [
-      ...widgetNames,
-      ...entityNames,
-    ]);
-  }
-  if (type === WidgetTypes.CANVAS_WIDGET) {
-    columns =
-      (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
-    parentColumnSpace = 1;
-    rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
-    parentRowSpace = 1;
-    minHeight = rows;
-    if (props) props.children = [];
-  }
-
-  const widgetProps = {
-    ...restDefaultConfig,
-    ...props,
-    columns,
-    rows,
-    minHeight,
-  };
-  const widget = generateWidgetProps(
-    parent,
-    type,
-    leftColumn,
-    topRow,
-    parentRowSpace,
-    parentColumnSpace,
-    widgetName,
-    widgetProps,
-    restDefaultConfig.version,
-  );
-
-  widget.widgetId = newWidgetId;
-  return widget;
-}
-type GeneratedWidgetPayload = {
-  widgetId: string;
-  widgets: { [widgetId: string]: FlattenedWidgetProps };
-};
-function* generateChildWidgets(
-  parent: FlattenedWidgetProps,
-  params: WidgetAddChild,
-  widgets: { [widgetId: string]: FlattenedWidgetProps },
-  propsBlueprint?: WidgetBlueprint,
-): any {
-  // Get the props for the widget
-  const widget = yield getChildWidgetProps(parent, params, widgets);
-
-  // Add the widget to the canvasWidgets
-  // We need this in here as widgets will be used to get the current widget
-  widgets[widget.widgetId] = widget;
-
-  // Get the default config for the widget from WidgetConfigResponse
-  const defaultConfig = {
-    ...(WidgetConfigResponse as any).config[widget.type],
-  };
-
-  // If blueprint is provided in the params, use that
-  // else use the blueprint available in WidgetConfigResponse
-  // else there is no blueprint for this widget
-  const blueprint =
-    propsBlueprint || { ...defaultConfig.blueprint } || undefined;
-
-  // If there is a blueprint.view
-  // We need to generate the children based on the view
-  if (blueprint && blueprint.view) {
-    // Get the list of children props in WidgetAddChild format
-    const childWidgetList: WidgetAddChild[] = yield call(
-      buildWidgetBlueprint,
-      blueprint,
-      widget.widgetId,
-    );
-    // For each child props
-    const childPropsList: GeneratedWidgetPayload[] = yield all(
-      childWidgetList.map((props: WidgetAddChild) => {
-        // Generate full widget props
-        // Notice that we're passing the blueprint if it exists.
-        return generateChildWidgets(
-          widget,
-          props,
-          widgets,
-          props.props?.blueprint,
-        );
-      }),
-    );
-    // Start children array from scratch
-    widget.children = [];
-    childPropsList.forEach((props: GeneratedWidgetPayload) => {
-      // Push the widgetIds of the children generated above into the widget.children array
-      widget.children.push(props.widgetId);
-      // Add the list of widgets generated into the canvasWidgets
-      widgets = props.widgets;
-    });
-  }
-
-  // Finally, add the widget to the canvasWidgets
-  // This is different from above, as this is the final widget props with
-  // a fully populated widget.children property
-  widgets[widget.widgetId] = widget;
-
-  // Some widgets need to run a few operations like modifying props or adding an action
-  // these operations can be performed on the parent of the widget we're adding
-  // therefore, we pass all widgets to executeWidgetBlueprintOperations
-  // blueprint.operations contain the set of operations to perform to update the canvasWidgets
-  if (blueprint && blueprint.operations && blueprint.operations.length > 0) {
-    // Finalize the canvasWidgets with everything that needs to be updated
-    widgets = yield call(
-      executeWidgetBlueprintOperations,
-      blueprint.operations,
-      widgets,
-      widget.widgetId,
-    );
-  }
-
-  // Add the parentId prop to this widget
-  widget.parentId = parent.widgetId;
-  // Remove the blueprint from the widget (if any)
-  // as blueprints are not useful beyond this point.
-  delete widget.blueprint;
-
-  // deleting propertyPaneEnchancements too as it shouldn't go in dsl because
-  // function can't be cloned into dsl
-
-  // instead of passing whole enhancments function in widget props, we are just setting
-  // enhancments as true so that we know this widget contains enhancments
-  if ("enhancements" in widget) {
-    widget.enhancements = true;
-  }
-
-  return { widgetId: widget.widgetId, widgets };
-}
-
-/**
- * this saga is called when we drop a widget on the canvas.
- *
- * @param addChildAction
- */
-export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
-  try {
-    const start = performance.now();
-    Toaster.clear();
-
-    // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
-    const { widgetId } = addChildAction.payload;
-    // Get the current parent widget whose child will be the new widget.
-    const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
-    // const parent = Object.assign({}, stateParent);
-    // Get all the widgets from the canvasWidgetsReducer
-    const stateWidgets = yield select(getWidgets);
-    let widgets = Object.assign({}, stateWidgets);
-    // Generate the full WidgetProps of the widget to be added.
-    const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-      stateParent,
-      addChildAction.payload,
-      widgets,
-    );
-    const newWidget = childWidgetPayload.widgets[childWidgetPayload.widgetId];
-
-    const parentBottomRow = getParentBottomRowAfterAddingWidget(
-      stateParent,
-      newWidget,
-    );
-
-    // Update widgets to put back in the canvasWidgetsReducer
-    // TODO(abhinav): This won't work if dont already have an empty children: []
-    const parent = {
-      ...stateParent,
-      bottomRow: parentBottomRow,
-      children: [...(stateParent.children || []), childWidgetPayload.widgetId],
-    };
-
-    widgets[parent.widgetId] = parent;
-    AppsmithConsole.info({
-      text: "Widget was created",
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        id: childWidgetPayload.widgetId,
-        name:
-          childWidgetPayload.widgets[childWidgetPayload.widgetId].widgetName,
-      },
-    });
-    log.debug("add child computations took", performance.now() - start, "ms");
-
-    // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
-    // so here we are traversing up the tree till we get to MAIN_CONTAINER_WIDGET_ID
-    // while travesring, if we find any widget which has CHILD_OPERATION, we will call the fn in it
-    const updatedWidgets: {
-      [widgetId: string]: FlattenedWidgetProps;
-    } = yield call(
-      traverseTreeAndExecuteBlueprintChildOperations,
-      parent,
-      addChildAction.payload.newWidgetId,
-      widgets,
-    );
-
-    widgets = updatedWidgets;
-
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
-      payload: {
-        widgetId: childWidgetPayload.widgetId,
-        type: addChildAction.payload.type,
-      },
-    });
-
-    yield put(updateAndSaveLayout(widgets));
-
-    // go up till MAIN_CONTAINER, if there is a operation CHILD_OPERATIONS IN ANY PARENT,
-    // call execute
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-        error,
-      },
-    });
-  }
-}
-
-// This is different from addChildSaga
-// It does not go through the blueprint based creation
-// It simply uses the provided widget props to create widgets
-// Use this only when we're 100% sure of all the props the children will need
-export function* addChildrenSaga(
-  addChildrenAction: ReduxAction<WidgetAddChildren>,
-) {
-  try {
-    const { children, widgetId } = addChildrenAction.payload;
-    const stateWidgets = yield select(getWidgets);
-    const widgets = { ...stateWidgets };
-    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
-
-    children.forEach((child) => {
-      // Create only if it doesn't already exist
-      if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetConfigResponse.config[child.type];
-        const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
-          ...widgetNames,
-          ...entityNames,
-        ]);
-        // update the list of widget names for the next iteration
-        widgetNames.push(newWidgetName);
-        widgets[child.widgetId] = {
-          ...child,
-          widgetName: newWidgetName,
-          renderMode: RenderModes.CANVAS,
-        };
-
-        const existingChildren = widgets[widgetId].children || [];
-
-        widgets[widgetId] = {
-          ...widgets[widgetId],
-          children: [...existingChildren, child.widgetId],
-        };
-      }
-    });
-
-    yield put(updateAndSaveLayout(widgets));
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: WidgetReduxActionTypes.WIDGET_ADD_CHILDREN,
-        error,
-      },
-    });
-  }
-}
+import widgetAdditionSagas from "./WidgetAdditionSagas";
 
 /**
  * Note: Mutates finalWidgets[parentId].bottomRow for CANVAS_WIDGET
@@ -466,7 +169,7 @@ export function* deleteAllSelectedWidgetsSaga(
   deleteAction: ReduxAction<MultipleWidgetDeletePayload>,
 ) {
   try {
-    const { disallowUndo = false, isShortcut } = deleteAction.payload;
+    const { disallowUndo = false } = deleteAction.payload;
     const stateWidgets = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
@@ -789,7 +492,6 @@ export function* undoDeleteSaga(action: ReduxAction<{ widgetId: string }>) {
               const parent = cloneDeep(widgets[widget.parentId]);
               if (parent.tabsObj) {
                 try {
-                  const tabs = Object.values(parent.tabsObj);
                   parent.tabsObj[widget.tabId] = {
                     id: widget.tabId,
                     widgetId: widget.widgetId,
@@ -1462,11 +1164,6 @@ export function calculateNewWidgetPosition(
   };
 }
 
-function* getEntityNames() {
-  const evalTree = yield select(getDataTree);
-  return Object.keys(evalTree);
-}
-
 /**
  * this saga create a new widget from the copied one to store
  */
@@ -1570,7 +1267,6 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
         const widgetIdMap: Record<string, string> = {};
         const widgetNameMap: Record<string, string> = {};
         const newWidgetList: FlattenedWidgetProps[] = [];
-        let newWidgetId: string = copiedWidget.widgetId;
         // Generate new widgetIds for the flat list of all the widgets to be updated
 
         widgetList.forEach((widget) => {
@@ -1658,7 +1354,6 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
               rightColumn,
               topRow,
             } = newWidgetPosition;
-            newWidgetId = widget.widgetId;
             widget.leftColumn = leftColumn;
             widget.topRow = topRow;
             widget.bottomRow = bottomRow;
@@ -1887,9 +1582,9 @@ export function* groupWidgetsSaga() {
 
 export default function* widgetOperationSagas() {
   yield fork(widgetSelectionSagas);
+  yield fork(widgetAdditionSagas);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
     takeEvery(WidgetReduxActionTypes.WIDGET_DELETE, deleteSagaInit),
     takeEvery(WidgetReduxActionTypes.WIDGET_SINGLE_DELETE, deleteSaga),
     takeEvery(
@@ -1931,7 +1626,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.PASTE_COPIED_WIDGET_INIT, pasteWidgetSaga),
     takeEvery(ReduxActionTypes.UNDO_DELETE_WIDGET, undoDeleteSaga),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILDREN, addChildrenSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
   ]);
 }
