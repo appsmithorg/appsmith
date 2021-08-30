@@ -12,6 +12,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.RedirectHelper.FIRST_TIME_USER_EXPERIENCE_PARAM;
 import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 
 @Slf4j
@@ -152,7 +154,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         if (isFromSignup) {
-            redirectUrl = buildSignupSuccessUrl(redirectUrl);
+            redirectUrl = buildSignupSuccessUrl(redirectUrl, false);
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
@@ -166,15 +168,20 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         return Mono.just(exchange.getRequest())
                 .flatMap(redirectHelper::getRedirectUrl)
                 .flatMap(s -> {
+                    boolean addFirstTimeExperienceParam = false;
                     if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplicationId != null) {
-                        return redirectHelper.buildApplicationUrl(defaultApplicationId, exchange.getRequest().getHeaders());
+                        addFirstTimeExperienceParam = true;
+                        HttpHeaders headers = exchange.getRequest().getHeaders();
+                        return redirectHelper.buildApplicationUrl(defaultApplicationId, headers)
+                                .zipWith(Mono.just(addFirstTimeExperienceParam));
                     }
-                    return Mono.just(s);
+                    return Mono.just(s).zipWith(Mono.just(addFirstTimeExperienceParam));
                 })
-                .map(url -> {
+                .map(tuple2 -> {
+                    String url = tuple2.getT1();
                     if (isFromSignup) {
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url);
+                        url = buildSignupSuccessUrl(url, tuple2.getT2());
                     }
                     return url;
                 })
@@ -182,7 +189,11 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }
 
-    private String buildSignupSuccessUrl(String redirectUrl) {
-        return SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+    private String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
+        String url = SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+        if(enableFirstTimeUserExperience) {
+            url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
+        }
+        return url;
     }
 }

@@ -30,6 +30,8 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
@@ -41,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
+import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
@@ -85,9 +88,16 @@ public class UserSignup {
             );
         }
 
+        boolean createDefaultApplication = true;
+        MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+        String queryParamsFirst = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+        if(!StringUtils.isEmpty(queryParamsFirst)) {
+            createDefaultApplication = false;
+        }
+
         return Mono
                 .zip(
-                        userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin()),
+                        userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin(), createDefaultApplication),
                         exchange.getSession(),
                         ReactiveSecurityContextHolder.getContext()
                 )

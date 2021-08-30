@@ -25,8 +25,9 @@ public class RedirectHelper {
     public static final String SIGNUP_SUCCESS_URL = "/signup-success";
     public static final String APPLICATION_PAGE_URL = "/applications/%s/pages/%s/edit";
     private static final String REDIRECT_URL_HEADER = "X-Redirect-Url";
-    private static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
+    public static final String REDIRECT_URL_QUERY_PARAM = "redirectUrl";
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
+    public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
     private final ApplicationService applicationService;
 
