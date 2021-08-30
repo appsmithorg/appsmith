@@ -53,7 +53,7 @@ public class Distinct extends MongoCommand {
 
         document.put("distinct", this.collection);
 
-        if (!StringUtils.isNullOrEmpty(this.query)) {
+        if (StringUtils.isNullOrEmpty(this.query)) {
             this.query = "{}";
         }
 

@@ -34,7 +34,7 @@ public class Count extends MongoCommand {
 
         document.put("count", this.collection);
 
-        if (!StringUtils.isNullOrEmpty(this.query)) {
+        if (StringUtils.isNullOrEmpty(this.query)) {
             this.query = "{}";
         }
 

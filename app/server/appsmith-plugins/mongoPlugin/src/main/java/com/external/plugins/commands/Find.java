@@ -67,7 +67,7 @@ public class Find extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        if (!StringUtils.isNullOrEmpty(this.query)) {
+        if (StringUtils.isNullOrEmpty(this.query)) {
             this.query = "{}";
         }
 
