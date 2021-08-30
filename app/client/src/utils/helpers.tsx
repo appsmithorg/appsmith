@@ -427,7 +427,6 @@ export function bootIntercom(user?: User) {
     window.Intercom("boot", {
       app_id: intercomAppID,
       user_id: sha256(user?.username || ""),
-      name: user?.name,
       email: sha256(user?.email || ""),
     });
   }
