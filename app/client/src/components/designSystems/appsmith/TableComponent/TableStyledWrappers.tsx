@@ -363,7 +363,7 @@ export const CellWrapper = styled.div<{
   isCellVisible?: boolean;
   isTextType?: boolean;
 }>`
-  display: ${(props) => (props.isCellVisible ? "flex" : "none")};
+  display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
 
   align-items: center;
   justify-content: flex-start;

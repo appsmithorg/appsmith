@@ -29,6 +29,7 @@ export const entityDefinitions = {
         "!type": "?",
       },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+      clear: "fn() -> void",
     };
   },
   CONTAINER_WIDGET: {
@@ -74,6 +75,7 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
     sortOrder: {
       column: "string",
       order: ["asc", "desc"],

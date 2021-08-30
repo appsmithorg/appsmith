@@ -9,7 +9,9 @@ import Text, { FontWeight, TextType } from "components/ads/Text";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+import ActionRightPane, {
+  useEntityDependencies,
+} from "components/editorComponents/ActionRightPane";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -123,6 +125,9 @@ export const getDatasourceInfo = (datasource: any): string => {
 
 export default function ApiRightPane(props: any) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const { entityDependencies, hasDependencies } = useEntityDependencies(
+    props.actionName,
+  );
   useEffect(() => {
     if (!!props.hasResponse) setSelectedIndex(1);
   }, [props.hasResponse]);
@@ -207,6 +212,8 @@ export default function ApiRightPane(props: any) {
                 <SomeWrapper>
                   <ActionRightPane
                     actionName={props.actionName}
+                    entityDependencies={entityDependencies}
+                    hasConnections={hasDependencies}
                     hasResponse={props.hasResponse}
                     suggestedWidgets={props.suggestedWidgets}
                   />

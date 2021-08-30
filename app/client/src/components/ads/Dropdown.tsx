@@ -289,6 +289,7 @@ const SelectedDropDownHolder = styled.div`
   display: flex;
   align-items: center;
   min-width: 0;
+  width: 100%;
   overflow: hidden;
 
   & ${Text} {
