@@ -190,6 +190,9 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     {},
   );
 
+  // if there is no change, then don't do anything
+  if (!workerResponse) return;
+
   const {
     event,
     logs,
@@ -200,9 +203,6 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
   } = workerResponse;
 
   logs && logs.forEach((evalLog: any) => log.debug(evalLog));
-
-  // if there is no change, then don't do anything
-  if (!replayWidgetDSL) return;
 
   const isPropertyUpdate =
     replay.widgets &&

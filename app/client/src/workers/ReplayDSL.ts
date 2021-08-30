@@ -100,7 +100,7 @@ export default class ReplayDSL {
         replayWidgetDSL: this.dsl,
         replay,
         logs: this.logs,
-        event: "REPLAY_UNDO",
+        event: "REPLAY_REDO",
         timeTaken: stop - start,
         paths: getPathsFromDiff(diffs),
       };
