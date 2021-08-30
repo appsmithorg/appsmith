@@ -5,7 +5,6 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { act, render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
-import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import store from "store";
@@ -15,18 +14,14 @@ import {
   MockApplication,
   mockGetCanvasWidgetDsl,
   syntheticTestMouseEvent,
-  useMockDsl,
 } from "test/testCommon";
 import lodash from "lodash";
 import { getAbsolutePixels } from "utils/helpers";
+import { UpdatedMainContainer } from "test/testMockedWidgets";
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
-  function UpdatedMainContainer({ dsl }: any) {
-    useMockDsl(dsl);
-    return <MainContainer />;
-  }
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
     const mockGenerator = function*() {
@@ -134,7 +129,6 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -230,7 +224,6 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -333,7 +326,6 @@ describe("Drag and Drop widgets into Main container", () => {
           }),
         ),
       );
-      jest.runAllTimers();
     });
     const movedTab: any = component.container.querySelector(
       ".t--widget-tabswidget",
@@ -393,7 +385,6 @@ describe("Drag and Drop widgets into Main container", () => {
 
     act(() => {
       fireEvent.dragStart(tabsWidget);
-      //   jest.runAllTimers();
     });
 
     const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
@@ -431,7 +422,6 @@ describe("Drag and Drop widgets into Main container", () => {
           },
         ),
       );
-      jest.runAllTimers();
     });
     let updatedDropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
@@ -455,7 +445,6 @@ describe("Drag and Drop widgets into Main container", () => {
           },
         ),
       );
-      jest.runAllTimers();
     });
     updatedDropTarget = component.container.getElementsByClassName(
       "t--drop-target",
@@ -491,11 +480,12 @@ describe("Drag and Drop widgets into Main container", () => {
     const canvasWidgets = component.queryAllByTestId("test-widget");
     // empty canvas
     expect(canvasWidgets.length).toBe(0);
-    const allAddEntityButtons: any = component.queryAllByText("+");
+    const allAddEntityButtons: any = component.container.querySelectorAll(
+      ".t--entity-add-btn",
+    );
     const widgetAddButton = allAddEntityButtons[1];
     act(() => {
       fireEvent.click(widgetAddButton);
-      jest.runAllTimers();
     });
     const containerButton: any = component.queryByText("Container");
 

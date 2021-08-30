@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class ApplicationJson {
-    
+
     Application exportedApplication;
     
     List<Datasource> datasourceList;

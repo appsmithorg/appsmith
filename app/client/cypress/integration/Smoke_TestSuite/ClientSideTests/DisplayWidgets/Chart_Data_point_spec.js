@@ -52,4 +52,13 @@ describe("Chart Widget Functionality", function() {
           });
       });
   });
+
+  it("Chart with seriesTitle feature validation", function() {
+    cy.SearchEntityandOpen("Input2");
+    cy.get(widgetsPage.defaultInput).type(testdata.bindingSeriesTitle);
+
+    cy.get(publish.inputWidget + " " + "input")
+      .last()
+      .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
+  });
 });

@@ -86,6 +86,39 @@ function defaultSelectedRowValidation(
   };
 }
 
+function totalRecordsCountValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  if (_.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: 0,
+      message: "",
+    };
+  }
+  if (!Number.isFinite(value) && !_.isString(value)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  if (_.isString(value) && !/^\d+\.?\d*$/.test(value as string)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  return {
+    isValid: true,
+    parsed: Number(value),
+    message: "",
+  };
+}
+
 // A hook to update all column styles when global table styles are updated
 const updateColumnStyles = (
   props: TableWidgetProps,
@@ -342,6 +375,23 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isCellVisible",
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
+                  label: "Visible",
+                  helpText: "Controls the visibility of the cell in the column",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -905,6 +955,17 @@ export default [
               },
               children: [
                 {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
                   propertyName: "buttonLabel",
                   label: "Label",
                   controlType: "COMPUTE_VALUE",
@@ -1019,6 +1080,30 @@ export default [
         isTriggerProperty: false,
       },
       {
+        helpText:
+          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        propertyName: "totalRecordsCount",
+        label: "Total Record Count",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter total record count",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: totalRecordsCountValidation,
+            expected: {
+              type: "Number",
+              example: "10",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        hidden: (props: TableWidgetProps) =>
+          !!!props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
+      },
+      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         isJSConvertible: true,
@@ -1075,6 +1160,15 @@ export default [
         isBindProperty: true,
         isTriggerProperty: true,
       },
+      {
+        helpText: "Triggers an action when a table column is sorted",
+        propertyName: "onSort",
+        label: "onSort",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {
@@ -1119,6 +1213,21 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        propertyName: "delimiter",
+        label: "CSV Separator",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter CSV separator",
+        helpText: "The character used for separating the CSV download file.",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: ",",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
+        dependencies: ["isVisibleDownload"],
       },
     ],
   },

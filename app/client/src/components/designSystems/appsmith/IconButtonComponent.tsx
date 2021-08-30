@@ -7,6 +7,14 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/propertyControls/BorderRadiusOptionsControl";
+import {
+  ButtonBoxShadow,
+  ButtonBoxShadowTypes,
+} from "components/propertyControls/BoxShadowOptionsControl";
 
 const IconButtonContainer = styled.div`
   display: flex;
@@ -176,23 +184,6 @@ export enum ButtonVariantTypes {
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
 
-export enum ButtonBorderRadiusTypes {
-  SHARP = "SHARP",
-  ROUNDED = "ROUNDED",
-  CIRCLE = "CIRCLE",
-}
-export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
-
-export enum ButtonBoxShadowTypes {
-  NONE = "NONE",
-  VARIANT1 = "VARIANT1",
-  VARIANT2 = "VARIANT2",
-  VARIANT3 = "VARIANT3",
-  VARIANT4 = "VARIANT4",
-  VARIANT5 = "VARIANT5",
-}
-export type ButtonBoxShadow = keyof typeof ButtonBoxShadowTypes;
-
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
   buttonStyle: ButtonStyle;
@@ -226,7 +217,6 @@ function IconButtonComponent(props: IconButtonComponentProps) {
    * we will use that for the dimension of the widget
    */
   const dimension = useMemo(() => {
-    console.log({ width, height });
     if (width > height) {
       return height - WIDGET_PADDING * 2;
     }

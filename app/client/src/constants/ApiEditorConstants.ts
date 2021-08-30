@@ -48,7 +48,7 @@ export const CONTENT_TYPE_HEADER_KEY = "content-type";
 export enum ApiContentTypes {
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
-  MULTIPART_FORM_DATA = "form-data",
+  MULTIPART_FORM_DATA = "multi-part",
   RAW = "raw",
 }
 
@@ -74,3 +74,26 @@ export const POST_BODY_FORMAT_TITLES = POST_BODY_FORMAT_OPTIONS.map(
     return { title: option.label, key: option.value };
   },
 );
+
+export enum MultiPartOptionTypes {
+  TEXT = "Text",
+  FILE = "File",
+}
+
+export interface MULTI_PART_DROPDOWN_OPTION {
+  label: MultiPartOptionTypes;
+  value: string;
+}
+
+export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] = [
+  {
+    label: MultiPartOptionTypes.TEXT,
+    value: "TEXT",
+  },
+  {
+    label: MultiPartOptionTypes.FILE,
+    value: "FILE",
+  },
+];
+
+export const DEFAULT_MULTI_PART_DROPDOWN_WIDTH = "75px";

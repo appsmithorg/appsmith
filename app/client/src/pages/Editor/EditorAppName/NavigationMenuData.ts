@@ -1,5 +1,5 @@
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
@@ -10,10 +10,12 @@ import {
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
+import { ExplorerURLParams } from "../Explorer/helpers";
+import { getExportAppAPIRoute } from "constants/ApiConstants";
 
 type NavigationMenuDataProps = ThemeProp & {
   applicationId: string | undefined;
@@ -31,6 +33,7 @@ export const GetNavigationMenuData = ({
   const dispatch = useDispatch();
   const isHideComments = useHideComments();
   const history = useHistory();
+  const params = useParams<ExplorerURLParams>();
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
@@ -61,6 +64,14 @@ export const GetNavigationMenuData = ({
     {
       text: "Rename",
       onClick: editMode,
+      type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    {
+      text: "Pages",
+      onClick: () => {
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+      },
       type: MenuTypes.MENU,
       isVisible: true,
     },
@@ -141,6 +152,13 @@ export const GetNavigationMenuData = ({
           isOpensNewWindow: true,
         },
       ],
+    },
+    {
+      text: "Export Application",
+      onClick: () =>
+        applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
+      type: MenuTypes.MENU,
+      isVisible: isApplicationIdPresent,
     },
     {
       text: "Delete Application",

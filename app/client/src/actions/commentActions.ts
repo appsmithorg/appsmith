@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
@@ -11,6 +11,7 @@ import {
   AddCommentToCommentThreadRequestPayload,
   NewCommentEventPayload,
   NewCommentThreadPayload,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
 import { RawDraftContentState } from "draft-js";
@@ -117,6 +118,11 @@ export const updateCommentThreadSuccess = (
 
 export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   type: ReduxActionTypes.UPDATE_COMMENT_THREAD_EVENT,
+  payload,
+});
+
+export const dragCommentThread = (payload: DraggedCommentThread) => ({
+  type: ReduxActionTypes.DRAG_COMMENT_THREAD,
   payload,
 });
 
@@ -264,4 +270,36 @@ export const incrementThreadUnreadCount = () => ({
 
 export const decrementThreadUnreadCount = () => ({
   type: ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
+});
+
+export const deleteCommentThreadEvent = (thread: CommentThread) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_THREAD_EVENT,
+  payload: thread,
+});
+
+export const deleteCommentEvent = (comment: Comment) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_EVENT,
+  payload: comment,
+});
+
+export const setDraggingCommentThread = (
+  threadId: string,
+  offset: {
+    x: number;
+    y: number;
+  } | null,
+): ReduxAction<{
+  threadId: string;
+  offset: {
+    x: number;
+    y: number;
+  } | null;
+}> => ({
+  type: ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD,
+  payload: { threadId, offset },
+});
+
+export const setHasDroppedCommentThread = () => ({
+  type: ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD,
+  payload: {},
 });

@@ -35,6 +35,7 @@ export class DroppableComponent extends React.Component<
   shouldComponentUpdate(prevProps: DroppableComponentProps) {
     const presentOrder = this.props.items.map((each) => each.id);
     const previousOrder = prevProps.items.map((each) => each.id);
+
     return !isEqual(presentOrder, previousOrder);
   }
 

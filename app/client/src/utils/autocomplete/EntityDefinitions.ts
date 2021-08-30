@@ -29,6 +29,7 @@ export const entityDefinitions = {
         "!type": "?",
       },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+      clear: "fn() -> void",
     };
   },
   CONTAINER_WIDGET: {
@@ -53,6 +54,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
     currencyCountryCode: {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",
@@ -70,6 +75,11 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
+    sortOrder: {
+      column: "string",
+      order: ["asc", "desc"],
+    },
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -83,6 +93,10 @@ export const entityDefinitions = {
       "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
     selectedOptionValue: {
       "!type": "string",
       "!doc": "The value selected in a single select dropdown",
@@ -111,6 +125,10 @@ export const entityDefinitions = {
       "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
+    filterText: {
+      "!type": "[string]",
+      "!doc": "The filter text for Server side filtering",
+    },
     selectedOptionValues: {
       "!type": "[string]",
       "!doc": "The array of values selected in a multi select dropdown",
@@ -240,6 +258,14 @@ export const entityDefinitions = {
     files: "[file]",
     isDisabled: "bool",
   },
+  FILE_PICKER_WIDGET_V2: {
+    "!doc":
+      "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+    "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+    isVisible: isVisible,
+    files: "[file]",
+    isDisabled: "bool",
+  },
   LIST_WIDGET: (widget: any) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
@@ -292,6 +318,16 @@ export const entityDefinitions = {
       "Icon button widget is just an icon, along with all other button properties.",
     "!url": "https://docs.appsmith.com/widget-reference/icon-button",
     isVisible: isVisible,
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    "!doc":
+      "Checkbox group widget allows users to easily configure multiple checkboxes together.",
+    "!url": "https://docs.appsmith.com/widget-reference/checkbox-group",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+    selectedValues: "[string]",
   },
 };
 

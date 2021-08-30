@@ -3,6 +3,7 @@ import { withKnobs, boolean, text } from "@storybook/addon-knobs";
 import TextInput from "components/ads/TextInput";
 import { action } from "@storybook/addon-actions";
 import { StoryWrapper } from "components/ads/common";
+import { noop } from "utils/AppsmithUtils";
 
 export default {
   title: "Text Input",
@@ -46,7 +47,7 @@ export function ErrorTextInputStory() {
         defaultValue={text("defaultValue", "This is wrong")}
         disabled={boolean("disabled", false)}
         fill={boolean("fill", true)}
-        onChange={(value) => console.log(value)}
+        onChange={noop}
         placeholder={text("placeholder", "Your name")}
         validator={() => callValidator2()}
       />

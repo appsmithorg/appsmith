@@ -32,7 +32,7 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const StyledSingleDropDown = styled(SingleDropDown)`
+const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   div {
     flex: 1 1 auto;
   }
@@ -60,6 +60,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
+    color: ${(props) =>
+      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
   }
   && {
     .${Classes.ICON} {
@@ -145,6 +147,7 @@ const DropdownStyles = createGlobalStyle`
 const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
+const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
@@ -170,10 +173,22 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
             className={this.props.isLoading ? Classes.SKELETON : ""}
             disabled={this.props.disabled}
             filterable={this.props.isFilterable}
-            itemListPredicate={this.itemListPredicate}
+            isSelected={
+              !_.isEmpty(this.props.options) &&
+              this.props.selectedIndex !== undefined &&
+              this.props.selectedIndex > -1
+            }
+            itemListPredicate={
+              !this.props.serverSideFiltering
+                ? this.itemListPredicate
+                : undefined
+            }
             itemRenderer={this.renderSingleSelectItem}
             items={this.props.options}
             onItemSelect={this.onItemSelect}
+            onQueryChange={
+              this.props.serverSideFiltering ? this.serverSideSearch : undefined
+            }
             popoverProps={{
               boundary: "window",
               minimal: true,
@@ -194,7 +209,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
                 this.props.selectedIndex !== undefined &&
                 this.props.selectedIndex > -1
                   ? this.props.options[this.props.selectedIndex].label
-                  : "-- Select --"
+                  : this.props.placeholder || "-- Select --"
               }
             />
           </StyledSingleDropDown>
@@ -218,6 +233,9 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     });
     return optionIndex === this.props.selectedIndex;
   };
+  serverSideSearch = _.debounce((filterValue: string) => {
+    this.props.onFilterChange(filterValue);
+  }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
     option: DropdownOption,
@@ -250,6 +268,8 @@ export interface DropDownComponentProps extends ComponentProps {
   isFilterable: boolean;
   width: number;
   height: number;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
 
 export default DropDownComponent;
