@@ -120,6 +120,54 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetsPage.checkboxWidget).should("not.exist");
   });
 
+  it("checks if property Pane is open on undo/redo property changes", function() {
+    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+
+    cy.wait(100);
+    cy.get(widgetsPage.inputTextControl).type("1");
+
+    cy.closePropertyPane();
+
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.wait(100);
+    cy.get(widgetsPage.propertypaneText).should("exist");
+    cy.get(widgetsPage.inputTextControl).contains("Label");
+
+    cy.closePropertyPane();
+
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.wait(100);
+    cy.get(widgetsPage.propertypaneText).should("exist");
+    cy.get(widgetsPage.inputTextControl).contains("Label1");
+    cy.deleteWidget(widgetsPage.textWidget);
+  });
+
+  it("checks if toast is shown while undo/redo widget deletion or creation only the first time", function() {
+    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    localStorage.removeItem("undoToastShown");
+    localStorage.removeItem("redoToastShown");
+
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get(commonlocators.toastmsg)
+      .eq(0)
+      .contains("is removed");
+    cy.get(commonlocators.toastmsg)
+      .eq(1)
+      .contains("REDO");
+    cy.get(commonlocators.toastBody)
+      .first()
+      .click();
+
+    cy.wait(100);
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.get(commonlocators.toastmsg)
+      .eq(0)
+      .contains("is added back");
+    cy.get(commonlocators.toastmsg)
+      .eq(1)
+      .contains("UNDO");
+  });
+
   it("checks undo/redo for color picker", function() {
     cy.dragAndDropToCanvas("textwidget", { x: 200, y: 200 });
 
@@ -144,5 +192,29 @@ describe("Undo/Redo functionality", function() {
       .first()
       .invoke("attr", "value")
       .should("contain", "#03b365");
+  });
+
+  it("checks undo/redo for option control for radio button", function() {
+    cy.dragAndDropToCanvas("radiogroupwidget", { x: 200, y: 600 });
+
+    cy.get(widgetsPage.RadioInput)
+      .first()
+      .type("1");
+
+    cy.get(widgetsPage.RadioInput)
+      .first()
+      .blur();
+
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get(widgetsPage.RadioInput)
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "Yes");
+
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+    cy.get(widgetsPage.RadioInput)
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "Yes1");
   });
 });
