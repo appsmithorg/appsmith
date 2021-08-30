@@ -37,7 +37,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { FixedSizeList } from "react-window";
 import { scrollbarWidth } from "utils/helpers";
-import InfiniteLoader from "react-window-infinite-loader";
+// import InfiniteLoader from "react-window-infinite-loader";
 
 interface TableProps {
   width: number;
@@ -237,6 +237,30 @@ function TableHead(
   );
 }
 
+const useElementOnScreen = (options: any) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  const callbackFunction = (entries: any) => {
+    const [entry] = entries;
+    setIsVisible(entry.isIntersecting);
+  };
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(callbackFunction, options);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, [containerRef, options]);
+
+  return [containerRef, isVisible];
+};
+
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
 
@@ -284,7 +308,7 @@ export function Table(props: TableProps) {
         pageIndex: currentPageIndex,
         pageSize: props.pageSize,
       },
-      manualPagination: true,
+      manualPagination: props.infiniteScroll ? false : true,
       pageCount,
     },
     useBlockLayout,
@@ -350,7 +374,9 @@ export function Table(props: TableProps) {
   const RenderRow = React.useCallback(
     ({ index, style }) => {
       const row = rows[index];
-
+      if (!row) {
+        return <div className={Classes.SKELETON} />;
+      }
       prepareRow(row);
       const rowProps = {
         ...row.getRowProps(),
@@ -393,7 +419,7 @@ export function Table(props: TableProps) {
   const loadMoreItems = React.useCallback(
     (startIndex: number, stopIndex: number) => {
       // eslint-disable-next-line no-console
-      console.log({ startIndex, stopIndex });
+      console.log({ startIndex, stopIndex, endIndex });
       props.nextPageClick();
       return Promise.resolve();
     },
@@ -429,7 +455,11 @@ export function Table(props: TableProps) {
           pageOptions,
         })}
       <div
-        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
+        className={
+          props.isLoading && !props.infiniteScroll
+            ? Classes.SKELETON
+            : "tableWrap"
+        }
         ref={tableWrapperRef}
       >
         <Scrollbars
@@ -456,7 +486,7 @@ export function Table(props: TableProps) {
               }`}
               ref={tableBodyRef}
             >
-              {props.infiniteScroll ? (
+              {/* {props.infiniteScroll ? (
                 <InfiniteLoader
                   isItemLoaded={isItemLoaded}
                   itemCount={1000}
@@ -476,16 +506,16 @@ export function Table(props: TableProps) {
                     </FixedSizeList>
                   )}
                 </InfiniteLoader>
-              ) : (
-                <FixedSizeList
-                  height={tableHeight}
-                  itemCount={subPage.length}
-                  itemSize={tableSizes.ROW_HEIGHT}
-                  width={tableWidth}
-                >
-                  {RenderRow}
-                </FixedSizeList>
-              )}
+              ) : ( */}
+              <FixedSizeList
+                height={tableHeight}
+                itemCount={subPage.length}
+                itemSize={tableSizes.ROW_HEIGHT}
+                width={tableWidth}
+              >
+                {RenderRow}
+              </FixedSizeList>
+              {/* )} */}
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
                   props.pageSize - subPage.length,
