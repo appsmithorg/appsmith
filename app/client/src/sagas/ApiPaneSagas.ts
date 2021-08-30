@@ -52,7 +52,10 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { createActionRequest, setActionProperty } from "actions/actionActions";
+import {
+  createActionRequest,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";

@@ -7,7 +7,7 @@ import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "constants/messages";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { inOnboarding } from "sagas/OnboardingSagas";
