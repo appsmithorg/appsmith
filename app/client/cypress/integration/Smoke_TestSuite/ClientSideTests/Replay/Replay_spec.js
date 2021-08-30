@@ -1,6 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/publishWidgetspage.json");
-const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
@@ -41,9 +40,9 @@ describe("Undo/Redo functionality", function() {
         .trigger("dragstart", { force: true });
 
       cy.get(explorer.dropHere)
-        .trigger("mousemove", 200, 200, { eventConstructor: "MouseEvent" })
-        .trigger("mousemove", 200, 200, { eventConstructor: "MouseEvent" })
-        .trigger("mouseup", 200, 200, { eventConstructor: "MouseEvent" });
+        .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
+        .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
+        .trigger("mouseup", 200, 300, { eventConstructor: "MouseEvent" });
 
       cy.wait(1000).then(() => {
         const positionAfterChange = doc
@@ -119,5 +118,31 @@ describe("Undo/Redo functionality", function() {
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.wait(100);
     cy.get(widgetsPage.checkboxWidget).should("not.exist");
+  });
+
+  it("checks undo/redo for color picker", function() {
+    cy.dragAndDropToCanvas("textwidget", { x: 200, y: 200 });
+
+    cy.get(widgetsPage.textColor)
+      .first()
+      .click({ force: true });
+    cy.xpath(widgetsPage.greenColor).click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.wait("@updateLayout");
+    cy.readTextDataValidateCSS("color", "rgb(3, 179, 101)");
+
+    cy.get("body").type(`{${modifierKey}}z`);
+    cy.get(widgetsPage.textColor)
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "#231F20");
+
+    cy.get("body").type(`{${modifierKey}}{shift}z`);
+
+    cy.get(widgetsPage.textColor)
+      .first()
+      .invoke("attr", "value")
+      .should("contain", "#03b365");
   });
 });
