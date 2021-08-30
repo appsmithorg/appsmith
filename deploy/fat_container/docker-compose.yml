@@ -9,7 +9,7 @@ services:
       - "443:443"
       - "9001:9001"
     volumes:
-      - ./stacks:/opt/appsmith/stacks
+      - ./stacks:/appsmith-stacks
   auto_update:
     image: containrrr/watchtower
     volumes:

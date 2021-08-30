@@ -2,7 +2,7 @@
 var shell = require('shelljs')
 
 // Load env configuration
-const BACKUP_PATH = '/opt/appsmith/stacks/data/backup'
+const BACKUP_PATH = '/appsmith-stacks/data/backup'
 
 function export_database() {
 	console.log('export_database  ....')
@@ -43,7 +43,7 @@ function main() {
 		shell.echo()
 		shell.echo('\033[0;33m++++++++++++++++++++ NOTE ++++++++++++++++++++')
 		shell.echo()
-		shell.echo('Please remember to also copy the docker.env file (or just the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables) to the target instance where you intend to import this database dump.')
+		shell.echo('Please remember to also copy APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file to the target instance where you intend to import this database dump.')
 		shell.echo()
 		shell.echo('++++++++++++++++++++++++++++++++++++++++++++++\033[0m')
 		shell.echo()

@@ -2,16 +2,16 @@
 
 set -e
 
-if [[ -f /opt/appsmith/stacks/configuration/docker.env ]]; then
+if [[ -f /appsmith-stacks/configuration/docker.env ]]; then
 	echo 'Load environment configuration'
 	set -o allexport
-	. /opt/appsmith/stacks/configuration/docker.env
+	. /appsmith-stacks/configuration/docker.env
 	set +o allexport
 fi
 
 if [[ -n $CUSTOM_DOMAIN ]]; then
 	#then run script
-	local data_path="/opt/appsmith/stacks/data/certificate"
+	local data_path="/appsmith-stacks/data/certificate"
 	domain="$CUSTOM_DOMAIN"
 	local rsa_key_size=4096
 

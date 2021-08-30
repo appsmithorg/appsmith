@@ -5,7 +5,7 @@ const export_db = require('./export_db.js')
 const import_db = require('./import_db.js')
 const yargs = require("yargs");
 
-const APPLICATION_CONFIG_PATH='/opt/appsmith/stacks/configuration/docker.env'
+const APPLICATION_CONFIG_PATH='/appsmith-stacks/configuration/docker.env'
 
 // Loading latest application configuration
 require('dotenv').config(

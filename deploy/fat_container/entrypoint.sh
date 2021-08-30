@@ -20,7 +20,7 @@ check_initialized_db() {
 
 init_mongodb() {
 	echo "Init database"
-	MONGO_DB_PATH="/opt/appsmith/stacks/data/mongodb"
+	MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
 	MONGO_LOG_PATH="$MONGO_DB_PATH/log"
 	MONGO_DB_KEY="$MONGO_DB_PATH/key"
 	mkdir -p "$MONGO_DB_PATH"
@@ -33,8 +33,8 @@ init_mongodb() {
 		mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
 		echo "Waiting 10s for mongodb init"
 		sleep 10
-		bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGO_USERNAME" "$APPSMITH_MONGO_PASSWORD" >"/opt/appsmith/stacks/configuration/mongo-init.js"
-		mongo "127.0.0.1/${APPSMITH_MONGO_DATABASE}" /opt/appsmith/stacks/configuration/mongo-init.js
+		bash "/opt/appsmith/templates/mongo-init.js.sh" "$APPSMITH_MONGO_USERNAME" "$APPSMITH_MONGO_PASSWORD" >"/appsmith-stacks/configuration/mongo-init.js"
+		mongo "127.0.0.1/${APPSMITH_MONGO_DATABASE}" /appsmith-stacks/configuration/mongo-init.js
 		echo "Seeding db done"
 
 		echo "Enable replica set"
@@ -55,7 +55,7 @@ init_ssl_cert() {
 	NGINX_SSL_CMNT=""
 
 	local rsa_key_size=4096
-	local data_path="/opt/appsmith/stacks/data/certificate"
+	local data_path="/appsmith-stacks/data/certificate"
 
 	mkdir -p "$data_path" "$data_path"/{conf,www}
 
@@ -113,8 +113,8 @@ configure_ssl() {
 
 	echo "Mounting Let's encrypt folder"
 	rm -rf /etc/letsencrypt
-	mkdir -p /opt/appsmith/stacks/letsencrypt
-	ln -s /opt/appsmith/stacks/letsencrypt /etc/letsencrypt
+	mkdir -p /appsmith-stacks/letsencrypt
+	ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
 
 	echo "Generating nginx config template without domain"
 	bash "/opt/appsmith/templates/nginx_app.conf.sh" "$NGINX_SSL_CMNT" "$APPSMITH_CUSTOM_DOMAIN" > "/etc/nginx/conf.d/nginx_app.conf.template"
@@ -145,7 +145,7 @@ configure_supervisord() {
 }
 
 echo 'Checking configuration file'
-CONF_PATH="/opt/appsmith/stacks/configuration"
+CONF_PATH="/appsmith-stacks/configuration"
 ENV_PATH="$CONF_PATH/docker.env"
 if ! [[ -e "$ENV_PATH" ]]; then
 	echo "Generating default configuration file"
@@ -156,10 +156,10 @@ if ! [[ -e "$ENV_PATH" ]]; then
 	bash "/opt/appsmith/templates/docker.env.sh" "$AUTO_GEN_MONGO_PASSWORD" "$AUTO_GEN_ENCRYPTION_PASSWORD" "$AUTO_GEN_ENCRYPTION_SALT" > "$ENV_PATH"
 fi
 
-if [[ -f /opt/appsmith/stacks/configuration/docker.env ]]; then
+if [[ -f /appsmith-stacks/configuration/docker.env ]]; then
 	echo 'Load environment configuration'
 	set -o allexport
-	. /opt/appsmith/stacks/configuration/docker.env
+	. /appsmith-stacks/configuration/docker.env
 	set +o allexport
 fi
 

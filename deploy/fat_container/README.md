@@ -30,7 +30,7 @@ services:
       - "443:443"
       - "9001:9001"
     volumes:
-      - ./stacks:/opt/appsmith/stacks
+      - ./stacks:/appsmith-stacks
   auto_update:
     image: containrrr/watchtower
     volumes:
@@ -82,7 +82,7 @@ First of all, you need to copy or move the gzip file to the container's mounted 
 
 Or you can copy directly to the running container using `docker cp` command
 ```
-docker cp <path-to-file/data.archive> appsmith_fat:/opt/appsmith/stacks/data/restore
+docker cp <path-to-file/data.archive> appsmith_fat:/appsmith-stacks/data/restore
 ```
 
 Then, simply run following command to import data to internal database

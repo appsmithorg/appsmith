@@ -2,7 +2,7 @@
 var shell = require('shelljs')
 
 // Load env configuration
-const RESTORE_PATH = '/opt/appsmith/stacks/data/restore'
+const RESTORE_PATH = '/appsmith-stacks/data/restore'
 
 function import_database() {
 	console.log('import_database  ....')
