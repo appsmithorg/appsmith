@@ -819,6 +819,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
+    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -847,6 +852,20 @@ const addIsDisabledToButtonColumn = (
         }
       }
     }
+  }
+  return currentDSL;
+};
+
+export const migrateTableDefaultSelectedRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateTableDefaultSelectedRow(child),
+    );
   }
   return currentDSL;
 };
