@@ -2,6 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
+import { LabelOrientation } from "./constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -53,6 +54,7 @@ export const CONFIG = {
     },
     xAxisName: "Last Week",
     yAxisName: "Total Order Revenue $",
+    labelOrientation: LabelOrientation.AUTO,
     customFusionChartConfig: {
       type: "column2d",
       dataSource: {

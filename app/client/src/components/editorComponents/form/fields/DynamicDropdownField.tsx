@@ -9,38 +9,9 @@ interface DynamicDropdownFieldOptions {
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;
-
-class DynamicDropdownField extends React.Component<
-  DynamicDropdownFieldProps,
-  {
-    selectedOption: DropdownOption;
-  }
-> {
-  constructor(props: DynamicDropdownFieldProps) {
-    super(props);
-    this.state = {
-      selectedOption: this.props.options[0],
-    };
-  }
-
-  handleOptionSelection = (selectedValue: string): void => {
-    const selectedOption = this.props.options.find(
-      (option) => option.value === selectedValue,
-    ) as DropdownOption;
-    this.setState({
-      selectedOption,
-    });
-  };
-
+class DynamicDropdownField extends React.Component<DynamicDropdownFieldProps> {
   render() {
-    const dropdownProps = {
-      selectHandler: this.handleOptionSelection,
-      selected: this.state.selectedOption,
-    };
-
-    return (
-      <Field component={DropdownComponent} {...this.props} {...dropdownProps} />
-    );
+    return <Field component={DropdownComponent} {...this.props} />;
   }
 }
 

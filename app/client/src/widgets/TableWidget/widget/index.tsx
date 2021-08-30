@@ -38,6 +38,7 @@ import {
   ColumnTypes,
   CompactModeTypes,
   CompactMode,
+  SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -62,6 +63,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
     };
   }
 
@@ -770,14 +775,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
-    if (column === "") {
-      this.props.updateWidgetMetaProperty("sortedColumn", undefined);
-    } else {
-      this.props.updateWidgetMetaProperty("sortedColumn", {
-        column: column,
-        asc: asc,
-      });
-    }
+    const sortOrderProps =
+      column === ""
+        ? {
+            column: "",
+            order: null,
+          }
+        : {
+            column: column,
+            order: asc ? SortOrderTypes.asc : SortOrderTypes.desc,
+          };
+    this.props.updateWidgetMetaProperty("sortOrder", sortOrderProps, {
+      triggerPropertyName: "onSort",
+      dynamicString: this.props.onSort,
+      event: {
+        type: EventType.ON_SORT,
+      },
+    });
   };
 
   handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {

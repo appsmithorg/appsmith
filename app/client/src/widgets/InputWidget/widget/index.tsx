@@ -3,15 +3,15 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { WidgetType, RenderModes, TextSize } from "constants/WidgetConstants";
-import InputComponent, {
-  InputComponentProps,
-  getCurrencyOptions,
-} from "../component";
+import InputComponent, { InputComponentProps } from "../component";
 import {
   EventType,
   ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationTypes,
+  ValidationResponse,
+} from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -20,6 +20,68 @@ import {
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { InputType, InputTypes } from "../constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
+import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+function defaultValueValidation(
+  value: unknown,
+  props: InputWidgetProps,
+  _?: any,
+): ValidationResponse {
+  const { inputType } = props;
+  if (
+    inputType === "INTEGER" ||
+    inputType === "NUMBER" ||
+    inputType === "CURRENCY" ||
+    inputType === "PHONE_NUMBER"
+  ) {
+    if (_.isNil(value) || value === "") {
+      return {
+        isValid: true,
+        parsed: 0,
+        message: "",
+      };
+    }
+    if (!Number.isFinite(value) && !_.isString(value)) {
+      return {
+        isValid: false,
+        parsed: 0,
+        message: "This value must be a number",
+      };
+    }
+    return {
+      isValid: true,
+      parsed: Number(value),
+      message: "",
+    };
+  }
+  if (_.isObject(value)) {
+    return {
+      isValid: false,
+      parsed: JSON.stringify(value, null, 2),
+      message: "This value must be string",
+    };
+  }
+  let parsed = value;
+  const isValid = _.isString(parsed);
+  if (!isValid) {
+    try {
+      parsed = _.toString(parsed);
+    } catch (e) {
+      return {
+        isValid: false,
+        parsed: "",
+        message: "This value must be string",
+      };
+    }
+  }
+  return {
+    isValid,
+    parsed: parsed,
+    message: "",
+  };
+}
 
 class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   constructor(props: InputWidgetProps) {
@@ -59,6 +121,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 label: "Currency",
                 value: "CURRENCY",
               },
+              {
+                label: "Phone Number",
+                value: "PHONE_NUMBER",
+              },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -78,6 +144,22 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dependencies: ["inputType"],
           },
           {
+            helpText: "Changes the country code",
+            propertyName: "phoneNumberCountryCode",
+            label: "Default Country Code",
+            enableSearch: true,
+            dropdownHeight: "195px",
+            controlType: "DROP_DOWN",
+            placeholderText: "Search by code or country name",
+            options: ISDCodeDropdownOptions,
+            hidden: (props: InputWidgetProps) => {
+              return props.inputType !== InputTypes.PHONE_NUMBER;
+            },
+            dependencies: ["inputType"],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             helpText: "Changes the type of currency",
             propertyName: "currencyCountryCode",
             label: "Currency",
@@ -85,7 +167,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",
             placeholderText: "Search by code or name",
-            options: getCurrencyOptions(),
+            options: CurrencyDropdownOptions,
             hidden: (props: InputWidgetProps) => {
               return props.inputType !== InputTypes.CURRENCY;
             },
@@ -138,7 +220,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             placeholderText: "Enter default text",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultValueValidation,
+                expected: {
+                  type: "string or number",
+                  example: `value1 | 123`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            dependencies: ["inputType"],
           },
           {
             helpText: "Sets a placeholder text for the input",
@@ -335,6 +428,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       },
       {
         sectionName: "Icon Options",
+        hidden: (props: InputWidgetProps) => {
+          const { inputType } = props;
+          return inputType === "CURRENCY" || inputType === "PHONE_NUMBER";
+        },
+        dependencies: ["inputType"],
         children: [
           {
             propertyName: "iconName",
@@ -419,15 +517,21 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             const emailRegex = new RegExp(/^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$/);
             return emailRegex.test(this.text);
           }
-          else if (this.inputType === "NUMBER") {
+          else if (
+            this.inputType === "NUMBER" ||
+            this.inputType === "INTEGER" ||
+            this.inputType === "CURRENCY" ||
+            this.inputType === "PHONE_NUMBER"
+          ) {
+            let value = this.text.split(",").join("");
             if (parsedRegex) {
-              return parsedRegex.test(this.text);
+              return parsedRegex.test(value);
             }
             if (this.isRequired) {
-              return !(this.text === '' || isNaN(this.text));
+              return !(value === '' || isNaN(value));
             }
 
-            return (this.text === '' || !isNaN(this.text || ''));
+            return (value === '' || !isNaN(value || ''));
           }
           else if (this.isRequired) {
             if(this.text && this.text.length) {
@@ -439,7 +543,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             } else {
               return false;
             }
-          } if (parsedRegex) {
+          } 
+          if (parsedRegex) {
             return parsedRegex.test(this.text)
           } else {
             return true;
@@ -462,6 +567,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       isFocused: false,
       isDirty: false,
       selectedCurrencyType: undefined,
+      selectedCountryCode: undefined,
     };
   }
 
@@ -486,6 +592,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedCurrencyCountryCode",
         currencyCountryCode,
+      );
+    }
+  };
+
+  onISDCodeChange = (code?: string) => {
+    const countryCode = code;
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("phoneNumberCountryCode", countryCode);
+    } else {
+      this.props.updateWidgetMetaProperty(
+        "selectedPhoneNumberCountryCode",
+        countryCode,
       );
     }
   };
@@ -529,8 +647,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text || "";
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const currencyCountryCode =
-      this.props.selectedCurrencyCountryCode ?? this.props.currencyCountryCode;
+    const currencyCountryCode = this.props.selectedCurrencyCountryCode
+      ? this.props.selectedCurrencyCountryCode
+      : this.props.currencyCountryCode;
+    const phoneNumberCountryCode = this.props.selectedPhoneNumberCountryCode
+      ? this.props.selectedPhoneNumberCountryCode
+      : this.props.phoneNumberCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -540,7 +662,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       conditionalProps.maxChars = this.props.maxChars;
       if (
         this.props.defaultText &&
-        this.props.defaultText.length > this.props.maxChars
+        this.props.defaultText.toString().length > this.props.maxChars
       ) {
         isInvalid = true;
         conditionalProps.errorMessage = createMessage(
@@ -590,8 +712,10 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         }
         onCurrencyTypeChange={this.onCurrencyTypeChange}
         onFocusChange={this.handleFocusChange}
+        onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
+        phoneNumberCountryCode={phoneNumberCountryCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
@@ -617,8 +741,9 @@ export interface InputWidgetProps extends WidgetProps {
   currencyCountryCode?: string;
   noOfDecimals?: number;
   allowCurrencyChange?: boolean;
+  phoneNumberCountryCode?: string;
   decimalsInCurrency?: number;
-  defaultText?: string;
+  defaultText?: string | number;
   tooltip?: string;
   isDisabled?: boolean;
   validation: boolean;

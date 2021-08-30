@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import store from "store";
+import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
@@ -17,6 +17,7 @@ import {
   NAMESPACE_COLLAB_PAGE_EDIT,
 } from "constants/AppCollabConstants";
 import { RenderModes } from "constants/WidgetConstants";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 interface CanvasProps {
   dsl: DSLWidget;
@@ -46,12 +47,16 @@ const shareMousePointer = (e: any, pageId: string) => {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
   const delayedShareMousePointer = useCallback(
     throttle((e) => shareMousePointer(e, pageId), 50, {
       trailing: false,
     }),
     [shareMousePointer, pageId],
   );
+
   try {
     return (
       <>
@@ -62,16 +67,19 @@ const Canvas = memo((props: CanvasProps) => {
           id="art-board"
           onMouseMove={(e) => {
             e.persist();
+            if (!isMultiplayerEnabledForUser) return;
             delayedShareMousePointer(e);
           }}
           width={props.dsl.rightColumn}
         >
           {props.dsl.widgetId &&
-            WidgetFactory.createWidget(props.dsl, RenderModes.EDIT)}
-          <CanvasMultiPointerArena
-            pageEditSocket={pageEditSocket}
-            pageId={pageId}
-          />
+            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+          {isMultiplayerEnabledForUser && (
+            <CanvasMultiPointerArena
+              pageEditSocket={pageEditSocket}
+              pageId={pageId}
+            />
+          )}
         </ArtBoard>
       </>
     );

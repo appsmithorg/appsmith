@@ -1,42 +1,22 @@
 import {
   ReduxActionTypes,
   ReduxAction,
-  ReduxActionErrorTypes,
-  ReduxActionWithoutPayload,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import {
-  ExecuteActionPayload,
-  ExecuteErrorPayload,
-  WidgetExecuteActionPayload,
-} from "constants/AppsmithActionConstants/ActionConstants";
+import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { BatchAction, batchAction } from "actions/batchActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { WidgetProps } from "widgets/BaseWidget";
 
-export const executeAction = (
-  payload: ExecuteActionPayload | WidgetExecuteActionPayload,
-): BatchAction<ExecuteActionPayload> => {
-  return batchAction({
-    type: ReduxActionTypes.EXECUTE_ACTION,
+export const executeTrigger = (
+  payload: ExecuteTriggerPayload,
+): BatchAction<ExecuteTriggerPayload> =>
+  batchAction({
+    type: ReduxActionTypes.EXECUTE_TRIGGER_REQUEST,
     payload,
   });
-};
-
-export const executeActionError = (
-  executeErrorPayload: ExecuteErrorPayload,
-): ReduxAction<ExecuteErrorPayload> => {
-  return {
-    type: ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-    payload: executeErrorPayload,
-  };
-};
-
-export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-});
 
 export const disableDragAction = (
   isDraggingDisabled: boolean,

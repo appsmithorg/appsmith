@@ -268,11 +268,11 @@ public class RedisPluginTest {
                     Assert.assertNotNull(actionExecutionResult.getBody());
                     final JsonNode node = ((ArrayNode) actionExecutionResult.getBody());
                     Assert.assertEquals("value", node.get(0).get("result").asText());
-                    Assert.assertEquals("\"value\"", node.get(1).get("result").asText());
-                    Assert.assertEquals("\"my value\"", node.get(2).get("result").asText());
-                    Assert.assertEquals("'value'", node.get(3).get("result").asText());
-                    Assert.assertEquals("'my value'", node.get(4).get("result").asText());
-                    Assert.assertEquals("'{\"a\":\"b\"}'", node.get(5).get("result").asText());
+                    Assert.assertEquals("value", node.get(1).get("result").asText());
+                    Assert.assertEquals("my value", node.get(2).get("result").asText());
+                    Assert.assertEquals("value", node.get(3).get("result").asText());
+                    Assert.assertEquals("my value", node.get(4).get("result").asText());
+                    Assert.assertEquals("{\"a\":\"b\"}", node.get(5).get("result").asText());
                 }).verifyComplete();
     }
 

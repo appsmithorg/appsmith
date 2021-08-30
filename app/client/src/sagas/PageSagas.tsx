@@ -64,8 +64,7 @@ import {
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
-import { executePageLoadActions } from "actions/widgetActions";
-import { ApiResponse } from "api/ApiResponses";
+import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -73,9 +72,10 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import {
+  executePageLoadActions,
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "./EvaluationsSaga";
@@ -98,7 +98,7 @@ import {
   generateTemplateSuccess,
 } from "../actions/pageActions";
 import { getAppMode } from "selectors/applicationSelectors";
-import { setCrudInfoModalOpen } from "actions/crudInfoModalActions";
+import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -898,26 +898,29 @@ export function* generateTemplatePageSaga(
   try {
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
-    const response: ApiResponse = yield call(
-      PageApi.generateTemplatePage,
-      request,
-    );
+    const response: GenericApiResponse<{
+      page: any;
+      successImageUrl: string;
+      successMessage: string;
+    }> = yield call(PageApi.generateTemplatePage, request);
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const pageId = response.data.id;
+      const pageId = response.data.page.id;
       const applicationId =
-        response.data.applicationId || request.applicationId;
+        response.data.page.applicationId || request.applicationId;
       yield handleFetchedPage({
-        fetchPageResponse: response,
+        fetchPageResponse: {
+          data: response.data.page,
+          responseMeta: response.responseMeta,
+        },
         pageId,
       });
+
       // TODO : Add this to onSuccess (Redux Action)
       yield put(
         generateTemplateSuccess({
-          pageId: response.data.id,
-          pageName: response.data.name,
-          layoutId: response.data.layouts[0].id,
+          page: response.data.page,
           isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
         }),
       );
@@ -931,7 +934,15 @@ export function* generateTemplatePageSaga(
         variant: Variant.success,
       });
 
-      yield put(setCrudInfoModalOpen(true));
+      yield put(
+        setCrudInfoModalData({
+          open: true,
+          generateCRUDSuccessInfo: {
+            successImageUrl: response.data.successImageUrl,
+            successMessage: response.data.successMessage,
+          },
+        }),
+      );
     }
   } catch (error) {
     yield put(generateTemplateError());

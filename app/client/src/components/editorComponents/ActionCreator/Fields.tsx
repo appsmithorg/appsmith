@@ -9,10 +9,10 @@ import { KeyValueComponent } from "components/propertyControls/KeyValueComponent
 import { InputText } from "components/propertyControls/InputTextControl";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
-import { NavigationTargetType } from "sagas/ActionExecutionSagas";
 import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */

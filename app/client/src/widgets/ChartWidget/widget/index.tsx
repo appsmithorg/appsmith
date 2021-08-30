@@ -1,17 +1,19 @@
 import React, { lazy, Suspense } from "react";
+
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import propertyConfig from "./propertyConfig";
 import {
-  ChartDataPoint,
   ChartType,
   CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
 } from "../constants";
+
+import { WidgetType } from "constants/WidgetConstants";
+import { ChartComponentProps } from "../component";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -57,6 +59,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           customFusionChartConfig={this.props.customFusionChartConfig}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
+          labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
@@ -80,8 +83,13 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowHorizontalScroll: boolean;
+}
+
+type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;
+export interface ChartWidgetProps
+  extends WidgetProps,
+    ChartComponentPartialProps {
   onDataPointClick?: string;
-  selectedDataPoint?: ChartDataPoint;
 }
 
 export default ChartWidget;

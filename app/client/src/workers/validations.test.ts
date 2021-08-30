@@ -118,7 +118,7 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates number", () => {
+  it("correctly validates number when required is true", () => {
     const config = {
       type: ValidationTypes.NUMBER,
       params: {
@@ -128,7 +128,7 @@ describe("Validate Validators", () => {
         default: 150,
       },
     };
-    const inputs = [120, 90, 220, undefined, {}, [], "120"];
+    const inputs = [120, 90, 220, undefined, {}, [], "120", ""];
     const expected = [
       {
         isValid: true,
@@ -163,6 +163,11 @@ describe("Validate Validators", () => {
         isValid: true,
         parsed: 120,
       },
+      {
+        isValid: false,
+        parsed: 150,
+        message: "This value is required",
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
@@ -170,7 +175,29 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates boolean", () => {
+  it("correctly validates number when required is false", () => {
+    const config = {
+      type: ValidationTypes.NUMBER,
+      params: {
+        min: 100,
+        max: 200,
+        default: 150,
+      },
+    };
+    const inputs = [""];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates boolean when required is true", () => {
     const config = {
       type: ValidationTypes.BOOLEAN,
       params: {
@@ -178,7 +205,7 @@ describe("Validate Validators", () => {
         required: true,
       },
     };
-    const inputs = ["123", undefined, false, true, [], {}, "true", "false"];
+    const inputs = ["123", undefined, false, true, [], {}, "true", "false", ""];
     const expected = [
       {
         isValid: false,
@@ -215,6 +242,32 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: false,
+      },
+      {
+        isValid: false,
+        parsed: false,
+        message: "This value does not evaluate to type boolean",
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates boolean when required is false", () => {
+    const config = {
+      type: ValidationTypes.BOOLEAN,
+      params: {
+        default: false,
+      },
+    };
+    const inputs = [""];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
       },
     ];
 
@@ -306,7 +359,7 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates array", () => {
+  it("correctly validates array when required is true", () => {
     const inputs = [
       ["a", "b", "c"],
       ["m", "n", "b"],
@@ -319,6 +372,7 @@ describe("Validate Validators", () => {
       `["a", "b", "c"]`,
       '{ "key": "value" }',
       ["a", "b", "a", "c"],
+      "",
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -395,6 +449,12 @@ describe("Validate Validators", () => {
         parsed: [],
         message: "Array must be unique. Duplicate values found",
       },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "This property is required for the widget to function correctly",
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
@@ -402,7 +462,34 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates array with specific object children", () => {
+  it("correctly validates array when required is false", () => {
+    const inputs = [""];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        unique: true,
+        children: {
+          type: ValidationTypes.TEXT,
+          params: {
+            required: true,
+            allowedValues: ["a", "b", "c", "n", "m", "p", "r"],
+          },
+        },
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array with specific object children and required is true", () => {
     const inputs = [
       [{ label: 123, value: 234 }],
       `[{"label": 123, "value": 234}]`,
@@ -410,6 +497,7 @@ describe("Validate Validators", () => {
       [{ label: "abcd", value: 234 }],
       [{}],
       [],
+      "",
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -469,6 +557,52 @@ describe("Validate Validators", () => {
         isValid: true,
         parsed: [],
         message: "",
+      },
+      {
+        isValid: false,
+        parsed: [],
+        message:
+          "This property is required for the widget to function correctly",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array with specific object children and required is false", () => {
+    const inputs = [""];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        children: {
+          type: ValidationTypes.OBJECT,
+          params: {
+            allowedKeys: [
+              {
+                name: "label",
+                type: ValidationTypes.NUMBER,
+                params: {
+                  required: true,
+                },
+              },
+              {
+                name: "value",
+                type: ValidationTypes.NUMBER,
+                params: {
+                  required: true,
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
       },
     ];
     inputs.forEach((input, index) => {

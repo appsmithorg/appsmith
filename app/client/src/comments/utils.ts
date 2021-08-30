@@ -51,6 +51,52 @@ export const transformUnpublishCommentThreadToCreateNew = (payload: any) => {
   };
 };
 
+const getRelativePos = (
+  absPosition: { x: number; y: number },
+  boundingRectSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  },
+) => {
+  const containerPosition = {
+    left: boundingRectSizePosition.left,
+    top: boundingRectSizePosition.top,
+  };
+  const offsetLeft = absPosition.x - containerPosition.left;
+  const offsetTop = absPosition.y - containerPosition.top;
+
+  const offsetLeftPercent = parseFloat(
+    `${(offsetLeft / boundingRectSizePosition.width) * 100}`,
+  );
+  const offsetTopPercent = parseFloat(
+    `${(offsetTop / boundingRectSizePosition.height) * 100}`,
+  );
+
+  return {
+    leftPercent: offsetLeftPercent,
+    topPercent: offsetTopPercent,
+    left: offsetLeft,
+    top: offsetTop,
+  };
+};
+
+export const getNewDragPos = (
+  absolutePos: {
+    x: number;
+    y: number;
+  },
+  boundingRectSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  },
+) => {
+  return getRelativePos(absolutePos, boundingRectSizePosition);
+};
+
 /**
  * Returns the offset position relative to the container
  * using the coordinates from the click event
@@ -61,32 +107,12 @@ export const getOffsetPos = (
   clickEvent: React.MouseEvent,
   containerRef: HTMLDivElement,
 ) => {
-  const boundingClientRect = containerRef.getBoundingClientRect();
-  const containerPosition = {
-    left: boundingClientRect.left,
-    top: boundingClientRect.top,
-  };
   const clickPosition = {
-    left: clickEvent.clientX,
-    top: clickEvent.clientY,
+    x: clickEvent.clientX,
+    y: clickEvent.clientY,
   };
-
-  const offsetLeft = clickPosition.left - containerPosition.left;
-  const offsetTop = clickPosition.top - containerPosition.top;
-
-  const offsetLeftPercent = parseFloat(
-    `${(offsetLeft / boundingClientRect.width) * 100}`,
-  );
-  const offsetTopPercent = parseFloat(
-    `${(offsetTop / boundingClientRect.height) * 100}`,
-  );
-
-  return {
-    leftPercent: offsetLeftPercent,
-    topPercent: offsetTopPercent,
-    left: offsetLeft,
-    top: offsetTop,
-  };
+  const boundingClientRect = containerRef.getBoundingClientRect();
+  return getRelativePos(clickPosition, boundingClientRect);
 };
 
 export const getCommentThreadURL = ({

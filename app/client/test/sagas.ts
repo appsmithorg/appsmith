@@ -20,7 +20,7 @@ import commentSagas from "../src/sagas/CommentSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import { watchActionSagas } from "../src/sagas/ActionSagas";
-import { watchActionExecutionSagas } from "../src/sagas/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "../src/sagas/ActionExecution/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
@@ -28,6 +28,7 @@ import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
 import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "../src/sagas/DraggingCanvasSagas";
+import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -49,6 +50,7 @@ export const sagasToRunForTests = [
   batchSagas,
   themeSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   saaSPaneSagas,
   globalSearchSagas,

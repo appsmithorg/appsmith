@@ -37,7 +37,6 @@ import {
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
-import { WidgetExecuteActionPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -181,6 +180,7 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       yield call(logDependentEntityProperties, payload);
       return;
     case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
         if (payload.text) {
@@ -220,20 +220,6 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
   }
 }
 
-function* logActionSaga(action: ReduxAction<WidgetExecuteActionPayload>) {
-  const { triggerPropertyName, widgetId } = action.payload;
-  if (triggerPropertyName && widgetId) {
-    const widget = yield select(getWidget, widgetId);
-    AppsmithConsole.info({
-      text: `${triggerPropertyName} triggered`,
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        id: widgetId,
-        name: widget.widgetName,
-      },
-    });
-  }
-}
 // This saga is intended for analytics only
 function* logDebuggerErrorAnalyticsSaga(
   action: ReduxAction<LogDebuggerErrorAnalyticsPayload>,
@@ -392,6 +378,9 @@ function* deleteDebuggerErrorLogSaga(
   action: ReduxAction<{ id: string; analytics: Log["analytics"] }>,
 ) {
   const errors: Record<string, Log> = yield select(getDebuggerErrors);
+  // If no error exists with this id
+  if (!(action.payload.id in errors)) return;
+
   const error = errors[action.payload.id];
 
   if (!error.source) return;
@@ -437,7 +426,7 @@ function* deleteDebuggerErrorLogSaga(
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
-    takeEvery(ReduxActionTypes.EXECUTE_ACTION, logActionSaga),
+
     takeEvery(
       ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
       logDebuggerErrorAnalyticsSaga,
