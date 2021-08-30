@@ -93,13 +93,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getPropertyValue = (value: any, index: number, preserveCase = false) => {
+  getBooleanPropertyValue = (value: any, index: number) => {
     if (isBoolean(value)) {
       return value;
     }
     if (Array.isArray(value) && isBoolean(value[index])) {
       return value[index];
     }
+    return value;
+  };
+
+  getPropertyValue = (value: any, index: number, preserveCase = false) => {
     if (value && Array.isArray(value) && value[index]) {
       return preserveCase
         ? value[index].toString()
@@ -144,9 +148,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-      isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
-      isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
-      isCellVisible: this.getPropertyValue(
+      isVisible: this.getBooleanPropertyValue(
+        columnProperties.isVisible,
+        rowIndex,
+      ),
+      isDisabled: this.getBooleanPropertyValue(
+        columnProperties.isDisabled,
+        rowIndex,
+      ),
+      isCellVisible: this.getBooleanPropertyValue(
         columnProperties.isCellVisible,
         rowIndex,
       ),
