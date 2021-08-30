@@ -29,6 +29,7 @@ export const entityDefinitions = {
         "!type": "?",
       },
       run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
+      clear: "fn() -> void",
     };
   },
   CONTAINER_WIDGET: {
@@ -53,6 +54,10 @@ export const entityDefinitions = {
     isValid: "bool",
     isVisible: isVisible,
     isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number type input",
+    },
     currencyCountryCode: {
       "!type": "string",
       "!doc": "Selected country code for Currency type input",
@@ -70,6 +75,11 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
+    sortOrder: {
+      column: "string",
+      order: ["asc", "desc"],
+    },
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -241,6 +251,14 @@ export const entityDefinitions = {
     selectedMarker: "mapMarker",
   },
   FILE_PICKER_WIDGET: {
+    "!doc":
+      "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+    "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+    isVisible: isVisible,
+    files: "[file]",
+    isDisabled: "bool",
+  },
+  FILE_PICKER_WIDGET_V2: {
     "!doc":
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",

@@ -7,6 +7,8 @@ import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
+import Tooltip from "components/ads/Tooltip";
+import { ADD_REACTION, createMessage, EMOJI } from "constants/messages";
 
 const EmojiPicker = withTheme(
   ({
@@ -50,12 +52,14 @@ const EmojiPicker = withTheme(
         }}
         portalClassName="emoji-picker-portal"
       >
-        <Icon
-          fillColor={theme.colors.comments.emojiPicker}
-          keepColors
-          name={iconName || "emoji"}
-          size={iconSize || IconSize.XXXL}
-        />
+        <Tooltip content={createMessage(iconName ? ADD_REACTION : EMOJI)}>
+          <Icon
+            fillColor={theme.colors.comments.emojiPicker}
+            keepColors
+            name={iconName || "emoji"}
+            size={iconSize || IconSize.XXXL}
+          />
+        </Tooltip>
       </Popover2>
     );
   },

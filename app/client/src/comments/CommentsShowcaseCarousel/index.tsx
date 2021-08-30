@@ -34,6 +34,7 @@ import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-
 import stepTwoThumbnail from "assets/images/comments-onboarding/thumbnails/step-2.jpg";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const getBanner = (step: number) =>
   `${S3_BUCKET_URL}/comments/step-${step}.png`;
@@ -143,6 +144,13 @@ function IntroStep(props: {
 
 const IntroStepThemed = withTheme(IntroStep);
 
+const handleStepChange = (currentStep: number, nextStep: number) => {
+  AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_STEP_CHANGE", {
+    currentStep,
+    nextStep,
+  });
+};
+
 const getSteps = (
   isSubmitProfileFormDisabled: boolean,
   finalSubmit: () => void,
@@ -221,6 +229,9 @@ export default function CommentsShowcaseCarousel() {
   const [activeIndex, setActiveIndex] = useState(initialStep);
 
   const finalSubmit = async () => {
+    AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_SUBMIT_BUTTON_CLICK", {
+      skipped: isSkipped,
+    });
     dispatch(hideCommentsIntroCarousel());
     await setCommentsIntroSeen(true);
 
@@ -237,6 +248,7 @@ export default function CommentsShowcaseCarousel() {
   };
 
   const onSkip = () => {
+    AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK");
     setActiveIndex(finalStep);
     setIsSkipped(true);
   };
@@ -262,6 +274,7 @@ export default function CommentsShowcaseCarousel() {
       <ShowcaseCarousel
         activeIndex={activeIndex}
         onClose={handleClose}
+        onStepChange={handleStepChange}
         setActiveIndex={setActiveIndex}
         steps={steps as Steps}
       />

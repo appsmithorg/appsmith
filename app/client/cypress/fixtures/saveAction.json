@@ -26,7 +26,6 @@
       ],
       "authentication": {
         "authenticationType": "dbAuth",
-        "authenticationType": "dbAuth",
         "authType": "SCRAM_SHA_1",
         "username": "cypress-test",
         "databaseName": "admin"
