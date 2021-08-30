@@ -2,7 +2,8 @@ import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
 import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
-import { watchActionExecutionSagas } from "sagas/ActionExecutionSagas";
+import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
+import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import widgetOperationSagas from "./WidgetOperationSagas";
 import errorSagas from "./ErrorSagas";
 import applicationSagas from "./ApplicationSagas";
@@ -33,15 +34,18 @@ import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./SelectionCanvasSagas";
+import draggingCanvasSagas from "./DraggingCanvasSagas";
+
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-
+import formEvaluationChangeListener from "./FormEvaluationSaga";
 const sagas = [
   initSagas,
   pageSagas,
   fetchWidgetCardsSaga,
   watchActionSagas,
   watchActionExecutionSagas,
+  watchPluginActionExecutionSagas,
   widgetOperationSagas,
   errorSagas,
   watchDatasourcesSagas,
@@ -61,6 +65,7 @@ const sagas = [
   evaluationsSaga,
   onboardingSagas,
   actionExecutionChangeListeners,
+  formEvaluationChangeListener,
   utilSagas,
   globalSearchSagas,
   recentEntitiesSagas,
@@ -71,6 +76,7 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  draggingCanvasSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

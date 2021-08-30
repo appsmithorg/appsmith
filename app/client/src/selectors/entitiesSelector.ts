@@ -17,7 +17,7 @@ import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidget
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
-import { PLUGIN_PACKAGE_NAME } from "../pages/Editor/GeneratePage/components/constants";
+import { APP_MODE } from "entities/App";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -120,6 +120,10 @@ export const getIsFetchingSinglePluginForm = (
   pluginId: string,
 ): boolean => {
   return !!state.entities.plugins.fetchingSinglePluginForm[pluginId];
+};
+
+export const getIsExecutingDatasourceQuery = (state: AppState): boolean => {
+  return state.entities.datasources.executingDatasourceQuery;
 };
 
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
@@ -250,13 +254,8 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   getPlugins,
   (plugins) => {
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
-    // Disable google sheet plugin
     plugins.map((plugin) => {
-      if (
-        plugin.generateCRUDPageComponent &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.GOOGLE_SHEETS &&
-        plugin.packageName !== PLUGIN_PACKAGE_NAME.S3
-      ) {
+      if (plugin.generateCRUDPageComponent) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
     });
@@ -356,6 +355,39 @@ export const getCurrentPageWidgets = createSelector(
   (widgetsByPage, currentPageId) =>
     currentPageId ? widgetsByPage[currentPageId] : {},
 );
+
+const getParentModalId = (widget: any, pageWidgets: Record<string, any>) => {
+  let parentModalId;
+  let { parentId } = widget;
+  let parentWidget = pageWidgets[parentId];
+  while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
+    if (parentWidget?.type === "MODAL_WIDGET") {
+      parentModalId = parentId;
+      break;
+    }
+    parentId = parentWidget?.parentId;
+    parentWidget = pageWidgets[parentId];
+  }
+  return parentModalId;
+};
+
+export const getCanvasWidgetsWithParentId = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets: CanvasWidgetsReduxState) => {
+    return Object.entries(canvasWidgets).reduce(
+      (res, [widgetId, widget]: any) => {
+        const parentModalId = getParentModalId(widget, canvasWidgets);
+
+        return {
+          ...res,
+          [widgetId]: { ...widget, parentModalId },
+        };
+      },
+      {},
+    );
+  },
+);
+
 export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {
@@ -363,17 +395,7 @@ export const getAllWidgetsMap = createSelector(
       (res: any, [pageId, pageWidgets]: any) => {
         const widgetsMap = Object.entries(pageWidgets).reduce(
           (res, [widgetId, widget]: any) => {
-            let parentModalId;
-            let { parentId } = widget;
-            let parentWidget = pageWidgets[parentId];
-            while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
-              if (parentWidget?.type === "MODAL_WIDGET") {
-                parentModalId = parentId;
-                break;
-              }
-              parentId = parentWidget?.parentId;
-              parentWidget = pageWidgets[parentId];
-            }
+            const parentModalId = getParentModalId(widget, pageWidgets);
 
             return {
               ...res,
@@ -403,4 +425,37 @@ export const getAllPageWidgets = createSelector(
   },
 );
 
+export const getPageListAsOptions = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) =>
+    pages.map((page) => ({
+      label: page.pageName,
+      id: page.pageId,
+      value: `'${page.pageName}'`,
+    })),
+);
+
+export const getExistingPageNames = createSelector(
+  (state: AppState) => state.entities.pageList.pages,
+  (pages) => pages.map((page) => page.pageName),
+);
+
+export const getExistingWidgetNames = createSelector(
+  (state: AppState) => state.entities.canvasWidgets,
+  (widgets) => Object.values(widgets).map((widget) => widget.pageName),
+);
+
+export const getExistingActionNames = createSelector(
+  (state: AppState) => state.entities.actions,
+  (actions) =>
+    actions.map((action: { config: { name: string } }) => action.config.name),
+);
+
 export const getAppMode = (state: AppState) => state.entities.app.mode;
+
+export const widgetsMapWithParentModalId = (state: AppState) => {
+  const appMode = getAppMode(state);
+  return appMode === APP_MODE.EDIT
+    ? getAllWidgetsMap(state)
+    : getCanvasWidgetsWithParentId(state);
+};

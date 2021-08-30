@@ -9,11 +9,12 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
 import {
+  deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
-  selectMultipleWidgetsAction,
 } from "actions/widgetSelectionActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
@@ -22,20 +23,30 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { setCommentMode as setCommentModeAction } from "actions/commentActions";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
+import {
+  filterCategories,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+
+import { commentModeSelector } from "selectors/commentsSelectors";
+import getFeatureFlags from "utils/featureFlags";
 
 type Props = {
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: () => void;
-  resetCommentMode: () => void;
+  groupSelectedWidget: () => void;
+  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -47,6 +58,8 @@ type Props = {
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  appMode?: APP_MODE;
+  isCommentMode: boolean;
 };
 
 @HotkeysTarget
@@ -70,7 +83,9 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(e: KeyboardEvent) {
     e.preventDefault();
-    this.props.toggleShowGlobalSearchModal();
+    this.props.toggleShowGlobalSearchModal(
+      filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
+    );
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
 
@@ -190,7 +205,14 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode();
+            if (this.props.isCommentMode && getFeatureFlags().COMMENT) {
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "esc",
+              });
+            }
+            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -203,7 +225,13 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
-            this.props.resetCommentMode();
+            if (getFeatureFlags().COMMENT && this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "v",
+              });
+            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
           }}
@@ -212,7 +240,15 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="c"
           global
           label="Comment Mode"
-          onKeyDown={() => setCommentModeInUrl(true)}
+          onKeyDown={() => {
+            if (getFeatureFlags().COMMENT && !this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: "COMMENT",
+                source: "HOTKEY",
+                combo: "c",
+              });
+            setCommentModeInUrl(true);
+          }}
         />
         <Hotkey
           allowInInput
@@ -222,6 +258,17 @@ class GlobalHotKeys extends React.Component<Props> {
           onKeyDown={this.props.executeAction}
           preventDefault
           stopPropagation
+        />
+        <Hotkey
+          combo="mod + g"
+          global
+          group="Canvas"
+          label="Cut Widgets for grouping"
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.groupSelectedWidget();
+            }
+          }}
         />
       </Hotkeys>
     );
@@ -236,6 +283,8 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
+  appMode: getAppMode(state),
+  isCommentMode: commentModeSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -244,14 +293,15 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
-    toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
-    resetCommentMode: () => dispatch(setCommentModeAction(false)),
+    groupSelectedWidget: () => dispatch(groupWidgets()),
+    toggleShowGlobalSearchModal: (category: SearchCategory) =>
+      dispatch(toggleShowGlobalSearchModal(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
+    deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
   };
 };

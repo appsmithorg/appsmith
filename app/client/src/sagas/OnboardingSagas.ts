@@ -5,6 +5,7 @@ import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import {
@@ -70,7 +71,7 @@ import {
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { createActionRequest, runActionInit } from "actions/actionActions";
+import { createActionRequest, runAction } from "actions/pluginActionActions";
 import {
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
@@ -92,6 +93,7 @@ import {
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+
 import {
   EVAL_ERROR_PATH,
   EvaluationError,
@@ -438,8 +440,7 @@ function* listenForCreateAction() {
     setHelperConfig({
       ...helperConfig,
       image: {
-        src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
+        src: "https://assets.appsmith.com/Run.gif",
       },
     }),
   );
@@ -448,7 +449,7 @@ function* listenForCreateAction() {
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
     ReduxActionTypes.QUERY_PANE_CHANGE,
-    ReduxActionTypes.RUN_ACTION_INIT,
+    ReduxActionTypes.RUN_ACTION_REQUEST,
   ]);
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
@@ -657,7 +658,7 @@ function* executeQuery() {
   const queryId = getQueryIdFromURL();
 
   if (queryId) {
-    yield put(runActionInit(queryId));
+    yield put(runAction(queryId));
   }
 }
 
@@ -673,7 +674,7 @@ function* addWidget(widgetConfig: any) {
     };
 
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
 

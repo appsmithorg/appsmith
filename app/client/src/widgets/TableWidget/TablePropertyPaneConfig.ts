@@ -4,6 +4,7 @@ import { ColumnProperties } from "components/designSystems/appsmith/TableCompone
 import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function defaultSelectedRowValidation(
   value: unknown,
@@ -82,6 +83,39 @@ function defaultSelectedRowValidation(
   return {
     isValid: true,
     parsed: value,
+  };
+}
+
+function totalRecordsCountValidation(
+  value: unknown,
+  props: TableWidgetProps,
+  _?: any,
+) {
+  if (_.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: 0,
+      message: "",
+    };
+  }
+  if (!Number.isFinite(value) && !_.isString(value)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  if (_.isString(value) && !/^\d+\.?\d*$/.test(value as string)) {
+    return {
+      isValid: false,
+      parsed: 0,
+      message: "This value must be a number",
+    };
+  }
+  return {
+    isValid: true,
+    parsed: Number(value),
+    message: "",
   };
 }
 
@@ -224,7 +258,12 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.OBJECT_ARRAY },
+        validation: {
+          type: ValidationTypes.OBJECT_ARRAY,
+          params: {
+            default: [],
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -233,6 +272,7 @@ export default [
         controlType: "PRIMARY_COLUMNS",
         label: "Columns",
         updateHook: updateDerivedColumnsHook,
+        dependencies: ["derivedColumns", "columnOrder"],
         isBindProperty: false,
         isTriggerProperty: false,
         panelConfig: {
@@ -240,6 +280,7 @@ export default [
           titlePropertyName: "label",
           panelIdPropertyName: "id",
           updateHook: updateDerivedColumnsHook,
+          dependencies: ["primaryColumns", "derivedColumns", "columnOrder"],
           children: [
             {
               sectionName: "Column Control",
@@ -280,6 +321,11 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: false,
                   isTriggerProperty: false,
                 },
@@ -298,6 +344,11 @@ export default [
                     );
                     return columnType !== "url";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: false,
                   isTriggerProperty: false,
                 },
@@ -315,6 +366,28 @@ export default [
                     );
                     return columnType === "button";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isCellVisible",
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
+                  label: "Visible",
+                  helpText: "Controls the visibility of the cell in the column",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: true,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -417,6 +490,11 @@ export default [
                     );
                     return columnType !== "date";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -519,6 +597,11 @@ export default [
                     );
                     return columnType !== "date";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnType",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -536,6 +619,11 @@ export default [
                     );
                     return columnType !== "image";
                   },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: true,
@@ -553,6 +641,7 @@ export default [
                   columnType === "video"
                 );
               },
+              dependencies: ["primaryColumns", "derivedColumns"],
               children: [
                 {
                   propertyName: "horizontalAlignment",
@@ -576,6 +665,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -618,6 +712,11 @@ export default [
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -638,6 +737,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -663,6 +767,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -673,6 +782,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -683,6 +797,11 @@ export default [
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -696,11 +815,27 @@ export default [
               },
               children: [
                 {
+                  propertyName: "isDisabled",
+                  label: "Disabled",
+                  updateHook: updateDerivedColumnsHook,
+                  defaultValue: false,
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                },
+                {
                   propertyName: "buttonLabel",
                   label: "Label",
                   controlType: "COMPUTE_VALUE",
                   defaultValue: "Action",
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -713,6 +848,11 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.GREEN,
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -724,6 +864,11 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   defaultColor: Colors.WHITE,
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: false,
                 },
@@ -742,6 +887,11 @@ export default [
                   }),
                   isJSConvertible: true,
                   updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                   isBindProperty: true,
                   isTriggerProperty: true,
                 },
@@ -774,9 +924,11 @@ export default [
             expected: {
               type: "Index of row(s)",
               example: "0 | [0, 1]",
+              autocompleteDataType: AutocompleteDataType.STRING,
             },
           },
         },
+        dependencies: ["multiRowSelection"],
       },
       {
         helpText:
@@ -786,6 +938,30 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
+      },
+      {
+        helpText:
+          "Bind the Table.pageSize and Table.pageNo property in your API and call it onPageChange. Without this the Table widget cannot calculate the number of pages and disable page buttons.",
+        propertyName: "totalRecordsCount",
+        label: "Total Record Count",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter total record count",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: totalRecordsCountValidation,
+            expected: {
+              type: "Number",
+              example: "10",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        hidden: (props: TableWidgetProps) =>
+          !!!props.serverSidePaginationEnabled,
+        dependencies: ["serverSidePaginationEnabled"],
       },
       {
         helpText: "Controls the visibility of the widget",
@@ -844,6 +1020,15 @@ export default [
         isBindProperty: true,
         isTriggerProperty: true,
       },
+      {
+        helpText: "Triggers an action when a table column is sorted",
+        propertyName: "onSort",
+        label: "onSort",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+      },
     ],
   },
   {
@@ -889,6 +1074,21 @@ export default [
         isBindProperty: false,
         isTriggerProperty: false,
       },
+      {
+        propertyName: "delimiter",
+        label: "CSV Separator",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter CSV separator",
+        helpText: "The character used for separating the CSV download file.",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: ",",
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+        hidden: (props: TableWidgetProps) => !props.isVisibleDownload,
+        dependencies: ["isVisibleDownload"],
+      },
     ],
   },
   {
@@ -899,6 +1099,7 @@ export default [
         label: "Cell Background",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         isBindProperty: false,
         isTriggerProperty: false,
       },
@@ -907,6 +1108,7 @@ export default [
         label: "Text Color",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         isBindProperty: false,
         isTriggerProperty: false,
       },
@@ -915,6 +1117,7 @@ export default [
         label: "Text Size",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
             label: "Heading 1",
@@ -955,6 +1158,7 @@ export default [
         label: "Font Style",
         controlType: "BUTTON_TABS",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
             icon: "BOLD_FONT",
@@ -973,6 +1177,7 @@ export default [
         label: "Text Align",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
             icon: "LEFT_ALIGN",
@@ -996,6 +1201,7 @@ export default [
         label: "Vertical Alignment",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
+        dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
             icon: "VERTICAL_TOP",

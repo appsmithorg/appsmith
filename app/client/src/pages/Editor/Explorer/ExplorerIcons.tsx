@@ -13,6 +13,7 @@ import {
 } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
+import { ControlIcons } from "icons/ControlIcons";
 
 const ENTITY_ICON_SIZE = 14;
 
@@ -55,6 +56,11 @@ export const apiIcon = (
 const DBQueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
 export const dbQueryIcon = (
   <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
+);
+
+const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
+export const settingsIcon = (
+  <SettingsIcon color={Colors.ALTO} height={12} width={12} />
 );
 
 const QueryIconWrapper = styled.div`

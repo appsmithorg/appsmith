@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
@@ -6,6 +6,12 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
+
+const SnippetDescription = lazy(() =>
+  retryPromise(() => import("./SnippetsDescription")),
+);
 
 type Props = {
   activeItem: SearchItem;
@@ -15,9 +21,11 @@ type Props = {
 };
 
 const Container = styled.div`
-  flex: 1;
+  flex: 2;
   display: flex;
   flex-direction: column;
+  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+  background: white;
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
@@ -33,15 +41,21 @@ const Container = styled.div`
   }
 
   h1 {
-    ${(props) => getTypographyByKey(props, "largeH1")};
+    ${(props) => getTypographyByKey(props, "docHeader")}
     word-break: break-word;
+  }
+
+  h2,
+  h3 {
+    ${(props) => getTypographyByKey(props, "h5")}
+    font-weight: 600;
   }
 
   h1,
   h2,
   h3,
   strong {
-    color: #fff;
+    color: #484848;
   }
 
   .documentation-cta {
@@ -62,15 +76,20 @@ const Container = styled.div`
 
   code {
     word-break: break-word;
+    font-size: 12px;
     background: ${(props) => props.theme.colors.globalSearch.codeBackground};
-    padding: ${(props) => props.theme.spaces[2]}px;
   }
 
   pre {
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
+    background: ${(props) =>
+      props.theme.colors.globalSearch.codeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
-    padding: ${(props) => props.theme.spaces[6]}px;
+  }
+  .CodeMirror {
+    pre {
+      background: transparent !important;
+    }
   }
 `;
 
@@ -160,6 +179,14 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
+function LazySnippetDescription(props: any) {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <SnippetDescription {...props} />
+    </Suspense>
+  );
+}
+
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
@@ -168,6 +195,8 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
+  [SEARCH_ITEM_TYPES.category]: () => null,
+  [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 
 function Description(props: Props) {

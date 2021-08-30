@@ -31,6 +31,9 @@ public enum AclPermission {
     //Does the user have read organization permissions
     USER_READ_ORGANIZATIONS("read:userOrganization", User.class),
 
+    // Does this user have permission to access Instance Config UI?
+    MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
+
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up
     // The following should be applied to Organization and not User
     READ_USERS("read:users", User.class),

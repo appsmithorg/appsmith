@@ -8,7 +8,7 @@ import { ActionResponse } from "api/ActionAPI";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
 import { Action } from "entities/Action";
-import { UpdateActionPropertyActionPayload } from "actions/actionActions";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import produce from "immer";
 
 export interface ActionData {
@@ -121,7 +121,7 @@ const actionsReducer = createReducer(initialState, {
       }
       return a;
     }),
-  [ReduxActionTypes.CREATE_ACTION_ERROR]: (
+  [ReduxActionErrorTypes.CREATE_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<Action>,
   ): ActionDataState =>
@@ -153,7 +153,7 @@ const actionsReducer = createReducer(initialState, {
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState => state.filter((a) => a.config.id !== action.payload.id),
-  [ReduxActionTypes.EXECUTE_API_ACTION_REQUEST]: (
+  [ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string }>,
   ): ActionDataState =>
@@ -166,7 +166,7 @@ const actionsReducer = createReducer(initialState, {
       }
       return a;
     }),
-  [ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS]: (
+  [ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS]: (
     state: ActionDataState,
     action: ReduxAction<{ id: string; response: ActionResponse }>,
   ): PartialActionData[] => {
@@ -193,7 +193,21 @@ const actionsReducer = createReducer(initialState, {
       return [...state, partialAction];
     }
   },
-  [ReduxActionErrorTypes.EXECUTE_ACTION_ERROR]: (
+  [ReduxActionTypes.CLEAR_ACTION_RESPONSE]: (
+    state: ActionDataState,
+    action: ReduxAction<{ actionId: string }>,
+  ): ActionDataState => {
+    return state.map((stateAction) => {
+      if (stateAction.config.id === action.payload.actionId) {
+        return {
+          ...stateAction,
+          data: undefined,
+        };
+      }
+      return stateAction;
+    });
+  },
+  [ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR]: (
     state: ActionDataState,
     action: ReduxAction<ExecuteErrorPayload>,
   ): ActionDataState =>

@@ -1,7 +1,8 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CUSTOM_CHART_TYPES } from "constants/CustomChartConstants";
+import { CUSTOM_CHART_TYPES, LabelOrientation } from "constants/ChartConstants";
+import { isLabelOrientationApplicableFor } from "components/designSystems/appsmith/ChartComponent";
 
 export default [
   {
@@ -144,6 +145,7 @@ export default [
         },
         hidden: (props: ChartWidgetProps) =>
           props.chartType !== "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
@@ -156,6 +158,7 @@ export default [
         isTriggerProperty: false,
         hidden: (props: ChartWidgetProps) =>
           props.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
         children: [
           {
             helpText: "Series Name",
@@ -175,19 +178,30 @@ export default [
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.ARRAY,
-              children: {
-                type: ValidationTypes.OBJECT,
-                params: {
-                  allowedKeys: [
-                    {
-                      name: "x",
-                      type: ValidationTypes.TEXT,
-                    },
-                    {
-                      name: "y",
-                      type: ValidationTypes.NUMBER,
-                    },
-                  ],
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "x",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          required: true,
+                          default: "",
+                        },
+                      },
+                      {
+                        name: "y",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          required: true,
+                          default: 10,
+                        },
+                      },
+                    ],
+                  },
                 },
               },
             },
@@ -202,6 +216,7 @@ export default [
     sectionName: "Axis",
     hidden: (props: ChartWidgetProps) =>
       props.chartType === "CUSTOM_FUSION_CHART",
+    dependencies: ["chartType"],
     children: [
       {
         helpText: "Specifies the label of the x-axis",
@@ -230,7 +245,37 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
+      },
+      {
+        helpText: "Changes the x-axis label orientation",
+        propertyName: "labelOrientation",
+        label: "x-axis Label Orientation",
+        hidden: (x: ChartWidgetProps) =>
+          !isLabelOrientationApplicableFor(x.chartType),
+        isBindProperty: false,
+        isTriggerProperty: false,
+        dependencies: ["chartType"],
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Auto",
+            value: LabelOrientation.AUTO,
+          },
+          {
+            label: "Slant",
+            value: LabelOrientation.SLANT,
+          },
+          {
+            label: "Rotate",
+            value: LabelOrientation.ROTATE,
+          },
+          {
+            label: "Stagger",
+            value: LabelOrientation.STAGGER,
+          },
+        ],
       },
     ],
   },

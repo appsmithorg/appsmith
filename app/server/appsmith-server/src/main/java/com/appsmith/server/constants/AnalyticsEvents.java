@@ -11,7 +11,10 @@ public enum AnalyticsEvents {
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
     FORK,
-    GENERATE_CRUD_PAGE("generate_CRUD_PAGE")
+    GENERATE_CRUD_PAGE("generate_CRUD_PAGE"),
+    CREATE_SUPERUSER,
+    SUBSCRIBE_MARKETING_EMAILS,
+    UNSUBSCRIBE_MARKETING_EMAILS,
     ;
 
     private final String eventName;

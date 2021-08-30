@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
 import com.segment.analytics.Analytics;
@@ -33,6 +34,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +72,9 @@ public class CommentServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @MockBean
     private Analytics analytics;
@@ -157,6 +162,27 @@ public class CommentServiceTest {
         Comment.Reaction reaction = new Comment.Reaction();
         reaction.setEmoji(emoji);
         return reaction;
+    }
+
+    private void mentionUser(Comment comment, String username) {
+        Comment.EntityData.Mention mention = new Comment.EntityData.Mention();
+        mention.setName(username);
+
+        Comment.EntityData entityData = new Comment.EntityData();
+        entityData.setMention(mention);
+
+        Comment.Entity commentEntity = new Comment.Entity();
+        commentEntity.setType("mention");
+        commentEntity.setData(entityData);
+
+        Map<String, Comment.Entity> entityMap = comment.getBody().getEntityMap();
+        if(entityMap == null) {
+            entityMap = new HashMap<>();
+        }
+        String mentionMapKey = (entityMap.keySet().size() + 1) + "";
+
+        entityMap.put(mentionMapKey, commentEntity);
+        comment.getBody().setEntityMap(entityMap);
     }
 
     @Test
@@ -288,23 +314,29 @@ public class CommentServiceTest {
         );
         Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
 
+        CommentThread.CommentThreadState resolvedState = new CommentThread.CommentThreadState();
+        resolvedState.setActive(false);
+
         // first thread which is read by api_user
         CommentThread c1 = new CommentThread();
         c1.setApplicationId("test-application-1");
         c1.setViewedByUsers(Set.of("api_user", "user2"));
         c1.setPolicies(policies);
+        c1.setResolvedState(resolvedState);
 
         // second thread which is not read by api_user
         CommentThread c2 = new CommentThread();
         c2.setApplicationId("test-application-1");
         c2.setViewedByUsers(Set.of("user2"));
         c2.setPolicies(policies);
+        c2.setResolvedState(resolvedState);
 
         // third thread which is read by api_user but in another application
         CommentThread c3 = new CommentThread();
         c3.setApplicationId("test-application-2");
         c3.setViewedByUsers(Set.of("user2", "api_user"));
         c3.setPolicies(policies);
+        c3.setResolvedState(resolvedState);
 
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
@@ -433,6 +465,47 @@ public class CommentServiceTest {
                 .assertNext(commentThreadList -> {
                     assertThat(commentThreadList.size()).isEqualTo(1);
                     assertThat(commentThreadList.get(0).getComments().size()).isEqualTo(1);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenSomeoneTaggedInFirstComment_NotificationCreated() {
+        // mock the user data so that bot comment is not created
+        UserData userData = new UserData();
+        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Organization organization = new Organization();
+        organization.setName("CreateThreadTestOrg");
+
+        String testUsernameForNotification = "test_username_for_notification";
+
+        Mono<Long> notificationCount = organizationService
+                .create(organization)
+                .flatMap(org -> {
+                    Application testApplication = new Application();
+                    testApplication.setName("CreateThreadsTestApplication");
+                    return applicationPageService
+                            .createApplication(testApplication, org.getId());
+                })
+                .flatMap(application -> {
+                    final CommentThread thread = new CommentThread();
+                    thread.setApplicationId(application.getId());
+                    Comment testComment = makePlainTextComment("Test Comment");
+                    mentionUser(testComment, testUsernameForNotification);
+                    thread.setComments(List.of(testComment));
+                    return commentService.createThread(thread, "https://app.appsmith.com");
+                })
+                .flatMap(commentThread ->
+                    notificationRepository.countByForUsername(testUsernameForNotification)
+                );
+
+        StepVerifier
+                .create(notificationCount)
+                .assertNext(aLong -> {
+                    assertThat(aLong).isEqualTo(1);
                 })
                 .verifyComplete();
     }

@@ -2,6 +2,8 @@ import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export const required = (value: any) => {
   if (value === undefined || value === null || value === "") {
@@ -18,26 +20,29 @@ export type ExpectedValueExample =
   | Record<string, unknown>
   | Array<unknown>;
 
-type ExpectedValue = {
-  type: string;
-  example: ExpectedValueExample;
-};
-
 export function getExpectedValue(
   config?: ValidationConfig,
-): ExpectedValue | undefined {
+): CodeEditorExpected | undefined {
   if (!config)
-    return { type: UNDEFINED_VALIDATION, example: UNDEFINED_VALIDATION }; // basic fallback
+    return {
+      type: UNDEFINED_VALIDATION,
+      example: UNDEFINED_VALIDATION,
+      autocompleteDataType: AutocompleteDataType.UNKNOWN,
+    }; // basic fallback
   switch (config.type) {
     case ValidationTypes.FUNCTION:
       return {
         type: config.params?.expected?.type || "unknown",
         example: config.params?.expected?.example || "No Example available",
+        autocompleteDataType:
+          config.params?.expected?.autocompleteDataType ||
+          AutocompleteDataType.UNKNOWN,
       };
     case ValidationTypes.TEXT:
-      const result: { type: string; example: ExpectedValueExample } = {
+      const result: CodeEditorExpected = {
         type: "string",
         example: "abc",
+        autocompleteDataType: AutocompleteDataType.STRING,
       };
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
@@ -49,14 +54,23 @@ export function getExpectedValue(
         result.example = config.params?.expected.example;
       return result;
     case ValidationTypes.REGEX:
-      return { type: "regExp", example: "^d+$" };
+      return {
+        type: "regExp",
+        example: "^d+$",
+        autocompleteDataType: AutocompleteDataType.STRING,
+      };
     case ValidationTypes.DATE_ISO_STRING:
       return {
         type: "ISO 8601 date string",
         example: moment().toISOString(true),
+        autocompleteDataType: AutocompleteDataType.STRING,
       };
     case ValidationTypes.BOOLEAN:
-      return { type: "boolean", example: false };
+      return {
+        type: "boolean",
+        example: false,
+        autocompleteDataType: AutocompleteDataType.BOOLEAN,
+      };
     case ValidationTypes.NUMBER:
       let type = "number";
       let eg = 100;
@@ -75,6 +89,7 @@ export function getExpectedValue(
       return {
         type,
         example: eg,
+        autocompleteDataType: AutocompleteDataType.NUMBER,
       };
     case ValidationTypes.OBJECT:
       const _exampleObj: Record<string, unknown> = {};
@@ -90,15 +105,21 @@ export function getExpectedValue(
         return {
           type,
           example: _exampleObj,
+          autocompleteDataType: AutocompleteDataType.OBJECT,
         };
       }
-      return { type, example: { key: "value" } };
+      return {
+        type,
+        example: { key: "value" },
+        autocompleteDataType: AutocompleteDataType.OBJECT,
+      };
     case ValidationTypes.ARRAY:
       if (config.params?.allowedValues) {
         const allowed = config.params?.allowedValues.join("' | '");
         return {
           type: `Array<'${allowed}'>`,
           example: config.params.allowedValues,
+          autocompleteDataType: AutocompleteDataType.ARRAY,
         };
       }
       if (config.params?.children) {
@@ -106,23 +127,31 @@ export function getExpectedValue(
         return {
           type: `Array<${children?.type}>`,
           example: [children?.example],
+          autocompleteDataType: AutocompleteDataType.ARRAY,
         };
       }
-      return { type: "Array", example: [] };
+      return {
+        type: "Array",
+        example: [],
+        autocompleteDataType: AutocompleteDataType.ARRAY,
+      };
     case ValidationTypes.OBJECT_ARRAY:
       return {
         type: `Array<Object>`,
         example: [{ id: 1 }],
+        autocompleteDataType: AutocompleteDataType.ARRAY,
       };
     case ValidationTypes.IMAGE_URL:
       return {
         type: `base64 encoded image | data uri | image url`,
         example: `https://app.appsmith.com/static/media/appsmith_logo_square.3867b195.png`,
+        autocompleteDataType: AutocompleteDataType.STRING,
       };
     case ValidationTypes.SAFE_URL:
       return {
         type: "URL",
         example: `https://wikipedia.org`,
+        autocompleteDataType: AutocompleteDataType.STRING,
       };
   }
 }

@@ -5,7 +5,7 @@ import {
   ControlData,
 } from "components/formControls/BaseControl";
 
-class FormControlFacotory {
+class FormControlFactory {
   static controlMap: Map<ControlType, ControlBuilder<ControlProps>> = new Map();
 
   static registerControlBuilder(
@@ -50,4 +50,4 @@ export interface ControlCreationException {
   message: string;
 }
 
-export default FormControlFacotory;
+export default FormControlFactory;

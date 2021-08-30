@@ -67,6 +67,11 @@ import FilePickerWidget, {
   FilePickerWidgetProps,
   ProfiledFilePickerWidget,
 } from "widgets/FilepickerWidget";
+
+import FilePickerWidgetV2, {
+  FilePickerWidgetV2Props,
+  ProfiledFilePickerWidgetV2,
+} from "widgets/FilepickerWidgetV2";
 import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
@@ -107,6 +112,10 @@ import DividerWidget, {
 import TabsMigratorWidget, {
   ProfiledTabsMigratorWidget,
 } from "widgets/Tabs/TabsMigrator";
+import MultiSelectWidget, {
+  MultiSelectWidgetProps,
+  ProfiledMultiSelectWidget,
+} from "widgets/MultiSelectWidget";
 import RateWidget, {
   RateWidgetProps,
   ProfiledRateWidget,
@@ -119,6 +128,14 @@ import MenuButtonWidget, {
   MenuButtonWidgetProps,
   ProfiledMenuButtonWidget,
 } from "widgets/MenuButtonWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
+import CheckboxGroupWidget, {
+  CheckboxGroupWidgetProps,
+  ProfiledCheckboxGroupWidget,
+} from "widgets/CheckboxGroupWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -278,6 +295,20 @@ export default class WidgetBuilderRegistry {
       FilePickerWidget.getMetaPropertiesMap(),
       FilePickerWidget.getPropertyPaneConfig(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FILE_PICKER_WIDGET_V2",
+      {
+        buildWidget(widgetData: FilePickerWidgetV2Props): JSX.Element {
+          return <ProfiledFilePickerWidgetV2 {...widgetData} />;
+        },
+      },
+      FilePickerWidgetV2.getDerivedPropertiesMap(),
+      FilePickerWidgetV2.getDefaultPropertiesMap(),
+      FilePickerWidgetV2.getMetaPropertiesMap(),
+      FilePickerWidgetV2.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
       {
@@ -471,7 +502,18 @@ export default class WidgetBuilderRegistry {
       ModalWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
     );
-
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: MultiSelectWidgetProps): JSX.Element {
+          return <ProfiledMultiSelectWidget {...widgetData} />;
+        },
+      },
+      MultiSelectWidget.getDerivedPropertiesMap(),
+      MultiSelectWidget.getDefaultPropertiesMap(),
+      MultiSelectWidget.getMetaPropertiesMap(),
+      MultiSelectWidget.getPropertyPaneConfig(),
+    );
     WidgetFactory.registerWidgetBuilder(
       "RATE_WIDGET",
       {
@@ -522,6 +564,32 @@ export default class WidgetBuilderRegistry {
       MenuButtonWidget.getDefaultPropertiesMap(),
       MenuButtonWidget.getMetaPropertiesMap(),
       MenuButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.CHECKBOX_GROUP_WIDGET,
+      {
+        buildWidget(widgetData: CheckboxGroupWidgetProps): JSX.Element {
+          return <ProfiledCheckboxGroupWidget {...widgetData} />;
+        },
+      },
+      CheckboxGroupWidget.getDerivedPropertiesMap(),
+      CheckboxGroupWidget.getDefaultPropertiesMap(),
+      CheckboxGroupWidget.getMetaPropertiesMap(),
+      CheckboxGroupWidget.getPropertyPaneConfig(),
     );
   }
 }

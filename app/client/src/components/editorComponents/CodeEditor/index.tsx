@@ -1,7 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import CodeMirror, { EditorConfiguration } from "codemirror";
+import CodeMirror, {
+  Annotation,
+  EditorConfiguration,
+  UpdateLintingCallback,
+} from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -12,6 +16,9 @@ import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
+import "codemirror/addon/lint/lint";
+import "codemirror/addon/lint/lint.css";
+
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
@@ -31,7 +38,7 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
-  HintEntityInformation,
+  FieldEntityInformation,
   Hinter,
   HintHelper,
   MarkHelper,
@@ -57,12 +64,22 @@ import {
   getEvalValuePath,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { getInputValue, removeNewLineChars } from "./codeEditorUtils";
+import {
+  getInputValue,
+  isActionEntity,
+  isWidgetEntity,
+  removeNewLineChars,
+} from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Placement } from "@blueprintjs/popover2";
+import { getLintAnnotations } from "./lintHelpers";
+import getFeatureFlags from "utils/featureFlags";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -83,6 +100,12 @@ interface ReduxDispatchProps {
   executeCommand: (payload: any) => void;
 }
 
+export type CodeEditorExpected = {
+  type: string;
+  example: ExpectedValueExample;
+  autocompleteDataType: AutocompleteDataType;
+};
+
 export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
@@ -96,13 +119,14 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -112,6 +136,8 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    errors?: any;
+    isInvalid?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -134,8 +160,9 @@ class CodeEditor extends Component<Props, State> {
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
+  annotations: Annotation[] = [];
+  updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -163,6 +190,13 @@ class CodeEditor extends Component<Props, State> {
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
         placeholder: this.props.placeholder,
+        lint: {
+          getAnnotations: (_: string, callback: UpdateLintingCallback) => {
+            this.updateLintingCallback = callback;
+          },
+          async: true,
+          lintOnChange: false,
+        },
       };
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -313,7 +347,11 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    if (this.editor.getValue().length === 0)
+    const entityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      this.editor.getValue().length === 0
+    )
       this.handleAutocompleteVisibility(this.editor);
   };
 
@@ -359,26 +397,41 @@ class CodeEditor extends Component<Props, State> {
     CodeEditor.updateMarkings(this.editor, this.props.marking);
   };
 
-  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    if (!this.state.isFocused) return;
+  getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, dynamicData, expected } = this.props;
-    const entityInformation: HintEntityInformation = {
-      expectedType: expected?.type,
+    const entityInformation: FieldEntityInformation = {
+      expectedType: expected?.autocompleteDataType,
     };
     if (dataTreePath) {
-      const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
       entityInformation.entityName = entityName;
       const entity = dynamicData[entityName];
-      if (entity && "ENTITY_TYPE" in entity) {
-        const entityType = entity.ENTITY_TYPE;
-        if (
-          entityType === ENTITY_TYPE.WIDGET ||
-          entityType === ENTITY_TYPE.ACTION
-        ) {
-          entityInformation.entityType = entityType;
+
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE.WIDGET ||
+            entityType === ENTITY_TYPE.ACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
         }
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
       }
+      entityInformation.propertyPath = propertyPath;
     }
+    return entityInformation;
+  };
+
+  handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
+    if (!this.state.isFocused) return;
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
@@ -406,6 +459,28 @@ class CodeEditor extends Component<Props, State> {
       cm.closeHint();
     }
   };
+
+  lintCode() {
+    const { dataTreePath, dynamicData } = this.props;
+
+    if (!dataTreePath || !this.updateLintingCallback) {
+      return;
+    }
+
+    const errors = _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+
+    let annotations: Annotation[] = [];
+
+    if (this.editor) {
+      annotations = getLintAnnotations(this.editor.getValue(), errors);
+    }
+
+    this.updateLintingCallback(this.editor, annotations);
+  }
 
   static updateMarkings = (
     editor: CodeMirror.Editor,
@@ -454,9 +529,11 @@ class CodeEditor extends Component<Props, State> {
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
+
     const filteredLintErrors = errors.filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
+
     const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
@@ -487,14 +564,24 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+    let { errors, isInvalid } = validations;
+    const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
+    }
+    /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
+    if (this.props.errors) {
+      errors = this.props.errors;
+    }
+    if (this.props.isInvalid !== undefined) {
+      isInvalid = Boolean(this.props.isInvalid);
+    }
+    /*  Evaluation results for snippet snippets */
+
+    if (getFeatureFlags().LINTING) {
+      this.lintCode();
     }
 
     const showEvaluatedValue =
@@ -532,6 +619,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
+          popperPlacement={this.props.popperPlacement}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
@@ -600,7 +688,7 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
-  recentEntities: state.ui.globalSearch.recentEntities.map((r) => r.id),
+  recentEntities: getRecentEntityIds(state),
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({

@@ -24,9 +24,9 @@ import {
   retrySocketConnection,
 } from "actions/websocketActions";
 
-import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
-
 import handleSocketEvent from "./handleSocketEvent";
+import { isMultiplayerEnabledForUser } from "selectors/appCollabSelectors";
+import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
 
 function connect() {
   const socket = io();
@@ -83,8 +83,7 @@ function* write(socket: any) {
     if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
       socket.disconnect().connect();
     } else {
-      // handle other writes here:
-      // socket.emit(payload.type, payload.payload);
+      socket.emit(payload.type, payload.payload);
     }
   }
 }
@@ -97,10 +96,9 @@ function* handleIO(socket: any) {
 function* flow() {
   while (true) {
     yield take([
-      ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+      ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
-
     try {
       /**
        * Incase the socket is disconnected due to network latencies
@@ -110,15 +108,12 @@ function* flow() {
        * in the first attempt itself
        */
       const commentsEnabled = yield select(areCommentsEnabledForUserAndApp);
-      if (commentsEnabled) {
+      const multiplayerEnabled = yield select(isMultiplayerEnabledForUser);
+      if (commentsEnabled || multiplayerEnabled) {
         const socket = yield call(connect);
         const task = yield fork(handleIO, socket);
         yield put(setIsWebsocketConnected(true));
-        // Disconnect if comments are disabled or user is logged out
-        yield take([
-          ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-          ReduxActionTypes.LOGOUT_USER_INIT,
-        ]);
+        yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
         yield take();
         yield cancel(task);
         socket.disconnect();
