@@ -24,7 +24,6 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -77,7 +76,6 @@ public class ImportExportApplicationService {
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
     private final ExamplesOrganizationCloner examplesOrganizationCloner;
-    private final GitFileUtils gitFileUtils;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -272,8 +270,7 @@ public class ImportExportApplicationService {
                         });
                         applicationJson.setDecryptedFields(decryptedFields);
                         return applicationJson;
-                    })
-                    .map(applicationJson1 -> gitFileUtils.saveApplicationToGitRepo(organizationId, applicationId, applicationJson1, "release"));
+                    });
             })
             .then()
             .thenReturn(applicationJson);
@@ -336,10 +333,10 @@ public class ImportExportApplicationService {
 
     /**
      * This function will take the application reference object to hydrate the application in mongoDB
-     * @param organizationId
-     * @param importedDoc
-     * @param applicationId
-     * @return
+     * @param organizationId organization to which application is going to be stored
+     * @param importedDoc application resource which contains necessary information to save the application
+     * @param applicationId application which needs to be saved with the updated resources
+     * @return Updated application
      */
     public Mono<Application> importApplicationInOrganization(String organizationId,
                                                              ApplicationJson importedDoc,

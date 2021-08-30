@@ -3,7 +3,6 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
@@ -36,9 +35,6 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.OrganizationService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -64,8 +60,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -179,18 +173,6 @@ public class ImportExportApplicationServiceTests {
 
         datasourceMap.put("DS1", ds1);
         datasourceMap.put("DS2", ds2);
-
-        Gson gson = new GsonBuilder()
-            .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-            .create();
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader("test_assets/ImportExportServiceTest/valid-application.json"));
-        } catch (FileNotFoundException e) {
-            log.debug(e.getMessage());
-        }
-        assert reader != null;
-        ApplicationJson validAppJson = gson.fromJson(reader, ApplicationJson.class);
     }
     
     @Test
