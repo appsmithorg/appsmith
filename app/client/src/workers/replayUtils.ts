@@ -112,3 +112,19 @@ function addToArray(obj: any, key: string, value: any) {
     obj[key] = [value];
   }
 }
+
+/**
+ * creates paths changed from diffs  array
+ *
+ * @param diffs
+ * @returns
+ */
+export function getPathsFromDiff(diffs: any) {
+  const paths = [];
+
+  for (const diff of diffs) {
+    paths.push(diff.path.join("."));
+  }
+
+  return paths;
+}
