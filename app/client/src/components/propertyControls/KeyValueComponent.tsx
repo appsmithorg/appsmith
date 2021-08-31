@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
@@ -13,6 +13,7 @@ import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
+import { debounce } from "lodash";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -107,6 +108,13 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     props.updatePairs(newPairs);
   }
 
+  const debouncedUpdatePairs = useCallback(
+    debounce((updatedPairs: DropdownOption[]) => {
+      props.updatePairs(updatedPairs);
+    }, 400),
+    [props.updatePairs],
+  );
+
   function updateKey(index: number, updatedKey: string) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs : [];
@@ -118,7 +126,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(updatedPairs);
+    debouncedUpdatePairs(updatedPairs);
   }
 
   function updateValue(index: number, updatedValue: string) {
@@ -132,7 +140,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(updatedPairs);
+    debouncedUpdatePairs(updatedPairs);
   }
 
   function addPair() {
