@@ -159,6 +159,34 @@ class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
+  static fetchAppLibraries(): Promise<ApiResponse> {
+    const libs = [
+      {
+        name: "d3",
+        latest: "https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.1/d3.min.js",
+        filename: "d3.min.js",
+        description: "A JavaScript visualization library for HTML and SVG.",
+        version: "7.0.1",
+      },
+      {
+        name: "axios",
+        latest:
+          "https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js",
+        filename: "axios.min.js",
+        description: "Promise based HTTP client for the browser and node.js",
+        version: "0.21.1",
+      },
+    ];
+    return Promise.resolve({
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: libs,
+    });
+    // return Api.get(ApplicationApi.baseURL + applicationId + "/libraries");
+  }
+
   static fetchApplicationForViewMode(
     applicationId: string,
   ): AxiosPromise<FetchApplicationResponse> {
