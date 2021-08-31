@@ -19,6 +19,9 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { Virtuoso } from "react-virtuoso";
 import { setShouldShowResolvedComments } from "actions/commentActions";
 import { useSelectCommentThreadUsingQuery } from "../inlineComments/Comments";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { COMMENT_HAS_BEEN_DELETED, createMessage } from "constants/messages";
 
 const Container = styled.div`
   display: flex;
@@ -67,7 +70,13 @@ function AppCommentThreads() {
       commentThreadIdFromUrl &&
       !commentThreadIds.includes(commentThreadIdFromUrl)
     ) {
-      dispatch(setShouldShowResolvedComments(true));
+      if (appCommentThreadIds.includes(commentThreadIdFromUrl))
+        dispatch(setShouldShowResolvedComments(true));
+      else
+        Toaster.show({
+          text: createMessage(COMMENT_HAS_BEEN_DELETED),
+          variant: Variant.warning,
+        });
     }
   }, [commentThreadIdFromUrl]);
 

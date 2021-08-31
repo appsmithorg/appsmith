@@ -308,6 +308,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
 export const DELETE_THREAD = () => "Delete Thread";
 export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
