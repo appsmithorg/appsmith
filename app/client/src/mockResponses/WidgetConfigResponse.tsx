@@ -1354,6 +1354,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         groupButton3: {
           label: "Third Button",
           id: "groupButton3",
+          buttonType: "MENU",
           buttonVariant: "SOLID",
           buttonStyle: "SECONDARY",
           widgetId: "",

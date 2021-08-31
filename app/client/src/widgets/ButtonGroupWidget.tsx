@@ -1,4 +1,5 @@
 import React from "react";
+import { get } from "lodash";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
@@ -106,6 +107,26 @@ class ButtonGroupWidget extends BaseWidget<
                       validation: { type: ValidationTypes.TEXT },
                     },
                     {
+                      propertyName: "buttonType",
+                      label: "Button Type",
+                      controlType: "DROP_DOWN",
+                      helpText: "Sets button type",
+                      options: [
+                        {
+                          label: "Simple",
+                          value: "SIMPLE",
+                        },
+                        {
+                          label: "Menu",
+                          value: "MENU",
+                        },
+                      ],
+                      isJSConvertible: true,
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
+                    },
+                    {
                       propertyName: "buttonVariant",
                       label: "Button Variant",
                       controlType: "DROP_DOWN",
@@ -202,6 +223,73 @@ class ButtonGroupWidget extends BaseWidget<
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Menu Items",
+                  hidden: (
+                    props: ButtonGroupWidgetProps,
+                    propertyPath: string,
+                  ) => {
+                    const buttonType = get(
+                      props,
+                      `${propertyPath}.buttonType`,
+                      "",
+                    );
+                    return buttonType === "MENU";
+                  },
+                  children: [
+                    {
+                      helpText: "Menu Items",
+                      propertyName: "menuItems",
+                      controlType: "MENU_ITEMS",
+                      label: "",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                      panelConfig: {
+                        editableTitle: true,
+                        titlePropertyName: "label",
+                        panelIdPropertyName: "id",
+                        updateHook: (
+                          props: any,
+                          propertyPath: string,
+                          propertyValue: string,
+                        ) => {
+                          return [
+                            {
+                              propertyPath,
+                              propertyValue,
+                            },
+                          ];
+                        },
+                        children: [
+                          {
+                            sectionName: "Icon Options",
+                            children: [
+                              {
+                                propertyName: "iconName",
+                                label: "Icon",
+                                helpText:
+                                  "Sets the icon to be used for a button",
+                                controlType: "ICON_SELECT",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "iconAlign",
+                                label: "Icon alignment",
+                                helpText: "Sets the icon alignment of a button",
+                                controlType: "ICON_ALIGN",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                            ],
+                          },
+                        ],
+                      },
                     },
                   ],
                 },
@@ -335,6 +423,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
+      buttonType?: string;
       buttonStyle?: ButtonStyle;
       buttonVariant: ButtonVariant;
       iconName?: IconName;
