@@ -76,7 +76,6 @@ const getCustomHoverColor = (
             .darken(10)
             .toString()
         : theme.colors.button.primary.solid.hoverColor;
-
   }
 };
 
