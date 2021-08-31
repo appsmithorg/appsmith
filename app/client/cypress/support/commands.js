@@ -2834,3 +2834,13 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
 
   cy.testSaveDatasource();
 });
+
+Cypress.Commands.add("enableColorOption", () => {
+  cy.get(commonlocators.enableColorOption)
+    .check({ force: true })
+    .should("be.checked");
+});
+
+Cypress.Commands.add("openLabelColorPicker", () => {
+  cy.get(commonlocators.labelColorPicker).click();
+});

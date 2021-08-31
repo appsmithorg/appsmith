@@ -259,9 +259,9 @@ export const renderTags = (
   value: any,
   cellProperties: CellLayoutProperties,
 ) => {
-  const labels: string[] = value
-    .split(",")
-    .filter((value: string) => value !== "");
+  const labels: string[] = isString(value)
+    ? value.split(",").filter((value: string) => value !== "")
+    : [];
   if (labels.length > 0 && labels[0].length > 0) {
     return RenderTagsCell({ labels, cellProperties });
   } else {
