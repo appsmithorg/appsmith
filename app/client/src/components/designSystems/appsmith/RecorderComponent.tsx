@@ -434,16 +434,10 @@ function RecorderRight(props: RecorderRightProps) {
         switch (playerStatus) {
           case PlayerStatusTypes.PLAY:
             return (
-              <>
-                <PlayerButton
-                  intent={PlayerButtonIntentTypes.PAUSE}
-                  onClick={onPausePlayer}
-                />
-                <PlayerButton
-                  intent={PlayerButtonIntentTypes.STOP}
-                  onClick={onStopPlayer}
-                />
-              </>
+              <PlayerButton
+                intent={PlayerButtonIntentTypes.PAUSE}
+                onClick={onPausePlayer}
+              />
             );
             break;
           case PlayerStatusTypes.PAUSE:
