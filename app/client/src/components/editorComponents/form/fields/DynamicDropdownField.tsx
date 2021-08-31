@@ -6,6 +6,7 @@ import { DropdownOption } from "widgets/DropdownWidget";
 interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
   width?: string;
+  color?: string;
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;
