@@ -836,6 +836,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateButtonWidgetValidation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 
