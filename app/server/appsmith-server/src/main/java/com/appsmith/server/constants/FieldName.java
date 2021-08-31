@@ -86,4 +86,5 @@ public class FieldName {
     public static final String PLACEHOLDER_TEXT = "placeholderText";
     public static final String IS_DISABLED = "isDisabled";
     public static final String IS_REQUIRED = "isRequired";
+    public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
 }

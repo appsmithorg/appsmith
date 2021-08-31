@@ -95,10 +95,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
     }
 
     /**
-     * Called by ActionCollection controller to create ActionCollection.
-     *
-     * @param collection
-     * @return
+     * Called by ActionCollection controller to create ActionCollection
      */
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollectionDTO collection) {
@@ -153,7 +150,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                         // Scope the actions' fully qualified names by collection name
                         action.getDatasource().setOrganizationId(collection.getOrganizationId());
                         action.getDatasource().setPluginId(collection.getPluginId());
-                        action.getDatasource().setName("UNUSED_DATASOURCE");
+                        action.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
                         action.setPageId(collection.getPageId());
                         action.setPluginType(collection.getPluginType());
@@ -265,11 +262,6 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     /**
      * This method splits the actions associated to an action collection into valid and archived actions
-     *
-     * @param actionCollectionDTO
-     * @param actionsList
-     * @param viewMode
-     * @return
      */
     private Mono<ActionCollectionDTO> splitValidActionsByViewMode(ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode) {
         return Mono.just(actionCollectionDTO)
@@ -335,9 +327,6 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     /**
      * Called by Action controller to create Action
-     *
-     * @param action
-     * @return
      */
     @Override
     public Mono<ActionDTO> createAction(ActionDTO action) {
@@ -345,9 +334,8 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
             return layoutActionService.createAction(action);
         }
 
-        ActionDTO finalAction = action;
         return layoutActionService.createAction(action)
-                .flatMap(savedAction -> collectionService.addSingleActionToCollection(finalAction.getCollectionId(), savedAction));
+                .flatMap(savedAction -> collectionService.addSingleActionToCollection(action.getCollectionId(), savedAction));
     }
 
     @Override
@@ -455,7 +443,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     if (actionDTO.getId() == null) {
                         actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
                         actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
-                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
+                        actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
                         actionDTO.setPageId(actionCollectionDTO.getPageId());
                         actionDTO.setPluginType(actionCollectionDTO.getPluginType());
@@ -478,7 +466,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                     if (actionDTO.getId() == null) {
                         actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
                         actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
-                        actionDTO.getDatasource().setName("UNUSED_DATASOURCE");
+                        actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
                         actionDTO.setPageId(actionCollectionDTO.getPageId());
                         // this is a new action, we need to create one
@@ -519,7 +507,6 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                             .collect(Collectors.toUnmodifiableSet());
                 })
                 .flatMapMany(Flux::fromIterable)
-                // TODO determine whether we want to simply remove these from the collection instead
                 .flatMap(actionId -> newActionService.deleteUnpublishedAction(actionId)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
