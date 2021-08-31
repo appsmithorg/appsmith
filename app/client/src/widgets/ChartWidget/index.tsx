@@ -1,16 +1,17 @@
-import React, { lazy, Suspense } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
-import { retryPromise } from "utils/AppsmithUtils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import withMeta, { WithMeta } from "widgets/MetaHOC";
+import React, { lazy, Suspense } from "react";
+
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import propertyConfig from "widgets/ChartWidget/propertyConfig";
+import Skeleton from "components/utils/Skeleton";
+import withMeta, { WithMeta } from "widgets/MetaHOC";
 import {
-  CustomFusionChartConfig,
+  ChartComponentProps,
   ChartSelectedDataPoint,
 } from "components/designSystems/appsmith/ChartComponent";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { retryPromise } from "utils/AppsmithUtils";
+import { WidgetType } from "constants/WidgetConstants";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -56,6 +57,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           customFusionChartConfig={this.props.customFusionChartConfig}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
+          labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
@@ -93,17 +95,12 @@ export interface ChartData {
   data: ChartDataPoint[];
 }
 
-export interface ChartWidgetProps extends WidgetProps, WithMeta {
-  chartType: ChartType;
-  chartData: AllChartData;
-  customFusionChartConfig: CustomFusionChartConfig;
-  xAxisName: string;
-  yAxisName: string;
-  chartName: string;
-  isVisible?: boolean;
-  allowHorizontalScroll: boolean;
+type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;
+export interface ChartWidgetProps
+  extends WidgetProps,
+    WithMeta,
+    ChartComponentPartialProps {
   onDataPointClick?: string;
-  selectedDataPoint?: ChartDataPoint;
 }
 
 export default ChartWidget;
