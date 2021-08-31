@@ -87,9 +87,10 @@ export const TabCount = styled.div`
   background-color: ${(props) => props.theme.colors.tabs.countBg};
   border-radius: 8px;
   width: 17px;
-  height: 14px;
+  height: 17px;
   font-size: 9px;
   line-height: 14px;
+  margin-left: 2px;
 `;
 
 const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
@@ -98,7 +99,7 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
 
   padding: ${(props) => props.theme.spaces[3] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
-    ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[4] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)};
 
   &:hover {
