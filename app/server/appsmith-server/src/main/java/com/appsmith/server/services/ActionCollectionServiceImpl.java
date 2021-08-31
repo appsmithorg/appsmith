@@ -115,9 +115,9 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(FieldName.PAGE_ID, pageId);
         Mono<NewPage> pageMono = newPageService
-                .findById(pageId, READ_PAGES)
+                .findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
 
         // First check if the collection name is allowed
