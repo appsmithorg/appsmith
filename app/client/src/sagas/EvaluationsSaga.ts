@@ -151,11 +151,6 @@ export function* evaluateActionBindings(
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
   callbackData?: Array<any>,
-  triggerPropertyName?: string,
-  source?: {
-    id: string;
-    name: string;
-  },
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
 
