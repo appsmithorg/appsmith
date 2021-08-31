@@ -1,4 +1,4 @@
-import { set, isString } from "lodash";
+import { set, isString, has } from "lodash";
 import { Diff } from "deep-diff";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -47,7 +47,7 @@ export function processDiff(
           !isUndo,
         );
         addToArray(replay, TOASTS, toast);
-      } else {
+      } else if (!has(replay, [WIDGETS, widgetId, UPDATES])) {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         set(replay, UPDATES, true);
       }
@@ -62,7 +62,7 @@ export function processDiff(
           isUndo,
         );
         addToArray(replay, TOASTS, toast);
-      } else {
+      } else if (!has(replay, [WIDGETS, widgetId, UPDATES])) {
         set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         set(replay, UPDATES, true);
       }
