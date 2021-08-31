@@ -52,12 +52,9 @@ default_linux_client_proxy="http://localhost:3000"
 # default server to internal docker
 server_proxy_pass="${1:-$default_server_proxy}"
 if [[ $server_proxy_pass =~ /$ ]]; then
-    read -r -p "Server proxy ends with a '/'. This is most likely unintended. Are you sure? [y/N] " proceed
-    if [[ ! $proceed =~ ^[Yy]([eE][sS])?$ ]]; then
-        echo "Exiting. Please run again, removing the trailing slash(es) for the server proxy endpoint." >&2
-        exit 1
-    fi
-    unset proceed
+    echo "The given server proxy ($1) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
+    echo "Exiting. Please run again, removing the trailing slash(es) for the server proxy endpoint." >&2
+    exit 1
 fi
 
 # Stop and remove existing container
