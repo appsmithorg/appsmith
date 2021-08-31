@@ -600,6 +600,7 @@ function GeneratePageForm() {
                 key={option.id}
                 option={option}
                 optionClickHandler={optionClickHandler}
+                optionWidth={DROPDOWN_DIMENSION.WIDTH}
               />
             )}
             selected={selectedDatasource}
