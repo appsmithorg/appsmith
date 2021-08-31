@@ -1,5 +1,5 @@
 //check difference for after body change and parsing
-import { JSAction, JSSubAction, Variable } from "entities/JSAction";
+import { JSCollection, JSAction, Variable } from "entities/JSCollection";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -12,14 +12,14 @@ export type ParsedBody = {
   variables: Array<Variable>;
 };
 
-export const getDifferenceInJSAction = (
+export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
-  jsAction: JSAction,
+  jsAction: JSCollection,
 ) => {
   const newActions: ParsedJSSubAction[] = [];
-  const toBearchivedActions: JSSubAction[] = [];
-  const toBeupdatedActions: JSSubAction[] = [];
-  const toBeAddedActions: Partial<JSSubAction>[] = [];
+  const toBearchivedActions: JSAction[] = [];
+  const toBeupdatedActions: JSAction[] = [];
+  const toBeAddedActions: Partial<JSAction>[] = [];
   //check if body is changed and update if exists or
   // add to new array so it can be added to main collection
   if (parsedBody.actions && parsedBody.actions.length > 0) {

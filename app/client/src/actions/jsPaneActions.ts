@@ -1,14 +1,14 @@
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
-import { JSAction, JSSubAction } from "entities/JSAction";
+import { JSCollection, JSAction } from "entities/JSCollection";
 
-export const createNewJSAction = (
+export const createNewJSCollection = (
   pageId: string,
 ): ReduxAction<{ pageId: string }> => ({
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION,
   payload: { pageId },
 });
 
-export const updateJSAction = (
+export const updateJSCollection = (
   body: string,
   id: string,
 ): ReduxAction<{ body: string; id: string }> => ({
@@ -16,7 +16,7 @@ export const updateJSAction = (
   payload: { body, id },
 });
 
-export const updateJSActionSuccess = (payload: { data: JSAction }) => {
+export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
     payload,
@@ -24,8 +24,8 @@ export const updateJSActionSuccess = (payload: { data: JSAction }) => {
 };
 
 export const addJSObjectAction = (payload: {
-  jsAction: JSAction;
-  subActions: Array<Partial<JSSubAction>>;
+  jsAction: JSCollection;
+  subActions: Array<Partial<JSAction>>;
 }) => {
   return {
     type: ReduxActionTypes.ADD_JS_ACTION_TO_COLLECTION,
@@ -34,8 +34,8 @@ export const addJSObjectAction = (payload: {
 };
 
 export const updateJSObjectAction = (payload: {
-  jsAction: JSAction;
-  subActions: Array<JSSubAction>;
+  jsAction: JSCollection;
+  subActions: Array<JSAction>;
 }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_TO_COLLECTION,
@@ -44,8 +44,8 @@ export const updateJSObjectAction = (payload: {
 };
 
 export const deleteJSObjectAction = (payload: {
-  jsAction: JSAction;
-  subActions: Array<JSSubAction>;
+  jsAction: JSCollection;
+  subActions: Array<JSAction>;
 }) => {
   return {
     type: ReduxActionTypes.DELETE_JS_ACTION_FROM_COLLECTION,
@@ -55,7 +55,7 @@ export const deleteJSObjectAction = (payload: {
 
 export const executeJSFunction = (payload: {
   collectionName: string;
-  action: JSSubAction;
+  action: JSAction;
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,

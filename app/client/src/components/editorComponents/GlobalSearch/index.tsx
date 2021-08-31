@@ -22,7 +22,7 @@ import ResultsNotFound from "./ResultsNotFound";
 import {
   getActions,
   getAllPageWidgets,
-  getJSActions,
+  getJSCollections,
 } from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
@@ -225,7 +225,7 @@ function GlobalSearch() {
     [allWidgets],
   );
   const actions = useSelector(getActions);
-  const jsActions = useSelector(getJSActions);
+  const jsActions = useSelector(getJSCollections);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
@@ -298,7 +298,7 @@ function GlobalSearch() {
       return isActionNameMatching || isPageNameMatching;
     });
   }, [actions, query]);
-  const filteredJSActions = useMemo(() => {
+  const filteredJSCollections = useMemo(() => {
     if (!query) return jsActions;
 
     return jsActions.filter((action: any) => {
@@ -335,7 +335,7 @@ function GlobalSearch() {
     if (isNavigation(category) || isMenu(category)) {
       filteredEntities = [
         ...filteredActions,
-        ...filteredJSActions,
+        ...filteredJSCollections,
         ...filteredWidgets,
         ...filteredPages,
         ...filteredDatasources,
@@ -361,7 +361,7 @@ function GlobalSearch() {
   }, [
     filteredWidgets,
     filteredActions,
-    filteredJSActions,
+    filteredJSCollections,
     documentationSearchResults,
     filteredDatasources,
     query,
@@ -437,7 +437,7 @@ function GlobalSearch() {
     url && history.push(url);
   };
 
-  const handleJSActionClick = (item: SearchItem) => {
+  const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
     history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
@@ -484,7 +484,7 @@ function GlobalSearch() {
     [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
       handlePageClick(item),
     [SEARCH_ITEM_TYPES.jsAction]: (e: SelectEvent, item: any) =>
-      handleJSActionClick(item),
+      handleJSCollectionClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
     [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>

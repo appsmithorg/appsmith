@@ -6,13 +6,13 @@ import { JS_COLLECTION_ID_URL } from "constants/routes";
 import history from "utils/history";
 import { ExplorerURLParams } from "../helpers";
 import { useParams } from "react-router";
-import JSActionEntityContextMenu from "./JSActionContextMenu";
-import { getJSActionIdFromURL } from "../helpers";
+import JSCollectionEntityContextMenu from "./JSActionContextMenu";
+import { getJSCollectionIdFromURL } from "../helpers";
 import { saveJSObjectName } from "actions/jsActionActions";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
-type ExplorerJSActionEntityProps = {
-  action: JSActionData;
+type ExplorerJSCollectionEntityProps = {
+  action: JSCollectionData;
   icon: ReactNode;
   step: number;
   searchKeyword?: string;
@@ -23,10 +23,10 @@ const getUpdateJSObjectName = (id: string, name: string) => {
   return saveJSObjectName({ id, name });
 };
 
-export const ExplorerJSActionEntity = memo(
-  (props: ExplorerJSActionEntityProps) => {
+export const ExplorerJSCollectionEntity = memo(
+  (props: ExplorerJSCollectionEntityProps) => {
     const params = useParams<ExplorerURLParams>();
-    const navigateToJSAction = useCallback(() => {
+    const navigateToJSCollection = useCallback(() => {
       history.push(
         JS_COLLECTION_ID_URL(
           params.applicationId,
@@ -37,18 +37,18 @@ export const ExplorerJSActionEntity = memo(
       );
     }, [props.pageId]);
     const contextMenu = (
-      <JSActionEntityContextMenu
+      <JSCollectionEntityContextMenu
         className={EntityClassNames.CONTEXT_MENU}
         id={props.action.config.id}
         name={props.action.config.name}
         pageId={props.pageId}
       />
     );
-    const jsactionId = getJSActionIdFromURL();
+    const jsactionId = getJSCollectionIdFromURL();
     const active = jsactionId === props.action.config.id;
     return (
       <Entity
-        action={navigateToJSAction}
+        action={navigateToJSCollection}
         active={active}
         className="t--jsaction"
         contextMenu={contextMenu}
@@ -73,6 +73,6 @@ export const ExplorerJSActionEntity = memo(
   },
 );
 
-ExplorerJSActionEntity.displayName = "ExplorerJSActionEntity";
+ExplorerJSCollectionEntity.displayName = "ExplorerJSCollectionEntity";
 
-export default ExplorerJSActionEntity;
+export default ExplorerJSCollectionEntity;

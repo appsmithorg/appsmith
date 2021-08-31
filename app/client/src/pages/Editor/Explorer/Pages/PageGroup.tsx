@@ -14,7 +14,7 @@ import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { PAGE_LIST_EDITOR_URL } from "constants/routes";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -24,7 +24,7 @@ type ExplorerPageGroupProps = {
   datasources: Record<string, Datasource[]>;
   plugins: Plugin[];
   showWidgetsSidebar: (pageId: string) => void;
-  jsActions: Record<string, JSActionData[]>;
+  jsActions: Record<string, JSCollectionData[]>;
 };
 
 const pageGroupEqualityCheck = (

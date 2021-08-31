@@ -4,7 +4,7 @@ import {
   getAppData,
   getPluginDependencyConfig,
   getPluginEditorConfigs,
-  getJSActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
@@ -15,7 +15,7 @@ import { AppState } from "reducers";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
-  getJSActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
   getWidgets,
   getWidgetsMeta,
   getPageList,
@@ -65,7 +65,7 @@ export const getDataTree = (state: AppState): DataTree =>
 export const getDataTreeForAutocomplete = createSelector(
   getDataTree,
   getActionsForCurrentPage,
-  getJSActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
     //js actions needs to be added
     const cachedResponses: Record<string, any> = {};

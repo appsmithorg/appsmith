@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { groupBy } from "lodash";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
-export const useNewJSActionName = () => {
+export const useNewJSCollectionName = () => {
   const jsactions = useSelector((state: AppState) => state.entities.jsActions);
   const groupedActions = useMemo(() => {
     return groupBy(jsactions, "config.pageId");
@@ -18,7 +18,7 @@ export const useNewJSActionName = () => {
     const pageActions = groupedActions[destinationPageId];
     // Get action names of the destination page only
     const actionNames = pageActions
-      ? pageActions.map((action: JSActionData) => action.config.name)
+      ? pageActions.map((action: JSCollectionData) => action.config.name)
       : [];
 
     return actionNames.indexOf(name) > -1

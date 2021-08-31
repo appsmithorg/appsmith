@@ -8,7 +8,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars, isNameValid } from "utils/helpers";
 import { AppState } from "reducers";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 import { Classes } from "@blueprintjs/core";
@@ -60,11 +60,11 @@ export function JSObjectNameEditor(props: ActionNameEditorProps) {
   }
   const dispatch = useDispatch();
 
-  const jsActions: JSAction[] = useSelector((state: AppState) =>
+  const jsActions: JSCollection[] = useSelector((state: AppState) =>
     state.entities.jsActions.map((action) => action.config),
   );
 
-  const currentJSObjectConfig: JSAction | undefined = jsActions.find(
+  const currentJSObjectConfig: JSCollection | undefined = jsActions.find(
     (action) => action.id === params.collectionId,
   );
 

@@ -13,21 +13,21 @@ import {
   call,
 } from "redux-saga/effects";
 import { FetchActionsPayload } from "actions/pluginActionActions";
-import { JSAction, JSSubAction } from "entities/JSAction";
+import { JSCollection, JSAction } from "entities/JSCollection";
 import {
-  createJSActionSuccess,
-  deleteJSActionSuccess,
-  deleteJSActionError,
-  copyJSActionSuccess,
-  copyJSActionError,
-  moveJSActionSuccess,
-  moveJSActionError,
-  fetchJSActionsForPage,
-  fetchJSActionsForPageSuccess,
+  createJSCollectionSuccess,
+  deleteJSCollectionSuccess,
+  deleteJSCollectionError,
+  copyJSCollectionSuccess,
+  copyJSCollectionError,
+  moveJSCollectionSuccess,
+  moveJSCollectionError,
+  fetchJSCollectionsForPage,
+  fetchJSCollectionsForPageSuccess,
 } from "actions/jsActionActions";
 import {
-  getJSAction,
-  getJSActions,
+  getJSCollection,
+  getJSCollections,
   getPageNameByPageId,
 } from "selectors/entitiesSelector";
 import history from "utils/history";
@@ -36,7 +36,7 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { JS_COLLECTION_ID_URL, BUILDER_PAGE_URL } from "constants/routes";
-import JSActionAPI, { JSActionCreateUpdateResponse } from "api/JSActionAPI";
+import JSActionAPI, { JSCollectionCreateUpdateResponse } from "api/JSActionAPI";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import {
@@ -53,18 +53,18 @@ import { validateResponse } from "./ErrorSagas";
 import { DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { GenericApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
-export function* fetchJSActionsSaga(
+export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
   try {
-    const response = yield JSActionAPI.fetchJSActions(applicationId);
+    const response = yield JSActionAPI.fetchJSCollections(applicationId);
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data,
@@ -77,12 +77,12 @@ export function* fetchJSActionsSaga(
   }
 }
 
-export function* createJSActionSaga(
-  actionPayload: ReduxAction<Partial<JSAction>>,
+export function* createJSCollectionSaga(
+  actionPayload: ReduxAction<Partial<JSCollection>>,
 ) {
   try {
     const payload = actionPayload.payload;
-    const response: JSActionCreateUpdateResponse = yield JSActionAPI.createJSAction(
+    const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.createJSCollection(
       payload,
     );
     const isValidResponse = yield validateResponse(response);
@@ -105,7 +105,7 @@ export function* createJSActionSaga(
       });
 
       const newAction = response.data;
-      yield put(createJSActionSuccess(newAction));
+      yield put(createJSCollectionSuccess(newAction));
     }
   } catch (error) {
     yield put({
@@ -114,28 +114,31 @@ export function* createJSActionSaga(
     });
   }
 }
-function* copyJSActionSaga(
+function* copyJSCollectionSaga(
   action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
 ) {
-  const actionObject: JSAction = yield select(getJSAction, action.payload.id);
+  const actionObject: JSCollection = yield select(
+    getJSCollection,
+    action.payload.id,
+  );
   try {
     if (!actionObject) throw new Error("Could not find js collection to copy");
-    const copyJSAction = Object.assign({}, actionObject, {
+    const copyJSCollection = Object.assign({}, actionObject, {
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
-    }) as Partial<JSAction>;
-    delete copyJSAction.id;
-    if (copyJSAction.actions && copyJSAction.actions.length > 0) {
-      const newJSSubActions: JSSubAction[] = [];
-      copyJSAction.actions.forEach((action) => {
+    }) as Partial<JSCollection>;
+    delete copyJSCollection.id;
+    if (copyJSCollection.actions && copyJSCollection.actions.length > 0) {
+      const newJSSubActions: JSAction[] = [];
+      copyJSCollection.actions.forEach((action) => {
         const jsSubAction = JSON.parse(JSON.stringify(action));
         delete jsSubAction.id;
         delete jsSubAction.collectionId;
         newJSSubActions.push(jsSubAction);
       });
-      copyJSAction.actions = newJSSubActions;
+      copyJSCollection.actions = newJSSubActions;
     }
-    const response = yield JSActionAPI.createJSAction(copyJSAction);
+    const response = yield JSActionAPI.createJSCollection(copyJSCollection);
 
     const isValidResponse = yield validateResponse(response);
     const pageName = yield select(getPageNameByPageId, response.data.pageId);
@@ -150,7 +153,7 @@ function* copyJSActionSaga(
       });
       const payload = response.data;
 
-      yield put(copyJSActionSuccess(payload));
+      yield put(copyJSCollectionSuccess(payload));
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
@@ -158,28 +161,31 @@ function* copyJSActionSaga(
       text: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
       variant: Variant.danger,
     });
-    yield put(copyJSActionError(action.payload));
+    yield put(copyJSCollectionError(action.payload));
   }
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
-  const jsAction: JSAction = yield select(getJSAction, id);
+  const jsAction: JSCollection = yield select(getJSCollection, id);
   const applicationId = yield select(getCurrentApplicationId);
   history.push(
     JS_COLLECTION_ID_URL(applicationId, jsAction.pageId, jsAction.id),
   );
 }
 
-function* moveJSActionSaga(
+function* moveJSCollectionSaga(
   action: ReduxAction<{
     id: string;
     destinationPageId: string;
   }>,
 ) {
-  const actionObject: JSAction = yield select(getJSAction, action.payload.id);
+  const actionObject: JSCollection = yield select(
+    getJSCollection,
+    action.payload.id,
+  );
   try {
-    const response = yield JSActionAPI.moveJSAction({
+    const response = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
     });
@@ -196,14 +202,14 @@ function* moveJSActionSaga(
         variant: Variant.success,
       });
     }
-    yield put(moveJSActionSuccess(response.data));
+    yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
     Toaster.show({
       text: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
     yield put(
-      moveJSActionError({
+      moveJSCollectionError({
         id: action.payload.id,
         originalPageId: actionObject.pageId,
       }),
@@ -232,14 +238,14 @@ export const getIndexToBeRedirected = (
   return redirectIndex;
 };
 
-export function* deleteJSActionSaga(
+export function* deleteJSCollectionSaga(
   actionPayload: ReduxAction<{ id: string; name: string }>,
 ) {
   try {
     const id = actionPayload.payload.id;
-    const jsActions = yield select(getJSActions);
+    const jsActions = yield select(getJSCollections);
 
-    const response = yield JSActionAPI.deleteJSAction(id);
+    const response = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse = yield validateResponse(response);
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -271,10 +277,10 @@ export function* deleteJSActionSaga(
           id: response.data.id,
         },
       });
-      yield put(deleteJSActionSuccess({ id }));
+      yield put(deleteJSCollectionSuccess({ id }));
     }
   } catch (error) {
-    yield put(deleteJSActionError({ id: actionPayload.payload.id }));
+    yield put(deleteJSCollectionError({ id: actionPayload.payload.id }));
   }
 }
 
@@ -283,7 +289,7 @@ function* saveJSObjectName(action: ReduxAction<{ id: string; name: string }>) {
   const collectionId = action.payload.id;
   const collection = yield select((state) =>
     state.entities.jsActions.find(
-      (jsAction: JSActionData) => jsAction.config.id === collectionId,
+      (jsAction: JSCollectionData) => jsAction.config.id === collectionId,
     ),
   );
   try {
@@ -345,26 +351,26 @@ export function* refactorJSObjectName(
       });
       if (currentPageId === pageId) {
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
-        yield put(fetchJSActionsForPage(pageId));
+        yield put(fetchJSCollectionsForPage(pageId));
       } else {
-        yield put(fetchJSActionsForPage(pageId));
+        yield put(fetchJSCollectionsForPage(pageId));
       }
     }
   }
 }
 
-export function* fetchJSActionsForPageSaga(
+export function* fetchJSCollectionsForPageSaga(
   action: ReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
   try {
-    const response: GenericApiResponse<JSAction[]> = yield call(
-      JSActionAPI.fetchJSActionsByPageId,
+    const response: GenericApiResponse<JSCollection[]> = yield call(
+      JSActionAPI.fetchJSCollectionsByPageId,
       pageId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchJSActionsForPageSuccess(response.data));
+      yield put(fetchJSCollectionsForPageSuccess(response.data));
     }
   } catch (error) {
     yield put({
@@ -374,20 +380,20 @@ export function* fetchJSActionsForPageSaga(
   }
 }
 
-export function* fetchJSActionsForViewModeSaga(
+export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: GenericApiResponse<JSAction[]> = yield JSActionAPI.fetchJSActionsForViewMode(
+    const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
       applicationId,
     );
-    const resultJSActions = response.data;
+    const resultJSCollections = response.data;
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-        payload: resultJSActions,
+        payload: resultJSCollections,
       });
     }
   } catch (error) {
@@ -400,24 +406,24 @@ export function* fetchJSActionsForViewModeSaga(
 
 export function* watchJSActionSagas() {
   yield all([
-    takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSActionsSaga),
-    takeEvery(ReduxActionTypes.CREATE_JS_ACTION_INIT, createJSActionSaga),
-    takeLatest(ReduxActionTypes.COPY_JS_ACTION_INIT, copyJSActionSaga),
+    takeEvery(ReduxActionTypes.FETCH_JS_ACTIONS_INIT, fetchJSCollectionsSaga),
+    takeEvery(ReduxActionTypes.CREATE_JS_ACTION_INIT, createJSCollectionSaga),
+    takeLatest(ReduxActionTypes.COPY_JS_ACTION_INIT, copyJSCollectionSaga),
     takeEvery(ReduxActionTypes.COPY_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionErrorTypes.COPY_JS_ACTION_ERROR, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.MOVE_JS_ACTION_INIT, moveJSActionSaga),
+    takeLatest(ReduxActionTypes.MOVE_JS_ACTION_INIT, moveJSCollectionSaga),
     takeEvery(ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
     takeEvery(ReduxActionTypes.MOVE_JS_ACTION_SUCCESS, handleMoveOrCopySaga),
-    takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSActionSaga),
+    takeLatest(ReduxActionTypes.DELETE_JS_ACTION_INIT, deleteJSCollectionSaga),
     takeLatest(ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT, saveJSObjectName),
     takeLatest(
       ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
-      fetchJSActionsForPageSaga,
+      fetchJSCollectionsForPageSaga,
     ),
     takeEvery(
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-      fetchJSActionsForViewModeSaga,
+      fetchJSCollectionsForViewModeSaga,
     ),
   ]);
 }

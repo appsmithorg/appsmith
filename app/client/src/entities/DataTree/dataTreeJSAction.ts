@@ -3,11 +3,11 @@ import {
   ENTITY_TYPE,
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const generateDataTreeJSAction = (
-  js: JSActionData,
+  js: JSCollectionData,
 ): DataTreeJSAction => {
   const data: Record<string, unknown> = {};
   const meta: Record<string, MetaArgs> = {};

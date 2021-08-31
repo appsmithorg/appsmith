@@ -6,14 +6,14 @@ import { AppState } from "reducers";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 
 import {
-  moveJSActionRequest,
-  copyJSActionRequest,
-  deleteJSAction,
+  moveJSCollectionRequest,
+  copyJSCollectionRequest,
+  deleteJSCollection,
 } from "actions/jsActionActions";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import { useNewJSActionName } from "./helpers";
+import { useNewJSCollectionName } from "./helpers";
 
 type EntityContextMenuProps = {
   id: string;
@@ -21,14 +21,14 @@ type EntityContextMenuProps = {
   className?: string;
   pageId: string;
 };
-export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
-  const nextEntityName = useNewJSActionName();
+export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
+  const nextEntityName = useNewJSCollectionName();
 
   const dispatch = useDispatch();
-  const copyJSActionToPage = useCallback(
+  const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
-        copyJSActionRequest({
+        copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
           name: nextEntityName(actionName, pageId, true),
@@ -36,19 +36,19 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
       ),
     [dispatch, nextEntityName],
   );
-  const moveJSActionToPage = useCallback(
+  const moveJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) =>
       dispatch(
-        moveJSActionRequest({
+        moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
         }),
       ),
     [dispatch, nextEntityName, props.pageId],
   );
-  const deleteJSActionFromPage = useCallback(
+  const deleteJSCollectionFromPage = useCallback(
     (actionId: string, actionName: string) =>
-      dispatch(deleteJSAction({ id: actionId, name: actionName })),
+      dispatch(deleteJSCollection({ id: actionId, name: actionName })),
     [dispatch],
   );
 
@@ -74,7 +74,8 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
           children: menuPages.map((page) => {
             return {
               ...page,
-              onSelect: () => copyJSActionToPage(props.id, props.name, page.id),
+              onSelect: () =>
+                copyJSCollectionToPage(props.id, props.name, page.id),
             };
           }),
         },
@@ -90,14 +91,14 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
                     return {
                       ...page,
                       onSelect: () =>
-                        moveJSActionToPage(props.id, props.name, page.id),
+                        moveJSCollectionToPage(props.id, props.name, page.id),
                     };
                   })
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
           value: "delete",
-          onSelect: () => deleteJSActionFromPage(props.id, props.name),
+          onSelect: () => deleteJSCollectionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
         },
@@ -108,4 +109,4 @@ export function JSActionEntityContextMenu(props: EntityContextMenuProps) {
   );
 }
 
-export default JSActionEntityContextMenu;
+export default JSCollectionEntityContextMenu;

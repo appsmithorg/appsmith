@@ -30,7 +30,7 @@ import {
 import {
   getActionsForCurrentPage,
   getDBDatasources,
-  getJSActionsForCurrentPage,
+  getJSCollectionsForCurrentPage,
   getPageListAsOptions,
 } from "selectors/entitiesSelector";
 import {
@@ -49,10 +49,10 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
 import _ from "lodash";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
-import { createNewJSAction } from "actions/jsPaneActions";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { createNewJSCollection } from "actions/jsPaneActions";
 import getFeatureFlags from "utils/featureFlags";
-import { JSSubAction, Variable } from "entities/JSAction";
+import { JSAction, Variable } from "entities/JSCollection";
 import {
   createMessage,
   EXECUTE_JS_FUNCTION,
@@ -365,7 +365,7 @@ function getIntegrationOptionsWithChildren(
   plugins: any,
   options: TreeDropdownOption[],
   actions: any[],
-  jsActions: Array<JSActionData>,
+  jsActions: Array<JSCollectionData>,
   datasources: Datasource[],
   createIntegrationOption: TreeDropdownOption,
   dispatch: any,
@@ -378,7 +378,7 @@ function getIntegrationOptionsWithChildren(
     icon: "plus",
     className: "t--create-js-object-btn",
     onSelect: () => {
-      dispatch(createNewJSAction(pageId));
+      dispatch(createNewJSCollection(pageId));
     },
   };
   const queries = actions.filter(
@@ -480,7 +480,7 @@ function getIntegrationOptionsWithChildren(
             },
           };
           jsObject.children = [createJSFunction];
-          jsAction.config.actions.forEach((js: JSSubAction) => {
+          jsAction.config.actions.forEach((js: JSAction) => {
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];
             if (jsArguments && jsArguments.length) {
@@ -520,7 +520,7 @@ function useIntegrationsOptionTree() {
   // For onboarding
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
-  const jsActions = useSelector(getJSActionsForCurrentPage);
+  const jsActions = useSelector(getJSCollectionsForCurrentPage);
 
   const integrationOptionTree = getIntegrationOptionsWithChildren(
     pageId,

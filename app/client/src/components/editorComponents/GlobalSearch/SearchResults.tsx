@@ -259,7 +259,7 @@ function ActionItem(props: {
   );
 }
 
-function JSActionItem(props: {
+function JSCollectionItem(props: {
   query: string;
   item: SearchItem;
   isActiveItem: boolean;
@@ -438,7 +438,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
-  [SEARCH_ITEM_TYPES.jsAction]: JSActionItem,
+  [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
   [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
 };

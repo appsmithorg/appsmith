@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import MoreJSActionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
+import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import { TabComponent } from "components/ads/Tabs";
 import FormLabel from "components/editorComponents/FormLabel";
 import CodeEditor from "components/editorComponents/CodeEditor";
@@ -14,7 +14,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
-import { updateJSAction } from "actions/jsPaneActions";
+import { updateJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
@@ -99,7 +99,7 @@ export const TabbedViewContainer = styled.div`
   }
 `;
 interface JSFormProps {
-  jsAction: JSAction;
+  jsAction: JSCollection;
   settingsConfig: any;
 }
 
@@ -113,7 +113,7 @@ function JSEditorForm(props: Props) {
 
   const handleOnChange = (event: string) => {
     if (currentJSAction) {
-      dispatch(updateJSAction(event, currentJSAction.id));
+      dispatch(updateJSCollection(event, currentJSAction.id));
     }
   };
   const { pageId } = useParams<ExplorerURLParams>();
@@ -128,7 +128,7 @@ function JSEditorForm(props: Props) {
               <JSObjectNameEditor page="JS_PANE" />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
-              <MoreJSActionsMenu
+              <MoreJSCollectionsMenu
                 className="t--more-action-menu"
                 id={currentJSAction.id}
                 name={currentJSAction.name}

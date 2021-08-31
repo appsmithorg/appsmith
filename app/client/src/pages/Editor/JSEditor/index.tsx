@@ -1,11 +1,11 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 import { AppState } from "reducers";
 import { connect } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";
-import { getJSActionById } from "selectors/editorSelectors";
+import { getJSCollectionById } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
@@ -16,7 +16,7 @@ const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;
 interface ReduxStateProps {
-  jsAction: JSAction | undefined;
+  jsAction: JSCollection | undefined;
   isCreating: boolean;
   settingsConfig: any;
 }
@@ -43,7 +43,7 @@ class JSEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: Props): ReduxStateProps => {
-  const jsAction = getJSActionById(state, props);
+  const jsAction = getJSCollectionById(state, props);
   const { isCreating } = state.ui.jsPane;
   const pluginId = _.get(jsAction, "pluginId", "");
   const settingsConfig = getPluginSettingConfigs(state, pluginId);

@@ -4,13 +4,13 @@ import {
   EvaluationReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 
-export type FetchJSActionsPayload = {
+export type FetchJSCollectionsPayload = {
   applicationId: string;
 };
 
-export const fetchJSActions = (
+export const fetchJSCollections = (
   applicationId: string,
 ): EvaluationReduxAction<unknown> => {
   return {
@@ -19,21 +19,21 @@ export const fetchJSActions = (
   };
 };
 
-export const createJSActionRequest = (payload: Partial<JSAction>) => {
+export const createJSCollectionRequest = (payload: Partial<JSCollection>) => {
   return {
     type: ReduxActionTypes.CREATE_JS_ACTION_INIT,
     payload,
   };
 };
 
-export const createJSActionSuccess = (payload: JSAction) => {
+export const createJSCollectionSuccess = (payload: JSCollection) => {
   return {
     type: ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
     payload,
   };
 };
 
-export const copyJSActionRequest = (payload: {
+export const copyJSCollectionRequest = (payload: {
   id: string;
   destinationPageId: string;
   name: string;
@@ -44,14 +44,14 @@ export const copyJSActionRequest = (payload: {
   };
 };
 
-export const copyJSActionSuccess = (payload: JSAction) => {
+export const copyJSCollectionSuccess = (payload: JSCollection) => {
   return {
     type: ReduxActionTypes.COPY_JS_ACTION_SUCCESS,
     payload,
   };
 };
 
-export const copyJSActionError = (payload: {
+export const copyJSCollectionError = (payload: {
   id: string;
   destinationPageId: string;
 }) => {
@@ -61,7 +61,7 @@ export const copyJSActionError = (payload: {
   };
 };
 
-export const moveJSActionRequest = (payload: {
+export const moveJSCollectionRequest = (payload: {
   id: string;
   destinationPageId: string;
 }) => {
@@ -71,14 +71,14 @@ export const moveJSActionRequest = (payload: {
   };
 };
 
-export const moveJSActionSuccess = (payload: JSAction) => {
+export const moveJSCollectionSuccess = (payload: JSCollection) => {
   return {
     type: ReduxActionTypes.MOVE_JS_ACTION_SUCCESS,
     payload,
   };
 };
 
-export const moveJSActionError = (payload: {
+export const moveJSCollectionError = (payload: {
   id: string;
   originalPageId: string;
 }) => {
@@ -88,21 +88,21 @@ export const moveJSActionError = (payload: {
   };
 };
 
-export const deleteJSAction = (payload: { id: string; name: string }) => {
+export const deleteJSCollection = (payload: { id: string; name: string }) => {
   return {
     type: ReduxActionTypes.DELETE_JS_ACTION_INIT,
     payload,
   };
 };
 
-export const deleteJSActionSuccess = (payload: { id: string }) => {
+export const deleteJSCollectionSuccess = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.DELETE_JS_ACTION_SUCCESS,
     payload,
   };
 };
 
-export const deleteJSActionError = (payload: { id: string }) => {
+export const deleteJSCollectionError = (payload: { id: string }) => {
   return {
     type: ReduxActionErrorTypes.DELETE_JS_ACTION_ERROR,
     payload,
@@ -114,23 +114,23 @@ export const saveJSObjectName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const fetchJSActionsForPage = (pageId: string) => {
+export const fetchJSCollectionsForPage = (pageId: string) => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
   };
 };
 
-export const fetchJSActionsForPageSuccess = (actions: JSAction[]) => {
+export const fetchJSCollectionsForPageSuccess = (actions: JSCollection[]) => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
   };
 };
 
-export const fetchJSActionsForView = (
+export const fetchJSCollectionsForView = (
   applicationId: string,
-): ReduxAction<FetchJSActionsPayload> => {
+): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
     payload: { applicationId },
@@ -138,7 +138,7 @@ export const fetchJSActionsForView = (
 };
 
 export default {
-  fetchJSActions,
-  deleteJSAction,
-  deleteJSActionSuccess,
+  fetchJSCollections,
+  deleteJSCollection,
+  deleteJSCollectionSuccess,
 };

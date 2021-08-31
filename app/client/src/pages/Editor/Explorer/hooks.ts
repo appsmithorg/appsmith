@@ -87,7 +87,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   }, [searchKeyword, datasources]);
 };
 
-export const useJSActions = (searchKeyword?: string) => {
+export const useJSCollections = (searchKeyword?: string) => {
   const reducerActions = useSelector(
     (state: AppState) => state.entities.jsActions,
   );

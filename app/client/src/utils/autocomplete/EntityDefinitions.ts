@@ -1,7 +1,7 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 
 const isVisible = {
   "!type": "bool",
@@ -402,7 +402,7 @@ export const GLOBAL_FUNCTIONS = {
 };
 
 export const getPropsForJSActionEntity = (
-  entity: JSAction,
+  entity: JSCollection,
 ): Record<string, string> => {
   const properties: Record<string, string> = {};
   const actions = entity.actions;

@@ -4,7 +4,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 export interface JsPaneReduxState {
   isCreating: boolean;
   isFetching: boolean;
@@ -66,7 +66,7 @@ const jsPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
     state: JsPaneReduxState,
-    action: ReduxAction<{ data: JSAction }>,
+    action: ReduxAction<{ data: JSCollection }>,
   ) => ({
     ...state,
     isSaving: {
@@ -80,7 +80,7 @@ const jsPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
     state: JsPaneReduxState,
-    action: ReduxAction<{ data: JSAction }>,
+    action: ReduxAction<{ data: JSCollection }>,
   ) => ({
     ...state,
     isSaving: {

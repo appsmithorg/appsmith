@@ -4,15 +4,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 
 import {
-  moveJSActionRequest,
-  copyJSActionRequest,
-  deleteJSAction,
+  moveJSCollectionRequest,
+  copyJSCollectionRequest,
+  deleteJSCollection,
 } from "actions/jsActionActions";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import TreeDropdown from "components/ads/TreeDropdown";
-import { useNewJSActionName } from "./helpers";
+import { useNewJSCollectionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 
@@ -60,15 +60,15 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
   }
 `;
 
-export function MoreJSActionsMenu(props: EntityContextMenuProps) {
+export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const nextEntityName = useNewJSActionName();
+  const nextEntityName = useNewJSCollectionName();
 
   const dispatch = useDispatch();
-  const copyJSActionToPage = useCallback(
+  const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) =>
       dispatch(
-        copyJSActionRequest({
+        copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
           name: nextEntityName(`${actionName}Copy`, pageId),
@@ -76,19 +76,19 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
       ),
     [dispatch, nextEntityName],
   );
-  const moveJSActionToPage = useCallback(
+  const moveJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) =>
       dispatch(
-        moveJSActionRequest({
+        moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
         }),
       ),
     [dispatch, nextEntityName, props.pageId],
   );
-  const deleteJSActionFromPage = useCallback(
+  const deleteJSCollectionFromPage = useCallback(
     (actionId: string, actionName: string) =>
-      dispatch(deleteJSAction({ id: actionId, name: actionName })),
+      dispatch(deleteJSCollection({ id: actionId, name: actionName })),
     [dispatch],
   );
 
@@ -116,7 +116,8 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
           children: menuPages.map((page) => {
             return {
               ...page,
-              onSelect: () => copyJSActionToPage(props.id, props.name, page.id),
+              onSelect: () =>
+                copyJSCollectionToPage(props.id, props.name, page.id),
             };
           }),
         },
@@ -133,7 +134,7 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
                     return {
                       ...page,
                       onSelect: () =>
-                        moveJSActionToPage(props.id, props.name, page.id),
+                        moveJSCollectionToPage(props.id, props.name, page.id),
                     };
                   })
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
@@ -141,7 +142,7 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
         {
           icon: "trash",
           value: "delete",
-          onSelect: () => deleteJSActionFromPage(props.id, props.name),
+          onSelect: () => deleteJSCollectionFromPage(props.id, props.name),
           label: "Delete",
           intent: "danger",
           className: "t--apiFormDeleteBtn",
@@ -160,4 +161,4 @@ export function MoreJSActionsMenu(props: EntityContextMenuProps) {
   );
 }
 
-export default MoreJSActionsMenu;
+export default MoreJSCollectionsMenu;

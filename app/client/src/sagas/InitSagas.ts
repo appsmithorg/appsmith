@@ -29,7 +29,7 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import { fetchJSActions } from "actions/jsActionActions";
+import { fetchJSCollections } from "actions/jsActionActions";
 import {
   executePageLoadActions,
   fetchActions,
@@ -54,7 +54,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { fetchJSActionsForView } from "actions/jsActionActions";
+import { fetchJSCollectionsForView } from "actions/jsActionActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -121,7 +121,7 @@ function* initializeEditorSaga(
     );
     if (!applicationAndLayoutCalls) return;
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSActions(applicationId)],
+      [fetchJSCollections(applicationId)],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
@@ -260,7 +260,7 @@ export function* initializeAppViewerSaga(
     }
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSActionsForView(applicationId)],
+      [fetchJSCollectionsForView(applicationId)],
       [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
     );

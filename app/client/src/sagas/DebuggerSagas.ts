@@ -18,9 +18,13 @@ import {
 } from "redux-saga/effects";
 import { findIndex, get, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction, getPlugin, getJSAction } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getJSCollection,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
-import { JSAction } from "entities/JSAction";
+import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
@@ -280,7 +284,10 @@ function* logDebuggerErrorAnalyticsSaga(
         errorSubType: payload.errorSubType,
       });
     } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
-      const action: JSAction = yield select(getJSAction, payload.entityId);
+      const action: JSCollection = yield select(
+        getJSCollection,
+        payload.entityId,
+      );
       const plugin: Plugin = yield select(getPlugin, action.pluginId);
       const pluginName = plugin.name.replace(/ /g, "");
 

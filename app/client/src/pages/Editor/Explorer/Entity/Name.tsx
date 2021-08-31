@@ -113,7 +113,7 @@ export const EntityName = forwardRef(
 
     const existingActionNames: string[] = useSelector(getExistingActionNames);
 
-    const existingJSActionNames: string[] = useSelector((state: AppState) =>
+    const existingJSCollectionNames: string[] = useSelector((state: AppState) =>
       state.entities.jsActions.map(
         (action: { config: { name: string } }) => action.config.name,
       ),
@@ -129,7 +129,7 @@ export const EntityName = forwardRef(
             existingPageNames.indexOf(newName) === -1 &&
             existingActionNames.indexOf(newName) === -1 &&
             existingWidgetNames.indexOf(newName) === -1 &&
-            existingJSActionNames.indexOf(newName)
+            existingJSCollectionNames.indexOf(newName)
           );
         } else {
           return tabs.findIndex((tab) => tab.label === newName) > -1;
@@ -139,7 +139,7 @@ export const EntityName = forwardRef(
         existingPageNames,
         existingActionNames,
         existingWidgetNames,
-        existingJSActionNames,
+        existingJSCollectionNames,
       ],
     );
 

@@ -24,7 +24,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { getActions, getJSActions } from "selectors/entitiesSelector";
+import { getActions, getJSCollections } from "selectors/entitiesSelector";
 import { getCanvasWidgets } from "./entitiesSelector";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -339,8 +339,11 @@ const createLoadingWidget = (
   };
 };
 
-export const getJSActionById = createSelector(
-  [getJSActions, (state: any, props: any) => props.match.params.collectionId],
+export const getJSCollectionById = createSelector(
+  [
+    getJSCollections,
+    (state: any, props: any) => props.match.params.collectionId,
+  ],
   (jsActions, id) => {
     const action = jsActions.find((action) => action.config.id === id);
     if (action) {

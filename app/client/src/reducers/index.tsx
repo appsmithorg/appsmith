@@ -47,7 +47,7 @@ import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
-import { JSActionDataState } from "./entityReducers/jsActionsReducer";
+import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
@@ -118,7 +118,7 @@ export interface AppState {
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
-    jsActions: JSActionDataState;
+    jsActions: JSCollectionDataState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

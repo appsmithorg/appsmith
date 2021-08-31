@@ -6,7 +6,7 @@ import {
   useWidgets,
   useActions,
   useFilteredDatasources,
-  useJSActions,
+  useJSCollections,
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
@@ -63,7 +63,7 @@ function EntityExplorer(props: IPanelProps) {
 
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
-  const jsActions = useJSActions(searchKeyword);
+  const jsActions = useJSCollections(searchKeyword);
 
   let noResults = false;
   if (searchKeyword) {

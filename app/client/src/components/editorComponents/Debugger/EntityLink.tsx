@@ -55,7 +55,7 @@ function ActionLink(props: EntityLinkProps) {
   );
 }
 
-function JSActionLink(props: EntityLinkProps) {
+function JSCollectionLink(props: EntityLinkProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   // const action = useSelector((state: AppState) => getJSAction(state, props.id));
   const pageId = useSelector(getCurrentPageId);
@@ -184,7 +184,7 @@ const entityTypeLinkMap = {
   [ENTITY_TYPE.WIDGET]: WidgetLink,
   [ENTITY_TYPE.ACTION]: ActionLink,
   [ENTITY_TYPE.DATASOURCE]: DatasourceLink,
-  [ENTITY_TYPE.JSACTION]: JSActionLink,
+  [ENTITY_TYPE.JSACTION]: JSCollectionLink,
 };
 
 function EntityLink(props: EntityLinkProps) {

@@ -13,9 +13,9 @@ import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { JSActionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ValidationConfig } from "constants/PropertyControlConstants";
-import { Variable } from "entities/JSAction";
+import { Variable } from "entities/JSCollection";
 import {
   ActionDescription,
   ClearPluginActionDescription,
@@ -110,7 +110,7 @@ type DataTreeSeed = {
   widgetsMeta: MetaState;
   pageList: PageListPayload;
   appData: AppDataState;
-  jsActions: JSActionDataState;
+  jsActions: JSCollectionDataState;
 };
 
 export class DataTreeFactory {

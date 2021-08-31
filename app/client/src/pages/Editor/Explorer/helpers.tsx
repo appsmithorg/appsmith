@@ -51,7 +51,7 @@ export const getActionIdFromURL = () => {
   }
 };
 
-export const getJSActionIdFromURL = () => {
+export const getJSCollectionIdFromURL = () => {
   const functionMatch = matchPath<{ collectionId: string }>(
     window.location.pathname,
     {

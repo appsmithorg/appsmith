@@ -2,20 +2,20 @@ import React, { memo, ReactElement } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
 import { jsIcon, jsFileIcon } from "../ExplorerIcons";
-import ExplorerJSActionEntity from "./JSActionEntity";
-import { createNewJSAction } from "actions/jsPaneActions";
+import ExplorerJSCollectionEntity from "./JSActionEntity";
+import { createNewJSCollection } from "actions/jsPaneActions";
 import { useDispatch } from "react-redux";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
-type ExplorerJSActionGroupProps = {
+type ExplorerJSCollectionGroupProps = {
   pageId: string;
   step: number;
-  jsActions?: JSActionData[];
+  jsActions?: JSCollectionData[];
   searchKeyword?: string;
 };
 
-export const ExplorerJSActionGroup = memo(
-  (props: ExplorerJSActionGroupProps) => {
+export const ExplorerJSCollectionGroup = memo(
+  (props: ExplorerJSCollectionGroupProps) => {
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
         No JS Objects yet. Please click the <strong>+</strong> icon on above, to
@@ -23,11 +23,11 @@ export const ExplorerJSActionGroup = memo(
       </EntityPlaceholder>
     );
     const jsActions = props.jsActions || [];
-    const childNode: ReactElement<ExplorerJSActionGroupProps> = (
+    const childNode: ReactElement<ExplorerJSCollectionGroupProps> = (
       <>
-        {jsActions.map((js: JSActionData) => {
+        {jsActions.map((js: JSCollectionData) => {
           return (
-            <ExplorerJSActionEntity
+            <ExplorerJSCollectionEntity
               action={js}
               icon={jsFileIcon}
               key={js.config.id}
@@ -49,7 +49,7 @@ export const ExplorerJSActionGroup = memo(
         isDefaultExpanded
         key={props.pageId + "_jsAction"}
         name="JS Objects"
-        onCreate={() => dispatch(createNewJSAction(props.pageId))}
+        onCreate={() => dispatch(createNewJSCollection(props.pageId))}
         searchKeyword={props.searchKeyword}
         step={props.step}
       >
@@ -59,9 +59,9 @@ export const ExplorerJSActionGroup = memo(
   },
 );
 
-ExplorerJSActionGroup.displayName = "ExplorerJSActionGroup";
-(ExplorerJSActionGroup as any).whyDidYouRender = {
+ExplorerJSCollectionGroup.displayName = "ExplorerJSCollectionGroup";
+(ExplorerJSCollectionGroup as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };
 
-export default ExplorerJSActionGroup;
+export default ExplorerJSCollectionGroup;

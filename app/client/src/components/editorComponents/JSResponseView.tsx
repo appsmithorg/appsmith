@@ -18,7 +18,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
-import { JSAction, JSSubAction } from "entities/JSAction";
+import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { executeJSFunction } from "actions/jsPaneActions";
 import Text, { TextType } from "components/ads/Text";
@@ -27,6 +27,7 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import { sortBy } from "lodash";
 import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -122,7 +123,7 @@ interface ReduxStateProps {
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
-    jsObject: JSAction;
+    jsObject: JSCollection;
   };
 
 function JSResponseView(props: Props) {
@@ -221,7 +222,7 @@ function JSResponseView(props: Props) {
     setSelectedIndex(index);
   };
 
-  const runAction = (action: JSSubAction) => {
+  const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
     dispatch(
       executeJSFunction({
@@ -245,11 +246,17 @@ function JSResponseView(props: Props) {
   );
 }
 
-const mapStateToProps = (state: AppState, props: { jsObject: JSAction }) => {
+const mapStateToProps = (
+  state: AppState,
+  props: { jsObject: JSCollection },
+) => {
   const jsActions = state.entities.jsActions;
   const { jsObject } = props;
   const seletedJsObject =
-    jsObject && jsActions.find((action) => action.config.id === jsObject.id);
+    jsObject &&
+    jsActions.find(
+      (action: JSCollectionData) => action.config.id === jsObject.id,
+    );
   const responses = (seletedJsObject && seletedJsObject.data) || {};
   const isExecuting = (seletedJsObject && seletedJsObject.isExecuting) || {};
   return {

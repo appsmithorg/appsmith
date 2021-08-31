@@ -17,9 +17,9 @@ import { resolveAsSpaceChar } from "utils/helpers";
 import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
-import ExplorerJSActionGroup from "../JSActions/JSActionGroup";
+import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
-import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -30,7 +30,7 @@ type ExplorerPageEntityProps = {
   step: number;
   searchKeyword?: string;
   showWidgetsSidebar: (pageId: string) => void;
-  jsActions: JSActionData[];
+  jsActions: JSCollectionData[];
 };
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
@@ -105,7 +105,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
       )}
 
       {isJSEditorEnabled && (
-        <ExplorerJSActionGroup
+        <ExplorerJSCollectionGroup
           jsActions={props.jsActions}
           pageId={props.page.pageId}
           searchKeyword={props.searchKeyword}

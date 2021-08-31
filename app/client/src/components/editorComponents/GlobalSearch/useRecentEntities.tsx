@@ -4,10 +4,11 @@ import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllWidgetsMap,
-  getJSActions,
+  getJSCollections,
 } from "selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
@@ -16,7 +17,7 @@ const useResentEntities = () => {
   const widgetsMap = useSelector(getAllWidgetsMap);
   const recentEntities = useSelector(recentEntitiesSelector);
   const actions = useSelector(getActions);
-  const jsActions = useSelector(getJSActions);
+  const jsActions = useSelector(getJSCollections);
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
@@ -55,7 +56,9 @@ const useResentEntities = () => {
         };
       else if (type === "jsAction")
         return {
-          ...jsActions.find((action) => action?.config?.id === id),
+          ...jsActions.find(
+            (action: JSCollectionData) => action?.config?.id === id,
+          ),
           entityType: type,
         };
       else if (type === "widget") {

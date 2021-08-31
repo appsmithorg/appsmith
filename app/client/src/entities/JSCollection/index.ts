@@ -5,7 +5,7 @@ export type Variable = {
   name: string;
   value: any;
 };
-export interface JSAction {
+export interface JSCollection {
   id: string;
   applicationId: string;
   organizationId: string;
@@ -13,17 +13,17 @@ export interface JSAction {
   pageId: string;
   pluginId: string;
   pluginType: PluginType.JS;
-  actions: Array<JSSubAction>;
+  actions: Array<JSAction>;
   body: string;
   variables: Array<Variable>;
 }
 
-export interface JSSubActionConfig {
+export interface JSActionConfig {
   body: string;
   isAsync: boolean;
   timeoutInMilliseconds: number;
   jsArguments: Array<Variable>;
 }
-export interface JSSubAction extends BaseAction {
-  actionConfiguration: JSSubActionConfig;
+export interface JSAction extends BaseAction {
+  actionConfiguration: JSActionConfig;
 }
