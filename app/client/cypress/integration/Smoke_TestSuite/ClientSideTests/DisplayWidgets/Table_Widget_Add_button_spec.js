@@ -46,6 +46,7 @@ describe("Table Widget property pane feature validation", function() {
       });
   });
   it("Table widget add new icon button column", function() {
+    cy.openPropertyPane("tablewidget");
     // click on Add new Column.
     cy.get(".t--add-column-btn").click();
 
