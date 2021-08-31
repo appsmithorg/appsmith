@@ -5,26 +5,25 @@ export type Variable = {
   name: string;
   value: any;
 };
-export interface JSAction extends BaseAction {
-  body: string;
-  pluginType: PluginType.JS;
-  applicationId: string;
-  variables: Array<Variable>;
-  actions: Array<JSSubAction>;
-  organizationId: string;
-  pluginId: string;
-}
-export interface JSSubAction {
+export interface JSAction {
   id: string;
-  name: string;
-  collectionId: string;
-  executeOnLoad: boolean;
+  applicationId: string;
   organizationId: string;
+  name: string;
   pageId: string;
-  actionConfiguration: {
-    body: string;
-    isAsync: boolean;
-    timeoutInMilliseconds: number;
-    jsArguments?: Array<Variable>;
-  };
+  pluginId: string;
+  pluginType: PluginType.JS;
+  actions: Array<JSSubAction>;
+  body: string;
+  variables: Array<Variable>;
+}
+
+export interface JSSubActionConfig {
+  body: string;
+  isAsync: boolean;
+  timeoutInMilliseconds: number;
+  jsArguments: Array<Variable>;
+}
+export interface JSSubAction extends BaseAction {
+  actionConfiguration: JSSubActionConfig;
 }

@@ -33,7 +33,7 @@ class JSActionAPI extends API {
   }
 
   static updateJSAction(
-    apiConfig: Partial<JSAction>,
+    apiConfig: JSAction,
   ): AxiosPromise<JSActionCreateUpdateResponse> {
     const jsAction = Object.assign({}, apiConfig);
     return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);

@@ -74,12 +74,12 @@ export interface BaseAction {
   pageId: string;
   collectionId?: string;
   pluginId: string;
-  executeOnLoad?: boolean;
-  dynamicBindingPathList?: DynamicPath[];
-  isValid?: boolean;
-  invalids?: string[];
-  jsonPathKeys?: string[];
-  cacheResponse?: string;
+  executeOnLoad: boolean;
+  dynamicBindingPathList: DynamicPath[];
+  isValid: boolean;
+  invalids: string[];
+  jsonPathKeys: string[];
+  cacheResponse: string;
   confirmBeforeExecute?: boolean;
   eventData?: any;
 }

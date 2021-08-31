@@ -799,18 +799,13 @@ export default class DataTreeEvaluator {
       Object.keys(entity.meta).forEach((unEvalFunc) => {
         const unEvalValue = _.get(entity, unEvalFunc);
         if (typeof unEvalValue === "string") {
-          const newUnEvalValue = unEvalValue.replace(
-            /this\./g,
-            entity.name + ".",
-          );
-          const { result } = evaluate(newUnEvalValue, {}, {});
+          const { result } = evaluate(unEvalValue, {}, {});
           _.set(this.resolvedFunctions, `${entityName}.${unEvalFunc}`, result);
         }
       });
     });
   }
   resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
-    // const reg = /this\./g;
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
