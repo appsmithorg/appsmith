@@ -143,7 +143,9 @@ function* initiateActionTriggerExecution(
       },
       messages: [
         {
-          message: e.message,
+          // We show the exact error message thrown by for e.g plugin action saga
+          // else we show the default message
+          message: e?.error?.message ?? e.message,
         },
       ],
     });
