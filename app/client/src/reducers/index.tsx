@@ -53,6 +53,7 @@ import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
+import { CustomLibsReduxState } from "./uiReducers/customLibsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -103,6 +104,7 @@ export interface AppState {
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
+    customLibs: CustomLibsReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
