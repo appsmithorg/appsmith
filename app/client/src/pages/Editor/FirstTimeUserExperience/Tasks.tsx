@@ -88,7 +88,9 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src="https://assets.appsmith.com/onboarding-datasource.png" />
         </TaskImageContainer>
-        <TaskHeader>Start by adding your first Data source</TaskHeader>
+        <TaskHeader data-testid="onboarding-tasks-datasource-text">
+          Start by adding your first Data source
+        </TaskHeader>
         <TaskSubText>
           Adding a data source makes creating applications more powerful. Don’t
           worry if you don’t have any data to hand, we have sample data you can
@@ -96,6 +98,7 @@ export default function OnboardingTasks() {
         </TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            data-testid="onboarding-tasks-datasource-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                 from: "CANVAS",
@@ -116,6 +119,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           Alternatively you can also&nbsp;
           <span
+            data-testid="onboarding-tasks-datasource-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -136,13 +140,16 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src="https://assets.appsmith.com/onboarding-query.png" />
         </TaskImageContainer>
-        <TaskHeader>Next, create a query</TaskHeader>
+        <TaskHeader data-testid="onboarding-tasks-action-text">
+          Next, create a query
+        </TaskHeader>
         <TaskSubText>
           Great job adding a data source! The next thing you can do is create a
           query on your data.
         </TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            data-testid="onboarding-tasks-action-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
                 from: "CANVAS",
@@ -163,6 +170,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           Alternatively you can also&nbsp;
           <span
+            data-testid="onboarding-tasks-action-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -182,13 +190,16 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src="https://assets.appsmith.com/onboarding-query.png" />
         </TaskImageContainer>
-        <TaskHeader>Next, add a widget to start displaying data</TaskHeader>
+        <TaskHeader data-testid="onboarding-tasks-widget-text">
+          Next, add a widget to start displaying data
+        </TaskHeader>
         <TaskSubText>
           Great job adding a data source! The next thing you can do is add
           widget to start start making your data visual.
         </TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            data-testid="onboarding-tasks-widget-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -204,6 +215,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           Alternatively you can also&nbsp;
           <span
+            data-testid="onboarding-tasks-widget-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
                 from: "CANVAS",
@@ -224,7 +236,7 @@ export default function OnboardingTasks() {
     );
   }
   return (
-    <Wrapper>
+    <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
       {showModal && (
         <IntroductionModal

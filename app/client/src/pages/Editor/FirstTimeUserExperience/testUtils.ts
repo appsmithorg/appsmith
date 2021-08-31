@@ -1,10 +1,10 @@
 import configureStore from "redux-mock-store";
 
-const initialState: any = {
+export const initialState: any = {
   entities: {
     pageList: {
-      applicationId: Math.random(),
-      currentPageId: Math.random(),
+      applicationId: 1,
+      currentPageId: 2,
     },
     datasources: {
       list: [],
@@ -27,6 +27,7 @@ const initialState: any = {
     },
     onBoarding: {
       firstTimeUserExperienceComplete: false,
+      showFirstTimeUserExperienceModal: true,
     },
     theme: {
       theme: {
@@ -54,6 +55,13 @@ export function getStore(step: number) {
       state.entities.actions.push({});
       break;
     case 3:
+      state.entities.actions = [
+        {
+          config: {
+            id: Math.random(),
+          },
+        },
+      ];
       state.entities.canvasWidgets[Math.random()] = {};
       break;
     case 4:
