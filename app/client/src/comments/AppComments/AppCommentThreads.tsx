@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import {
@@ -17,6 +17,8 @@ import AppCommentsPlaceholder from "./AppCommentsPlaceholder";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 import { Virtuoso } from "react-virtuoso";
+import { setShouldShowResolvedComments } from "actions/commentActions";
+import { useSelectCommentThreadUsingQuery } from "../inlineComments/Comments";
 
 const Container = styled.div`
   display: flex;
@@ -26,6 +28,8 @@ const Container = styled.div`
 `;
 
 function AppCommentThreads() {
+  const dispatch = useDispatch();
+  const commentThreadIdInUrl = useSelectCommentThreadUsingQuery();
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
@@ -55,6 +59,17 @@ function AppCommentThreads() {
       currentUsername,
     ],
   );
+
+  useEffect(() => {
+    // if user is visiting a comment thread link which is already resolved,
+    // we'll activate the resolved comments filter
+    if (
+      commentThreadIdInUrl &&
+      !commentThreadIds.includes(commentThreadIdInUrl)
+    ) {
+      dispatch(setShouldShowResolvedComments(true));
+    }
+  }, [commentThreadIdInUrl]);
 
   return (
     <Container>
