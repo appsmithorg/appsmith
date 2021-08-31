@@ -167,7 +167,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   };
 
   render() {
-    const { autocomplete, input, options, width } = this.props;
+    const { autocomplete, color, input, options, width } = this.props;
 
     return (
       <StyledDropdown
@@ -186,8 +186,9 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              buttonStyle="PRIMARY"
-              buttonVariant="OUTLINE"
+              buttonColor={color}
+              buttonStyle={color ? "CUSTOM" : "PRIMARY"}
+              buttonVariant="SOLID"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
@@ -199,6 +200,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 }
 
 export interface DropdownComponentProps {
+  color?: string;
   hasLabel?: boolean;
   options: DropdownOption[];
   selectHandler?: (selectedValue: string) => void;

@@ -6,6 +6,7 @@ import { DropdownOption } from "components/constants";
 interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
   width?: string;
+  color?: string;
 }
 
 type DynamicDropdownFieldProps = BaseFieldProps & DynamicDropdownFieldOptions;
