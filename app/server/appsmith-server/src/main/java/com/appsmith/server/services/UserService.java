@@ -27,7 +27,7 @@ public interface UserService extends CrudService<User, String> {
 
     Mono<User> inviteUserToApplication(InviteUser inviteUser, String originHeader, String applicationId);
 
-    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader, boolean createDefaultApplication);
+    Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader);
 
     Mono<User> userCreate(User user);
 

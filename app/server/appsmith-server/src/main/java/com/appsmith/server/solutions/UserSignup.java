@@ -6,6 +6,7 @@ import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -15,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -62,6 +64,7 @@ public class UserSignup {
     private final ConfigService configService;
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
+    private final ApplicationPageService applicationPageService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -88,22 +91,16 @@ public class UserSignup {
             );
         }
 
-        boolean createDefaultApplication = true;
-        MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
-        String queryParamsFirst = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
-        if(!StringUtils.isEmpty(queryParamsFirst)) {
-            createDefaultApplication = false;
-        }
-
         return Mono
                 .zip(
-                        userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin(), createDefaultApplication),
+                        userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin()),
                         exchange.getSession(),
                         ReactiveSecurityContextHolder.getContext()
                 )
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
+                    final String organizationId = tuple.getT1().getDefaultOrganizationId();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
 
@@ -114,8 +111,22 @@ public class UserSignup {
                     session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
+
+                    MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+                    String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+
+                    if(StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId)) {
+                        // need to create default application
+                        Application application = new Application();
+                        application.setOrganizationId(organizationId);
+                        application.setName("My first application");
+                        return applicationPageService.createApplication(application).flatMap(createdApplication ->
+                                authenticationSuccessHandler
+                                .onAuthenticationSuccess(webFilterExchange, authentication, createdApplication, true)
+                                .thenReturn(savedUser));
+                    }
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, tuple.getT1().getDefaultApplicationId(), true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, null, true)
                             .thenReturn(savedUser);
                 });
     }

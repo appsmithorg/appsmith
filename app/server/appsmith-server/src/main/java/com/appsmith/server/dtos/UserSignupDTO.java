@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class UserSignupDTO {
     private User user;
-    private String defaultApplicationId;
+    private String defaultOrganizationId;
 }

@@ -243,18 +243,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                 );
     }
 
-    @Override
-    public Mono<Application> createDefaultApplication(Organization organization) {
-        Application application = new Application();
-        application.setOrganizationId(organization.getId());
-        application.setName("My first application");
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
-                organization.getPolicies(), Organization.class, Application.class
-        );
-        application.setPolicies(documentPolicies);
-        return saveNewApplication(Mono.just(application));
-    }
-
     private Mono<Application> saveNewApplication(Mono<Application> applicationMono) {
         return applicationMono
                 .map(application -> {

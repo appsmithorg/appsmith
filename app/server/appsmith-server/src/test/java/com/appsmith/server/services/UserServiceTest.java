@@ -403,7 +403,7 @@ public class UserServiceTest {
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono =
-                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080", false)
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
                         .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
@@ -480,7 +480,7 @@ public class UserServiceTest {
         newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
         newUser.setSource(LoginSource.FORM);
         newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null, false)
+        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null)
                 .map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)

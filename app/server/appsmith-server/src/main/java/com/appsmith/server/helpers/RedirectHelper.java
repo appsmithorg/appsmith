@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.services.ApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -165,16 +166,12 @@ public class RedirectHelper {
         return redirectOrigin;
     }
 
-    public Mono<String> buildApplicationUrl(String applicationId, HttpHeaders httpHeaders) {
-        return applicationService.findById(applicationId, READ_APPLICATIONS).map(application -> {
-            String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-            if(application.getPages().size() > 0) {
-                ApplicationPage applicationPage = application.getPages().get(0);
-                redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
-            }
-
-            return fulfillRedirectUrl(redirectUrl, httpHeaders);
-        });
+    public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {
+        String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
+        if(application.getPages().size() > 0) {
+            ApplicationPage applicationPage = application.getPages().get(0);
+            redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
+        }
+        return fulfillRedirectUrl(redirectUrl, httpHeaders);
     }
-
 }

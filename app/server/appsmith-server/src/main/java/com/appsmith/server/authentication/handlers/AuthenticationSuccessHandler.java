@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -69,7 +70,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
-            String defaultApplicationId,
+            Application defaultApplication,
             boolean isFromSignup
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
@@ -96,8 +97,8 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
-                ? handleOAuth2Redirect(webFilterExchange, defaultApplicationId, isFromSignup)
-                : handleRedirect(webFilterExchange, defaultApplicationId, isFromSignup);
+                ? handleOAuth2Redirect(webFilterExchange, defaultApplication, isFromSignup)
+                : handleRedirect(webFilterExchange, defaultApplication, isFromSignup);
 
         final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
@@ -138,7 +139,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
            "JavadocReference"
     )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, String defaultApplicationId, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
@@ -160,28 +161,24 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
     }
 
-    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, String defaultApplicationId, boolean isFromSignup) {
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
         return Mono.just(exchange.getRequest())
                 .flatMap(redirectHelper::getRedirectUrl)
-                .flatMap(s -> {
+                .map(s -> {
+                    String url = s;
                     boolean addFirstTimeExperienceParam = false;
-                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplicationId != null) {
+                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
                         addFirstTimeExperienceParam = true;
                         HttpHeaders headers = exchange.getRequest().getHeaders();
-                        return redirectHelper.buildApplicationUrl(defaultApplicationId, headers)
-                                .zipWith(Mono.just(addFirstTimeExperienceParam));
+                        url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
                     }
-                    return Mono.just(s).zipWith(Mono.just(addFirstTimeExperienceParam));
-                })
-                .map(tuple2 -> {
-                    String url = tuple2.getT1();
                     if (isFromSignup) {
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url, tuple2.getT2());
+                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
                     }
                     return url;
                 })
