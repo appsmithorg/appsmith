@@ -324,11 +324,6 @@ function ImportedHeaderKeyValue(props: { headers: any }) {
 const BoundaryContainer = styled.div`
   border: 1px solid transparent;
   border-right: none;
-  .request-dropdown {
-    .cs-text {
-      width: 100%;
-    }
-  }
 `;
 
 function renderImportedHeadersButton(
@@ -494,7 +489,7 @@ function ApiEditorForm(props: Props) {
           <FormRow className="api-info-row">
             <BoundaryContainer>
               <RequestDropdownField
-                className="t--apiFormHttpMethod request-dropdown"
+                className="t--apiFormHttpMethod"
                 height={"35px"}
                 name="actionConfiguration.httpMethod"
                 optionWidth={"100px"}
