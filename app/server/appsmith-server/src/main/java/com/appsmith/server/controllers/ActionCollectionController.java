@@ -40,14 +40,14 @@ public class ActionCollectionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionCollectionDTO>> create(@Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
+        log.debug("Going to create action collection {}", resource.getClass().getName());
         return actionCollectionService.createCollection(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollections(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all action collections with params : {}", params);
+        log.debug("Going to get all unpublished action collections with params : {}", params);
         return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, false)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
@@ -68,7 +68,7 @@ public class ActionCollectionController {
 
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllPublishedActionCollections(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all action collections with params : {}", params);
+        log.debug("Going to get all published action collections with params : {}", params);
         return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, true)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
@@ -76,7 +76,7 @@ public class ActionCollectionController {
 
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to update resource with id: {}", id);
+        log.debug("Going to update action collection with id: {}", id);
         return actionCollectionService.updateUnpublishedActionCollection(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }

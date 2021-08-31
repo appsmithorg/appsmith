@@ -43,6 +43,7 @@ public class ActionDTO {
 
     String name;
 
+    // The FQN for an action will also include any collection it is a part of as collectionName.actionName
     String fullyQualifiedName;
 
     Datasource datasource;
