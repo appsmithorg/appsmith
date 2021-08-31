@@ -120,7 +120,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         Mono<NewPage> pageMono = newPageService
                 .findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageId)))
                 .cache();
 
         // First check if the collection name is allowed
