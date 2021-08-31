@@ -43,11 +43,6 @@ else
     export $(grep -v '^[[:space:]]*#' ${ENV_FILE} | xargs)
 fi
 
-# Stop and remove existing container
-# Ignore outcome in case someone decides to set -e later
-docker rm -f wildcard-nginx || true
-
-
 default_server_proxy="http://host.docker.internal:8080"
 default_client_proxy="http://host.docker.internal:3000"
 
@@ -56,14 +51,26 @@ default_linux_client_proxy="http://localhost:3000"
 
 # default server to internal docker
 server_proxy_pass="${1:-$default_server_proxy}"
+if [[ $server_proxy_pass =~ /$ ]]; then
+    read -r -p "Server proxy ends with a '/'. This is most likely unintended. Are you sure? [y/N] " proceed
+    if [[ ! $proceed =~ ^[Yy]([eE][sS])?$ ]]; then
+        echo "Exiting. Please run again, removing the trailing slash(es) for the server proxy endpoint." >&2
+        exit 1
+    fi
+    unset proceed
+fi
+
+# Stop and remove existing container
+# Ignore outcome in case someone decides to set -e later
+docker rm -f wildcard-nginx || true
 
 uname_out="$(uname -s)"
 vars_to_substitute="$(printf '\$%s,' $(grep -o "^APPSMITH_[A-Z0-9_]\+" ../../.env | xargs))"
 client_proxy_pass="${default_client_proxy}"
 network_mode="bridge"
 case "${uname_out}" in
-    Linux*)     machine=Linux
-        
+    Linux*)
+
         source ../util/is_wsl.sh
         if [ $IS_WSL ]; then
             : # ignore to continue using host.docker.internal
@@ -86,7 +93,7 @@ case "${uname_out}" in
     visit https://dev.appsmith.com
         "
     ;;
-    Darwin*)    machine=Mac
+    Darwin*)
         echo "
     Starting nginx for MacOS...
         "
