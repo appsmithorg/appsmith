@@ -1,15 +1,12 @@
-import _, { VERSION as lodashVersion } from "lodash";
+import _ from "lodash";
 import {
   DATA_BIND_REGEX,
   DATA_BIND_REGEX_GLOBAL,
 } from "constants/BindingsConstants";
 import { Action } from "entities/Action";
-import moment from "moment-timezone";
 import { WidgetProps } from "widgets/BaseWidget";
-import parser from "fast-xml-parser";
 import { Severity } from "entities/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import forge from "node-forge";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -129,49 +126,9 @@ export enum EVAL_WORKER_ACTIONS {
   CLEAR_CACHE = "CLEAR_CACHE",
   VALIDATE_PROPERTY = "VALIDATE_PROPERTY",
   EVAL_EXPRESSION = "EVAL_EXPRESSION",
+  IMPORT_SCRIPT = "IMPORT_SCRIPT",
+  UPDATE_LIBRARIES = "UPDATE_LIBRARIES",
 }
-
-export type ExtraLibrary = {
-  version: string;
-  docsURL: string;
-  displayName: string;
-  accessor: string;
-  lib: any;
-};
-
-export const extraLibraries: ExtraLibrary[] = [
-  {
-    accessor: "_",
-    lib: _,
-    version: lodashVersion,
-    docsURL: `https://lodash.com/docs/${lodashVersion}`,
-    displayName: "lodash",
-  },
-  {
-    accessor: "moment",
-    lib: moment,
-    version: moment.version,
-    docsURL: `https://momentjs.com/docs/`,
-    displayName: "moment",
-  },
-  {
-    accessor: "xmlParser",
-    lib: parser,
-    version: "3.17.5",
-    docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
-    displayName: "xmlParser",
-  },
-  {
-    accessor: "forge",
-    // We are removing some functionalities of node-forge because they wont
-    // work in the worker thread
-    lib: _.omit(forge, ["tls", "http", "xhr", "socket", "task"]),
-    version: "0.10.0",
-    docsURL: "https://github.com/digitalbazaar/forge",
-    displayName: "forge",
-  },
-];
-
 export interface DynamicPath {
   key: string;
   value?: string;

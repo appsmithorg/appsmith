@@ -4,7 +4,7 @@ import { Collapse, Icon, IconName, Tooltip } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
-import { extraLibraries } from "utils/DynamicBindingUtils";
+import customLibraries from "utils/ExtraLibrary";
 
 const Wrapper = styled.div`
   font-size: 13px;
@@ -48,17 +48,17 @@ const Help = styled(Icon)`
 export function JSDependencies() {
   const [isOpen, setIsOpen] = useState(false);
   const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const dependencyList = extraLibraries.map((lib) => {
-    return (
-      <ListItem
-        key={lib.displayName}
-        onClick={openDocs(lib.displayName, lib.docsURL)}
-      >
-        <Name>{lib.displayName}</Name>
-        <Version>{lib.version}</Version>
-      </ListItem>
-    );
-  });
+  const dependencyList = customLibraries
+    .getInstance()
+    .getLibraries()
+    .map((lib) => {
+      return (
+        <ListItem key={lib.name} onClick={openDocs(lib.name, lib.docsURL)}>
+          <Name>{lib.name}</Name>
+          <Version>{lib.version}</Version>
+        </ListItem>
+      );
+    });
   const icon: IconName = isOpen ? IconNames.CARET_DOWN : IconNames.CARET_RIGHT;
   const toggleDependencies = () => setIsOpen(!isOpen);
   const showDocs = (e: any) => {

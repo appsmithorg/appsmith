@@ -1,10 +1,10 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
+import customLibraries from "utils/ExtraLibrary";
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
@@ -117,6 +117,7 @@ export default function evaluate(
   data: DataTree,
   evalArguments?: Array<any>,
   isTriggerBased = false,
+  extraLibraries = customLibraries.getInstance().getLibraries(),
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters

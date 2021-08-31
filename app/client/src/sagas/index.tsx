@@ -39,6 +39,7 @@ import draggingCanvasSagas from "./DraggingCanvasSagas";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
+import customLibsSaga from "./CustomLibsSaga";
 const sagas = [
   initSagas,
   pageSagas,
@@ -77,6 +78,7 @@ const sagas = [
   notificationsSagas,
   selectionCanvasSagas,
   draggingCanvasSagas,
+  customLibsSaga,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

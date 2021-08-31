@@ -181,6 +181,11 @@ ctx.addEventListener(
         return isTrigger
           ? evaluate(expression, evalTree, [], true)
           : evaluate(expression, evalTree);
+      case EVAL_WORKER_ACTIONS.UPDATE_LIBRARIES:
+        const { libs } = requestData;
+        debugger;
+        (ctx as any).customLibs = libs;
+        return true;
       default: {
         console.error("Action not registered on worker", method);
       }

@@ -62,6 +62,7 @@ import {
 } from "constants/messages";
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -70,7 +71,7 @@ const worker = new GracefulWorkerService(Worker);
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ) {
-  const unevalTree = yield select(getUnevaluatedDataTree);
+  const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -365,6 +366,22 @@ export function* evaluateArgumentSaga(action: any) {
   } catch (e) {
     log.error(e);
     Sentry.captureException(e);
+  }
+}
+
+export function* updateLibrariesSaga(libs: any) {
+  try {
+    const workerResponse: boolean = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.UPDATE_LIBRARIES,
+      {
+        libs,
+      },
+    );
+    // console.log("Complete");
+  } catch (error) {
+    log.error(error);
+    Sentry.captureException(error);
   }
 }
 
