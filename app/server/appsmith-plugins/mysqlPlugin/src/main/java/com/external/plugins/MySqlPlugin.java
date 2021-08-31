@@ -382,7 +382,9 @@ public class MySqlPlugin extends BasePlugin {
                     // Do nothing. Move on
                 }
             } else {
-                connectionStatement.bind((index - 1), value);
+                System.out.println("devtest: index: " + index + ", value: " + value);
+                connectionStatement.bind((index - 1), Integer.parseInt(value));
+                //connectionStatement.bind((index - 1), value);
             }
 
             return connectionStatement;
