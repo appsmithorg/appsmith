@@ -402,7 +402,12 @@ export const GEN_CRUD_SUCCESS_DESC = () =>
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
-
+export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column Headers Fetched";
+export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
+export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select Datasource";
+export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table Header Index";
+export const GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC = () =>
+  "Row index of the column headers in the sheet table";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
