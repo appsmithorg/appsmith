@@ -37,6 +37,7 @@ export interface RenderDropdownOptionType {
   isSelectedNode?: boolean;
   extraProps?: any;
   errorMsg?: string;
+  optionWidth: string;
 }
 
 type RenderOption = ({
@@ -44,6 +45,7 @@ type RenderOption = ({
   index,
   option,
   optionClickHandler,
+  optionWidth,
 }: RenderDropdownOptionType) => ReactElement<any, any>;
 
 export type DropdownProps = CommonComponentProps &
@@ -68,6 +70,7 @@ export type DropdownProps = CommonComponentProps &
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     placeholder?: string;
     helperText?: string;
+    fillOptions?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -77,6 +80,7 @@ export interface DefaultDropDownValueNodeProps {
   renderNode?: RenderOption;
   placeholder?: string;
   showDropIcon?: boolean;
+  optionWidth: string;
 }
 
 export interface RenderDropdownOptionType {
@@ -215,6 +219,7 @@ const DropdownOptionsWrapper = styled.div<{
   height: ${(props) => props.height};
   max-height: ${(props) => props.maxHeight};
   overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const OptionWrapper = styled.div<{
@@ -399,6 +404,7 @@ const HelperText = styled.span`
 
 function DefaultDropDownValueNode({
   errorMsg,
+  optionWidth,
   placeholder,
   renderNode,
   selected,
@@ -423,7 +429,12 @@ function DefaultDropDownValueNode({
   return (
     <SelectedDropDownHolder>
       {renderNode ? (
-        renderNode({ isSelectedNode: true, option: selected, errorMsg })
+        renderNode({
+          isSelectedNode: true,
+          option: selected,
+          errorMsg,
+          optionWidth,
+        })
       ) : (
         <>
           {selected?.icon ? (
@@ -457,10 +468,11 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
   renderOption?: RenderOption;
   headerLabel?: string;
   selected: DropdownOption;
+  optionWidth: string;
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const { onSearch, optionClickHandler, renderOption } = props;
+  const { onSearch, optionClickHandler, optionWidth, renderOption } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -477,10 +489,11 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     setOptions(filteredOptions);
     onSearch && onSearch(searchStr);
   };
+
   return options.length > 0 ? (
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
-      width={props.optionWidth || "260px"}
+      width={optionWidth}
     >
       {props.enableSearch && (
         <SearchComponent
@@ -501,6 +514,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
               option,
               index,
               optionClickHandler,
+              optionWidth,
             });
           }
           return (
@@ -590,16 +604,35 @@ export default function Dropdown(props: DropdownProps) {
     }
   };
 
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
+
+  const dropdownWrapperRef = useCallback(
+    (ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setDropdownWrapperWidth(`${width}px`);
+      }
+    },
+    [setDropdownWrapperWidth],
+  );
+
+  const dropdownOptionWidth = props.fillOptions
+    ? dropdownWrapperWidth
+    : props.optionWidth || "260px";
+
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
       disabled={props.disabled}
       isOpen={isOpen}
       onClick={onClickHandler}
+      ref={dropdownWrapperRef}
     >
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <DropdownSelect>
+    <DropdownSelect ref={dropdownWrapperRef}>
       <Selected
         bgColor={props.bgColor}
         className={props.className}
@@ -612,6 +645,7 @@ export default function Dropdown(props: DropdownProps) {
       >
         <SelectedValueNode
           errorMsg={errorMsg}
+          optionWidth={dropdownOptionWidth}
           placeholder={placeholder}
           renderNode={renderOption}
           selected={selected}
@@ -641,13 +675,16 @@ export default function Dropdown(props: DropdownProps) {
       )}
     </DropdownSelect>
   );
+
+  const dropdownWidth = props.width || "260px";
+
   return (
     <DropdownContainer
       className={props.containerClassName}
       data-cy={props.cypressSelector}
       height={props.height || "36px"}
       tabIndex={0}
-      width={props.width || "260px"}
+      width={dropdownWidth}
     >
       <Popover
         boundary="scrollParent"
@@ -660,8 +697,9 @@ export default function Dropdown(props: DropdownProps) {
       >
         {dropdownTrigger}
         <RenderDropdownOptions
-          optionClickHandler={optionClickHandler}
           {...props}
+          optionClickHandler={optionClickHandler}
+          optionWidth={dropdownOptionWidth}
           selected={
             props.selected
               ? props.selected

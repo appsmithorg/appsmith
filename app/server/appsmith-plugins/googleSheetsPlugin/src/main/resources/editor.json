@@ -61,14 +61,14 @@
           ]
         },
         {
-          "label": "Spreadsheet Url Key",
+          "label": "Spreadsheet URL Key",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sheetUrl"
         },
         {
-          "label": "Spreadsheet Url",
+          "label": "Spreadsheet URL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
@@ -173,7 +173,7 @@
               }
             ]
           },
-          "initialValue": ""
+          "initialValue": "Sheet1"
         },
         {
           "label": "Table Header Index Key",
@@ -307,7 +307,7 @@
               }
             ]
           },
-          "initialValue": "",
+          "initialValue": "0",
           "placeholderText": "0"
         },
         {
@@ -328,7 +328,7 @@
               "DELETE_ROW"
             ]
           },
-          "initialValue": "",
+          "initialValue": "0",
           "placeholderText": "0"
         },
         {
@@ -339,7 +339,7 @@
           "initialValue": "rowLimit"
         },
         {
-          "label": "Row limit",
+          "label": "Row Limit",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
@@ -367,7 +367,7 @@
               }
             ]
           },
-          "initialValue": "",
+          "initialValue": "10",
           "placeholderText": "10"
         },
         {

@@ -438,7 +438,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Choose an existing empty repository to host your project and keep it in sync";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
@@ -469,3 +469,9 @@ export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+
+// Comment card tooltips
+export const MORE_OPTIONS = () => "More Options";
+export const ADD_REACTION = () => "Add Reaction";
+export const RESOLVE_THREAD = () => "Resolve Thread";
+export const EMOJI = () => "Emoji";
