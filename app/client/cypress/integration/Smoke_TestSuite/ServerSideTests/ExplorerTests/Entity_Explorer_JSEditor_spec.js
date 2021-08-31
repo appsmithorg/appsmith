@@ -21,4 +21,17 @@ describe("Entity explorer JSEditor structure", function() {
     cy.get(jsEditorLocators.jsPage).click();
     cy.get(jsEditorLocators.jsObjectName).contains("NewNameJSObj");
   });
+
+  it("Copy JSObject", function() {
+    cy.get(jsEditorLocators.jsPageProperty).click();
+    //cy.get('.sc-gKXCFs').click();
+    cy.get(jsEditorLocators.copyToPageMenu).click();
+    cy.get(jsEditorLocators.copyToPage1).click();
+  });
+
+  it("Delete JSObkect", function() {
+    cy.get(`.t--entity-name:contains("NewNameJSObjCopy")`).click();
+    cy.get(jsEditorLocators.jsPageProperty).click();
+    cy.get(".t--apiFormDeleteBtn").click();
+  });
 });
