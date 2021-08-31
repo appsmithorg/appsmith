@@ -334,7 +334,7 @@ function GoogleSheetForm(props: Props) {
             {columnHeaderList.length ? (
               <>
                 <Text type={TextType.P3} weight={FontWeight.BOLD}>
-                  Column Headers fetched :&nbsp;{" "}
+                  Column Headers Fetched :&nbsp;
                 </Text>
                 {columnHeaderList
                   .slice(0, MAX_COLUMNS_VISIBLE)
