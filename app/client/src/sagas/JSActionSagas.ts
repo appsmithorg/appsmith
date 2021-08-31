@@ -17,6 +17,7 @@ import { JSAction, JSSubAction } from "entities/JSAction";
 import {
   createJSActionSuccess,
   deleteJSActionSuccess,
+  deleteJSActionError,
   copyJSActionSuccess,
   copyJSActionError,
   moveJSActionSuccess,
@@ -54,7 +55,6 @@ import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import { JSActionData } from "reducers/entityReducers/jsActionsReducer";
 import { GenericApiResponse } from "api/ApiResponses";
-import { JSActionViewMode } from "entities/JSAction";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -274,10 +274,7 @@ export function* deleteJSActionSaga(
       yield put(deleteJSActionSuccess({ id }));
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.id },
-    });
+    yield put(deleteJSActionError({ id: actionPayload.payload.id }));
   }
 }
 
@@ -382,22 +379,15 @@ export function* fetchJSActionsForViewModeSaga(
 ) {
   const { applicationId } = action.payload;
   try {
-    const response: GenericApiResponse<JSActionViewMode[]> = yield JSActionAPI.fetchJSActionsForViewMode(
+    const response: GenericApiResponse<JSAction[]> = yield JSActionAPI.fetchJSActionsForViewMode(
       applicationId,
     );
-    const correctFormatResponse = response.data.map((action) => {
-      return {
-        ...action,
-        actionConfiguration: {
-          timeoutInMillisecond: action.timeoutInMillisecond,
-        },
-      };
-    });
+    const resultJSActions = response.data;
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
-        payload: correctFormatResponse,
+        payload: resultJSActions,
       });
     }
   } catch (error) {

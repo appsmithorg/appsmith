@@ -122,7 +122,7 @@ interface ReduxStateProps {
 type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
-    jsObject: JSAction | undefined;
+    jsObject: JSAction;
   };
 
 function JSResponseView(props: Props) {
@@ -245,10 +245,7 @@ function JSResponseView(props: Props) {
   );
 }
 
-const mapStateToProps = (
-  state: AppState,
-  props: { jsObject: JSAction | undefined },
-) => {
+const mapStateToProps = (state: AppState, props: { jsObject: JSAction }) => {
   const jsActions = state.entities.jsActions;
   const { jsObject } = props;
   const seletedJsObject =

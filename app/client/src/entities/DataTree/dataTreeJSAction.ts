@@ -13,7 +13,7 @@ export const generateDataTreeJSAction = (
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   let result: Record<string, unknown> = {};
-  const variables = js?.config?.variables;
+  const variables = js.config.variables;
   const listVariables: Array<string> = [];
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
@@ -24,13 +24,16 @@ export const generateDataTreeJSAction = (
       listVariables.push(variable.name);
     }
   }
-  const actions = js?.config?.actions;
+  const actions = js.config.actions;
   const subActionsObject: any = {};
   if (actions) {
+    const reg = /this\./g;
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       data[action.name] = null;
-      subActionsObject[action.name] = action.actionConfiguration.body;
+      subActionsObject[
+        action.name
+      ] = action.actionConfiguration.body.replaceAll(reg, `${js.config.name}.`);
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
       };

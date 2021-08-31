@@ -98,6 +98,16 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionErrorTypes.DELETE_JS_ACTION_ERROR]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    isDeleting: {
+      ...state.isDeleting,
+      [action.payload.id]: false,
+    },
+  }),
 });
 
 export default jsPaneReducer;

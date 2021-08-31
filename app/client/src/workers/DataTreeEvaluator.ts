@@ -810,7 +810,7 @@ export default class DataTreeEvaluator {
     });
   }
   resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
-    const reg = /this\./g;
+    // const reg = /this\./g;
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
@@ -829,12 +829,7 @@ export default class DataTreeEvaluator {
           Object.keys(entity.meta).forEach((unEvalFunc) => {
             const unEvalValue = _.get(entity, unEvalFunc);
             if (typeof unEvalValue === "string") {
-              // const reg = /this./;
-              const newUnEvalValue = unEvalValue.replaceAll(
-                reg,
-                entity.name + ".",
-              );
-              const { result } = evaluate(newUnEvalValue, {}, {});
+              const { result } = evaluate(unEvalValue, {}, {});
               _.set(
                 this.resolvedFunctions,
                 `${entityName}.${unEvalFunc}`,
@@ -847,11 +842,7 @@ export default class DataTreeEvaluator {
           //// resolve that function
           const unEvalValue = _.get(entity, propertyPath);
           if (typeof unEvalValue === "string") {
-            const newUnEvalValue = unEvalValue.replaceAll(
-              reg,
-              entity.name + ".",
-            );
-            const { result } = evaluate(newUnEvalValue, unEvalDataTree, {});
+            const { result } = evaluate(unEvalValue, unEvalDataTree, {});
             _.set(
               this.resolvedFunctions,
               `${entityName}.${propertyPath}`,
@@ -863,8 +854,7 @@ export default class DataTreeEvaluator {
       if (diff.event === DataTreeDiffEvent.EDIT) {
         const unEvalValue = _.get(entity, propertyPath);
         if (typeof unEvalValue === "string") {
-          const newUnEvalValue = unEvalValue.replaceAll(reg, entity.name + ".");
-          const { result } = evaluate(newUnEvalValue, unEvalDataTree, {});
+          const { result } = evaluate(unEvalValue, unEvalDataTree, {});
           _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
         }
       }
@@ -875,9 +865,6 @@ export default class DataTreeEvaluator {
           delete this.resolvedFunctions[unEvalValue];
         }
       }
-      // TODO
-      // if the js function is deleted
-      // delete the js function (check if needed)
     });
   }
 

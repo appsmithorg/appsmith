@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { JS_EDITOR_FORM } from "constants/forms";
 import { JSAction } from "entities/JSAction";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSActionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
@@ -13,12 +12,10 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { reduxForm } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import { updateJSAction } from "actions/jsPaneActions";
-import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import JSResponseView from "components/editorComponents/JSResponseView";
@@ -108,18 +105,12 @@ interface JSFormProps {
 
 type Props = JSFormProps;
 
-function JSEditorForm() {
+function JSEditorForm(props: Props) {
   const theme = EditorTheme.LIGHT;
   const [mainTabIndex, setMainTabIndex] = useState(0);
   const dispatch = useDispatch();
-  const params = useParams<{ collectionId: string }>();
+  const currentJSAction = props.jsAction;
 
-  const jsActions: JSAction[] = useSelector((state: AppState) =>
-    state.entities.jsActions.map((js) => js.config),
-  );
-  const currentJSAction: JSAction | undefined = jsActions.find(
-    (js) => js.id === params.collectionId,
-  );
   const handleOnChange = (event: string) => {
     if (currentJSAction) {
       dispatch(updateJSAction(event, currentJSAction.id));
@@ -139,8 +130,8 @@ function JSEditorForm() {
             <ActionButtons className="t--formActionButtons">
               <MoreJSActionsMenu
                 className="t--more-action-menu"
-                id={currentJSAction ? currentJSAction.id : ""}
-                name={currentJSAction ? currentJSAction.name : ""}
+                id={currentJSAction.id}
+                name={currentJSAction.name}
                 pageId={pageId}
               />
             </ActionButtons>
@@ -158,12 +149,12 @@ function JSEditorForm() {
                   panelComponent: (
                     <CodeEditor
                       className={"js-editor"}
-                      dataTreePath={`${currentJSAction?.name}.body`}
+                      dataTreePath={`${currentJSAction.name}.body`}
                       folding
                       height={"400px"}
                       hideEvaluatedValue
                       input={{
-                        value: currentJSAction?.body,
+                        value: currentJSAction.body,
                         onChange: (event: any) => handleOnChange(event),
                       }}
                       mode={EditorModes.JAVASCRIPT}
@@ -186,6 +177,4 @@ function JSEditorForm() {
   );
 }
 
-export default reduxForm<JSAction, Props>({
-  form: JS_EDITOR_FORM,
-})(JSEditorForm);
+export default JSEditorForm;

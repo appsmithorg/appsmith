@@ -34,7 +34,7 @@ class JSEditor extends React.Component<Props> {
         </LoadingContainer>
       );
     }
-    if (jsAction) {
+    if (!!jsAction) {
       return (
         <JsEditorForm jsAction={jsAction} settingsConfig={settingsConfig} />
       );

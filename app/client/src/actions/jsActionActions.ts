@@ -102,6 +102,13 @@ export const deleteJSActionSuccess = (payload: { id: string }) => {
   };
 };
 
+export const deleteJSActionError = (payload: { id: string }) => {
+  return {
+    type: ReduxActionErrorTypes.DELETE_JS_ACTION_ERROR,
+    payload,
+  };
+};
+
 export const saveJSObjectName = (payload: { id: string; name: string }) => ({
   type: ReduxActionTypes.SAVE_JS_COLLECTION_NAME_INIT,
   payload: payload,
