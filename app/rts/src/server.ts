@@ -170,7 +170,13 @@ async function tryAuth(socket:Socket) {
 		
 			const email = response.data.data.user.email
 			const name = response.data.data.user.name ? response.data.data.user.name : email;
-		
+
+			// If the session check API succeeds & the email/name is anonymousUser, then the user is not authenticated
+			// and we should not allow them to join any rooms
+			if (email === "anonymousUser" || name === "anonymousUser") {
+				return false;
+			}
+
 			socket.data.email = email
 			socket.data.name = name
 			
