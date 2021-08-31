@@ -17,10 +17,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
@@ -53,6 +60,8 @@ public class FileUtils implements FileInterface {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
         String baseRepoPath = GIT_REPO + "/" + organizationId + "/" + defaultApplicationId + "/" + branchName;
+        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
+        Set<String> validFileNames = new HashSet<>();
 
         /*
         Application will be stored in the following structure :
@@ -69,30 +78,39 @@ public class FileUtils implements FileInterface {
             --page2
          */
 
-        Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-
         // Save application
         saveFile(applicationGitReference.getApplication(), baseRepoPath + "/application.json", gson);
 
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
             saveFile(resource.getValue(), baseRepoPath + PAGE_DIRECTORY + resource.getKey() + ".json", gson);
+            validFileNames.add(resource.getKey() + ".json");
         }
+        // Scan page directory and delete if any unwanted file if present
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + PAGE_DIRECTORY);
+        validFileNames.clear();
 
         // Save actions
         for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
             saveFile(resource.getValue(), baseRepoPath + ACTION_DIRECTORY + resource.getKey() + ".json", gson);
+            validFileNames.add(resource.getKey() + ".json");
         }
+        // Scan actions directory and delete if any unwanted file if present
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + ACTION_DIRECTORY);
+        validFileNames.clear();
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
             saveFile(resource.getValue(), baseRepoPath + DATASOURCE_DIRECTORY + resource.getKey() + ".json", gson);
+            validFileNames.add(resource.getKey() + ".json");
         }
+        // Scan page directory and delete if any unwanted file if present
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + DATASOURCE_DIRECTORY);
 
         return Mono.just(baseRepoPath);
     }
 
-    private boolean saveFile (Object sourceEntity, String path, Gson gson) {
+    private boolean saveFile(Object sourceEntity, String path, Gson gson) {
         File file = new File(path);
         try {
             // Create a file if absent
@@ -103,6 +121,33 @@ public class FileUtils implements FileInterface {
             return file.isFile() && file.length() > 0;
         } catch (IOException e) {
             log.debug(e.getMessage());
+        }
+        return false;
+    }
+
+    private void scanAndDeleteFileForDeletedResources(Set<String> validResources, String resourceDirectory) {
+        // Scan page directory and delete if any unwanted file if present
+        try (Stream<Path> paths = Files.walk(Paths.get(resourceDirectory))) {
+            paths
+                .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
+                .forEach(path -> deleteFile(path, false));
+        } catch (IOException e) {
+            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e.getMessage());
+        }
+    }
+
+    private boolean deleteFile(Path filePath, boolean isDirectory) {
+        try
+        {
+            return Files.deleteIfExists(filePath);
+        }
+        catch(DirectoryNotEmptyException e)
+        {
+            log.debug("Unable to delete non-empty directory at {}", filePath);
+        }
+        catch(IOException e)
+        {
+            log.debug("Unable to delete file, {}", e.getMessage());
         }
         return false;
     }
