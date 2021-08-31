@@ -40,6 +40,7 @@
         sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '{{ google_recaptcha_site_key }}';
         sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '{{ google_recaptcha_secrete_key }}';
         sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '{{ google_recaptcha_enabled }}';
+        sub_filter __APPSMITH_DISABLE_INTERCOM__ '{{ disable_intercom }}';
     }
 
     location /f {
@@ -99,6 +100,7 @@
 {{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '{{ google_recaptcha_site_key }}';
 {{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '{{ google_recaptcha_secrete_key }}';
 {{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '{{ google_recaptcha_enabled }}';
+{{ ssl_cmt }}        sub_filter __APPSMITH_DISABLE_INTERCOM__ '{{ disable_intercom }}';
 {{ ssl_cmt }}    }
 
 {{ ssl_cmt }}    location /f {

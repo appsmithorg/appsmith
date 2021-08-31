@@ -123,5 +123,7 @@ export const Colors = {
   BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
 
   SELECT_DISABLED: "#ced9e080",
+  SELECT_PLACEHOLDER: "#bfbfbf",
+  SELECT_COLOR: "#182026",
 };
 export type Color = typeof Colors[keyof typeof Colors];

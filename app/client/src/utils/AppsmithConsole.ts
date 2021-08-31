@@ -48,11 +48,11 @@ function error(ev: LogActionPayload) {
 }
 
 // This is used to add an error to the errors tab
-function addError(payload: LogActionPayload) {
+function addError(payload: LogActionPayload, severity = Severity.ERROR) {
   dispatchAction(
     addErrorLogInit({
       ...payload,
-      severity: Severity.ERROR,
+      severity: severity,
       timestamp: getTimeStamp(),
     }),
   );

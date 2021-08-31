@@ -44,6 +44,7 @@ export type AppsmithUIConfigs = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
 
   google: {
@@ -78,4 +79,5 @@ export type AppsmithUIConfigs = {
     apiKey: string;
   };
   appsmithSupportEmail: string;
+  isAppsmithCloud: boolean;
 };

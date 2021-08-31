@@ -27,6 +27,7 @@ import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
+import { DatasourceComponentTypes } from "api/PluginApi";
 
 interface ReduxStateProps {
   formData: Datasource;
@@ -148,7 +149,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
       datasourcePane.newDatasource === props.match.params.datasourceId,
     viewMode: datasourcePane.viewMode[datasource?.id ?? ""] ?? true,
     pluginType: plugin?.type ?? "",
-    pluginDatasourceForm: plugin?.datasourceComponent ?? "AutoForm",
+    pluginDatasourceForm:
+      plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
   };
 };
