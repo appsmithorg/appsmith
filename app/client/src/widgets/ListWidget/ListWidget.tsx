@@ -10,7 +10,6 @@ import {
   toString,
   isBoolean,
   omit,
-  isEqual,
   floor,
 } from "lodash";
 import * as Sentry from "@sentry/react";
@@ -39,6 +38,7 @@ import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
+import shallowEqual from "shallowequal";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
@@ -627,6 +627,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   getCanvasChildren = memoizeOne(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (template: any, listData: any, staticTemplate: any, page: number) => {
       let canvasChildren = [];
       for (let i = 0; i < listData.length; i++) {
@@ -639,8 +640,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     },
     (prev: any, next: any) => {
       return (
-        isEqual(prev[1], next[1]) &&
-        isEqual(prev[2], next[2] && prev[3] === next[3])
+        shallowEqual(prev[1], next[1]) &&
+        shallowEqual(prev[2], next[2]) &&
+        (prev[2], next[2]) &&
+        prev[3] === next[3]
       );
     },
   );
