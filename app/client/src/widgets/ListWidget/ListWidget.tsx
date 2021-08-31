@@ -603,7 +603,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    if (this.props.children && this.props.children.length > 0) {
+    if (
+      this.props.children &&
+      this.props.children.length > 0 &&
+      this.props.listData
+    ) {
       const { page } = this.state;
 
       const children = removeFalsyEntries(this.props.children);
