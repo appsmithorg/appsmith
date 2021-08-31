@@ -216,7 +216,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
           }
         }}
         placeholder="enter color name or hex"
-        value={color}
+        value={color || ""}
       />
       <ColorBoard
         selectColor={(color) => {
