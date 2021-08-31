@@ -29,7 +29,7 @@ const Container = styled.div`
 
 function AppCommentThreads() {
   const dispatch = useDispatch();
-  const commentThreadIdInUrl = useSelectCommentThreadUsingQuery();
+  const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
   const applicationId = useSelector(getCurrentApplicationId) as string;
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
@@ -64,12 +64,12 @@ function AppCommentThreads() {
     // if user is visiting a comment thread link which is already resolved,
     // we'll activate the resolved comments filter
     if (
-      commentThreadIdInUrl &&
-      !commentThreadIds.includes(commentThreadIdInUrl)
+      commentThreadIdFromUrl &&
+      !commentThreadIds.includes(commentThreadIdFromUrl)
     ) {
       dispatch(setShouldShowResolvedComments(true));
     }
-  }, [commentThreadIdInUrl]);
+  }, [commentThreadIdFromUrl]);
 
   return (
     <Container>
