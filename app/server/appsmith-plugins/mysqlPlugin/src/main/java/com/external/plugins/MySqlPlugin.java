@@ -381,10 +381,10 @@ public class MySqlPlugin extends BasePlugin {
                 } catch (UnsupportedOperationException e) {
                     // Do nothing. Move on
                 }
-            } else {
-                System.out.println("devtest: index: " + index + ", value: " + value);
+            } else if (DataType.INTEGER.equals(valueType)) {
                 connectionStatement.bind((index - 1), Integer.parseInt(value));
-                //connectionStatement.bind((index - 1), value);
+            } else {
+                connectionStatement.bind((index - 1), value);
             }
 
             return connectionStatement;

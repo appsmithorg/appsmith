@@ -410,7 +410,7 @@ public class MySqlPluginTest {
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}};");
+        actionConfiguration.setBody("SELECT id FROM users WHERE id = {{binding1}} limit 1 offset {{binding2}};");
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
         pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
@@ -418,10 +418,14 @@ public class MySqlPluginTest {
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
-        Param param = new Param();
-        param.setKey("binding1");
-        param.setValue("1");
-        params.add(param);
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("1");
+        params.add(param1);
+        Param param2 = new Param();
+        param2.setKey("binding2");
+        param2.setValue("0");
+        params.add(param2);
         executeActionDTO.setParams(params);
 
         Mono<ActionExecutionResult> executeMono = dsConnectionMono
@@ -440,23 +444,36 @@ public class MySqlPluginTest {
                                     .toArray()
                     );
 
+                    // Verify value
+                    assertEquals(1, node.get("id").asInt());
+
                     /*
                      * - Check if request params are sent back properly.
                      * - Not replicating the same to other tests as the overall flow remains the same w.r.t. request
                      *  params.
                      */
 
-                    // check if '?' is replaced by $i.
-                    assertEquals("SELECT id FROM users WHERE id = $1;",
+                    // Check if '?' is replaced by $i.
+                    assertEquals("SELECT id FROM users WHERE id = $1 limit 1 offset $2;",
                             ((RequestParamDTO)(((List)result.getRequest().getRequestParams())).get(0)).getValue());
 
-                    PsParameterDTO expectedPsParam = new PsParameterDTO("1", "INTEGER");
-                    PsParameterDTO returnedPsParam =
+                    // Check 1st prepared statement parameter
+                    PsParameterDTO expectedPsParam1 = new PsParameterDTO("1", "INTEGER");
+                    PsParameterDTO returnedPsParam1 =
                             (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$1");
                     // Check if prepared stmt param value is correctly sent back.
-                    assertEquals(expectedPsParam.getValue(), returnedPsParam.getValue());
-                    // check if prepared stmt param type is correctly sent back.
-                    assertEquals(expectedPsParam.getType(), returnedPsParam.getType());
+                    assertEquals(expectedPsParam1.getValue(), returnedPsParam1.getValue());
+                    // Check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam1.getType(), returnedPsParam1.getType());
+
+                    // Check 2nd prepared statement parameter
+                    PsParameterDTO expectedPsParam2 = new PsParameterDTO("0", "INTEGER");
+                    PsParameterDTO returnedPsParam2 =
+                            (PsParameterDTO) ((RequestParamDTO) (((List) result.getRequest().getRequestParams())).get(0)).getSubstitutedParams().get("$2");
+                    // Check if prepared stmt param value is correctly sent back.
+                    assertEquals(expectedPsParam2.getValue(), returnedPsParam2.getValue());
+                    // Check if prepared stmt param type is correctly sent back.
+                    assertEquals(expectedPsParam2.getType(), returnedPsParam2.getType());
                 })
                 .verifyComplete();
 
