@@ -36,6 +36,8 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
+import { fetchPage } from "actions/pageActions";
+import * as log from "loglevel";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -53,6 +55,7 @@ type EditorProps = {
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
+  fetchPage: (pageId: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -80,6 +83,7 @@ class Editor extends Component<Props> {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.currentPageId !== this.props.currentPageId ||
+      nextProps.match?.params?.pageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -91,6 +95,14 @@ class Editor extends Component<Props> {
         this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
+  }
+
+  componentDidUpdate() {
+    const { pageId } = this.props.match.params;
+    const { currentPageId } = this.props;
+    if (pageId !== currentPageId) {
+      this.props.fetchPage(pageId);
+    }
   }
 
   componentWillUnmount() {
@@ -165,6 +177,7 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
   };
 };
 
