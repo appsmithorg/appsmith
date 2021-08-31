@@ -760,7 +760,7 @@ export const renderUpdateCell = (
             intent="PRIMARY_BUTTON"
             loading={false}
             size="small"
-            text="Cancle"
+            text="Cancel"
           />
         </OperationCellWrapper>
       </CellWrapper>
