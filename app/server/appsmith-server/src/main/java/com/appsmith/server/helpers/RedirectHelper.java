@@ -112,9 +112,14 @@ public class RedirectHelper {
         return redirectUrl;
     }
 
+    /**
+     * If redirectUrl is empty, it'll be set to DEFAULT_REDIRECT_URL.
+     * If the redirectUrl does not have the base url, it'll prepend that from header origin.
+     * @param redirectUrl
+     * @param httpHeaders
+     * @return
+     */
     private static String fulfillRedirectUrl(String redirectUrl, HttpHeaders httpHeaders) {
-        // If not, then try to get the redirect URL from Origin header.
-        // We append DEFAULT_REDIRECT_URL to the Origin header by default.
         if (!StringUtils.hasText(redirectUrl)) {
             redirectUrl = DEFAULT_REDIRECT_URL;
         }
