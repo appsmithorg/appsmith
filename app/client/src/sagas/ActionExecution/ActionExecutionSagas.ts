@@ -87,8 +87,6 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     event: { type },
     responseData,
-    source,
-    triggerPropertyName,
   } = payload;
   log.debug({ dynamicString, responseData });
   if (dynamicString === undefined) {
@@ -99,8 +97,6 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     evaluateDynamicTrigger,
     dynamicString,
     responseData,
-    triggerPropertyName,
-    source,
   );
 
   log.debug({ triggers });
