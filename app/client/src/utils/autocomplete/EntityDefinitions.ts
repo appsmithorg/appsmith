@@ -75,6 +75,7 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
     sortOrder: {
       column: "string",
       order: ["asc", "desc"],
