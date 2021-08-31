@@ -1,5 +1,5 @@
-import * as Y from "yjs";
-import * as Sentry from "@sentry/react";
+import { Doc, Map, UndoManager } from "yjs";
+import { captureException } from "@sentry/react";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { processDiff, DSLDiff, getPathsFromDiff } from "./replayUtils";
@@ -9,16 +9,17 @@ const _DIFF_ = "diff";
 
 export default class ReplayDSL {
   diffMap: any;
-  undoManager: Y.UndoManager;
+  undoManager: UndoManager;
   dsl: CanvasWidgetsReduxState;
   logs: any[] = [];
+  prevRedoDiff: Array<DSLDiff> | undefined;
 
   constructor(widgets: CanvasWidgetsReduxState) {
-    const doc = new Y.Doc();
-    this.diffMap = doc.get("map", Y.Map);
+    const doc = new Doc();
+    this.diffMap = doc.get("map", Map);
     this.dsl = widgets;
     this.diffMap.set(_DIFF_, []);
-    this.undoManager = new Y.UndoManager(this.diffMap, { captureTimeout: 100 });
+    this.undoManager = new UndoManager(this.diffMap, { captureTimeout: 100 });
   }
 
   /**
@@ -26,10 +27,12 @@ export default class ReplayDSL {
    *
    * @return boolean
    */
-  shouldReplay() {
+  shouldReplay(isUndo: boolean) {
     const diffs = this.getDiffs();
+    const isDiffNotEmpty = diffs && diffs.length > 0;
 
-    return diffs && diffs.length > 0;
+    if (isUndo) return isDiffNotEmpty;
+    else return diffs !== this.prevRedoDiff && isDiffNotEmpty;
   }
 
   /**
@@ -50,7 +53,7 @@ export default class ReplayDSL {
     const start = performance.now();
     const diffs = this.getDiffs();
 
-    if (this.shouldReplay()) {
+    if (this.shouldReplay(true)) {
       this.undoManager.undo();
       const replay = this.applyDiffs(diffs, true);
       const stop = performance.now();
@@ -85,7 +88,7 @@ export default class ReplayDSL {
     this.undoManager.redo();
     const diffs = this.getDiffs();
 
-    if (this.shouldReplay()) {
+    if (this.shouldReplay(false)) {
       const replay = this.applyDiffs(diffs, false);
       this.logs.push({
         log: "replay redo",
@@ -141,17 +144,18 @@ export default class ReplayDSL {
    */
   applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean) {
     const replay = {};
+    const diffUpdate = isUndo ? revertChange : applyChange;
+    if (!isUndo) this.prevRedoDiff = diffs;
 
     for (const diff of diffs) {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
         continue;
       }
-      const diffUpdate = isUndo ? revertChange : applyChange;
       try {
         processDiff(this.dsl, diff, replay, isUndo);
         diffUpdate(this.dsl, true, diff);
       } catch (e) {
-        Sentry.captureException(e, {
+        captureException(e, {
           extra: {
             diff,
             updateLength: diffs.length,
