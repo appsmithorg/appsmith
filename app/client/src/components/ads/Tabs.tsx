@@ -127,8 +127,8 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
     content: "";
     position: absolute;
     width: ${props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
-    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
-    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "100%"};
+    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[1] - 2}px`};
+    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "unset"};
     left: ${props.theme.spaces[0]}px;
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
