@@ -382,6 +382,10 @@ public class MySqlPlugin extends BasePlugin {
                     // Do nothing. Move on
                 }
             } else if (DataType.INTEGER.equals(valueType)) {
+                /**
+                 * - NumberFormatException is NOT expected here since stringToKnownDataTypeConverter uses parseInt
+                 * method to detect INTEGER type.
+                 */
                 connectionStatement.bind((index - 1), Integer.parseInt(value));
             } else {
                 connectionStatement.bind((index - 1), value);
