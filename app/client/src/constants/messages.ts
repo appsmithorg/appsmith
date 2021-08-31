@@ -421,6 +421,12 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
+export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
+
+export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
+
+export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
 export const GIT_CONNECTION = () => "GIT Connection";
 export const DEPLOY = () => "Deploy";
@@ -432,7 +438,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Choose an existing empty repository to host your project and keep it in sync";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
@@ -452,7 +458,20 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+
+export const SNIPPET_DESCRIPTION = () =>
+  `Search and Insert code snippets to perform complex actions quickly.`;
+export const DOC_DESCRIPTION = () =>
+  `Find answers through appsmith documentation.`;
+export const NAV_DESCRIPTION = () =>
+  `Navigate to any page, widget or file across this project.`;
 export const MERGE_CHANGES = () => "Merge Changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+
+// Comment card tooltips
+export const MORE_OPTIONS = () => "More Options";
+export const ADD_REACTION = () => "Add Reaction";
+export const RESOLVE_THREAD = () => "Resolve Thread";
+export const EMOJI = () => "Emoji";
