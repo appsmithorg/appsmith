@@ -438,7 +438,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Choose an existing empty repository to host your project and keep it in sync";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
