@@ -12,7 +12,7 @@ import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
 import Button, { Category, Size } from "components/ads/Button";
-import { bindDataOnCanvas } from "../../../actions/actionActions";
+import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useDispatch, useSelector } from "react-redux";
@@ -177,14 +177,41 @@ export function Collapsible({
   );
 }
 
+export function useEntityDependencies(actionName: string) {
+  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const entityDependencies = useMemo(
+    () =>
+      getDependenciesFromInverseDependencies(
+        deps.inverseDependencyMap,
+        actionName,
+      ),
+    [actionName, deps.inverseDependencyMap],
+  );
+  const hasDependencies =
+    entityDependencies &&
+    (entityDependencies?.directDependencies.length > 0 ||
+      entityDependencies?.inverseDependencies.length > 0);
+  return {
+    hasDependencies,
+    entityDependencies,
+  };
+}
+
 function ActionSidebar({
   actionName,
+  entityDependencies,
+  hasConnections,
   hasResponse,
   suggestedWidgets,
 }: {
   actionName: string;
   hasResponse: boolean;
+  hasConnections: boolean | null;
   suggestedWidgets?: SuggestedWidgetsType[];
+  entityDependencies: {
+    directDependencies: string[];
+    inverseDependencies: string[];
+  } | null;
 }) {
   const dispatch = useDispatch();
   const widgets = useSelector(getWidgets);
@@ -206,19 +233,6 @@ function ActionSidebar({
   };
   const hasWidgets = Object.keys(widgets).length > 1;
 
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
-  const entityDependencies = useMemo(
-    () =>
-      getDependenciesFromInverseDependencies(
-        deps.inverseDependencyMap,
-        actionName,
-      ),
-    [actionName, deps.inverseDependencyMap],
-  );
-  const hasConnections =
-    entityDependencies &&
-    (entityDependencies?.directDependencies.length > 0 ||
-      entityDependencies?.inverseDependencies.length > 0);
   const showSuggestedWidgets =
     hasResponse && suggestedWidgets && !!suggestedWidgets.length;
   const showSnipingMode = hasResponse && hasWidgets;
