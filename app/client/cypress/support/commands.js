@@ -23,6 +23,7 @@ const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
+const jsEditorLocators = require("../locators/JSEditor.json");
 
 let pageidcopy = " ";
 
@@ -1899,6 +1900,10 @@ Cypress.Commands.add("NavigateToQueriesInExplorer", () => {
   cy.get(explorer.entityQuery).click({ force: true });
 });
 
+Cypress.Commands.add("NavigateToJSEditor", () => {
+  cy.get(explorer.addEntityJSEditor).click({ force: true });
+});
+
 Cypress.Commands.add("testCreateApiButton", () => {
   cy.get(ApiEditor.createBlankApiCard).click({ force: true });
   cy.wait("@createNewApi").should(
@@ -2833,4 +2838,15 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
   cy.fillAmazonS3DatasourceForm();
 
   cy.testSaveDatasource();
+});
+
+Cypress.Commands.add("createJSObject", (JSCode) => {
+  cy.NavigateToJSEditor();
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{downarrow}{downarrow}{downarrow}")
+    .type(JSCode);
+  cy.wait(1500);
+  cy.get(jsEditorLocators.runButton).click();
 });
