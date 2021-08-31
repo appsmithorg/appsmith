@@ -26,6 +26,25 @@ export const PopoverStyles = createGlobalStyle`
     z-index: ${Layers.help} !important; 
   }
 
+  .lib-version {
+    .bp3-popover-content {
+      .ads-dropdown-options-wrapper {
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        .t--dropdown-option {
+          .cs-text {
+            color: #090707;
+          }
+          &:hover {
+            background: #EBEBEB;
+          }
+        }
+      }
+    }
+  }
+
   .auth-type-dropdown .ads-dropdown-options-wrapper {
     padding: 0;
   }
