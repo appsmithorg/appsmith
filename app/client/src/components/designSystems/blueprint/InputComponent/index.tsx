@@ -40,6 +40,10 @@ import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
   getSelectedISDCode,
 } from "components/ads/ISDCodeDropdown";
+import {
+  createMessage,
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "constants/messages";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -466,7 +470,10 @@ class InputComponent extends React.Component<
         <TextInputWrapper>
           <ErrorTooltip
             isOpen={this.props.isInvalid && this.props.showError}
-            message={this.props.errorMessage || ""}
+            message={
+              this.props.errorMessage ||
+              createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
+            }
           >
             {this.renderInputComponent(
               this.props.inputType,
