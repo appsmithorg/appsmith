@@ -7,6 +7,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
+import { GenerateCRUDSuccess } from "actions/pageActions";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -114,27 +115,24 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{
-      pageName: string;
-      pageId: string;
-      layoutId: string;
-      isDefault: boolean;
-      isNewPage: boolean;
-    }>,
+    action: ReduxAction<GenerateCRUDSuccess>,
   ) => {
     const _state = state;
     if (action.payload.isNewPage) {
       _state.pages = state.pages.map((page) => ({ ...page, latest: false }));
       const newPage = {
-        pageName: action.payload.pageName,
-        pageId: action.payload.pageId,
-        layoutId: action.payload.layoutId,
-        isDefault: action.payload.isDefault,
+        pageName: action.payload.page.name,
+        pageId: action.payload.page.id,
+        layoutId: action.payload.page.layouts[0].id,
+        isDefault: !!action.payload.page.isDefault,
       };
       _state.pages.push({ ...newPage, latest: true });
     }
 
-    return { ..._state, isGeneratingTemplatePage: false };
+    return {
+      ..._state,
+      isGeneratingTemplatePage: false,
+    };
   },
   [ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR]: (
     state: PageListReduxState,

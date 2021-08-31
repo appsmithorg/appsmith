@@ -12,7 +12,7 @@ import { Action } from "entities/Action";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
-import { saveActionName } from "actions/actionActions";
+import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import {
