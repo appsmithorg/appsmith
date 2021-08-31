@@ -133,6 +133,8 @@ export const isSnippet = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.SNIPPETS;
 export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
+export const isLibrary = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.LIBRARY;
 
 export const getFilterCategoryList = () =>
   Object.values(filterCategories).filter((cat: SearchCategory) => {
