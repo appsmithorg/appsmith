@@ -81,7 +81,6 @@ class Editor extends Component<Props> {
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
-      nextProps.currentPageId !== this.props.currentPageId ||
       nextProps.match?.params?.pageId !== this.props.currentPageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
