@@ -10,6 +10,7 @@ import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
+import { ReactComponent as JsonViewIcon } from "assets/icons/widget/json.svg";
 import { ReactComponent as InputIcon } from "assets/icons/widget/input.svg";
 import { ReactComponent as SwitchIcon } from "assets/icons/widget/switch.svg";
 import { ReactComponent as TextIcon } from "assets/icons/widget/text.svg";
@@ -74,6 +75,11 @@ export const WidgetIcons: {
   RADIO_GROUP_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <RadioGroupIcon />
+    </IconWrapper>
+  ),
+  JSON_VIEW_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <JsonViewIcon />
     </IconWrapper>
   ),
   INPUT_WIDGET: (props: IconProps) => (

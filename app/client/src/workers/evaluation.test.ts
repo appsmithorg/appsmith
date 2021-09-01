@@ -432,6 +432,13 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
     triggerProperties: {},
     metaProperties: {},
   },
+  JSON_VIEW_WIDGET: {
+    validations: {},
+    defaultProperties: {},
+    derivedProperties: {},
+    triggerProperties: {},
+    metaProperties: {},
+  },
 };
 
 const BASE_WIDGET: DataTreeWidget = {

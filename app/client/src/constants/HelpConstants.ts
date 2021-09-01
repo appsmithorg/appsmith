@@ -103,6 +103,10 @@ export const HelpMap = {
     path: "/widget-reference/switch",
     searchKey: "Switch",
   },
+  JSON_VIEW_WIDGET: {
+    path: "",
+    searchKey: "JSON",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

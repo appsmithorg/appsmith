@@ -59,6 +59,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "JSON_VIEW_WIDGET",
+    widgetCardName: "JSON View",
+    key: generateReactKey(),
+  },
+  {
     type: "MAP_WIDGET",
     widgetCardName: "Map",
     key: generateReactKey(),

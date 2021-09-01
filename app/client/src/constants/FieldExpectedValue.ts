@@ -158,6 +158,10 @@ const FIELD_VALUES: Record<
     shouldScroll: "boolean",
     isVisible: "boolean",
   },
+  JSON_VIEW_WIDGET: {
+    source: "string",
+    collapse: "boolean",
+  },
 };
 
 export default FIELD_VALUES;

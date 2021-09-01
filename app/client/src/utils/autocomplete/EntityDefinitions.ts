@@ -205,6 +205,12 @@ export const entityDefinitions = {
     isDisabled: "bool",
     uploadedFileUrls: "string",
   },
+  JSON_VIEW_WIDGET: {
+    "!doc": "JSON view widget, to view a JSON object or array in tree form",
+    "!url": "https://docs.appsmith.com/widget-reference/jsonview",
+    isVisible: isVisible,
+    text: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

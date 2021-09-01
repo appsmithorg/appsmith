@@ -90,6 +90,10 @@ import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
 } from "widgets/SwitchWidget";
+import JsonViewWidget, {
+  JsonViewWidgetProps,
+  ProfiledJsonViewWidget,
+} from "../widgets/JsonView";
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -434,6 +438,20 @@ export default class WidgetBuilderRegistry {
       SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.JSON_VIEW_WIDGET,
+      {
+        buildWidget(widgetProps: JsonViewWidgetProps): JSX.Element {
+          return <ProfiledJsonViewWidget {...widgetProps} />;
+        },
+      },
+      JsonViewWidget.getPropertyValidationMap(),
+      JsonViewWidget.getDerivedPropertiesMap(),
+      JsonViewWidget.getTriggerPropertyMap(),
+      JsonViewWidget.getDefaultPropertiesMap(),
+      JsonViewWidget.getMetaPropertiesMap(),
+      JsonViewWidget.getPropertyPaneConfig(),
     );
   }
 }
