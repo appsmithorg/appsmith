@@ -9,6 +9,8 @@ import { LogLevelDesc } from "loglevel";
 import log from "loglevel";
 import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
 
+const RTS_BASE_PATH = "/rts"
+
 const APP_ROOM_PREFIX : string = "app:"
 const PAGE_ROOM_PREFIX : string = "page:"
 const ROOT_NAMESPACE : string = "/"
@@ -43,6 +45,7 @@ function main() {
 	app.disable("x-powered-by");
 	const server = new http.Server(app)
 	const io = new Server(server, {
+		path: RTS_BASE_PATH,
 		// TODO: Remove this CORS configuration.
 		cors: {
 			origin: "*",
@@ -143,7 +146,18 @@ async function onPageSocketConnected(socket:Socket, socketIo:Server) {
 }
 
 async function tryAuth(socket:Socket) {
-	const connectionCookie = socket.handshake.headers.cookie
+
+	/* ********************************************************* */
+	// TODO: This change is not being used at the moment. Instead of using the environment variable API_BASE_URL
+	// we should be able to derive the API_BASE_URL from the host header. This will make configuration simpler
+	// for the user. The problem with this implementation is that Axios doesn't work for https endpoints currently.
+	// This needs to be debugged.
+	const host = socket.handshake.headers.host
+	const protocol = socket.handshake.headers.referer.startsWith("https") ? "https" : "http"
+	const apiUrl = "http://" + host + "/api/v1/users/me"
+	/* ********************************************************* */
+
+	const connectionCookie = socket.handshake.headers.cookie;
 	if (connectionCookie != null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
 		if(matchedCookie) {
@@ -167,9 +181,9 @@ async function tryAuth(socket:Socket) {
 				}
 				return false
 			}
-		
-			const email = response.data.data.user.email
-			const name = response.data.data.user.name ? response.data.data.user.name : email;
+			
+			const email = response.data.data.email
+			const name = response.data.data.name ? response.data.data.name : email;
 
 			// If the session check API succeeds & the email/name is anonymousUser, then the user is not authenticated
 			// and we should not allow them to join any rooms
