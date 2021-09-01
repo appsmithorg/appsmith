@@ -337,7 +337,6 @@ function AddCommentInput({
               className={"cancel-button"}
               onClick={_onCancel}
               text={createMessage(CANCEL)}
-              type="button"
             />
             <Button
               category={Category.primary}
@@ -345,7 +344,6 @@ function AddCommentInput({
               disabled={!editorState.getCurrentContent().hasText()}
               onClick={handleSubmit}
               text={createMessage(POST)}
-              type="button"
             />
           </Row>
         </Row>
