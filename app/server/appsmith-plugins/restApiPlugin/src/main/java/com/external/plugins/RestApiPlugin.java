@@ -668,7 +668,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementQuestionWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
         }
 
         @Override

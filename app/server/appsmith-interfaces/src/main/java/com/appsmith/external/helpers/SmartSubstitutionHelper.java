@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 public class SmartSubstitutionHelper {
 
+    public static final String APPSMITH_SUBSTITUTION_PLACEHOLDER = "#_appsmith_placeholder#";
+
     public static String replaceQuestionMarkWithDollarIndex(String query) {
         final AtomicInteger counter = new AtomicInteger();
         String updatedQuery = query.chars()
@@ -18,5 +20,17 @@ public class SmartSubstitutionHelper {
                 .collect(Collectors.joining());
 
         return updatedQuery;
+    }
+
+    public static String replaceQuestionMarkWithPlaceholder(String query) {
+        return query.chars()
+                .mapToObj(c -> {
+                    if (c == '?') {
+                        return APPSMITH_SUBSTITUTION_PLACEHOLDER;
+                    }
+
+                    return Character.toString(c);
+                })
+                .collect(Collectors.joining());
     }
 }

@@ -348,6 +348,10 @@ public class MustacheHelper {
         }
     }
 
+//    public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
+//
+//    }
+
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
