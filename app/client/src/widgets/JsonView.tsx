@@ -1,14 +1,10 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import JSONViewer from "../pages/Editor/QueryEditor/JSONViewer";
+import { ValidationTypes } from "../constants/WidgetValidation";
 
 class JsonViewWidget extends BaseWidget<JsonViewWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -32,23 +28,24 @@ class JsonViewWidget extends BaseWidget<JsonViewWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             isBindProperty: false,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      source: VALIDATION_TYPES.OBJECT,
-      collapsed: VALIDATION_TYPES.NUMBER,
-    };
-  }
 
   getPageView() {
-    return (
-      <JSONViewer src={this.props.source} collapsed={this.props.collapsed} />
-    );
+    debugger;
+    let displayData = this.props.source;
+    if (typeof displayData === "string") {
+      try {
+        displayData = JSON.parse(displayData);
+      } catch (e) {
+        displayData = { error: "Invalid JSON" };
+      }
+    }
+    return <JSONViewer collapsed={this.props.collapsed} src={displayData} />;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

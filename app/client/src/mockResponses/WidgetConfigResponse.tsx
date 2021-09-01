@@ -1320,9 +1320,9 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
-    JSON_VIEW_WIDGET: {
-      rows: 6,
-      columns: 6,
+    [WidgetTypes.JSON_VIEW_WIDGET]: {
+      rows: 6 * GRID_DENSITY_MIGRATION_V1,
+      columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "JSON View",
       collapsed: 1,
       source: [{ key: "Value", keyTwo: { nested: "value" } }],

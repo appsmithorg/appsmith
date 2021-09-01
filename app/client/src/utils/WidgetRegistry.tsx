@@ -602,9 +602,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledJsonViewWidget {...widgetProps} />;
         },
       },
-      JsonViewWidget.getPropertyValidationMap(),
       JsonViewWidget.getDerivedPropertiesMap(),
-      JsonViewWidget.getTriggerPropertyMap(),
       JsonViewWidget.getDefaultPropertiesMap(),
       JsonViewWidget.getMetaPropertiesMap(),
       JsonViewWidget.getPropertyPaneConfig(),
