@@ -187,7 +187,7 @@ ctx.addEventListener(
           : evaluate(expression, evalTree);
       case EVAL_WORKER_ACTIONS.UPDATE_LIBRARIES:
         const { libs } = requestData;
-        // importScripts(libs);
+        importScripts(libs);
         return true;
       default: {
         console.error("Action not registered on worker", method);
