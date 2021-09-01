@@ -8,8 +8,6 @@ export function createMessage(
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
-export const ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} action created successfully`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -218,8 +216,6 @@ export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
-export const ACTION_DELETE_SUCCESS = (actionName: string) =>
-  `${actionName} action deleted successfully`;
 export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} action moved to page ${pageName} successfully`;
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -304,6 +300,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
 export const DELETE_THREAD = () => "Delete Thread";
 export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
@@ -408,7 +405,12 @@ export const GEN_CRUD_SUCCESS_DESC = () =>
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
   "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
-
+export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column Headers Fetched";
+export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
+export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select Datasource";
+export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table Header Index";
+export const GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC = () =>
+  "Row index of the column headers in the sheet table";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
@@ -444,7 +446,7 @@ export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Choose an existing empty repository to host your project and keep it in sync";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";

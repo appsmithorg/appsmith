@@ -664,8 +664,8 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.xpath(apiwidget.Responsetab)
-      .should("be.visible")
+    cy.get("[data-cy=t--tab-body]")
+      .first()
       .click({ force: true });
   },
 );
