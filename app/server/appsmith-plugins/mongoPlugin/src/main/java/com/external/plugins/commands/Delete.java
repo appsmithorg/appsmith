@@ -56,6 +56,7 @@ public class Delete extends MongoCommand {
             if (!StringUtils.isNullOrEmpty(query)) {
                 return Boolean.TRUE;
             } else {
+                // Not adding smart defaults for query due to data impact
                 fieldNamesWithNoConfiguration.add("Query");
             }
         }
