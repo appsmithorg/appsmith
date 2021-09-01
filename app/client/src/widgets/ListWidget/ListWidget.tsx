@@ -323,6 +323,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     // `template` property should have an array of values
     // if it is a dynamicbinding
 
+    // eslint-disable-next-line
+
     if (
       Array.isArray(dynamicBindingPathList) &&
       dynamicBindingPathList.length > 0
@@ -362,13 +364,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     // add default value
-    Object.keys(widget.defaultProps).map((key: string) => {
+    Object.keys(get(widget, "defaultProps", {})).map((key: string) => {
       const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
 
       set(widget, `${key}`, defaultPropertyValue);
     });
 
-    widget.defaultMetaProps.map((key: string) => {
+    get(widget, "defaultMetaProps", []).map((key: string) => {
       const metaPropertyValue = get(
         this.props.childMetaProperties,
         `${widget.widgetName}.${key}.${itemIndex}`,
@@ -390,14 +392,18 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
       const triggerPaths: string[] = compact(
         dynamicTriggerPathList.map((path: Record<"key", string>) =>
-          path.key.indexOf(`template.${widgetName}`) === 0
-            ? path.key.split(".").pop()
+          path.key.includes(`template.${widgetName}`)
+            ? path.key.replace(`template.${widgetName}.`, "")
             : undefined,
         ),
       );
 
       triggerPaths.forEach((path: string) => {
-        const propertyValue = get(this.props.template[widget.widgetName], path);
+        const propertyValue = get(
+          this.props.template[widget.widgetName],
+          path,
+          "",
+        );
 
         if (
           propertyValue.indexOf("currentItem") > -1 &&
