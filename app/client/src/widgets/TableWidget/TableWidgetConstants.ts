@@ -14,7 +14,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   label: string;
   searchText: string;
   defaultSearchText: string;
-  defaultSelectedRow?: number | number[];
+  defaultSelectedRow?: number | number[] | string;
   tableData: Array<Record<string, unknown>>;
   onPageChange?: string;
   pageSize: number;
@@ -40,6 +40,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
     column: string;
     order: SortOrderTypes | null;
   };
+  totalRecordsCount?: number;
 }
 
 export const getCurrentRowBinding = (

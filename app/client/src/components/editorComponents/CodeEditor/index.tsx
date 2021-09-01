@@ -77,6 +77,7 @@ import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import getFeatureFlags from "utils/featureFlags";
 
@@ -86,6 +87,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Escape",
   "Comma",
   "Backspace",
+  "Semicolon",
+  "Space",
 ];
 
 interface ReduxStateProps {
@@ -125,6 +128,7 @@ export type EditorStyleProps = {
   fill?: boolean;
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -134,6 +138,8 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    errors?: any;
+    isInvalid?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -346,7 +352,8 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation = this.getEntityInformation();
     if (
       entityInformation.entityType === ENTITY_TYPE.WIDGET &&
-      this.editor.getValue().length === 0
+      this.editor.getValue().length === 0 &&
+      !this.editor.state.completionActive
     )
       this.handleAutocompleteVisibility(this.editor);
   };
@@ -384,8 +391,7 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      (value !== inputValue ||
-        _.get(this.editor, "state.completionActive.startLen") === 0) &&
+      value !== inputValue &&
       this.state.isFocused
     ) {
       this.props.input.onChange(value);
@@ -398,7 +404,6 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
-
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
@@ -416,13 +421,12 @@ class CodeEditor extends Component<Props, State> {
             entityInformation.entityType = entityType;
           }
         }
-
         if (isActionEntity(entity))
           entityInformation.entityId = entity.actionId;
         if (isWidgetEntity(entity))
           entityInformation.entityId = entity.widgetId;
-        entityInformation.propertyPath = propertyPath;
       }
+      entityInformation.propertyPath = propertyPath;
     }
     return entityInformation;
   };
@@ -562,15 +566,21 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const {
-      errors,
-      isInvalid,
-      pathEvaluatedValue,
-    } = this.getPropertyValidation(dynamicData, dataTreePath);
+    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+    let { errors, isInvalid } = validations;
+    const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
+    /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
+    if (this.props.errors) {
+      errors = this.props.errors;
+    }
+    if (this.props.isInvalid !== undefined) {
+      isInvalid = Boolean(this.props.isInvalid);
+    }
+    /*  Evaluation results for snippet snippets */
 
     if (getFeatureFlags().LINTING) {
       this.lintCode();
@@ -611,6 +621,7 @@ class CodeEditor extends Component<Props, State> {
           hasError={isInvalid}
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
+          popperPlacement={this.props.popperPlacement}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >

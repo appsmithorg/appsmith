@@ -10,7 +10,7 @@ import NotFound from "pages/common/NotFound";
 import { AppState } from "reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";

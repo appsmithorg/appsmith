@@ -1,14 +1,18 @@
 import React from "react";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { SearchItem } from "./utils";
+import { SearchItem, SelectEvent } from "./utils";
 
 type Props = {
   modalOpen: boolean;
   toggleShow: () => void;
   handleUpKey: () => void;
   handleDownKey: () => void;
-  handleItemLinkClick: (item?: SearchItem, source?: string) => void;
+  handleItemLinkClick: (
+    event: SelectEvent,
+    item?: SearchItem,
+    source?: string,
+  ) => void;
   children: React.ReactNode;
 };
 @HotkeysTarget
@@ -33,10 +37,10 @@ class GlobalSearchHotKeys extends React.Component<Props> {
       },
       {
         combo: "return",
-        onKeyDown: () => {
+        onKeyDown: (event: KeyboardEvent) => {
           const activeElement = document.activeElement as any;
           activeElement?.blur(); // scroll into view doesn't work with the search input focused
-          this.props.handleItemLinkClick(null, "ENTER_KEY");
+          this.props.handleItemLinkClick(event, null, "ENTER_KEY");
         },
         hideWhenModalClosed: true,
         allowInInput: true,

@@ -664,8 +664,8 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.xpath(apiwidget.Responsetab)
-      .should("be.visible")
+    cy.get("[data-cy=t--tab-body]")
+      .first()
       .click({ force: true });
   },
 );
@@ -2074,6 +2074,84 @@ Cypress.Commands.add(
     );
     cy.get(datasourceEditor.password).type(
       datasourceFormData["mysql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillMsSQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-host"] + "  "
+      : datasourceFormData["mssql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-databaseName"] + "  "
+      : datasourceFormData["mssql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mssql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mssql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillArangoDBDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-host"] + "  "
+      : datasourceFormData["arango-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-databaseName"] + "  "
+      : datasourceFormData["arango-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["arango-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["arango-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillRedshiftDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-host"] + "  "
+      : datasourceFormData["redshift-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-databaseName"] + "  "
+      : datasourceFormData["redshift-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["redshift-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["redshift-password"],
     );
   },
 );
