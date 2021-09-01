@@ -231,24 +231,12 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
         }
 
+        application.setPublishedPages(new ArrayList<>());
+
         Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Mono<Application> applicationWithPoliciesMono = setApplicationPolicies(userMono, orgId, application);
 
-        return saveNewApplication(applicationWithPoliciesMono)
-                .flatMap(
-                        // Now publish this newly created app with default states so that
-                        // launching of newly created application is possible.
-                        updatedApplication -> publish(updatedApplication.getId(), false)
-                                .then(applicationService.findById(updatedApplication.getId(), READ_APPLICATIONS))
-                );
-    }
-
-    private Mono<Application> saveNewApplication(Mono<Application> applicationMono) {
-        return applicationMono
-                .map(application -> {
-                    application.setPublishedPages(new ArrayList<>());
-                    return application;
-                })
+        return applicationWithPoliciesMono
                 .flatMap(applicationService::createDefault)
                 .flatMap(savedApplication -> {
 
@@ -265,7 +253,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return newPageService
                             .createDefault(page)
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
-                            .thenReturn(savedApplication);
+                            // Now publish this newly created app with default states so that
+                            // launching of newly created application is possible.
+                            .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
+                                    .then(applicationService.findById(savedApplication.getId(), READ_APPLICATIONS)));
                 });
     }
 
