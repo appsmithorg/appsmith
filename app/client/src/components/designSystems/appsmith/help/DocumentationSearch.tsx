@@ -333,7 +333,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   },
 ];
 
-if (intercomAppID) {
+if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
     icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",

@@ -16,8 +16,6 @@ import java.util.Set;
 @Setter
 public class ApplicationJson {
 
-    String appsmithVersion;
-    
     Application exportedApplication;
     
     List<Datasource> datasourceList;

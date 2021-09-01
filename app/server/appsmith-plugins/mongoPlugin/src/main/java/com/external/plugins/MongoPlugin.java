@@ -24,6 +24,8 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSocketWriteException;
 import com.mongodb.MongoTimeoutException;
@@ -359,8 +361,17 @@ public class MongoPlugin extends BasePlugin {
                                  */
                                 if (outputJson.has(VALUES)) {
                                     JSONArray outputResult = (JSONArray) cleanUp(
-                                            outputJson.getJSONArray("values"));
-                                    result.setBody(objectMapper.readTree(outputResult.toString()));
+                                            outputJson.getJSONArray(VALUES));
+
+                                    ObjectNode resultNode = objectMapper.createObjectNode();
+
+                                    // Create a JSON structure with the results stored with a key to abide by the
+                                    // Server-Client contract of only sending array of objects in result.
+                                    resultNode
+                                            .putArray(VALUES)
+                                            .addAll((ArrayNode) objectMapper.readTree(outputResult.toString()));
+
+                                    result.setBody(objectMapper.readTree(resultNode.toString()));
                                 }
 
                                 /** TODO
