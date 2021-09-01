@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Asset;
+import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -244,5 +245,20 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
         return featureFlagService.getAllFeatureFlagsForUser();
+    }
+
+    @Override
+    public Mono<UserData> updateGitConfigProfile(User user, GitConfig config) {
+        if (user == null) {
+            return Mono.empty();
+        }
+
+        return Mono.justOrEmpty(user.getId())
+                .switchIfEmpty(userService
+                        .findByEmail(user.getEmail())
+                        .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
+                )
+                .flatMap(userId -> repository.updateGitConfigForProfile(userId, config))
+                .flatMap(updateResult -> getForCurrentUser());
     }
 }

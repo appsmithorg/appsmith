@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping(Url.GIT_URL)
@@ -27,7 +29,7 @@ public class GitController extends BaseController<GitService, UserData, String> 
         this.gitService = gitService;
     }
 
-    @PostMapping("/user")
+    @PostMapping("/config/save")
     public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitConfig) {
         //Add to the userData object - git config data
         return gitService.saveGitConfigData(gitConfig)
@@ -35,11 +37,11 @@ public class GitController extends BaseController<GitService, UserData, String> 
 
     }
 
-    @PostMapping("/update")
-    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitConfig gitConfig) {
+    @PostMapping("/config/update")
+    public Mono<ResponseDTO<List<GitConfig>>> updateGitConfigData(@RequestBody GitConfig gitConfig) {
         //update userData object - git config data
         return gitService.updateGitConfigData(gitConfig)
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse.getGitLocalConfigData(), null));
 
     }
 }
