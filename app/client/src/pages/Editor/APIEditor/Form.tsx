@@ -544,6 +544,7 @@ function ApiEditorForm(props: Props) {
                           label="Headers"
                           name="actionConfiguration.headers"
                           placeholder="Value"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>
@@ -559,6 +560,7 @@ function ApiEditorForm(props: Props) {
                           dataTreePath={`${actionName}.config.queryParameters`}
                           label="Params"
                           name="actionConfiguration.queryParameters"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>
