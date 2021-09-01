@@ -1117,8 +1117,8 @@ function MapChartComponent(props: MapChartComponentProps) {
       evt: FusionCharts.EventObject,
       data: any,
     ) => {
-      console.log(evt);
-      console.log(data);
+      // console.log(evt);
+      // console.log(data);
       onEntityClick();
     };
   }, []);
@@ -1200,7 +1200,7 @@ function MapChartComponent(props: MapChartComponentProps) {
 
   // Called by FC-React component to return the rendered chart
   const renderComplete = (chart: FusionCharts.FusionCharts) => {
-    console.log(chart);
+    // console.log(chart);
     // setChart(chart);
   };
 
