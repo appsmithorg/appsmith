@@ -179,39 +179,46 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
+        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
         if (!dataTreeEvaluator) {
           return true;
         }
         try {
-          const parsed = body && eval("(" + body + ")");
-          const parsedLength = Object.keys(parsed).length;
-          const actions = [];
-          const variables = [];
-          if (parsedLength > 0) {
-            for (const key in parsed) {
-              if (parsed.hasOwnProperty(key)) {
-                if (typeof parsed[key] === "function") {
-                  const value = parsed[key];
-                  const params = getParams(value);
-                  actions.push({
-                    name: key,
-                    body: parsed[key].toString(),
-                    arguments: params,
-                  });
-                } else {
-                  variables.push({
-                    name: key,
-                    value: parsed[key],
-                  });
+          const correctFormat = regex.test(body);
+          if (correctFormat) {
+            const toBeParsedBody = body.replace(/export default/g, "");
+            const parsed = body && eval("(" + toBeParsedBody + ")");
+            const parsedLength = Object.keys(parsed).length;
+            const actions = [];
+            const variables = [];
+            if (parsedLength > 0) {
+              for (const key in parsed) {
+                if (parsed.hasOwnProperty(key)) {
+                  if (typeof parsed[key] === "function") {
+                    const value = parsed[key];
+                    const params = getParams(value);
+                    actions.push({
+                      name: key,
+                      body: parsed[key].toString(),
+                      arguments: params,
+                    });
+                  } else {
+                    variables.push({
+                      name: key,
+                      value: parsed[key],
+                    });
+                  }
                 }
               }
             }
+            return {
+              actions: actions,
+              variables: variables,
+            };
+          } else {
+            throw "syntax error";
           }
-          return {
-            actions: actions,
-            variables: variables,
-          };
         } catch (e) {
           const errors = dataTreeEvaluator.errors;
           errors.push({

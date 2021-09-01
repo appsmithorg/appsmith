@@ -64,7 +64,7 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
     const sampleBody =
-      "{\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
+      "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
