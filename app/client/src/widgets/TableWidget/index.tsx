@@ -320,13 +320,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               iconAlign: cellProperties.iconAlign,
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.buttonLabel || "Action",
-              // columnActions: [
-              //   {
-              //     id: columnProperties.id,
-              //     label: cellProperties.buttonLabel || "Action",
-              //     dynamicTrigger: columnProperties.onMenuItemClick || "",
-              //   },
-              // ],
             };
             return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else {

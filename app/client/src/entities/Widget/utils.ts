@@ -96,6 +96,83 @@ export const getAllPathsFromPropertyConfig = (
                             ) {
                               triggerPaths[panelPropertyPath] = true;
                             }
+                            // Having an extra layer of config
+                            if (panelColumnControlConfig.panelConfig) {
+                              const panelPropertyConfigPath =
+                                panelColumnControlConfig.propertyName;
+                              const widgetPanelPropertyChildValues = get(
+                                widgetPanelPropertyValue,
+                                panelPropertyConfigPath,
+                              );
+                              if (widgetPanelPropertyChildValues) {
+                                Object.values(
+                                  widgetPanelPropertyChildValues,
+                                ).forEach(
+                                  (widgetPanelPropertyChildValue: any) => {
+                                    panelColumnControlConfig.panelConfig.children.forEach(
+                                      (panelColumnControlConfigChild: any) => {
+                                        let isSectionChildHidden = false;
+                                        if (
+                                          "hidden" in
+                                          panelColumnControlConfigChild
+                                        ) {
+                                          isSectionChildHidden = panelColumnControlConfigChild.hidden(
+                                            widget,
+                                            `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}.${widgetPanelPropertyChildValue.id}`,
+                                          );
+                                        }
+                                        if (!isSectionChildHidden) {
+                                          panelColumnControlConfigChild.children.forEach(
+                                            (
+                                              panelColumnControlChildConfig: any,
+                                            ) => {
+                                              const panelPropertyChildPath = `${basePath}.${widgetPanelPropertyValue.id}.${panelColumnControlConfig.propertyName}.${widgetPanelPropertyChildValue.id}.${panelColumnControlChildConfig.propertyName}`;
+                                              let isChildControlHidden = false;
+                                              if (
+                                                "hidden" in
+                                                panelColumnControlChildConfig
+                                              ) {
+                                                isChildControlHidden = panelColumnControlChildConfig.hidden(
+                                                  widget,
+                                                  panelPropertyChildPath,
+                                                );
+                                              }
+                                              if (!isChildControlHidden) {
+                                                if (
+                                                  panelColumnControlChildConfig.isBindProperty &&
+                                                  !panelColumnControlChildConfig.isTriggerProperty
+                                                ) {
+                                                  bindingPaths[
+                                                    panelPropertyChildPath
+                                                  ] =
+                                                    controlConfig.evaluationSubstitutionType ||
+                                                    EvaluationSubstitutionType.TEMPLATE;
+                                                  if (
+                                                    panelColumnControlChildConfig.validation
+                                                  ) {
+                                                    validationPaths[
+                                                      panelPropertyChildPath
+                                                    ] =
+                                                      panelColumnControlChildConfig.validation;
+                                                  }
+                                                } else if (
+                                                  panelColumnControlChildConfig.isBindProperty &&
+                                                  panelColumnControlChildConfig.isTriggerProperty
+                                                ) {
+                                                  triggerPaths[
+                                                    panelPropertyChildPath
+                                                  ] = true;
+                                                }
+                                              }
+                                            },
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                              }
+                            }
                           }
                         },
                       );

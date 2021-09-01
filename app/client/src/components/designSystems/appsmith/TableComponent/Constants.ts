@@ -126,7 +126,7 @@ export interface CellLayoutProperties {
       iconName?: IconName;
       iconColor?: string;
       iconAlign?: Alignment;
-      onMenuItemClick?: string;
+      onClick?: string;
     }
   >;
   menuStyle?: ButtonStyle;
@@ -186,7 +186,6 @@ export interface ColumnProperties {
   buttonStyle?: string;
   buttonLabelColor?: string;
   onClick?: string;
-  onMenuItemClick?: string;
   outputFormat?: string;
   inputFormat?: string;
   dropdownOptions?: string;
@@ -208,7 +207,7 @@ export interface ColumnProperties {
       iconName?: IconName;
       iconColor?: string;
       iconAlign?: Alignment;
-      onMenuItemClick?: string;
+      onClick?: string;
     }
   >;
   menuStyle?: ButtonStyle;
