@@ -3,6 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -38,19 +40,28 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
-        //update the user object to store the user credentials which will be used in future git operations
-        //User userId = userService.findByEmail(gitConfig.getUserName()).block();
         return userService.findByEmail(gitConfig.getUserName())
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-                            //handle null case
-                            // $set to add field at run time
-                            Map<String, GitConfig> gitConfigs = userData.getGitLocalConfigData();
-                            gitConfigs.put(gitConfig.getProfileName(), gitConfig);
+                            List<GitConfig> gitConfigs = userData.getGitLocalConfigData();
+                            gitConfigs.add(gitConfig);
                             userData.setGitLocalConfigData(gitConfigs);
+                            if( isProfileNameExists(gitConfigs, gitConfig.getProfileName()) ) {
+                                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY,
+                                        "ProfileName Already exists. Please choose a different one", null));
+                            }
                             return userDataService.updateForCurrentUser(userData);
                         }));
+    }
+
+    private boolean isProfileNameExists(List<GitConfig> gitConfigs, String name) {
+        for (GitConfig config: gitConfigs) {
+            if(config.getProfileName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -59,18 +70,18 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-                            Map<String, GitConfig> gitConfigs = userData.getGitLocalConfigData();
-                            GitConfig gitConfigUpdate = gitConfigs.get(gitConfig.getProfileName());
-
-                            gitConfigUpdate.setCommitEmail(gitConfig.getCommitEmail());
-                            gitConfigUpdate.setUserName(user.getUsername());
-                            gitConfigUpdate.setCommitEmail(gitConfig.getCommitEmail());
-                            gitConfigUpdate.setPassword(gitConfig.getPassword());
-                            gitConfigUpdate.setSshKey(gitConfig.getSshKey());
-                            gitConfigUpdate.setProfileName(gitConfig.getProfileName());
-
-                            gitConfigs.put(gitConfig.getProfileName(), gitConfigUpdate);
-
+                            List<GitConfig> gitConfigs = userData.getGitLocalConfigData();
+                            for(GitConfig gitLocalConfig : gitConfigs) {
+                                if (gitLocalConfig.getRemoteUrl().equals(gitConfig.getRemoteUrl())) {
+                                    gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
+                                    gitLocalConfig.setUserName(user.getUsername());
+                                    gitLocalConfig.setCommitEmail(gitConfig.getCommitEmail());
+                                    gitLocalConfig.setPassword(gitConfig.getPassword());
+                                    gitLocalConfig.setSshKey(gitConfig.getSshKey());
+                                    gitLocalConfig.setProfileName(gitConfig.getProfileName());
+                                    gitConfigs.add(gitLocalConfig);
+                                }
+                            }
                             return userDataService.updateForCurrentUser(userData);
                         }));
     }
