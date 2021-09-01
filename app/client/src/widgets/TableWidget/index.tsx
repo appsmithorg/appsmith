@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
 import moment from "moment";
@@ -301,7 +300,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected,
             );
           } else if (columnProperties.columnType === "menuButton") {
-            console.log(columnProperties.onClick, " columnProperties.onClick;");
             const menuButtonProps: RenderMenuButtonProps = {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete?: () => void) =>
@@ -623,7 +621,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
-    console.log(this.props, "this.props");
     const { sanitizedTableData } = this.props;
     let newPrimaryColumns;
     // When we have tableData, the primaryColumns order is unlikely to change
@@ -893,7 +890,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     action: string,
     onComplete?: () => void,
   ) => {
-    console.log(action, "actiononCommandClick");
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
       const { jsSnippets } = getDynamicBindings(action);

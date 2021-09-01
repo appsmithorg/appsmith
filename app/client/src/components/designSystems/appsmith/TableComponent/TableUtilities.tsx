@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { useState } from "react";
 import {
   MenuItem,
@@ -265,24 +264,13 @@ export const renderMenuButton = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
 ) => {
-  // if (!props.columnActions)
-  //   return (
-  //     <CellWrapper
-  //       cellProperties={cellProperties}
-  //       isCellVisible={props.isCellVisible}
-  //       isHidden={isHidden}
-  //     />
-  //   );
   return (
     <CellWrapper
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
     >
-      {/* {props.columnActions.map((action: ColumnAction, index: number) => { */}
-      {/* return */}
       <MenuButton {...props} />
-      {/* })} */}
     </CellWrapper>
   );
 };
@@ -315,7 +303,6 @@ function MenuButton({
     }
   };
   const handleClick = (onClick?: string) => {
-    console.log("onClickAction", onClick);
     if (onClick) {
       onCommandClick(onClick);
     }
