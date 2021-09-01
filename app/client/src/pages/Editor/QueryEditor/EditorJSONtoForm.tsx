@@ -328,7 +328,7 @@ const TabContainerView = styled.div`
     margin-top: 15px;
   }
   .react-tabs__tab-panel {
-    overflow: auto;
+    overflow: scroll;
   }
   .react-tabs__tab-list {
     margin: 0px;
