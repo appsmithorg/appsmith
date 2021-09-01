@@ -329,6 +329,13 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },
+  JSON_EDITOR_WIDGET: {
+    "!doc":
+      "JSON editor widget allows users to view, edit, format, and validate JSON.",
+    "!url": "https://docs.appsmith.com/widget-reference/json-editor",
+    isVisible: isVisible,
+    value: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {

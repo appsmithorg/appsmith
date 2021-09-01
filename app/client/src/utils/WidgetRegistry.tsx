@@ -136,6 +136,10 @@ import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
 } from "widgets/CheckboxGroupWidget";
+import JsonEditorWidget, {
+  JsonEditorWidgetProps,
+  ProfiledJsonEditorWidget,
+} from "widgets/JsonEditorWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -590,6 +594,19 @@ export default class WidgetBuilderRegistry {
       CheckboxGroupWidget.getDefaultPropertiesMap(),
       CheckboxGroupWidget.getMetaPropertiesMap(),
       CheckboxGroupWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.JSON_EDITOR_WIDGET,
+      {
+        buildWidget(widgetData: JsonEditorWidgetProps): JSX.Element {
+          return <ProfiledJsonEditorWidget {...widgetData} />;
+        },
+      },
+      JsonEditorWidget.getDerivedPropertiesMap(),
+      JsonEditorWidget.getDefaultPropertiesMap(),
+      JsonEditorWidget.getMetaPropertiesMap(),
+      JsonEditorWidget.getPropertyPaneConfig(),
     );
   }
 }

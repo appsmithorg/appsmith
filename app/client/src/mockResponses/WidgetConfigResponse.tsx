@@ -1320,6 +1320,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
+    [WidgetTypes.JSON_EDITOR_WIDGET]: {
+      rows: 4 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
+      isVisible: true,
+      widgetName: "JsonEditor",
+      version: 1,
+    },
   },
   configVersion: 1,
 };
