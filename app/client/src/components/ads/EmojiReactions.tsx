@@ -32,8 +32,6 @@ const Bubble = styled.div<{ active?: boolean }>`
   margin-top: ${(props) => `${props.theme.radii[1]}px`};
 
   & span.emoji {
-    min-width: 20px;
-    text-align: center;
     /*
     * center align emoji for non-retina displays
     * https://bugs.chromium.org/p/chromium/issues/detail?id=551420#c15
@@ -60,6 +58,7 @@ const Count = styled.div<{ active?: boolean }>`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  margin-left: 2px;
 `;
 
 const ReactionsByContainer = styled.span`
