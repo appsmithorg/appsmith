@@ -2962,14 +2962,4 @@ public class DatabaseChangelog {
         }
     }
 
-    /*
-    @ChangeSet(order = "082", id = "add-git-config-to-user-object", author = "")
-    public void addGitConfigToUserObject(MongockTemplate mongockTemplate) {
-        //Add the gitConfig field to the user data class
-        for (UserData userData : mongockTemplate.findAll(UserData.class)) {
-            List<GitConfig> gitConfigs = new ArrayList<>();
-            userData.setGitLocalConfigData(gitConfigs);
-            mongockTemplate.save(userData);
-        }
-    }*/
 }
