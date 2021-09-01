@@ -195,7 +195,7 @@ const PropertyControl = memo((props: Props) => {
     propertyName: string,
     propertyValue: any,
   ) => {
-    const otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+    let otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
 
     // enhancements are one way to update property of another widget but will have leaks into the dsl
     // would recommend NOT TO FOLLOW this path for upcoming widgets.
@@ -234,11 +234,17 @@ const PropertyControl = memo((props: Props) => {
         otherWidgetPropertiesToUpdates.push(parentEnhancementUpdates);
       }
     }
-    //
     if (props.updateRelatedWidgetProperties) {
-      otherWidgetPropertiesToUpdates.concat(
-        props.updateRelatedWidgetProperties(propertyName, propertyValue, props),
+      const relatedWidgetUpdates = props.updateRelatedWidgetProperties(
+        propertyName,
+        propertyValue,
+        widgetProperties,
       );
+      if (Array.isArray(relatedWidgetUpdates) && relatedWidgetUpdates.length) {
+        otherWidgetPropertiesToUpdates = otherWidgetPropertiesToUpdates.concat(
+          relatedWidgetUpdates,
+        );
+      }
     }
     return otherWidgetPropertiesToUpdates;
   };
@@ -267,12 +273,14 @@ const PropertyControl = memo((props: Props) => {
         propertyName,
         propertyValue,
       );
-      const allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
+      let allPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
       if (selfUpdates) {
         allPropertiesToUpdates.push(selfUpdates);
         // ideally we should not allow updating another widget without any updates on its own.
         if (enhancementsToOtherWidgets && enhancementsToOtherWidgets.length) {
-          allPropertiesToUpdates.concat(enhancementsToOtherWidgets);
+          allPropertiesToUpdates = allPropertiesToUpdates.concat(
+            enhancementsToOtherWidgets,
+          );
         }
       }
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {

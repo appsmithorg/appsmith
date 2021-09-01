@@ -10,7 +10,7 @@ import {
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { getNextEntityName, noop } from "utils/AppsmithUtils";
 import _, { debounce } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
@@ -93,7 +93,14 @@ function AddTabButtonComponent({ widgetId }: any) {
 }
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
+  const { index, item, updateOption } = props;
+  const dispatch = useDispatch();
+  const deleteOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
+      payload: { ...item, index },
+    });
+  };
   const debouncedUpdate = debounce(updateOption, 1000);
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,
@@ -113,9 +120,7 @@ function TabControlComponent(props: RenderComponentProps) {
         className="t--delete-tab-btn"
         height={20}
         marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
+        onClick={deleteOption}
         width={20}
       />
       <StyledEditIcon
@@ -193,7 +198,7 @@ class TabControl extends BaseControl<ControlProps> {
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={this.deleteOption}
+          deleteOption={noop}
           itemHeight={45}
           items={tabs}
           onEdit={this.onEdit}
@@ -227,27 +232,6 @@ class TabControl extends BaseControl<ControlProps> {
       return tab;
     });
     this.updateProperty(this.props.propertyName, updatedTabs);
-  };
-
-  deleteOption = (index: number) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
-    if (tabsArray && tabsArray.length === 1) return;
-    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
-      return i !== index;
-    });
-    const updatedObj = updatedArray.reduce(
-      (obj: any, each: any, index: number) => {
-        obj[each.id] = {
-          ...each,
-          index,
-        };
-        return obj;
-      },
-      {},
-    );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
-    this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {

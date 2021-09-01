@@ -520,6 +520,7 @@ export const ReduxActionTypes = {
   SET_PAGE_ORDER_SUCCESS: "SET_PAGE_ORDER_SUCCESS",
   GROUP_WIDGETS_INIT: "GROUP_WIDGETS_INIT",
   WIDGET_ADD_NEW_TAB_CHILD: "WIDGET_ADD_NEW_TAB_CHILD",
+  WIDGET_DELETE_TAB_CHILD: "WIDGET_DELETE_TAB_CHILD",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

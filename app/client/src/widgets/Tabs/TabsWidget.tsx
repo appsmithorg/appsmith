@@ -11,9 +11,9 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
-import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { WidgetProperties } from "selectors/propertyPaneSelectors";
 
 export function selectedTabValidation(
   value: unknown,
@@ -46,6 +46,31 @@ class TabsWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: false,
             isTriggerProperty: false,
+            updateRelatedWidgetProperties: (
+              propertyPath: string,
+              propertyValue: string,
+              props: WidgetProperties,
+            ) => {
+              const propertyPathSplit = propertyPath.split(".");
+              const property = propertyPathSplit.pop();
+              if (property === "label") {
+                const itemId = propertyPathSplit.pop() || "";
+                const item = props.tabsObj[itemId];
+                if (item) {
+                  return [
+                    {
+                      widgetId: item.widgetId,
+                      updates: {
+                        modify: {
+                          tabName: propertyValue,
+                        },
+                      },
+                    },
+                  ];
+                }
+              }
+              return [];
+            },
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -228,52 +253,7 @@ class TabsWidget extends BaseWidget<
     });
   };
 
-  removeTabContainer = (widgetIds: string[]) => {
-    widgetIds.forEach((widgetIdToRemove: string) => {
-      this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
-        parentId: this.props.widgetId,
-      });
-    });
-  };
-
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (
-      JSON.stringify(this.props.tabsObj) !== JSON.stringify(prevProps.tabsObj)
-    ) {
-      const tabWidgetIds = Object.values(this.props.tabsObj).map(
-        (tab) => tab.widgetId,
-      );
-      const childWidgetIds = this.props.children
-        .filter(Boolean)
-        .map((child) => child.widgetId);
-      // If the tabs and children are different,
-      // add and/or remove tab container widgets
-
-      if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
-        const widgetIdsToRemove: string[] = _.without(
-          childWidgetIds,
-          ...tabWidgetIds,
-        );
-        if (widgetIdsToRemove && widgetIdsToRemove.length) {
-          this.removeTabContainer(widgetIdsToRemove);
-        }
-      }
-      this.updateTabContainerNames();
-
-      // If all tabs were removed.
-      if (tabWidgetIds.length === 0) {
-        const newTabContainerWidgetId = generateReactKey();
-        const tabs = {
-          tab1: {
-            id: "tab1",
-            widgetId: newTabContainerWidgetId,
-            label: "Tab 1",
-            index: 0,
-          },
-        };
-        this.updateWidgetProperty("tabsObj", tabs);
-      }
-    }
     const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {
