@@ -72,7 +72,6 @@ export function BaseDropdown(props: DropdownProps) {
       onChange={(value) => input.onChange(value)}
       width={props.width}
       {...props}
-      menuPlacement="auto"
     />
   );
 }
