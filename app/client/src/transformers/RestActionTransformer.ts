@@ -1,6 +1,6 @@
 import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
-import _ from "lodash";
+import _, { isEmpty } from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = _.cloneDeep(data);
@@ -41,5 +41,22 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     };
   }
 
+  action.actionConfiguration.bodyFormData = removeEmptyPairs(
+    action.actionConfiguration.bodyFormData,
+  );
+  action.actionConfiguration.headers = removeEmptyPairs(
+    action.actionConfiguration.headers,
+  );
+  action.actionConfiguration.queryParameters = removeEmptyPairs(
+    action.actionConfiguration.queryParameters,
+  );
+
   return action;
 };
+
+function removeEmptyPairs(keyValueArray: any) {
+  if (!keyValueArray || !keyValueArray.length) return keyValueArray;
+  return keyValueArray.filter(
+    (data: any) => !isEmpty(data.key) || !isEmpty(data.value),
+  );
+}
