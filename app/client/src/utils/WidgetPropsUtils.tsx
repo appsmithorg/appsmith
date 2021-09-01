@@ -44,6 +44,7 @@ import WidgetConfigResponse, {
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { theme } from "../../src/constants/DefaultTheme";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -831,6 +832,12 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
+  if (currentDSL.version === 34) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
   return currentDSL;
 };
 
