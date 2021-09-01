@@ -8,8 +8,6 @@ export function createMessage(
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
-export const ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} action created successfully`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -218,8 +216,6 @@ export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
-export const ACTION_DELETE_SUCCESS = (actionName: string) =>
-  `${actionName} action deleted successfully`;
 export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} action moved to page ${pageName} successfully`;
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
