@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.isDomainModel;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 
 @Slf4j
 public class MustacheHelper {
@@ -43,6 +44,15 @@ public class MustacheHelper {
     private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
     // The final replacement string of ? for replacing '?' or "?"
     private static String postQuoteTrimmingQuestionMark = "\\?";
+
+    /**
+     * Appsmith smart replacement with placeholder : The regex pattern below looks for `APPSMITH_SUBSTITUTION_PLACEHOLDER`
+     * surrounded by quotes. This pattern is later replaced with APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
+     * of JSON smart replacement
+     */
+    private static String regexPlaceholderTrimming = "([\"']" + APPSMITH_SUBSTITUTION_PLACEHOLDER + "[\"'])";
+    private static Pattern placeholderTrimmingPattern = Pattern.compile(regexPlaceholderTrimming);
+
     private static String laxMustacheBindingRegex = "\\{\\{([\\s\\S]*?)\\}\\}";
     private static Pattern laxMustacheBindingPattern = Pattern.compile(laxMustacheBindingRegex);
 
@@ -296,7 +306,7 @@ public class MustacheHelper {
 
         } else if (object instanceof Map) {
             Map renderedMap = new HashMap();
-            for (Object entry : ((Map)object).entrySet()) {
+            for (Object entry : ((Map) object).entrySet()) {
                 renderedMap.put(
                         ((Map.Entry) entry).getKey(), // key
                         renderFieldValues(((Map.Entry) entry).getValue(), context) // value
@@ -348,12 +358,19 @@ public class MustacheHelper {
         }
     }
 
-//    public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
-//
-//    }
+    public static String replaceMustacheWithPlaceholder(String query, List<String> mustacheBindings) {
+        return replaceMustacheUsingPatterns(query, APPSMITH_SUBSTITUTION_PLACEHOLDER, mustacheBindings,
+                placeholderTrimmingPattern, APPSMITH_SUBSTITUTION_PLACEHOLDER);
+    }
 
     public static String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings) {
 
+        return replaceMustacheUsingPatterns(query, "?", mustacheBindings,
+                quoteQuestionPattern, postQuoteTrimmingQuestionMark);
+    }
+
+    private static String replaceMustacheUsingPatterns(String query, String placeholder, List<String> mustacheBindings,
+                                                       Pattern sanitizePattern, String replacement) {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody(query);
 
@@ -362,14 +379,14 @@ public class MustacheHelper {
 
         Map<String, String> replaceParamsMap = mustacheSet
                 .stream()
-                .collect(Collectors.toMap(Function.identity(), v -> "?"));
+                .collect(Collectors.toMap(Function.identity(), v -> placeholder));
 
+        // Replace the mustaches with the values mapped to each mustache in replaceParamsMap
         ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);
 
         String body = updatedActionConfiguration.getBody();
 
-        // Trim the quotes around ? if present
-        body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
+        body = sanitizePattern.matcher(body).replaceAll(replacement);
 
         return body;
     }

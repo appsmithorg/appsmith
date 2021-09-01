@@ -154,7 +154,7 @@ public class RestApiPlugin extends BasePlugin {
                     // First extract all the bindings in order
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(actionConfiguration.getBody());
                     // Replace all the bindings with a ? as expected in a prepared statement.
-                    String updatedBody = MustacheHelper.replaceMustacheWithQuestionMark(actionConfiguration.getBody(), mustacheKeysInOrder);
+                    String updatedBody = MustacheHelper.replaceMustacheWithPlaceholder(actionConfiguration.getBody(), mustacheKeysInOrder);
 
                     try {
                         updatedBody = (String) smartSubstitutionOfBindings(updatedBody,
