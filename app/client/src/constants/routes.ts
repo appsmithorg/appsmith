@@ -283,3 +283,10 @@ export const extractAppIdAndPageIdFromUrl = (url = "") => {
     pageId: "",
   };
 };
+
+export const SETTINGS_URL = "/settings";
+export const SETTINGS_CATEGORY_DEFAULT_URL = "/settings/general";
+export const SETTINGS_CATEGORY_URL = "/settings/:category";
+export function getSettingsCategoryUrl(category: string) {
+  return `${SETTINGS_URL}/${category}`;
+}

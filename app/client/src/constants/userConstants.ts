@@ -16,6 +16,7 @@ export type User = {
   emptyInstance?: boolean;
   commentOnboardingState?: CommentsOnboardingState | null;
   photoId?: string;
+  isSuperUser: boolean;
 };
 
 export interface UserApplication {
@@ -33,6 +34,7 @@ export const DefaultCurrentUserDetails: User = {
   organizationIds: [],
   username: ANONYMOUS_USERNAME,
   gender: "MALE",
+  isSuperUser: false,
 };
 
 // TODO keeping it here instead of the USER_API since it leads to cyclic deps errors during tests

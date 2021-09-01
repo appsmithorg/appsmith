@@ -767,3 +767,5 @@ export const CLEAR_LOG_TOOLTIP = () => "Clear logs";
 export const ADD_JS_ACTION = () => "Add a new JS Object";
 export const ENTITY_MORE_ACTIONS_TOOLTIP = () => "More actions";
 export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
+//settings
+export const ADMIN_SETTINGS = () => "Admin Settings";
