@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -369,21 +368,6 @@ public class MustacheHelper {
         body = quoteQuestionPattern.matcher(body).replaceAll(postQuoteTrimmingQuestionMark);
 
         return body;
-    }
-
-    public static String replaceQuestionMarkWithDollarIndex(String query) {
-        final AtomicInteger counter = new AtomicInteger();
-        String updatedQuery = query.chars()
-                .mapToObj(c -> {
-                    if (c == '?') {
-                        return "$" + counter.incrementAndGet();
-                    }
-
-                    return Character.toString(c);
-                })
-                .collect(Collectors.joining());
-
-        return updatedQuery;
     }
 
     public static Boolean laxIsBindingPresentInString(String input) {
