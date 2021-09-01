@@ -22,15 +22,4 @@ public class SmartSubstitutionHelper {
         return updatedQuery;
     }
 
-    public static String replaceQuestionMarkWithPlaceholder(String query) {
-        return query.chars()
-                .mapToObj(c -> {
-                    if (c == '?') {
-                        return APPSMITH_SUBSTITUTION_PLACEHOLDER;
-                    }
-
-                    return Character.toString(c);
-                })
-                .collect(Collectors.joining());
-    }
 }
