@@ -1,6 +1,10 @@
 import { isString } from "lodash";
 import moment from "moment";
 import { TextSize } from "constants/WidgetConstants";
+import { IconName } from "@blueprintjs/icons";
+import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
+import { ButtonStyle, ButtonVariant } from "../IconButtonComponent";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -109,6 +113,12 @@ export interface CellLayoutProperties {
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  iconButtonStyle: ButtonStyle;
   isCellVisible: boolean;
 }
 
@@ -165,6 +175,12 @@ export interface ColumnProperties {
   isColoredOption?: boolean;
   labelColors?: LabelColorType;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant?: ButtonVariant;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconButtonStyle?: ButtonStyle;
   isCellVisible?: boolean;
 }
 
