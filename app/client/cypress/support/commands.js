@@ -1858,7 +1858,8 @@ Cypress.Commands.add("radioInput", (index, text) => {
     .eq(index)
     .click()
     .clear()
-    .type(text);
+    .type(text)
+    .wait(200);
 });
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
