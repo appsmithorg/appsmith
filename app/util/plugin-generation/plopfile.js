@@ -18,6 +18,12 @@ module.exports = function (plop) {
             //     name: 'entityName',
             //     message: 'Enter the name of the entity in the plugin, you want to query',
             //     choices: ['Table', 'Row', 'Bucket', 'File', 'Collection']
+            },
+            {
+                type: 'input',
+                name: 'email',
+                message: 'Please enter your email here: ',
+                default: 'tech@appsmith.com'
             }
         ],
         actions: function(data) {
