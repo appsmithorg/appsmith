@@ -375,7 +375,6 @@ function RecorderRight(props: RecorderRightProps) {
     const {
       onPausePlayer,
       onPlayPlayer,
-      onStopPlayer,
       onStopRecording,
       playerStatus,
       recorderStatus,
@@ -441,20 +440,6 @@ function RecorderRight(props: RecorderRightProps) {
             );
             break;
           case PlayerStatusTypes.PAUSE:
-            return (
-              <>
-                <PlayerButton
-                  intent={PlayerButtonIntentTypes.PLAY}
-                  onClick={onPlayPlayer}
-                />
-                <PlayerButton
-                  intent={PlayerButtonIntentTypes.STOP}
-                  onClick={onStopPlayer}
-                />
-              </>
-            );
-            break;
-
           default:
             return (
               <PlayerButton
