@@ -886,11 +886,12 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 32) {
-    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
     currentDSL.version = 33;
   }
+
   if (currentDSL.version === 33) {
-    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

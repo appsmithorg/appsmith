@@ -43,7 +43,7 @@ function InlinePageCommentPin({
 
 const MemoisedInlinePageCommentPin = React.memo(InlinePageCommentPin);
 
-const useSelectCommentThreadUsingQuery = () => {
+export const useSelectCommentThreadUsingQuery = () => {
   const location = useLocation();
   const [commentThreadIdInUrl, setCommentThreadIdInUrl] = useState<
     string | null

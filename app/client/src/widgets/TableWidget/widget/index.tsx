@@ -607,6 +607,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
 
+    //handle selected pageNo does not exist due to change of totalRecordsCount
+    if (
+      this.props.serverSidePaginationEnabled &&
+      this.props.totalRecordsCount
+    ) {
+      const maxAllowedPageNumber = Math.ceil(
+        this.props.totalRecordsCount / this.props.pageSize,
+      );
+      if (this.props.pageNo > maxAllowedPageNumber) {
+        this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
+      }
+    } else if (
+      this.props.serverSidePaginationEnabled !==
+      prevProps.serverSidePaginationEnabled
+    ) {
+      //reset pageNo when serverSidePaginationEnabled is toggled
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
+
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
       // It is switched ON:
@@ -632,6 +651,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
+      //reset current page number when page size changes
+      this.props.updateWidgetMetaProperty("pageNo", 1);
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -686,6 +707,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      totalRecordsCount,
       delimiter,
       pageSize,
       filteredTableData = [],
@@ -747,6 +769,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
+          totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
           updateCompactMode={this.handleCompactModeChange}

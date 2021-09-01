@@ -49,7 +49,7 @@ const ButtonWrapper = styled.div`
   display: flex;
   width: 100%;
   justify-content: space-between;
-  align-items; center;
+  align-items: center;
   background: ${Colors.WHITE};
   margin-top: 14px;
   &&& button:hover {
@@ -59,7 +59,7 @@ const ButtonWrapper = styled.div`
 
 const ButtonActionsWrapper = styled.div`
   display: flex;
-  align-items; center;
+  align-items: center;
   &&& button {
     margin-left: 14px;
   }

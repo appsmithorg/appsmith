@@ -71,14 +71,13 @@ const getCustomHoverColor = (
             .lighten(40)
             .toString()
         : theme.colors.button.primary.outline.hoverColor;
-      break;
+
     case ButtonVariantTypes.GHOST:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
         : theme.colors.button.primary.ghost.hoverColor;
-      break;
 
     default:
       return backgroundColor
@@ -86,7 +85,6 @@ const getCustomHoverColor = (
             .darken(10)
             .toString()
         : theme.colors.button.primary.solid.hoverColor;
-      break;
   }
 };
 
