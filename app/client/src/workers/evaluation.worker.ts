@@ -22,6 +22,10 @@ import evaluate from "./evaluate";
 
 const ctx: Worker = self as any;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: No types available
+const importScripts = ctx.importScripts.bind(ctx);
+
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
@@ -183,8 +187,7 @@ ctx.addEventListener(
           : evaluate(expression, evalTree);
       case EVAL_WORKER_ACTIONS.UPDATE_LIBRARIES:
         const { libs } = requestData;
-        debugger;
-        (ctx as any).customLibs = libs;
+        // importScripts(libs);
         return true;
       default: {
         console.error("Action not registered on worker", method);

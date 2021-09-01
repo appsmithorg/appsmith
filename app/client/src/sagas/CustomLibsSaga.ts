@@ -53,10 +53,7 @@ function* installLibrarySaga(action: ReduxAction<any>) {
         ...lib,
         lib: window[lib.name],
       });
-      const shareLibsWithWorker = yield call(
-        updateLibrariesSaga,
-        extraLibs.getLibraries(),
-      );
+      const shareLibsWithWorker = yield call(updateLibrariesSaga, lib.latest);
       yield put(installationSuccessful(lib));
     } else {
       yield put(installationFailed(lib));

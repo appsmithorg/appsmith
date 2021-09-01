@@ -4,7 +4,7 @@ import {
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
-import customLibraries from "utils/ExtraLibrary";
+import customLibraries, { ExtraLibrary } from "utils/ExtraLibrary";
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
@@ -146,6 +146,12 @@ export default function evaluate(
         GLOBAL_DATA[datum] = data[datum];
       });
     }
+
+    ((self as any).customLibs || []).forEach((lib: ExtraLibrary) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      self[lib.accessor] = lib.lib;
+    });
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith

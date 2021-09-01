@@ -378,7 +378,6 @@ export function* updateLibrariesSaga(libs: any) {
         libs,
       },
     );
-    // console.log("Complete");
   } catch (error) {
     log.error(error);
     Sentry.captureException(error);
