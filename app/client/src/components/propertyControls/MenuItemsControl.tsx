@@ -136,9 +136,11 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     const menuItems: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
+    }> =
+      _.isString(this.props.propertyValue) ||
+      _.isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
     return (
       <MenuItemsWrapper>
         <DroppableComponent
@@ -218,7 +220,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    let menuItems = this.props.propertyValue;
+    let menuItems = this.props.propertyValue || [];
     const menuItemsArray = Object.values(menuItems);
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(

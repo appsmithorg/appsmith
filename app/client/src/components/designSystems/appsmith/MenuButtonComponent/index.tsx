@@ -121,7 +121,7 @@ export const MenuButtonContainer = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
+export const PopoverStyles = createGlobalStyle`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
   }
@@ -372,9 +372,10 @@ export interface PopoverContentProps {
   isCompact?: boolean;
 }
 
-function PopoverContent(props: PopoverContentProps) {
+export function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
+  if (!itemsObj) return <StyledMenu />;
   const items = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);
@@ -436,7 +437,7 @@ export interface PopoverTargetButtonProps {
   prevButtonStyle?: ButtonStyle;
 }
 
-function PopoverTargetButton(props: PopoverTargetButtonProps) {
+export function PopoverTargetButton(props: PopoverTargetButtonProps) {
   const {
     borderRadius,
     boxShadow,

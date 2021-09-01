@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { lazy, Suspense } from "react";
 import log from "loglevel";
 import moment from "moment";
@@ -9,6 +10,7 @@ import {
   xor,
   without,
   isBoolean,
+  isObject,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -21,6 +23,8 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  renderMenuButton,
+  RenderMenuButtonProps,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -100,6 +104,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (Array.isArray(value) && isBoolean(value[index])) {
       return value[index];
     }
+    if (value && isObject(value) && !Array.isArray(value)) {
+      return value;
+    }
     if (value && Array.isArray(value) && value[index]) {
       return preserveCase
         ? value[index].toString()
@@ -152,6 +159,48 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
       displayText: this.getPropertyValue(
         columnProperties.displayText,
+        rowIndex,
+        true,
+      ),
+      borderRadius: this.getPropertyValue(
+        columnProperties.borderRadius,
+        rowIndex,
+        true,
+      ),
+      boxShadow: this.getPropertyValue(
+        columnProperties.boxShadow,
+        rowIndex,
+        true,
+      ),
+      boxShadowColor: this.getPropertyValue(
+        columnProperties.boxShadowColor,
+        rowIndex,
+      ),
+      iconAlign: this.getPropertyValue(
+        columnProperties.iconAlign,
+        rowIndex,
+        true,
+      ),
+      iconName: this.getPropertyValue(
+        columnProperties.iconName,
+        rowIndex,
+        true,
+      ),
+      isCompact: this.getPropertyValue(columnProperties.isCompact, rowIndex),
+      menuColor: this.getPropertyValue(
+        columnProperties.menuColor,
+        rowIndex,
+        true,
+      ),
+
+      menuItems: this.getPropertyValue(columnProperties.menuItems, rowIndex),
+      menuStyle: this.getPropertyValue(
+        columnProperties.menuStyle,
+        rowIndex,
+        true,
+      ),
+      menuVariant: this.getPropertyValue(
+        columnProperties.menuVariant,
         rowIndex,
         true,
       ),
@@ -251,6 +300,35 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onClick,
               isSelected,
             );
+          } else if (columnProperties.columnType === "menuButton") {
+            console.log(columnProperties.onClick, " columnProperties.onClick;");
+            const menuButtonProps: RenderMenuButtonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete?: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              isDisabled: cellProperties.isDisabled || false,
+              menuItems: cellProperties.menuItems,
+              isCompact: cellProperties.isCompact || false,
+              menuStyle: cellProperties.menuStyle || "PRIMARY",
+              prevMenuStyle: cellProperties.prevMenuStyle,
+              menuVariant: cellProperties.menuVariant || "SOLID",
+              menuColor: cellProperties.menuColor,
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
+              iconName: cellProperties.iconName,
+              iconAlign: cellProperties.iconAlign,
+              isCellVisible: cellProperties.isCellVisible ?? true,
+              label: cellProperties.buttonLabel || "Action",
+              // columnActions: [
+              //   {
+              //     id: columnProperties.id,
+              //     label: cellProperties.buttonLabel || "Action",
+              //     dynamicTrigger: columnProperties.onMenuItemClick || "",
+              //   },
+              // ],
+            };
+            return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
 
@@ -552,6 +630,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   componentDidMount() {
+    console.log(this.props, "this.props");
     const { sanitizedTableData } = this.props;
     let newPrimaryColumns;
     // When we have tableData, the primaryColumns order is unlikely to change
@@ -819,8 +898,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   onCommandClick = (
     rowIndex: number,
     action: string,
-    onComplete: () => void,
+    onComplete?: () => void,
   ) => {
+    console.log(action, "actiononCommandClick");
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
       const { jsSnippets } = getDynamicBindings(action);

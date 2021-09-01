@@ -1,6 +1,14 @@
 import { isString } from "lodash";
 import moment from "moment";
-import { TextSize } from "constants/WidgetConstants";
+import {
+  ButtonStyle,
+  ButtonVariant,
+  TextSize,
+} from "constants/WidgetConstants";
+import { IconName } from "@blueprintjs/icons";
+import { Alignment } from "@blueprintjs/core";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -103,6 +111,34 @@ export interface CellLayoutProperties {
   isDisabled?: boolean;
   displayText?: string;
   isCellVisible: boolean;
+  isCompact?: boolean;
+  menuItems: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onMenuItemClick?: string;
+    }
+  >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
 }
 
 export interface TableColumnMetaProps {
@@ -150,12 +186,41 @@ export interface ColumnProperties {
   buttonStyle?: string;
   buttonLabelColor?: string;
   onClick?: string;
+  onMenuItemClick?: string;
   outputFormat?: string;
   inputFormat?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
   isCellVisible?: boolean;
+  isCompact?: boolean;
+  menuItems?: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onMenuItemClick?: string;
+    }
+  >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
 }
 
 export const ConditionFunctions: {
