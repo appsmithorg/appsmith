@@ -582,3 +582,12 @@ export const MenuCategoryWrapper = styled.div`
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
+
+export const TableInfiniteScrollPlaceholderRow = styled.div<{
+  show: boolean;
+  height: number;
+}>`
+  width: 100%;
+  height: ${(props) => props.height}px;
+  display: ${(props) => (props.show ? "block" : "none")};
+`;

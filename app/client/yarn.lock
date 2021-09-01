@@ -3952,19 +3952,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-window-infinite-loader@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@types/react-window-infinite-loader/-/react-window-infinite-loader-1.0.4.tgz#2130555d3037f842e6fff939a6563849fd4d1046"
-  dependencies:
-    "@types/react" "*"
-    "@types/react-window" "*"
-
-"@types/react-window@*":
-  version "1.8.5"
-  resolved "https://registry.yarnpkg.com/@types/react-window/-/react-window-1.8.5.tgz#285fcc5cea703eef78d90f499e1457e9b5c02fc1"
-  dependencies:
-    "@types/react" "*"
-
 "@types/react-window@^1.8.2":
   version "1.8.2"
   resolved "https://registry.npmjs.org/@types/react-window/-/react-window-1.8.2.tgz"
@@ -14949,10 +14936,6 @@ react-virtuoso@^1.9.0:
     "@virtuoso.dev/urx" "^0.2.5"
     react-app-polyfill "^1.0.6"
     resize-observer-polyfill "^1.5.1"
-
-react-window-infinite-loader@^1.0.7:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/react-window-infinite-loader/-/react-window-infinite-loader-1.0.7.tgz#958ef1a689d20dce122ef377583acd987760aee8"
 
 react-window@^1.8.2:
   version "1.8.5"

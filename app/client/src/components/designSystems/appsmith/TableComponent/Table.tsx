@@ -13,6 +13,7 @@ import {
   TableWrapper,
   TableHeaderWrapper,
   TableHeaderInnerWrapper,
+  TableInfiniteScrollPlaceholderRow,
 } from "./TableStyledWrappers";
 import {
   TableHeaderCell,
@@ -37,7 +38,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { FixedSizeList } from "react-window";
 import { scrollbarWidth } from "utils/helpers";
-// import InfiniteLoader from "react-window-infinite-loader";
 
 interface TableProps {
   width: number;
@@ -142,6 +142,7 @@ function Header(
             currentPageIndex={props.currentPageIndex}
             delimiter={props.delimiter}
             filters={props.filters}
+            infiniteScroll={props.infiniteScroll}
             isVisibleCompactMode={props.isVisibleCompactMode}
             isVisibleDownload={props.isVisibleDownload}
             isVisibleFilters={props.isVisibleFilters}
@@ -237,28 +238,47 @@ function TableHead(
   );
 }
 
-const useElementOnScreen = (options: any) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isVisible, setIsVisible] = React.useState(false);
+// const useElementOnScreen = (options: any) => {
+//   const containerRef = useRef<HTMLDivElement | null>(null);
+//   const [isVisible, setIsVisible] = React.useState(false);
 
-  const callbackFunction = (entries: any) => {
-    const [entry] = entries;
-    setIsVisible(entry.isIntersecting);
-  };
+//   const callbackFunction = (entries: any) => {
+//     const [entry] = entries;
+//     setIsVisible(entry.isIntersecting);
+//   };
 
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(callbackFunction, options);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-    return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+//   React.useEffect(() => {
+//     const observer = new IntersectionObserver(callbackFunction, options);
+//     if (containerRef.current) {
+//       observer.observe(containerRef.current);
+//     }
+//     return () => {
+//       if (containerRef.current) {
+//         observer.unobserve(containerRef.current);
+//       }
+//     };
+//   }, [containerRef, options]);
+
+//   return [containerRef, isVisible];
+// };
+
+const createIntersectionObserver = (
+  elementRef: React.MutableRefObject<HTMLDivElement | null>,
+  callback: () => void,
+) => {
+  return new IntersectionObserver(
+    (entries: IntersectionObserverEntry[]) => {
+      const [entry] = entries;
+      if (entry.isIntersecting) {
+        callback();
       }
-    };
-  }, [containerRef, options]);
-
-  return [containerRef, isVisible];
+    },
+    {
+      root: elementRef?.current,
+      rootMargin: "0px",
+      threshold: 1,
+    },
+  );
 };
 
 export function Table(props: TableProps) {
@@ -308,7 +328,7 @@ export function Table(props: TableProps) {
         pageIndex: currentPageIndex,
         pageSize: props.pageSize,
       },
-      manualPagination: props.infiniteScroll ? false : true,
+      manualPagination: true,
       pageCount,
     },
     useBlockLayout,
@@ -341,6 +361,9 @@ export function Table(props: TableProps) {
   const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const tableBodyRef = useRef<HTMLDivElement | null>(null);
+  const tableTopRef = useRef<HTMLDivElement | null>(null);
+  const tableBottomRef = useRef<HTMLDivElement | null>(null);
+  const listRef = React.useRef<FixedSizeList | null>(null);
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
@@ -416,25 +439,48 @@ export function Table(props: TableProps) {
     [prepareRow, rows],
   );
 
-  const loadMoreItems = React.useCallback(
-    (startIndex: number, stopIndex: number) => {
-      // eslint-disable-next-line no-console
-      console.log({ startIndex, stopIndex, endIndex });
-      props.nextPageClick();
-      return Promise.resolve();
-    },
-    [],
-  );
-
-  const isItemLoaded = React.useCallback((index: number) => {
-    // eslint-disable-next-line no-console
-    console.log({ index });
-    return props.isLoading ? false : true;
-  }, []);
-
   const tableHeight = isHeaderVisible ? props.height - 80 : props.height - 40;
   const tableWidth = totalColumnsWidth + scrollBarSize;
 
+  React.useEffect(() => {
+    const observer = createIntersectionObserver(
+      tableBodyRef,
+      props.prevPageClick,
+    );
+    if (tableBodyRef.current && tableTopRef.current) {
+      observer.observe(tableTopRef.current);
+    }
+    return () => {
+      if (tableBodyRef.current && tableTopRef.current) {
+        observer.unobserve(tableTopRef.current);
+      }
+    };
+  }, [tableTopRef, tableBodyRef, props.infiniteScroll]);
+
+  React.useEffect(() => {
+    const observer = createIntersectionObserver(
+      tableBodyRef,
+      props.nextPageClick,
+    );
+    if (tableBodyRef.current && tableBottomRef.current) {
+      observer.observe(tableBottomRef.current);
+    }
+    return () => {
+      if (tableBodyRef.current && tableBottomRef.current) {
+        observer.unobserve(tableBottomRef.current);
+      }
+    };
+  }, [tableBottomRef, tableBodyRef, props.infiniteScroll]);
+
+  React.useEffect(() => {
+    if (props.infiniteScroll) {
+      //scroll to top row on page change when infinite scrolling is enabled
+      tableBodyRef.current?.scrollTo(
+        0,
+        props.pageNo === 0 ? 0 : tableSizes.ROW_HEIGHT,
+      );
+    }
+  }, [props.data, props.infiniteScroll]);
   return (
     <TableWrapper
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
@@ -486,36 +532,35 @@ export function Table(props: TableProps) {
               }`}
               ref={tableBodyRef}
             >
-              {/* {props.infiniteScroll ? (
-                <InfiniteLoader
-                  isItemLoaded={isItemLoaded}
-                  itemCount={1000}
-                  loadMoreItems={loadMoreItems}
-                >
-                  {({ onItemsRendered, ref }) => (
-                    <FixedSizeList
-                      className="List"
-                      height={tableHeight}
-                      itemCount={1000}
-                      itemSize={tableSizes.ROW_HEIGHT}
-                      onItemsRendered={onItemsRendered}
-                      ref={ref}
-                      width={tableWidth}
-                    >
-                      {RenderRow}
-                    </FixedSizeList>
-                  )}
-                </InfiniteLoader>
-              ) : ( */}
+              {props.infiniteScroll && (
+                <TableInfiniteScrollPlaceholderRow
+                  className={props.isLoading ? Classes.SKELETON : "row"}
+                  height={tableSizes.ROW_HEIGHT}
+                  ref={tableTopRef}
+                  show={props.pageNo !== 0}
+                />
+              )}
               <FixedSizeList
-                height={tableHeight}
+                height={
+                  props.infiniteScroll
+                    ? subPage.length * tableSizes.ROW_HEIGHT
+                    : tableHeight
+                }
                 itemCount={subPage.length}
                 itemSize={tableSizes.ROW_HEIGHT}
+                ref={listRef}
                 width={tableWidth}
               >
                 {RenderRow}
               </FixedSizeList>
-              {/* )} */}
+              {props.infiniteScroll && (
+                <TableInfiniteScrollPlaceholderRow
+                  className={props.isLoading ? Classes.SKELETON : "row"}
+                  height={tableSizes.ROW_HEIGHT}
+                  ref={tableBottomRef}
+                  show={subPage.length !== 0}
+                />
+              )}
               {props.pageSize > subPage.length &&
                 renderEmptyRows(
                   props.pageSize - subPage.length,

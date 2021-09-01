@@ -114,6 +114,7 @@ interface TableHeaderProps {
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
+  infiniteScroll: boolean;
   delimiter: string;
 }
 
@@ -158,72 +159,80 @@ function TableHeader(props: TableHeaderProps) {
         </CommonFunctionsMenuWrapper>
       )}
 
-      {props.isVisiblePagination && props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <PaginationItemWrapper
-            className="t--table-widget-prev-page"
-            disabled={false}
-            onClick={() => {
-              props.prevPageClick();
-            }}
-          >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
-          </PaginationItemWrapper>
-          <PaginationItemWrapper className="page-item" selected>
-            {props.pageNo + 1}
-          </PaginationItemWrapper>
-          <PaginationItemWrapper
-            className="t--table-widget-next-page"
-            disabled={false}
-            onClick={() => {
-              props.nextPageClick();
-            }}
-          >
-            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
-      {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
-        <PaginationWrapper>
-          <RowWrapper className="show-page-items">
-            {props.tableData?.length} Records
-          </RowWrapper>
-          <PaginationItemWrapper
-            className="t--table-widget-prev-page"
-            disabled={props.currentPageIndex === 0}
-            onClick={() => {
-              const pageNo =
-                props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
-            }}
-          >
-            <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
-          </PaginationItemWrapper>
-          <RowWrapper>
-            Page{" "}
-            <PageNumberInput
-              disabled={props.pageCount === 1}
-              pageCount={props.pageCount}
-              pageNo={props.pageNo + 1}
-              updatePageNo={props.updatePageNo}
-            />{" "}
-            of {props.pageCount}
-          </RowWrapper>
-          <PaginationItemWrapper
-            className="t--table-widget-next-page"
-            disabled={props.currentPageIndex === props.pageCount - 1}
-            onClick={() => {
-              const pageNo =
-                props.currentPageIndex < props.pageCount - 1
-                  ? props.currentPageIndex + 1
-                  : 0;
-              props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
-            }}
-          >
-            <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
-          </PaginationItemWrapper>
-        </PaginationWrapper>
-      )}
+      {props.isVisiblePagination &&
+        !props.infiniteScroll &&
+        props.serverSidePaginationEnabled && (
+          <PaginationWrapper>
+            <PaginationItemWrapper
+              className="t--table-widget-prev-page"
+              disabled={false}
+              onClick={() => {
+                props.prevPageClick();
+              }}
+            >
+              <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
+            </PaginationItemWrapper>
+            <PaginationItemWrapper className="page-item" selected>
+              {props.pageNo + 1}
+            </PaginationItemWrapper>
+            <PaginationItemWrapper
+              className="t--table-widget-next-page"
+              disabled={false}
+              onClick={() => {
+                props.nextPageClick();
+              }}
+            >
+              <Icon
+                color={Colors.HIT_GRAY}
+                icon="chevron-right"
+                iconSize={16}
+              />
+            </PaginationItemWrapper>
+          </PaginationWrapper>
+        )}
+      {props.isVisiblePagination &&
+        !props.infiniteScroll &&
+        !props.serverSidePaginationEnabled && (
+          <PaginationWrapper>
+            <RowWrapper className="show-page-items">
+              {props.tableData?.length} Records
+            </RowWrapper>
+            <PaginationItemWrapper
+              className="t--table-widget-prev-page"
+              disabled={props.currentPageIndex === 0}
+              onClick={() => {
+                const pageNo =
+                  props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+                props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+              }}
+            >
+              <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
+            </PaginationItemWrapper>
+            <RowWrapper>
+              Page{" "}
+              <PageNumberInput
+                disabled={props.pageCount === 1}
+                pageCount={props.pageCount}
+                pageNo={props.pageNo + 1}
+                updatePageNo={props.updatePageNo}
+              />{" "}
+              of {props.pageCount}
+            </RowWrapper>
+            <PaginationItemWrapper
+              className="t--table-widget-next-page"
+              disabled={props.currentPageIndex === props.pageCount - 1}
+              onClick={() => {
+                const pageNo =
+                  props.currentPageIndex < props.pageCount - 1
+                    ? props.currentPageIndex + 1
+                    : 0;
+                props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+              }}
+            >
+              <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
+            </PaginationItemWrapper>
+          </PaginationWrapper>
+        )}
     </>
   );
 }
