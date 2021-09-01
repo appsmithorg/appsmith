@@ -92,10 +92,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                         .flatMap(userData -> {
                             List<GitConfig> gitConfigs = userData.getGitLocalConfigData();
                             for(GitConfig gitLocalConfig : gitConfigs) {
-                                if (gitLocalConfig.getRemoteUrl().equals(gitConfig.getRemoteUrl())) {
-                                    gitLocalConfig.setCommitEmail(gitLocalConfig.getCommitEmail());
-                                    gitLocalConfig.setUserName(user.getUsername());
-                                    gitLocalConfig.setCommitEmail(gitConfig.getCommitEmail());
+                                if (gitLocalConfig.getProfileName().equals(gitConfig.getProfileName())) {
+                                    gitLocalConfig.setAuthorEmail(gitLocalConfig.getAuthorEmail());
                                     gitLocalConfig.setPassword(gitConfig.getPassword());
                                     gitLocalConfig.setSshKey(gitConfig.getSshKey());
                                     gitLocalConfig.setProfileName(gitConfig.getProfileName());

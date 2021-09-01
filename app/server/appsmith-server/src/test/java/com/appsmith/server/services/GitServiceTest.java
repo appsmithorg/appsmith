@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -48,9 +47,8 @@ public class GitServiceTest {
     private GitConfig getConnectRequest(String url, String userName, String commitEmail, String password, String sshKey, boolean isSshKey, String profileName) {
         GitConfig gitConfig = new GitConfig();
         gitConfig.setUserName(userName);
-        gitConfig.setCommitEmail(commitEmail);
+        gitConfig.setAuthorEmail(commitEmail);
         gitConfig.setPassword(password);
-        gitConfig.setRemoteUrl(url);
         gitConfig.setProfileName(profileName);
         return gitConfig;
     }

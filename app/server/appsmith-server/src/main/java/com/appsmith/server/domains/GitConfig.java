@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -19,13 +20,17 @@ public class GitConfig implements AppsmithDomain {
 
     String profileName;
 
-    String userName;
+    String author;
 
-    String commitEmail;
+    String authorEmail;
 
+    @Transient
     String password;
 
-    String remoteUrl;
-
+    @Transient
     String sshKey;
+
+    @Transient
+    String userName;
+
 }
