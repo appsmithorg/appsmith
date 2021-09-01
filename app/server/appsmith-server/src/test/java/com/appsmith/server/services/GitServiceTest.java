@@ -61,6 +61,8 @@ public class GitServiceTest {
         return gitConfig;
     }
 
+
+    /*
     @Test
     @WithUserDetails(value = "api_user")
     public void saveConfig_gitConfigValues_SaveToUserObject() {
@@ -90,5 +92,6 @@ public class GitServiceTest {
                     assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO));
                 });
     }
+    */
 
 }

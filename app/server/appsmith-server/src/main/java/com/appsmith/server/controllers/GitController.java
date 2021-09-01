@@ -28,18 +28,18 @@ public class GitController extends BaseController<GitService, UserData, String> 
     }
 
     @PostMapping("/user")
-    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitGlobalConfigDTO) {
+    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitConfig) {
         //Add to the userData object - git config data
-        return gitService.saveGitConfigData(gitGlobalConfigDTO)
-                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+        return gitService.saveGitConfigData(gitConfig)
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
 
     }
 
     @PostMapping("/update")
-    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitConfig gitGlobalConfigDTO) {
-        //Add to the userData object - git config data
-        return gitService.updateGitConfigData(gitGlobalConfigDTO)
-                .map(gitConfig -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+    public Mono<ResponseDTO<String>> updateGitConfigData(@RequestBody GitConfig gitConfig) {
+        //update userData object - git config data
+        return gitService.updateGitConfigData(gitConfig)
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
 
     }
 }
