@@ -1,9 +1,15 @@
+import { APIResponseError } from "api/ApiResponses";
 import { Property } from "entities/Action";
 import _ from "lodash";
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
   password?: string;
+  label?: string;
+  value?: string;
+  addTo?: string;
+  bearerToken?: string;
+  authenticationStatus?: string;
 }
 
 export interface DatasourceColumns {
@@ -18,11 +24,13 @@ export interface DatasourceKeys {
 
 export interface DatasourceStructure {
   tables?: DatasourceTable[];
+  error?: APIResponseError;
 }
 
 export interface QueryTemplate {
   title: string;
   body: string;
+  pluginSpecifiedTemplates?: Array<{ key?: string; value?: unknown }>;
 }
 export interface DatasourceTable {
   type: string;
@@ -56,6 +64,7 @@ export const isEmbeddedRestDatasource = (
 export interface EmbeddedRestDatasource extends BaseDatasource {
   datasourceConfiguration: { url: string };
   invalids: Array<string>;
+  messages: Array<string>;
 }
 export interface Datasource extends BaseDatasource {
   id: string;
@@ -68,6 +77,15 @@ export interface Datasource extends BaseDatasource {
   };
   invalids?: string[];
   structure?: DatasourceStructure;
+  messages?: string[];
+}
+
+export interface MockDatasource {
+  name: string;
+  description: string;
+  packageName: string;
+  pluginType: string;
+  pluginName?: string;
 }
 
 export const DEFAULT_DATASOURCE = (
@@ -82,4 +100,5 @@ export const DEFAULT_DATASOURCE = (
   isValid: true,
   pluginId,
   organizationId,
+  messages: [],
 });

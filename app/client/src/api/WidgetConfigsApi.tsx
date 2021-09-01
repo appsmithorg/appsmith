@@ -1,4 +1,4 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { WidgetType } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";

@@ -3,7 +3,16 @@ import {
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
-import { TokenPasswordUpdateRequest, VerifyTokenRequest } from "api/UserApi";
+import {
+  TokenPasswordUpdateRequest,
+  UpdateUserRequest,
+  VerifyTokenRequest,
+} from "api/UserApi";
+
+export const logoutUser = (payload?: { redirectURL: string }) => ({
+  type: ReduxActionTypes.LOGOUT_USER_INIT,
+  payload,
+});
 
 export const logoutUserSuccess = () => ({
   type: ReduxActionTypes.LOGOUT_USER_SUCCESS,
@@ -37,7 +46,7 @@ export const verifyInviteError = (error: any) => ({
 export const invitedUserSignup = (
   payload: TokenPasswordUpdateRequest & { resolve: any; reject: any },
 ) => ({
-  type: ReduxActionTypes.INVITED_USER_SIGNUP,
+  type: ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
   payload,
 });
 
@@ -50,4 +59,44 @@ export const invitedUserSignupError = (error: any) => ({
   payload: {
     error,
   },
+});
+
+export const updateUserDetails = (payload: UpdateUserRequest) => ({
+  type: ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
+  payload,
+});
+
+export const updatePhoto = (payload: {
+  file: File;
+  callback?: () => void;
+}) => ({
+  type: ReduxActionTypes.UPLOAD_PROFILE_PHOTO,
+  payload,
+});
+
+export const removePhoto = (callback: () => void) => ({
+  type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
+  payload: { callback },
+});
+
+export const leaveOrganization = (orgId: string) => {
+  return {
+    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    payload: {
+      orgId,
+    },
+  };
+};
+
+export const fetchFeatureFlagsInit = () => ({
+  type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
+});
+
+export const fetchFeatureFlagsSuccess = () => ({
+  type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+});
+
+export const fetchFeatureFlagsError = (error: any) => ({
+  type: ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR,
+  payload: { error, show: false },
 });

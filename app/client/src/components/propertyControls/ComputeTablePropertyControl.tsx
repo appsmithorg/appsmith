@@ -1,7 +1,9 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -14,66 +16,64 @@ import styled from "styled-components";
 import {
   JSToString,
   stringToJS,
-} from "components/editorComponents/actioncreator/ActionCreator";
+} from "components/editorComponents/ActionCreator/Fields";
 
+const PromptMessage = styled.span`
+  line-height: 17px;
+`;
 const CurlyBraces = styled.span`
-  color: white;
-  background-color: #f3672a;
+  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
+  background-color: #ffffff;
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
+  font-size: 10px;
 `;
 
 export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
-  isValid: boolean;
-  errorMessage?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   placeholder?: string;
   dataTreePath?: string;
   additionalDynamicData: Record<string, Record<string, unknown>>;
+  theme: EditorTheme;
 }) {
   const {
-    errorMessage,
-    expected,
-    value,
-    isValid,
-    onChange,
-    placeholder,
+    additionalDynamicData,
     dataTreePath,
     evaluatedValue,
-    additionalDynamicData,
+    expected,
+    onChange,
+    placeholder,
+    theme,
+    value,
   } = props;
   return (
     <StyledDynamicInput>
       <CodeEditor
+        additionalDynamicData={additionalDynamicData}
+        dataTreePath={dataTreePath}
+        evaluatedValue={evaluatedValue}
+        expected={expected}
         input={{
           value: value,
           onChange: onChange,
         }}
-        evaluatedValue={evaluatedValue}
-        expected={expected}
-        dataTreePath={dataTreePath}
-        meta={{
-          error: isValid ? "" : errorMessage,
-          touched: true,
-        }}
-        theme={EditorTheme.DARK}
         mode={EditorModes.TEXT_WITH_BINDING}
-        tabBehaviour={TabBehaviour.INDENT}
-        size={EditorSize.EXTENDED}
         placeholder={placeholder}
-        additionalDynamicData={additionalDynamicData}
         promptMessage={
-          <React.Fragment>
+          <PromptMessage>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
             currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
-          </React.Fragment>
+          </PromptMessage>
         }
+        size={EditorSize.EXTENDED}
+        tabBehaviour={TabBehaviour.INDENT}
+        theme={theme}
       />
     </StyledDynamicInput>
   );
@@ -84,13 +84,12 @@ class ComputeTablePropertyControl extends BaseControl<
 > {
   render() {
     const {
-      expected,
-      propertyValue,
-      isValid,
-      label,
       dataTreePath,
-      validationMessage,
       defaultValue,
+      expected,
+      label,
+      propertyValue,
+      theme,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
     const value =
@@ -110,23 +109,22 @@ class ComputeTablePropertyControl extends BaseControl<
 
     return (
       <InputText
-        label={label}
-        value={value}
-        onChange={this.onTextChange}
-        isValid={isValid}
-        errorMessage={validationMessage}
-        expected={expected}
-        dataTreePath={dataTreePath}
         additionalDynamicData={{
           currentRow,
         }}
+        dataTreePath={dataTreePath}
+        expected={expected}
+        label={label}
+        onChange={this.onTextChange}
+        theme={theme}
+        value={value}
       />
     );
   }
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      `{{${tableId}.tableData.map((currentRow) => { return `.length,
+      `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
     )}`;
     const stringValue = JSToString(value);
@@ -136,7 +134,7 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
-    return `{{${tableId}.tableData.map((currentRow) => { return ${stringToEvaluate}})}}`;
+    return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {

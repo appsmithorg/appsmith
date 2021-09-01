@@ -1,92 +1,107 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, NumericInput } from "@blueprintjs/core";
+import { Icon, NumericInput, Keys } from "@blueprintjs/core";
 import {
   RowWrapper,
   PaginationWrapper,
-  TableHeaderWrapper,
   PaginationItemWrapper,
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 // import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
-import TableFilters, {
-  ReactTableFilter,
-} from "components/designSystems/appsmith/TableComponent/TableFilters";
+import TableFilters from "components/designSystems/appsmith/TableComponent/TableFilters";
 import {
   ReactTableColumnProps,
+  ReactTableFilter,
   CompactMode,
   TableSizes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
 import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 const PageNumberInputWrapper = styled(NumericInput)`
   &&& input {
     box-shadow: none;
+    border: 1px solid ${Colors.DANUBE};
     background: linear-gradient(0deg, ${Colors.WHITE}, ${Colors.WHITE}),
       ${Colors.POLAR};
-    border: 1px solid ${Colors.GREEN};
+    border-radius: none;
     box-sizing: border-box;
-    border-radius: 4px;
     width: 24px;
     height: 24px;
+    line-height: 24px;
     padding: 0 !important;
     text-align: center;
     font-size: 12px;
   }
+  &&&.bp3-control-group > :only-child {
+    border-radius: 0;
+  }
   margin: 0 8px;
 `;
 
-const PageNumberInput = (props: {
+function PageNumberInput(props: {
   pageNo: number;
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
-}) => {
+  disabled: boolean;
+}) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
   }, [props.pageNo]);
+  const handleUpdatePageNo = useCallback(
+    (e) => {
+      const oldPageNo = Number(props.pageNo || 0);
+      let page = Number(e.target.value);
+      // check page is less then min page count
+      if (isNaN(page) || page < 1) {
+        page = 1;
+      }
+      // check page is greater then max page count
+      if (page > props.pageCount) {
+        page = props.pageCount;
+      }
+      // fire Event based on new page number
+      if (oldPageNo < page) {
+        props.updatePageNo(page, EventType.ON_NEXT_PAGE);
+      } else if (oldPageNo > page) {
+        props.updatePageNo(page, EventType.ON_PREV_PAGE);
+      }
+      setPageNumber(page);
+    },
+    [props.pageNo, props.pageCount],
+  );
   return (
     <PageNumberInputWrapper
-      value={pageNumber}
-      min={1}
-      max={props.pageCount || 1}
       buttonPosition="none"
       clampValueOnBlur
-      onBlur={(e: any) => {
-        const oldPageNo = Number(props.pageNo || 0);
-        const value = e.target.value;
-        let page = Number(value);
-        if (isNaN(value) || Number(value) < 1) {
-          page = 1;
-        }
-        if (oldPageNo < page) {
-          props.updatePageNo(page, EventType.ON_NEXT_PAGE);
-        } else if (oldPageNo > page) {
-          props.updatePageNo(page, EventType.ON_PREV_PAGE);
+      className="t--table-widget-page-input"
+      disabled={props.disabled}
+      max={props.pageCount || 1}
+      min={1}
+      onBlur={handleUpdatePageNo}
+      onKeyDown={(e: any) => {
+        if (e.keyCode === Keys.ENTER) {
+          handleUpdatePageNo(e);
         }
       }}
       onValueChange={(value: number) => {
-        if (isNaN(value) || value < 1) {
-          setPageNumber(1);
-        } else if (value > props.pageCount) {
-          setPageNumber(props.pageCount);
-        } else {
-          setPageNumber(value);
-        }
+        setPageNumber(value);
       }}
+      value={pageNumber}
     />
   );
-};
+}
 
 interface TableHeaderProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
@@ -94,83 +109,93 @@ interface TableHeaderProps {
   pageOptions: number[];
   columns: ReactTableColumnProps[];
   hiddenColumns?: string[];
-  updateHiddenColumns: (hiddenColumns?: string[]) => void;
   widgetName: string;
+  widgetId: string;
   searchKey: string;
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  editMode: boolean;
   compactMode?: CompactMode;
   updateCompactMode: (compactMode: CompactMode) => void;
-  width: number;
   tableSizes: TableSizes;
+  isVisibleCompactMode?: boolean;
+  isVisibleDownload?: boolean;
+  isVisibleFilters?: boolean;
+  isVisiblePagination?: boolean;
+  isVisibleSearch?: boolean;
+  delimiter: string;
 }
 
-const TableHeader = (props: TableHeaderProps) => {
+function TableHeader(props: TableHeaderProps) {
   return (
-    <TableHeaderWrapper
-      serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-      width={props.width}
-      tableSizes={props.tableSizes}
-      backgroundColor={Colors.WHITE}
-    >
-      <SearchComponent
-        value={props.searchKey}
-        placeholder="Search..."
-        onSearch={props.searchTableData}
-      />
-      <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-        <TableFilters
-          columns={props.columns}
-          filters={props.filters}
-          applyFilter={props.applyFilter}
-          editMode={props.editMode}
+    <>
+      {props.isVisibleSearch && (
+        <SearchComponent
+          onSearch={props.searchTableData}
+          placeholder="Search..."
+          value={props.searchKey}
         />
-        <TableDataDownload
-          data={props.tableData}
-          columns={props.tableColumns}
-          widgetName={props.widgetName}
-        />
-        {/* {props.editMode && (
-          <TableColumnsVisibility
-            columns={props.columns}
-            hiddenColumns={props.hiddenColumns}
-            updateHiddenColumns={props.updateHiddenColumns}
-          />
-        )} */}
-        <TableCompactMode
-          compactMode={props.compactMode}
-          updateCompactMode={props.updateCompactMode}
-        />
-      </CommonFunctionsMenuWrapper>
-      {props.serverSidePaginationEnabled && (
+      )}
+      {(props.isVisibleFilters ||
+        props.isVisibleDownload ||
+        props.isVisibleCompactMode) && (
+        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+          {props.isVisibleFilters && (
+            <TableFilters
+              applyFilter={props.applyFilter}
+              columns={props.columns}
+              filters={props.filters}
+              widgetId={props.widgetId}
+            />
+          )}
+
+          {props.isVisibleDownload && (
+            <TableDataDownload
+              columns={props.tableColumns}
+              data={props.tableData}
+              delimiter={props.delimiter}
+              widgetName={props.widgetName}
+            />
+          )}
+
+          {props.isVisibleCompactMode && (
+            <TableCompactMode
+              compactMode={props.compactMode}
+              updateCompactMode={props.updateCompactMode}
+            />
+          )}
+        </CommonFunctionsMenuWrapper>
+      )}
+
+      {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
-            disabled={false}
+            disabled={props.pageNo === 0}
             onClick={() => {
               props.prevPageClick();
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
-          <PaginationItemWrapper selected className="page-item">
+          <PaginationItemWrapper className="page-item" selected>
             {props.pageNo + 1}
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={false}
+            disabled={
+              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
+            }
             onClick={() => {
               props.nextPageClick();
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-      {!props.serverSidePaginationEnabled && (
+      {props.isVisiblePagination && !props.serverSidePaginationEnabled && (
         <PaginationWrapper>
           <RowWrapper className="show-page-items">
             {props.tableData?.length} Records
@@ -184,14 +209,15 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
-            <Icon icon="chevron-left" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
           </PaginationItemWrapper>
           <RowWrapper>
             Page{" "}
             <PageNumberInput
+              disabled={props.pageCount === 1}
+              pageCount={props.pageCount}
               pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-              pageCount={props.pageCount}
             />{" "}
             of {props.pageCount}
           </RowWrapper>
@@ -206,12 +232,12 @@ const TableHeader = (props: TableHeaderProps) => {
               props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >
-            <Icon icon="chevron-right" iconSize={16} color={Colors.HIT_GRAY} />
+            <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
           </PaginationItemWrapper>
         </PaginationWrapper>
       )}
-    </TableHeaderWrapper>
+    </>
   );
-};
+}
 
 export default TableHeader;

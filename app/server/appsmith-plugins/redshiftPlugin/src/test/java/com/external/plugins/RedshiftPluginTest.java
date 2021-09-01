@@ -1,14 +1,15 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,30 +18,36 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import org.mockito.Mockito;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
 
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Date;
-import java.sql.Time;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the RedshiftPlugin
@@ -222,9 +229,9 @@ public class RedshiftPluginTest {
          */
         ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
         when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
-        when(mockResultSetMetaData.getColumnCount()).thenReturn(10);
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(0).thenReturn(10);
         when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "varchar", "varchar",
-        "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
+                "varchar", "date", "date", "time", "timetz", "timestamp", "timestamptz");
         when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "username", "password", "email",
                 "spouse_dob", "dob", "time1", "time_tz", "created_on", "created_on_tz");
 
@@ -267,6 +274,15 @@ public class RedshiftPluginTest {
                                     .keySet()
                                     .toArray()
                     );
+
+                    /*
+                     * - RequestParamDTO object only have attributes configProperty and value at this point.
+                     * - The other two RequestParamDTO attributes - label and type are null at this point.
+                     */
+                    List<RequestParamDTO> expectedRequestParams = new ArrayList<>();
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                            actionConfiguration.getBody(), null, null, null));
+                    assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
     }
@@ -366,8 +382,8 @@ public class RedshiftPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, campusTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "timestamptz", "now()"),
-                                    new DatasourceStructure.Column("name", "timestamptz", "now()")
+                                    new DatasourceStructure.Column("id", "timestamptz", "now()", false),
+                                    new DatasourceStructure.Column("name", "timestamptz", "now()", false)
                             },
                             campusTable.getColumns().toArray()
                     );
@@ -378,9 +394,9 @@ public class RedshiftPluginTest {
                     assertEquals(DatasourceStructure.TableType.TABLE, possessionsTable.getType());
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
-                                    new DatasourceStructure.Column("id", "int4", null),
-                                    new DatasourceStructure.Column("title", "varchar", null),
-                                    new DatasourceStructure.Column("user_id", "int4", null),
+                                    new DatasourceStructure.Column("id", "int4", null, false),
+                                    new DatasourceStructure.Column("title", "varchar", null, false),
+                                    new DatasourceStructure.Column("user_id", "int4", null, false)
                             },
                             possessionsTable.getColumns().toArray()
                     );
@@ -399,16 +415,16 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"possessions\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"possessions\" " +
-                                            "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);"),
+                                            "(\"id\", \"title\", \"user_id\")\n  VALUES (1, '', 1);", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"possessions\" SET\n" +
                                             "    \"id\" = 1\n" +
                                             "    \"title\" = ''\n" +
                                             "    \"user_id\" = 1\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"possessions\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             possessionsTable.getTemplates().toArray()
                     );
@@ -419,9 +435,9 @@ public class RedshiftPluginTest {
                     assertArrayEquals(
                             new DatasourceStructure.Column[]{
                                     new DatasourceStructure.Column("id", "int4", "\"identity\"(101507, " +
-                                            "0, '1,1'::text)"),
-                                    new DatasourceStructure.Column("username", "varchar", null),
-                                    new DatasourceStructure.Column("password", "varchar", null)
+                                            "0, '1,1'::text)", true),
+                                    new DatasourceStructure.Column("username", "varchar", null, false),
+                                    new DatasourceStructure.Column("password", "varchar", null, false)
                             },
                             usersTable.getColumns().toArray()
                     );
@@ -435,18 +451,98 @@ public class RedshiftPluginTest {
 
                     assertArrayEquals(
                             new DatasourceStructure.Template[]{
-                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;"),
+                                    new DatasourceStructure.Template("SELECT", "SELECT * FROM public.\"users\" LIMIT 10;", null),
                                     new DatasourceStructure.Template("INSERT", "INSERT INTO public.\"users\" (\"username\", \"password\")\n" +
-                                            "  VALUES ('', '');"),
+                                            "  VALUES ('', '');", null),
                                     new DatasourceStructure.Template("UPDATE", "UPDATE public.\"users\" SET\n" +
                                             "    \"username\" = ''\n" +
                                             "    \"password\" = ''\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                     new DatasourceStructure.Template("DELETE", "DELETE FROM public.\"users\"\n" +
-                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                                            "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null),
                             },
                             usersTable.getTemplates().toArray()
                     );
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testDuplicateColumnNames() throws SQLException {
+        /* Mock java.sql.Connection:
+         *      a. isClosed()
+         *      b. isValid()
+         */
+        Connection mockConnection = mock(Connection.class);
+        when(mockConnection.isClosed()).thenReturn(false);
+        when(mockConnection.isValid(Mockito.anyInt())).thenReturn(true);
+
+        /* Mock java.sql.Statement:
+         *      a. execute(...)
+         *      b. close()
+         */
+        Statement mockStatement = mock(Statement.class);
+        when(mockConnection.createStatement()).thenReturn(mockStatement);
+        when(mockStatement.execute(Mockito.any())).thenReturn(true);
+        doNothing().when(mockStatement).close();
+
+        /* Mock java.sql.ResultSet:
+         *      a. getObject(...)
+         *      d. next()
+         *      e. close()
+         */
+        ResultSet mockResultSet = mock(ResultSet.class);
+        when(mockStatement.getResultSet()).thenReturn(mockResultSet);
+        when(mockResultSet.getObject(Mockito.anyInt())).thenReturn("", 1, "", 1, "", "jill", "", "jill");
+        when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+        doNothing().when(mockResultSet).close();
+
+        /* Mock java.sql.ResultSetMetaData:
+         *      a. getColumnCount()
+         *      b. getColumnTypeName(...)
+         *      c. getColumnName(...)
+         */
+        ResultSetMetaData mockResultSetMetaData = mock(ResultSetMetaData.class);
+        when(mockResultSet.getMetaData()).thenReturn(mockResultSetMetaData);
+        when(mockResultSetMetaData.getColumnCount()).thenReturn(4);
+        when(mockResultSetMetaData.getColumnTypeName(Mockito.anyInt())).thenReturn("int4", "int4", "varchar",
+                "varchar");
+        when(mockResultSetMetaData.getColumnName(Mockito.anyInt())).thenReturn("id", "id", "username", "username");
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id, id, username, username FROM users WHERE id = 1");
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = Mono.just(mockConnection);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotEquals(0, result.getMessages().size());
+
+                    String expectedMessage = "Your Redshift query result may not have all the columns because " +
+                            "duplicate column names were found for the column(s)";
+                    assertTrue(
+                            result.getMessages().stream()
+                                    .anyMatch(message -> message.contains(expectedMessage))
+                    );
+
+                    /*
+                     * - Check if all of the duplicate column names are reported.
+                     */
+                    Set<String> expectedColumnNames = Stream.of("id", "username")
+                            .collect(Collectors.toCollection(HashSet::new));
+                    Set<String> foundColumnNames = new HashSet<>();
+                    result.getMessages().stream()
+                            .filter(message -> message.contains(expectedMessage))
+                            .forEach(message -> {
+                                Arrays.stream(message.split(":")[1].split("\\.")[0].split(","))
+                                        .forEach(columnName -> foundColumnNames.add(columnName.trim()));
+                            });
+                    assertTrue(expectedColumnNames.equals(foundColumnNames));
                 })
                 .verifyComplete();
     }

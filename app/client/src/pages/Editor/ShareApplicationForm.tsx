@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import { StyledSwitch } from "components/propertyControls/StyledControls";
+import Switch from "components/ads/Switch";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
@@ -27,15 +27,15 @@ const ShareToggle = styled.div`
   }
 `;
 
-export const ShareApplicationForm = (props: any) => {
+export function ShareApplicationForm(props: any) {
   const {
+    changeAppViewAccess,
+    currentApplicationDetails,
+    isChangingViewAccess,
+    isFetchingApplication,
     match: {
       params: { applicationId },
     },
-    isFetchingApplication,
-    isChangingViewAccess,
-    currentApplicationDetails,
-    changeAppViewAccess,
   } = props;
 
   return (
@@ -46,22 +46,22 @@ export const ShareApplicationForm = (props: any) => {
           <Spinner size={20} />
         )}
         {currentApplicationDetails && (
-          <StyledSwitch
+          <Switch
+            checked={currentApplicationDetails.isPublic}
+            disabled={isChangingViewAccess || isFetchingApplication}
+            large
             onChange={() => {
               changeAppViewAccess(
                 applicationId,
                 !currentApplicationDetails.isPublic,
               );
             }}
-            disabled={isChangingViewAccess || isFetchingApplication}
-            checked={currentApplicationDetails.isPublic}
-            large
           />
         )}
       </ShareToggle>
     </ShareWithPublicOption>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   currentApplicationDetails: state.ui.applications.currentApplication,

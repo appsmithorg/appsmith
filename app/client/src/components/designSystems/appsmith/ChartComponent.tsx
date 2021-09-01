@@ -1,36 +1,73 @@
-import _, { isString } from "lodash";
+import _, { get } from "lodash";
 import React from "react";
 import styled from "styled-components";
 
-import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import log from "loglevel";
+import { AllChartData, ChartDataPoint, ChartType } from "widgets/ChartWidget";
 import { getAppsmithConfigs } from "configs";
-import { ChartType, ChartData, ChartDataPoint } from "widgets/ChartWidget";
+import { getBorderCSSShorthand, invisible } from "constants/DefaultTheme";
+import {
+  LabelOrientation,
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+} from "constants/ChartConstants";
+
+export interface CustomFusionChartConfig {
+  type: string;
+  dataSource?: any;
+}
+
+export interface ChartSelectedDataPoint {
+  x: any;
+  y: any;
+  seriesTitle: string;
+}
 
 const FusionCharts = require("fusioncharts");
-const Charts = require("fusioncharts/fusioncharts.charts");
-const FusionTheme = require("fusioncharts/themes/fusioncharts.theme.fusion");
+const plugins: Record<string, any> = {
+  Charts: require("fusioncharts/fusioncharts.charts"),
+  FusionTheme: require("fusioncharts/themes/fusioncharts.theme.fusion"),
+  Widgets: require("fusioncharts/fusioncharts.widgets"),
+  ZoomScatter: require("fusioncharts/fusioncharts.zoomscatter"),
+  ZoomLine: require("fusioncharts/fusioncharts.zoomline"),
+  PowerCharts: require("fusioncharts/fusioncharts.powercharts"),
+  TimeSeries: require("fusioncharts/fusioncharts.timeseries"),
+  OverlappedColumn: require("fusioncharts/fusioncharts.overlappedcolumn2d"),
+  OverlappedBar: require("fusioncharts/fusioncharts.overlappedbar2d"),
+  TreeMap: require("fusioncharts/fusioncharts.treemap"),
+  Maps: require("fusioncharts/fusioncharts.maps"),
+  Gantt: require("fusioncharts/fusioncharts.gantt"),
+  VML: require("fusioncharts/fusioncharts.vml"),
+};
+
+// Enable all plugins.
+// This is needed to support custom chart configs
+Object.keys(plugins).forEach((key: string) =>
+  (plugins[key] as any)(FusionCharts),
+);
 
 const { fusioncharts } = getAppsmithConfigs();
-Charts(FusionCharts);
-FusionTheme(FusionCharts);
-
 FusionCharts.options.license({
   key: fusioncharts.licenseKey,
   creditLabel: false,
 });
 
 export interface ChartComponentProps {
+  allowHorizontalScroll: boolean;
+  chartData: AllChartData;
+  chartName: string;
   chartType: ChartType;
-  chartData: ChartData[];
+  customFusionChartConfig: CustomFusionChartConfig;
+  isVisible?: boolean;
+  labelOrientation?: LabelOrientation;
+  onDataPointClick: (selectedDataPoint: ChartSelectedDataPoint) => void;
+  widgetId: string;
   xAxisName: string;
   yAxisName: string;
-  chartName: string;
-  widgetId: string;
-  isVisible?: boolean;
-  allowHorizontalScroll: boolean;
 }
 
-const CanvasContainer = styled.div<ChartComponentProps>`
+const CanvasContainer = styled.div<
+  Omit<ChartComponentProps, "onDataPointClick">
+>`
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   border-radius: 0;
   height: 100%;
@@ -42,11 +79,18 @@ const CanvasContainer = styled.div<ChartComponentProps>`
   padding: 10px 0 0 0;
 }`;
 
+export const isLabelOrientationApplicableFor = (chartType: string) =>
+  LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);
+
 class ChartComponent extends React.Component<ChartComponentProps> {
   chartInstance = new FusionCharts();
+
+  chartContainerId = this.props.widgetId + "chart-container";
+
   getChartType = () => {
-    const { chartType, allowHorizontalScroll, chartData } = this.props;
-    const isMSChart = chartData.length > 1;
+    const { allowHorizontalScroll, chartData, chartType } = this.props;
+    const dataLength = Object.keys(chartData).length;
+    const isMSChart = dataLength > 1;
     switch (chartType) {
       case "PIE_CHART":
         return "pie2d";
@@ -80,8 +124,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartData = () => {
-    const chartData: ChartData[] = this.props.chartData;
-    if (chartData.length === 0) {
+    const chartData: AllChartData = this.props.chartData;
+    const dataLength = Object.keys(chartData).length;
+
+    // if datalength is zero, just pass a empty datum
+    if (dataLength === 0) {
       return [
         {
           label: "",
@@ -90,14 +137,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ];
     }
 
-    let data: ChartDataPoint[] = chartData[0].data;
-    if (isString(chartData[0].data)) {
-      try {
-        data = JSON.parse(chartData[0].data);
-      } catch (e) {
-        data = [];
-      }
+    const firstKey = Object.keys(chartData)[0] as string;
+    let data = get(chartData, `${firstKey}.data`, []) as ChartDataPoint[];
+
+    if (!Array.isArray(data)) {
+      data = [];
     }
+
     if (data.length === 0) {
       return [
         {
@@ -106,6 +152,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
         },
       ];
     }
+
     return data.map((item) => {
       return {
         label: item.x,
@@ -114,26 +161,36 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartCategoriesMutliSeries = (chartData: ChartData[]) => {
+  getChartCategoriesMultiSeries = (chartData: AllChartData) => {
     const categories: string[] = [];
-    for (let index = 0; index < chartData.length; index++) {
-      const data: ChartDataPoint[] = chartData[index].data;
+
+    Object.keys(chartData).forEach((key: string) => {
+      let data = get(chartData, `${key}.data`, []) as ChartDataPoint[];
+
+      if (!Array.isArray(data)) {
+        data = [];
+      }
+
       for (let dataIndex = 0; dataIndex < data.length; dataIndex++) {
         const category = data[dataIndex].x;
         if (!categories.includes(category)) {
           categories.push(category);
         }
       }
-    }
+    });
+
     return categories;
   };
 
-  getChartCategories = (chartData: ChartData[]) => {
-    const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
+  getChartCategories = (chartData: AllChartData) => {
+    const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
+
     if (categories.length === 0) {
-      return {
-        label: "",
-      };
+      return [
+        {
+          label: "",
+        },
+      ];
     }
     return categories.map((item) => {
       return {
@@ -144,7 +201,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   getSeriesChartData = (data: ChartDataPoint[], categories: string[]) => {
     const dataMap: { [key: string]: string } = {};
-    if (data.length === 0) {
+
+    // if not array or (is array and array length is zero)
+    if (!Array.isArray(data) || (Array.isArray(data) && data.length === 0)) {
       return [
         {
           value: "",
@@ -162,22 +221,57 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     });
   };
 
-  getChartDataset = (chartData: ChartData[]) => {
-    const categories: string[] = this.getChartCategoriesMutliSeries(chartData);
-    return chartData.map((item: ChartData) => {
+  /**
+   * creates dataset need by fusion chart  from widget object-data
+   *
+   * @param chartData
+   * @returns
+   */
+  getChartDataset = (chartData: AllChartData) => {
+    const categories: string[] = this.getChartCategoriesMultiSeries(chartData);
+
+    const dataset = Object.keys(chartData).map((key: string) => {
+      const item = get(chartData, `${key}`);
+
       const seriesChartData: Array<Record<
         string,
         unknown
-      >> = this.getSeriesChartData(item.data, categories);
+      >> = this.getSeriesChartData(get(item, "data", []), categories);
       return {
         seriesName: item.seriesName,
         data: seriesChartData,
       };
     });
+
+    return dataset;
+  };
+
+  getLabelOrientationConfig = () => {
+    switch (this.props.labelOrientation) {
+      case LabelOrientation.AUTO:
+        return {};
+      case LabelOrientation.ROTATE:
+        return {
+          labelDisplay: "rotate",
+          slantLabel: "0",
+        };
+      case LabelOrientation.SLANT:
+        return {
+          labelDisplay: "rotate",
+          slantLabel: "1",
+        };
+      case LabelOrientation.STAGGER:
+        return {
+          labelDisplay: "stagger",
+        };
+      default: {
+        return {};
+      }
+    }
   };
 
   getChartConfig = () => {
-    return {
+    let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
       yAxisName: this.props.yAxisName,
@@ -186,13 +280,25 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
     };
+
+    if (isLabelOrientationApplicableFor(this.props.chartType)) {
+      config = {
+        ...config,
+        ...this.getLabelOrientationConfig(),
+      };
+    }
+
+    return config;
+  };
+
+  getDatalength = () => {
+    return Object.keys(this.props.chartData).length;
   };
 
   getChartDataSource = () => {
-    if (
-      this.props.chartData.length <= 1 ||
-      this.props.chartType === "PIE_CHART"
-    ) {
+    const dataLength = this.getDatalength();
+
+    if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
       return {
         chart: this.getChartConfig(),
         data: this.getChartData(),
@@ -210,8 +316,26 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     }
   };
 
+  getCustomFusionChartDataSource = () => {
+    let config = this.props.customFusionChartConfig as CustomFusionChartConfig;
+    if (config && config.dataSource) {
+      config = {
+        ...config,
+        dataSource: {
+          ...config.dataSource,
+          chart: {
+            ...config.dataSource.chart,
+            caption: this.props.chartName || config.dataSource.chart.caption,
+          },
+        },
+      };
+    }
+    return config;
+  };
+
   getScrollChartDataSource = () => {
     const chartConfig = this.getChartConfig();
+
     return {
       chart: {
         ...chartConfig,
@@ -225,23 +349,82 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           category: this.getChartCategories(this.props.chartData),
         },
       ],
+      data: this.getChartData(),
       dataset: this.getChartDataset(this.props.chartData),
     };
   };
 
+  // return series title name for in clicked data point
+  getSeriesTitle = (data: any) => {
+    // custom chart have mentioned seriesName in dataSource
+    if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+      // custom chart have mentioned seriesName in dataSource
+      return get(
+        this.props,
+        `customFusionChartConfig.dataSource.seriesName`,
+        "",
+      );
+    } else {
+      const dataLength = this.getDatalength();
+      // if pie chart or other chart have single dataset,
+      // get seriesName from chartData
+      if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
+        const chartData: AllChartData = this.props.chartData;
+        const firstKey = Object.keys(chartData)[0] as string;
+        return get(chartData, `${firstKey}.seriesName`, "");
+      }
+      // other charts return datasetName from clicked data point
+      return get(data, "datasetName", "");
+    }
+  };
+
   createGraph = () => {
+    if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+      const chartConfig = {
+        renderAt: this.chartContainerId,
+        width: "100%",
+        height: "100%",
+        events: {
+          dataPlotClick: (evt: any) => {
+            const data = evt.data;
+            const seriesTitle = this.getSeriesTitle(data);
+            this.props.onDataPointClick({
+              x: data.categoryLabel,
+              y: data.dataValue,
+              seriesTitle,
+            });
+          },
+        },
+        ...this.getCustomFusionChartDataSource(),
+      };
+      this.chartInstance = new FusionCharts(chartConfig);
+      return;
+    }
     const dataSource =
       this.props.allowHorizontalScroll && this.props.chartType !== "PIE_CHART"
         ? this.getScrollChartDataSource()
         : this.getChartDataSource();
+
     const chartConfig = {
       type: this.getChartType(),
-      renderAt: this.props.widgetId + "chart-container",
+      renderAt: this.chartContainerId,
       width: "100%",
       height: "100%",
       dataFormat: "json",
       dataSource: dataSource,
+      events: {
+        dataPlotClick: (evt: any) => {
+          const data = evt.data;
+          const seriesTitle = this.getSeriesTitle(data);
+          this.props.onDataPointClick({
+            x: data.categoryLabel,
+            y: data.dataValue,
+            seriesTitle,
+          });
+        },
+      },
     };
+
     this.chartInstance = new FusionCharts(chartConfig);
   };
 
@@ -251,7 +434,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       /* Component could be unmounted before FusionCharts is ready,
       this check ensure we don't render on unmounted component */
       if (this.chartInstance) {
-        this.chartInstance.render();
+        try {
+          this.chartInstance.render();
+        } catch (e) {
+          log.error(e);
+        }
       }
     });
   }
@@ -264,6 +451,28 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
   componentDidUpdate(prevProps: ChartComponentProps) {
     if (!_.isEqual(prevProps, this.props)) {
+      if (this.props.chartType === "CUSTOM_FUSION_CHART") {
+        const chartConfig = {
+          renderAt: this.chartContainerId,
+          width: "100%",
+          height: "100%",
+          events: {
+            dataPlotClick: (evt: any) => {
+              const data = evt.data;
+              const seriesTitle = this.getSeriesTitle(data);
+              this.props.onDataPointClick({
+                x: data.categoryLabel,
+                y: data.dataValue,
+                seriesTitle,
+              });
+            },
+          },
+          ...this.getCustomFusionChartDataSource(),
+        };
+        this.chartInstance = new FusionCharts(chartConfig);
+        this.chartInstance.render();
+        return;
+      }
       const chartType = this.getChartType();
       this.chartInstance.chartType(chartType);
       if (
@@ -278,12 +487,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   }
 
   render() {
-    return (
-      <CanvasContainer
-        {...this.props}
-        id={this.props.widgetId + "chart-container"}
-      />
-    );
+    //eslint-disable-next-line  @typescript-eslint/no-unused-vars
+    const { onDataPointClick, ...rest } = this.props;
+    return <CanvasContainer {...rest} id={this.chartContainerId} />;
   }
 }
 

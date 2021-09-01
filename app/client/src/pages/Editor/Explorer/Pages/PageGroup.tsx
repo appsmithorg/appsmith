@@ -1,18 +1,19 @@
 import React, { memo, useCallback } from "react";
 import Entity from "../Entity";
-import { pageGroupIcon } from "../ExplorerIcons";
-import { noop } from "lodash";
+import { pageGroupIcon, settingsIcon } from "../ExplorerIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { createPage } from "actions/pageActions";
-import { useParams } from "react-router";
+import { useParams, useHistory } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { Page } from "constants/ReduxActionConstants";
 import ExplorerPageEntity from "./PageEntity";
 import { AppState } from "reducers";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { PAGE_LIST_EDITOR_URL } from "constants/routes";
 
 type ExplorerPageGroupProps = {
   searchKeyword?: string;
@@ -37,6 +38,7 @@ const pageGroupEqualityCheck = (
 };
 
 export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
+  const history = useHistory();
   const dispatch = useDispatch();
   const params = useParams<ExplorerURLParams>();
 
@@ -48,7 +50,11 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       "Page",
       pages.map((page: Page) => page.pageName),
     );
-    dispatch(createPage(params.applicationId, name));
+    // Default layout is extracted by adding dynamically computed properties like min-height.
+    const defaultPageLayouts = [
+      { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
+    ];
+    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
   }, [dispatch, pages, params.applicationId]);
 
   const pageEntities = pages.map((page) => {
@@ -59,15 +65,15 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       return null;
     return (
       <ExplorerPageEntity
-        key={page.pageId}
-        step={props.step + 1}
-        widgets={pageWidgets}
         actions={pageActions}
         datasources={datasources}
+        key={page.pageId}
+        page={page}
         plugins={props.plugins}
         searchKeyword={props.searchKeyword}
-        page={page}
         showWidgetsSidebar={props.showWidgetsSidebar}
+        step={props.step + 1}
+        widgets={pageWidgets}
       />
     );
   });
@@ -76,15 +82,23 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
 
   return (
     <Entity
-      name="Pages"
+      action={() =>
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
+      }
+      alwaysShowRightIcon
       className="group pages"
+      disabled
+      entityId="Pages"
       icon={pageGroupIcon}
       isDefaultExpanded
-      action={noop}
-      entityId="Pages"
-      step={props.step}
+      name="Pages"
+      onClickRightIcon={() => {
+        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+      }}
       onCreate={createPageCallback}
+      rightIcon={settingsIcon}
       searchKeyword={props.searchKeyword}
+      step={props.step}
     >
       {pageEntities}
     </Entity>

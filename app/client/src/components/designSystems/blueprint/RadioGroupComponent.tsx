@@ -48,17 +48,17 @@ class RadioGroupComponent extends React.Component<RadioGroupComponentProps> {
           </Label>
         )}
         <StyledRadioGroup
-          selectedValue={this.props.selectedOptionValue}
-          onChange={this.onRadioSelectionChange}
           disabled={this.props.isDisabled}
+          onChange={this.onRadioSelectionChange}
+          selectedValue={this.props.selectedOptionValue}
         >
           {this.props.options.map((option) => {
             return (
               <Radio
                 className={this.props.isLoading ? "bp3-skeleton" : ""}
+                key={option.value}
                 label={option.label}
                 value={option.value}
-                key={option.value}
               />
             );
           })}

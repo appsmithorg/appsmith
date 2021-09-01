@@ -1,11 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.MultiValueMap;
@@ -18,9 +19,15 @@ import java.util.Set;
 
 public interface NewActionService extends CrudService<NewAction, String> {
 
+    Boolean validateActionName(String name);
+
+    void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
+
     Mono<ActionDTO> generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
-    Mono<ActionDTO> createAction(ActionDTO action);
+    void generateAndSetActionPolicies(NewPage page, NewAction action);
+
+    Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction);
 
     NewAction extractAndSetJsonPathKeys(NewAction newAction);
 
@@ -31,6 +38,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     <T> T variableSubstitution(T configuration, Map<String, String> replaceParamsMap);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
+
+    Mono<ActionDTO> findActionDTObyIdAndViewMode(String id, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findUnpublishedOnLoadActionsExplicitSetByUserInPage(String pageId);
 
@@ -51,6 +60,8 @@ public interface NewActionService extends CrudService<NewAction, String> {
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
+
+    Mono<ActionDTO> populateHintMessages(ActionDTO action);
 
     Mono<NewAction> save(NewAction action);
 

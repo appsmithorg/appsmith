@@ -2,18 +2,7 @@ import React, { useMemo, useCallback, memo } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import history from "utils/history";
-import { flashElementById } from "utils/helpers";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  forceOpenPropertyPane,
-  showModal,
-  closeAllModals,
-} from "actions/widgetActions";
-import { useWidgetSelection } from "utils/hooks/dragResizeHooks";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidgetIcon } from "../ExplorerIcons";
 
@@ -21,68 +10,63 @@ import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import EntityProperties from "../Entity/EntityProperties";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import CurrentPageEntityProperties from "../Entity/CurrentPageEntityProperties";
+import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { useNavigateToWidget } from "./useNavigateToWidget";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 
 const UNREGISTERED_WIDGETS: WidgetType[] = [WidgetTypes.ICON_WIDGET];
 
-export const navigateToCanvas = (
-  params: ExplorerURLParams,
-  currentPath: string,
-  widgetPageId: string,
-  widgetId: string,
-) => {
-  const canvasEditorURL = `${BUILDER_PAGE_URL(
-    params.applicationId,
-    widgetPageId,
-  )}`;
-  if (currentPath !== canvasEditorURL) {
-    history.push(`${canvasEditorURL}#${widgetId}`);
-  }
-};
-
 const useWidget = (
   widgetId: string,
   widgetType: WidgetType,
   pageId: string,
+  widgetsInStep: string[],
+  isCurrentPage: boolean,
   parentModalId?: string,
 ) => {
-  const params = useParams<ExplorerURLParams>();
-  const dispatch = useDispatch();
-  const { selectWidget } = useWidgetSelection();
-  const selectedWidget = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidget,
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const lastSelectedWidget = useSelector(getSelectedWidget);
+  const isWidgetSelected = isCurrentPage && selectedWidgets.includes(widgetId);
+  const multipleWidgetsSelected = selectedWidgets.length > 1;
+
+  const { navigateToWidget } = useNavigateToWidget();
+
+  const boundNavigateToWidget = useCallback(
+    (e: any) => {
+      const isMultiSelect = e.metaKey || e.ctrlKey;
+      const isShiftSelect = e.shiftKey;
+      navigateToWidget(
+        widgetId,
+        widgetType,
+        pageId,
+        isWidgetSelected,
+        parentModalId,
+        isMultiSelect,
+        isShiftSelect,
+        widgetsInStep,
+      );
+    },
+    [
+      widgetId,
+      widgetType,
+      pageId,
+      isWidgetSelected,
+      parentModalId,
+      widgetsInStep,
+      navigateToWidget,
+    ],
   );
-  const isWidgetSelected = useMemo(() => selectedWidget === widgetId, [
-    selectedWidget,
-    widgetId,
-  ]);
 
-  const navigateToWidget = useCallback(() => {
-    if (widgetType === WidgetTypes.MODAL_WIDGET) {
-      dispatch(showModal(widgetId));
-      return;
-    }
-    if (parentModalId) dispatch(showModal(parentModalId));
-    else dispatch(closeAllModals());
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
-    flashElementById(widgetId);
-    if (!isWidgetSelected) selectWidget(widgetId);
-    dispatch(forceOpenPropertyPane(widgetId));
-  }, [
-    dispatch,
-    params,
-    selectWidget,
-    widgetType,
-    widgetId,
-    parentModalId,
-    pageId,
+  return {
+    navigateToWidget: boundNavigateToWidget,
     isWidgetSelected,
-  ]);
-
-  return { navigateToWidget, isWidgetSelected };
+    multipleWidgetsSelected,
+    lastSelectedWidget,
+  };
 };
 
 export type WidgetEntityProps = {
@@ -95,84 +79,112 @@ export type WidgetEntityProps = {
   parentModalId?: string;
   searchKeyword?: string;
   isDefaultExpanded?: boolean;
+  widgetsInStep: string[];
 };
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
-  const { pageId } = useParams<ExplorerURLParams>();
+  const currentPageId = useSelector(getCurrentPageId);
+
   const widgetsToExpand = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestory,
+    (state: AppState) => state.ui.widgetDragResize.selectedWidgetAncestry,
   );
-  let shouldExpand = false;
-  if (widgetsToExpand.includes(props.widgetId)) shouldExpand = true;
-  const { navigateToWidget, isWidgetSelected } = useWidget(
+
+  const shouldExpand = widgetsToExpand.includes(props.widgetId);
+  const isCurrentPage = props.pageId === currentPageId;
+
+  const {
+    isWidgetSelected,
+    lastSelectedWidget,
+    multipleWidgetsSelected,
+    navigateToWidget,
+  } = useWidget(
     props.widgetId,
     props.widgetType,
     props.pageId,
+    props.widgetsInStep,
+    isCurrentPage,
     props.parentModalId,
   );
 
-  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1)
-    return <React.Fragment />;
+  const { parentModalId, widgetId, widgetType } = props;
+  /**
+   * While navigating to a widget we need to show a modal if the widget is nested within it
+   * Since the immediate parent for the widget would be a canvas instead of the modal,
+   * so we track the immediate modal parent for the widget
+   */
+  const parentModalIdForChildren = useMemo(() => {
+    return widgetType === "MODAL_WIDGET" ? widgetId : parentModalId;
+  }, [widgetType, widgetId, parentModalId]);
+
+  if (UNREGISTERED_WIDGETS.indexOf(props.widgetType) > -1) return null;
 
   const contextMenu = (
     <WidgetContextMenu
-      widgetId={props.widgetId}
-      pageId={props.pageId}
       className={EntityClassNames.CONTEXT_MENU}
+      pageId={props.pageId}
+      widgetId={props.widgetId}
     />
   );
 
+  const showContextMenu = isCurrentPage && !multipleWidgetsSelected;
+  const widgetsInStep = props?.childWidgets
+    ? props?.childWidgets?.map((child) => child.widgetId)
+    : [];
+
   return (
     <Entity
-      key={props.widgetId}
-      className="widget"
-      active={isWidgetSelected}
       action={navigateToWidget}
-      icon={getWidgetIcon(props.widgetType)}
-      name={props.widgetName}
+      active={isWidgetSelected}
+      className="widget"
+      contextMenu={showContextMenu && contextMenu}
       entityId={props.widgetId}
-      step={props.step}
-      updateEntityName={props.pageId === pageId ? updateWidgetName : undefined}
-      searchKeyword={props.searchKeyword}
+      highlight={isCurrentPage && lastSelectedWidget === props.widgetId}
+      icon={getWidgetIcon(props.widgetType)}
       isDefaultExpanded={
         shouldExpand ||
         (!!props.searchKeyword && !!props.childWidgets) ||
         !!props.isDefaultExpanded
       }
-      contextMenu={props.pageId === pageId && contextMenu}
+      key={props.widgetId}
+      name={props.widgetName}
+      searchKeyword={props.searchKeyword}
+      step={props.step}
+      updateEntityName={isCurrentPage ? updateWidgetName : undefined}
     >
       {props.childWidgets &&
         props.childWidgets.length > 0 &&
         props.childWidgets.map((child) => (
           <WidgetEntity
+            childWidgets={child.children}
+            key={child.widgetId}
+            pageId={props.pageId}
+            parentModalId={parentModalIdForChildren}
+            searchKeyword={props.searchKeyword}
             step={props.step + 1}
             widgetId={child.widgetId}
             widgetName={child.widgetName}
             widgetType={child.type}
-            childWidgets={child.children}
-            key={child.widgetId}
-            searchKeyword={props.searchKeyword}
-            pageId={props.pageId}
+            widgetsInStep={widgetsInStep}
           />
         ))}
       {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId === props.pageId && (
+        isCurrentPage && (
           <CurrentPageEntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
             entityName={props.widgetName}
+            entityType={ENTITY_TYPE.WIDGET}
+            key={props.widgetId}
             step={props.step + 1}
           />
         )}
       {!(props.childWidgets && props.childWidgets.length > 0) &&
-        pageId !== props.pageId && (
+        !isCurrentPage && (
           <EntityProperties
-            key={props.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            entityName={props.widgetName}
-            step={props.step + 1}
-            pageId={props.pageId}
             entityId={props.widgetId}
+            entityName={props.widgetName}
+            entityType={ENTITY_TYPE.WIDGET}
+            key={props.widgetId}
+            pageId={props.pageId}
+            step={props.step + 1}
           />
         )}
     </Entity>

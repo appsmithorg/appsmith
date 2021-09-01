@@ -7,10 +7,10 @@ import styled from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { FormIcons } from "icons/FormIcons";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { ActionCreator } from "components/editorComponents/actioncreator/ActionCreator";
-
+import { ActionCreator } from "components/editorComponents/ActionCreator";
+import { Size, Category } from "components/ads/Button";
 export interface ColumnAction {
-  label: string;
+  label?: string;
   id: string;
   dynamicTrigger: string;
 }
@@ -20,6 +20,9 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   right: 0px;
   cursor: pointer;
   top: 0px;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const InputTextWrapper = styled.div`
@@ -36,7 +39,7 @@ class ColumnActionSelectorControl extends BaseControl<
 > {
   render() {
     return (
-      <React.Fragment>
+      <>
         {this.props.propertyValue &&
           this.props.propertyValue.map((columnAction: ColumnAction) => {
             return (
@@ -48,43 +51,44 @@ class ColumnActionSelectorControl extends BaseControl<
               >
                 <InputTextWrapper>
                   <InputText
-                    label={columnAction.label}
-                    value={columnAction.label}
+                    evaluatedValue={columnAction.label}
+                    label={columnAction.label || ""}
                     onChange={this.updateColumnActionLabel.bind(
                       this,
                       columnAction,
                     )}
-                    evaluatedValue={columnAction.label}
-                    isValid={true}
+                    theme={this.props.theme}
+                    value={columnAction.label as string}
                   />
                 </InputTextWrapper>
                 <Wrapper>
                   <ActionCreator
-                    value={columnAction.dynamicTrigger}
-                    isValid={(columnAction as any).isValid}
-                    validationMessage={(columnAction as any).message}
                     onValueChange={this.updateColumnActionFunction.bind(
                       this,
                       columnAction,
                     )}
+                    value={columnAction.dynamicTrigger}
                   />
                 </Wrapper>
                 <StyledDeleteIcon
                   height={20}
-                  width={20}
                   onClick={this.removeColumnAction.bind(this, columnAction)}
+                  width={20}
                 />
               </div>
             );
           })}
+
         <StyledPropertyPaneButton
-          text={"New Button"}
-          icon={"plus"}
-          color={"#FFFFFF"}
-          minimal={true}
+          category={Category.tertiary}
+          icon="plus"
           onClick={this.addColumnAction}
+          size={Size.medium}
+          tag="button"
+          text="New Button"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 

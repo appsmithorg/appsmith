@@ -35,11 +35,13 @@ const StyledLoader = styled.div`
   }
 `;
 
-const PageLoadingBar = () => (
-  <StyledLoader>
-    <div className="line" />
-    <div className="subline inc" />
-  </StyledLoader>
-);
+function PageLoadingBar() {
+  return (
+    <StyledLoader>
+      <div className="line" />
+      <div className="subline inc" />
+    </StyledLoader>
+  );
+}
 
 export default PageLoadingBar;

@@ -14,7 +14,7 @@ import { debounce } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
 import produce from "immer";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructure";
+import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -27,8 +27,9 @@ const findWidgets = (widgets: CanvasStructure, keyword: string) => {
       ),
     );
   }
-  if (widgetNameMached || (widgets.children && widgets.children.length > 0))
+  if (widgetNameMached || (widgets.children && widgets.children.length > 0)) {
     return widgets;
+  }
 };
 
 const findDataSources = (dataSources: Datasource[], keyword: string) => {
@@ -43,6 +44,7 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
     return state.entities.datasources.list;
   });
   const actions = useActions();
+  const pageIds = usePageIds(searchKeyword);
 
   const datasources = useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
@@ -67,11 +69,17 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
 
   return useMemo(() => {
     if (searchKeyword) {
+      const start = performance.now();
       const filteredDatasources = produce(datasources, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
-          draft[key] = findDataSources(value, searchKeyword);
+          if (pageIds.includes(key)) {
+            draft[key] = value;
+          } else {
+            draft[key] = findDataSources(value, searchKeyword);
+          }
         }
       });
+      log.debug("Filtered datasources in:", performance.now() - start, "ms");
       return filteredDatasources;
     }
 
@@ -83,6 +91,7 @@ export const useActions = (searchKeyword?: string) => {
   const reducerActions = useSelector(
     (state: AppState) => state.entities.actions,
   );
+  const pageIds = usePageIds(searchKeyword);
 
   const actions = useMemo(() => {
     return groupBy(reducerActions, "config.pageId");
@@ -93,17 +102,21 @@ export const useActions = (searchKeyword?: string) => {
       const start = performance.now();
       const filteredActions = produce(actions, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
-          value.forEach((action, index) => {
-            const searchMatches =
-              action.config.name
-                .toLowerCase()
-                .indexOf(searchKeyword.toLowerCase()) > -1;
-            if (searchMatches) {
-              draft[key][index] = action;
-            } else {
-              delete draft[key][index];
-            }
-          });
+          if (pageIds.includes(key)) {
+            draft[key] = value;
+          } else {
+            value.forEach((action, index) => {
+              const searchMatches =
+                action.config.name
+                  .toLowerCase()
+                  .indexOf(searchKeyword.toLowerCase()) > -1;
+              if (searchMatches) {
+                draft[key][index] = action;
+              } else {
+                delete draft[key][index];
+              }
+            });
+          }
           draft[key] = draft[key].filter(Boolean);
         }
       });
@@ -118,16 +131,22 @@ export const useWidgets = (searchKeyword?: string) => {
   const pageCanvasStructures = useSelector(
     (state: AppState) => state.ui.pageCanvasStructure,
   );
+  const pageIds = usePageIds(searchKeyword);
+
   return useMemo(() => {
     if (searchKeyword && pageCanvasStructures) {
       const start = performance.now();
       const filteredDSLs = produce(pageCanvasStructures, (draft) => {
         for (const [key, value] of Object.entries(draft)) {
-          const filteredWidgets = findWidgets(
-            value,
-            searchKeyword.toLowerCase(),
-          ) as WidgetProps;
-          draft[key] = filteredWidgets;
+          if (pageIds.includes(key)) {
+            draft[key] = value;
+          } else {
+            const filteredWidgets = findWidgets(
+              value,
+              searchKeyword.toLowerCase(),
+            ) as WidgetProps;
+            draft[key] = filteredWidgets;
+          }
         }
       });
       log.debug("Filtered widgets in: ", performance.now() - start, "ms");
@@ -135,6 +154,31 @@ export const useWidgets = (searchKeyword?: string) => {
     }
     return pageCanvasStructures;
   }, [searchKeyword, pageCanvasStructures]);
+};
+
+export const usePageIds = (searchKeyword?: string) => {
+  const pages = useSelector((state: AppState) => {
+    return state.entities.pageList.pages;
+  });
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const filteredPages = produce(pages, (draft) => {
+        draft.forEach((page, index) => {
+          const searchMatches =
+            page.pageName.toLowerCase().indexOf(searchKeyword.toLowerCase()) >
+            -1;
+          if (searchMatches) {
+          } else {
+            delete draft[index];
+          }
+        });
+      });
+
+      return filteredPages.map((page) => page.pageId);
+    }
+    return pages.map((page) => page.pageId);
+  }, [searchKeyword, pages]);
 };
 
 export const useFilteredEntities = (

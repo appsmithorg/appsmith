@@ -1,5 +1,5 @@
 {
-    "!name": "moment",
+    "!name": "LIB/moment",
     "moment": {
         "!type": "fn(inp?: MomentInput, format?: MomentFormatSpecification, strict?: boolean) -> Moment",
         "!url": "https://momentjs.com/docs/#/parsing/",
@@ -469,7 +469,7 @@
             "!doc": "A global locale configuration can be problematic when passing around moments that may need to be formatted into different locale"
         },
         "localeData": {
-            "!type": "fn() -> Locale"            
+            "!type": "fn() -> Locale"
         },
         "toObject": {
             "!type": "fn() -> MomentObjectOutput",

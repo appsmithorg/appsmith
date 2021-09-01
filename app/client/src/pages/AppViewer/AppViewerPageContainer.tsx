@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { RouteComponentProps, Link } from "react-router-dom";
+import { Link, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
@@ -8,7 +8,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 import { AppViewerRouteParams, BUILDER_PAGE_URL } from "constants/routes";
 import { AppState } from "reducers";
 import { theme } from "constants/DefaultTheme";
-import { NonIdealState, Icon, Spinner } from "@blueprintjs/core";
+import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import {
@@ -26,8 +26,9 @@ import { fetchPublishedPage } from "actions/pageActions";
 
 const Section = styled.section`
   background: ${(props) => props.theme.colors.artboard};
-  height: 100%;
-  width: 100%;
+  height: max-content;
+  min-height: 100%;
+  margin: 0 auto;
   position: relative;
   overflow-x: auto;
   overflow-y: auto;
@@ -77,15 +78,15 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     const pageNotFound = (
       <Centered>
         <NonIdealState
+          description={appsmithEditorLink}
           icon={
             <Icon
-              iconSize={theme.fontSizes[9]}
-              icon="page-layout"
               color={theme.colors.primaryOld}
+              icon="page-layout"
+              iconSize={theme.fontSizes[9]}
             />
           }
           title="This page seems to be blank"
-          description={appsmithEditorLink}
         />
       </Centered>
     );
@@ -96,21 +97,16 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
     );
     if (this.props.isFetchingPage) {
       return pageLoading;
-    } else if (
-      !this.props.isFetchingPage &&
-      !(
-        this.props.widgets &&
-        this.props.widgets.children &&
-        this.props.widgets.children.length > 0
-      )
-    ) {
-      return pageNotFound;
     } else if (!this.props.isFetchingPage && this.props.widgets) {
       return (
         <Section>
+          {!(
+            this.props.widgets.children &&
+            this.props.widgets.children.length > 0
+          ) && pageNotFound}
           <AppPage
-            dsl={this.props.widgets}
             appName={this.props.currentAppName}
+            dsl={this.props.widgets}
             pageId={this.props.match.params.pageId}
             pageName={this.props.currentPageName}
           />
@@ -124,14 +120,13 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
 
 const mapStateToProps = (state: AppState) => {
   const currentApp = getCurrentApplication(state);
-  const props = {
+  return {
     isFetchingPage: getIsFetchingPage(state),
     widgets: getCanvasWidgetDsl(state),
     currentPageName: getCurrentPageName(state),
     currentAppName: currentApp?.name,
     currentAppPermissions: currentApp?.userPermissions,
   };
-  return props;
 };
 
 const mapDispatchToProps = (dispatch: any) => ({

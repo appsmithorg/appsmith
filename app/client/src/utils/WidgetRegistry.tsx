@@ -44,7 +44,7 @@ import TabsWidget, {
   TabsWidgetProps,
   TabContainerWidgetProps,
   ProfiledTabsWidget,
-} from "widgets/TabsWidget";
+} from "widgets/Tabs/TabsWidget";
 import {
   ModalWidgetProps,
   ProfiledModalWidget,
@@ -67,10 +67,19 @@ import FilePickerWidget, {
   FilePickerWidgetProps,
   ProfiledFilePickerWidget,
 } from "widgets/FilepickerWidget";
+
+import FilePickerWidgetV2, {
+  FilePickerWidgetV2Props,
+  ProfiledFilePickerWidgetV2,
+} from "widgets/FilepickerWidgetV2";
 import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
 } from "widgets/DatePickerWidget";
+import DatePickerWidget2, {
+  DatePickerWidget2Props,
+  ProfiledDatePickerWidget2,
+} from "widgets/DatePickerWidget2";
 import FormWidget, { ProfiledFormWidget } from "widgets/FormWidget";
 import FormButtonWidget, {
   FormButtonWidgetProps,
@@ -86,6 +95,12 @@ import SkeletonWidget, {
   ProfiledSkeletonWidget,
   SkeletonWidgetProps,
 } from "../widgets/SkeletonWidget";
+
+import ListWidget, {
+  ListWidgetProps,
+  ProfiledListWidget,
+} from "widgets/ListWidget/ListWidget";
+
 import SwitchWidget, {
   ProfiledSwitchWidget,
   SwitchWidgetProps,
@@ -94,6 +109,38 @@ import JsonViewWidget, {
   JsonViewWidgetProps,
   ProfiledJsonViewWidget,
 } from "../widgets/JsonView";
+import DividerWidget, {
+  ProfiledDividerWidget,
+  DividerWidgetProps,
+} from "widgets/DividerWidget";
+import TabsMigratorWidget, {
+  ProfiledTabsMigratorWidget,
+} from "widgets/Tabs/TabsMigrator";
+import MultiSelectWidget, {
+  MultiSelectWidgetProps,
+  ProfiledMultiSelectWidget,
+} from "widgets/MultiSelectWidget";
+import RateWidget, {
+  RateWidgetProps,
+  ProfiledRateWidget,
+} from "widgets/RateWidget";
+import IframeWidget, {
+  IframeWidgetProps,
+  ProfiledIframeWidget,
+} from "widgets/IframeWidget";
+import MenuButtonWidget, {
+  MenuButtonWidgetProps,
+  ProfiledMenuButtonWidget,
+} from "widgets/MenuButtonWidget";
+import IconButtonWidget, {
+  IconButtonWidgetProps,
+  ProfiledIconButtonWidget,
+} from "widgets/IconButtonWidget";
+import CheckboxGroupWidget, {
+  CheckboxGroupWidgetProps,
+  ProfiledCheckboxGroupWidget,
+} from "widgets/CheckboxGroupWidget";
+
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
     WidgetFactory.registerWidgetBuilder(
@@ -105,9 +152,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledContainerWidget {...widgetData} />;
         },
       },
-      ContainerWidget.getPropertyValidationMap(),
       ContainerWidget.getDerivedPropertiesMap(),
-      ContainerWidget.getTriggerPropertyMap(),
       ContainerWidget.getDefaultPropertiesMap(),
       ContainerWidget.getMetaPropertiesMap(),
       ContainerWidget.getPropertyPaneConfig(),
@@ -120,9 +165,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTextWidget {...widgetData} />;
         },
       },
-      TextWidget.getPropertyValidationMap(),
       TextWidget.getDerivedPropertiesMap(),
-      TextWidget.getTriggerPropertyMap(),
       TextWidget.getDefaultPropertiesMap(),
       TextWidget.getMetaPropertiesMap(),
       TextWidget.getPropertyPaneConfig(),
@@ -135,9 +178,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledButtonWidget {...widgetData} />;
         },
       },
-      ButtonWidget.getPropertyValidationMap(),
       ButtonWidget.getDerivedPropertiesMap(),
-      ButtonWidget.getTriggerPropertyMap(),
       ButtonWidget.getDefaultPropertiesMap(),
       ButtonWidget.getMetaPropertiesMap(),
       ButtonWidget.getPropertyPaneConfig(),
@@ -150,9 +191,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledInputWidget {...widgetData} />;
         },
       },
-      InputWidget.getPropertyValidationMap(),
       InputWidget.getDerivedPropertiesMap(),
-      InputWidget.getTriggerPropertyMap(),
       InputWidget.getDefaultPropertiesMap(),
       InputWidget.getMetaPropertiesMap(),
       InputWidget.getPropertyPaneConfig(),
@@ -165,9 +204,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledCheckboxWidget {...widgetData} />;
         },
       },
-      CheckboxWidget.getPropertyValidationMap(),
       CheckboxWidget.getDerivedPropertiesMap(),
-      CheckboxWidget.getTriggerPropertyMap(),
       CheckboxWidget.getDefaultPropertiesMap(),
       CheckboxWidget.getMetaPropertiesMap(),
       CheckboxWidget.getPropertyPaneConfig(),
@@ -180,9 +217,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledSwitchWidget {...widgetData} />;
         },
       },
-      SwitchWidget.getPropertyValidationMap(),
       SwitchWidget.getDerivedPropertiesMap(),
-      SwitchWidget.getTriggerPropertyMap(),
       SwitchWidget.getDefaultPropertiesMap(),
       SwitchWidget.getMetaPropertiesMap(),
       SwitchWidget.getPropertyPaneConfig(),
@@ -195,9 +230,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledDropDownWidget {...widgetData} />;
         },
       },
-      DropdownWidget.getPropertyValidationMap(),
       DropdownWidget.getDerivedPropertiesMap(),
-      DropdownWidget.getTriggerPropertyMap(),
       DropdownWidget.getDefaultPropertiesMap(),
       DropdownWidget.getMetaPropertiesMap(),
       DropdownWidget.getPropertyPaneConfig(),
@@ -210,9 +243,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledRadioGroupWidget {...widgetData} />;
         },
       },
-      RadioGroupWidget.getPropertyValidationMap(),
       RadioGroupWidget.getDerivedPropertiesMap(),
-      RadioGroupWidget.getTriggerPropertyMap(),
       RadioGroupWidget.getDefaultPropertiesMap(),
       RadioGroupWidget.getMetaPropertiesMap(),
       RadioGroupWidget.getPropertyPaneConfig(),
@@ -225,9 +256,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledImageWidget {...widgetData} />;
         },
       },
-      ImageWidget.getPropertyValidationMap(),
       ImageWidget.getDerivedPropertiesMap(),
-      ImageWidget.getTriggerPropertyMap(),
       ImageWidget.getDefaultPropertiesMap(),
       ImageWidget.getMetaPropertiesMap(),
       ImageWidget.getPropertyPaneConfig(),
@@ -239,9 +268,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTableWidget {...widgetData} />;
         },
       },
-      TableWidget.getPropertyValidationMap(),
       TableWidget.getDerivedPropertiesMap(),
-      TableWidget.getTriggerPropertyMap(),
       TableWidget.getDefaultPropertiesMap(),
       TableWidget.getMetaPropertiesMap(),
       TableWidget.getPropertyPaneConfig(),
@@ -254,9 +281,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledVideoWidget {...widgetData} />;
         },
       },
-      VideoWidget.getPropertyValidationMap(),
       VideoWidget.getDerivedPropertiesMap(),
-      VideoWidget.getTriggerPropertyMap(),
       VideoWidget.getDefaultPropertiesMap(),
       VideoWidget.getMetaPropertiesMap(),
       VideoWidget.getPropertyPaneConfig(),
@@ -269,13 +294,25 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFilePickerWidget {...widgetData} />;
         },
       },
-      FilePickerWidget.getPropertyValidationMap(),
       FilePickerWidget.getDerivedPropertiesMap(),
-      FilePickerWidget.getTriggerPropertyMap(),
       FilePickerWidget.getDefaultPropertiesMap(),
       FilePickerWidget.getMetaPropertiesMap(),
       FilePickerWidget.getPropertyPaneConfig(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FILE_PICKER_WIDGET_V2",
+      {
+        buildWidget(widgetData: FilePickerWidgetV2Props): JSX.Element {
+          return <ProfiledFilePickerWidgetV2 {...widgetData} />;
+        },
+      },
+      FilePickerWidgetV2.getDerivedPropertiesMap(),
+      FilePickerWidgetV2.getDefaultPropertiesMap(),
+      FilePickerWidgetV2.getMetaPropertiesMap(),
+      FilePickerWidgetV2.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
       {
@@ -283,12 +320,22 @@ export default class WidgetBuilderRegistry {
           return <ProfiledDatePickerWidget {...widgetData} />;
         },
       },
-      DatePickerWidget.getPropertyValidationMap(),
       DatePickerWidget.getDerivedPropertiesMap(),
-      DatePickerWidget.getTriggerPropertyMap(),
       DatePickerWidget.getDefaultPropertiesMap(),
       DatePickerWidget.getMetaPropertiesMap(),
       DatePickerWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "DATE_PICKER_WIDGET2",
+      {
+        buildWidget(widgetData: DatePickerWidget2Props): JSX.Element {
+          return <ProfiledDatePickerWidget2 {...widgetData} />;
+        },
+      },
+      DatePickerWidget2.getDerivedPropertiesMap(),
+      DatePickerWidget2.getDefaultPropertiesMap(),
+      DatePickerWidget2.getMetaPropertiesMap(),
+      DatePickerWidget2.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       "TABS_WIDGET",
@@ -299,12 +346,24 @@ export default class WidgetBuilderRegistry {
           return <ProfiledTabsWidget {...widgetProps} />;
         },
       },
-      TabsWidget.getPropertyValidationMap(),
       TabsWidget.getDerivedPropertiesMap(),
-      TabsWidget.getTriggerPropertyMap(),
       TabsWidget.getDefaultPropertiesMap(),
       TabsWidget.getMetaPropertiesMap(),
       TabsWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "TABS_MIGRATOR_WIDGET",
+      {
+        buildWidget(
+          widgetProps: TabsWidgetProps<TabContainerWidgetProps>,
+        ): JSX.Element {
+          return <ProfiledTabsMigratorWidget {...widgetProps} />;
+        },
+      },
+      TabsMigratorWidget.getDerivedPropertiesMap(),
+      TabsMigratorWidget.getDefaultPropertiesMap(),
+      TabsMigratorWidget.getMetaPropertiesMap(),
+      TabsMigratorWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.MODAL_WIDGET,
@@ -313,9 +372,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledModalWidget {...widgetProps} />;
         },
       },
-      BaseWidget.getPropertyValidationMap(),
       BaseWidget.getDerivedPropertiesMap(),
-      BaseWidget.getTriggerPropertyMap(),
       BaseWidget.getDefaultPropertiesMap(),
       BaseWidget.getMetaPropertiesMap(),
       ModalWidget.getPropertyPaneConfig(),
@@ -327,9 +384,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledRichTextEditorWidget {...widgetData} />;
         },
       },
-      RichTextEditorWidget.getPropertyValidationMap(),
       RichTextEditorWidget.getDerivedPropertiesMap(),
-      RichTextEditorWidget.getTriggerPropertyMap(),
       RichTextEditorWidget.getDefaultPropertiesMap(),
       RichTextEditorWidget.getMetaPropertiesMap(),
       RichTextEditorWidget.getPropertyPaneConfig(),
@@ -341,9 +396,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledChartWidget {...widgetData} />;
         },
       },
-      ChartWidget.getPropertyValidationMap(),
       ChartWidget.getDerivedPropertiesMap(),
-      ChartWidget.getTriggerPropertyMap(),
       ChartWidget.getDefaultPropertiesMap(),
       ChartWidget.getMetaPropertiesMap(),
       ChartWidget.getPropertyPaneConfig(),
@@ -357,9 +410,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFormWidget {...widgetProps} />;
         },
       },
-      FormWidget.getPropertyValidationMap(),
       FormWidget.getDerivedPropertiesMap(),
-      FormWidget.getTriggerPropertyMap(),
       FormWidget.getDefaultPropertiesMap(),
       FormWidget.getMetaPropertiesMap(),
       FormWidget.getPropertyPaneConfig(),
@@ -372,9 +423,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledFormButtonWidget {...widgetProps} />;
         },
       },
-      FormButtonWidget.getPropertyValidationMap(),
       FormButtonWidget.getDerivedPropertiesMap(),
-      FormButtonWidget.getTriggerPropertyMap(),
       FormButtonWidget.getDefaultPropertiesMap(),
       FormButtonWidget.getMetaPropertiesMap(),
       FormButtonWidget.getPropertyPaneConfig(),
@@ -387,9 +436,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledMapWidget {...widgetProps} />;
         },
       },
-      MapWidget.getPropertyValidationMap(),
       MapWidget.getDerivedPropertiesMap(),
-      MapWidget.getTriggerPropertyMap(),
       MapWidget.getDefaultPropertiesMap(),
       MapWidget.getMetaPropertiesMap(),
       MapWidget.getPropertyPaneConfig(),
@@ -404,9 +451,7 @@ export default class WidgetBuilderRegistry {
           return <ProfiledCanvasWidget {...widgetData} />;
         },
       },
-      CanvasWidget.getPropertyValidationMap(),
       CanvasWidget.getDerivedPropertiesMap(),
-      CanvasWidget.getTriggerPropertyMap(),
       CanvasWidget.getDefaultPropertiesMap(),
       CanvasWidget.getMetaPropertiesMap(),
       CanvasWidget.getPropertyPaneConfig(),
@@ -419,11 +464,10 @@ export default class WidgetBuilderRegistry {
           return <ProfiledIconWidget {...widgetProps} />;
         },
       },
-      IconWidget.getPropertyValidationMap(),
       IconWidget.getDerivedPropertiesMap(),
-      IconWidget.getTriggerPropertyMap(),
       IconWidget.getDefaultPropertiesMap(),
       IconWidget.getMetaPropertiesMap(),
+      IconWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(
@@ -433,11 +477,123 @@ export default class WidgetBuilderRegistry {
           return <ProfiledSkeletonWidget {...widgetProps} />;
         },
       },
-      SkeletonWidget.getPropertyValidationMap(),
       SkeletonWidget.getDerivedPropertiesMap(),
-      SkeletonWidget.getTriggerPropertyMap(),
       SkeletonWidget.getDefaultPropertiesMap(),
       SkeletonWidget.getMetaPropertiesMap(),
+      SkeletonWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.LIST_WIDGET,
+      {
+        buildWidget(widgetProps: ListWidgetProps<WidgetProps>): JSX.Element {
+          return <ProfiledListWidget {...widgetProps} />;
+        },
+      },
+      ListWidget.getDerivedPropertiesMap(),
+      ListWidget.getDefaultPropertiesMap(),
+      ListWidget.getMetaPropertiesMap(),
+      ListWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MODAL_WIDGET,
+      {
+        buildWidget(widgetData: ModalWidgetProps): JSX.Element {
+          return <ProfiledModalWidget {...widgetData} />;
+        },
+      },
+      ModalWidget.getDerivedPropertiesMap(),
+      ModalWidget.getDefaultPropertiesMap(),
+      ModalWidget.getMetaPropertiesMap(),
+      ModalWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MULTI_SELECT_WIDGET,
+      {
+        buildWidget(widgetData: MultiSelectWidgetProps): JSX.Element {
+          return <ProfiledMultiSelectWidget {...widgetData} />;
+        },
+      },
+      MultiSelectWidget.getDerivedPropertiesMap(),
+      MultiSelectWidget.getDefaultPropertiesMap(),
+      MultiSelectWidget.getMetaPropertiesMap(),
+      MultiSelectWidget.getPropertyPaneConfig(),
+    );
+    WidgetFactory.registerWidgetBuilder(
+      "RATE_WIDGET",
+      {
+        buildWidget(widgetData: RateWidgetProps): JSX.Element {
+          return <ProfiledRateWidget {...widgetData} />;
+        },
+      },
+      RateWidget.getDerivedPropertiesMap(),
+      RateWidget.getDefaultPropertiesMap(),
+      RateWidget.getMetaPropertiesMap(),
+      RateWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IFRAME_WIDGET,
+      {
+        buildWidget(widgetData: IframeWidgetProps): JSX.Element {
+          return <ProfiledIframeWidget {...widgetData} />;
+        },
+      },
+      IframeWidget.getDerivedPropertiesMap(),
+      IframeWidget.getDefaultPropertiesMap(),
+      IframeWidget.getMetaPropertiesMap(),
+      IframeWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.DIVIDER_WIDGET,
+      {
+        buildWidget(widgetProps: DividerWidgetProps): JSX.Element {
+          return <ProfiledDividerWidget {...widgetProps} />;
+        },
+      },
+      DividerWidget.getDerivedPropertiesMap(),
+      DividerWidget.getDefaultPropertiesMap(),
+      DividerWidget.getMetaPropertiesMap(),
+      DividerWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.MENU_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: MenuButtonWidgetProps): JSX.Element {
+          return <ProfiledMenuButtonWidget {...widgetData} />;
+        },
+      },
+      MenuButtonWidget.getDerivedPropertiesMap(),
+      MenuButtonWidget.getDefaultPropertiesMap(),
+      MenuButtonWidget.getMetaPropertiesMap(),
+      MenuButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.ICON_BUTTON_WIDGET,
+      {
+        buildWidget(widgetData: IconButtonWidgetProps): JSX.Element {
+          return <ProfiledIconButtonWidget {...widgetData} />;
+        },
+      },
+      IconButtonWidget.getDerivedPropertiesMap(),
+      IconButtonWidget.getDefaultPropertiesMap(),
+      IconButtonWidget.getMetaPropertiesMap(),
+      IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.CHECKBOX_GROUP_WIDGET,
+      {
+        buildWidget(widgetData: CheckboxGroupWidgetProps): JSX.Element {
+          return <ProfiledCheckboxGroupWidget {...widgetData} />;
+        },
+      },
+      CheckboxGroupWidget.getDerivedPropertiesMap(),
+      CheckboxGroupWidget.getDefaultPropertiesMap(),
+      CheckboxGroupWidget.getMetaPropertiesMap(),
+      CheckboxGroupWidget.getPropertyPaneConfig(),
     );
     WidgetFactory.registerWidgetBuilder(
       WidgetTypes.JSON_VIEW_WIDGET,

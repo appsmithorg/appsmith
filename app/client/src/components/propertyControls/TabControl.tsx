@@ -1,34 +1,19 @@
-import React from "react";
+import React, { useCallback } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledInputGroup, StyledPropertyPaneButton } from "./StyledControls";
+import {
+  StyledInputGroup,
+  StyledPropertyPaneButton,
+  StyledDragIcon,
+  StyledDeleteIcon,
+  StyledEditIcon,
+} from "./StyledControls";
 import styled from "constants/DefaultTheme";
-import { FormIcons } from "icons/FormIcons";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { generateReactKey } from "utils/generators";
-import { DroppableComponent } from "../designSystems/appsmith/DraggableListComponent";
+import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import * as Sentry from "@sentry/react";
-
-const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-left: 15px;
-  cursor: pointer;
-`;
-
-const StyledDragIcon = styled(ControlIcons.DRAG_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  margin-right: 15px;
-  cursor: move;
-  svg {
-    path {
-      fill: ${(props) => props.theme.colors.paneSectionLabel};
-    }
-  }
-`;
+import { Category, Size } from "components/ads/Button";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -51,11 +36,14 @@ const TabsWrapper = styled.div`
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+  padding-left: 30px;
   &&& {
     input {
       border: none;
-      color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
+      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
+      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -69,30 +57,45 @@ type RenderComponentProps = {
   index: number;
   item: {
     label: string;
+    isVisible?: boolean;
   };
   deleteOption: (index: number) => void;
   updateOption: (index: number, value: string) => void;
+  toggleVisibility?: (index: number) => void;
+  onEdit?: (props: any) => void;
 };
 
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, updateOption, item, index } = props;
+  const { deleteOption, index, item, updateOption } = props;
+  const debouncedUpdate = debounce(updateOption, 1000);
+  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
+    index,
+  ]);
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
-        type="text"
-        placeholder="Tab Title"
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          updateOption(index, event.target.value);
-        }}
+        dataType="text"
         defaultValue={item.label}
+        onChange={(value: string) => {
+          debouncedUpdate(index, value);
+        }}
+        placeholder="Tab Title"
       />
       <StyledDeleteIcon
+        className="t--delete-tab-btn"
         height={20}
-        width={20}
+        marginRight={12}
         onClick={() => {
           deleteOption(index);
         }}
+        width={20}
+      />
+      <StyledEditIcon
+        className="t--edit-column-btn"
+        height={20}
+        onClick={handleChange}
+        width={20}
       />
     </ItemWrapper>
   );
@@ -130,54 +133,77 @@ class TabControl extends BaseControl<ControlProps> {
     }
   }
 
-  updateItems = (items: Array<Record<string, unknown>>) => {
-    this.updateProperty(this.props.propertyName, items);
+  updateItems = (items: Array<Record<string, any>>) => {
+    const tabsObj = items.reduce((obj: any, each: any, index: number) => {
+      obj[each.id] = {
+        ...each,
+        index,
+      };
+      return obj;
+    }, {});
+    this.updateProperty(this.props.propertyName, tabsObj);
+  };
+
+  onEdit = (index: number) => {
+    const tabs: Array<{
+      id: string;
+      label: string;
+    }> = Object.values(this.props.propertyValue);
+    const tabToChange = tabs[index];
+    this.props.openNextPanel({
+      index,
+      ...tabToChange,
+      propPaneId: this.props.widgetProperties.widgetId,
+    });
   };
 
   render() {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = _.isString(this.props.propertyValue) ? [] : this.props.propertyValue;
+    }> = _.isString(this.props.propertyValue)
+      ? []
+      : Object.values(this.props.propertyValue);
     return (
       <TabsWrapper>
         <DroppableComponent
-          items={tabs}
-          renderComponent={TabControlComponent}
           deleteOption={this.deleteOption}
-          updateOption={this.updateOption}
+          itemHeight={45}
+          items={tabs}
+          onEdit={this.onEdit}
+          renderComponent={TabControlComponent}
+          toggleVisibility={this.toggleVisibility}
           updateItems={this.updateItems}
+          updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
           <StyledPropertyPaneButton
-            text="Add a Tab"
-            color="#FFFFFF"
-            minimal
+            category={Category.tertiary}
+            icon="plus"
             onClick={this.addOption}
+            size={Size.medium}
+            tag="button"
+            text="Add a Tab"
+            type="button"
           />
         </StyledPropertyPaneButtonWrapper>
       </TabsWrapper>
     );
   }
 
-  deleteOption = (index: number) => {
-    let tabs: Array<Record<string, unknown>> = this.props.propertyValue.slice();
-    if (tabs.length === 1) return;
-    delete tabs[index];
-    tabs = tabs.filter(Boolean);
-    this.updateProperty(this.props.propertyName, tabs);
-  };
-
-  updateOption = (index: number, updatedLabel: string) => {
+  toggleVisibility = (index: number) => {
     const tabs: Array<{
       id: string;
       label: string;
-    }> = this.props.propertyValue;
+      isVisible: boolean;
+      widgetId: string;
+    }> = this.props.propertyValue.slice();
+    const isVisible = tabs[index].isVisible === true ? false : true;
     const updatedTabs = tabs.map((tab, tabIndex) => {
       if (index === tabIndex) {
         return {
           ...tab,
-          label: updatedLabel,
+          isVisible: isVisible,
         };
       }
       return tab;
@@ -185,21 +211,53 @@ class TabControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
+  deleteOption = (index: number) => {
+    const tabsArray: any = Object.values(this.props.propertyValue);
+    const itemId = tabsArray[index].id;
+    if (tabsArray && tabsArray.length === 1) return;
+    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
+      return i !== index;
+    });
+    const updatedObj = updatedArray.reduce(
+      (obj: any, each: any, index: number) => {
+        obj[each.id] = {
+          ...each,
+          index,
+        };
+        return obj;
+      },
+      {},
+    );
+    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
+    this.updateProperty(this.props.propertyName, updatedObj);
+  };
+
+  updateOption = (index: number, updatedLabel: string) => {
+    const tabsArray: any = Object.values(this.props.propertyValue);
+    const itemId = tabsArray[index].id;
+    this.updateProperty(
+      `${this.props.propertyName}.${itemId}.label`,
+      updatedLabel,
+    );
+  };
+
   addOption = () => {
-    let tabs: Array<{
-      id: string;
-      label: string;
-      widgetId: string;
-    }> = this.props.propertyValue;
+    let tabs = this.props.propertyValue;
+    const tabsArray = Object.values(tabs);
     const newTabId = generateReactKey({ prefix: "tab" });
     const newTabLabel = getNextEntityName(
       "Tab ",
-      tabs.map((tab) => tab.label),
+      tabsArray.map((tab: any) => tab.label),
     );
-    tabs = [
+    tabs = {
       ...tabs,
-      { id: newTabId, label: newTabLabel, widgetId: generateReactKey() },
-    ];
+      [newTabId]: {
+        id: newTabId,
+        label: newTabLabel,
+        widgetId: generateReactKey(),
+        isVisible: true,
+      },
+    };
 
     this.updateProperty(this.props.propertyName, tabs);
   };

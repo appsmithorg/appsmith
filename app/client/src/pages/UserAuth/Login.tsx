@@ -16,20 +16,20 @@ import {
   LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
-  FORM_VALIDATION_INVALID_PASSWORD,
   LOGIN_PAGE_LOGIN_BUTTON_TEXT,
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
   LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
+  createMessage,
 } from "constants/messages";
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import Button, { Size } from "components/ads/Button";
 import ThirdPartyAuth, { SocialLoginTypes } from "./ThirdPartyAuth";
-import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
+import { isEmail, isEmptyString } from "utils/formhelpers";
 import { LoginFormValues } from "./helpers";
 import { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
@@ -48,6 +48,7 @@ import { LOGIN_SUBMIT_PATH } from "constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import { getIsSafeRedirectURL } from "utils/helpers";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -55,12 +56,14 @@ const validate = (values: LoginFormValues) => {
   const email = values[LOGIN_FORM_EMAIL_FIELD_NAME] || "";
   const password = values[LOGIN_FORM_PASSWORD_FIELD_NAME];
   if (!password || isEmptyString(password)) {
-    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_EMPTY_PASSWORD;
-  } else if (!isStrongPassword(password)) {
-    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = FORM_VALIDATION_INVALID_PASSWORD;
+    errors[LOGIN_FORM_PASSWORD_FIELD_NAME] = createMessage(
+      FORM_VALIDATION_EMPTY_PASSWORD,
+    );
   }
   if (!isEmptyString(email) && !isEmail(email)) {
-    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = FORM_VALIDATION_INVALID_EMAIL;
+    errors[LOGIN_FORM_EMAIL_FIELD_NAME] = createMessage(
+      FORM_VALIDATION_INVALID_EMAIL,
+    );
   }
 
   return errors;
@@ -77,8 +80,8 @@ const SocialLoginList: string[] = [];
 if (enableGoogleOAuth) SocialLoginList.push(SocialLoginTypes.GOOGLE);
 if (enableGithubOAuth) SocialLoginList.push(SocialLoginTypes.GITHUB);
 
-export const Login = (props: LoginFormProps) => {
-  const { error, valid, emailValue: email } = props;
+export function Login(props: LoginFormProps) {
+  const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
 
@@ -87,12 +90,15 @@ export const Login = (props: LoginFormProps) => {
   if (queryParams.get("error")) {
     showError = true;
   }
+  const errorMsg = showError && queryParams.get("message");
 
   let loginURL = "/api/v1/" + LOGIN_SUBMIT_PATH;
   let signupURL = SIGN_UP_URL;
-  if (queryParams.has("redirectUrl")) {
-    loginURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
-    signupURL += `?redirectUrl=${queryParams.get("redirectUrl")}`;
+  const redirectUrl = queryParams.get("redirectUrl");
+  if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
+    const encodedRedirectUrl = encodeURIComponent(redirectUrl);
+    loginURL += `?redirectUrl=${encodedRedirectUrl}`;
+    signupURL += `?redirectUrl=${encodedRedirectUrl}`;
   }
 
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
@@ -103,65 +109,70 @@ export const Login = (props: LoginFormProps) => {
   return (
     <>
       <AuthCardHeader>
-        <h1>{LOGIN_PAGE_TITLE}</h1>
+        <h1>{createMessage(LOGIN_PAGE_TITLE)}</h1>
       </AuthCardHeader>
       <SignUpLinkSection>
-        {NEW_TO_APPSMITH}
+        {createMessage(NEW_TO_APPSMITH)}
         <AuthCardNavLink
-          to={signupURL}
           style={{ marginLeft: props.theme.spaces[3] }}
+          to={signupURL}
         >
-          {LOGIN_PAGE_SIGN_UP_LINK_TEXT}
+          {createMessage(LOGIN_PAGE_SIGN_UP_LINK_TEXT)}
         </AuthCardNavLink>
       </SignUpLinkSection>
       {showError && (
         <FormMessage
+          actions={
+            !!errorMsg
+              ? []
+              : [
+                  {
+                    url: FORGOT_PASSWORD_URL,
+                    text: createMessage(
+                      LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+                    ),
+                    intent: "success",
+                  },
+                ]
+          }
           intent="warning"
-          message={LOGIN_PAGE_INVALID_CREDS_ERROR}
-          actions={[
-            {
-              url: FORGOT_PASSWORD_URL,
-              text: LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
-              intent: "success",
-            },
-          ]}
+          message={
+            !!errorMsg
+              ? errorMsg
+              : createMessage(LOGIN_PAGE_INVALID_CREDS_ERROR)
+          }
         />
       )}
       {SocialLoginList.length > 0 && (
-        <ThirdPartyAuth type={"SIGNIN"} logins={SocialLoginList} />
+        <ThirdPartyAuth logins={SocialLoginList} type={"SIGNIN"} />
       )}
-      <SpacedSubmitForm method="POST" action={loginURL}>
+      <SpacedSubmitForm action={loginURL} method="POST">
         <FormGroup
           intent={error ? "danger" : "none"}
-          label={LOGIN_PAGE_EMAIL_INPUT_LABEL}
+          label={createMessage(LOGIN_PAGE_EMAIL_INPUT_LABEL)}
         >
           <FormTextField
-            name={LOGIN_FORM_EMAIL_FIELD_NAME}
-            type="email"
-            placeholder={LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER}
             autoFocus
+            name={LOGIN_FORM_EMAIL_FIELD_NAME}
+            placeholder={createMessage(LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER)}
+            type="email"
           />
         </FormGroup>
         <FormGroup
           intent={error ? "danger" : "none"}
-          label={LOGIN_PAGE_PASSWORD_INPUT_LABEL}
-          // helperText={FORM_VALIDATION_PASSWORD_RULE}
+          label={createMessage(LOGIN_PAGE_PASSWORD_INPUT_LABEL)}
         >
           <FormTextField
-            type="password"
             name={LOGIN_FORM_PASSWORD_FIELD_NAME}
-            placeholder={LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER}
+            placeholder={createMessage(LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER)}
+            type="password"
           />
         </FormGroup>
 
         <FormActions>
           <Button
-            tag="button"
-            type="submit"
             disabled={!isFormValid}
-            text={LOGIN_PAGE_LOGIN_BUTTON_TEXT}
             fill
-            size={Size.large}
             onClick={() => {
               PerformanceTracker.startTracking(
                 PerformanceTransactionName.LOGIN_CLICK,
@@ -170,15 +181,21 @@ export const Login = (props: LoginFormProps) => {
                 loginMethod: "EMAIL",
               });
             }}
+            size={Size.large}
+            tag="button"
+            text={createMessage(LOGIN_PAGE_LOGIN_BUTTON_TEXT)}
+            type="submit"
           />
         </FormActions>
       </SpacedSubmitForm>
       <ForgotPasswordLink>
-        <Link to={forgotPasswordURL}>{LOGIN_PAGE_FORGOT_PASSWORD_TEXT}</Link>
+        <Link to={forgotPasswordURL}>
+          {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
+        </Link>
       </ForgotPasswordLink>
     </>
   );
-};
+}
 
 const selector = formValueSelector(LOGIN_FORM_NAME);
 export default connect((state) => ({

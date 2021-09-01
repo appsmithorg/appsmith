@@ -27,6 +27,10 @@ export const HelpMap = {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
   },
+  DATE_PICKER_WIDGET2: {
+    path: "/widget-reference/datepicker",
+    searchKey: "DatePicker",
+  },
   TABLE_WIDGET: {
     path: "/widget-reference/table",
     searchKey: "Table",
@@ -37,7 +41,7 @@ export const HelpMap = {
   },
   DROP_DOWN_WIDGET: {
     path: "/widget-reference/dropdown",
-    searchKey: "Dropdown",
+    searchKey: "Select",
   },
   RADIO_GROUP_WIDGET: {
     path: "/widget-reference/radio",
@@ -56,6 +60,10 @@ export const HelpMap = {
     searchKey: "Form",
   },
   FILE_PICKER_WIDGET: {
+    path: "/widget-reference/filepicker",
+    searchKey: "File picker",
+  },
+  FILE_PICKER_WIDGET_V2: {
     path: "/widget-reference/filepicker",
     searchKey: "File picker",
   },
@@ -79,6 +87,10 @@ export const HelpMap = {
     path: "",
     searchKey: "Tabs",
   },
+  TABS_MIGRATOR_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
   MODAL_WIDGET: {
     path: "",
     searchKey: "",
@@ -96,8 +108,12 @@ export const HelpMap = {
     searchKey: "Taking Inputs from Widgets",
   },
   DATASOURCE_FORM: {
-    path: "/core-concepts/connecting-to-databases",
+    path: "/core-concepts/connecting-to-data-sources/connecting-to-databases",
     searchKey: "Connecting to databases",
+  },
+  LIST_WIDGET: {
+    path: "/widget-reference/list",
+    searchKey: "List",
   },
   SWITCH_WIDGET: {
     path: "/widget-reference/switch",
@@ -107,6 +123,37 @@ export const HelpMap = {
     path: "",
     searchKey: "JSON",
   },
+  MULTI_SELECT_WIDGET: {
+    path: "",
+    searchKey: "",
+  },
+  RATE_WIDGET: {
+    path: "/widget-reference/rate",
+    searchKey: "Rate",
+  },
+  IFRAME_WIDGET: {
+    path: "/widget-reference/iframe",
+    searchKey: "Iframe",
+  },
+  DIVIDER_WIDGET: {
+    path: "/widget-reference/divider",
+    searchKey: "Divider",
+  },
+  MENU_BUTTON_WIDGET: {
+    path: "/widget-reference/menu-button",
+    searchKey: "Menu Button",
+  },
+  ICON_BUTTON_WIDGET: {
+    path: "/widget-reference/icon-button",
+    searchKey: "Icon Button",
+  },
+  CHECKBOX_GROUP_WIDGET: {
+    path: "/widget-reference/checkbox-group",
+    searchKey: "Checkbox Group",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";
+
+export const HELP_MODAL_WIDTH = 240;
+export const HELP_MODAL_HEIGHT = 206;

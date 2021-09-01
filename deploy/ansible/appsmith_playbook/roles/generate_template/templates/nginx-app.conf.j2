@@ -2,7 +2,7 @@
  server {
     listen 80;
     server_name {{ custom_domain }};
-    client_max_body_size 10m;
+    client_max_body_size 100m;
 
     gzip on;
 
@@ -37,6 +37,10 @@
         sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '{{ version_release_date }}';
         sub_filter __APPSMITH_INTERCOM_APP_ID__ '{{ intercom_app_id }}';
         sub_filter __APPSMITH_MAIL_ENABLED__ '{{ mail_enabled }}';
+        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '{{ google_recaptcha_site_key }}';
+        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '{{ google_recaptcha_secrete_key }}';
+        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '{{ google_recaptcha_enabled }}';
+        sub_filter __APPSMITH_DISABLE_INTERCOM__ '{{ disable_intercom }}';
     }
 
     location /f {
@@ -50,12 +54,12 @@
     location /oauth2 {
         proxy_pass http://appsmith-internal-server:8080;
     }
-    
+
     location /login {
         proxy_pass http://appsmith-internal-server:8080;
     }
  }
- 
+
 {{ ssl_cmt }} server {
 {{ ssl_cmt }}    listen 443 ssl;
 {{ ssl_cmt }}    server_name {{ custom_domain }};
@@ -93,6 +97,10 @@
 {{ ssl_cmt }}        sub_filter __APPSMITH_VERSION_RELEASE_DATE__ '{{ version_release_date }}';
 {{ ssl_cmt }}        sub_filter __APPSMITH_INTERCOM_APP_ID__ '{{ intercom_app_id }}';
 {{ ssl_cmt }}        sub_filter __APPSMITH_MAIL_ENABLED__ '{{ mail_enabled }}';
+{{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '{{ google_recaptcha_site_key }}';
+{{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '{{ google_recaptcha_secrete_key }}';
+{{ ssl_cmt }}        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '{{ google_recaptcha_enabled }}';
+{{ ssl_cmt }}        sub_filter __APPSMITH_DISABLE_INTERCOM__ '{{ disable_intercom }}';
 {{ ssl_cmt }}    }
 
 {{ ssl_cmt }}    location /f {

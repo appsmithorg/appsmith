@@ -1,19 +1,17 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledDatePicker } from "./StyledControls";
 import moment from "moment-timezone";
 import styled from "styled-components";
 import { TimePrecision } from "@blueprintjs/datetime";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import DatePickerComponent from "components/ads/DatePickerComponent";
 
 const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
   display: flex;
   flex-direction: column;
   margin: 8px 0 0 0;
-  &&& {
+  /* &&& {
     input {
       background: ${(props) => props.theme.colors.paneTextBG};
       color: ${(props) => props.theme.colors.textOnDarkBG};
@@ -24,7 +22,7 @@ const DatePickerControlWrapper = styled.div<{ isValid: boolean }>`
           ? `1px solid ${props.theme.colors.error}`
           : `1px solid transparent`};
     }
-  }
+  } */
   .vertical-center {
     display: flex;
     justify-content: space-between;
@@ -48,11 +46,11 @@ class DatePickerControl extends BaseControl<
   year = this.now.get("year");
   maxDate: Date = this.now
     .clone()
-    .set({ month: 11, date: 31, year: this.year + 20 })
+    .set({ month: 11, date: 31, year: this.year + 100 })
     .toDate();
   minDate: Date = this.now
     .clone()
-    .set({ month: 0, date: 1, year: this.year - 20 })
+    .set({ month: 0, date: 1, year: this.year - 100 })
     .toDate();
 
   constructor(props: DatePickerControlProps) {
@@ -63,41 +61,33 @@ class DatePickerControl extends BaseControl<
   }
 
   render() {
+    const version = this.props.widgetProperties.version;
     const dateFormat =
-      this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+      version === 2
+        ? ISO_DATE_FORMAT
+        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
     const isValid = this.state.selectedDate
       ? this.validateDate(moment(this.state.selectedDate, dateFormat).toDate())
       : true;
-    const maxDate =
-      this.props.widgetProperties?.evaluatedValues?.maxDate ?? this.maxDate;
-    const minDate =
-      this.props.widgetProperties?.evaluatedValues?.minDate ?? this.minDate;
-
+    const value =
+      this.props.propertyValue && isValid
+        ? version === 2
+          ? new Date(this.props.propertyValue)
+          : this.parseDate(this.props.propertyValue)
+        : null;
     return (
-      <DatePickerControlWrapper isValid={isValid}>
-        <StyledDatePicker
+      <DatePickerControlWrapper isValid>
+        <DatePickerComponent
+          closeOnSelection
           formatDate={this.formatDate}
+          maxDate={this.maxDate}
+          minDate={this.minDate}
+          onChange={this.onDateSelected}
           parseDate={this.parseDate}
-          placeholder="DD/MM/YYYY HH:mm"
+          placeholder="YYYY-MM-DD HH:mm"
           showActionsBar
           timePrecision={TimePrecision.MINUTE}
-          closeOnSelection
-          onChange={this.onDateSelected}
-          maxDate={
-            this.props.propertyName === "defaultDate"
-              ? this.getValidDate(maxDate, dateFormat)
-              : undefined
-          }
-          minDate={
-            this.props.propertyName === "defaultDate"
-              ? this.getValidDate(minDate, dateFormat)
-              : undefined
-          }
-          value={
-            this.props.propertyValue && isValid
-              ? this.parseDate(this.props.propertyValue)
-              : null
-          }
+          value={value}
         />
       </DatePickerControlWrapper>
     );
@@ -115,12 +105,15 @@ class DatePickerControl extends BaseControl<
    *
    * @param date
    */
-  onDateSelected = (date: Date, isUserChange: boolean): void => {
+  onDateSelected = (date: Date | null, isUserChange: boolean): void => {
     if (isUserChange) {
-      const selectedDate = date ? this.formatDate(date) : undefined;
-      const isValid = this.validateDate(date);
+      const selectedDate = date
+        ? this.props.widgetProperties.version === 2
+          ? date.toISOString()
+          : this.formatDate(date)
+        : undefined;
+      const isValid = date ? this.validateDate(date) : true;
       if (!isValid) return;
-
       // if everything is ok, put date in state
       this.setState({ selectedDate: selectedDate });
       this.updateProperty(this.props.propertyName, selectedDate);
@@ -128,73 +121,14 @@ class DatePickerControl extends BaseControl<
   };
 
   /**
-   * checks:
-   * 1. if max date is greater than the default date
-   * 2. if default date is in range of min and max date
+   * checks if date is of valid date format
    */
   validateDate = (date: Date): boolean => {
     const dateFormat =
-      this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    const parsedSelectedDate = moment(date, dateFormat);
-    //validate defaultDate if both minDate and maxDate is already selected
-    if (this.props.propertyName === "defaultDate") {
-      if (
-        parsedSelectedDate.isValid() &&
-        this.props.widgetProperties?.evaluatedValues?.minDate &&
-        this.props.widgetProperties?.evaluatedValues?.maxDate
-      ) {
-        const parsedMinDate = moment(
-          this.props.widgetProperties.evaluatedValues.minDate,
-          dateFormat,
-        );
-        const parsedMaxDate = moment(
-          this.props.widgetProperties.evaluatedValues.maxDate,
-          dateFormat,
-        );
-        if (
-          parsedSelectedDate.isBefore(parsedMinDate) ||
-          parsedSelectedDate.isAfter(parsedMaxDate)
-        ) {
-          return false;
-        }
-      }
-    }
-    if (this.props.widgetProperties?.evaluatedValues?.value) {
-      const parsedWidgetDate = moment(
-        this.props.widgetProperties.evaluatedValues.value,
-        dateFormat,
-      );
-      // checking if widget date is after min date
-      if (this.props.propertyName === "minDate") {
-        if (
-          parsedSelectedDate.isValid() &&
-          parsedWidgetDate.isBefore(parsedSelectedDate)
-        ) {
-          Toaster.show({
-            text: "Min date cannot be greater than current widget value.",
-            variant: Variant.danger,
-          });
-
-          return false;
-        }
-      }
-
-      // checking if widget date is before max date
-      if (this.props.propertyName === "maxDate") {
-        if (
-          parsedSelectedDate.isValid() &&
-          parsedWidgetDate.isAfter(parsedSelectedDate)
-        ) {
-          Toaster.show({
-            text: "Max date cannot be less than current widget value.",
-            variant: Variant.danger,
-          });
-
-          return false;
-        }
-      }
-    }
-    return true;
+      this.props.widgetProperties.version === 2
+        ? ISO_DATE_FORMAT
+        : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+    return date ? moment(date, dateFormat).isValid() : true;
   };
 
   formatDate = (date: Date): string => {
@@ -203,13 +137,19 @@ class DatePickerControl extends BaseControl<
     return moment(date).format(dateFormat);
   };
 
-  parseDate = (dateStr: string): Date => {
-    const dateFormat =
-      this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
-    const date = moment(dateStr, dateFormat);
+  parseDate = (dateStr: string): Date | null => {
+    if (!dateStr) {
+      return null;
+    } else {
+      const dateFormat =
+        this.props.widgetProperties.version === 2
+          ? ISO_DATE_FORMAT
+          : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+      const date = moment(dateStr, dateFormat);
 
-    if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-    else return moment().toDate();
+      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
+      else return moment().toDate();
+    }
   };
 
   static getControlType() {

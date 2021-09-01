@@ -6,6 +6,8 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import moment from "moment";
+import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import { CommentsReduxState } from "./commentsReducer/interfaces";
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -25,9 +27,13 @@ const initialState: EditorReduxState = {
     updatingWidgetName: false,
     updateWidgetNameError: false,
   },
+  isSnipingMode: false,
 };
 
 const editorReducer = createReducer(initialState, {
+  [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {
+    return { ...state, initialized: false };
+  },
   [ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]: (state: EditorReduxState) => {
     return { ...state, initialized: true };
   },
@@ -93,16 +99,23 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.savingError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_LAST_UPDATED_TIME]: (
+    state: EditorReduxState,
+    actions: ReduxAction<number>,
+  ) => {
+    return { ...state, lastUpdatedTime: actions.payload };
+  },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: EditorReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const {
-      currentPageName,
-      currentLayoutId,
-      pageWidgetId,
       currentApplicationId,
+      currentLayoutId,
       currentPageId,
+      currentPageName,
+      pageActions,
+      pageWidgetId,
     } = action.payload;
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
@@ -113,6 +126,7 @@ const editorReducer = createReducer(initialState, {
       pageWidgetId,
       currentApplicationId,
       currentPageId,
+      pageActions,
     };
   },
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
@@ -120,7 +134,7 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.cloningPageError = false;
     return { ...state };
   },
-  [ReduxActionTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
+  [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
     return { ...state };
@@ -160,6 +174,15 @@ const editorReducer = createReducer(initialState, {
     state.loadingStates.updateWidgetNameError = true;
     return { ...state };
   },
+  [ReduxActionTypes.SET_SNIPING_MODE]: (
+    state: CommentsReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isSnipingMode: action.payload,
+    };
+  },
 });
 
 export interface EditorReduxState {
@@ -168,6 +191,9 @@ export interface EditorReduxState {
   currentLayoutId?: string;
   currentPageName?: string;
   currentPageId?: string;
+  lastUpdatedTime?: number;
+  pageActions?: PageAction[][];
+  isSnipingMode: boolean;
   loadingStates: {
     saving: boolean;
     savingError: boolean;

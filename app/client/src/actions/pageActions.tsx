@@ -1,20 +1,36 @@
-import { FetchPageRequest, SavePageResponse } from "api/PageApi";
-import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
+  ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+import { WidgetOperation } from "widgets/BaseWidget";
+import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { GenerateTemplatePageRequest } from "../api/PageApi";
+import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
   mode: APP_MODE;
+}
+
+export interface ClonePageActionPayload {
+  id: string;
+  blockNavigation?: boolean;
+}
+
+export interface CreatePageActionPayload {
+  applicationId: string;
+  name: string;
+  layouts: Partial<PageLayout>[];
+  blockNavigation?: boolean;
 }
 
 export const fetchPageList = (
@@ -30,11 +46,15 @@ export const fetchPageList = (
   };
 };
 
-export const fetchPage = (pageId: string): ReduxAction<FetchPageRequest> => {
+export const fetchPage = (
+  pageId: string,
+  isFirstLoad = false,
+): ReduxAction<FetchPageRequest> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_INIT,
     payload: {
       id: pageId,
+      isFirstLoad,
     },
   };
 };
@@ -48,28 +68,21 @@ export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
 });
 
 export const fetchPageSuccess = (
-  postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<unknown> => {
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    payload: {},
     postEvalActions,
+    payload: undefined,
   };
 };
 
-export type FetchPublishedPageSuccessPayload = {
-  pageId: string;
-  dsl: ContainerWidgetProps<WidgetProps>;
-  pageWidgetId: string;
-};
-
 export const fetchPublishedPageSuccess = (
-  payload: FetchPublishedPageSuccessPayload,
-  postEvalActions: ReduxAction<unknown>[],
-): EvaluationReduxAction<FetchPublishedPageSuccessPayload> => ({
+  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-  payload,
   postEvalActions,
+  payload: undefined,
 });
 
 export const updateCurrentPage = (id: string) => ({
@@ -85,6 +98,11 @@ export const initCanvasLayout = (
     payload,
   };
 };
+
+export const setLastUpdatedTime = (payload: number): ReduxAction<number> => ({
+  type: ReduxActionTypes.SET_LAST_UPDATED_TIME,
+  payload,
+});
 
 export const savePageSuccess = (payload: SavePageResponse) => {
   return {
@@ -105,20 +123,29 @@ export const deletePageSuccess = () => {
   };
 };
 
-export const updateAndSaveLayout = (widgets: CanvasWidgetsReduxState) => {
+export const updateAndSaveLayout = (
+  widgets: CanvasWidgetsReduxState,
+  isRetry?: boolean,
+) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets },
+    payload: { widgets, isRetry },
   };
 };
 
-export const saveLayout = () => {
+export const saveLayout = (isRetry?: boolean) => {
   return {
     type: ReduxActionTypes.SAVE_PAGE_INIT,
+    payload: { isRetry },
   };
 };
 
-export const createPage = (applicationId: string, pageName: string) => {
+export const createPage = (
+  applicationId: string,
+  pageName: string,
+  layouts: Partial<PageLayout>[],
+  blockNavigation?: boolean,
+) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
     pageName,
   });
@@ -127,15 +154,25 @@ export const createPage = (applicationId: string, pageName: string) => {
     payload: {
       applicationId,
       name: pageName,
+      layouts,
+      blockNavigation,
     },
   };
 };
 
-export const clonePageInit = (pageId: string) => {
+/**
+ * action to clone page
+ *
+ * @param pageId
+ * @param blockNavigation
+ * @returns
+ */
+export const clonePageInit = (pageId: string, blockNavigation?: boolean) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_INIT,
     payload: {
       id: pageId,
+      blockNavigation,
     },
   };
 };
@@ -155,12 +192,13 @@ export const clonePageSuccess = (
   };
 };
 
-export const updatePage = (id: string, name: string) => {
+export const updatePage = (id: string, name: string, isHidden: boolean) => {
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload: {
       id,
       name,
+      isHidden,
     },
   };
 };
@@ -180,19 +218,6 @@ export type WidgetAddChild = {
   props?: Record<string, any>;
 };
 
-export type WidgetMove = {
-  widgetId: string;
-  leftColumn: number;
-  topRow: number;
-  parentId: string;
-  /*
-    If newParentId is different from what we have in redux store,
-    then we have to delete this,
-    as it has been dropped in another container somewhere.
-  */
-  newParentId: string;
-};
-
 export type WidgetRemoveChild = {
   widgetId: string;
   childWidgetId: string;
@@ -201,6 +226,12 @@ export type WidgetRemoveChild = {
 export type WidgetDelete = {
   widgetId?: string;
   parentId?: string;
+  disallowUndo?: boolean;
+  isShortcut?: boolean;
+};
+
+export type MultipleWidgetDeletePayload = {
+  widgetIds: string[];
   disallowUndo?: boolean;
   isShortcut?: boolean;
 };
@@ -229,15 +260,25 @@ export type WidgetAddChildren = {
   }>;
 };
 
+export type WidgetUpdateProperty = {
+  widgetId: string;
+  propertyPath: string;
+  propertyValue: any;
+};
+
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
   payload: any,
 ): ReduxAction<
-  WidgetAddChild | WidgetMove | WidgetResize | WidgetDelete | WidgetAddChildren
+  | WidgetAddChild
+  | WidgetResize
+  | WidgetDelete
+  | WidgetAddChildren
+  | WidgetUpdateProperty
 > => {
   return {
-    type: ReduxActionTypes["WIDGET_" + operation],
+    type: WidgetReduxActionTypes["WIDGET_" + operation],
     payload: { widgetId, ...payload },
   };
 };
@@ -258,11 +299,127 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
-export const updateAppStore = (
+export const updateAppTransientStore = (
+  payload: Record<string, unknown>,
+): ReduxAction<Record<string, unknown>> => ({
+  type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
+  payload,
+});
+
+export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
 ): ReduxAction<Record<string, unknown>> => {
   return {
-    type: ReduxActionTypes.UPDATE_APP_STORE,
+    type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+  };
+};
+
+export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
+  extraParams: Record<any, any>;
+}
+
+export type GenerateCRUDSuccess = {
+  page: {
+    layouts: Array<any>;
+    id: string;
+    name: string;
+    isDefault?: boolean;
+  };
+  isNewPage: boolean;
+};
+
+export const generateTemplateSuccess = (payload: GenerateCRUDSuccess) => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
+    payload,
+  };
+};
+
+export const generateTemplateError = () => {
+  return {
+    type: ReduxActionErrorTypes.GENERATE_TEMPLATE_PAGE_ERROR,
+  };
+};
+
+export const generateTemplateToUpdatePage = ({
+  applicationId,
+  columns,
+  datasourceId,
+  mode,
+  pageId,
+  pluginSpecificParams,
+  searchColumn,
+  tableName,
+}: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
+  return {
+    type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
+    payload: {
+      pageId,
+      tableName,
+      datasourceId,
+      applicationId,
+      columns,
+      searchColumn,
+      pluginSpecificParams,
+    },
+    extraParams: {
+      mode,
+    },
+  };
+};
+
+/**
+ * action for delete page
+ *
+ * @param pageId
+ * @param pageName
+ * @returns
+ */
+export const deletePage = (pageId: string) => {
+  return {
+    type: ReduxActionTypes.DELETE_PAGE_INIT,
+    payload: {
+      id: pageId,
+    },
+  };
+};
+
+/**
+ * action for set page as default
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageAsDefault = (pageId: string, applicationId?: string) => {
+  return {
+    type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
+    payload: {
+      id: pageId,
+      applicationId,
+    },
+  };
+};
+
+/**
+ * action for updating order of a page
+ *
+ * @param pageId
+ * @param applicationId
+ * @returns
+ */
+export const setPageOrder = (
+  applicationId: string,
+  pageId: string,
+  order: number,
+) => {
+  return {
+    type: ReduxActionTypes.SET_PAGE_ORDER_INIT,
+    payload: {
+      pageId: pageId,
+      order: order,
+      applicationId,
+    },
   };
 };

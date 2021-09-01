@@ -5,20 +5,25 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { Plugin } from "api/PluginApi";
-
-export interface PluginFormPayload {
-  id: string;
-  form: any[];
-  editor: any[];
-}
+import {
+  PluginFormPayloadWithId,
+  PluginFormsPayload,
+  GetPluginFormConfigRequest,
+} from "actions/pluginActions";
+import {
+  FormEditorConfigs,
+  FormSettingsConfigs,
+  FormDependencyConfigs,
+} from "utils/DynamicBindingUtils";
 
 export interface PluginDataState {
   list: Plugin[];
   loading: boolean;
   formConfigs: Record<string, any[]>;
-  editorConfigs: Record<string, any[]>;
-  loadingFormConfigs: boolean;
-  loadingDBFormConfigs: boolean;
+  editorConfigs: FormEditorConfigs;
+  settingConfigs: FormSettingsConfigs;
+  dependencies: FormDependencyConfigs;
+  fetchingSinglePluginForm: Record<string, boolean>;
 }
 
 const initialState: PluginDataState = {
@@ -26,8 +31,9 @@ const initialState: PluginDataState = {
   loading: false,
   formConfigs: {},
   editorConfigs: {},
-  loadingFormConfigs: false,
-  loadingDBFormConfigs: false,
+  settingConfigs: {},
+  dependencies: {},
+  fetchingSinglePluginForm: {},
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -50,19 +56,37 @@ const pluginsReducer = createReducer(initialState, {
       loading: false,
     };
   },
-  [ReduxActionTypes.FETCH_PLUGIN_FORM_INIT]: (state: PluginDataState) => {
+  [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS]: (
+    state: PluginDataState,
+    action: ReduxAction<PluginFormsPayload>,
+  ) => {
     return {
       ...state,
-      loadingFormConfigs: true,
+      ...action.payload,
+    };
+  },
+  [ReduxActionTypes.GET_PLUGIN_FORM_CONFIG_INIT]: (
+    state: PluginDataState,
+    action: ReduxAction<GetPluginFormConfigRequest>,
+  ) => {
+    return {
+      ...state,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: true,
+      },
     };
   },
   [ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS]: (
     state: PluginDataState,
-    action: ReduxAction<PluginFormPayload>,
+    action: ReduxAction<PluginFormPayloadWithId>,
   ) => {
     return {
       ...state,
-      loadingFormConfigs: false,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: false,
+      },
       formConfigs: {
         ...state.formConfigs,
         [action.payload.id]: action.payload.form,
@@ -71,34 +95,22 @@ const pluginsReducer = createReducer(initialState, {
         ...state.editorConfigs,
         [action.payload.id]: action.payload.editor,
       },
+      settingConfigs: {
+        ...state.settingConfigs,
+        [action.payload.id]: action.payload.setting,
+      },
     };
   },
-  [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (state: PluginDataState) => {
-    return {
-      ...state,
-      loadingFormConfigs: false,
-    };
-  },
-  [ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_INIT]: (state: PluginDataState) => {
-    return {
-      ...state,
-      loadingDBFormConfigs: true,
-    };
-  },
-  [ReduxActionTypes.FETCH_DB_PLUGIN_FORMS_SUCCESS]: (
+  [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR]: (
     state: PluginDataState,
+    action: ReduxAction<GetPluginFormConfigRequest>,
   ) => {
     return {
       ...state,
-      loadingDBFormConfigs: false,
-    };
-  },
-  [ReduxActionErrorTypes.FETCH_DB_PLUGIN_FORMS_ERROR]: (
-    state: PluginDataState,
-  ) => {
-    return {
-      ...state,
-      loadingDBFormConfigs: false,
+      fetchingSinglePluginForm: {
+        ...state.fetchingSinglePluginForm,
+        [action.payload.id]: false,
+      },
     };
   },
 });

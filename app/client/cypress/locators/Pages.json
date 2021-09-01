@@ -9,7 +9,9 @@
     "Menuaction": ".bp3-overlay-open>.bp3-transition-container",
     "Delete": ":nth-child(2) > .bp3-menu-item",
     "apiEditorIcon": ".t--nav-link-api-editor",
-    "addEntityAPI": ".apis .t--entity-add-btn",
+    "addEntityAPI": ".datasources .t--entity-add-btn",
+    "integrationCreateNew": "[data-cy=t--tab-CREATE_NEW]",
+    "integrationActiveTab": "[data-cy=t--tab-ACTIVE]",
     "entityWidget": ".t--entity-name:contains('Widgets')",
     "entityTable": ".t--entity-name:contains('Table1')",
     "entityText": ".t--entity-name:contains('Text1')",
@@ -18,5 +20,7 @@
     "editName": ".single-select >div:contains('Edit Name')",
     "clonePage": ".single-select >div:contains('Clone')",
     "deletePage": ".single-select >div:contains('Delete')",
-    "entityQuery": ".t--entity-name:contains('Queries')"
+    "hidePage": ".single-select >div:contains('Hide')",
+    "entityQuery": ".t--entity-name:contains('Queries')",
+    "showPage": ".single-select >div:contains('Show')"
   }

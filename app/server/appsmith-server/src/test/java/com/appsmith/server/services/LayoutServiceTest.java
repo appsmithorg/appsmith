@@ -285,7 +285,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostAction");
@@ -293,7 +293,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostActionWithAutoExec");
@@ -305,7 +305,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostSecondaryAction");
@@ -314,7 +314,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
                     action.setUserSetOnLoad(true);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostTertiaryAction");
@@ -323,7 +323,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aDeleteAction");
@@ -331,7 +331,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aDBAction");
@@ -340,7 +340,7 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("anotherDBAction");
@@ -349,7 +349,7 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     action = new ActionDTO();
                     action.setName("aTableAction");
@@ -358,7 +358,7 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })
@@ -452,7 +452,7 @@ public class LayoutServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testIncorrectDynamicBinding() {
+    public void testIncorrectDynamicBindingPathInDsl() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         PageDTO testPage = new PageDTO();
@@ -461,9 +461,11 @@ public class LayoutServiceTest {
         Application app = new Application();
         app.setName("newApplication-testIncorrectDynamicBinding-Test");
 
-        Mono<PageDTO> pageMono = createPage(app, testPage).cache();
+        PageDTO page = createPage(app, testPage).block();
+        String pageId = page.getId();
+        String layoutId = page.getLayouts().get(0).getId();
 
-        Mono<LayoutDTO> testMono = pageMono
+        Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
@@ -473,7 +475,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(newActionService.createAction(action));
+                    monos.add(layoutActionService.createAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })
@@ -495,6 +497,8 @@ public class LayoutServiceTest {
 
                     JSONObject obj = new JSONObject(Map.of(
                             "widgetName", "testWidget",
+                            "widgetId", "id",
+                            "type", "test_type",
                             "key", "value-updated",
                             "another", "Hello people of the {{input1.text}} planet!",
                             "dynamicGet", "some dynamic {{aGetAction.data}}"
@@ -512,11 +516,85 @@ public class LayoutServiceTest {
 
         StepVerifier
                 .create(testMono)
-                .assertNext(layout -> {
-                    assertThat(layout).isNotNull();
-                    assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl().get("key")).isEqualTo("value-updated");
-                    assertThat(layout.getLayoutOnLoadActions()).hasSize(0);
+                .expectErrorMatches(throwable -> {
+                    assertThat(throwable instanceof AppsmithException);
+                    assertThat(throwable.getMessage().equals(AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE
+                            .getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId)));
+                    return true;
+                })
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testIncorrectMustacheExpressionInBindingInDsl() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        PageDTO testPage = new PageDTO();
+        testPage.setName("testIncorrectMustacheExpressionInBinding Test Page");
+
+        Application app = new Application();
+        app.setName("newApplication-testIncorrectMustacheExpressionInBinding-Test");
+
+        PageDTO page = createPage(app, testPage).block();
+        String pageId = page.getId();
+        String layoutId = page.getLayouts().get(0).getId();
+
+        Mono<LayoutDTO> testMono = Mono.just(page)
+                .flatMap(page1 -> {
+                    List<Mono<ActionDTO>> monos = new ArrayList<>();
+
+                    ActionDTO action = new ActionDTO();
+                    action.setName("aGetAction");
+                    action.setActionConfiguration(new ActionConfiguration());
+                    action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
+                    action.setPageId(page1.getId());
+                    action.setDatasource(datasource);
+                    monos.add(layoutActionService.createAction(action));
+
+                    return Mono.zip(monos, objects -> page1);
+                })
+                .zipWhen(page1 -> {
+                    Layout layout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "key", "value"
+                    ));
+                    layout.setDsl(obj);
+
+                    return layoutService.createLayout(page1.getId(), layout);
+                })
+                .flatMap(tuple2 -> {
+                    final PageDTO page1 = tuple2.getT1();
+                    final Layout layout = tuple2.getT2();
+
+                    Layout newLayout = new Layout();
+
+                    JSONObject obj = new JSONObject(Map.of(
+                            "widgetName", "testWidget",
+                            "widgetId", "id",
+                            "type", "test_type",
+                            "key", "value-updated",
+                            "dynamicGet", "a\"{{aGetAction\"/'\"'}}\"\""
+                    ));
+                    JSONArray dynamicBindingsPathList = new JSONArray();
+                    dynamicBindingsPathList.addAll(List.of(
+                            new JSONObject(Map.of("key", "dynamicGet"))
+                    ));
+
+                    obj.put("dynamicBindingPathList", dynamicBindingsPathList);
+                    newLayout.setDsl(obj);
+
+                    return layoutActionService.updateLayout(page1.getId(), layout.getId(), newLayout);
+                });
+
+        StepVerifier
+                .create(testMono)
+                .assertNext(layoutDTO -> {
+                    // We have reached here means we didnt get a throwable. Thats good
+                    assertThat(layoutDTO).isNotNull();
+                    // Since this is still a bad mustache binding, we couldn't have extracted the action name
+                    assertThat(layoutDTO.getLayoutOnLoadActions().size()).isEqualTo(0);
                 })
                 .verifyComplete();
     }

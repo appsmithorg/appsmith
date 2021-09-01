@@ -11,7 +11,7 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { ERROR_CODES } from "constants/ApiConstants";
+import { ERROR_CODES, SERVER_ERROR_CODES } from "constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -21,7 +21,10 @@ import {
   ERROR_500,
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
+  createMessage,
 } from "constants/messages";
+
+import * as Sentry from "@sentry/react";
 
 /**
  * making with error message with action name
@@ -47,13 +50,15 @@ export function* callAPI(apiCall: any, requestPayload: any) {
 const getErrorMessage = (code: number) => {
   switch (code) {
     case 401:
-      return ERROR_401;
+      return createMessage(ERROR_401);
     case 500:
-      return ERROR_500;
+      return createMessage(ERROR_500);
     case 0:
-      return ERROR_0;
+      return createMessage(ERROR_0);
   }
 };
+
+export class IncorrectBindingError extends Error {}
 
 /**
  * validates if response does have any errors
@@ -73,16 +78,22 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   }
   if (response.responseMeta.success) {
     return true;
-  } else {
-    yield put({
-      type: ReduxActionErrorTypes.API_ERROR,
-      payload: {
-        error: response.responseMeta.error,
-        show,
-      },
-    });
-    throw Error(response.responseMeta.error.message);
   }
+  if (
+    response.responseMeta.error.code ===
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+  ) {
+    throw new IncorrectBindingError(response.responseMeta.error.message);
+  }
+
+  yield put({
+    type: ReduxActionErrorTypes.API_ERROR,
+    payload: {
+      error: response.responseMeta.error,
+      show,
+    },
+  });
+  throw Error(response.responseMeta.error.message);
 }
 
 export function getResponseErrorMessage(response: ApiResponse) {
@@ -100,7 +111,7 @@ const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {
   [ReduxActionErrorTypes.API_ERROR]: (error) =>
-    get(error, "message", DEFAULT_ERROR_MESSAGE),
+    get(error, "message", createMessage(DEFAULT_ERROR_MESSAGE)),
   [ReduxActionErrorTypes.FETCH_PAGE_ERROR]: () =>
     getDefaultActionError("fetching the page"),
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: () =>
@@ -116,7 +127,7 @@ const getErrorMessageFromActionType = (
     if (type in ActionErrorDisplayMap) {
       return ActionErrorDisplayMap[type](error);
     }
-    return DEFAULT_ERROR_MESSAGE;
+    return createMessage(DEFAULT_ERROR_MESSAGE);
   }
   return actionErrorMessage;
 };
@@ -125,18 +136,20 @@ enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
   LOG_ERROR = "LOG_ERROR",
+  LOG_TO_SENTRY = "LOG_TO_SENTRY",
 }
 
 export interface ErrorActionPayload {
   error: ErrorPayloadType;
   show?: boolean;
   crash?: boolean;
+  logToSentry?: boolean;
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_ERROR];
-  const { type, payload } = errorAction;
-  const { show = true, error } = payload || {};
+  const { payload, type } = errorAction;
+  const { error, logToSentry, show = true } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
   if (show) {
@@ -145,6 +158,10 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
   if (error && error.crash) {
     effects.push(ErrorEffectTypes.SAFE_CRASH);
+  }
+
+  if (error && logToSentry) {
+    effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
   }
 
   for (const effect of effects) {
@@ -158,7 +175,11 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
-        yield call(crashAppSaga);
+        yield call(crashAppSaga, error);
+        break;
+      }
+      case ErrorEffectTypes.LOG_TO_SENTRY: {
+        yield call(Sentry.captureException, error);
         break;
       }
     }
@@ -182,9 +203,10 @@ function showAlertAboutError(message: string) {
   Toaster.show({ text: message, variant: Variant.danger });
 }
 
-function* crashAppSaga() {
+function* crashAppSaga(error: ErrorPayloadType) {
   yield put({
     type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
+    payload: error,
   });
 }
 

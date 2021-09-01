@@ -1,11 +1,10 @@
-import API, { HttpMethod } from "./Api";
+import API, { HttpMethod } from "api/Api";
 import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import {
-  APIRequest,
-  DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
-} from "constants/ApiConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
+import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import { WidgetType } from "constants/WidgetConstants";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -62,19 +61,25 @@ export interface ActionApiResponseReq {
   url: string;
 }
 
-export interface ActionApiResponse {
+export interface ActionExecutionResponse {
   responseMeta: ResponseMeta;
   data: {
-    body: Record<string, unknown>;
+    body: Record<string, unknown> | string;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
     request: ActionApiResponseReq;
+    errorType?: string;
   };
   clientMeta: {
     duration: string;
     size: string;
   };
+}
+
+export interface SuggestedWidget {
+  type: WidgetType;
+  bindingQuery: string;
 }
 
 export interface ActionResponse {
@@ -85,6 +90,9 @@ export interface ActionResponse {
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
+  suggestedWidgets?: SuggestedWidget[];
+  messages?: Array<string>;
+  errorType?: string;
 }
 
 export interface MoveActionRequest {
@@ -99,6 +107,7 @@ export interface CopyActionRequest {
 
 export interface UpdateActionNameRequest {
   pageId: string;
+  actionId: string;
   layoutId: string;
   newName: string;
   oldName: string;
@@ -109,11 +118,7 @@ class ActionAPI extends API {
   static apiUpdateCancelTokenSource: CancelTokenSource;
   static queryUpdateCancelTokenSource: CancelTokenSource;
 
-  static fetchAPI(id: string): AxiosPromise<GenericApiResponse<Action>> {
-    return API.get(`${ActionAPI.url}/${id}`);
-  }
-
-  static createAPI(
+  static createAction(
     apiConfig: Partial<Action>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     return API.post(ActionAPI.url, apiConfig);
@@ -137,7 +142,7 @@ class ActionAPI extends API {
     return API.get(ActionAPI.url, { pageId });
   }
 
-  static updateAPI(
+  static updateAction(
     apiConfig: Partial<Action>,
   ): AxiosPromise<ActionCreateUpdateResponse> {
     if (ActionAPI.apiUpdateCancelTokenSource) {
@@ -160,28 +165,10 @@ class ActionAPI extends API {
     return API.delete(`${ActionAPI.url}/${id}`);
   }
 
-  static createQuery(
-    createQuery: CreateActionRequest<QueryConfig>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
-    return API.post(ActionAPI.url, createQuery);
-  }
-
-  static updateQuery(
-    updateQuery: UpdateActionRequest<QueryConfig>,
-  ): AxiosPromise<ActionCreateUpdateResponse> {
-    if (ActionAPI.queryUpdateCancelTokenSource) {
-      ActionAPI.queryUpdateCancelTokenSource.cancel();
-    }
-    ActionAPI.queryUpdateCancelTokenSource = axios.CancelToken.source();
-    return API.post(ActionAPI.url, updateQuery, undefined, {
-      cancelToken: ActionAPI.queryUpdateCancelTokenSource.token,
-    });
-  }
-
   static executeAction(
     executeAction: ExecuteActionRequest,
     timeout?: number,
-  ): AxiosPromise<ActionApiResponse> {
+  ): AxiosPromise<ActionExecutionResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
@@ -191,10 +178,6 @@ class ActionAPI extends API {
     return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
-  }
-
-  static executeQuery(executeAction: any): AxiosPromise<ActionApiResponse> {
-    return API.post(ActionAPI.url + "/execute", executeAction);
   }
 
   static toggleActionExecuteOnLoad(actionId: string, shouldExecute: boolean) {

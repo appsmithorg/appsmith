@@ -1,5 +1,5 @@
 import { AxiosPromise } from "axios";
-import Api from "./Api";
+import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 
 export interface CurlImportRequest {
@@ -14,7 +14,7 @@ class CurlImportApi extends Api {
   static curlImportURL = `v1/import`;
 
   static curlImport(request: CurlImportRequest): AxiosPromise<ApiResponse> {
-    const { pageId, name, curl, organizationId } = request;
+    const { curl, name, organizationId, pageId } = request;
     return Api.post(CurlImportApi.curlImportURL, curl, {
       type: "CURL",
       pageId,

@@ -1,13 +1,15 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -40,7 +43,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
 
 public class ElasticSearchPlugin extends BasePlugin {
 
@@ -59,13 +66,27 @@ public class ElasticSearchPlugin extends BasePlugin {
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            final Map<String, Object> requestData = new HashMap<>();
+
+            String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = new ArrayList<>();
+
+            return Mono.fromCallable(() -> {
                 final ActionExecutionResult result = new ActionExecutionResult();
 
-                String body = actionConfiguration.getBody();
+                String body = query;
 
                 final String path = actionConfiguration.getPath();
-                final Request request = new Request(actionConfiguration.getHttpMethod().toString(), path);
+                requestData.put("path", path);
+
+                HttpMethod httpMethod = actionConfiguration.getHttpMethod();
+                requestData.put("method", httpMethod.name());
+                requestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", httpMethod.name(), null,
+                        null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
+                requestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null, null, null));
+
+                final Request request = new Request(httpMethod.toString(), path);
                 ContentType contentType = ContentType.APPLICATION_JSON;
 
                 if (isBulkQuery(path)) {
@@ -107,6 +128,23 @@ public class ElasticSearchPlugin extends BasePlugin {
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(error  -> {
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(error);
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(result -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setProperties(requestData);
+                        request.setQuery(query);
+                        request.setRequestParams(requestParams);
+                        ActionExecutionResult actionExecutionResult = result;
+                        actionExecutionResult.setRequest(request);
+                        return actionExecutionResult;
+                    })
                     .subscribeOn(scheduler);
         }
 
@@ -159,7 +197,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                     clientBuilder.setDefaultHeaders(
                             (Header[]) datasourceConfiguration.getHeaders()
                                     .stream()
-                                    .map(h -> new BasicHeader(h.getKey(), h.getValue()))
+                                    .map(h -> new BasicHeader(h.getKey(), (String) h.getValue()))
                                     .toArray()
                     );
                 }

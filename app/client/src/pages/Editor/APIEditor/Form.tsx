@@ -1,6 +1,11 @@
 import React, { useState } from "react";
-import { connect, useSelector } from "react-redux";
-import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
+import { connect, useDispatch, useSelector } from "react-redux";
+import {
+  change,
+  formValueSelector,
+  InjectedFormProps,
+  reduxForm,
+} from "redux-form";
 import {
   HTTP_METHOD_OPTIONS,
   HTTP_METHODS,
@@ -8,29 +13,28 @@ import {
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import { PaginationField } from "api/ActionAPI";
+import { PaginationField, SuggestedWidget } from "api/ActionAPI";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import Pagination from "./Pagination";
-import { PaginationType, Action } from "entities/Action";
-import { HelpMap, HelpBaseURL } from "constants/HelpConstants";
+import { Action, PaginationType } from "entities/Action";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import PostBodyData from "./PostBodyData";
-import ApiResponseView from "components/editorComponents/ApiResponseView";
+import ApiResponseView, {
+  EMPTY_RESPONSE,
+} from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
 import { AppState } from "reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { apiActionSettingsConfig } from "mockResponses/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { useHistory, useLocation, useParams } from "react-router-dom";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -38,13 +42,27 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import CloseEditor from "components/editorComponents/CloseEditor";
+import { useParams } from "react-router";
+import { Icon as ButtonIcon } from "@blueprintjs/core";
+import get from "lodash/get";
+import DataSourceList from "./ApiRightPane";
+import { Datasource } from "entities/Datasource";
+import { getActionResponses } from "../../../selectors/entitiesSelector";
+import { isEmpty } from "lodash";
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: calc(
+    100vh -
+      (
+        ${(props) => props.theme.smallHeaderHeight} +
+          ${(props) => props.theme.backBanner}
+      )
+  );
   overflow: hidden;
   width: 100%;
   ${FormLabel} {
@@ -64,11 +82,9 @@ const Form = styled.form`
 `;
 
 const MainConfiguration = styled.div`
-  padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
-  height: 124px;
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[10]}px 0px
+    ${(props) => props.theme.spaces[10]}px;
 `;
 
 const ActionButtons = styled.div`
@@ -81,6 +97,12 @@ const ActionButtons = styled.div`
   }
 `;
 
+const HelpSection = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[12]}px 0px
+    ${(props) => props.theme.spaces[12]}px;
+`;
+
 const DatasourceWrapper = styled.div`
   width: 100%;
 `;
@@ -88,12 +110,20 @@ const DatasourceWrapper = styled.div`
 const SecondaryWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 126px);
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+  ${HelpSection} {
+    margin-bottom: 10px;
+  }
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  height: 100%;
   border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  height: 50%;
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -129,7 +159,7 @@ const SettingsWrapper = styled.div`
 `;
 
 const TabSection = styled.div`
-  background-color: ${(props) => props.theme.colors.apiPane.bg};
+  background: white;
   height: 100%;
   overflow: auto;
 `;
@@ -157,12 +187,12 @@ const Link = styled.a`
   }
 `;
 
-const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px 0px
-    ${(props) => props.theme.spaces[12]}px;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 126px);
+  position: relative;
 `;
-
 interface APIFormProps {
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
@@ -172,11 +202,21 @@ interface APIFormProps {
   paginationType: PaginationType;
   appName: string;
   httpMethodFromForm: string;
-  actionConfigurationBody: Record<string, unknown> | string;
   actionConfigurationHeaders?: any;
+  datasourceHeaders?: any;
   actionName: string;
   apiId: string;
   apiName: string;
+  headersCount: number;
+  paramsCount: number;
+  settingsConfig: any;
+  hintMessages?: Array<string>;
+  datasources?: any;
+  currentPageId?: string;
+  applicationId?: string;
+  hasResponse: boolean;
+  suggestedWidgets?: SuggestedWidget[];
+  updateDatasource: (datasource: Datasource) => void;
 }
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
@@ -191,27 +231,190 @@ export const NameWrapper = styled.div`
   }
 `;
 
-const IconContainer = styled.div`
-  width: 22px;
-  height: 22px;
+export const ShowHideImportedHeaders = styled.button`
+  background: #ebebeb;
+  color: #4b4848;
+  padding: 3px 5px;
+  border: none;
   display: flex;
-  justify-content: center;
   align-items: center;
-  margin-right: 16px;
   cursor: pointer;
-  svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: ${(props) => props.theme.colors.apiPane.closeIcon};
+  font-size: 12px;
+  height: 20px;
+`;
+
+const Flex = styled.div<{ size: number }>`
+  flex: ${(props) => props.size};
+  ${(props) =>
+    props.size === 3
+      ? `
+    margin-left: ${props.theme.spaces[4]}px;
+  `
+      : null};
+  width: 100%;
+  position: relative;
+  min-height: 32px;
+  height: auto;
+  background-color: #fafafa;
+  border-color: #d3dee3;
+  border-bottom: 1px solid #e8e8e8;
+  color: #4b4848;
+  display: flex;
+  align-items: center;
+`;
+
+const FlexContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: calc(100% - 30px);
+
+  .key-value {
+    padding: ${(props) => props.theme.spaces[2]}px 0px
+      ${(props) => props.theme.spaces[2]}px
+      ${(props) => props.theme.spaces[1]}px;
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.apiPane.text};
     }
   }
-  &:hover {
-    background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
+  .key-value:nth-child(2) {
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+  }
+  .disabled {
+    background: #e8e8e8;
+    margin-bottom: 2px;
   }
 `;
 
-const ApiEditorForm: React.FC<Props> = (props: Props) => {
+const KeyValueStackContainer = styled.div`
+  padding: ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[14]}px 0
+    ${(props) => props.theme.spaces[11] + 2}px;
+`;
+const FormRowWithLabel = styled(FormRow)`
+  flex-wrap: wrap;
+  ${FormLabel} {
+    width: 100%;
+  }
+  & svg {
+    cursor: pointer;
+  }
+`;
+
+function ImportedHeaderKeyValue(props: { headers: any }) {
+  return (
+    <>
+      {props.headers.map((header: any, index: number) => {
+        return (
+          <FormRowWithLabel key={index}>
+            <FlexContainer>
+              <Flex className="key-value disabled" size={1}>
+                <Text type={TextType.H6}>{header.key}</Text>
+              </Flex>
+              <Flex className="key-value disabled" size={3}>
+                <Text type={TextType.H6}>{header.value}</Text>
+              </Flex>
+            </FlexContainer>
+          </FormRowWithLabel>
+        );
+      })}
+    </>
+  );
+}
+
+const BoundaryContainer = styled.div`
+  border: 1px solid transparent;
+  border-right: none;
+`;
+
+function renderImportedHeadersButton(
+  headersCount: number,
+  onClick: any,
+  showInheritedAttributes: boolean,
+) {
+  return (
+    <KeyValueStackContainer>
+      <ShowHideImportedHeaders
+        onClick={(e) => {
+          e.preventDefault();
+          onClick(!showInheritedAttributes);
+        }}
+      >
+        <ButtonIcon
+          icon={showInheritedAttributes ? "eye-open" : "eye-off"}
+          iconSize={14}
+        />
+        &nbsp;&nbsp;
+        <Text case={Case.CAPITALIZE} type={TextType.P2}>
+          {showInheritedAttributes
+            ? "Showing inherited headers"
+            : `${headersCount} headers`}
+        </Text>
+      </ShowHideImportedHeaders>
+    </KeyValueStackContainer>
+  );
+}
+
+function renderHelpSection(
+  handleClickLearnHow: any,
+  setApiBindHelpSectionVisible: any,
+) {
+  return (
+    <HelpSection>
+      <Callout
+        closeButton
+        fill
+        label={
+          <CalloutContent>
+            <Link
+              className="t--learn-how-apis-link"
+              onClick={handleClickLearnHow}
+            >
+              <Text case={Case.UPPERCASE} type={TextType.H6}>
+                Learn How
+              </Text>
+              <Icon name="right-arrow" />
+            </Link>
+          </CalloutContent>
+        }
+        onClose={() => setApiBindHelpSectionVisible(false)}
+        text={createMessage(WIDGET_BIND_HELP)}
+        variant={Variant.warning}
+      />
+    </HelpSection>
+  );
+}
+
+function ImportedHeaders(props: { headers: any }) {
+  const [showHeaders, toggleHeaders] = useState(false);
+  return (
+    <>
+      {renderImportedHeadersButton(
+        props.headers.length,
+        toggleHeaders,
+        showHeaders,
+      )}
+      <KeyValueStackContainer>
+        <FormRowWithLabel>
+          <FlexContainer>
+            <Flex className="key-value" size={1}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Key
+              </Text>
+            </Flex>
+            <Flex className="key-value" size={3}>
+              <Text case={Case.CAPITALIZE} type={TextType.H6}>
+                Value
+              </Text>
+            </Flex>
+          </FlexContainer>
+        </FormRowWithLabel>
+        {showHeaders && <ImportedHeaderKeyValue headers={props.headers} />}
+      </KeyValueStackContainer>
+    </>
+  );
+}
+
+function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
     apiBindHelpSectionVisible,
@@ -219,15 +422,20 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   ] = useLocalStorage("apiBindHelpSectionVisible", "true");
 
   const {
-    pluginId,
-    onRunClick,
-    handleSubmit,
-    isRunning,
     actionConfigurationHeaders,
-    actionConfigurationBody,
-    httpMethodFromForm,
     actionName,
+    handleSubmit,
+    headersCount,
+    hintMessages,
+    httpMethodFromForm,
+    isRunning,
+    onRunClick,
+    paramsCount,
+    pluginId,
+    settingsConfig,
+    updateDatasource,
   } = props;
+  const dispatch = useDispatch();
   const allowPostBody =
     httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
 
@@ -239,155 +447,127 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const history = useHistory();
-  const location = useLocation();
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
 
-  const handleClose = (e: React.MouseEvent) => {
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.CLOSE_SIDE_PANE,
-      { path: location.pathname },
-    );
+  const theme = EditorTheme.LIGHT;
+  const handleClickLearnHow = (e: React.MouseEvent) => {
     e.stopPropagation();
-    history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+    dispatch(setGlobalSearchQuery("capturing data"));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
 
-  // Enforcing the light theme
-  const theme = EditorTheme.LIGHT;
-
   return (
-    <Form onSubmit={handleSubmit}>
-      <MainConfiguration>
-        <FormRow className="form-row-header">
-          <NameWrapper className="t--nameOfApi">
-            <TooltipComponent
-              minimal
-              position={Position.BOTTOM}
-              content={
-                <Text type={TextType.P3} style={{ color: "#ffffff" }}>
-                  Close
-                </Text>
-              }
-            >
-              <IconContainer>
-                <Icon
-                  name="close-modal"
-                  size={IconSize.LARGE}
-                  className="close-modal-icon"
-                  onClick={handleClose}
-                />
-              </IconContainer>
-            </TooltipComponent>
-            <ActionNameEditor page="API_PANE" />
-          </NameWrapper>
-          <ActionButtons className="t--formActionButtons">
-            <MoreActionsMenu
-              id={currentActionConfig ? currentActionConfig.id : ""}
-              name={currentActionConfig ? currentActionConfig.name : ""}
-              className="t--more-action-menu"
-              pageId={pageId}
-            />
-            <Button
-              text="Run"
-              tag="button"
-              size={Size.medium}
-              onClick={() => {
-                onRunClick();
-              }}
-              isLoading={isRunning}
-              className="t--apiFormRunBtn"
-            />
-          </ActionButtons>
-        </FormRow>
-        <FormRow className="api-info-row">
-          <RequestDropdownField
-            placeholder="Method"
-            name="actionConfiguration.httpMethod"
-            className="t--apiFormHttpMethod"
-            options={HTTP_METHOD_OPTIONS}
-            isSearchable={false}
-          />
-          <DatasourceWrapper className="t--dataSourceField">
-            <EmbeddedDatasourcePathField
-              name="actionConfiguration.path"
-              pluginId={pluginId}
-              placeholder="https://mock-api.appsmith.com/users"
-              theme={theme}
-            />
-          </DatasourceWrapper>
-        </FormRow>
-      </MainConfiguration>
-      <SecondaryWrapper>
-        <TabbedViewContainer>
-          <TabComponent
-            tabs={[
-              {
-                key: "headers",
-                title: "Headers",
-                panelComponent: (
-                  <TabSection>
-                    {apiBindHelpSectionVisible && (
-                      <HelpSection>
-                        <Callout
-                          text="Having trouble taking inputs from widgets?"
-                          label={
-                            <CalloutContent>
-                              <Link
-                                href={`${HelpBaseURL}${HelpMap["API_BINDING"].path}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <Text type={TextType.H6} case={Case.UPPERCASE}>
-                                  Learn How
-                                </Text>
-                                <Icon name="right-arrow" />
-                              </Link>
-                            </CalloutContent>
-                          }
-                          variant={Variant.warning}
-                          fill
-                          closeButton
-                          onClose={() => setApiBindHelpSectionVisible(false)}
+    <>
+      <CloseEditor />
+      <Form onSubmit={handleSubmit}>
+        <MainConfiguration>
+          <FormRow className="form-row-header">
+            <NameWrapper className="t--nameOfApi">
+              <ActionNameEditor page="API_PANE" />
+            </NameWrapper>
+            <ActionButtons className="t--formActionButtons">
+              <MoreActionsMenu
+                className="t--more-action-menu"
+                id={currentActionConfig ? currentActionConfig.id : ""}
+                name={currentActionConfig ? currentActionConfig.name : ""}
+                pageId={pageId}
+              />
+              <Button
+                className="t--apiFormRunBtn"
+                isLoading={isRunning}
+                onClick={() => {
+                  onRunClick();
+                }}
+                size={Size.medium}
+                tag="button"
+                text="Run"
+                type="button"
+              />
+            </ActionButtons>
+          </FormRow>
+          <FormRow className="api-info-row">
+            <BoundaryContainer>
+              <RequestDropdownField
+                className="t--apiFormHttpMethod"
+                height={"35px"}
+                name="actionConfiguration.httpMethod"
+                optionWidth={"100px"}
+                options={HTTP_METHOD_OPTIONS}
+                placeholder="Method"
+                width={"100px"}
+              />
+            </BoundaryContainer>
+            <DatasourceWrapper className="t--dataSourceField">
+              <EmbeddedDatasourcePathField
+                name="actionConfiguration.path"
+                placeholder="https://mock-api.appsmith.com/users"
+                pluginId={pluginId}
+                theme={theme}
+              />
+            </DatasourceWrapper>
+          </FormRow>
+        </MainConfiguration>
+        {hintMessages && (
+          <HelpSection>
+            {hintMessages.map((msg, i) => (
+              <Callout fill key={i} text={msg} variant={Variant.warning} />
+            ))}
+          </HelpSection>
+        )}
+        <Wrapper>
+          <SecondaryWrapper>
+            <TabbedViewContainer>
+              <TabComponent
+                onSelect={setSelectedIndex}
+                selectedIndex={selectedIndex}
+                tabs={[
+                  {
+                    key: "headers",
+                    title: "Headers",
+                    count: headersCount,
+                    panelComponent: (
+                      <TabSection>
+                        {apiBindHelpSectionVisible &&
+                          renderHelpSection(
+                            handleClickLearnHow,
+                            setApiBindHelpSectionVisible,
+                          )}
+                        {props.datasourceHeaders.length > 0 && (
+                          <ImportedHeaders headers={props.datasourceHeaders} />
+                        )}
+                        <KeyValueFieldArray
+                          actionConfig={actionConfigurationHeaders}
+                          dataTreePath={`${actionName}.config.headers`}
+                          hideHeader={!!props.datasourceHeaders.length}
+                          label="Headers"
+                          name="actionConfiguration.headers"
+                          placeholder="Value"
+                          theme={theme}
                         />
-                      </HelpSection>
-                    )}
-                    <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.headers"
-                      label="Headers"
-                      actionConfig={actionConfigurationHeaders}
-                      placeholder="Value"
-                      dataTreePath={`${actionName}.config.headers`}
-                      pushFields
-                    />
-                  </TabSection>
-                ),
-              },
-              {
-                key: "params",
-                title: "Params",
-                panelComponent: (
-                  <TabSection>
-                    <KeyValueFieldArray
-                      theme={theme}
-                      name="actionConfiguration.queryParameters"
-                      label="Params"
-                      dataTreePath={`${actionName}.config.queryParameters`}
-                      pushFields
-                    />
-                  </TabSection>
-                ),
-              },
-              {
-                key: "body",
-                title: "Body",
-                panelComponent: (
-                  <>
-                    {allowPostBody ? (
+                      </TabSection>
+                    ),
+                  },
+                  {
+                    key: "params",
+                    title: "Params",
+                    count: paramsCount,
+                    panelComponent: (
+                      <TabSection>
+                        <KeyValueFieldArray
+                          dataTreePath={`${actionName}.config.queryParameters`}
+                          label="Params"
+                          name="actionConfiguration.queryParameters"
+                          theme={theme}
+                        />
+                      </TabSection>
+                    ),
+                  },
+                  {
+                    key: "body",
+                    title: "Body",
+                    panelComponent: allowPostBody ? (
                       <PostBodyData
-                        actionConfigurationHeaders={actionConfigurationHeaders}
-                        actionConfiguration={actionConfigurationBody}
-                        change={props.change}
                         dataTreePath={`${actionName}.config`}
                         theme={theme}
                       />
@@ -397,66 +577,136 @@ const ApiEditorForm: React.FC<Props> = (props: Props) => {
                           This request does not have a body
                         </Text>
                       </NoBodyMessage>
-                    )}
-                  </>
-                ),
-              },
-              {
-                key: "pagination",
-                title: "Pagination",
-                panelComponent: (
-                  <Pagination
-                    onTestClick={props.onRunClick}
-                    paginationType={props.paginationType}
-                    theme={theme}
-                  />
-                ),
-              },
-              {
-                key: "settings",
-                title: "Settings",
-                panelComponent: (
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={apiActionSettingsConfig}
-                      formName={API_EDITOR_FORM_NAME}
-                      theme={theme}
-                    />
-                  </SettingsWrapper>
-                ),
-              },
-            ]}
-            selectedIndex={selectedIndex}
-            onSelect={setSelectedIndex}
+                    ),
+                  },
+                  {
+                    key: "pagination",
+                    title: "Pagination",
+                    panelComponent: (
+                      <Pagination
+                        onTestClick={props.onRunClick}
+                        paginationType={props.paginationType}
+                        theme={theme}
+                      />
+                    ),
+                  },
+                  {
+                    key: "settings",
+                    title: "Settings",
+                    panelComponent: (
+                      <SettingsWrapper>
+                        <ActionSettings
+                          actionSettingsConfig={settingsConfig}
+                          formName={API_EDITOR_FORM_NAME}
+                          theme={theme}
+                        />
+                      </SettingsWrapper>
+                    ),
+                  },
+                ]}
+              />
+            </TabbedViewContainer>
+            <ApiResponseView
+              apiName={actionName}
+              onRunClick={onRunClick}
+              theme={theme}
+            />
+          </SecondaryWrapper>
+          <DataSourceList
+            actionName={actionName}
+            applicationId={props.applicationId}
+            currentPageId={props.currentPageId}
+            datasources={props.datasources}
+            hasResponse={props.hasResponse}
+            onClick={updateDatasource}
+            suggestedWidgets={props.suggestedWidgets}
           />
-        </TabbedViewContainer>
-
-        <ApiResponseView theme={theme} />
-      </SecondaryWrapper>
-    </Form>
+        </Wrapper>
+      </Form>
+    </>
   );
-};
+}
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
-export default connect((state: AppState) => {
+type ReduxDispatchProps = {
+  updateDatasource: (datasource: Datasource) => void;
+};
+
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  updateDatasource: (datasource) => {
+    dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
+  },
+});
+
+export default connect((state: AppState, props: { pluginId: string }) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
-  const actionConfigurationBody = selector(state, "actionConfiguration.body");
-  const actionConfigurationHeaders = selector(
-    state,
-    "actionConfiguration.headers",
-  );
+  const actionConfigurationHeaders =
+    selector(state, "actionConfiguration.headers") || [];
+  let datasourceFromAction = selector(state, "datasource");
+  if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
+    datasourceFromAction = state.entities.datasources.list.find(
+      (d) => d.id === datasourceFromAction.id,
+    );
+  }
+  const datasourceHeaders =
+    get(datasourceFromAction, "datasourceConfiguration.headers") || [];
   const apiId = selector(state, "id");
   const actionName = getApiName(state, apiId) || "";
+  const headers = selector(state, "actionConfiguration.headers");
+  let headersCount = 0;
+
+  if (Array.isArray(headers)) {
+    const validHeaders = headers.filter(
+      (value) => value.key && value.key !== "",
+    );
+    headersCount += validHeaders.length;
+  }
+
+  if (Array.isArray(datasourceHeaders)) {
+    const validHeaders = datasourceHeaders.filter(
+      (value: any) => value.key && value.key !== "",
+    );
+    headersCount += validHeaders.length;
+  }
+
+  const params = selector(state, "actionConfiguration.queryParameters");
+  let paramsCount = 0;
+
+  if (Array.isArray(params)) {
+    const validParams = params.filter((value) => value.key && value.key !== "");
+    paramsCount = validParams.length;
+  }
+  const hintMessages = selector(state, "datasource.messages");
+
+  const responses = getActionResponses(state);
+  let hasResponse = false;
+  let suggestedWidgets;
+  if (apiId && apiId in responses) {
+    const response = responses[apiId] || EMPTY_RESPONSE;
+    hasResponse =
+      !isEmpty(response.statusCode) && response.statusCode[0] === "2";
+    suggestedWidgets = response.suggestedWidgets;
+  }
 
   return {
     actionName,
     apiId,
     httpMethodFromForm,
-    actionConfigurationBody,
     actionConfigurationHeaders,
+    datasourceHeaders,
+    headersCount,
+    paramsCount,
+    hintMessages,
+    datasources: state.entities.datasources.list.filter(
+      (d) => d.pluginId === props.pluginId,
+    ),
+    currentPageId: state.entities.pageList.currentPageId,
+    applicationId: state.entities.pageList.applicationId,
+    suggestedWidgets,
+    hasResponse,
   };
-})(
+}, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
     form: API_EDITOR_FORM_NAME,
   })(ApiEditorForm),

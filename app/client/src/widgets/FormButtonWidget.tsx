@@ -2,15 +2,14 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
+  ButtonStyle,
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
 import {
-  BASE_WIDGET_VALIDATION,
-  WidgetPropertyValidationType,
-} from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 
@@ -43,6 +42,7 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "buttonStyle",
@@ -84,6 +84,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -93,6 +94,7 @@ class FormButtonWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "googleRecaptchaKey",
@@ -102,6 +104,17 @@ class FormButtonWidget extends BaseWidget<
             placeholderText: "Enter google recaptcha key",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "recaptchaV2",
+            label: "Google reCAPTCHA v2",
+            controlType: "SWITCH",
+            helpText: "Use reCAPTCHA v2",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -128,23 +141,6 @@ class FormButtonWidget extends BaseWidget<
     };
   }
 
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      text: VALIDATION_TYPES.TEXT,
-      disabledWhenInvalid: VALIDATION_TYPES.BOOLEAN,
-      buttonStyle: VALIDATION_TYPES.TEXT,
-      buttonType: VALIDATION_TYPES.TEXT,
-      // onClick: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
-    };
-  }
-
   clickWithRecaptcha(token: string) {
     if (this.props.onClick) {
       this.setState({
@@ -152,6 +148,7 @@ class FormButtonWidget extends BaseWidget<
       });
     }
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
+      triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
       event: {
         type: EventType.ON_CLICK,
@@ -166,6 +163,7 @@ class FormButtonWidget extends BaseWidget<
         isLoading: true,
       });
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -196,16 +194,17 @@ class FormButtonWidget extends BaseWidget<
     return (
       <ButtonComponent
         buttonStyle={this.props.buttonStyle}
-        widgetId={this.props.widgetId}
-        key={this.props.widgetId}
-        widgetName={this.props.widgetName}
-        text={this.props.text}
-        disabled={disabled}
-        onClick={!disabled ? this.onButtonClickBound : undefined}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        type={this.props.buttonType || ButtonType.BUTTON}
-        googleRecaptchaKey={this.props.googleRecaptchaKey}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
+        googleRecaptchaKey={this.props.googleRecaptchaKey}
+        isDisabled={disabled}
+        isLoading={this.props.isLoading || this.state.isLoading}
+        key={this.props.widgetId}
+        onClick={!disabled ? this.onButtonClickBound : undefined}
+        recaptchaV2={this.props.recaptchaV2}
+        text={this.props.text}
+        type={this.props.buttonType || ButtonType.BUTTON}
+        widgetId={this.props.widgetId}
+        widgetName={this.props.widgetName}
       />
     );
   }
@@ -215,11 +214,11 @@ class FormButtonWidget extends BaseWidget<
   }
 }
 
-export type ButtonStyle =
-  | "PRIMARY_BUTTON"
-  | "SECONDARY_BUTTON"
-  | "SUCCESS_BUTTON"
-  | "DANGER_BUTTON";
+// export type ButtonStyle =
+//   | "PRIMARY_BUTTON"
+//   | "SECONDARY_BUTTON"
+//   | "SUCCESS_BUTTON"
+//   | "DANGER_BUTTON";
 
 export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
@@ -232,6 +231,7 @@ export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   onReset?: () => void;
   disabledWhenInvalid?: boolean;
   googleRecaptchaKey?: string;
+  recaptchaV2?: boolean;
 }
 
 export interface FormButtonWidgetState extends WidgetState {

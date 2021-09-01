@@ -3,9 +3,9 @@ import styled from "styled-components";
 import { CommonComponentProps } from "./common";
 import Text, { Case, TextType } from "./Text";
 
-export type TabProp = {
+export type TabProp<T> = {
   key: string;
-  title: string;
+  title: T;
   panelComponent: JSX.Element;
 };
 
@@ -39,13 +39,13 @@ const Tab = styled.div<{ selected: boolean }>`
   border-right: 1px solid ${(props) => props.theme.colors.multiSwitch.border};
 `;
 
-type MultiSwitchProps = CommonComponentProps & {
-  tabs: Array<TabProp>;
-  selected: { title: string; value: string };
-  onSelect: (title?: string) => void;
+type MultiSwitchProps<T> = CommonComponentProps & {
+  tabs: Array<TabProp<T>>;
+  selected: { title: T; value: string };
+  onSelect: (title: T) => void;
 };
 
-export default function MultiSwitch(props: MultiSwitchProps) {
+export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
   const selectedTab = props.tabs.find(
     (tab) => tab.key === props.selected.value,
   );
@@ -55,10 +55,10 @@ export default function MultiSwitch(props: MultiSwitchProps) {
         {props.tabs.map((tab) => (
           <Tab
             key={tab.key}
-            selected={props.selected.value === tab.key}
             onClick={() => props.onSelect(tab.title)}
+            selected={props.selected.value === tab.key}
           >
-            <Text type={TextType.P3} case={Case.UPPERCASE}>
+            <Text case={Case.UPPERCASE} type={TextType.P3}>
               {tab.title}
             </Text>
           </Tab>

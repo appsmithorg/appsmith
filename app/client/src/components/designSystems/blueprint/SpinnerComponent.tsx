@@ -6,9 +6,9 @@ class SpinnerComponent extends React.Component<SpinnerComponentProps> {
   render() {
     return (
       <Spinner
+        intent={this.props.intent}
         size={this.props.size}
         value={this.props.value}
-        intent={this.props.intent}
       />
     );
   }

@@ -33,9 +33,10 @@ public class CustomDatasourceRepositoryImpl extends BaseAppsmithRepositoryImpl<D
     }
 
     @Override
-    public Mono<Datasource> findByName(String name, AclPermission aclPermission) {
+    public Mono<Datasource> findByNameAndOrganizationId(String name, String organizationId, AclPermission aclPermission) {
         Criteria nameCriteria = where(fieldName(QDatasource.datasource.name)).is(name);
-        return queryOne(List.of(nameCriteria), aclPermission);
+        Criteria orgIdCriteria = where(fieldName(QDatasource.datasource.organizationId)).is(organizationId);
+        return queryOne(List.of(nameCriteria, orgIdCriteria), aclPermission);
     }
 
     @Override

@@ -1,6 +1,6 @@
 #When you are building, name it appsmith-server which is how it is referenced in docker-compose.yml
 
-FROM adoptopenjdk/openjdk11:alpine-jre
+FROM adoptopenjdk/openjdk11:jre-11.0.10_9-alpine
 
 LABEL maintainer="tech@appsmith.com"
 

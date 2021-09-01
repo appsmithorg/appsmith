@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React from "react";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import {
   MenuItem,
@@ -6,17 +6,10 @@ import {
   ControlGroup,
   Label,
   Classes,
-  Checkbox,
-  Icon,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import { SelectionType, DropdownOption } from "widgets/DropdownWidget";
-import {
-  Select,
-  MultiSelect,
-  IItemRendererProps,
-  Classes as MultiSelectClasses,
-} from "@blueprintjs/select";
+import { DropdownOption } from "widgets/DropdownWidget";
+import { Select, IItemRendererProps } from "@blueprintjs/select";
 import _ from "lodash";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
@@ -24,7 +17,6 @@ import styled, {
   createGlobalStyle,
   labelStyle,
   BlueprintCSSTransform,
-  BlueprintInputTransform,
   getBorderCSSShorthand,
 } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -40,9 +32,7 @@ const FUSE_OPTIONS = {
 };
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-const MultiDropDown = MultiSelect.ofType<DropdownOption>();
-
-const StyledSingleDropDown = styled(SingleDropDown)`
+const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
   div {
     flex: 1 1 auto;
   }
@@ -60,6 +50,9 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     min-height: 32px;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
   }
+  &&&&& .${Classes.DISABLED} {
+    background-color: ${Colors.SELECT_DISABLED};
+  }
   .${Classes.BUTTON_TEXT} {
     text-overflow: ellipsis;
     text-align: left;
@@ -67,6 +60,8 @@ const StyledSingleDropDown = styled(SingleDropDown)`
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
+    color: ${(props) =>
+      props.isSelected ? Colors.SELECT_COLOR : Colors.SELECT_PLACEHOLDER};
   }
   && {
     .${Classes.ICON} {
@@ -138,7 +133,7 @@ const DropdownStyles = createGlobalStyle`
         &::before {
           width: auto;
           height: 1em;
-        }&
+        }
       }
       .${Classes.CONTROL} input:checked ~ .${Classes.CONTROL_INDICATOR} {
         background: ${(props) => props.theme.colors.primaryOld};
@@ -152,91 +147,10 @@ const DropdownStyles = createGlobalStyle`
 const DropdownContainer = styled.div`
   ${BlueprintCSSTransform}
 `;
-
-const StyledCheckbox = styled(Checkbox)`
-  &&.${Classes.CHECKBOX}.${Classes.CONTROL} {
-    margin: 0;
-  }
-`;
-
-const StyledMultiDropDown = styled(MultiDropDown)<{
-  hideCloseButtonIndex: number;
-  height: number;
-  width: number;
-}>`
-  div {
-    flex: 1 1 auto;
-    height: ${(props) => props.height - WIDGET_PADDING * 2}px;
-  }
-  .${MultiSelectClasses.MULTISELECT} {
-    position: relative;
-    min-width: 0;
-  }
-  && {
-    ${BlueprintInputTransform}
-    .${Classes.TAG_INPUT} {
-        display: flex;
-        width: 100%;
-        align-items: center;
-        justify-content: space-between;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        min-height: 32px;
-
-      .${Classes.TAG_INPUT_VALUES} {
-        margin-top: 0;
-        overflow: hidden;
-        display: flex;
-        height: ${(props) => props.height - WIDGET_PADDING * 2 - 2}px;
-      }
-
-      .${Classes.TAG} {
-        background: none;
-        border: 1px solid #D0D7DD;
-        border-radius: 2px;
-        margin: 3px 2px;
-        max-width: ${(props) => props.width * 0.85}px;
-        height: 24px;
-      }
-
-      ${(props) =>
-        props.hideCloseButtonIndex >= 0 &&
-        `
-      .${Classes.TAG}:nth-child(${props.hideCloseButtonIndex}) {
-        .${Classes.ICON} {
-          align-self: center;
-          margin-right: 0px;
-          color: ${Colors.SLATE_GRAY};
-        }
-        button {
-          display: none;
-        }
-      }
-      `}
-      & > .${Classes.ICON} {
-        align-self: center;
-        margin-right: 10px;
-        color: ${Colors.SLATE_GRAY};
-      }
-      .${Classes.INPUT_GHOST} {
-        flex: 0 0 auto;
-        margin: 0;
-        display: flex;
-        height: 26px;
-        flex: 1;
-      }
-    }
-  }
-`;
+const DEBOUNCE_TIMEOUT = 800;
 
 class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
-    const { selectedIndexArr, options } = this.props;
-    const selectedItems = selectedIndexArr
-      ? _.map(selectedIndexArr, (index) => options[index])
-      : [];
-    const hideCloseButtonIndex = -1;
-
     return (
       <DropdownContainer>
         <DropdownStyles />
@@ -255,69 +169,50 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
               {this.props.label}
             </Label>
           )}
-          {this.props.selectionType === "SINGLE_SELECT" ? (
-            <StyledSingleDropDown
-              className={this.props.isLoading ? Classes.SKELETON : ""}
-              items={this.props.options}
-              filterable={true}
-              itemRenderer={this.renderSingleSelectItem}
-              onItemSelect={this.onItemSelect}
+          <StyledSingleDropDown
+            className={this.props.isLoading ? Classes.SKELETON : ""}
+            disabled={this.props.disabled}
+            filterable={this.props.isFilterable}
+            isSelected={
+              !_.isEmpty(this.props.options) &&
+              this.props.selectedIndex !== undefined &&
+              this.props.selectedIndex > -1
+            }
+            itemListPredicate={
+              !this.props.serverSideFiltering
+                ? this.itemListPredicate
+                : undefined
+            }
+            itemRenderer={this.renderSingleSelectItem}
+            items={this.props.options}
+            onItemSelect={this.onItemSelect}
+            onQueryChange={
+              this.props.serverSideFiltering ? this.serverSideSearch : undefined
+            }
+            popoverProps={{
+              boundary: "window",
+              minimal: true,
+              usePortal: true,
+              modifiers: {
+                preventOverflow: {
+                  enabled: false,
+                },
+              },
+              popoverClassName: "select-popover-wrapper",
+            }}
+          >
+            <Button
               disabled={this.props.disabled}
-              popoverProps={{
-                minimal: true,
-                usePortal: true,
-                popoverClassName: "select-popover-wrapper",
-              }}
-              itemListPredicate={this.itemListPredicate}
-            >
-              <Button
-                rightIcon={IconNames.CHEVRON_DOWN}
-                text={
-                  !_.isEmpty(this.props.options) &&
-                  this.props.selectedIndex !== undefined &&
-                  this.props.selectedIndex > -1
-                    ? this.props.options[this.props.selectedIndex].label
-                    : "-- Select --"
-                }
-              />
-            </StyledSingleDropDown>
-          ) : (
-            <StyledMultiDropDown
-              resetOnSelect
-              scrollToActiveItem={false}
-              className={this.props.isLoading ? Classes.SKELETON : ""}
-              items={this.props.options}
-              itemListPredicate={this.itemListPredicate}
-              placeholder={this.props.placeholder}
-              tagRenderer={this.renderTag}
-              itemRenderer={this.renderMultiSelectItem}
-              selectedItems={selectedItems}
-              height={this.props.height}
-              tagInputProps={{
-                onRemove: this.onItemRemoved,
-                tagProps: (value, index) => ({
-                  minimal: true,
-                  interactive:
-                    hideCloseButtonIndex - 1 === index ? true : false,
-                  rightIcon:
-                    hideCloseButtonIndex - 1 === index
-                      ? IconNames.CHEVRON_DOWN
-                      : undefined,
-                }),
-                disabled: this.props.disabled,
-                fill: true,
-                rightElement: <Icon icon={IconNames.CHEVRON_DOWN} />,
-              }}
-              hideCloseButtonIndex={hideCloseButtonIndex}
-              onItemSelect={this.onItemSelect}
-              popoverProps={{
-                minimal: true,
-                usePortal: true,
-                popoverClassName: "select-popover-wrapper",
-              }}
-              width={this.props.width}
+              rightIcon={IconNames.CHEVRON_DOWN}
+              text={
+                !_.isEmpty(this.props.options) &&
+                this.props.selectedIndex !== undefined &&
+                this.props.selectedIndex > -1
+                  ? this.props.options[this.props.selectedIndex].label
+                  : this.props.placeholder || "-- Select --"
+              }
             />
-          )}
+          </StyledSingleDropDown>
         </StyledControlGroup>
       </DropdownContainer>
     );
@@ -332,28 +227,15 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     this.props.onOptionSelected(item);
   };
 
-  onItemRemoved = (_tag: string, index: number) => {
-    this.props.onOptionRemoved(this.props.selectedIndexArr[index]);
-  };
-
-  renderTag = (option: DropdownOption) => {
-    return option.label;
-  };
-
   isOptionSelected = (selectedOption: DropdownOption) => {
     const optionIndex = _.findIndex(this.props.options, (option) => {
       return option.value === selectedOption.value;
     });
-    if (this.props.selectionType === "SINGLE_SELECT") {
-      return optionIndex === this.props.selectedIndex;
-    } else {
-      return (
-        _.findIndex(this.props.selectedIndexArr, (index) => {
-          return index === optionIndex;
-        }) !== -1
-      );
-    }
+    return optionIndex === this.props.selectedIndex;
   };
+  serverSideSearch = _.debounce((filterValue: string) => {
+    this.props.onFilterChange(filterValue);
+  }, DEBOUNCE_TIMEOUT);
 
   renderSingleSelectItem = (
     option: DropdownOption,
@@ -365,57 +247,29 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
       />
     );
   };
-
-  renderMultiSelectItem = (
-    option: DropdownOption,
-    itemProps: IItemRendererProps,
-  ) => {
-    if (!itemProps.modifiers.matchesPredicate) {
-      return null;
-    }
-    const isSelected: boolean = this.isOptionSelected(option);
-    const content: ReactNode = (
-      <React.Fragment>
-        <StyledCheckbox
-          checked={isSelected}
-          label={option.label}
-          alignIndicator="left"
-          onChange={(e: any) => itemProps.handleClick(e)}
-        />
-      </React.Fragment>
-    );
-    return (
-      <MenuItem
-        className="multi-select"
-        active={isSelected}
-        key={option.value}
-        text={content}
-      />
-    );
-  };
 }
 
 export interface DropDownComponentProps extends ComponentProps {
-  selectionType: SelectionType;
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
-  onOptionRemoved: (removedIndex: number) => void;
   placeholder?: string;
   label?: string;
   selectedIndex?: number;
-  selectedIndexArr: number[];
   options: DropdownOption[];
   isLoading: boolean;
+  isFilterable: boolean;
   width: number;
   height: number;
+  serverSideFiltering: boolean;
+  onFilterChange: (text: string) => void;
 }
 
 export default DropDownComponent;

@@ -37,7 +37,7 @@ export enum SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES {
 type HighlightedCodeProps = {
   codeText: string;
   language?: SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES;
-  skin?: Skin;
+  skin: Skin;
   multiline?: boolean;
   onClick?: () => void;
   className?: string;
@@ -64,13 +64,13 @@ export const HighlightedCode = forwardRef(
 
     return (
       <StyledCode
-        skin={props.skin || Skin.DARK}
+        className={props.className}
         onClick={props.onClick}
         ref={ref}
-        className={props.className}
+        skin={props.skin}
       >
         {!props.multiline && (
-          <code ref={codeRef} className={language}>
+          <code className={language} ref={codeRef}>
             {props.codeText}
           </code>
         )}

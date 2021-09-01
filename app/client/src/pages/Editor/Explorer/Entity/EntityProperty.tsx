@@ -1,23 +1,24 @@
-import React, { useRef, MutableRefObject, memo } from "react";
+import React, { memo, MutableRefObject, useRef } from "react";
 import styled from "styled-components";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
 import {
-  Popover,
-  PopoverInteractionKind,
   Classes,
   Icon,
+  Popover,
+  PopoverInteractionKind,
 } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
-import { scrollbarDark } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
 import { ControlIcons } from "icons/ControlIcons";
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { EntityClassNames } from ".";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 const StyledValue = styled.pre<{ step: number }>`
   & {
@@ -122,7 +123,6 @@ const Wrapper = styled.div<{ step: number }>`
 `;
 
 const StyledPopoverContent = styled.div`
-  ${scrollbarDark}
   background: black;
   max-height: 500px;
   width: 400px;
@@ -143,7 +143,7 @@ const StyledPopoverContent = styled.div`
 `;
 
 const CollapseIcon = ControlIcons.COLLAPSE_CONTROL;
-const collapseIcon = <CollapseIcon width={10} height={8} color={Colors.ALTO} />;
+const collapseIcon = <CollapseIcon color={Colors.ALTO} height={8} width={10} />;
 
 export type EntityPropertyProps = {
   propertyName: string;
@@ -167,6 +167,7 @@ const transformedValue = (value: any) => {
 export const EntityProperty = memo((props: EntityPropertyProps) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
+  const popoverContentRef = React.createRef<HTMLDivElement>();
 
   const codeText = `{{${props.entityName}.${props.propertyName}}}`;
 
@@ -187,43 +188,45 @@ export const EntityProperty = memo((props: EntityPropertyProps) => {
   );
   if (showPopup) {
     propertyValue = (
-      <React.Fragment>
-        <StyledValue step={props.step} className="value">
+      <>
+        <StyledValue className="value" step={props.step}>
           {transformedValue(props.value)}
         </StyledValue>
         <Popover
           interactionKind={PopoverInteractionKind.HOVER}
-          position="left"
           modifiers={ContextMenuPopoverModifiers}
+          position="left"
         >
           {collapseIcon}
           {showPopup && (
-            <StyledPopoverContent>
+            <StyledPopoverContent ref={popoverContentRef}>
               {!isString && (
                 <CurrentValueViewer
-                  theme={EditorTheme.DARK}
                   evaluatedValue={props.value}
                   hideLabel
+                  theme={EditorTheme.DARK}
                 />
               )}
               {isString && <pre>{props.value}</pre>}
+              <ScrollIndicator containerRef={popoverContentRef} mode="DARK" />
             </StyledPopoverContent>
           )}
         </Popover>
-      </React.Fragment>
+      </>
     );
   }
 
   return (
-    <Wrapper step={props.step} className={`${EntityClassNames.PROPERTY}`}>
+    <Wrapper className={`${EntityClassNames.PROPERTY}`} step={props.step}>
       <HighlightedCode
         className="binding"
-        ref={propertyRef}
-        onClick={copyBindingToClipboard}
         codeText={codeText}
         language={SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES.APPSMITH}
+        onClick={copyBindingToClipboard}
+        ref={propertyRef}
+        skin={Skin.DARK}
       />
-      <Icon icon="duplicate" iconSize={14} color={Colors.ALTO} />
+      <Icon color={Colors.ALTO} icon="duplicate" iconSize={14} />
       {propertyValue}
     </Wrapper>
   );

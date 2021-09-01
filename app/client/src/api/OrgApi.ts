@@ -1,5 +1,5 @@
 import { AxiosPromise } from "axios";
-import Api from "./Api";
+import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { OrgRole, Org } from "constants/orgConstants";
 
@@ -24,6 +24,7 @@ export interface FetchAllRolesResponse extends ApiResponse {
 
 export interface FetchOrgRequest {
   orgId: string;
+  skipValidation?: boolean;
 }
 
 export interface FetchAllUsersRequest {

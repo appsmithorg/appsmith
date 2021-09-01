@@ -1,0 +1,91 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1224,
+    "snapColumns": 16,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 1280,
+    "containerStyle": "none",
+    "snapRows": 33,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 8,
+    "minHeight": 1292,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "shouldScrollContents": false,
+        "widgetName": "Tabs1",
+        "tabs": [
+          {
+            "label": "Tab 1",
+            "id": "tab1",
+            "widgetId": "uxle0mrg8t"
+          },
+          {
+            "label": "Tab 2",
+            "id": "tab2",
+            "widgetId": "9hy1rmqb2f"
+          }
+        ],
+        "shouldShowTabs": true,
+        "defaultTab": "Tab 1",
+        "type": "TABS_WIDGET",
+        "isLoading": false,
+        "parentColumnSpace": 74,
+        "parentRowSpace": 40,
+        "leftColumn": 2,
+        "rightColumn": 10,
+        "topRow": 8,
+        "bottomRow": 15,
+        "parentId": "0",
+        "widgetId": "y6rla3dsd6",
+        "children": [
+          {
+            "type": "CANVAS_WIDGET",
+            "tabId": "tab1",
+            "tabName": "Tab 1",
+            "widgetId": "uxle0mrg8t",
+            "parentId": "y6rla3dsd6",
+            "detachFromLayout": true,
+            "children": [],
+            "parentRowSpace": 1,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 280,
+            "isLoading": false,
+            "widgetName": "Canvas1",
+            "renderMode": "CANVAS"
+          },
+          {
+            "type": "CANVAS_WIDGET",
+            "tabId": "tab2",
+            "tabName": "Tab 2",
+            "widgetId": "9hy1rmqb2f",
+            "parentId": "y6rla3dsd6",
+            "detachFromLayout": true,
+            "children": [],
+            "parentRowSpace": 1,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "rightColumn": 592,
+            "topRow": 0,
+            "bottomRow": 280,
+            "isLoading": false,
+            "widgetName": "Canvas2",
+            "renderMode": "CANVAS"
+          }
+        ]
+      }
+    ]
+  }
+}

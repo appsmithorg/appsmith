@@ -22,45 +22,51 @@ const StyledDiv = styled.div`
   }
 `;
 
-export const Typography = () => (
-  <StoryWrapper style={{ display: "flex" }}>
-    <StyledDiv>
-      <Text type={TextType.H1}>Hi there, I am h1 element.</Text>
-      <Text type={TextType.H2}>Hi there, I am h2 element.</Text>
-      <Text type={TextType.H3}>Hi there, I am h3 element.</Text>
-      <Text type={TextType.H4}>Hi there, I am h4 element.</Text>
-      <Text type={TextType.H5}>Hi there, I am h5 element.</Text>
-      <Text type={TextType.H6}>Hi there, I am h6 element.</Text>
-    </StyledDiv>
+export function Typography() {
+  return (
+    <StoryWrapper style={{ display: "flex" }}>
+      <StyledDiv>
+        <Text type={TextType.H1}>Hi there, I am h1 element.</Text>
+        <Text type={TextType.H2}>Hi there, I am h2 element.</Text>
+        <Text type={TextType.H3}>Hi there, I am h3 element.</Text>
+        <Text type={TextType.H4}>Hi there, I am h4 element.</Text>
+        <Text type={TextType.H5}>Hi there, I am h5 element.</Text>
+        <Text type={TextType.H6}>Hi there, I am h6 element.</Text>
+      </StyledDiv>
 
-    <br />
+      <br />
 
-    <StyledDiv>
-      <Text type={TextType.P1}>Hi there, I am p1 element.</Text>
-      <Text type={TextType.P2}>Hi there, I am p2 element.</Text>
-      <Text type={TextType.P3}>Hi there, I am p3 element.</Text>
-    </StyledDiv>
-  </StoryWrapper>
-);
+      <StyledDiv>
+        <Text type={TextType.P1}>Hi there, I am p1 element.</Text>
+        <Text type={TextType.P2}>Hi there, I am p2 element.</Text>
+        <Text type={TextType.P3}>Hi there, I am p3 element.</Text>
+      </StyledDiv>
+    </StoryWrapper>
+  );
+}
 
-const ValueWrapper = (props: { type: TextType; value: string }) => (
-  <Text
-    type={props.type}
-    underline={boolean("underline", false)}
-    italic={boolean("italic", false)}
-    highlight={boolean("highlight", false)}
-    case={select("Case", Object.values(Case), undefined)}
-    weight={select("Weight", Object.values(FontWeight), undefined)}
-  >
-    {props.value}
-  </Text>
-);
+function ValueWrapper(props: { type: TextType; value: string }) {
+  return (
+    <Text
+      case={select("Case", Object.values(Case), undefined)}
+      highlight={boolean("highlight", false)}
+      italic={boolean("italic", false)}
+      type={props.type}
+      underline={boolean("underline", false)}
+      weight={select("Weight", Object.values(FontWeight), undefined)}
+    >
+      {props.value}
+    </Text>
+  );
+}
 
-export const CustomizeText = () => (
-  <StoryWrapper>
-    <ValueWrapper
-      type={select("type", Object.values(TextType), TextType.H1)}
-      value={text("text", "Hi There I am Earth")}
-    />
-  </StoryWrapper>
-);
+export function CustomizeText() {
+  return (
+    <StoryWrapper>
+      <ValueWrapper
+        type={select("type", Object.values(TextType), TextType.H1)}
+        value={text("text", "Hi There I am Earth")}
+      />
+    </StoryWrapper>
+  );
+}

@@ -4,6 +4,7 @@ import { withDesign } from "storybook-addon-designs";
 import TableDropdown from "components/ads/TableDropdown";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { StoryWrapper } from "components/ads/common";
+import { noop } from "utils/AppsmithUtils";
 
 export default {
   title: "Dropdown",
@@ -26,15 +27,21 @@ const options = [
   },
 ];
 
-export const TableDropdownStory = () => (
-  <StoryWrapper
-    style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-  >
-    <TableDropdown
-      position={select("position", Object.values(Position), Position.BOTTOM)}
-      options={options}
-      onSelect={(selectedValue) => console.log(selectedValue)}
-      selectedIndex={0}
-    ></TableDropdown>
-  </StoryWrapper>
-);
+export function TableDropdownStory() {
+  return (
+    <StoryWrapper
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <TableDropdown
+        onSelect={noop}
+        options={options}
+        position={select("position", Object.values(Position), Position.BOTTOM)}
+        selectedIndex={0}
+      />
+    </StoryWrapper>
+  );
+}

@@ -1,4 +1,5 @@
 import {
+  EvaluationReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -7,18 +8,21 @@ import {
   all,
   call,
   put,
+  race,
   select,
+  take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
-import ActionAPI, { ActionCreateUpdateResponse, Property } from "api/ActionAPI";
+import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
 import { GenericApiResponse } from "api/ApiResponses";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
   copyActionSuccess,
+  createActionRequest,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -30,44 +34,80 @@ import {
   updateAction,
   updateActionProperty,
   updateActionSuccess,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import {
+  DynamicPath,
+  isChildPropertyPath,
   isDynamicValue,
   removeBindingsFromActionObject,
 } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
 import {
+  getActionById,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { QUERY_CONSTANT } from "constants/QueryEditorConstants";
-import { Action, ActionViewMode } from "entities/Action";
+import { Action, ActionViewMode, PluginType } from "entities/Action";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
+  getEditorConfig,
   getPageNameByPageId,
+  getPlugin,
+  getSettingConfig,
+  getDatasources,
+  getActions,
 } from "selectors/entitiesSelector";
-import { getDataSources } from "selectors/editorSelectors";
-import { PLUGIN_TYPE_API } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
-  API_EDITOR_URL,
-  QUERIES_EDITOR_URL,
-  QUERIES_EDITOR_ID_URL,
   API_EDITOR_ID_URL,
+  BUILDER_PAGE_URL,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
+  QUERIES_EDITOR_ID_URL,
 } from "constants/routes";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getEditorConfig } from "selectors/entitiesSelector";
-import PluginsApi from "api/PluginApi";
-import _, { merge } from "lodash";
+import {
+  ACTION_COPY_SUCCESS,
+  ACTION_MOVE_SUCCESS,
+  createMessage,
+  ERROR_ACTION_COPY_FAIL,
+  ERROR_ACTION_MOVE_FAIL,
+  ERROR_ACTION_RENAME_FAIL,
+} from "constants/messages";
+import _, { merge, get } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { createNewApiAction } from "actions/apiPaneActions";
+import {
+  createNewApiName,
+  createNewQueryName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
+import {
+  toggleShowGlobalSearchModal,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import {
+  filterCategories,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { getSelectedWidget, getWidgetById } from "./selectors";
+import {
+  onApiEditor,
+  onQueryEditor,
+} from "components/editorComponents/Debugger/helpers";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -77,45 +117,32 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      let formConfig;
-      formConfig = yield select(
+      const editorConfig = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      if (!formConfig) {
-        const formConfigResponse: GenericApiResponse<any> = yield PluginsApi.fetchFormConfig(
-          actionPayload.payload.pluginId,
-        );
-        yield validateResponse(formConfigResponse);
-        yield put({
-          type: ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
-          payload: {
-            id: actionPayload.payload.pluginId,
-            ...formConfigResponse.data,
-          },
-        });
+      const settingConfig = yield select(
+        getSettingConfig,
+        actionPayload.payload.pluginId,
+      );
 
-        formConfig = yield select(
-          getEditorConfig,
-          actionPayload.payload.pluginId,
+      let initialValues = yield call(getConfigInitialValues, editorConfig);
+      if (settingConfig) {
+        const settingInitialValues = yield call(
+          getConfigInitialValues,
+          settingConfig,
         );
+        initialValues = merge(initialValues, settingInitialValues);
       }
-
-      const initialValues = yield call(getConfigInitialValues, formConfig);
       payload = merge(initialValues, actionPayload.payload);
     }
 
-    const response: ActionCreateUpdateResponse = yield ActionAPI.createAPI(
+    const response: ActionCreateUpdateResponse = yield ActionAPI.createAction(
       payload,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      Toaster.show({
-        text: `${actionPayload.payload.name} Action created`,
-        variant: Variant.success,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
@@ -128,8 +155,16 @@ export function* createActionSaga(
         ...actionPayload.payload.eventData,
       });
 
-      const newAction = response.data;
+      AppsmithConsole.info({
+        text: `Action created`,
+        source: {
+          type: ENTITY_TYPE.ACTION,
+          id: response.data.id,
+          name: response.data.name,
+        },
+      });
 
+      const newAction = response.data;
       yield put(createActionSuccess(newAction));
     }
   } catch (error) {
@@ -140,7 +175,9 @@ export function* createActionSaga(
   }
 }
 
-export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
+export function* fetchActionsSaga(
+  action: EvaluationReduxAction<FetchActionsPayload>,
+) {
   const { applicationId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -155,6 +192,7 @@ export function* fetchActionsSaga(action: ReduxAction<FetchActionsPayload>) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
         payload: response.data,
+        postEvalActions: action.postEvalActions,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_ACTIONS_API,
@@ -215,7 +253,7 @@ export function* fetchActionsForViewModeSaga(
 }
 
 export function* fetchActionsForPageSaga(
-  action: ReduxAction<{ pageId: string }>,
+  action: EvaluationReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
@@ -229,7 +267,9 @@ export function* fetchActionsForPageSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(fetchActionsForPageSuccess(response.data));
+      yield put(
+        fetchActionsForPageSuccess(response.data, action.postEvalActions),
+      );
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );
@@ -254,13 +294,13 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     let action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
-    const isApi = action.pluginType === "API";
+    const isApi = action.pluginType === PluginType.API;
 
     if (isApi) {
       action = transformRestAction(action);
     }
 
-    const response: GenericApiResponse<Action> = yield ActionAPI.updateAPI(
+    const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
       action,
     );
     const isValidResponse = yield validateResponse(response);
@@ -270,13 +310,19 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         response.data.id,
       );
 
-      if (action.pluginType === QUERY_CONSTANT) {
+      if (action.pluginType === PluginType.DB) {
         AnalyticsUtil.logEvent("SAVE_QUERY", {
           queryName: action.name,
           pageName,
         });
-      } else if (action.pluginType === PLUGIN_TYPE_API) {
+      } else if (action.pluginType === PluginType.API) {
         AnalyticsUtil.logEvent("SAVE_API", {
+          apiId: response.data.id,
+          apiName: response.data.name,
+          pageName: pageName,
+        });
+      } else if (action.pluginType === PluginType.SAAS) {
+        AnalyticsUtil.logEvent("SAVE_SAAS", {
           apiId: response.data.id,
           apiName: response.data.name,
           pageName: pageName,
@@ -302,49 +348,77 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 }
 
 export function* deleteActionSaga(
-  actionPayload: ReduxAction<{ id: string; name: string }>,
+  actionPayload: ReduxAction<{
+    id: string;
+    name: string;
+    onSuccess?: () => void;
+  }>,
 ) {
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
-    const action = yield select(getAction, id);
+    const action: Action | undefined = yield select(getAction, id);
 
-    const isApi = action.pluginType === PLUGIN_TYPE_API;
-    const isQuery = action.pluginType === QUERY_CONSTANT;
+    if (!action) return;
+
+    const isApi = action.pluginType === PluginType.API;
+    const isQuery = action.pluginType === PluginType.DB;
+    const isSaas = action.pluginType === PluginType.SAAS;
 
     const response: GenericApiResponse<Action> = yield ActionAPI.deleteAction(
       id,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      Toaster.show({
-        text: `${response.data.name} Action deleted`,
-        variant: Variant.success,
+    if (!isValidResponse) {
+      return;
+    }
+    if (isApi) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_API", {
+        apiName: name,
+        pageName,
+        apiID: id,
       });
-      if (isApi) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_API", {
-          apiName: name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isQuery) {
-        AnalyticsUtil.logEvent("DELETE_QUERY", {
-          queryName: action.name,
-        });
-      }
+    }
+    if (isSaas) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_SAAS", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isQuery) {
+      AnalyticsUtil.logEvent("DELETE_QUERY", {
+        queryName: name,
+      });
+    }
 
-      yield put(deleteActionSuccess({ id }));
+    if (!!actionPayload.payload.onSuccess) {
+      actionPayload.payload.onSuccess();
+    } else {
       const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
-      if (isApi) {
-        history.push(API_EDITOR_URL(applicationId, pageId));
-      }
-      if (isQuery) {
-        history.push(QUERIES_EDITOR_URL(applicationId, pageId));
-      }
+
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
     }
+
+    AppsmithConsole.info({
+      logType: LOG_TYPE.ENTITY_DELETED,
+      text: "Action was deleted",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: response.data.name,
+        id: response.data.id,
+      },
+      analytics: {
+        pluginId: action.pluginId,
+      },
+    });
+
+    yield put(deleteActionSuccess({ id }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -374,13 +448,14 @@ function* moveActionSaga(
     });
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${response.data.name} Action moved`,
+        text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         variant: Variant.success,
       });
     }
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+
     AnalyticsUtil.logEvent("MOVE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -389,7 +464,7 @@ function* moveActionSaga(
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     Toaster.show({
-      text: `Error while moving action ${actionObject.name}`,
+      text: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
       variant: Variant.danger,
     });
     yield put(
@@ -416,18 +491,18 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
     delete copyAction.id;
-    const response = yield ActionAPI.createAPI(copyAction);
-    const datasources = yield select(getDataSources);
+    const response = yield ActionAPI.createAction(copyAction);
+    const datasources = yield select(getDatasources);
 
     const isValidResponse = yield validateResponse(response);
+    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     if (isValidResponse) {
       Toaster.show({
-        text: `${actionObject.name} Action copied`,
+        text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
         variant: Variant.success,
       });
     }
 
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
     AnalyticsUtil.logEvent("DUPLICATE_API", {
       apiName: response.data.name,
       pageName: pageName,
@@ -447,10 +522,9 @@ function* copyActionSaga(
 
     yield put(copyActionSuccess(payload));
   } catch (e) {
+    const actionName = actionObject ? actionObject.name : "";
     Toaster.show({
-      text: `Error while copying action ${
-        actionObject ? actionObject.name : ""
-      }`,
+      text: createMessage(ERROR_ACTION_COPY_FAIL, actionName),
       variant: Variant.danger,
     });
     yield put(copyActionError(action.payload));
@@ -479,6 +553,7 @@ export function* refactorActionName(
     // call to refactor action
     const refactorResponse = yield ActionAPI.updateActionName({
       layoutId,
+      actionId: id,
       pageId: pageId,
       oldName: oldName,
       newName: newName,
@@ -508,6 +583,22 @@ export function* refactorActionName(
   }
 }
 
+function* bindDataOnCanvasSaga(
+  action: ReduxAction<{
+    queryId: string;
+    applicationId: string;
+    pageId: string;
+  }>,
+) {
+  const { applicationId, pageId, queryId } = action.payload;
+  history.push(
+    BUILDER_PAGE_URL(applicationId, pageId, {
+      isSnipingMode: "true",
+      bindTo: queryId,
+    }),
+  );
+}
+
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
@@ -532,7 +623,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       },
     });
     Toaster.show({
-      text: `Unable to update Action name`,
+      text: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       variant: Variant.danger,
     });
     console.error(e);
@@ -541,32 +632,59 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 
 function getDynamicBindingsChangesSaga(
   action: Action,
-  value: string,
+  value: unknown,
   field: string,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
-  const isDynamic = isDynamicValue(value);
-  let dynamicBindings: Property[] = action.dynamicBindingPathList || [];
-  const fieldExists = _.some(dynamicBindings, { key: bindingField });
+  let dynamicBindings: DynamicPath[] = action.dynamicBindingPathList || [];
 
-  if (!isDynamic && fieldExists) {
-    dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+  if (typeof value === "object") {
+    dynamicBindings = dynamicBindings.filter((dynamicPath) => {
+      if (isChildPropertyPath(bindingField, dynamicPath.key)) {
+        const childPropertyValue = _.get(value, dynamicPath.key);
+        return isDynamicValue(childPropertyValue);
+      }
+    });
+  } else if (typeof value === "string") {
+    const fieldExists = _.some(dynamicBindings, { key: bindingField });
+
+    const isDynamic = isDynamicValue(value);
+
+    if (!isDynamic && fieldExists) {
+      dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
+    }
+    if (isDynamic && !fieldExists) {
+      dynamicBindings.push({ key: bindingField });
+    }
   }
-  if (isDynamic && !fieldExists) {
-    dynamicBindings.push({ key: bindingField });
-  }
-  if (dynamicBindings !== action.dynamicBindingPathList) {
-    return dynamicBindings;
-  }
-  return action.dynamicBindingPathList;
+
+  return dynamicBindings;
 }
 
 function* setActionPropertySaga(action: ReduxAction<SetActionPropertyPayload>) {
-  const { actionId, value, propertyName } = action.payload;
+  const { actionId, propertyName, value } = action.payload;
   if (!actionId) return;
   if (propertyName === "name") return;
 
   const actionObj = yield select(getAction, actionId);
+  const fieldToBeUpdated = propertyName.replace(
+    "actionConfiguration",
+    "config",
+  );
+  AppsmithConsole.info({
+    logType: LOG_TYPE.ACTION_UPDATE,
+    text: "Configuration updated",
+    source: {
+      type: ENTITY_TYPE.ACTION,
+      name: actionObj.name,
+      id: actionId,
+      propertyPath: fieldToBeUpdated,
+    },
+    state: {
+      [fieldToBeUpdated]: value,
+    },
+  });
+
   const effects: Record<string, any> = {};
   // Value change effect
   effects[propertyName] = value;
@@ -620,8 +738,9 @@ function* toggleActionExecuteOnLoadSaga(
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const action: Action = yield select(getAction, id);
-  const isApi = action.pluginType === PLUGIN_TYPE_API;
-  const isQuery = action.pluginType === QUERY_CONSTANT;
+  const isApi = action.pluginType === PluginType.API;
+  const isQuery = action.pluginType === PluginType.DB;
+  const isSaas = action.pluginType === PluginType.DB;
   const applicationId = yield select(getCurrentApplicationId);
 
   if (isApi) {
@@ -631,6 +750,181 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
     history.push(
       QUERIES_EDITOR_ID_URL(applicationId, action.pageId, action.id),
     );
+  }
+  if (isSaas) {
+    const plugin = yield select(getPlugin, action.pluginId);
+    history.push(
+      SAAS_EDITOR_API_ID_URL(
+        applicationId,
+        action.pageId,
+        plugin.packageName,
+        action.id,
+      ),
+    );
+  }
+}
+
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta: { dataType: string; fields?: string } = {
+    dataType: expectedType,
+  };
+  if (propertyPath) {
+    const relevantField = propertyPath
+      .split(".")
+      .slice(-1)
+      .pop();
+    fieldMeta.fields = `${relevantField}<score=2>`;
+  }
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION && entityId) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "")
+      .toLowerCase()
+      .replace("-plugin", "")
+      .split("-")
+      .join(" ");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = (currentEntity.type || "")
+      .replace("_WIDGET", "")
+      .toLowerCase()
+      .split("_")
+      .join("");
+    refinements.entities = [type];
+  }
+  return { refinements, fieldMeta };
+}
+
+function* getCurrentEntity(
+  applicationId: string,
+  pageId: string,
+  params: Record<string, string>,
+) {
+  let entityId = "",
+    entityType = "";
+  if (
+    onApiEditor(applicationId, pageId) ||
+    onQueryEditor(applicationId, pageId)
+  ) {
+    const id = params.apiId || params.queryId;
+    const action = yield select(getAction, id);
+    entityId = action.actionId;
+    entityType = ENTITY_TYPE.ACTION;
+  } else {
+    const widget = yield select(getSelectedWidget);
+    entityId = widget.widgetId;
+    entityType = ENTITY_TYPE.WIDGET;
+  }
+  return { entityId, entityType };
+}
+
+function* executeCommand(
+  actionPayload: ReduxAction<{
+    actionType: string;
+    callback: (binding: string) => void;
+    args: any;
+  }>,
+) {
+  const pageId = yield select(getCurrentPageId);
+  const applicationId = yield select(getCurrentApplicationId);
+  const params = getQueryParams();
+  switch (actionPayload.payload.actionType) {
+    case "NEW_SNIPPET":
+      let { entityId, entityType } = get(actionPayload, "payload.args");
+      const { expectedType, propertyPath } = get(actionPayload, "payload.args");
+      // Entity is derived using the dataTreePath property.
+      // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
+      if (!entityId) {
+        const currentEntity = yield getCurrentEntity(
+          applicationId,
+          pageId,
+          params,
+        );
+        entityId = currentEntity.entityId;
+        entityType = currentEntity.entityType;
+      }
+      const { fieldMeta, refinements } = yield buildMetaForSnippets(
+        entityId,
+        entityType,
+        expectedType,
+        propertyPath,
+      );
+      yield put(
+        setGlobalSearchFilterContext({
+          refinements,
+          fieldMeta,
+        }),
+      );
+      yield put(
+        toggleShowGlobalSearchModal(
+          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+        ),
+      );
+      const effectRaceResult = yield race({
+        failure: take(ReduxActionTypes.CANCEL_SNIPPET),
+        success: take(ReduxActionTypes.INSERT_SNIPPET),
+      });
+      if (effectRaceResult.failure) return;
+      actionPayload.payload.callback(
+        `{{ ${effectRaceResult.success.payload} }}`,
+      );
+      break;
+    case "NEW_INTEGRATION":
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+      break;
+    case "NEW_QUERY":
+      const datasource = get(actionPayload, "payload.args.datasource");
+      const pluginId = get(datasource, "pluginId");
+      const plugin = yield select(getPlugin, pluginId);
+      const actions = yield select(getActions);
+      const pageActions = actions.filter(
+        (a: ActionData) => a.config.pageId === pageId,
+      );
+      const newQueryName =
+        plugin.type === PluginType.DB
+          ? createNewQueryName(actions, pageId)
+          : createNewApiName(pageActions, pageId);
+      const nextPayload: Partial<Action> = {
+        name: newQueryName,
+        pageId,
+        eventData: {
+          actionType: "Query",
+          from: "Quick-Commands",
+          dataSource: datasource.name,
+        },
+        pluginId: datasource.pluginId,
+        actionConfiguration: {},
+      };
+      if (plugin.type === "API") {
+        nextPayload.datasource = datasource;
+        nextPayload.actionConfiguration = DEFAULT_API_ACTION_CONFIG;
+      } else {
+        nextPayload.datasource = {
+          id: datasource.id,
+        };
+      }
+      yield put(createActionRequest(nextPayload));
+      const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
+      break;
+    case "NEW_API":
+      yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
+      const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+      actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      break;
   }
 }
 
@@ -645,6 +939,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.BIND_DATA_ON_CANVAS, bindDataOnCanvasSaga),
     takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
     takeLatest(ReduxActionTypes.COPY_ACTION_INIT, copyActionSaga),
@@ -660,5 +955,6 @@ export function* watchActionSagas() {
       ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
       toggleActionExecuteOnLoadSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommand),
   ]);
 }

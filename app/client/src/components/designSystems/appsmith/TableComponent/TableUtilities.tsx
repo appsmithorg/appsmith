@@ -2,32 +2,23 @@ import React, { useState } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
+  CellCheckboxWrapper,
+  CellCheckbox,
   ActionWrapper,
   SortIconWrapper,
+  DraggableHeaderWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
 import {
-  ReactTableColumnProps,
   ColumnTypes,
-  Condition,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
-  FontStyleTypes,
   ColumnProperties,
   CellLayoutProperties,
-  TextSizes,
-  ConditionFunctions,
   TableStyles,
 } from "components/designSystems/appsmith/TableComponent/Constants";
-import {
-  isString,
-  isEmpty,
-  findIndex,
-  isPlainObject,
-  isNil,
-  without,
-} from "lodash";
+import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
@@ -35,10 +26,18 @@ import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import moment from "moment";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { IconNames } from "@blueprintjs/icons";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
+import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
+import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
+import {
+  ButtonStyle,
+  ButtonVariant,
+  StyledButton,
+} from "../IconButtonComponent";
 
 export const renderCell = (
   value: any,
@@ -46,6 +45,9 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  isCellVisible: boolean,
+  onClick: () => void = noop,
+  isSelected?: boolean,
 ) => {
   switch (columnType) {
     case ColumnTypes.IMAGE:
@@ -53,41 +55,59 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
             isHidden={isHidden}
-          ></CellWrapper>
+          />
         );
       } else if (!isString(value)) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             <div>Invalid Image </div>
           </CellWrapper>
         );
       }
-      const imageRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      // better regex: /(?<!base64),/g ; can't use due to safari incompatibility
+      const imageSplitRegex = /[^(base64)],/g;
+      const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      const base64ImageRegex = /^data:image\/.*;base64/;
       return (
-        <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+        <CellWrapper
+          cellProperties={cellProperties}
+          isCellVisible={isCellVisible}
+          isHidden={isHidden}
+        >
           {value
             .toString()
-            .split(",")
+            // imageSplitRegex matched "," and char before it, so add space before ","
+            .replace(imageSplitRegex, (match) =>
+              match.length > 1 ? `${match.charAt(0)} ,` : " ,",
+            )
+            .split(imageSplitRegex)
             .map((item: string, index: number) => {
-              if (imageRegex.test(item)) {
+              if (imageUrlRegex.test(item) || base64ImageRegex.test(item)) {
                 return (
-                  <a
-                    onClick={(e) => e.stopPropagation()}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <div
                     className="image-cell-wrapper"
-                    href={item}
                     key={index}
+                    onClick={(e) => {
+                      if (isSelected) {
+                        e.stopPropagation();
+                      }
+                      onClick();
+                    }}
                   >
                     <div
                       className="image-cell"
                       style={{ backgroundImage: `url("${item}")` }}
                     />
-                  </a>
+                  </div>
                 );
               } else {
-                return <div>Invalid Image</div>;
+                return <div key={index}>Invalid Image</div>;
               }
             })}
         </CellWrapper>
@@ -98,22 +118,28 @@ export const renderCell = (
         return (
           <CellWrapper
             cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
             isHidden={isHidden}
-          ></CellWrapper>
+          />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper
             cellProperties={cellProperties}
-            isHidden={isHidden}
             className="video-cell"
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
           >
             <PopoverVideo url={value} />
           </CellWrapper>
         );
       } else {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             Invalid Video Link
           </CellWrapper>
         );
@@ -121,22 +147,119 @@ export const renderCell = (
     default:
       return (
         <AutoToolTipComponent
-          title={value.toString()}
-          isHidden={isHidden}
           cellProperties={cellProperties}
+          columnType={columnType}
+          isCellVisible={isCellVisible}
+          isHidden={isHidden}
           tableWidth={tableWidth}
+          title={!!value ? value.toString() : ""}
         >
-          {value.toString()}
+          {value && columnType === ColumnTypes.URL && cellProperties.displayText
+            ? cellProperties.displayText
+            : !!value
+            ? value.toString()
+            : ""}
         </AutoToolTipComponent>
       );
   }
 };
+
+interface RenderIconButtonProps {
+  isSelected: boolean;
+  columnActions?: ColumnAction[];
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  buttonStyle: ButtonStyle;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isCellVisible: boolean;
+}
+export const renderIconButton = (
+  props: RenderIconButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  if (!props.columnActions)
+    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+
+  return (
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
+      {props.columnActions.map((action: ColumnAction, index: number) => {
+        return (
+          <IconButton
+            action={action}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
+            buttonStyle={props.buttonStyle}
+            buttonVariant={props.buttonVariant}
+            iconName={props.iconName}
+            isSelected={props.isSelected}
+            key={index}
+            onCommandClick={props.onCommandClick}
+          />
+        );
+      })}
+    </CellWrapper>
+  );
+};
+function IconButton(props: {
+  iconName?: IconName;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isSelected: boolean;
+  action: ColumnAction;
+  buttonStyle: ButtonStyle;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+}): JSX.Element {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (props.isSelected) {
+      e.stopPropagation();
+    }
+  };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
+  return (
+    <div onClick={handlePropagation}>
+      <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
+        buttonStyle={props.buttonStyle}
+        buttonVariant={props.buttonVariant}
+        icon={props.iconName}
+        loading={loading}
+        onClick={handleClick}
+      />
+    </div>
+  );
+}
 
 interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -149,20 +272,27 @@ export const renderActions = (
     return (
       <CellWrapper
         cellProperties={cellProperties}
+        isCellVisible={props.isCellVisible}
         isHidden={isHidden}
-      ></CellWrapper>
+      />
     );
 
   return (
-    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
-            key={index}
             action={action}
-            isSelected={props.isSelected}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            isCellVisible={props.isCellVisible}
+            isDisabled={props.isDisabled}
+            isSelected={props.isSelected}
+            key={index}
             onCommandClick={props.onCommandClick}
           />
         );
@@ -171,13 +301,15 @@ export const renderActions = (
   );
 };
 
-const TableAction = (props: {
+function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-}) => {
+}) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);
@@ -193,20 +325,84 @@ const TableAction = (props: {
         }
       }}
     >
-      <Button
-        intent="PRIMARY_BUTTON"
-        loading={loading}
-        onClick={() => {
-          setLoading(true);
-          props.onCommandClick(props.action.dynamicTrigger, onComplete);
-        }}
-        text={props.action.label}
-        filled
-        size="small"
-      />
+      {props.isCellVisible ? (
+        <Button
+          disabled={props.isDisabled}
+          filled
+          intent="PRIMARY_BUTTON"
+          loading={loading}
+          onClick={() => {
+            setLoading(true);
+            props.onCommandClick(props.action.dynamicTrigger, onComplete);
+          }}
+          size="small"
+          text={props.action.label}
+        />
+      ) : null}
     </ActionWrapper>
   );
-};
+}
+
+function CheckBoxLineIcon() {
+  return (
+    <svg
+      className="th-svg t--table-multiselect-header-half-check-svg"
+      fill="none"
+      height="15"
+      width="15"
+    >
+      <path
+        d="M11.183673404886235,7.5 H3.81632661819458 "
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+function CheckBoxCheckIcon() {
+  return (
+    <svg className="th-svg" fill="none" height="15" width="15">
+      <path
+        d="M3.523326302644791,8.068102895600848 L5.7957131234862,10.340476082148596 L11.476673358442884,4.659524027768102 "
+        stroke="white"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeOpacity="0.9"
+      />
+    </svg>
+  );
+}
+
+export const renderCheckBoxCell = (isChecked: boolean) => (
+  <CellCheckboxWrapper
+    className="td t--table-multiselect"
+    isCellVisible
+    isChecked={isChecked}
+  >
+    <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
+  </CellCheckboxWrapper>
+);
+
+export const renderCheckBoxHeaderCell = (
+  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
+  checkState: number | null,
+) => (
+  <CellCheckboxWrapper
+    className="th header-reorder t--table-multiselect-header"
+    isChecked={!!checkState}
+    onClick={onClick}
+    role="columnheader"
+    style={{ padding: "0px", justifyContent: "center" }}
+  >
+    <CellCheckbox>
+      {checkState === 1 && <CheckBoxCheckIcon />}
+      {checkState === 2 && <CheckBoxLineIcon />}
+    </CellCheckbox>
+  </CellCheckboxWrapper>
+);
 
 export const renderEmptyRows = (
   rowCount: number,
@@ -214,65 +410,76 @@ export const renderEmptyRows = (
   tableWidth: number,
   page: any,
   prepareRow: any,
+  multiRowSelection = false,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
     const row = page[0];
     return rows.map((item: string, index: number) => {
       prepareRow(row);
+      const rowProps = {
+        ...row.getRowProps(),
+        style: { display: "flex" },
+      };
       return (
-        <div {...row.getRowProps()} className="tr" key={index}>
+        <div {...rowProps} className="tr" key={index}>
+          {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
-            return (
-              <div {...cell.getCellProps()} className="td" key={cellIndex} />
-            );
+            const cellProps = cell.getCellProps();
+            if (columns[0]?.columnProperties?.cellBackground) {
+              cellProps.style.background =
+                columns[0].columnProperties.cellBackground;
+            }
+            return <div {...cellProps} className="td" key={cellIndex} />;
           })}
         </div>
       );
     });
+  } else {
+    const tableColumns = columns.length
+      ? columns
+      : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+    return (
+      <>
+        {rows.map((row: string, index: number) => {
+          return (
+            <div
+              className="tr"
+              key={index}
+              style={{
+                display: "flex",
+                flex: "1 0 auto",
+              }}
+            >
+              {multiRowSelection && renderCheckBoxCell(false)}
+              {tableColumns.map((column: any, colIndex: number) => {
+                return (
+                  <div
+                    className="td"
+                    key={colIndex}
+                    style={{
+                      width: column.width + "px",
+                      boxSizing: "border-box",
+                      flex: `${column.width} 0 auto`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
+      </>
+    );
   }
-  const tableColumns = columns.length
-    ? columns
-    : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
-  return (
-    <React.Fragment>
-      {rows.map((row: string, index: number) => {
-        return (
-          <div
-            className="tr"
-            key={index}
-            style={{
-              display: "flex",
-              flex: "1 0 auto",
-            }}
-          >
-            {tableColumns.map((column: any, colIndex: number) => {
-              return (
-                <div
-                  key={colIndex}
-                  className="td"
-                  style={{
-                    width: column.width + "px",
-                    boxSizing: "border-box",
-                    flex: `${column.width} 0 auto`,
-                  }}
-                />
-              );
-            })}
-          </div>
-        );
-      })}
-    </React.Fragment>
-  );
 };
 
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 18px;
+  top: 12px;
   cursor: pointer;
   transform: rotate(180deg);
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
@@ -284,14 +491,14 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   position: relative;
   top: 3px;
   cursor: pointer;
-  svg {
+  && svg {
     path {
       fill: ${(props) => props.theme.colors.secondary};
     }
   }
 `;
 
-export const TableHeaderCell = (props: {
+export function TableHeaderCell(props: {
   columnName: string;
   columnIndex: number;
   isHidden: boolean;
@@ -299,7 +506,7 @@ export const TableHeaderCell = (props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
-}) => {
+}) {
   const { column } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
@@ -327,7 +534,7 @@ export const TableHeaderCell = (props: {
           )}
         </SortIconWrapper>
       ) : null}
-      <div
+      <DraggableHeaderWrapper
         className={
           !props.isHidden
             ? `draggable-header ${
@@ -335,9 +542,10 @@ export const TableHeaderCell = (props: {
               }`
             : "hidden-header"
         }
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
       >
-        {column.render("Header")}
-      </div>
+        {props.columnName}
+      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
@@ -348,96 +556,7 @@ export const TableHeaderCell = (props: {
       />
     </div>
   );
-};
-
-export function sortTableFunction(
-  filteredTableData: Array<Record<string, unknown>>,
-  columns: ReactTableColumnProps[],
-  sortedColumn: string,
-  sortOrder: boolean,
-) {
-  const tableData = filteredTableData ? [...filteredTableData] : [];
-  const columnType =
-    columns.find(
-      (column: ReactTableColumnProps) => column.accessor === sortedColumn,
-    )?.metaProperties?.type || ColumnTypes.TEXT;
-  return tableData.sort(
-    (a: { [key: string]: any }, b: { [key: string]: any }) => {
-      if (
-        isPlainObject(a) &&
-        isPlainObject(b) &&
-        !isNil(a[sortedColumn]) &&
-        !isNil(b[sortedColumn])
-      ) {
-        switch (columnType) {
-          case ColumnTypes.NUMBER:
-            return sortOrder
-              ? Number(a[sortedColumn]) > Number(b[sortedColumn])
-                ? 1
-                : -1
-              : Number(b[sortedColumn]) > Number(a[sortedColumn])
-              ? 1
-              : -1;
-          case ColumnTypes.DATE:
-            return sortOrder
-              ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
-                ? 1
-                : -1
-              : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-              ? 1
-              : -1;
-          default:
-            return sortOrder
-              ? a[sortedColumn].toString().toUpperCase() >
-                b[sortedColumn].toString().toUpperCase()
-                ? 1
-                : -1
-              : b[sortedColumn].toString().toUpperCase() >
-                a[sortedColumn].toString().toUpperCase()
-              ? 1
-              : -1;
-        }
-      } else {
-        return sortOrder ? 1 : 0;
-      }
-    },
-  );
 }
-
-export function compare(a: any, b: any, condition: Condition) {
-  let result = true;
-  try {
-    const conditionFunction = ConditionFunctions[condition];
-    if (conditionFunction) {
-      result = conditionFunction(a, b);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-  return result;
-}
-
-export const reorderColumns = (
-  columns: Record<string, ColumnProperties>,
-  columnOrder: string[],
-) => {
-  const newColumnsInOrder: Record<string, ColumnProperties> = {};
-
-  columnOrder.forEach((id: string, index: number) => {
-    if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
-  });
-  const remaining = without(
-    Object.keys(columns),
-    ...Object.keys(newColumnsInOrder),
-  );
-  const len = Object.keys(newColumnsInOrder).length;
-  if (remaining && remaining.length > 0) {
-    remaining.forEach((id: string, index: number) => {
-      newColumnsInOrder[id] = { ...columns[id], index: len + index };
-    });
-  }
-  return newColumnsInOrder;
-};
 
 export function getDefaultColumnProperties(
   accessor: string,
@@ -458,11 +577,13 @@ export function getDefaultColumnProperties(
     enableFilter: true,
     enableSort: true,
     isVisible: true,
+    isDisabled: false,
+    isCellVisible: true,
     isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
   };
 
   return columnProps;
@@ -521,6 +642,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
 
 export const renderDropdown = (props: {
   options: DropdownOption[];
+  isCellVisible: boolean;
   onItemSelect: (onOptionChange: string, item: DropdownOption) => void;
   onOptionChange: string;
   selectedIndex?: number;
@@ -538,11 +660,14 @@ export const renderDropdown = (props: {
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
+    if (!props.isCellVisible) {
+      return null;
+    }
     const isSelected: boolean = isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
@@ -551,14 +676,15 @@ export const renderDropdown = (props: {
   };
   return (
     <div
-      style={{ height: "100%" }}
       onClick={(e: React.MouseEvent<HTMLElement>) => {
         e.stopPropagation();
       }}
+      style={{ height: "100%" }}
     >
       <StyledSingleDropDown
-        items={props.options}
+        filterable={false}
         itemRenderer={renderSingleSelectItem}
+        items={props.options}
         onItemSelect={(item: DropdownOption) => {
           props.onItemSelect(props.onOptionChange, item);
         }}
@@ -567,7 +693,6 @@ export const renderDropdown = (props: {
           usePortal: true,
           popoverClassName: "select-popover-wrapper",
         }}
-        filterable={false}
       >
         <BButton
           rightIcon={IconNames.CHEVRON_DOWN}

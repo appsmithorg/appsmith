@@ -104,7 +104,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user.getEmail()).isEqualTo("dummy_admin@appsmith.com");
                     assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
+                    assertThat(user.getOrganizationIds()).hasSize(1);
                 })
                 .verifyComplete();
     }
@@ -125,7 +125,7 @@ public class UserServiceWithDisabledSignupTest {
                     assertThat(user.getEmail()).isEqualTo("dummy2@appsmith.com");
                     assertThat(user.getName()).isNullOrEmpty();
                     assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getOrganizationIds()).isNullOrEmpty();
+                    assertThat(user.getOrganizationIds()).hasSize(1);
                 })
                 .verifyComplete();
     }

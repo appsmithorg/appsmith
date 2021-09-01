@@ -1,7 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import { DropdownProps } from "components/designSystems/appsmith/Dropdown";
-import { Field } from "redux-form";
+import { Field, WrappedFieldProps } from "redux-form";
 import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
 
 interface RequestDropdownProps {
@@ -13,32 +12,26 @@ interface RequestDropdownProps {
     id?: string;
   }>;
   placeholder: string;
-  isDisabled?: boolean;
+  width?: string;
+  height?: string;
+  optionWidth?: string;
 }
 
 const renderComponent = (
-  componentProps: RequestDropdownProps & DropdownProps,
+  componentProps: WrappedFieldProps & RequestDropdownProps,
 ) => {
-  return (
-    <React.Fragment>
-      <DropdownFieldWrapper {...componentProps} />
-    </React.Fragment>
-  );
+  return <DropdownFieldWrapper {...componentProps} />;
 };
 
-const RequestDropdownField = (
-  props: RequestDropdownProps & Partial<DropdownProps>,
-) => {
+function RequestDropdownField(props: RequestDropdownProps) {
   return (
     <Field
-      className={props.className}
       component={renderComponent}
       format={(value: string) => _.find(props.options, { value }) || ""}
       normalize={(option: { value: string }) => option.value}
       {...props}
-      isDisabled={props.isDisabled}
     />
   );
-};
+}
 
 export default RequestDropdownField;

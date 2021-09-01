@@ -1,20 +1,12 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { SaveOrgLogo, SaveOrgRequest } from "api/OrgApi";
 
-export const fetchOrg = (orgId: string) => {
+export const fetchOrg = (orgId: string, skipValidation?: boolean) => {
   return {
     type: ReduxActionTypes.FETCH_CURRENT_ORG,
     payload: {
       orgId,
-    },
-  };
-};
-
-export const changeOrgName = (name: string) => {
-  return {
-    type: ReduxActionTypes.UPDATE_ORG_NAME_INIT,
-    payload: {
-      name,
+      skipValidation,
     },
   };
 };

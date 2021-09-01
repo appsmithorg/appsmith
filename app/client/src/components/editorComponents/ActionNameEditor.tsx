@@ -12,7 +12,7 @@ import { Action } from "entities/Action";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getExistingPageNames } from "sagas/selectors";
 
-import { saveActionName } from "actions/actionActions";
+import { saveActionName } from "actions/pluginActionActions";
 import { Spinner } from "@blueprintjs/core";
 import { checkCurrentStep } from "sagas/OnboardingSagas";
 import {
@@ -22,6 +22,7 @@ import {
 } from "components/ads/EditableText";
 import { Classes } from "@blueprintjs/core";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import log from "loglevel";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -57,14 +58,14 @@ type ActionNameEditorProps = {
   page?: string;
 };
 
-export const ActionNameEditor = (props: ActionNameEditorProps) => {
+export function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
   if (!params.apiId && !params.queryId) {
-    console.log("No API id or Query id found in the url.");
+    log.error("No API id or Query id found in the url.");
   }
 
   // For onboarding
@@ -138,6 +139,19 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
       setForceUpdate(true);
     } else if (saveStatus.isSaving === true) {
       setForceUpdate(false);
+    } else if (saveStatus.isSaving === false && saveStatus.error === false) {
+      // Construct URLSearchParams object instance from current URL querystring.
+      const queryParams = new URLSearchParams(window.location.search);
+
+      if (
+        queryParams.has("editName") &&
+        queryParams.get("editName") === "true"
+      ) {
+        // Set new or modify existing parameter value.
+        queryParams.set("editName", "false");
+        // Replace current querystring with the new one.
+        history.replaceState({}, "", "?" + queryParams.toString());
+      }
     }
   }, [saveStatus.isSaving, saveStatus.error]);
 
@@ -147,18 +161,19 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
         <NewEditableText
           className="t--action-name-edit-field"
           defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-          placeholder="Name of the API in camelCase"
+          editInteractionKind={NewEditInteractionKind.SINGLE}
+          fill
           forceDefault={forceUpdate}
-          onBlur={handleAPINameChange}
-          isInvalid={isInvalidActionName}
-          valueTransform={removeSpecialChars}
+          hideEditIcon
           isEditingDefault={isNew && !hideEditIcon}
+          isInvalid={isInvalidActionName}
+          onBlur={handleAPINameChange}
+          placeholder="Name of the API in camelCase"
           savingState={
             saveStatus.isSaving ? SavingState.STARTED : SavingState.NOT_STARTED
           }
-          editInteractionKind={NewEditInteractionKind.SINGLE}
-          hideEditIcon
           underline
+          valueTransform={removeSpecialChars}
         />
       ) : (
         <div
@@ -168,22 +183,22 @@ export const ActionNameEditor = (props: ActionNameEditorProps) => {
         >
           <EditableText
             className="t--action-name-edit-field"
-            type="text"
             defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-            placeholder="Name of the API in camelCase"
-            forceDefault={forceUpdate}
-            onTextChanged={handleAPINameChange}
-            isInvalid={isInvalidActionName}
-            valueTransform={removeSpecialChars}
-            isEditingDefault={isNew}
-            updating={saveStatus.isSaving}
             editInteractionKind={EditInteractionKind.SINGLE}
+            forceDefault={forceUpdate}
+            isEditingDefault={isNew}
+            isInvalid={isInvalidActionName}
+            onTextChanged={handleAPINameChange}
+            placeholder="Name of the API in camelCase"
+            type="text"
+            updating={saveStatus.isSaving}
+            valueTransform={removeSpecialChars}
           />
           {saveStatus.isSaving && <Spinner size={16} />}
         </div>
       )}
     </ApiNameWrapper>
   );
-};
+}
 
 export default ActionNameEditor;

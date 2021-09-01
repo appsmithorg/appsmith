@@ -62,26 +62,6 @@ describe("Api action transformer", () => {
     expect(result).toEqual(output);
   });
 
-  it("removes body for GET calls", () => {
-    const input = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
-        body: [null, null],
-      },
-    };
-    const output = {
-      ...BASE_ACTION,
-      actionConfiguration: {
-        ...BASE_ACTION.actionConfiguration,
-        httpMethod: "GET",
-      },
-    };
-    const result = transformRestAction(input);
-    expect(result).toEqual(output);
-  });
-
   it("Sets the correct body for JSON display type", () => {
     const input = {
       ...BASE_ACTION,

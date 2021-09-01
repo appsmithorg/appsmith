@@ -9,8 +9,8 @@ export default styled.div<{ theme?: EditorTheme }>`
   left: 0;
   background-color: ${(props) =>
     props.theme === EditorTheme.DARK
-      ? "rgba(0, 0, 0, 0.6)"
-      : "rgba(255, 255, 255, 0.6)"};
+      ? "rgba(0, 0, 0, 0.8)"
+      : "rgba(255, 255, 255, 0.8)"};
   pointer-events: none;
   z-index: 10;
   color: ${(props) =>

@@ -1,7 +1,9 @@
 package com.appsmith.server.exceptions;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
+import com.appsmith.external.exceptions.BaseException;
+import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
@@ -11,7 +13,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.server.ServerWebExchange;
@@ -32,9 +33,6 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    public GlobalExceptionHandler() {
-    }
-
     private void doLog(Throwable error) {
         log.error("", error);
 
@@ -51,17 +49,12 @@ public class GlobalExceptionHandler {
                      * */
                     scope.setExtra("Stack Trace", stringStackTrace);
                     scope.setLevel(SentryLevel.ERROR);
+                    scope.setTag("source", "appsmith-internal-server");
                 }
         );
 
-        if (error instanceof AppsmithException || error instanceof AppsmithPluginException) {
-            if (error instanceof AppsmithException
-                && ((AppsmithException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
-                Sentry.captureException(error);
-            }
-
-            if (error instanceof AppsmithPluginException
-                && ((AppsmithPluginException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
+        if (error instanceof BaseException) {
+            if (((BaseException)error).getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
                 Sentry.captureException(error);
             }
         } else {
@@ -83,7 +76,13 @@ public class GlobalExceptionHandler {
     public Mono<ResponseDTO<ErrorDTO>> catchAppsmithException(AppsmithException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(e.getHttpStatus()));
         doLog(e);
-        return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage())));
+
+        // Do special formatting for this error to run the message string into valid jsonified string
+        if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getAppErrorCode().equals(e.getError().getAppErrorCode())) {
+            return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), "{" + e.getMessage() + "}")));
+        }
+
+        return Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage(), e.getErrorType())));
     }
 
     @ExceptionHandler
@@ -93,7 +92,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getMessage()))));
+                appsmithError.getMessage(e.getCause().getMessage()))));
     }
 
     @ExceptionHandler
@@ -150,7 +149,7 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         return Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage())));
+                e.getMessage(), e.getErrorType())));
     }
 
     @ExceptionHandler

@@ -7,21 +7,16 @@ import GoogleDrive from "@uppy/google-drive";
 import Webcam from "@uppy/webcam";
 import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import FileDataTypes from "./FileDataTypes";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -49,6 +44,7 @@ class FilePickerWidget extends BaseWidget<
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "maxNumFiles",
@@ -60,16 +56,21 @@ class FilePickerWidget extends BaseWidget<
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
             propertyName: "maxFileSize",
             helpText: "Sets the maximum size of each file that can be uploaded",
-            label: "Max file size",
+            label: "Max file size(Mb)",
             controlType: "INPUT_TEXT",
             placeholderText: "File size in mb",
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 5, required: true },
+            },
           },
           {
             propertyName: "allowedFileTypes",
@@ -114,6 +115,45 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                allowedValues: [
+                  "*",
+                  "image/*",
+                  "video/*",
+                  "audio/*",
+                  "text/*",
+                  ".doc",
+                  "image/jpeg",
+                  ".png",
+                ],
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+          },
+          {
+            helpText: "Set the format of the data read from the files",
+            propertyName: "fileDataType",
+            label: "Data Format",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: FileDataTypes.Base64,
+                value: FileDataTypes.Base64,
+              },
+              {
+                label: FileDataTypes.Binary,
+                value: FileDataTypes.Binary,
+              },
+              {
+                label: FileDataTypes.Text,
+                value: FileDataTypes.Text,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
           {
             propertyName: "isRequired",
@@ -123,6 +163,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -132,17 +173,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-          },
-          {
-            propertyName: "uploadedFileUrlPaths",
-            helpText:
-              "Stores the url of the uploaded file so that it can be referenced in an action later",
-            label: "Uploaded File URLs",
-            controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [ "url1", "url2" ]',
-            inputType: "TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -152,6 +183,7 @@ class FilePickerWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -160,7 +192,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN here and store their urls in uploadedFileUrls",
+              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",
@@ -172,35 +204,24 @@ class FilePickerWidget extends BaseWidget<
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
+
+  static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      maxNumFiles: VALIDATION_TYPES.NUMBER,
-      allowedFileTypes: VALIDATION_TYPES.ARRAY,
-      files: VALIDATION_TYPES.ARRAY,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onFilesSelected: VALIDATION_TYPES.ACTION_SELECTOR,
+      selectedFiles: "defaultSelectedFiles",
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
-      value: `{{this.files}}`,
+      files: `{{this.selectedFiles.map((file) => { return { ...file, data: this.fileDataType === "Base64" ? file.base64 : this.fileDataType === "Binary" ? file.raw : file.text } })}}`,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      files: [],
+      selectedFiles: [],
       uploadedFileData: {},
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onFilesSelected: true,
     };
   }
 
@@ -288,7 +309,11 @@ class FilePickerWidget extends BaseWidget<
             plugin.closeModal();
           }
         },
-        locale: {},
+        locale: {
+          strings: {
+            closeModal: "Close",
+          },
+        },
       })
       .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
       .use(Url, { companionUrl: "https://companion.uppy.io" })
@@ -304,17 +329,18 @@ class FilePickerWidget extends BaseWidget<
       });
 
     this.state.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.files
-        ? this.props.files.filter((dslFile) => {
+      const updatedFiles = this.props.selectedFiles
+        ? this.props.selectedFiles.filter((dslFile) => {
             return file.id !== dslFile.id;
           })
         : [];
-      this.props.updateWidgetMetaProperty("files", updatedFiles);
+      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
-      const dslFiles = this.props.files ? [...this.props.files] : [];
-
+      const dslFiles = this.props.selectedFiles
+        ? [...this.props.selectedFiles]
+        : [];
       const fileReaderPromises = files.map((file) => {
         const reader = new FileReader();
         return new Promise((resolve) => {
@@ -330,11 +356,17 @@ class FilePickerWidget extends BaseWidget<
               textReader.onloadend = () => {
                 const text = textReader.result;
                 const newFile = {
+                  type: file.type,
                   id: file.id,
                   base64: base64data,
-                  blob: file.data,
                   raw: rawData,
                   text: text,
+                  data:
+                    this.props.fileDataType === FileDataTypes.Base64
+                      ? base64data
+                      : this.props.fileDataType === FileDataTypes.Binary
+                      ? rawData
+                      : text,
                   name: file.meta ? file.meta.name : undefined,
                 };
 
@@ -346,7 +378,10 @@ class FilePickerWidget extends BaseWidget<
       });
 
       Promise.all(fileReaderPromises).then((files) => {
-        this.props.updateWidgetMetaProperty("files", dslFiles.concat(files));
+        this.props.updateWidgetMetaProperty(
+          "selectedFiles",
+          dslFiles.concat(files),
+        );
       });
     });
 
@@ -363,10 +398,11 @@ class FilePickerWidget extends BaseWidget<
   onFilesSelected = () => {
     if (this.props.onFilesSelected) {
       this.executeAction({
+        triggerPropertyName: "onFilesSelected",
         dynamicString: this.props.onFilesSelected,
         event: {
           type: EventType.ON_FILES_SELECTED,
-          callback: this.handleFileUploaded,
+          callback: this.handleActionComplete,
         },
       });
 
@@ -374,28 +410,16 @@ class FilePickerWidget extends BaseWidget<
     }
   };
 
-  /**
-   * sets uploadFilesUrl in meta propety and sets isLoading to false
-   *
-   * @param result
-   */
-  handleFileUploaded = (result: ExecutionResult) => {
-    if (result.success) {
-      this.props.updateWidgetMetaProperty(
-        "uploadedFileUrls",
-        this.props.uploadedFileUrlPaths,
-      );
-
-      this.setState({ isLoading: false });
-    }
+  handleActionComplete = () => {
+    this.setState({ isLoading: false });
   };
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
     if (
-      prevProps.files &&
-      prevProps.files.length > 0 &&
-      this.props.files === undefined
+      prevProps.selectedFiles &&
+      prevProps.selectedFiles.length > 0 &&
+      this.props.selectedFiles === undefined
     ) {
       this.state.uppy.reset();
     } else if (
@@ -420,13 +444,13 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
+        files={this.props.selectedFiles || []}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         label={this.props.label}
-        files={this.props.files || []}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        isDisabled={this.props.isDisabled}
+        uppy={this.state.uppy}
+        widgetId={this.props.widgetId}
       />
     );
   }
@@ -445,11 +469,11 @@ export interface FilePickerWidgetProps extends WidgetProps, WithMeta {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
-  files?: any[];
+  selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
+  fileDataType: FileDataTypes;
   isRequired?: boolean;
-  uploadedFileUrlPaths?: string;
 }
 
 export default FilePickerWidget;

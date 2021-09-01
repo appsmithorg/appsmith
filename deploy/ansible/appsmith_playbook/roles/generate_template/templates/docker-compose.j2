@@ -46,7 +46,7 @@ services:
       - appsmith
 
   mongo:
-    image: mongo
+    image: mongo:4.4.6
     expose:
       - "27017"
     environment:
@@ -71,7 +71,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     # Update check interval in seconds.
-    command: --interval 300 --label-enable
+    command: --interval 300 --label-enable --cleanup
     networks:
       - appsmith
 

@@ -18,6 +18,7 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
+  featureFlagFetched: false,
 };
 
 const usersReducer = createReducer(initialState, {
@@ -28,7 +29,40 @@ const usersReducer = createReducer(initialState, {
       fetchingUser: true,
     },
   }),
+  [ReduxActionTypes.PROP_PANE_MOVED]: (
+    state: UsersReduxState,
+    action: ReduxAction<PropertyPanePositionConfig>,
+  ) => ({
+    ...state,
+    propPanePreferences: {
+      isMoved: true,
+      position: {
+        ...action.payload.position,
+      },
+    },
+  }),
   [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<User>,
+  ) => {
+    const users = [...state.users];
+    const userIndex = _.findIndex(users, { username: action.payload.username });
+    if (userIndex > -1) {
+      users[userIndex] = action.payload;
+    } else {
+      users.push(action.payload);
+    }
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingUser: false,
+      },
+      users,
+      currentUser: action.payload,
+    };
+  },
+  [ReduxActionTypes.UPDATE_USER_DETAILS_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
   ) => {
@@ -93,8 +127,25 @@ const usersReducer = createReducer(initialState, {
     currentUser: DefaultCurrentUserDetails,
     users: [DefaultCurrentUserDetails],
   }),
+  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
+    ...state,
+    featureFlagFetched: true,
+  }),
+  [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
+    state: UsersReduxState,
+  ) => ({
+    ...state,
+    featureFlagFetched: true,
+  }),
 });
 
+export interface PropertyPanePositionConfig {
+  isMoved: boolean;
+  position: {
+    left: number;
+    top: number;
+  };
+}
 export interface UsersReduxState {
   current?: User;
   list: User[];
@@ -105,6 +156,8 @@ export interface UsersReduxState {
   users: User[];
   currentUser?: User;
   error: string;
+  propPanePreferences?: PropertyPanePositionConfig;
+  featureFlagFetched: boolean;
 }
 
 export default usersReducer;

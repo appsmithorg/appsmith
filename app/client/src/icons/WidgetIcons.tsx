@@ -8,6 +8,7 @@ import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
+import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
 import { ReactComponent as RadioGroupIcon } from "assets/icons/widget/radio.svg";
 import { ReactComponent as JsonViewIcon } from "assets/icons/widget/json.svg";
@@ -22,6 +23,14 @@ import { ReactComponent as ChartIcon } from "assets/icons/widget/chart.svg";
 import { ReactComponent as FormIcon } from "assets/icons/widget/form.svg";
 import { ReactComponent as MapIcon } from "assets/icons/widget/map.svg";
 import { ReactComponent as ModalIcon } from "assets/icons/widget/modal.svg";
+import { ReactComponent as ListIcon } from "assets/icons/widget/list.svg";
+import { ReactComponent as RatingIcon } from "assets/icons/widget/rating.svg";
+import { ReactComponent as EmbedIcon } from "assets/icons/widget/embed.svg";
+import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
+import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
+import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
+import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
+
 /* eslint-disable react/display-name */
 
 export const WidgetIcons: {
@@ -52,7 +61,7 @@ export const WidgetIcons: {
       <ContainerIcon />
     </IconWrapper>
   ),
-  DATE_PICKER_WIDGET: (props: IconProps) => (
+  DATE_PICKER_WIDGET2: (props: IconProps) => (
     <IconWrapper {...props}>
       <DatePickerIcon />
     </IconWrapper>
@@ -70,6 +79,11 @@ export const WidgetIcons: {
   DROP_DOWN_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <DropDownIcon />
+    </IconWrapper>
+  ),
+  MULTI_SELECT_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MultiSelectIcon />
     </IconWrapper>
   ),
   RADIO_GROUP_WIDGET: (props: IconProps) => (
@@ -107,7 +121,7 @@ export const WidgetIcons: {
       <ImageIcon />
     </IconWrapper>
   ),
-  FILE_PICKER_WIDGET: (props: IconProps) => (
+  FILE_PICKER_WIDGET_V2: (props: IconProps) => (
     <IconWrapper {...props}>
       <FilePickerIcon />
     </IconWrapper>
@@ -140,6 +154,41 @@ export const WidgetIcons: {
   FORM_BUTTON_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <ButtonIcon />
+    </IconWrapper>
+  ),
+  LIST_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props} data-testid="list-widget-icon">
+      <ListIcon />
+    </IconWrapper>
+  ),
+  RATE_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <RatingIcon />
+    </IconWrapper>
+  ),
+  IFRAME_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <EmbedIcon />
+    </IconWrapper>
+  ),
+  DIVIDER_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DividerIcon />
+    </IconWrapper>
+  ),
+  MENU_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <MenuButtonIcon />
+    </IconWrapper>
+  ),
+  ICON_BUTTON_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IconButtonIcon />
+    </IconWrapper>
+  ),
+  CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <CheckboxGroupIcon />
     </IconWrapper>
   ),
 };

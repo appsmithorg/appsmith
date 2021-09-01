@@ -1,18 +1,19 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
-import { WidgetPropertyValidationType } from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  TriggerPropertiesMap,
-  DerivedPropertiesMap,
-} from "utils/WidgetFactory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import withMeta, { WithMeta } from "./MetaHOC";
+const showdown = require("showdown");
 
+export enum RTEFormats {
+  MARKDOWN = "markdown",
+  HTML = "html",
+}
 const RichTextEditorComponent = lazy(() =>
   retryPromise(() =>
     import(
@@ -31,6 +32,25 @@ class RichTextEditorWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            propertyName: "inputType",
+            helpText:
+              "Sets the input type of the default text property in widget.",
+            label: "Input Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Markdown",
+                value: "markdown",
+              },
+              {
+                label: "HTML",
+                value: "html",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "defaultText",
             helpText:
               "Sets the default text of the widget. The text is updated if the default text changes",
@@ -39,6 +59,17 @@ class RichTextEditorWidget extends BaseWidget<
             placeholderText: "Enter HTML",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -48,6 +79,7 @@ class RichTextEditorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -57,6 +89,7 @@ class RichTextEditorWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -76,22 +109,6 @@ class RichTextEditorWidget extends BaseWidget<
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      text: VALIDATION_TYPES.TEXT,
-      placeholder: VALIDATION_TYPES.TEXT,
-      defaultValue: VALIDATION_TYPES.TEXT,
-      isDisabled: VALIDATION_TYPES.BOOLEAN,
-      isVisible: VALIDATION_TYPES.BOOLEAN,
-      // onTextChange: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onTextChange: true,
-    };
-  }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
@@ -108,11 +125,13 @@ class RichTextEditorWidget extends BaseWidget<
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{this.text}}`,
+      isValid: `{{ this.isRequired ? this.text && this.text.length : true }}`,
     };
   }
 
   onValueChange = (text: string) => {
     this.props.updateWidgetMetaProperty("text", text, {
+      triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
       event: {
         type: EventType.ON_TEXT_CHANGE,
@@ -121,16 +140,21 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
+    let defaultValue = this.props.text || "";
+    if (this.props.inputType === RTEFormats.MARKDOWN) {
+      const converter = new showdown.Converter();
+      defaultValue = converter.makeHtml(defaultValue);
+    }
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
-          onValueChange={this.onValueChange}
-          defaultValue={this.props.text || ""}
-          widgetId={this.props.widgetId}
-          placeholder={this.props.placeholder}
-          key={this.props.widgetId}
+          defaultValue={defaultValue}
           isDisabled={this.props.isDisabled}
           isVisible={this.props.isVisible}
+          key={this.props.widgetId}
+          onValueChange={this.onValueChange}
+          placeholder={this.props.placeholder}
+          widgetId={this.props.widgetId}
         />
       </Suspense>
     );
@@ -143,11 +167,13 @@ class RichTextEditorWidget extends BaseWidget<
 
 export interface RichTextEditorWidgetProps extends WidgetProps, WithMeta {
   defaultText?: string;
-  text?: string;
+  text: string;
+  inputType: string;
   placeholder?: string;
   onTextChange?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
+  isRequired?: boolean;
 }
 
 export default RichTextEditorWidget;

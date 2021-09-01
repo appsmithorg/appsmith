@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.RefactorNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(Url.LAYOUT_URL)
+@Slf4j
 public class LayoutController {
 
     private final LayoutService service;
@@ -48,6 +50,7 @@ public class LayoutController {
 
     @PutMapping("/{layoutId}/pages/{pageId}")
     public Mono<ResponseDTO<LayoutDTO>> updateLayout(@PathVariable String pageId, @PathVariable String layoutId, @RequestBody Layout layout) {
+        log.debug("update layout received for page {}", pageId);
         return layoutActionService.updateLayout(pageId, layoutId, layout)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }

@@ -1,7 +1,7 @@
 {
     "imageWidget": ".t--draggable-imagewidget",
     "chartWidget": ".t--draggable-chartwidget",
-    "chartType": ".t--property-control-charttype",
+    "chartType": ".t--property-control-charttype .bp3-popover-target",
     "destin": ".appsmith_widget_01ewdomru7",
     "mapWidget": ".t--draggable-mapwidget",
     "dropdownSelectButton": ".t--open-dropdown-Select",
@@ -15,9 +15,9 @@
     "imagecontainer": ".t--draggable-imagewidget span.t--widget-name",
     "imageinner": ".t--draggable-imagewidget img",
     "chartInnerText": ".t--property-control-title",
-    "inputChartValue": ".t--property-control-chartdata .CodeMirror textarea",
-    "chartButton": ".t--property-control-chartdata button",
-    "rectangleChart": ".t--draggable-chartwidget g  rect",
+    "inputChartValue": ".t--property-control-chartseries .CodeMirror textarea",
+    "chartButton": ".t--property-control-chartseries button",
+    "rectangleChart": ".t--draggable-chartwidget g rect",
     "xlabel": ".t--property-control-x-axislabel .CodeMirror-code",
     "ylabel": ".t--property-control-y-axislabel .CodeMirror-code",
     "mapInner": ".t--draggable-mapwidget span.t--widget-name",
@@ -26,7 +26,9 @@
     "mapSearch": ".t--draggable-mapwidget input",
     "createMarker": ".t--property-control-createnewmarker [type='checkbox']",
     "zoomLevel": ".t--property-control-zoomlevel  svg",
-    "defaultImage": ".t--property-control-defaultimage .CodeMirror-code",
+    "sourceImage": ".t--property-control-image .CodeMirror-code",
+    "defaultImage": ".t--property-control-defaultimage .CodeMirror textarea",
     "Chartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
+    "PieChartLabel": ".t--draggable-chartwidget g g:nth-child(1) g text",
     "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']"
 }

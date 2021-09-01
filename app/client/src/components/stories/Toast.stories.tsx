@@ -12,7 +12,7 @@ export default {
   decorators: [withKnobs],
 };
 
-export const ToastStory = () => {
+export function ToastStory() {
   useEffect(() => {
     Toaster.show({
       text: text("message", "Archived successfully"),
@@ -25,27 +25,27 @@ export const ToastStory = () => {
   return (
     <StoryWrapper>
       <StyledToastContainer
-        hideProgressBar
-        draggable={false}
-        transition={Slide}
         autoClose={5000}
         closeButton={false}
+        draggable={false}
+        hideProgressBar
         pauseOnHover={false}
+        transition={Slide}
       />
       <Button
-        size={Size.large}
         category={Category.tertiary}
-        variant={Variant.info}
-        text="Show toast message"
         onClick={() => {
           Toaster.show({
-            text: text("message", "App name saved successfully"),
+            text: text("message", "Application name saved successfully"),
             duration: number("duration", 5000),
             variant: select("variant", Object.values(Variant), Variant.success),
             onUndo: action("on-undo"),
           });
         }}
+        size={Size.large}
+        text="Show toast message"
+        variant={Variant.info}
       />
     </StoryWrapper>
   );
-};
+}

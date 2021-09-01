@@ -13,11 +13,13 @@ import { getAppsmithConfigs } from "configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import { bootIntercom } from "utils/helpers";
 
-const { algolia, cloudHosting, intercomAppID } = getAppsmithConfigs();
+const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
   highlight: boolean;
   layer: number;
@@ -47,10 +49,10 @@ const HelpButton = styled.button<{
   }
 `;
 
-const MODAL_WIDTH = 240;
-const MODAL_HEIGHT = 206;
-const MODAL_BOTTOM_DISTANCE = 45;
-const MODAL_RIGHT_DISTANCE = 30;
+const MODAL_WIDTH = HELP_MODAL_WIDTH;
+const MODAL_HEIGHT = HELP_MODAL_HEIGHT;
+const MODAL_BOTTOM_DISTANCE = 100;
+const MODAL_RIGHT_DISTANCE = 27;
 
 const HelpIcon = HelpIcons.HELP_ICON;
 const CloseIcon = HelpIcons.CLOSE_ICON;
@@ -58,25 +60,22 @@ const CloseIcon = HelpIcons.CLOSE_ICON;
 type Props = {
   isHelpModalOpen: boolean;
   dispatch: any;
-  user?: User;
   page: string;
+  user?: User;
 };
 
 class HelpModal extends React.Component<Props> {
   static contextType = LayersContext;
-
   componentDidMount() {
     const { user } = this.props;
-    if (cloudHosting && intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
+    bootIntercom(user);
+  }
+  componentDidUpdate(prevProps: Props) {
+    const { user } = this.props;
+    if (user?.email && prevProps.user?.email !== user?.email) {
+      bootIntercom(user);
     }
   }
-
   /**
    * closes help modal
    *
@@ -114,17 +113,17 @@ class HelpModal extends React.Component<Props> {
       <>
         {isHelpModalOpen && (
           <ModalComponent
-            canOutsideClickClose
             canEscapeKeyClose
-            scrollContents
-            height={MODAL_HEIGHT}
-            width={MODAL_WIDTH}
-            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
-            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            canOutsideClickClose
             data-cy={"help-modal"}
             hasBackDrop={false}
-            onClose={this.onClose}
+            height={MODAL_HEIGHT}
             isOpen
+            left={window.innerWidth - MODAL_RIGHT_DISTANCE - MODAL_WIDTH}
+            onClose={this.onClose}
+            scrollContents
+            top={window.innerHeight - MODAL_BOTTOM_DISTANCE - MODAL_HEIGHT}
+            width={MODAL_WIDTH}
             zIndex={layers.help}
           >
             <DocumentationSearch hitsPerPage={4} />

@@ -1,19 +1,37 @@
-import { Position, Tooltip } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core";
+import Tooltip from "components/ads/Tooltip";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import Text, { TextType } from "components/ads/Text";
 import React from "react";
 
 type Props = {
   tooltip?: string;
   label: string;
+  theme?: EditorTheme;
 };
 
-const PropertyHelpLabel = (props: Props) => {
+function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;
+  if (!props.label) {
+    return null;
+  }
   return (
     <Tooltip
+      content={
+        <Text
+          style={{
+            color: "#FAFAFA",
+            maxWidth: "320px",
+            textAlign: "center",
+          }}
+          type={TextType.P1}
+        >
+          {props.tooltip || ""}
+        </Text>
+      }
       disabled={!toolTipDefined}
-      content={props.tooltip}
-      position={Position.TOP}
       hoverOpenDelay={200}
+      position={Position.TOP}
     >
       <div
         style={{
@@ -21,6 +39,7 @@ const PropertyHelpLabel = (props: Props) => {
         }}
       >
         <label
+          className={`t--property-control-label`}
           style={
             toolTipDefined
               ? {
@@ -28,7 +47,6 @@ const PropertyHelpLabel = (props: Props) => {
                 }
               : {}
           }
-          className={`t--property-control-label`}
         >
           {props.label}
         </label>
@@ -49,6 +67,6 @@ const PropertyHelpLabel = (props: Props) => {
       </div>
     </Tooltip>
   );
-};
+}
 
 export default PropertyHelpLabel;

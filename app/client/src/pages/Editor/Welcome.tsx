@@ -72,7 +72,7 @@ const StyledButton = styled.button`
   margin-top: 24px;
 `;
 
-const Welcome = () => {
+function Welcome() {
   const datasourceCreated = useSelector(
     (state: AppState) => state.ui.onBoarding.createdDBQuery,
   );
@@ -108,6 +108,6 @@ const Welcome = () => {
       )}
     </Wrapper>
   );
-};
+}
 
 export default Welcome;

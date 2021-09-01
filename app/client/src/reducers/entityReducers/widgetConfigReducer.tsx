@@ -8,27 +8,37 @@ import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { ImageWidgetProps } from "widgets/ImageWidget";
 import { InputWidgetProps } from "widgets/InputWidget";
 import { RichTextEditorWidgetProps } from "widgets/RichTextEditorWidget";
-import { DatePickerWidgetProps } from "../../widgets/DatePickerWidget";
-import { TableWidgetProps } from "../../widgets/TableWidget/TableWidgetConstants";
-import { DropdownWidgetProps } from "../../widgets/DropdownWidget";
-import { CheckboxWidgetProps } from "../../widgets/CheckboxWidget";
-import { RadioGroupWidgetProps } from "../../widgets/RadioGroupWidget";
-import { AlertWidgetProps } from "../../widgets/AlertWidget";
-import { FilePickerWidgetProps } from "../../widgets/FilepickerWidget";
+import { DatePickerWidgetProps } from "widgets/DatePickerWidget";
+import { DatePickerWidget2Props } from "widgets/DatePickerWidget2";
+import { TableWidgetProps } from "widgets/TableWidget/TableWidgetConstants";
+import { DropdownWidgetProps } from "widgets/DropdownWidget";
+import { CheckboxWidgetProps } from "widgets/CheckboxWidget";
+import { RadioGroupWidgetProps } from "widgets/RadioGroupWidget";
+import { FilePickerWidgetProps } from "widgets/FilepickerWidget";
+import { FilePickerWidgetV2Props } from "widgets/FilepickerWidgetV2";
+
 import {
   TabsWidgetProps,
   TabContainerWidgetProps,
-} from "../../widgets/TabsWidget";
-import { ChartWidgetProps } from "../../widgets/ChartWidget";
+} from "widgets/Tabs/TabsWidget";
+import { ChartWidgetProps } from "widgets/ChartWidget";
 import { FormWidgetProps } from "widgets/FormWidget";
 import { FormButtonWidgetProps } from "widgets/FormButtonWidget";
 import { MapWidgetProps } from "widgets/MapWidget";
 import { ModalWidgetProps } from "widgets/ModalWidget";
 import { IconWidgetProps } from "widgets/IconWidget";
 import { VideoWidgetProps } from "widgets/VideoWidget";
-import { SkeletonWidgetProps } from "../../widgets/SkeletonWidget";
+import { SkeletonWidgetProps } from "widgets/SkeletonWidget";
 import { SwitchWidgetProps } from "widgets/SwitchWidget";
 import { JsonViewWidgetProps } from "../../widgets/JsonView";
+import { ListWidgetProps } from "widgets/ListWidget/ListWidget";
+import { MultiSelectWidgetProps } from "widgets/MultiSelectWidget";
+import { DividerWidgetProps } from "widgets/DividerWidget";
+import { RateWidgetProps } from "widgets/RateWidget";
+import { IframeWidgetProps } from "widgets/IframeWidget";
+import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
+import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
+import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -60,15 +70,19 @@ export interface WidgetConfigReducerState {
     CONTAINER_WIDGET: Partial<ContainerWidgetProps<WidgetProps>> &
       WidgetConfigProps;
     DATE_PICKER_WIDGET: Partial<DatePickerWidgetProps> & WidgetConfigProps;
+    DATE_PICKER_WIDGET2: Partial<DatePickerWidget2Props> & WidgetConfigProps;
     TABLE_WIDGET: Partial<TableWidgetProps> & WidgetConfigProps;
     VIDEO_WIDGET: Partial<VideoWidgetProps> & WidgetConfigProps;
     DROP_DOWN_WIDGET: Partial<DropdownWidgetProps> & WidgetConfigProps;
+    MULTI_SELECT_WIDGET: Partial<MultiSelectWidgetProps> & WidgetConfigProps;
     CHECKBOX_WIDGET: Partial<CheckboxWidgetProps> & WidgetConfigProps;
     SWITCH_WIDGET: Partial<SwitchWidgetProps> & WidgetConfigProps;
     RADIO_GROUP_WIDGET: Partial<RadioGroupWidgetProps> & WidgetConfigProps;
-    ALERT_WIDGET: Partial<AlertWidgetProps> & WidgetConfigProps;
     FILE_PICKER_WIDGET: Partial<FilePickerWidgetProps> & WidgetConfigProps;
+    FILE_PICKER_WIDGET_V2: Partial<FilePickerWidgetV2Props> & WidgetConfigProps;
     TABS_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
+      WidgetConfigProps;
+    TABS_MIGRATOR_WIDGET: Partial<TabsWidgetProps<TabContainerWidgetProps>> &
       WidgetConfigProps;
     MODAL_WIDGET: Partial<ModalWidgetProps> & WidgetConfigProps;
     CHART_WIDGET: Partial<ChartWidgetProps> & WidgetConfigProps;
@@ -80,6 +94,14 @@ export interface WidgetConfigReducerState {
     ICON_WIDGET: Partial<IconWidgetProps> & WidgetConfigProps;
     SKELETON_WIDGET: Partial<SkeletonWidgetProps> & WidgetConfigProps;
     JSON_VIEW_WIDGET: Partial<JsonViewWidgetProps> & WidgetConfigProps;
+    LIST_WIDGET: Partial<ListWidgetProps<WidgetProps>> & WidgetConfigProps;
+    DIVIDER_WIDGET: Partial<DividerWidgetProps> & WidgetConfigProps;
+    RATE_WIDGET: Partial<RateWidgetProps> & WidgetConfigProps;
+    IFRAME_WIDGET: Partial<IframeWidgetProps> & WidgetConfigProps;
+    MENU_BUTTON_WIDGET: Partial<MenuButtonWidgetProps> & WidgetConfigProps;
+    ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
+    CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
+      WidgetConfigProps;
   };
   configVersion: number;
 }

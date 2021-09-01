@@ -2,7 +2,7 @@
 name: "\U0001F4DD Task"
 about: Create a task for the team to work on
 title: "[Task] "
-labels: ''
+labels: Task
 assignees: ''
 
 ---

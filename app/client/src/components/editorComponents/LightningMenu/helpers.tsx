@@ -1,4 +1,5 @@
 import React from "react";
+import { toUpper, get } from "lodash";
 import { Action } from "entities/Action";
 import { Directions } from "utils/helpers";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -18,6 +19,7 @@ import {
   LIGHTNING_MENU_OPTION_JS,
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
+  createMessage,
 } from "constants/messages";
 import { Skin } from "constants/DefaultTheme";
 import { ReduxAction } from "constants/ReduxActionConstants";
@@ -36,10 +38,10 @@ export const getApiOptions = (
         {
           content: (
             <Button
-              text={LIGHTNING_MENU_API_CREATE_NEW}
               icon="plus"
               iconAlignment="left"
               skin={skin}
+              text={createMessage(LIGHTNING_MENU_API_CREATE_NEW)}
               type="button"
             />
           ),
@@ -59,7 +61,7 @@ export const getApiOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_API,
+    text: createMessage(LIGHTNING_MENU_DATA_API),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -85,10 +87,10 @@ export const getQueryOptions = (
         {
           content: (
             <Button
-              text={LIGHTNING_MENU_QUERY_CREATE_NEW}
               icon="plus"
               iconAlignment="left"
               skin={skin}
+              text={createMessage(LIGHTNING_MENU_QUERY_CREATE_NEW)}
               type="button"
             />
           ),
@@ -108,7 +110,7 @@ export const getQueryOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_QUERY,
+    text: createMessage(LIGHTNING_MENU_DATA_QUERY),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -138,7 +140,7 @@ export const getWidgetOptions = (
     },
   ],
   trigger: {
-    text: LIGHTNING_MENU_DATA_WIDGET,
+    text: createMessage(LIGHTNING_MENU_DATA_WIDGET),
   },
   openDirection: Directions.RIGHT,
   openOnHover: true,
@@ -193,7 +195,9 @@ export const getLightningMenuOptions = (
   ];
   if (widgets.length > 0) {
     widgets = widgets.sort((a: WidgetProps, b: WidgetProps) => {
-      return a.widgetName.toUpperCase() > b.widgetName.toUpperCase() ? 1 : -1;
+      return toUpper(get(a, "widgetName")) > toUpper(get(b, "widgetName"))
+        ? 1
+        : -1;
     });
     options.push({
       content: (
@@ -208,7 +212,7 @@ export const getLightningMenuOptions = (
   return [
     ...options,
     {
-      content: LIGHTNING_MENU_OPTION_JS,
+      content: createMessage(LIGHTNING_MENU_OPTION_JS),
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {
@@ -216,7 +220,7 @@ export const getLightningMenuOptions = (
       },
     },
     {
-      content: LIGHTNING_MENU_OPTION_HTML,
+      content: createMessage(LIGHTNING_MENU_OPTION_HTML),
       disabled: false,
       shouldCloseDropdown: true,
       onSelect: () => {

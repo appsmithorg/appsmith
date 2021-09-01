@@ -5,6 +5,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -20,7 +21,8 @@ type AppPageProps = {
   appName?: string;
 };
 
-export const AppPage = (props: AppPageProps) => {
+export function AppPage(props: AppPageProps) {
+  useDynamicAppLayout();
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: props.pageName,
@@ -30,11 +32,11 @@ export const AppPage = (props: AppPageProps) => {
     });
   }, [props.pageId, props.pageName]);
   return (
-    <PageView width={props.dsl.rightColumn}>
+    <PageView className="t--app-viewer-page" width={props.dsl.rightColumn}>
       {props.dsl.widgetId &&
         WidgetFactory.createWidget(props.dsl, RenderModes.PAGE)}
     </PageView>
   );
-};
+}
 
 export default AppPage;

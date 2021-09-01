@@ -28,9 +28,12 @@ import { ApiResponse } from "api/ApiResponses";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentOrg } from "selectors/organizationSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { Org } from "constants/orgConstants";
 import history from "utils/history";
+import { APPLICATIONS_URL } from "constants/routes";
 import { getAllApplications } from "actions/applicationActions";
+import log from "loglevel";
 
 export function* fetchRolesSaga() {
   try {
@@ -43,7 +46,7 @@ export function* fetchRolesSaga() {
       });
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.FETCH_ORG_ROLES_ERROR,
       payload: {
@@ -57,11 +60,12 @@ export function* fetchOrgSaga(action: ReduxAction<FetchOrgRequest>) {
   try {
     const request: FetchOrgRequest = action.payload;
     const response: FetchOrgResponse = yield call(OrgApi.fetchOrg, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield request.skipValidation ||
+      validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ORG_SUCCESS,
-        payload: response.data,
+        payload: response.data || {},
       });
     }
   } catch (error) {
@@ -132,12 +136,17 @@ export function* deleteOrgUserSaga(action: ReduxAction<DeleteOrgUserRequest>) {
     const response: ApiResponse = yield call(OrgApi.deleteOrgUser, request);
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      yield put({
-        type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
-        payload: {
-          username: action.payload.username,
-        },
-      });
+      const currentUser = yield select(getCurrentUser);
+      if (currentUser?.username == action.payload.username) {
+        history.replace(APPLICATIONS_URL);
+      } else {
+        yield put({
+          type: ReduxActionTypes.DELETE_ORG_USER_SUCCESS,
+          payload: {
+            username: action.payload.username,
+          },
+        });
+      }
       Toaster.show({
         text: `${response.data.username} has been removed successfully`,
         variant: Variant.success,
@@ -201,7 +210,7 @@ export function* saveOrgSaga(action: ReduxAction<SaveOrgRequest>) {
 export function* createOrgSaga(
   action: ReduxActionWithPromise<CreateOrgRequest>,
 ) {
-  const { resolve, reject, name } = action.payload;
+  const { name, reject, resolve } = action.payload;
   try {
     const request: CreateOrgRequest = { name };
     const response: ApiResponse = yield callAPI(OrgApi.createOrg, request);
@@ -256,7 +265,7 @@ export function* uploadOrgLogoSaga(action: ReduxAction<SaveOrgLogo>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while uploading the logo", error);
+    log.error("Error occured while uploading the logo", error);
   }
 }
 
@@ -283,7 +292,7 @@ export function* deleteOrgLogoSaga(action: ReduxAction<{ id: string }>) {
       }
     }
   } catch (error) {
-    console.log("Error occured while removing the logo", error);
+    log.error("Error occured while removing the logo", error);
   }
 }
 

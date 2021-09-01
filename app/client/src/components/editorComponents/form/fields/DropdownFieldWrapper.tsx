@@ -1,22 +1,19 @@
 import Dropdown from "components/ads/Dropdown";
+import { Colors } from "constants/Colors";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
-import styled from "styled-components";
 
 type DropdownWrapperProps = {
   placeholder: string;
   input: WrappedFieldInputProps;
   options: Array<{ id?: string; value: string; label?: string }>;
   className?: string;
+  width?: string;
+  height?: string;
+  optionWidth?: string;
 };
 
-const StyledDropdown = styled(Dropdown)`
-  height: 35px !important;
-  display: flex;
-  align-items: center;
-`;
-
-const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
+function DropdownFieldWrapper(props: DropdownWrapperProps) {
   const selectedValueHandler = () => {
     if (
       props.input &&
@@ -42,14 +39,17 @@ const DropdownFieldWrapper = (props: DropdownWrapperProps) => {
   }, [props.input.value, props.placeholder]);
 
   return (
-    <StyledDropdown
+    <Dropdown
+      bgColor={Colors.ROYAL_BLUE}
       className={props.className}
+      height={props.height}
+      onSelect={onSelectHandler}
+      optionWidth={props.optionWidth}
       options={props.options}
       selected={selectedOption}
-      onSelect={onSelectHandler}
-      width={120}
+      width={props.width}
     />
   );
-};
+}
 
 export default DropdownFieldWrapper;

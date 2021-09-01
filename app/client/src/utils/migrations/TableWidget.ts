@@ -1,14 +1,17 @@
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
-import { WidgetTypes } from "constants/WidgetConstants";
+import {
+  WidgetTypes,
+  FontStyleTypes,
+  TextSizes,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
-  TextSizes,
-  FontStyleTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
@@ -101,7 +104,7 @@ export const tableWidgetPropertyPaneMigrations = (
               ? columnNameMap[accessor]
               : accessor,
           // Generate computed value
-          computedValue: `{{${child.widgetName}.tableData.map((currentRow) => { return currentRow.${accessor}})}}`,
+          computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor})}}`,
         };
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {
@@ -128,9 +131,10 @@ export const tableWidgetPropertyPaneMigrations = (
           label: action.label, // Revert back to "Actions"
           columnType: "button", // All actions are buttons
           isVisible: true,
+          isDisabled: false,
           isDerived: true,
           buttonLabel: action.label,
-          buttonStyle: "#29CCA3",
+          buttonStyle: "rgb(3, 179, 101)",
           buttonLabelColor: "#FFFFFF",
           onClick: action.dynamicTrigger,
           computedValue: "",
@@ -139,6 +143,7 @@ export const tableWidgetPropertyPaneMigrations = (
           key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
         });
         updatedDerivedColumns[column.id] = column;
+        child.primaryColumns[column.id] = column;
       });
 
       if (Object.keys(updatedDerivedColumns).length) {
@@ -157,6 +162,149 @@ export const tableWidgetPropertyPaneMigrations = (
       child.derivedColumns = updatedDerivedColumns;
     } else if (child.children && child.children.length > 0) {
       child = tableWidgetPropertyPaneMigrations(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+const removeSpecialChars = (value: string, limit?: number) => {
+  const separatorRegex = /\W+/;
+  return value
+    .split(separatorRegex)
+    .join("_")
+    .slice(0, limit || 30);
+};
+
+export const migrateTablePrimaryColumnsBindings = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (
+        child.primaryColumns &&
+        Object.keys(child.primaryColumns).length > 0
+      ) {
+        const newPrimaryColumns: Record<string, ColumnProperties> = {};
+        for (const [key, value] of Object.entries(
+          child.primaryColumns as Record<string, ColumnProperties>,
+        )) {
+          const sanitizedKey = removeSpecialChars(key, 200);
+          const newComputedValue = value.computedValue
+            ? value.computedValue.replace(
+                `${child.widgetName}.tableData.map`,
+                `${child.widgetName}.sanitizedTableData.map`,
+              )
+            : "";
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue: newComputedValue,
+          };
+        }
+        child.primaryColumns = newPrimaryColumns;
+        child.dynamicBindingPathList = child.dynamicBindingPathList?.map(
+          (path) => {
+            path.key = path.key.split(" ").join("_");
+            return path;
+          },
+        );
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTablePrimaryColumnsBindings(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetParentRowSpaceProperty = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (child.parentRowSpace === 40) {
+        child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetParentRowSpaceProperty(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetHeaderVisibilityProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!("isVisibleSearch" in child)) {
+        child.isVisibleSearch = true;
+        child.isVisibleFilters = true;
+        child.isVisibleDownload = true;
+        child.isVisibleCompactMode = true;
+        child.isVisiblePagination = true;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetHeaderVisibilityProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTablePrimaryColumnsComputedValue = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (
+        child.primaryColumns &&
+        Object.keys(child.primaryColumns).length > 0
+      ) {
+        const newPrimaryColumns: Record<string, ColumnProperties> = {};
+        for (const [key, value] of Object.entries(
+          child.primaryColumns as Record<string, ColumnProperties>,
+        )) {
+          const sanitizedKey = removeSpecialChars(key, 200);
+          let newComputedValue = "";
+          if (value.computedValue) {
+            newComputedValue = value.computedValue.replace(
+              `${child.widgetName}.sanitizedTableData.map((currentRow) => { return`,
+              `${child.widgetName}.sanitizedTableData.map((currentRow) => (`,
+            );
+            // change matching "}" bracket with ")"
+            const lastParanthesesInd = newComputedValue.length - 4;
+            newComputedValue =
+              newComputedValue.substring(0, lastParanthesesInd) +
+              ")" +
+              newComputedValue.substring(lastParanthesesInd + 1);
+          }
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue: newComputedValue,
+          };
+        }
+        child.primaryColumns = newPrimaryColumns;
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTablePrimaryColumnsComputedValue(child);
     }
     return child;
   });

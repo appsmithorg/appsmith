@@ -4,11 +4,12 @@ import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
 import {
   ERROR_MESSAGE_NAME_EMPTY,
+  createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 
-import { AsyncControllableInput } from "@blueprintjs/core/lib/esnext/components/forms/asyncControllableInput";
+import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
 export type Validator = (
   value: string,
@@ -24,7 +25,7 @@ export function emailValidator(email: string) {
   }
   return {
     isValid: isValid,
-    message: !isValid ? FORM_VALIDATION_INVALID_EMAIL : "",
+    message: !isValid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : "",
   };
 }
 
@@ -32,7 +33,7 @@ export function notEmptyValidator(value: string) {
   const isValid = !!value;
   return {
     isValid: isValid,
-    message: !isValid ? ERROR_MESSAGE_NAME_EMPTY : "",
+    message: !isValid ? createMessage(ERROR_MESSAGE_NAME_EMPTY) : "",
   };
 }
 
@@ -40,11 +41,13 @@ export type TextInputProps = CommonComponentProps & {
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
+  value?: string;
   validator?: (value: string) => { isValid: boolean; message: string };
   onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
   theme?: any;
+  rightSideComponent?: React.ReactNode;
 };
 
 type boxReturnType = {
@@ -81,18 +84,34 @@ const boxStyles = (
 };
 
 const StyledInput = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
   return props.asyncControl ? (
-    <AsyncControllableInput {...props} />
+    <AsyncControllableInput
+      {...inputProps}
+      dataType={dataType}
+      inputRef={inputRef}
+    />
   ) : (
-    <input {...props} />
+    <input ref={inputRef} {...inputProps} />
   );
-})<TextInputProps & { inputStyle: boxReturnType; isValid: boolean }>`
+})<
+  TextInputProps & {
+    inputStyle: boxReturnType;
+    isValid: boolean;
+    rightSideComponentWidth: number;
+  }
+>`
   width: ${(props) => (props.fill ? "100%" : "320px")};
   border-radius: 0;
+  caret-color: ${(props) => props.theme.colors.textInput.caretColor};
   outline: 0;
   box-shadow: none;
   border: 1px solid ${(props) => props.inputStyle.borderColor};
   padding: 0px ${(props) => props.theme.spaces[6]}px;
+  padding-right: ${(props) =>
+    props.rightSideComponentWidth + props.theme.spaces[6]}px;
   height: 38px;
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
@@ -136,10 +155,18 @@ const InputWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   position: relative;
+  width: 100%;
 
   .${Classes.TEXT} {
     color: ${(props) => props.theme.colors.danger.main};
   }
+`;
+
+const RightSideContainer = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
 `;
 
 const ErrorWrapper = styled.div`
@@ -160,6 +187,15 @@ const TextInput = forwardRef(
       isValid: boolean;
       message: string;
     }>(initialValidation());
+
+    const [rightSideComponentWidth, setRightSideComponentWidth] = useState(0);
+
+    const setRightSideRef = useCallback((ref: HTMLDivElement) => {
+      if (ref) {
+        const { width } = ref.getBoundingClientRect();
+        setRightSideComponentWidth(width);
+      }
+    }, []);
 
     const inputStyle = useMemo(
       () => boxStyles(props, validation.isValid, props.theme),
@@ -191,19 +227,23 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
-          type={props.dataType || "text"}
-          ref={ref}
+          defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}
-          defaultValue={props.defaultValue}
+          ref={ref}
+          type={props.dataType || "text"}
           {...props}
-          placeholder={props.placeholder}
-          onChange={memoizedChangeHandler}
-          readOnly={props.readOnly}
           data-cy={props.cypressSelector}
           inputRef={ref}
+          onChange={memoizedChangeHandler}
+          placeholder={props.placeholder}
+          readOnly={props.readOnly}
+          rightSideComponentWidth={rightSideComponentWidth}
         />
         {ErrorMessage}
+        <RightSideContainer ref={setRightSideRef}>
+          {props.rightSideComponent}
+        </RightSideContainer>
       </InputWrapper>
     );
   },

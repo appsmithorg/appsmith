@@ -5,6 +5,46 @@
       "id": 1,
       "children": [
         {
+          "label": "S3 Service Provider Key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "s3Provider",
+          "hidden": true
+        },
+        {
+          "label": "S3 Service Provider",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "amazon-s3",
+          "options": [
+            {
+              "label": "Amazon S3",
+              "value": "amazon-s3"
+            },
+            {
+              "label": "Upcloud",
+              "value": "upcloud"
+            },
+            {
+              "label": "Digital Ocean Spaces",
+              "value": "digital-ocean-spaces"
+            },
+            {
+              "label": "Wasabi",
+              "value": "wasabi"
+            },
+            {
+              "label": "DreamObjects",
+              "value": "dream-objects"
+            },
+            {
+              "label": "Other",
+              "value": "other"
+            }
+          ]
+        },
+        {
           "label": "Access Key",
           "configProperty": "datasourceConfiguration.authentication.username",
           "controlType": "INPUT_TEXT",
@@ -23,6 +63,11 @@
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "isRequired": true,
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "NOT_EQUALS",
+            "value": "amazon-s3"
+          },
           "initialValue": "ap-south-1",
           "options": [
             {
@@ -98,6 +143,37 @@
               "value": "ca-central-1"
             }
           ]
+        },
+        {
+          "label": "Endpoint URL",
+          "configProperty": "datasourceConfiguration.endpoints[0].host",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "user-storage.de-fra1.upcloudobjects.com",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "EQUALS",
+            "value": "amazon-s3"
+          }
+        },
+        {
+          "label": "Custom Endpoint URL Key",
+          "configProperty": "datasourceConfiguration.properties[2].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "customRegion",
+          "hidden": true
+        },
+        {
+          "label": "Region",
+          "configProperty": "datasourceConfiguration.properties[2].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "de-fra1",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "EQUALS",
+            "value": "amazon-s3"
+          }
         }
       ]
     }

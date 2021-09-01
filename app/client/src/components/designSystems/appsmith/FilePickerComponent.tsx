@@ -17,7 +17,9 @@ class FilePickerComponent extends React.Component<
   }
 
   openModal = () => {
-    this.props.uppy.getPlugin("Dashboard").openModal();
+    if (!this.props.isDisabled) {
+      this.props.uppy.getPlugin("Dashboard").openModal();
+    }
   };
 
   render() {
@@ -26,16 +28,13 @@ class FilePickerComponent extends React.Component<
       label = `${this.props.files.length} files selected`;
     }
     return (
-      <React.Fragment>
-        <BaseButton
-          accent="primary"
-          filled
-          loading={this.props.isLoading}
-          text={label}
-          onClick={this.openModal}
-          disabled={this.props.isDisabled}
-        />
-      </React.Fragment>
+      <BaseButton
+        buttonStyle="PRIMARY"
+        disabled={this.props.isDisabled}
+        loading={this.props.isLoading}
+        onClick={this.openModal}
+        text={label}
+      />
     );
   }
 

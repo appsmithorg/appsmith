@@ -1,55 +1,87 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.helpers.SqlStringUtils;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.PsParameterDTO;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
+import com.zaxxer.hikari.pool.HikariProxyConnection;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.postgresql.util.PGobject;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
+import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.Sizeof.sizeof;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.FLOAT8;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT4;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.INT8;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.TIME;
+import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.VARCHAR;
+import static com.external.plugins.utils.PostgresDataTypeUtils.extractExplicitCasting;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -57,9 +89,21 @@ public class PostgresPlugin extends BasePlugin {
 
     static final String JDBC_DRIVER = "org.postgresql.Driver";
 
-    private static final String SSL = "useSSL";
-
     private static final String DATE_COLUMN_TYPE_NAME = "date";
+
+    private static final String TIMESTAMP_TYPE_NAME = "timestamp";
+
+    private static final String TIMESTAMPTZ_TYPE_NAME = "timestamptz";
+
+    private static final String TIME_TYPE_NAME = "time";
+
+    private static final String TIMETZ_TYPE_NAME = "timetz";
+
+    private static final String INTERVAL_TYPE_NAME = "interval";
+
+    private static final String JSON_TYPE_NAME = "json";
+
+    private static final String JSONB_TYPE_NAME = "jsonb";
 
     private static final int MINIMUM_POOL_SIZE = 1;
 
@@ -67,12 +111,16 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
 
+    private static final int HEAVY_OP_FREQUENCY = 100;
+
+    private static final int MAX_SIZE_SUPPORTED = 1000000;
+
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Extension
-    public static class PostgresPluginExecutor implements PluginExecutor<HikariDataSource> {
+    public static class PostgresPluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
@@ -150,27 +198,38 @@ public class PostgresPlugin extends BasePlugin {
             Boolean isPreparedStatement;
 
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            if (properties.get(PREPARED_STATEMENT_INDEX) == null) {
-                // If the configuration does not exist, default to true
-                // Note this is not possible today since the query editor sets a default value for this field.
+            if (properties == null || properties.get(PREPARED_STATEMENT_INDEX) == null) {
+                //In case the prepared statement configuration is missing, default to true.
                 isPreparedStatement = true;
+            } else if (properties.get(PREPARED_STATEMENT_INDEX) != null){
+                Object psValue = properties.get(PREPARED_STATEMENT_INDEX).getValue();
+                if (psValue instanceof  Boolean) {
+                    isPreparedStatement = (Boolean) psValue;
+                } else if (psValue instanceof String) {
+                    isPreparedStatement = Boolean.parseBoolean((String) psValue);
+                } else {
+                    isPreparedStatement = true;
+                }
             } else {
-                isPreparedStatement = Boolean.parseBoolean(properties.get(PREPARED_STATEMENT_INDEX).getValue());
+                isPreparedStatement = true;
             }
 
             // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
+                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
             }
 
-            //Prepared Statement
+            // Prepared Statement
+
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = SqlStringUtils.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(query, mustacheKeysInOrder);
+            List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
             actionConfiguration.setBody(updatedQuery);
-            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE, mustacheKeysInOrder, executeActionDTO);
+            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
+                    mustacheKeysInOrder, executeActionDTO, explicitCastDataTypes);
         }
 
         private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
@@ -178,11 +237,19 @@ public class PostgresPlugin extends BasePlugin {
                                                           ActionConfiguration actionConfiguration,
                                                           Boolean preparedStatement,
                                                           List<String> mustacheValuesInOrder,
-                                                          ExecuteActionDTO executeActionDTO) {
+                                                          ExecuteActionDTO executeActionDTO,
+                                                          List<DataType> explicitCastDataTypes) {
+
+            final Map<String, Object> requestData = new HashMap<>();
+            requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
+
+            String query = actionConfiguration.getBody();
+            Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
+            String transformedQuery = preparedStatement ? replaceQuestionMarkWithDollarIndex(query) : query;
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,
+                    transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
-
-                String query = actionConfiguration.getBody();
 
                 Connection connectionFromPool;
 
@@ -197,9 +264,11 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
 
                 Statement statement = null;
                 ResultSet resultSet = null;
+                PreparedStatement preparedQuery = null;
                 boolean isResultSet;
 
                 HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
@@ -220,30 +289,56 @@ public class PostgresPlugin extends BasePlugin {
                         isResultSet = statement.execute(query);
                         resultSet = statement.getResultSet();
                     } else {
-                        PreparedStatement preparedQuery = connectionFromPool.prepareStatement(query);
-                        if (mustacheValuesInOrder != null && !mustacheValuesInOrder.isEmpty()) {
-                            List<Param> params = executeActionDTO.getParams();
-                            for (int i = 0; i < mustacheValuesInOrder.size(); i++) {
-                                String key = mustacheValuesInOrder.get(i);
-                                Optional<Param> matchingParam = params.stream().filter(param -> param.getKey().trim().equals(key)).findFirst();
-                                if (matchingParam.isPresent()) {
-                                    String value = matchingParam.get().getValue();
-                                    preparedQuery = SqlStringUtils.setValueInPreparedStatement(i + 1, key,
-                                            value, preparedQuery);
-                                }
-                            }
-                        }
-                        System.out.println("Prepared query is : " + preparedQuery.toString());
+                        preparedQuery = connectionFromPool.prepareStatement(query);
+
+                        List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                        preparedQuery = (PreparedStatement) smartSubstitutionOfBindings(preparedQuery,
+                                mustacheValuesInOrder,
+                                executeActionDTO.getParams(),
+                                parameters,
+                                connectionFromPool,
+                                explicitCastDataTypes);
+
+                        IntStream.range(0, parameters.size())
+                                .forEachOrdered(i ->
+                                        psParams.put(
+                                                getPSParamLabel(i+1),
+                                                new PsParameterDTO(parameters.get(i).getKey(),parameters.get(i).getValue())));
+
+                        requestData.put("ps-parameters", parameters);
                         isResultSet = preparedQuery.execute();
                         resultSet = preparedQuery.getResultSet();
                     }
 
-                    if (isResultSet) {
+                    if (!isResultSet) {
+
+                        Object updateCount = FALSE.equals(preparedStatement) ?
+                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0) :
+                                ObjectUtils.defaultIfNull(preparedQuery.getUpdateCount(), 0);
+
+                        rowsList.add(Map.of("affectedRows", updateCount));
+
+                    } else {
 
                         ResultSetMetaData metaData = resultSet.getMetaData();
                         int colCount = metaData.getColumnCount();
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
+                        int iterator = 0;
                         while (resultSet.next()) {
+                            iterator++;
+
+                            // Only check the data size at low frequency to ensure the performance is not impacted heavily
+                            if (iterator% HEAVY_OP_FREQUENCY == 0) {
+                                int objectSize = sizeof(rowsList);
+
+                                if (objectSize > MAX_SIZE_SUPPORTED) {
+                                    System.out.println(Thread.currentThread().getName() +
+                                            "[PostgresPlugin] Result size exceeded. Current size : " + objectSize);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED));
+                                }
+                            }
+
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                             Map<String, Object> row = new LinkedHashMap<>(colCount);
 
@@ -257,7 +352,7 @@ public class PostgresPlugin extends BasePlugin {
                                 } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                                } else if ("timestamp".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             LocalDateTime.of(
                                                     resultSet.getDate(i).toLocalDate(),
@@ -265,23 +360,37 @@ public class PostgresPlugin extends BasePlugin {
                                             )
                                     ) + "Z";
 
-                                } else if ("timestamptz".equalsIgnoreCase(typeName)) {
+                                } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                                             resultSet.getObject(i, OffsetDateTime.class)
                                     );
 
-                                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                                } else if (TIME_TYPE_NAME.equalsIgnoreCase(typeName) || TIMETZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getString(i);
 
-                                } else if ("interval".equalsIgnoreCase(typeName)) {
+                                } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
                                     value = resultSet.getObject(i).toString();
 
                                 } else if (typeName.startsWith("_")) {
                                     value = resultSet.getArray(i).getArray();
 
+                                } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
+                                        || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                    value = objectMapper.readTree(resultSet.getString(i));
                                 } else {
                                     value = resultSet.getObject(i);
 
+                                    /**
+                                     * Any type that JDBC does not understand gets mapped to PGobject. PGobject has
+                                     * two attributes: type and value. Hence, when PGobject gets serialized, it gets
+                                     * converted into a JSON like {"type":"citext", "value":"someText"}. Since we are
+                                     * only interested in the value and not the type, it makes sense to extract out
+                                     * the value as a string.
+                                     * Reference: https://jdbc.postgresql.org/documentation/publicapi/org/postgresql/util/PGobject.html
+                                     */
+                                    if (value instanceof PGobject) {
+                                        value = ((PGobject) value).getValue();
+                                    }
                                 }
 
                                 row.put(metaData.getColumnName(i), value);
@@ -289,18 +398,16 @@ public class PostgresPlugin extends BasePlugin {
 
                             rowsList.add(row);
                         }
-
-                    } else {
-                        rowsList.add(Map.of(
-                                "affectedRows",
-                                ObjectUtils.defaultIfNull(statement.getUpdateCount(), 0))
-                        );
-
                     }
 
                 } catch (SQLException e) {
                     System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                } catch (IOException e) {
+                    // Since postgres json type field can only hold valid json data, this exception is not expected
+                    // to occur.
+                    System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution error");
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage()));
                 } finally {
                     idleConnections = poolProxy.getIdleConnections();
                     activeConnections = poolProxy.getActiveConnections();
@@ -328,6 +435,15 @@ public class PostgresPlugin extends BasePlugin {
                         }
                     }
 
+                    if (preparedQuery != null) {
+                        try {
+                            preparedQuery.close();
+                        } catch (SQLException e) {
+                            System.out.println(Thread.currentThread().getName() +
+                                    ": Execute Error closing Postgres Statement" + e.getMessage());
+                        }
+                    }
+
                     if (connectionFromPool != null) {
                         try {
                             // Return the connetion back to the pool
@@ -342,17 +458,49 @@ public class PostgresPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the PostgresPlugin, got action execution result");
                 return Mono.just(result);
             })
                     .flatMap(obj -> obj)
-                    .map(obj -> {
-                        ActionExecutionResult result = (ActionExecutionResult) obj;
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorResume(error -> {
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(error);
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        request.setProperties(requestData);
+                        request.setRequestParams(requestParams);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
                         return result;
                     })
+                    .timeout(Duration.ofMillis(actionConfiguration.getTimeoutInMillisecond()))
                     .subscribeOn(scheduler);
 
+        }
+
+        private Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
+                messages.add("Your PostgreSQL query result may not have all the columns because duplicate column " +
+                        "names were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use" +
+                        " the SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+            }
+
+            return messages;
         }
 
         @Override
@@ -424,6 +572,16 @@ public class PostgresPlugin extends BasePlugin {
 
             }
 
+            /*
+             * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+             */
+            if (datasourceConfiguration.getConnection() == null
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                        "Please reach out to Appsmith customer support to resolve this.");
+            }
+
             return invalids;
         }
 
@@ -484,6 +642,7 @@ public class PostgresPlugin extends BasePlugin {
                             if (!tablesByName.containsKey(fullTableName)) {
                                 tablesByName.put(fullTableName, new DatasourceStructure.Table(
                                         kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                                        schemaName,
                                         fullTableName,
                                         new ArrayList<>(),
                                         new ArrayList<>(),
@@ -491,11 +650,16 @@ public class PostgresPlugin extends BasePlugin {
                                 ));
                             }
                             final DatasourceStructure.Table table = tablesByName.get(fullTableName);
+                            final String defaultExpr = columnsResultSet.getString("default_expr");
+                            boolean isAutogenerated = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("nextval");
+
                             table.getColumns().add(new DatasourceStructure.Column(
                                     columnsResultSet.getString("name"),
                                     columnsResultSet.getString("column_type"),
-                                    columnsResultSet.getString("default_expr")
-                            ));
+                                    defaultExpr,
+                                    isAutogenerated
+                                )
+                            );
                         }
                     }
 
@@ -562,6 +726,8 @@ public class PostgresPlugin extends BasePlugin {
                                 value = "''";
                             } else if (type.startsWith("int")) {
                                 value = "1";
+                            } else if (type.startsWith("float") || type.startsWith("double")) {
+                                value = "1.0";
                             } else if ("date".equals(type)) {
                                 value = "'2019-07-01'";
                             } else if ("time".equals(type)) {
@@ -582,20 +748,25 @@ public class PostgresPlugin extends BasePlugin {
 
                             columnNames.add("\"" + name + "\"");
                             columnValues.add(value);
-                            setFragments.append("\n    \"").append(name).append("\" = ").append(value);
+                            setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
+                        }
+
+                        // Delete the last comma
+                        if (setFragments.length() > 0) {
+                            setFragments.deleteCharAt(setFragments.length() - 1);
                         }
 
                         final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                         table.getTemplates().addAll(List.of(
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
                                 new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                         + " (" + String.join(", ", columnNames) + ")\n"
-                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                        + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                                 new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                         + setFragments.toString() + "\n"
-                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                                 new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                         ));
                     }
 
@@ -635,6 +806,139 @@ public class PostgresPlugin extends BasePlugin {
                     .map(resultStructure -> (DatasourceStructure) resultStructure)
                     .subscribeOn(scheduler);
         }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) throws AppsmithPluginException {
+
+            PreparedStatement preparedStatement = (PreparedStatement) input;
+            HikariProxyConnection connection = (HikariProxyConnection) args[0];
+            List<DataType> explicitCastDataTypes = (List<DataType>) args[1];
+            DataType valueType;
+            // If explicitly cast, set the user specified data type
+            if (explicitCastDataTypes != null && explicitCastDataTypes.get(index - 1) != null) {
+                valueType = explicitCastDataTypes.get(index - 1);
+            } else {
+                valueType = DataTypeStringUtils.stringToKnownDataTypeConverter(value);
+            }
+
+            Map.Entry<String, String> parameter = new SimpleEntry<>(value, valueType.toString());
+            insertedParams.add(parameter);
+
+            try {
+                switch (valueType) {
+                    case NULL: {
+                        preparedStatement.setNull(index, Types.NULL);
+                        break;
+                    }
+                    case BINARY: {
+                        preparedStatement.setBinaryStream(index, IOUtils.toInputStream(value));
+                        break;
+                    }
+                    case BYTES: {
+                        preparedStatement.setBytes(index, value.getBytes("UTF-8"));
+                        break;
+                    }
+                    case INTEGER: {
+                        preparedStatement.setInt(index, Integer.parseInt(value));
+                        break;
+                    }
+                    case LONG: {
+                        preparedStatement.setLong(index, Long.parseLong(value));
+                        break;
+                    }
+                    case FLOAT: {
+                        preparedStatement.setFloat(index, Float.parseFloat(value));
+                        break;
+                    }
+                    case DOUBLE: {
+                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        break;
+                    }
+                    case BOOLEAN: {
+                        preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                        break;
+                    }
+                    case DATE: {
+                        preparedStatement.setDate(index, Date.valueOf(value));
+                        break;
+                    }
+                    case TIME: {
+                        preparedStatement.setTime(index, Time.valueOf(value));
+                        break;
+                    }
+                    case TIMESTAMP: {
+                        preparedStatement.setTimestamp(index, Timestamp.valueOf(value));
+                        break;
+                    }
+                    case ARRAY: {
+                        List arrayListFromInput = objectMapper.readValue(value, List.class);
+                        if (arrayListFromInput.isEmpty()) {
+                            break;
+                        }
+                        // Find the type of the entries in the list
+                        Object firstEntry = arrayListFromInput.get(0);
+                        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter((String.valueOf(firstEntry)));
+                        String typeName = toPostgresqlPrimitiveTypeName(dataType);
+
+                        // Create the Sql Array and set it.
+                        Array inputArray = connection.createArrayOf(typeName, arrayListFromInput.toArray());
+                        preparedStatement.setArray(index, inputArray);
+                        break;
+                    }
+                    case STRING: {
+                    }
+                    case JSON_OBJECT: {
+                        preparedStatement.setString(index, value);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+            } catch (SQLException | IllegalArgumentException | IOException e) {
+                if ((e instanceof SQLException) && e.getMessage().contains("The column index is out of range:")) {
+                    // In case the parameter being set is out of range, then this must be getting set in the commented part of
+                    // the query. Ignore the exception
+                } else {
+                    String message = "Query preparation failed while inserting value: "
+                            + value + " for binding: {{" + binding + "}}. Please check the query again.\nError: " + e.getMessage();
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, message);
+                }
+            }
+
+            return preparedStatement;
+
+        }
+
+        private static String toPostgresqlPrimitiveTypeName(DataType type) {
+            switch (type) {
+                case LONG:
+                    return INT8;
+                case INTEGER:
+                    return INT4;
+                case FLOAT:
+                    return DECIMAL;
+                case STRING:
+                    return VARCHAR;
+                case BOOLEAN:
+                    return BOOL;
+                case DATE:
+                    return DATE;
+                case TIME:
+                    return TIME;
+                case DOUBLE:
+                    return FLOAT8;
+                case ARRAY:
+                    throw new IllegalArgumentException("Array of Array datatype is not supported.");
+                default:
+                    throw new IllegalArgumentException("Unable to map the computed data type to primitive Postgresql type");
+            }
+        }
     }
 
     /**
@@ -643,7 +947,7 @@ public class PostgresPlugin extends BasePlugin {
      * @param datasourceConfiguration
      * @return connection pool
      */
-    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) {
+    private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -652,12 +956,6 @@ public class PostgresPlugin extends BasePlugin {
         com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         config.setMinimumIdle(MINIMUM_POOL_SIZE);
         config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-
-        final boolean isSslEnabled = configurationConnection != null
-                && configurationConnection.getSsl() != null
-                && !SSLDetails.AuthType.NO_SSL.equals(configurationConnection.getSsl().getAuthType());
-
-        config.addDataSourceProperty(SSL, isSslEnabled);
 
         // Set authentication properties
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -669,33 +967,92 @@ public class PostgresPlugin extends BasePlugin {
         }
 
         // Set up the connection URL
-        String url;
-        if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
-            url = datasourceConfiguration.getUrl();
+        StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
 
-        } else {
-            StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
-            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                urlBuilder
-                        .append(endpoint.getHost())
-                        .append(':')
-                        .append(ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                        .append('/');
+        List<String> hosts = datasourceConfiguration
+                .getEndpoints()
+                .stream()
+                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                .collect(Collectors.toList());
 
-                if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
-                    urlBuilder.append(authentication.getDatabaseName());
-                }
-            }
-            url = urlBuilder.toString();
+        urlBuilder.append(String.join(",", hosts)).append("/");
+
+        if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
+            urlBuilder.append(authentication.getDatabaseName());
         }
+
+        /*
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         */
+        if (datasourceConfiguration.getConnection() == null
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_ERROR,
+                    "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
+                            "Please reach out to Appsmith customer support to resolve this."
+            );
+        }
+
+        /*
+         * - By default, the driver configures SSL in the preferred mode.
+         */
+        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        switch (sslAuthType) {
+            case ALLOW:
+            case PREFER:
+            case REQUIRE:
+                config.addDataSourceProperty("ssl", "true");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DISABLE:
+                config.addDataSourceProperty("ssl", "false");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DEFAULT:
+                /* do nothing - accept default driver setting */
+
+                break;
+            default:
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_ERROR,
+                        "Appsmith server has found an unexpected SSL option: " + sslAuthType + ". Please reach out to" +
+                                " Appsmith customer support to resolve this."
+                );
+        }
+
+        String url = urlBuilder.toString();
         config.setJdbcUrl(url);
 
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
+        // Set read only mode if applicable
+        switch (configurationConnection.getMode()) {
+            case READ_WRITE: {
+                config.setReadOnly(false);
+                break;
+            }
+            case READ_ONLY: {
+                config.setReadOnly(true);
+                config.addDataSourceProperty("readOnlyMode", "always");
+                break;
+            }
+        }
+
         // Now create the connection pool from the configuration
-        HikariDataSource datasource = new HikariDataSource(config);
+        HikariDataSource datasource = null;
+        try {
+            datasource = new HikariDataSource(config);
+        } catch (PoolInitializationException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    e.getMessage()
+            );
+        }
 
         return datasource;
     }
@@ -707,7 +1064,8 @@ public class PostgresPlugin extends BasePlugin {
      * @param connectionPool
      * @return SQL Connection
      */
-    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) throws SQLException {
+    private static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
+                                                         DatasourceConfiguration datasourceConfiguration) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +
@@ -722,18 +1080,6 @@ public class PostgresPlugin extends BasePlugin {
             return connection;
         }
 
-        switch (configurationConnection.getMode()) {
-            case READ_WRITE: {
-                connection.setReadOnly(false);
-                break;
-            }
-            case READ_ONLY: {
-                connection.setReadOnly(true);
-                break;
-            }
-        }
-
         return connection;
     }
-
 }

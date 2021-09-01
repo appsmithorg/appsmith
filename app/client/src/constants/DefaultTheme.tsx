@@ -9,10 +9,10 @@ import { JSXElementConstructor } from "react";
 export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
 
 const {
-  default: styled,
-  css,
-  keyframes,
   createGlobalStyle,
+  css,
+  default: styled,
+  keyframes,
   ThemeProvider,
 } = styledComponents as styledComponents.ThemedStyledComponentsModule<Theme>;
 
@@ -50,23 +50,39 @@ export const hideScrollbar = css`
   }
 `;
 
-export const scrollbarDark = css`
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 6px;
+export const thinScrollbar = css`
+  ::-webkit-scrollbar {
+    width: 4px;
   }
 
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 10px;
   }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    border-radius: ${(props) => props.theme.radii[1]}px;
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
   }
+  &:hover {
+    ::-webkit-scrollbar-thumb {
+      background: ${Colors.PORCELAIN};
+      border-radius: 10px;
+    }
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${Colors.PORCELAIN};
+  }
+`;
+
+export const truncateTextUsingEllipsis = css`
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
 `;
 
 export const getTypographyByKey = (props: Record<string, any>, key: string) => `
@@ -300,6 +316,8 @@ type PropertyPaneTheme = {
   width: number;
   height: number;
   dividerColor: Color;
+  titleHeight: number;
+  connectionsHeight: number;
 };
 
 export type NestedObjectOrArray<T> =
@@ -327,9 +345,14 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  integrationsPageUnusableHeight: string;
+  backBanner: string;
   homePage: any;
   sidebarWidth: string;
-  canvasPadding: string;
+  canvasBottomPadding: number;
+  navbarMenuHeight: string;
+  navbarMenuLineHeight: string;
+  actionsBottomTabInitialHeight: string;
   sideNav: {
     minWidth: number;
     maxWidth: number;
@@ -372,6 +395,7 @@ export type Theme = {
     };
   };
   pageContentWidth: number;
+  tabPanelHeight: number;
   alert: Record<string, { color: Color }>;
   lightningMenu: {
     [Skin.DARK]: {
@@ -412,6 +436,9 @@ export type Theme = {
     };
   };
   iconSizes: IconSizeType;
+  actionSidePane: {
+    width: number;
+  };
 };
 
 type IconSizeType = {
@@ -507,6 +534,8 @@ const darkShades = [
   "#D4D4D4",
   "#E9E9E9",
   "#FFFFFF",
+  "#157A96",
+  "#090707",
 ] as const;
 
 const lightShades = [
@@ -522,6 +551,10 @@ const lightShades = [
   "#302D2D",
   "#090707",
   "#FFFFFF",
+  "#6A86CE",
+  "#E0DEDE",
+  "#EBEBEB",
+  "#858282",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -534,9 +567,78 @@ type buttonVariant = {
   darkest: string;
 };
 
+type ButtonVariantColor = {
+  solid: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  outline: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  ghost: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor?: Color;
+  };
+};
+
 type ColorType = {
+  overlayColor: string;
   button: {
     disabledText: ShadeColor;
+    boxShadow: {
+      default: {
+        variant1: Color;
+        variant2: Color;
+        variant3: Color;
+        variant4: Color;
+        variant5: Color;
+      };
+    };
+    disabled: {
+      bgColor: Color;
+      textColor: Color;
+    };
+    /**
+     * PRIMARY style
+     */
+    primary: ButtonVariantColor;
+
+    /**
+     * WARNING style
+     */
+    warning: ButtonVariantColor;
+    /**
+     * DANGER style
+     */
+    danger: ButtonVariantColor;
+    /**
+     * INFO style
+     */
+    info: ButtonVariantColor;
+    /**
+     * SECONDARY style
+     */
+    secondary: ButtonVariantColor;
+    /**
+     * CUSTOM style
+     */
+    custom: {
+      solid: {
+        dark: {
+          textColor: Color;
+        };
+        light: {
+          textColor: Color;
+        };
+      };
+    };
   };
   tertiary: buttonVariant;
   info: buttonVariant;
@@ -544,6 +646,7 @@ type ColorType = {
   warning: buttonVariant;
   danger: buttonVariant;
   homepageBackground: string;
+  selected: ShadeColor;
   card: {
     hoverBG: Color;
     hoverBGOpacity: number;
@@ -579,6 +682,15 @@ type ColorType = {
       bg: string;
     };
   };
+  navigationMenu: {
+    contentActive: string;
+    backgroundActive: string;
+    contentInactive: string;
+    backgroundInactive: string;
+    label: string;
+    warning: string;
+    warningBackground: string;
+  };
   colorSelector: {
     shadow: ShadeColor;
     checkmark: ShadeColor;
@@ -600,6 +712,11 @@ type ColorType = {
     menuBg: ShadeColor;
     menuShadow: string;
     selected: {
+      text: ShadeColor;
+      bg: ShadeColor;
+      icon: ShadeColor;
+    };
+    hovered: {
       text: ShadeColor;
       bg: ShadeColor;
       icon: ShadeColor;
@@ -639,6 +756,7 @@ type ColorType = {
       border: ShadeColor;
       text: ShadeColor;
     };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -672,6 +790,7 @@ type ColorType = {
     normal: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
+    countBg: ShadeColor;
   };
   settingHeading: ShadeColor;
   table: {
@@ -712,6 +831,7 @@ type ColorType = {
     color: ShadeColor;
   };
   profileDropdown: {
+    name: ShadeColor;
     userName: ShadeColor;
   };
   modal: {
@@ -793,6 +913,7 @@ type ColorType = {
     text: ShadeColor;
     dividerBg: ShadeColor;
     iconHoverBg: ShadeColor;
+    tabBg: ShadeColor;
     requestTree: {
       bg: string;
       header: {
@@ -804,22 +925,6 @@ type ColorType = {
         hoverBg: string;
         key: string;
         value: string;
-      };
-    };
-    moreActions: {
-      targetBg: string;
-      targetIcon: {
-        normal: string;
-        hover: string;
-      };
-      menuShadow: string;
-      menuBg: {
-        normal: ShadeColor;
-        hover: ShadeColor;
-      };
-      menuText: {
-        normal: ShadeColor;
-        hover: ShadeColor;
       };
     };
     closeIcon: ShadeColor;
@@ -871,12 +976,320 @@ type ColorType = {
     activeTabBorderBottom: string;
     activeTabText: string;
   };
+  globalSearch: {
+    containerBackground: string;
+    activeSearchItemBackground: string;
+    activeCategory: string;
+    searchInputText: string;
+    containerShadow: string;
+    separator: string;
+    searchItemHighlight: string;
+    searchItemAltText: string;
+    searchItemText: string;
+    searchItemSubText: string;
+    highlightedTextUnderline: string;
+    documentationCtaBackground: string;
+    documentationCtaText: string;
+    emptyStateText: string;
+    navigateUsingEnterSection: string;
+    codeBackground: string;
+    documentLink: string;
+    helpBarBackground: string;
+    helpButtonBackground: string;
+    helpIcon: string;
+    helpBarBorder: string;
+    sectionTitle: string;
+    navigateToEntityEnterkey: string;
+    mainContainerBackground: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+    };
+  };
   gif: {
     overlay: string;
     text: string;
     iconPath: string;
     iconCircle: string;
   };
+  comments: {
+    profileUserName: string;
+    threadTitle: string;
+    commentBody: string;
+    profileImageBorder: string;
+    mention: string;
+    threadContainerBorder: string;
+    addCommentInputBorder: string;
+    sendButton: string;
+    addCommentInputBackground: string;
+    pin: string;
+    activeModeBackground: string;
+    activeModeIcon: string;
+    modeIcon: string;
+    emojiPicker: string;
+    resolved: string;
+    unresolved: string;
+    resolvedFill: string;
+    unresolvedFill: string;
+    resolvedPath: string;
+    childCommentsIndent: string;
+    commentBackground: string;
+    contextMenuTrigger: string;
+    contextMenuItemHover: ShadeColor;
+    contextMenuIcon: ShadeColor;
+    contextMenuIconHover: ShadeColor;
+    contextMenuIconStroke: ShadeColor;
+    contextMenuIconStrokeHover: ShadeColor;
+    contextMenuTitle: ShadeColor;
+    contextMenuTitleHover: ShadeColor;
+    appCommentsHeaderTitle: ShadeColor;
+    appCommentsClose: ShadeColor;
+    viewLatest: string;
+    commentTime: string;
+    pinId: string;
+    commentsFilter: string;
+    appCommentsHeaderBorder: string;
+    unreadIndicator: string;
+    unreadIndicatorCommentCard: string;
+    pinnedByText: string;
+    pinnedThreadBackground: string;
+    visibleThreadBackground: string;
+    cardOptionsIcon: string;
+    appCommentsPlaceholderText: string;
+    cardHoverBackground: string;
+    introTitle: string;
+    introContent: string;
+    modeIconCircleStroke: string;
+    activeModeIconCircleStroke: string;
+  };
+  mentionSuggestion: {
+    nameText: string;
+    usernameText: string;
+    hover: string;
+  };
+  reactionsComponent: {
+    reactionBackground: string;
+    reactionBackgroundActive: string;
+    text: string;
+    textActive: string;
+  };
+  treeDropdown: {
+    targetBg: string;
+    targetIcon: {
+      normal: string;
+      hover: string;
+    };
+    menuShadow: string;
+    menuBg: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+    menuText: {
+      normal: ShadeColor;
+      hover: ShadeColor;
+      selected: ShadeColor;
+    };
+  };
+  propertyPane: {
+    title: ShadeColor;
+    bg: ShadeColor;
+    label: ShadeColor;
+    jsIconBg: ShadeColor;
+    buttonBg: ShadeColor;
+    buttonText: ShadeColor;
+    radioGroupBg: ShadeColor;
+    radioGroupText: ShadeColor;
+    deleteIconColor: string;
+    zoomButtonBG: ShadeColor;
+    activeButtonText: ShadeColor;
+    jsButtonHoverBG: ShadeColor;
+    dropdownSelectBg: ShadeColor;
+    multiDropdownBoxHoverBg: ShadeColor;
+    iconColor: ShadeColor;
+    ctaTextColor: string;
+    ctaBackgroundColor: string;
+    ctaLearnMoreTextColor: string;
+    connections: {
+      error: string;
+      connectionsCount: ShadeColor;
+      optionBg: string;
+    };
+  };
+  scrollbar: string;
+  scrollbarBG: string;
+  debugger: {
+    background: string;
+    messageTextColor: string;
+    time: string;
+    label: string;
+    entity: string;
+    entityLink: string;
+    inspectElement: {
+      color: string;
+    };
+    floatingButton: {
+      background: string;
+      color: string;
+      shadow: string;
+      errorCount: string;
+      noErrorCount: string;
+      warningCount: string;
+    };
+    blankState: {
+      shortcut: string;
+      color: string;
+    };
+    info: {
+      borderBottom: string;
+    };
+    warning: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    error: {
+      borderBottom: string;
+      backgroundColor: string;
+    };
+    jsonIcon: string;
+    message: string;
+  };
+  helpModal: {
+    itemHighlight: string;
+    background: string;
+  };
+  mentionsInput: Record<string, string>;
+  showcaseCarousel: Record<string, string>;
+  displayImageUpload: Record<string, string>;
+  notifications: Record<string, string>;
+  widgetGroupingContextMenu: {
+    border: string;
+    actionActiveBg: string;
+  };
+  actionSidePane: {
+    noConnections: string;
+    noConnectionsText: string;
+    connectionBorder: string;
+    connectionHover: string;
+    collapsibleIcon: string;
+  };
+  tabItemBackgroundFill: {
+    highlightBackground: string;
+    highlightTextColor: string;
+    textColor: string;
+  };
+  pagesEditor: {
+    iconColor: string;
+  };
+  numberedStep: {
+    line: string;
+  };
+  gitSyncModal: {
+    menuBackgroundColor: string;
+    separator: string;
+  };
+};
+
+const gitSyncModal = {
+  menuBackgroundColor: Colors.ALABASTER_ALT,
+  separator: Colors.ALTO2,
+};
+
+const tabItemBackgroundFill = {
+  highlightBackground: Colors.Gallery,
+  highlightTextColor: Colors.CODE_GRAY,
+  textColor: Colors.CHARCOAL,
+};
+
+const notifications = {
+  time: "#858282",
+  listHeaderTitle: "#090707",
+  markAllAsReadButtonBackground: "#f0f0f0",
+  markAllAsReadButtonText: "#716E6E",
+  unreadIndicator: "#F86A2B",
+  bellIndicator: "#E22C2C",
+  label: "#858282",
+};
+
+const displayImageUpload = {
+  background: "#AEBAD9",
+  label: "#457AE6",
+};
+
+const showcaseCarousel = {
+  activeStepDot: "#F86A2B",
+  inactiveStepDot: "#FEEDE5",
+};
+
+const reactionsComponent = {
+  reactionBackground: lightShades[2],
+  reactionBackgroundActive: "#FEEDE5",
+  text: lightShades[7],
+  textActive: "#BF4109",
+  borderActive: "#BF4109",
+};
+
+const mentionSuggestion = {
+  nameText: "#090707",
+  usernameText: "#716E6E",
+  hover: "#EBEBEB",
+};
+
+const pagesEditor = {
+  iconColor: "#A2A6A8",
+};
+
+const comments = {
+  introTitle: "#090707",
+  introContent: "#716E6E",
+  commentsFilter: "#6A86CE",
+  profileUserName: darkShades[11],
+  threadTitle: darkShades[8],
+  commentBody: darkShades[8],
+  profileImageBorder: Colors.JAFFA_DARK,
+  mention: "#F86A2B",
+  threadContainerBorder: lightShades[5],
+  addCommentInputBorder: lightShades[13],
+  sendButton: "#6A86CE",
+  addCommentInputBackground: "#FAFAFA",
+  pin: "#EF4141",
+  activeModeBackground: "#090707",
+  emojiPicker: lightShades[5],
+  resolved: Colors.BLACK,
+  unresolved: lightShades[5],
+  resolvedFill: Colors.BLACK,
+  unresolvedFill: "transparent",
+  resolvedPath: Colors.WHITE,
+  childCommentsIndent: lightShades[13],
+  commentBackground: lightShades[2],
+  contextMenuTrigger: darkShades[6],
+  contextMenuItemHover: lightShades[2],
+  contextMenuIcon: darkShades[6],
+  contextMenuIconHover: darkShades[11],
+  contextMenuIconStroke: darkShades[6],
+  contextMenuIconStrokeHover: darkShades[11],
+  contextMenuTitle: lightShades[8],
+  contextMenuTitleHover: darkShades[11],
+  appCommentsHeaderTitle: darkShades[11],
+  appCommentsClose: lightShades[15],
+  viewLatest: "#F86A2B",
+  commentTime: lightShades[7],
+  pinId: lightShades[8],
+  appCommentsHeaderBorder: lightShades[3],
+  unreadIndicator: "#E00D0D",
+  unreadIndicatorCommentCard: "#F86A2B",
+  pinnedByText: lightShades[7],
+  pinnedThreadBackground: "#FFFAE9",
+  visibleThreadBackground: "#FBEED0",
+  cardOptionsIcon: "#777272",
+  appCommentsPlaceholderText: lightShades[8],
+  activeModeIcon: "#F0F0F0",
+  modeIcon: "#6D6D6D",
+  cardHoverBackground: "#FAFAFA",
+  modeIconCircleStroke: "#222222",
+  activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
@@ -893,6 +1306,11 @@ const auth: any = {
   socialBtnHighlight: darkShades[1],
 };
 
+const helpModal = {
+  itemHighlight: "#231f20",
+  background: "#262626",
+};
+
 const formMessage = {
   background: {
     danger: "rgba(226,44,44,0.08)",
@@ -906,7 +1324,89 @@ const formMessage = {
   },
 };
 
+const globalSearch = {
+  containerBackground:
+    "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
+  activeSearchItemBackground: "#6A86CE",
+  activeCategory: "#6A86CE",
+  searchInputText: "#484848",
+  containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
+  separator: "#424242",
+  searchItemHighlight: "#fff",
+  searchItemAltText: "#fff",
+  searchItemText: "#484848",
+  searchItemSubText: "#A9A7A7",
+  highlightedTextUnderline: "#03B365",
+  helpBarText: "#C2C2C2",
+  documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
+  documentationCtaText: "#03B365",
+  emptyStateText: "#A9A7A7",
+  navigateUsingEnterSection: "#154E6B",
+  codeBackground: "#F0F0F0",
+  documentLink: "#69B5FF",
+  helpBarBackground: "#000",
+  helpButtonBackground: "#000",
+  helpIcon: "#D4D4D4",
+  helpBarBorder: "#404040",
+  helpButtonBorder: "#404040",
+  sectionTitle: "#716E6E",
+  navigateToEntityEnterkey: "#3DA5D9",
+  mainContainerBackground: "#F0F0F0",
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+  },
+};
+
+const mentionsInput = {
+  suggestionsListBackground: "#fff",
+  suggestionsListBorder: "rgba(0,0,0,0.15)",
+  focusedItemBackground: "#cee4e5",
+  itemBorderBottom: "#cee4e5",
+  mentionBackground: "#cee4e5",
+  mentionsInviteBtnPlusIcon: "#6A86CE",
+};
+
+const actionSidePane = {
+  noConnections: "#f0f0f0",
+  noConnectionsText: "#e0dede",
+  connectionBorder: "rgba(0, 0, 0, 0.5)",
+  connectionHover: "#6a86ce",
+  collapsibleIcon: Colors.CODE_GRAY,
+};
+const navigationMenu = {
+  contentActive: "#F0F0F0",
+  backgroundActive: "#222222",
+  contentInactive: "#858282",
+  backgroundInactive: "#090707",
+  label: "#A9A7A7",
+  warning: "#EABB0C",
+  warningBackground: "#3A3628",
+};
+
+const numberedStep = {
+  line: Colors.ALTO2,
+  number: Colors.BLACK,
+};
+
 export const dark: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
+  overlayColor: "#090707cc",
+  notifications,
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
+  mentionsInput,
+  helpModal,
+  globalSearch,
+  comments,
+  navigationMenu,
+  selected: darkShades[10],
   header: {
     separator: darkShades[4],
     appName: darkShades[7],
@@ -922,6 +1422,104 @@ export const dark: ColorType = {
   },
   button: {
     disabledText: darkShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
+      },
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1013,10 +1611,15 @@ export const dark: ColorType = {
       disabledBg: darkShades[2],
     },
     menuBg: darkShades[3],
-    menuShadow: "rgba(0, 0, 0, 0.6)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: darkShades[9],
       bg: darkShades[4],
+      icon: darkShades[8],
+    },
+    hovered: {
+      text: darkShades[9],
+      bg: darkShades[10],
       icon: darkShades[8],
     },
     icon: darkShades[6],
@@ -1054,6 +1657,7 @@ export const dark: ColorType = {
       border: darkShades[0],
       text: darkShades[7],
     },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1087,6 +1691,7 @@ export const dark: ColorType = {
     normal: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
+    countBg: darkShades[4],
   },
   settingHeading: darkShades[9],
   table: {
@@ -1127,7 +1732,8 @@ export const dark: ColorType = {
     color: darkShades[7],
   },
   profileDropdown: {
-    userName: darkShades[9],
+    name: darkShades[10],
+    userName: darkShades[7],
   },
   modal: {
     bg: darkShades[1],
@@ -1205,6 +1811,7 @@ export const dark: ColorType = {
   },
   apiPane: {
     bg: darkShades[0],
+    tabBg: lightShades[10],
     text: darkShades[6],
     dividerBg: darkShades[4],
     iconHoverBg: darkShades[1],
@@ -1219,22 +1826,6 @@ export const dark: ColorType = {
         hoverBg: darkShades[1],
         key: darkShades[6],
         value: darkShades[7],
-      },
-    },
-    moreActions: {
-      targetBg: "#090707",
-      targetIcon: {
-        normal: "#9F9F9F",
-        hover: "#9F9F9F",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
-      menuBg: {
-        normal: darkShades[3],
-        hover: darkShades[4],
-      },
-      menuText: {
-        normal: darkShades[7],
-        hover: darkShades[9],
       },
     },
     closeIcon: darkShades[9],
@@ -1262,7 +1853,7 @@ export const dark: ColorType = {
   codeMirror: {
     background: {
       defaultState: "#262626",
-      hoverState: "#1A191C",
+      hoverState: darkShades[10],
     },
     text: "#FFFFFF",
     dataType: {
@@ -1283,9 +1874,118 @@ export const dark: ColorType = {
     iconPath: "#2b2b2b",
     iconCircle: "#d4d4d4",
   },
+  treeDropdown: {
+    targetBg: "#090707",
+    targetIcon: {
+      normal: "#9F9F9F",
+      hover: "#9F9F9F",
+    },
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
+    menuBg: {
+      normal: darkShades[3],
+      hover: darkShades[4],
+      selected: darkShades[4],
+    },
+    menuText: {
+      normal: darkShades[7],
+      hover: darkShades[9],
+      selected: darkShades[7],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: darkShades[1],
+    label: darkShades[7],
+    jsIconBg: darkShades[5],
+    buttonBg: darkShades[7],
+    buttonText: lightShades[10],
+    radioGroupBg: darkShades[0],
+    radioGroupText: darkShades[7],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: darkShades[3],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: darkShades[2],
+    dropdownSelectBg: darkShades[2],
+    multiDropdownBoxHoverBg: darkShades[0],
+    iconColor: darkShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
+  },
+  scrollbar: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+  scrollbarBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+  debugger: {
+    background: darkShades[11],
+    messageTextColor: "#D4D4D4",
+    time: "#D4D4D4",
+    label: "#D4D4D4",
+    entity: "rgba(212, 212, 212, 0.5)",
+    entityLink: "#D4D4D4",
+    jsonIcon: "#9F9F9F",
+    message: "#D4D4D4",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
+    },
+    inspectElement: {
+      color: "#D4D4D4",
+    },
+    blankState: {
+      color: "#D4D4D4",
+      shortcut: "#D4D4D4",
+    },
+    info: {
+      borderBottom: "black",
+    },
+    warning: {
+      borderBottom: "black",
+      backgroundColor: "#29251A",
+    },
+    error: {
+      borderBottom: "black",
+      backgroundColor: "#291B1D",
+    },
+  },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
+  pagesEditor,
 };
 
 export const light: ColorType = {
+  gitSyncModal,
+  numberedStep,
+  tabItemBackgroundFill,
+  overlayColor: "#090707cc",
+  notifications,
+  displayImageUpload,
+  showcaseCarousel,
+  mentionSuggestion,
+  reactionsComponent,
+  mentionsInput,
+  helpModal,
+  globalSearch,
+  comments: {
+    ...comments,
+    activeModeBackground: "#EBEBEB",
+    activeModeIcon: "#4B4848",
+    modeIcon: "#858282",
+    modeIconCircleStroke: "#fff",
+    activeModeIconCircleStroke: "#EBEBEB",
+  },
+  navigationMenu,
+  selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
     appName: lightShades[8],
@@ -1301,6 +2001,104 @@ export const light: ColorType = {
   },
   button: {
     disabledText: lightShades[6],
+    boxShadow: {
+      default: {
+        variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
+        variant2: Colors.BOX_SHADOW_DEFAULT_VARIANT2,
+        variant3: Colors.BOX_SHADOW_DEFAULT_VARIANT3,
+        variant4: Colors.BOX_SHADOW_DEFAULT_VARIANT4,
+        variant5: Colors.BOX_SHADOW_DEFAULT_VARIANT5,
+      },
+    },
+    disabled: {
+      bgColor: Colors.DARK_GRAY,
+      textColor: Colors.WHITE,
+    },
+    primary: {
+      solid: {
+        bgColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GREEN,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
+        textColor: Colors.GREEN,
+      },
+      ghost: {
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
+      },
+    },
+    warning: {
+      solid: {
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.WARNING_GHOST_HOVER,
+      },
+    },
+    danger: {
+      solid: {
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+      },
+    },
+    info: {
+      solid: {
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
+      },
+      ghost: {
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+      },
+    },
+    secondary: {
+      solid: {
+        bgColor: Colors.GRAY,
+        hoverColor: Colors.CHARCOAL,
+        textColor: Colors.WHITE,
+      },
+      outline: {
+        borderColor: Colors.GRAY,
+        hoverColor: Colors.Gallery,
+        textColor: Colors.GRAY,
+      },
+      ghost: {
+        hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
+      },
+    },
   },
   tertiary: {
     main: "#716E6E",
@@ -1392,11 +2190,16 @@ export const light: ColorType = {
       disabledBg: lightShades[1],
     },
     menuBg: lightShades[11],
-    menuShadow: "rgba(0, 0, 0, 0.32)",
+    menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.75)",
     selected: {
       text: lightShades[9],
       bg: lightShades[2],
       icon: lightShades[8],
+    },
+    hovered: {
+      text: lightShades[11],
+      bg: lightShades[12],
+      icon: lightShades[11],
     },
     icon: lightShades[7],
   },
@@ -1433,6 +2236,7 @@ export const light: ColorType = {
       border: lightShades[2],
       text: lightShades[7],
     },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -1466,6 +2270,7 @@ export const light: ColorType = {
     normal: lightShades[6],
     hover: lightShades[10],
     border: lightShades[3],
+    countBg: lightShades[3],
   },
   settingHeading: lightShades[9],
   table: {
@@ -1506,7 +2311,8 @@ export const light: ColorType = {
     color: lightShades[7],
   },
   profileDropdown: {
-    userName: lightShades[9],
+    name: lightShades[10],
+    userName: lightShades[7],
   },
   modal: {
     bg: lightShades[11],
@@ -1583,8 +2389,9 @@ export const light: ColorType = {
     border: "#E0DEDE",
   },
   apiPane: {
-    bg: lightShades[11],
-    text: lightShades[6],
+    bg: lightShades[0],
+    tabBg: lightShades[11],
+    text: lightShades[15],
     dividerBg: lightShades[3],
     iconHoverBg: lightShades[1],
     requestTree: {
@@ -1598,22 +2405,6 @@ export const light: ColorType = {
         hoverBg: lightShades[2],
         key: lightShades[7],
         value: lightShades[8],
-      },
-    },
-    moreActions: {
-      targetBg: "#E8E8E8",
-      targetIcon: {
-        normal: "#939090",
-        hover: "#4B4848",
-      },
-      menuShadow: "0px 12px 28px -8px rgba(0, 0, 0, 0.32)",
-      menuBg: {
-        normal: lightShades[11],
-        hover: lightShades[2],
-      },
-      menuText: {
-        normal: lightShades[6],
-        hover: lightShades[8],
       },
     },
     closeIcon: lightShades[10],
@@ -1640,8 +2431,8 @@ export const light: ColorType = {
   },
   codeMirror: {
     background: {
-      defaultState: "#EBEBEB",
-      hoverState: "#FAFAFA",
+      defaultState: lightShades[0],
+      hoverState: lightShades[12],
     },
     text: "#090707",
     dataType: {
@@ -1662,6 +2453,94 @@ export const light: ColorType = {
     iconPath: "#c4c4c4",
     iconCircle: "#090707",
   },
+  treeDropdown: {
+    targetBg: "#FFFFFF",
+    targetIcon: {
+      normal: "#939090",
+      hover: "#4B4848",
+    },
+    menuShadow:
+      "0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1)",
+    menuBg: {
+      normal: lightShades[0],
+      hover: lightShades[12],
+      selected: lightShades[3],
+    },
+    menuText: {
+      normal: lightShades[8],
+      hover: lightShades[0],
+      selected: lightShades[8],
+    },
+  },
+  propertyPane: {
+    title: darkShades[11],
+    bg: lightShades[2],
+    label: lightShades[8],
+    jsIconBg: lightShades[5],
+    buttonBg: lightShades[8],
+    buttonText: lightShades[11],
+    radioGroupBg: lightShades[0],
+    radioGroupText: lightShades[8],
+    deleteIconColor: "#A3B3BF",
+    zoomButtonBG: lightShades[13],
+    activeButtonText: lightShades[12],
+    jsButtonHoverBG: lightShades[2],
+    dropdownSelectBg: lightShades[14],
+    multiDropdownBoxHoverBg: lightShades[11],
+    iconColor: lightShades[5],
+    ctaTextColor: "#202223",
+    ctaBackgroundColor: "rgb(248, 106, 43, 0.1)",
+    ctaLearnMoreTextColor: "#f86a2b",
+    connections: {
+      error: "#f22b2b",
+      connectionsCount: darkShades[11],
+      optionBg: "rgba(246,71,71, 0.2)",
+    },
+  },
+  scrollbar: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+  scrollbarBG: "transparent",
+  debugger: {
+    background: "#FFFFFF",
+    messageTextColor: "#716e6e",
+    time: "#4b4848",
+    label: "#4b4848",
+    entity: "rgba(75, 72, 72, 0.7)",
+    entityLink: "#6d6d6d",
+    jsonIcon: "#a9a7a7",
+    message: "#4b4848",
+    floatingButton: {
+      background: "#2b2b2b",
+      color: "#d4d4d4",
+      shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
+      errorCount: "#F22B2B",
+      noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
+    },
+    inspectElement: {
+      color: "#090707",
+    },
+    blankState: {
+      color: "#090707",
+      shortcut: "black",
+    },
+    info: {
+      borderBottom: "rgba(0, 0, 0, 0.05)",
+    },
+    warning: {
+      borderBottom: "white",
+      backgroundColor: "rgba(254, 184, 17, 0.1)",
+    },
+    error: {
+      borderBottom: "white",
+      backgroundColor: "rgba(242, 43, 43, 0.08)",
+    },
+  },
+  widgetGroupingContextMenu: {
+    border: "#69b5ff",
+    actionActiveBg: "#e1e1e1",
+  },
+  actionSidePane,
+  pagesEditor,
 };
 
 export const theme: Theme = {
@@ -1738,7 +2617,7 @@ export const theme: Theme = {
     },
     btnSmall: {
       fontSize: 11,
-      lineHeight: 13,
+      lineHeight: 12,
       letterSpacing: 0.4,
       fontWeight: 600,
     },
@@ -1754,17 +2633,40 @@ export const theme: Theme = {
       letterSpacing: -0.24,
       fontWeight: "normal",
     },
-    authCardHeader: {
+    cardHeader: {
       fontStyle: "normal",
       fontWeight: 600,
       fontSize: 25,
       lineHeight: 20,
     },
-    authCardSubheader: {
+    cardSubheader: {
       fontStyle: "normal",
       fontWeight: "normal",
       fontSize: 15,
       lineHeight: 20,
+    },
+    largeH1: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 28,
+      lineHeight: 36,
+    },
+    docHeader: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 17,
+    },
+    spacedOutP1: {
+      fontStyle: "normal",
+      fontWeight: "normal",
+      fontSize: 14,
+      lineHeight: 24,
+    },
+    categoryBtn: {
+      fontSize: 12,
+      lineHeight: 14,
+      letterSpacing: 0.2,
+      fontWeight: 500,
     },
   },
   iconSizes: {
@@ -1779,6 +2681,8 @@ export const theme: Theme = {
   },
   propertyPane: {
     width: 270,
+    titleHeight: 40,
+    connectionsHeight: 30,
     height: 600,
     dividerColor: Colors.MAKO,
   },
@@ -1790,7 +2694,9 @@ export const theme: Theme = {
   colors: {
     tooltip: {
       lightBg: lightShades[0],
+      lightText: lightShades[10],
       darkBg: lightShades[10],
+      darkText: lightShades[0],
     },
     appBackground: "#EDEDED",
     artboard: "#F6F6F6",
@@ -1808,6 +2714,7 @@ export const theme: Theme = {
     inputInactiveBG: Colors.AQUA_HAZE,
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
+    textOnGreyBG: Colors.CHARCOAL,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -1818,12 +2725,13 @@ export const theme: Theme = {
     paneTextUnderline: Colors.LIGHT_GREYISH_BLUE,
     paneSectionLabel: Colors.CADET_BLUE,
     navBG: Colors.SHARK,
-    grid: Colors.TROUT,
+    grid: Colors.ALTO2,
     containerBorder: Colors.FRENCH_PASS,
     menuButtonBGInactive: Colors.JUNGLE_MIST,
     menuIconColorInactive: Colors.OXFORD_BLUE,
     bodyBG: Colors.ATHENS_GRAY,
     builderBodyBG: Colors.WHITE,
+    widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
@@ -1842,7 +2750,17 @@ export const theme: Theme = {
       array: "#CDFFA5",
       number: "#FFB2B2",
     },
+    scrollbarLight: getColorWithOpacity(Colors.CHARCOAL, 0.5),
+    scrollbarLightBG: getColorWithOpacity(Colors.WHITE, 0.5),
+    scrollbarDark: getColorWithOpacity(Colors.LIGHT_GREY, 0.5),
+    scrollbarDarkBG: getColorWithOpacity(Colors.CODE_GRAY, 0.5),
+    dropdownIconBg: Colors.ALTO2,
+    welcomeTourStickySidebarColor: Colors.WHITE,
+    welcomeTourStickySidebarBackground: "#F86A2B",
+    dropdownIconDarkBg: Colors.DARK_GRAY,
+    dropdownGreyBg: Colors.Gallery,
   },
+
   lineHeights: [0, 14, 16, 18, 22, 24, 28, 36, 48, 64, 80],
   fonts: {
     text: FontFamilies.TextFonts,
@@ -1890,7 +2808,11 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
-  canvasPadding: "20px 0 200px 0",
+  integrationsPageUnusableHeight: "182px",
+  backBanner: "30px",
+  canvasBottomPadding: 200,
+  navbarMenuHeight: "35px",
+  navbarMenuLineHeight: "25px",
   sideNav: {
     maxWidth: 220,
     minWidth: 50,
@@ -1911,8 +2833,8 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[0],
-      hoverText: lightShades[10],
+      hoverBG: lightShades[12],
+      hoverText: lightShades[0],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
     },
@@ -1944,6 +2866,8 @@ export const theme: Theme = {
     },
   },
   pageContentWidth: 1224,
+  tabPanelHeight: 34,
+  actionsBottomTabInitialHeight: "40%",
   alert: {
     info: {
       color: Colors.AZURE_RADIANCE,
@@ -1996,28 +2920,10 @@ export const theme: Theme = {
       },
     },
   },
+  actionSidePane: {
+    width: 265,
+  },
 };
-
-export const scrollbarLight = css<{ backgroundColor?: Color }>`
-  scrollbar-color: ${(props) => props.theme.colors.paneText};
-
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) =>
-        props.backgroundColor
-          ? props.backgroundColor
-          : getColorWithOpacity(props.theme.colors.paneText, 0.3)};
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
 
 export { css, createGlobalStyle, keyframes, ThemeProvider };
 

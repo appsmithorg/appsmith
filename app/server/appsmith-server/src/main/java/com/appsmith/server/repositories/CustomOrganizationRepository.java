@@ -16,4 +16,5 @@ public interface CustomOrganizationRepository extends AppsmithRepository<Organiz
 
     Mono<Long> nextSlugNumber(String slugPrefix);
 
+    Mono<Void> updateUserRoleNames(String userId, String userName);
 }

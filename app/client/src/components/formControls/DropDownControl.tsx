@@ -8,10 +8,19 @@ import { DropdownOption } from "widgets/DropdownWidget";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
 import FormLabel from "components/editorComponents/FormLabel";
+import { Colors } from "constants/Colors";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 50vh;
+`;
+
+const StyledInfo = styled.span`
+  font-weight: normal;
+  line-height: normal;
+  color: ${Colors.DOVE_GRAY};
+  font-size: 12px;
+  margin-left: 1px;
 `;
 
 const customSelectStyles = {
@@ -40,19 +49,25 @@ const customSelectStyles = {
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   render() {
-    const { configProperty, options, label, isRequired } = this.props;
+    const { configProperty, isRequired, label, options, subtitle } = this.props;
 
     return (
       <div>
         <FormLabel>
           {label} {isRequired && "*"}
+          {subtitle && (
+            <>
+              <br />
+              <StyledInfo>{subtitle}</StyledInfo>
+            </>
+          )}
         </FormLabel>
         <DropdownSelect data-cy={configProperty}>
           <DropdownField
-            placeholder=""
+            customSelectStyles={customSelectStyles}
             name={configProperty}
             options={options}
-            customSelectStyles={customSelectStyles}
+            placeholder=""
             width={"50vh"}
           />
         </DropdownSelect>
@@ -67,8 +82,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const isSelected: boolean = this.isOptionSelected(option);
     return (
       <MenuItem
-        className="single-select"
         active={isSelected}
+        className="single-select"
         key={option.value}
         onClick={itemProps.handleClick}
         text={option.label}
@@ -89,6 +104,7 @@ export interface DropDownControlProps extends ControlProps {
   options: DropdownOption[];
   placeholderText: string;
   propertyValue: string;
+  subtitle?: string;
 }
 
 export default DropDownControl;

@@ -73,14 +73,18 @@ Callout.defaultProps = {
 
 function Callout(props: CalloutProps) {
   return (
-    <CalloutContainer variant={props.variant || Variant.info} fill={props.fill}>
+    <CalloutContainer
+      className={props.className}
+      fill={props.fill}
+      variant={props.variant || Variant.info}
+    >
       {props.text && props.variant !== Variant.info ? (
         <Icon name={props.variant} size={IconSize.MEDIUM} />
       ) : null}
       <Text type={TextType.P2}>{props.text}</Text>
       {props.label ? props.label : null}
       {props.closeButton ? (
-        <Label variant={props.variant || Variant.info} onClick={props.onClose}>
+        <Label onClick={props.onClose} variant={props.variant || Variant.info}>
           <Icon name="close-modal" />
         </Label>
       ) : null}

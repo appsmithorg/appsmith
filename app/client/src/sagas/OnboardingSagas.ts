@@ -5,6 +5,7 @@ import { Plugin } from "api/PluginApi";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import { AppState } from "reducers";
 import {
@@ -68,12 +69,14 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { createActionRequest, runActionInit } from "actions/actionActions";
+import { createActionRequest, runAction } from "actions/pluginActionActions";
 import {
   APPLICATIONS_URL,
   BUILDER_PAGE_URL,
-  QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_URL,
+  INTEGRATION_TABS,
 } from "constants/routes";
 import { QueryAction } from "entities/Action";
 import history from "utils/history";
@@ -82,12 +85,20 @@ import { getQueryIdFromURL } from "pages/Editor/Explorer/helpers";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import { forceOpenPropertyPane } from "actions/widgetActions";
-import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/WidgetEntity";
+import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
-  updateWidgetProperty,
+  batchUpdateWidgetProperty,
   updateWidgetPropertyRequest,
-} from "../actions/controlActions";
+} from "actions/controlActions";
 import OnSubmitGif from "assets/gifs/onsubmit.gif";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+
+import {
+  EVAL_ERROR_PATH,
+  EvaluationError,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 
 export const getCurrentStep = (state: AppState) =>
   state.ui.onBoarding.currentStep;
@@ -146,13 +157,17 @@ function* listenForWidgetAdditions() {
         selectedWidget.tableData === initialTableData
       ) {
         yield put(
-          updateWidgetProperty(selectedWidget.widgetId, {
-            tableData: [],
-            columnSizeMap: {
-              avatar: 20,
-              name: 30,
+          batchUpdateWidgetProperty(selectedWidget.widgetId, {
+            modify: {
+              widgetName: "Standup_Table",
+              tableData: [],
+              columnSizeMap: {
+                avatar: 20,
+                name: 30,
+              },
+              migrated: false,
+              ...getStandupTableDimensions(),
             },
-            ...getStandupTableDimensions(),
           }),
         );
       }
@@ -208,9 +223,11 @@ function* listenForAddInputWidget() {
           ),
         );
         yield put(
-          updateWidgetProperty(inputWidget.widgetId, {
-            ...getStandupInputDimensions(),
-            ...getStandupInputProps(),
+          batchUpdateWidgetProperty(inputWidget.widgetId, {
+            modify: {
+              ...getStandupInputDimensions(),
+              ...getStandupInputProps(),
+            },
           }),
         );
         yield put(setCurrentSubstep(2));
@@ -218,12 +235,12 @@ function* listenForAddInputWidget() {
         yield put(showIndicator(OnboardingStep.ADD_INPUT_WIDGET));
       }
 
-      const helperConfig = yield select(
+      const helperConfig: OnboardingHelperConfig = yield select(
         (state) => state.ui.onBoarding.helperStepConfig,
       );
       const onSubmitGifUrl = OnSubmitGif;
 
-      if (helperConfig?.image.src !== onSubmitGifUrl) {
+      if (helperConfig.image?.src !== onSubmitGifUrl) {
         yield put(
           setHelperConfig({
             ...helperConfig,
@@ -238,29 +255,33 @@ function* listenForAddInputWidget() {
       const dataTree = yield select(getDataTree);
 
       const updatedInputWidget = dataTree["Standup_Input"];
-      const dynamicTriggerPathList = updatedInputWidget.dynamicTriggerPathList;
-      const hasOnSubmitHandler =
-        dynamicTriggerPathList &&
-        dynamicTriggerPathList.length &&
-        dynamicTriggerPathList.some(
-          (trigger: any) => trigger.key === "onSubmit",
-        );
 
-      if (hasOnSubmitHandler) {
-        yield put(
-          updateWidgetPropertyRequest(
-            inputWidget.widgetId,
-            "onSubmit",
-            "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-            RenderModes.CANVAS,
-          ),
-        );
-        AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
+      if (updatedInputWidget) {
+        const dynamicTriggerPathList =
+          updatedInputWidget.dynamicTriggerPathList;
+        const hasOnSubmitHandler =
+          dynamicTriggerPathList &&
+          dynamicTriggerPathList.length &&
+          dynamicTriggerPathList.some(
+            (trigger: any) => trigger.key === "onSubmit",
+          );
 
-        yield put(setCurrentStep(OnboardingStep.DEPLOY));
-        yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
+        if (hasOnSubmitHandler) {
+          yield put(
+            updateWidgetPropertyRequest(
+              inputWidget.widgetId,
+              "onSubmit",
+              "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
+              RenderModes.CANVAS,
+            ),
+          );
+          AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
 
-        return;
+          yield put(setCurrentStep(OnboardingStep.DEPLOY));
+          yield put(setHelperConfig(getHelperConfig(OnboardingStep.DEPLOY)));
+
+          return;
+        }
       }
     }
   }
@@ -271,12 +292,11 @@ function* listenForSuccessfulBinding() {
     yield take();
 
     let bindSuccessful = true;
-    const selectedWidget = yield select(getSelectedWidget);
+    const selectedWidget = yield call(getStandupTableWidget);
     if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
       const dataTree = yield select(getDataTree);
 
       if (dataTree[selectedWidget.widgetName]) {
-        const widgetProperties = dataTree[selectedWidget.widgetName];
         const dynamicBindingPathList =
           dataTree[selectedWidget.widgetName].dynamicBindingPathList;
         const tableHasData = dataTree[selectedWidget.widgetName].tableData;
@@ -286,26 +306,31 @@ function* listenForSuccessfulBinding() {
           dynamicBindingPathList.some(
             (item: { key: string }) => item.key === "tableData",
           );
+        const errors = get(
+          selectedWidget,
+          `${EVAL_ERROR_PATH}.tableData`,
+          [],
+        ).filter(
+          (error: EvaluationError) =>
+            error.errorType !== PropertyEvaluationErrorType.LINT,
+        );
 
         bindSuccessful =
-          bindSuccessful && hasBinding && tableHasData && tableHasData.length;
-
-        if (widgetProperties.invalidProps) {
-          bindSuccessful =
-            bindSuccessful &&
-            !(
-              "tableData" in widgetProperties.invalidProps &&
-              widgetProperties.invalidProps.tableData
-            );
-        }
+          bindSuccessful &&
+          hasBinding &&
+          Array.isArray(tableHasData) &&
+          tableHasData.length &&
+          errors.length === 0;
 
         if (bindSuccessful) {
           yield put(
-            updateWidgetProperty(selectedWidget.widgetId, {
-              columnTypeMap: {
-                avatar: {
-                  type: "image",
-                  format: "",
+            batchUpdateWidgetProperty(selectedWidget.widgetId, {
+              modify: {
+                columnTypeMap: {
+                  avatar: {
+                    type: "image",
+                    format: "",
+                  },
                 },
               },
             }),
@@ -329,7 +354,9 @@ function* createOnboardingDatasource() {
   AnalyticsUtil.logEvent("ONBOARDING_INTRODUCTION");
 
   try {
-    yield take([ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS]);
+    const isEditorInitialized = yield select(getIsEditorInitialized);
+    if (!isEditorInitialized)
+      yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
 
     const organizationId = yield select(getCurrentOrgId);
     const plugins = yield select(getPlugins);
@@ -351,6 +378,7 @@ function* createOnboardingDatasource() {
         datasourceConfiguration: {
           connection: {
             mode: "READ_WRITE",
+            ssl: { authType: "DEFAULT" },
           },
           endpoints: [
             {
@@ -363,6 +391,7 @@ function* createOnboardingDatasource() {
             username: "fakeapi",
             password: "LimitedAccess123#",
           },
+          sshProxyEnabled: false,
         },
       };
 
@@ -370,6 +399,7 @@ function* createOnboardingDatasource() {
         datasourceConfig,
       );
       yield validateResponse(datasourceResponse);
+      yield checkAndGetPluginFormConfigsSaga(postgresPlugin.id);
       yield put({
         type: ReduxActionTypes.CREATE_DATASOURCE_SUCCESS,
         payload: datasourceResponse.data,
@@ -410,8 +440,7 @@ function* listenForCreateAction() {
     setHelperConfig({
       ...helperConfig,
       image: {
-        src:
-          "https://res.cloudinary.com/drako999/image/upload/v1611839705/Appsmith/Onboarding/run.gif",
+        src: "https://assets.appsmith.com/Run.gif",
       },
     }),
   );
@@ -420,7 +449,7 @@ function* listenForCreateAction() {
   yield take([
     ReduxActionTypes.UPDATE_ACTION_INIT,
     ReduxActionTypes.QUERY_PANE_CHANGE,
-    ReduxActionTypes.RUN_ACTION_INIT,
+    ReduxActionTypes.RUN_ACTION_REQUEST,
   ]);
 
   yield take([ReduxActionTypes.RUN_ACTION_SUCCESS]);
@@ -531,7 +560,7 @@ function* createApplication() {
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
 
-  if (!organization) {
+  if (!currentOrganizationId) {
     organization = userOrgs[0];
   } else {
     const filteredOrganizations = userOrgs.filter(
@@ -539,37 +568,56 @@ function* createApplication() {
     );
     organization = filteredOrganizations[0];
   }
-  const applicationList = organization.applications;
 
-  const applicationName = getNextEntityName(
-    "Super Standup ",
-    applicationList.map((el: any) => el.name),
-    true,
-  );
+  // Organization could be undefined for unknown reason
+  if (organization) {
+    const applicationList = organization.applications;
 
-  yield put({
-    type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-    payload: {
-      applicationName,
-      orgId: organization.organization.id,
-      icon,
-      color,
-    },
-  });
+    const applicationName = getNextEntityName(
+      "Super Standup ",
+      applicationList.map((el: any) => el.name),
+      true,
+    );
 
-  yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
-  yield call(initiateOnboarding);
+    yield put({
+      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
+      payload: {
+        applicationName,
+        orgId: organization.organization.id,
+        icon,
+        color,
+      },
+    });
+
+    yield take(ReduxActionTypes.CREATE_APPLICATION_SUCCESS);
+    yield call(initiateOnboarding);
+  }
 }
 
 function* createQuery() {
   const currentPageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
+  const currentSubstep = yield select(getCurrentSubStep);
   const datasources: Datasource[] = yield select(getDatasources);
   const onboardingDatasource = datasources.find((datasource) => {
     const name = get(datasource, "name");
 
     return name === "Super Updates DB";
   });
+
+  // If the user is on substep 2 of the CREATE_QUERY step
+  // just run the query.
+  if (currentSubstep == 2) {
+    yield put({
+      type: "ONBOARDING_RUN_QUERY",
+    });
+
+    AnalyticsUtil.logEvent("ONBOARDING_CHEAT", {
+      step: 1,
+    });
+
+    return;
+  }
 
   if (onboardingDatasource) {
     const payload = {
@@ -582,15 +630,16 @@ function* createQuery() {
       actionConfiguration: {
         body:
           "Select avatar, name, notes from standup_updates order by id desc",
+        timeoutInMillisecond: 30000,
       },
     } as Partial<QueryAction>;
 
     yield put(createActionRequest(payload));
     history.push(
-      QUERY_EDITOR_URL_WITH_SELECTED_PAGE_ID(
+      INTEGRATION_EDITOR_URL(
         applicationId,
         currentPageId,
-        currentPageId,
+        INTEGRATION_TABS.ACTIVE,
       ),
     );
 
@@ -609,7 +658,7 @@ function* executeQuery() {
   const queryId = getQueryIdFromURL();
 
   if (queryId) {
-    yield put(runActionInit(queryId));
+    yield put(runAction(queryId));
   }
 }
 
@@ -625,7 +674,7 @@ function* addWidget(widgetConfig: any) {
     };
 
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: newWidget,
     });
 
@@ -642,7 +691,7 @@ function* addWidget(widgetConfig: any) {
       newWidget.newWidgetId,
     );
     yield put({
-      type: ReduxActionTypes.SELECT_WIDGET,
+      type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
     });
     yield put(forceOpenPropertyPane(newWidget.newWidgetId));
@@ -650,14 +699,14 @@ function* addWidget(widgetConfig: any) {
 }
 
 const getStandupTableDimensions = () => {
-  const columns = 16;
-  const rows = 15;
-  const topRow = 2;
+  const columns = 16 * GRID_DENSITY_MIGRATION_V1;
+  const rows = 15 * GRID_DENSITY_MIGRATION_V1;
+  const topRow = 2 * GRID_DENSITY_MIGRATION_V1;
   const bottomRow = rows + topRow;
   return {
     parentRowSpace: 40,
     parentColumnSpace: 1,
-    topRow: 2,
+    topRow,
     bottomRow,
     leftColumn: 0,
     rightColumn: columns,
@@ -667,13 +716,13 @@ const getStandupTableDimensions = () => {
 };
 
 const getStandupInputDimensions = () => {
-  const columns = 6;
-  const rows = 1;
-  const leftColumn = 5;
+  const columns = 6 * GRID_DENSITY_MIGRATION_V1;
+  const rows = 1 * GRID_DENSITY_MIGRATION_V1;
+  const leftColumn = 5 * GRID_DENSITY_MIGRATION_V1;
   const rightColumn = leftColumn + columns;
   return {
-    topRow: 1,
-    bottomRow: 2,
+    topRow: 1 * GRID_DENSITY_MIGRATION_V1,
+    bottomRow: 2 * GRID_DENSITY_MIGRATION_V1,
     leftColumn,
     rightColumn,
     rows,
@@ -760,7 +809,7 @@ function* addOnSubmitHandler() {
         inputWidget.widgetId,
       );
       yield put({
-        type: ReduxActionTypes.SELECT_WIDGET,
+        type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },
       });
       yield put(forceOpenPropertyPane(inputWidget.widgetId));
@@ -785,13 +834,23 @@ function* addOnSubmitHandler() {
   }
 }
 
-function* addBinding() {
-  const selectedWidget = yield select(getSelectedWidget);
+function* getStandupTableWidget() {
+  const canvasWidgets: Record<string, any> = yield select(getCanvasWidgets);
+  const result =
+    Object.entries(canvasWidgets).find((widgetEntry) => {
+      const [, widget] = widgetEntry;
+      return widget.widgetName === "Standup_Table";
+    }) || [];
+  const standupTable = result[1];
+  return standupTable;
+}
 
-  if (selectedWidget && selectedWidget.type === "TABLE_WIDGET") {
+function* addBinding() {
+  const standupTable = yield call(getStandupTableWidget);
+  if (standupTable) {
     yield put(
       updateWidgetPropertyRequest(
-        selectedWidget.widgetId,
+        standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
         RenderModes.CANVAS,

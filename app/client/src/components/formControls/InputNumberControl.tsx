@@ -23,12 +23,12 @@ export function InputText(props: {
   dataType?: string;
   name: string;
 }) {
-  const { name, placeholder, dataType, label } = props;
+  const { dataType, label, name, placeholder } = props;
 
   return (
     <FormGroup data-cy={name}>
       <Text type={TextType.P1}>{label}</Text>
-      <NumberField name={name} placeholder={placeholder} dataType={dataType} />
+      <NumberField dataType={dataType} name={name} placeholder={placeholder} />
     </FormGroup>
   );
 }
@@ -36,20 +36,20 @@ export function InputText(props: {
 class InputNumberControl extends BaseControl<InputControlProps> {
   render() {
     const {
-      propertyValue,
-      label,
-      placeholderText,
       configProperty,
       dataType,
+      label,
+      placeholderText,
+      propertyValue,
     } = this.props;
 
     return (
       <InputText
-        name={configProperty}
-        label={label}
-        value={propertyValue}
-        placeholder={placeholderText}
         dataType={dataType}
+        label={label}
+        name={configProperty}
+        placeholder={placeholderText}
+        value={propertyValue}
       />
     );
   }

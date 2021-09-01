@@ -1,8 +1,10 @@
+import { GridDefaults } from "constants/WidgetConstants";
+
 export default {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1242,
-  snapColumns: 16,
+  snapColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   widgetId: "0",
   topRow: 0,
   bottomRow: 1292,

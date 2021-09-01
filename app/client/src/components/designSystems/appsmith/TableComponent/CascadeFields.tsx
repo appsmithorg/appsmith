@@ -1,29 +1,28 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, InputGroup } from "@blueprintjs/core";
+import { debounce } from "lodash";
+import { AnyStyledComponent } from "styled-components";
+
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
 import { Skin } from "constants/DefaultTheme";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
-import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
+import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent2";
 import {
   OperatorTypes,
   Condition,
   ColumnTypes,
   Operator,
-} from "components/designSystems/appsmith/TableComponent/Constants";
-import {
-  DropdownOption,
   ReactTableFilter,
-} from "components/designSystems/appsmith/TableComponent/TableFilters";
+} from "components/designSystems/appsmith/TableComponent/Constants";
+import { DropdownOption } from "components/designSystems/appsmith/TableComponent/TableFilters";
 import { RenderOptionWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import { debounce } from "lodash";
 
 const StyledRemoveIcon = styled(
-  ControlIcons.REMOVE_CONTROL as AnyStyledComponent,
+  ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
 )`
   padding: 0;
   position: relative;
@@ -34,8 +33,8 @@ const StyledRemoveIcon = styled(
 `;
 
 const LabelWrapper = styled.div`
-  width: 85px;
-  text-align: center;
+  width: 95px;
+  margin-left: 10px;
   color: ${Colors.BLUE_BAYOUX};
   font-size: 14px;
   font-weight: 500;
@@ -57,7 +56,7 @@ const StyledInputGroup = styled(InputGroup)`
   background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 2px;
   color: ${Colors.OXFORD_BLUE};
   height: 32px;
   width: 150px;
@@ -81,7 +80,7 @@ const DropdownTrigger = styled.div`
   background: ${Colors.WHITE};
   border: 1px solid #d3dee3;
   box-sizing: border-box;
-  border-radius: 4px;
+  border-radius: 2px;
   font-size: 14px;
   padding: 5px 12px 7px;
   color: ${Colors.OXFORD_BLUE};
@@ -102,6 +101,15 @@ const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
 
 const typeOperatorsMap: Record<ColumnTypes, DropdownOption[]> = {
   [ColumnTypes.TEXT]: [
+    { label: "contains", value: "contains", type: "input" },
+    { label: "does not contain", value: "doesNotContain", type: "input" },
+    { label: "starts with", value: "startsWith", type: "input" },
+    { label: "ends with", value: "endsWith", type: "input" },
+    { label: "is exactly", value: "isExactly", type: "input" },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
+  [ColumnTypes.URL]: [
     { label: "contains", value: "contains", type: "input" },
     { label: "does not contain", value: "doesNotContain", type: "input" },
     { label: "starts with", value: "startsWith", type: "input" },
@@ -157,29 +165,26 @@ const columnTypeNameMap: Record<ColumnTypes, string> = {
   [ColumnTypes.IMAGE]: "Image",
   [ColumnTypes.NUMBER]: "Num",
   [ColumnTypes.DATE]: "Date",
+  [ColumnTypes.URL]: "Url",
 };
 
-const RenderOption = (props: {
-  type: string;
-  title: string;
-  active: boolean;
-}) => {
+function RenderOption(props: { type: string; title: string; active: boolean }) {
   return (
     <RenderOptionWrapper selected={props.active}>
       <div className="title">{props.title}</div>
       <div className="type">{columnTypeNameMap[props.type as ColumnTypes]}</div>
     </RenderOptionWrapper>
   );
-};
+}
 
-const RenderOptions = (props: {
+function RenderOptions(props: {
   columns: DropdownOption[];
   selectItem: (column: DropdownOption) => void;
   placeholder: string;
   value?: string | Condition;
   showType?: boolean;
   className?: string;
-}) => {
+}) {
   const [selectedValue, selectValue] = useState(props.placeholder);
   const configs = {
     sections: [
@@ -189,9 +194,9 @@ const RenderOptions = (props: {
           return {
             content: props.showType ? (
               <RenderOption
+                active={isActive}
                 title={column.label}
                 type={column.type}
-                active={isActive}
               />
             ) : (
               column.label
@@ -213,7 +218,7 @@ const RenderOptions = (props: {
           <AutoToolTipComponentWrapper title={selectedValue}>
             {selectedValue}
           </AutoToolTipComponentWrapper>
-          <Icon icon="chevron-down" iconSize={16} color={Colors.SLATE_GRAY} />
+          <Icon color={Colors.SLATE_GRAY} icon="caret-down" iconSize={16} />
         </DropdownTrigger>
       ),
     },
@@ -234,13 +239,13 @@ const RenderOptions = (props: {
     }
   }, [props.value, props.placeholder, props.columns]);
   return <CustomizedDropdown {...configs} />;
-};
+}
 
-const RenderInput = (props: {
+function RenderInput(props: {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-}) => {
+}) {
   const debouncedOnChange = useCallback(debounce(props.onChange, 400), []);
   const [value, setValue] = useState(props.value);
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,14 +258,14 @@ const RenderInput = (props: {
   }, [props.value]);
   return (
     <StyledInputGroup
-      placeholder="Enter value"
-      onChange={onChange}
-      type="text"
-      defaultValue={value}
       className={props.className}
+      defaultValue={value}
+      onChange={onChange}
+      placeholder="Enter value"
+      type="text"
     />
   );
-};
+}
 
 type CascadeFieldProps = {
   columns: DropdownOption[];
@@ -419,15 +424,15 @@ function CaseCaseFieldReducer(
   }
 }
 
-const CascadeField = (props: CascadeFieldProps) => {
+function CascadeField(props: CascadeFieldProps) {
   const memoizedState = React.useMemo(() => calculateInitialState(props), [
     props,
   ]);
   return <Fields state={memoizedState} {...props} />;
-};
+}
 
-const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
-  const { index, removeFilter, applyFilter, hasAnyFilters } = props;
+function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
+  const { applyFilter, hasAnyFilters, index, removeFilter } = props;
   const [state, dispatch] = React.useReducer(CaseCaseFieldReducer, props.state);
   const handleRemoveFilter = () => {
     dispatch({ type: CascadeFieldActionTypes.DELETE_FILTER });
@@ -463,14 +468,35 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
     });
   };
 
+  const {
+    column,
+    condition,
+    conditions,
+    isDeleted,
+    isUpdate,
+    operator,
+    showConditions,
+    showDateInput,
+    showInput,
+    value,
+  } = state;
   useEffect(() => {
-    const { operator, column, condition, value, isDeleted, isUpdate } = state;
     if (!isDeleted && isUpdate) {
       applyFilter({ operator, column, condition, value }, index);
     } else if (isDeleted) {
       removeFilter(index);
     }
-  }, [state, index, applyFilter, removeFilter]);
+  }, [
+    operator,
+    column,
+    condition,
+    value,
+    isDeleted,
+    isUpdate,
+    index,
+    applyFilter,
+    removeFilter,
+  ]);
 
   useEffect(() => {
     dispatch({
@@ -478,35 +504,25 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       payload: props,
     });
   }, [props]);
-  const {
-    operator,
-    column,
-    condition,
-    showConditions,
-    value,
-    showInput,
-    showDateInput,
-    conditions,
-  } = state;
   return (
     <FieldWrapper className="t--table-filter">
       <StyledRemoveIcon
-        onClick={handleRemoveFilter}
-        height={16}
-        width={16}
-        color={Colors.RIVER_BED}
         className={`t--table-filter-remove-btn ${
           hasAnyFilters ? "" : "hide-icon"
         }`}
+        color={Colors.GRAY}
+        height={16}
+        onClick={handleRemoveFilter}
+        width={16}
       />
       {index === 1 ? (
-        <DropdownWrapper width={75}>
+        <DropdownWrapper width={95}>
           <RenderOptions
+            className="t--table-filter-operators-dropdown"
             columns={operatorOptions}
+            placeholder="or"
             selectItem={selectOperator}
             value={operator}
-            placeholder="or"
-            className="t--table-filter-operators-dropdown"
           />
         </DropdownWrapper>
       ) : (
@@ -516,22 +532,22 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       )}
       <DropdownWrapper width={150}>
         <RenderOptions
-          columns={props.columns}
-          selectItem={selectColumn}
-          value={column}
-          showType
-          placeholder="Attribute"
           className="t--table-filter-columns-dropdown"
+          columns={props.columns}
+          placeholder="Attribute"
+          selectItem={selectColumn}
+          showType
+          value={column}
         />
       </DropdownWrapper>
       {showConditions ? (
         <DropdownWrapper width={200}>
           <RenderOptions
+            className="t--table-filter-conditions-dropdown"
             columns={conditions}
+            placeholder=""
             selectItem={selectCondition}
             value={condition}
-            placeholder=""
-            className="t--table-filter-conditions-dropdown"
           />
         </DropdownWrapper>
       ) : null}
@@ -545,20 +561,22 @@ const Fields = (props: CascadeFieldProps & { state: CascadeFieldState }) => {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
-            label=""
-            dateFormat="DD/MM/YYYY"
+            closeOnSelection
+            dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
-            onDateSelected={onDateSelected}
-            selectedDate={value}
             isDisabled={false}
             isLoading={false}
-            enableTimePicker={false}
+            label=""
+            onDateSelected={onDateSelected}
+            selectedDate={value}
+            shortcuts={false}
             widgetId=""
+            withoutPortal
           />
         </DatePickerWrapper>
       ) : null}
     </FieldWrapper>
   );
-};
+}
 
 export default CascadeField;

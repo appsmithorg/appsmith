@@ -1,3 +1,5 @@
+import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+
 export enum WidgetTypes {
   BUTTON_WIDGET = "BUTTON_WIDGET",
   TEXT_WIDGET = "TEXT_WIDGET",
@@ -5,8 +7,10 @@ export enum WidgetTypes {
   INPUT_WIDGET = "INPUT_WIDGET",
   CONTAINER_WIDGET = "CONTAINER_WIDGET",
   DATE_PICKER_WIDGET = "DATE_PICKER_WIDGET",
+  DATE_PICKER_WIDGET2 = "DATE_PICKER_WIDGET2",
   TABLE_WIDGET = "TABLE_WIDGET",
   DROP_DOWN_WIDGET = "DROP_DOWN_WIDGET",
+  MULTI_SELECT_WIDGET = "MULTI_SELECT_WIDGET",
   CHECKBOX_WIDGET = "CHECKBOX_WIDGET",
   RADIO_GROUP_WIDGET = "RADIO_GROUP_WIDGET",
   TABS_WIDGET = "TABS_WIDGET",
@@ -19,10 +23,19 @@ export enum WidgetTypes {
   CANVAS_WIDGET = "CANVAS_WIDGET",
   ICON_WIDGET = "ICON_WIDGET",
   FILE_PICKER_WIDGET = "FILE_PICKER_WIDGET",
+  FILE_PICKER_WIDGET_V2 = "FILE_PICKER_WIDGET_V2",
   VIDEO_WIDGET = "VIDEO_WIDGET",
   SKELETON_WIDGET = "SKELETON_WIDGET",
+  LIST_WIDGET = "LIST_WIDGET",
   SWITCH_WIDGET = "SWITCH_WIDGET",
   JSON_VIEW_WIDGET = "JSON_VIEW_WIDGET",
+  TABS_MIGRATOR_WIDGET = "TABS_MIGRATOR_WIDGET",
+  RATE_WIDGET = "RATE_WIDGET",
+  IFRAME_WIDGET = "IFRAME_WIDGET",
+  DIVIDER_WIDGET = "DIVIDER_WIDGET",
+  MENU_BUTTON_WIDGET = "MENU_BUTTON_WIDGET",
+  ICON_BUTTON_WIDGET = "ICON_BUTTON_WIDGET",
+  CHECKBOX_GROUP_WIDGET = "CHECKBOX_GROUP_WIDGET",
 }
 
 export type WidgetType = keyof typeof WidgetTypes;
@@ -71,24 +84,116 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_PARENT: "%",
 };
 
+interface LayoutConfig {
+  minWidth: number;
+  maxWidth: number;
+}
+
+type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
+export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const layoutConfigurations: LayoutConfigurations = {
+  TABLET_LARGE: {
+    minWidth: 960,
+    maxWidth: 1080,
+  },
+  MOBILE: {
+    minWidth: 350,
+    maxWidth: 450,
+  },
+  DESKTOP: { minWidth: 1160, maxWidth: 1280 },
+  TABLET: { minWidth: 650, maxWidth: 800 },
+  FLUID: { minWidth: -1, maxWidth: -1 },
+};
+
+export const LATEST_PAGE_VERSION = 34;
+
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
   DEFAULT_WIDGET_WIDTH: 200,
   DEFAULT_WIDGET_HEIGHT: 100,
-  DEFAULT_GRID_COLUMNS: 16,
-  DEFAULT_GRID_ROW_HEIGHT: 40,
+  DEFAULT_GRID_COLUMNS: 64,
+  DEFAULT_GRID_ROW_HEIGHT: 10,
   CANVAS_EXTENSION_OFFSET: 2,
 };
 
-export const CONTAINER_GRID_PADDING =
-  (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.8;
+export const DroppableWidgets: WidgetType[] = [
+  WidgetTypes.CONTAINER_WIDGET,
+  WidgetTypes.FORM_WIDGET,
+  WidgetTypes.LIST_WIDGET,
+  WidgetTypes.TABS_WIDGET,
+  WidgetTypes.MODAL_WIDGET,
+];
 
-export const WIDGET_PADDING = (GridDefaults.DEFAULT_GRID_ROW_HEIGHT / 2) * 0.2;
+// Note: Widget Padding + Container Padding === DEFAULT_GRID_ROW_HEIGHT to gracefully lose one row when a container is used,
+// which wud allow the user to place elements centered inside a container(columns are rendered proportionaly so it take cares of itselves).
+
+export const CONTAINER_GRID_PADDING =
+  GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.6;
+
+export const WIDGET_PADDING = GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
 export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
+export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
+export const CANVAS_CLASSNAME = "appsmith_widget_0";
 
 export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
+
+export enum FontStyleTypes {
+  BOLD = "BOLD",
+  ITALIC = "ITALIC",
+  REGULAR = "REGULAR",
+  UNDERLINE = "UNDERLINE",
+}
+
+export enum TextSizes {
+  HEADING1 = "HEADING1",
+  HEADING2 = "HEADING2",
+  HEADING3 = "HEADING3",
+  PARAGRAPH = "PARAGRAPH",
+  PARAGRAPH2 = "PARAGRAPH2",
+}
+
+export const TEXT_SIZES = {
+  HEADING1: "24px",
+  HEADING2: "18px",
+  HEADING3: "16px",
+  PARAGRAPH: "14px",
+  PARAGRAPH2: "12px",
+};
+
+export type TextSize = keyof typeof TextSizes;
+
+export enum RateSizes {
+  SMALL = "SMALL",
+  MEDIUM = "MEDIUM",
+  LARGE = "LARGE",
+}
+
+export const RATE_SIZES = {
+  SMALL: 12,
+  MEDIUM: 16,
+  LARGE: 21,
+};
+
+export type RateSize = keyof typeof RateSizes;
+
+export enum ButtonStyleTypes {
+  PRIMARY = "PRIMARY",
+  WARNING = "WARNING",
+  DANGER = "DANGER",
+  INFO = "INFO",
+  SECONDARY = "SECONDARY",
+  CUSTOM = "CUSTOM",
+}
+export type ButtonStyle = keyof typeof ButtonStyleTypes;
+
+export enum ButtonVariantTypes {
+  SOLID = "SOLID",
+  OUTLINE = "OUTLINE",
+  GHOST = "GHOST",
+}
+export type ButtonVariant = keyof typeof ButtonVariantTypes;

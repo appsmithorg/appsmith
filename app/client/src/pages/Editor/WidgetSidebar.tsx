@@ -14,12 +14,17 @@ import { Colors } from "constants/Colors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
-import { WIDGET_SIDEBAR_CAPTION } from "constants/messages";
+import { createMessage, WIDGET_SIDEBAR_CAPTION } from "constants/messages";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import { getCurrentStep, getCurrentSubStep } from "sagas/OnboardingSagas";
+import {
+  getCurrentStep,
+  getCurrentSubStep,
+  inOnboarding,
+} from "sagas/OnboardingSagas";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
+import { useLocation } from "react-router";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -85,7 +90,8 @@ const Info = styled.div`
   }
 `;
 
-const WidgetSidebar = (props: IPanelProps) => {
+function WidgetSidebar(props: IPanelProps) {
+  const location = useLocation();
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -110,6 +116,7 @@ const WidgetSidebar = (props: IPanelProps) => {
   };
 
   // For onboarding
+  const isInOnboarding = useSelector(inOnboarding);
   const currentStep = useSelector(getCurrentStep);
   const currentSubStep = useSelector(getCurrentSubStep);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -117,10 +124,13 @@ const WidgetSidebar = (props: IPanelProps) => {
   const onCanvas =
     BUILDER_PAGE_URL(applicationId, pageId) === window.location.pathname;
   useEffect(() => {
-    if (currentStep === OnboardingStep.DEPLOY && !onCanvas) {
+    if (
+      (currentStep === OnboardingStep.DEPLOY || !isInOnboarding) &&
+      !onCanvas
+    ) {
       props.closePanel();
     }
-  }, [currentStep, onCanvas]);
+  }, [currentStep, onCanvas, isInOnboarding, location]);
 
   const search = debounce((e: any) => {
     filterCards(e.target.value.toLowerCase());
@@ -143,44 +153,39 @@ const WidgetSidebar = (props: IPanelProps) => {
     <>
       <Boxed step={OnboardingStep.DEPLOY}>
         <ExplorerSearch
-          ref={searchInputRef}
+          autoFocus
           clear={clearSearchInput}
           placeholder="Search widgets..."
-          autoFocus={true}
+          ref={searchInputRef}
         />
       </Boxed>
 
       <MainWrapper>
         <Header>
           <Info>
-            <p>{WIDGET_SIDEBAR_CAPTION}</p>
+            <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
           </Info>
           <CloseIcon
             className="t--close-widgets-sidebar"
+            color={Colors.WHITE}
             icon="cross"
             iconSize={16}
-            color={Colors.WHITE}
             onClick={props.closePanel}
           />
         </Header>
         <CardsWrapper>
           {filteredCards.map((card: WidgetCardProps) => (
             <Boxed
-              step={OnboardingStep.DEPLOY}
+              key={card.key}
               show={
                 (card.type === "TABLE_WIDGET" && showTableWidget) ||
                 (card.type === "INPUT_WIDGET" && showInputWidget)
               }
-              key={card.key}
+              step={OnboardingStep.DEPLOY}
             >
               <OnboardingIndicator
-                width={100}
-                hasButton={false}
                 className="onboarding-widget-menu"
-                step={
-                  OnboardingStep.RUN_QUERY_SUCCESS ||
-                  OnboardingStep.ADD_INPUT_WIDGET
-                }
+                hasButton={false}
                 show={
                   (card.type === "TABLE_WIDGET" &&
                     currentStep === OnboardingStep.RUN_QUERY_SUCCESS) ||
@@ -188,6 +193,11 @@ const WidgetSidebar = (props: IPanelProps) => {
                     currentSubStep === 0 &&
                     currentStep === OnboardingStep.ADD_INPUT_WIDGET)
                 }
+                step={
+                  OnboardingStep.RUN_QUERY_SUCCESS ||
+                  OnboardingStep.ADD_INPUT_WIDGET
+                }
+                width={100}
               >
                 <WidgetCard details={card} />
               </OnboardingIndicator>
@@ -197,7 +207,7 @@ const WidgetSidebar = (props: IPanelProps) => {
       </MainWrapper>
     </>
   );
-};
+}
 
 WidgetSidebar.displayName = "WidgetSidebar";
 

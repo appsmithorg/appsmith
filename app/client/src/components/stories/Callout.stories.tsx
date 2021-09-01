@@ -9,12 +9,14 @@ export default {
   decorators: [withKnobs],
 };
 
-export const CalloutStory = () => (
-  <StoryWrapper>
-    <Callout
-      text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
-      fill={boolean("fill", false)}
-      variant={select("variant", Object.values(Variant), Variant.info)}
-    />
-  </StoryWrapper>
-);
+export function CalloutStory() {
+  return (
+    <StoryWrapper>
+      <Callout
+        fill={boolean("fill", false)}
+        text={text("text", "Lorem ipsum dolar sit adicipling dolare")}
+        variant={select("variant", Object.values(Variant), Variant.info)}
+      />
+    </StoryWrapper>
+  );
+}

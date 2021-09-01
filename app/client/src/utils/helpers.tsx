@@ -7,6 +7,18 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
+import { set } from "lodash";
+import { Org } from "constants/orgConstants";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { User } from "constants/userConstants";
+import { getAppsmithConfigs } from "configs";
+import { sha256 } from "js-sha256";
+
+const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
+
 export const snapToGrid = (
   columnWidth: number,
   rowHeight: number,
@@ -44,35 +56,77 @@ export const Directions: { [id: string]: string } = {
 };
 
 export type Direction = typeof Directions[keyof typeof Directions];
-const SCROLL_THESHOLD = 10;
+const SCROLL_THRESHOLD = 20;
 
 export const getScrollByPixels = function(
-  elem: Element,
+  elem: {
+    top: number;
+    height: number;
+  },
   scrollParent: Element,
-): number {
-  const bounding = elem.getBoundingClientRect();
+  child: Element,
+): {
+  scrollAmount: number;
+  speed: number;
+} {
   const scrollParentBounds = scrollParent.getBoundingClientRect();
+  const scrollChildBounds = child.getBoundingClientRect();
   const scrollAmount =
-    GridDefaults.CANVAS_EXTENSION_OFFSET * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-  if (
-    bounding.top > 0 &&
-    bounding.top - scrollParentBounds.top < SCROLL_THESHOLD
-  )
-    return -scrollAmount;
-  if (scrollParentBounds.bottom - bounding.bottom < SCROLL_THESHOLD)
-    return scrollAmount;
-  return 0;
+    2 *
+    GridDefaults.CANVAS_EXTENSION_OFFSET *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const topBuff =
+    elem.top + scrollChildBounds.top > 0
+      ? elem.top +
+        scrollChildBounds.top -
+        SCROLL_THRESHOLD -
+        scrollParentBounds.top
+      : 0;
+  const bottomBuff =
+    scrollParentBounds.bottom -
+    (elem.top + elem.height + scrollChildBounds.top + SCROLL_THRESHOLD);
+  if (topBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - topBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return {
+      scrollAmount: 0 - scrollAmount,
+      speed,
+    };
+  }
+  if (bottomBuff < SCROLL_THRESHOLD) {
+    const speed = Math.max(
+      (SCROLL_THRESHOLD - bottomBuff) / (2 * SCROLL_THRESHOLD),
+      0.1,
+    );
+    return {
+      scrollAmount,
+      speed,
+    };
+  }
+  return {
+    scrollAmount: 0,
+    speed: 0,
+  };
 };
 
 export const scrollElementIntoParentCanvasView = (
-  el: Element | null,
+  el: {
+    top: number;
+    height: number;
+  } | null,
   parent: Element | null,
+  child: Element | null,
 ) => {
   if (el) {
     const scrollParent = parent;
-    if (scrollParent) {
-      const scrollBy: number = getScrollByPixels(el, scrollParent);
+    if (scrollParent && child) {
+      const { scrollAmount: scrollBy } = getScrollByPixels(
+        el,
+        scrollParent,
+        child,
+      );
       if (scrollBy < 0 && scrollParent.scrollTop > 0) {
         scrollParent.scrollBy({ top: scrollBy, behavior: "smooth" });
       }
@@ -93,28 +147,49 @@ export const removeSpecialChars = (value: string, limit?: number) => {
 
 export const flashElement = (el: HTMLElement) => {
   el.style.backgroundColor = "#FFCB33";
+
   setTimeout(() => {
     el.style.backgroundColor = "transparent";
   }, 1000);
 };
 
-export const flashElementById = (id: string) => {
-  const el = document.getElementById(id);
-  el?.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-    inline: "center",
-  });
+/**
+ * flash elements with a background color
+ *
+ * @param id
+ */
+export const flashElementsById = (id: string | string[], timeout = 0) => {
+  let ids: string[] = [];
 
-  if (el) flashElement(el);
+  if (Array.isArray(id)) {
+    ids = ids.concat(id);
+  } else {
+    ids = ids.concat([id]);
+  }
+
+  ids.forEach((id) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+
+      el?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+
+      if (el) flashElement(el);
+    }, timeout);
+  });
 };
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
-  const separatorRegex = /[^\w\s]/;
+  // ensures that all special characters are disallowed
+  // while allowing all utf-8 characters
+  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
-    .split(separatorRegex)
-    .join("")
+    .split(removeSpecialCharsRegex)
+    .join(" ")
     .split(duplicateSpaceRegex)
     .join(" ")
     .slice(0, limit || 30);
@@ -195,6 +270,16 @@ export const isNameValid = (
   );
 };
 
+/*
+ * Filter out empty items from an array
+ * for e.g - ['Pawan', undefined, 'Hetu'] --> ['Pawan', 'Hetu']
+ *
+ * @param array any[]
+ */
+export const removeFalsyEntries = (arr: any[]): any[] => {
+  return arr.filter(Boolean);
+};
+
 /**
  * checks if variable passed is of type string or not
  *
@@ -253,3 +338,107 @@ const playLottieAnimation = (
     container.removeChild(el);
   }, duration);
 };
+
+export const getSelectedText = () => {
+  if (typeof window.getSelection === "function") {
+    const selectionObj = window.getSelection();
+    return selectionObj && selectionObj.toString();
+  }
+};
+
+/**
+ * calculates and returns the scrollwidth
+ *
+ * @returns
+ */
+export const scrollbarWidth = () => {
+  const scrollDiv = document.createElement("div");
+  scrollDiv.setAttribute(
+    "style",
+    "width: 100px; height: 100px; overflow: scroll; position:absolute; top:-9999px;",
+  );
+  document.body.appendChild(scrollDiv);
+  const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+  document.body.removeChild(scrollDiv);
+  return scrollbarWidth;
+};
+
+// Flatten object
+// From { isValid: false, settings: { color: false}}
+// To { isValid: false, settings.color: false}
+export const flattenObject = (data: Record<string, any>) => {
+  const result: Record<string, any> = {};
+  function recurse(cur: any, prop: any) {
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      for (let i = 0, l = cur.length; i < l; i++)
+        recurse(cur[i], prop + "[" + i + "]");
+      if (cur.length == 0) result[prop] = [];
+    } else {
+      let isEmpty = true;
+      for (const p in cur) {
+        isEmpty = false;
+        recurse(cur[p], prop ? prop + "." + p : p);
+      }
+      if (isEmpty && prop) result[prop] = {};
+    }
+  }
+  recurse(data, "");
+  return result;
+};
+
+/**
+ * renames key in object
+ *
+ * @param object
+ * @param key
+ * @param newKey
+ * @returns
+ */
+export const renameKeyInObject = (object: any, key: string, newKey: string) => {
+  if (object[key]) {
+    set(object, newKey, object[key]);
+  }
+
+  return object;
+};
+
+// Can be used to check if the user has developer role access to org
+export const getCanCreateApplications = (currentOrg: Org) => {
+  const userOrgPermissions = currentOrg.userPermissions || [];
+  const canManage = isPermitted(
+    userOrgPermissions,
+    PERMISSION_TYPE.CREATE_APPLICATION,
+  );
+  return canManage;
+};
+
+export const getIsSafeRedirectURL = (redirectURL: string) => {
+  try {
+    return new URL(redirectURL).origin === window.location.origin;
+  } catch (e) {
+    return false;
+  }
+};
+
+export function bootIntercom(user?: User) {
+  if (intercomAppID && window.Intercom) {
+    let { email, username } = user || {};
+    let name;
+    if (!isAppsmithCloud) {
+      username = sha256(username || "");
+      email = sha256(email || "");
+    } else {
+      name = user?.name;
+    }
+
+    window.Intercom("boot", {
+      app_id: intercomAppID,
+      user_id: username,
+      email,
+      // keep name undefined instead of an empty string so that intercom auto assigns a name
+      name,
+    });
+  }
+}

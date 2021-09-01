@@ -6,14 +6,13 @@ export enum ThemeMode {
   DARK = "DARK",
 }
 
+const lightTheme = { ...theme, colors: { ...theme.colors, ...light } };
+
+const darkTheme = { ...theme, colors: { ...theme.colors, ...dark } };
+
 // Only for usage with ThemeProvider
-export const getThemeDetails = (
-  state: AppState,
-  themeMode: ThemeMode,
-): Theme => {
-  const colors = themeMode === ThemeMode.LIGHT ? light : dark;
-  return { ...theme, colors: { ...theme.colors, ...colors } };
-};
+export const getThemeDetails = (state: AppState, themeMode: ThemeMode): Theme =>
+  themeMode === ThemeMode.LIGHT ? lightTheme : darkTheme;
 
 // Use to get the current theme of the app set via the theme switcher
 export const getCurrentThemeDetails = (state: AppState): Theme =>

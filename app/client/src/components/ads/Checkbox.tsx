@@ -1,5 +1,5 @@
 import { Classes, CommonComponentProps } from "./common";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Text, { TextType } from "./Text";
 import { Colors } from "constants/Colors";
@@ -9,12 +9,14 @@ export type CheckboxProps = CommonComponentProps & {
   isDefaultChecked?: boolean;
   onCheckChange?: (isChecked: boolean) => void;
   info?: string;
+  backgroundColor?: string;
 };
 
 const Checkmark = styled.span<{
   disabled?: boolean;
   isChecked?: boolean;
   info?: string;
+  backgroundColor?: string;
 }>`
   position: absolute;
   top: ${(props) => (props.info ? "6px" : "1px")};
@@ -25,14 +27,14 @@ const Checkmark = styled.span<{
     props.isChecked
       ? props.disabled
         ? props.theme.colors.checkbox.disabled
-        : props.theme.colors.info.main
+        : props.backgroundColor || props.theme.colors.info.main
       : "transparent"};
   border: 2px solid
     ${(props) =>
       props.isChecked
         ? props.disabled
           ? props.theme.colors.checkbox.disabled
-          : props.theme.colors.info.main
+          : props.backgroundColor || props.theme.colors.info.main
         : props.theme.colors.checkbox.unchecked};
 
   &::after {
@@ -93,10 +95,21 @@ const LabelContainer = styled.div<{ info?: string }>`
       : null}
 `;
 
-const Checkbox = (props: CheckboxProps) => {
-  const [checked, setChecked] = useState<boolean>(
-    props.isDefaultChecked || false,
-  );
+const useUpdate = (intitialValue?: boolean) => {
+  const [checked, setChecked] = useState<boolean>(!!intitialValue);
+
+  useEffect(() => {
+    const isChecked = !!intitialValue;
+    if (isChecked !== checked) {
+      setChecked(isChecked);
+    }
+  }, [intitialValue]);
+
+  return [checked, setChecked] as const;
+};
+
+function Checkbox(props: CheckboxProps) {
+  const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
     setChecked(checked);
@@ -110,20 +123,21 @@ const Checkbox = (props: CheckboxProps) => {
         {props.info ? <Text type={TextType.P3}>{props.info}</Text> : null}
       </LabelContainer>
       <input
-        type="checkbox"
-        disabled={props.disabled}
         checked={checked}
+        disabled={props.disabled}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
+        type="checkbox"
       />
       <Checkmark
+        backgroundColor={props.backgroundColor}
         disabled={props.disabled}
-        isChecked={checked}
         info={props.info}
+        isChecked={checked}
       />
     </StyledCheckbox>
   );
-};
+}
 
 export default Checkbox;

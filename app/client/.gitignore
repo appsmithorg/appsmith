@@ -8,6 +8,7 @@
 # testing
 /coverage
 
+
 # production
 /build
 
@@ -42,3 +43,5 @@ storybook-static/*
 build-storybook.log
 
 .eslintcache
+.vscode
+TODO

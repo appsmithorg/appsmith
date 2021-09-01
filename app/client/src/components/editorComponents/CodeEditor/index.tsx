@@ -1,7 +1,11 @@
-import React, { Component, lazy, Suspense } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
-import CodeMirror, { EditorConfiguration } from "codemirror";
+import CodeMirror, {
+  Annotation,
+  EditorConfiguration,
+  UpdateLintingCallback,
+} from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -12,11 +16,18 @@ import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
+import "codemirror/addon/lint/lint";
+import "codemirror/addon/lint/lint.css";
+
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { WrappedFieldInputProps } from "redux-form";
 import _ from "lodash";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTree,
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
@@ -27,43 +38,79 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
+  FieldEntityInformation,
   Hinter,
+  HintHelper,
+  MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
-  HintStyles,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/markHelpers";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
-import { retryPromise } from "utils/AppsmithUtils";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-
-const LightningMenu = lazy(() =>
-  retryPromise(() => import("components/editorComponents/LightningMenu")),
-);
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import "codemirror/addon/fold/brace-fold";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/foldgutter.css";
+import * as Sentry from "@sentry/react";
+import {
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import {
+  getInputValue,
+  isActionEntity,
+  isWidgetEntity,
+  removeNewLineChars,
+} from "./codeEditorUtils";
+import { commandsHelper } from "./commandsHelper";
+import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import Button from "components/ads/Button";
+import { getPluginIdToImageLocation } from "sagas/selectors";
+import { ExpectedValueExample } from "utils/validation/common";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Placement } from "@blueprintjs/popover2";
+import { getLintAnnotations } from "./lintHelpers";
+import getFeatureFlags from "utils/featureFlags";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
   "Tab",
   "Escape",
-  "Backspace",
   "Comma",
+  "Backspace",
 ];
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  datasources: any;
+  pluginIdToImageLocation: Record<string, string>;
+  recentEntities: string[];
 }
+
+interface ReduxDispatchProps {
+  executeCommand: (payload: any) => void;
+}
+
+export type CodeEditorExpected = {
+  type: string;
+  example: ExpectedValueExample;
+  autocompleteDataType: AutocompleteDataType;
+};
 
 export type EditorStyleProps = {
   placeholder?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   height?: string | number;
-  meta?: Partial<WrappedFieldMetaProps>;
   showLineNumbers?: boolean;
   className?: string;
   leftImage?: string;
@@ -72,11 +119,14 @@ export type EditorStyleProps = {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   evaluatedValue?: any;
-  expected?: string;
+  expected?: CodeEditorExpected;
   borderLess?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
+  useValidationMessage?: boolean;
+  evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -85,38 +135,47 @@ export type EditorProps = EditorStyleProps &
   } & {
     additionalDynamicData?: Record<string, Record<string, unknown>>;
     promptMessage?: React.ReactNode | string;
+    hideEvaluatedValue?: boolean;
+    errors?: any;
+    isInvalid?: boolean;
   };
 
-type Props = ReduxStateProps & EditorProps;
+type Props = ReduxStateProps &
+  EditorProps &
+  ReduxDispatchProps & { dispatch?: () => void };
 
 type State = {
   isFocused: boolean;
   isOpened: boolean;
   autoCompleteVisible: boolean;
+  hinterOpen: boolean;
 };
 
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
-    hinting: [bindingHint],
+    hinting: [bindingHint, commandsHelper],
   };
 
-  textArea = React.createRef<HTMLTextAreaElement>();
+  codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
-
+  annotations: Annotation[] = [];
+  updateLintingCallback: UpdateLintingCallback | undefined;
+  private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props);
     this.state = {
       isFocused: false,
       isOpened: false,
       autoCompleteVisible: false,
+      hinterOpen: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
 
   componentDidMount(): void {
-    if (this.textArea.current) {
+    if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         mode: this.props.mode,
         theme: EditorThemes[this.props.theme],
@@ -124,12 +183,20 @@ class CodeEditor extends Component<Props, State> {
         tabSize: 2,
         autoCloseBrackets: true,
         indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
-        lineWrapping: this.props.size !== EditorSize.COMPACT,
+        lineWrapping: true,
         lineNumbers: this.props.showLineNumbers,
         addModeClass: true,
         matchBrackets: false,
         scrollbarStyle:
           this.props.size !== EditorSize.COMPACT ? "native" : "null",
+        placeholder: this.props.placeholder,
+        lint: {
+          getAnnotations: (_: string, callback: UpdateLintingCallback) => {
+            this.updateLintingCallback = callback;
+          },
+          async: true,
+          lintOnChange: false,
+        },
       };
 
       if (!this.props.input.onChange || this.props.disabled) {
@@ -141,79 +208,112 @@ class CodeEditor extends Component<Props, State> {
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
-      this.editor = CodeMirror.fromTextArea(this.textArea.current, options);
-
-      this.editor.on("change", _.debounce(this.handleChange, 300));
-      this.editor.on("change", this.handleAutocompleteVisibility);
-      this.editor.on("change", this.onChangeTigger);
-      this.editor.on("keyup", this.handleAutocompleteHide);
-      this.editor.on("focus", this.handleEditorFocus);
-      this.editor.on("cursorActivity", this.handleCursorMovement);
-      this.editor.on("focus", this.onFocusTrigger);
-      this.editor.on("blur", this.handleEditorBlur);
-      if (this.props.height) {
-        this.editor.setSize(0, this.props.height);
-      } else {
-        this.editor.setSize(0, "auto");
+      if (this.props.folding) {
+        options.foldGutter = true;
+        options.gutters = ["CodeMirror-linenumbers", "CodeMirror-foldgutter"];
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        options.foldOptions = {
+          widget: () => {
+            return "\u002E\u002E\u002E";
+          },
+        };
       }
 
       // Set value of the editor
-      let inputValue = this.props.input.value || "";
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
+      const inputValue = getInputValue(this.props.input.value || "");
+      if (this.props.size === EditorSize.COMPACT) {
+        options.value = removeNewLineChars(inputValue);
+      } else {
+        options.value = inputValue;
       }
-      this.editor.setValue(inputValue);
-      this.updateMarkings();
 
-      this.startAutocomplete();
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore This is an undocumented option of codemirror available
+      // with the Codemirror Constructor
+      options.finishInit = (editor: CodeMirror.Editor) => {
+        // If you need to do something with the editor right after it’s been created,
+        // put that code here.
+        //
+        // This helps with performance: finishInit() is called inside
+        // CodeMirror’s `operation()` (https://codemirror.net/doc/manual.html#operation
+        // which means CodeMirror recalculates itself only one time, once all CodeMirror
+        // changes here are completed
+        //
+
+        editor.on("beforeChange", this.handleBeforeChange);
+        editor.on("change", _.debounce(this.handleChange, 600));
+        editor.on("change", this.handleAutocompleteVisibility);
+        editor.on("change", this.onChangeTrigger);
+        editor.on("keyup", this.handleAutocompleteHide);
+        editor.on("focus", this.handleEditorFocus);
+        editor.on("cursorActivity", this.handleCursorMovement);
+        editor.on("focus", this.onFocusTrigger);
+        editor.on("blur", this.handleEditorBlur);
+        editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+        if (this.props.height) {
+          editor.setSize("100%", this.props.height);
+        } else {
+          editor.setSize("100%", "100%");
+        }
+
+        CodeEditor.updateMarkings(editor, this.props.marking);
+
+        this.hinters = CodeEditor.startAutocomplete(
+          editor,
+          this.props.hinting,
+          this.props.dynamicData,
+          this.props.showLightningMenu,
+          this.props.additionalDynamicData,
+        );
+      };
+
+      // Finally create the Codemirror editor
+      this.editor = CodeMirror(this.codeEditorTarget.current, options);
+      // DO NOT ADD CODE BELOW. If you need to do something with the editor right after it’s created,
+      // put that code into `options.finishInit()`.
     }
   }
 
   componentDidUpdate(prevProps: Props): void {
-    this.editor.refresh();
-    if (!this.state.isFocused) {
-      // const currentMode = this.editor.getOption("mode");
-      const editorValue = this.editor.getValue();
-      let inputValue = this.props.input.value;
-      // Safe update of value of the editor when value updated outside the editor
-      if (typeof inputValue === "object") {
-        inputValue = JSON.stringify(inputValue, null, 2);
-      } else if (
-        typeof inputValue === "number" ||
-        typeof inputValue === "string"
-      ) {
-        inputValue += "";
+    this.editor.operation(() => {
+      if (!this.state.isFocused) {
+        // const currentMode = this.editor.getOption("mode");
+        const editorValue = this.editor.getValue();
+        // Safe update of value of the editor when value updated outside the editor
+        const inputValue = getInputValue(this.props.input.value);
+        if (!!inputValue || inputValue === "") {
+          if (inputValue !== editorValue) {
+            this.editor.setValue(inputValue);
+          }
+        }
+        CodeEditor.updateMarkings(this.editor, this.props.marking);
+      } else {
+        // Update the dynamic bindings for autocomplete
+        if (prevProps.dynamicData !== this.props.dynamicData) {
+          this.hinters.forEach(
+            (hinter) => hinter.update && hinter.update(this.props.dynamicData),
+          );
+        }
       }
-      if ((!!inputValue || inputValue === "") && inputValue !== editorValue) {
-        this.editor.setValue(inputValue);
-      }
-      this.updateMarkings();
-
-      // if (currentMode !== this.props.mode) {
-      //   this.editor.setOption("mode", this.props?.mode);
-      // }
-    } else {
-      // Update the dynamic bindings for autocomplete
-      if (prevProps.dynamicData !== this.props.dynamicData) {
-        this.hinters.forEach(
-          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
-        );
-      }
-    }
+    });
   }
 
-  startAutocomplete() {
-    this.hinters = this.props.hinting.map((helper) => {
-      return helper(
-        this.editor,
-        this.props.dynamicData,
-        this.props.additionalDynamicData,
-      );
+  componentWillUnmount() {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    this.editor.closeHint();
+  }
+
+  static startAutocomplete(
+    editor: CodeMirror.Editor,
+    hinting: Array<HintHelper>,
+    dynamicData: DataTree,
+    showLightningMenu?: boolean,
+    additionalDynamicData?: Record<string, Record<string, unknown>>,
+  ) {
+    return hinting.map((helper) => {
+      return helper(editor, dynamicData, additionalDynamicData);
     });
   }
 
@@ -223,7 +323,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  onChangeTigger = (cm: CodeMirror.Editor) => {
+  onChangeTrigger = (cm: CodeMirror.Editor) => {
     if (this.state.isFocused) {
       this.hinters.forEach((hinter) => hinter.trigger && hinter.trigger(cm));
     }
@@ -247,38 +347,111 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = () => {
     this.setState({ isFocused: true });
-    this.editor.refresh();
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.setOption("lineWrapping", true);
-    }
+    const entityInformation = this.getEntityInformation();
+    if (
+      entityInformation.entityType === ENTITY_TYPE.WIDGET &&
+      this.editor.getValue().length === 0 &&
+      !this.editor.state.completionActive
+    )
+      this.handleAutocompleteVisibility(this.editor);
   };
 
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    if (this.props.size === EditorSize.COMPACT) {
-      this.editor.setOption("lineWrapping", false);
-    }
-
     this.editor.setOption("matchBrackets", false);
   };
 
+  handleBeforeChange(
+    cm: CodeMirror.Editor,
+    change: CodeMirror.EditorChangeCancellable,
+  ) {
+    if (change.origin === "paste") {
+      // Remove all non ASCII quotes since they are invalid in Javascript
+      const formattedText = change.text.map((line) => {
+        let formattedLine = line.replace(/[‘’]/g, "'");
+        formattedLine = formattedLine.replace(/[“”]/g, '"');
+        return formattedLine;
+      });
+      if (change.update) {
+        change.update(undefined, undefined, formattedText);
+      }
+    }
+  }
+
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue();
+    const value = this.editor.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],
       });
     }
-    const inputValue = this.props.input.value;
-    if (this.props.input.onChange && value !== inputValue) {
+    const inputValue = this.props.input.value || "";
+    if (
+      this.props.input.onChange &&
+      value !== inputValue &&
+      this.state.isFocused
+    ) {
       this.props.input.onChange(value);
     }
-    this.updateMarkings();
+    CodeEditor.updateMarkings(this.editor, this.props.marking);
+  };
+
+  getEntityInformation = (): FieldEntityInformation => {
+    const { dataTreePath, dynamicData, expected } = this.props;
+    const entityInformation: FieldEntityInformation = {
+      expectedType: expected?.autocompleteDataType,
+    };
+    if (dataTreePath) {
+      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+        dataTreePath,
+      );
+      entityInformation.entityName = entityName;
+      const entity = dynamicData[entityName];
+
+      if (entity) {
+        if ("ENTITY_TYPE" in entity) {
+          const entityType = entity.ENTITY_TYPE;
+          if (
+            entityType === ENTITY_TYPE.WIDGET ||
+            entityType === ENTITY_TYPE.ACTION
+          ) {
+            entityInformation.entityType = entityType;
+          }
+        }
+        if (isActionEntity(entity))
+          entityInformation.entityId = entity.actionId;
+        if (isWidgetEntity(entity))
+          entityInformation.entityId = entity.widgetId;
+      }
+      entityInformation.propertyPath = propertyPath;
+    }
+    return entityInformation;
   };
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
-    this.hinters.forEach((hinter) => hinter.showHint(cm));
+    if (!this.state.isFocused) return;
+    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    let hinterOpen = false;
+    for (let i = 0; i < this.hinters.length; i++) {
+      hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
+        datasources: this.props.datasources.list,
+        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+        recentEntities: this.props.recentEntities,
+        update: this.props.input.onChange?.bind(this),
+        executeCommand: (payload: any) => {
+          this.props.executeCommand({
+            ...payload,
+            callback: (binding: string) => {
+              const value = this.editor.getValue() + binding;
+              this.updatePropertyValue(value, value.length);
+            },
+          });
+        },
+      });
+      if (hinterOpen) break;
+    }
+    this.setState({ hinterOpen });
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
@@ -287,56 +460,130 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  updateMarkings = () => {
-    this.props.marking.forEach((helper) => this.editor && helper(this.editor));
+  lintCode() {
+    const { dataTreePath, dynamicData } = this.props;
+
+    if (!dataTreePath || !this.updateLintingCallback) {
+      return;
+    }
+
+    const errors = _.get(
+      dynamicData,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+
+    let annotations: Annotation[] = [];
+
+    if (this.editor) {
+      annotations = getLintAnnotations(this.editor.getValue(), errors);
+    }
+
+    this.updateLintingCallback(this.editor, annotations);
+  }
+
+  static updateMarkings = (
+    editor: CodeMirror.Editor,
+    marking: Array<MarkHelper>,
+  ) => {
+    marking.forEach((helper) => helper(editor));
   };
 
-  updatePropertyValue(value: string, cursor?: number) {
+  updatePropertyValue(
+    value: string,
+    cursor?: number,
+    preventAutoComplete = false,
+  ) {
+    this.editor.focus();
     if (value) {
       this.editor.setValue(value);
     }
-    this.editor.focus();
-    if (cursor === undefined) {
-      if (value) {
-        cursor = value.length - 2;
-      } else {
-        cursor = 1;
-      }
-    }
     this.editor.setCursor({
-      line: 0,
-      ch: cursor,
+      line: cursor || this.editor.lineCount() - 1,
+      ch: this.editor.getLine(this.editor.lineCount() - 1).length - 2,
     });
     this.setState({ isFocused: true }, () => {
+      if (preventAutoComplete) return;
       this.handleAutocompleteVisibility(this.editor);
     });
   }
 
+  getPropertyValidation = (
+    dataTree: DataTree,
+    dataTreePath?: string,
+  ): {
+    isInvalid: boolean;
+    errors: EvaluationError[];
+    pathEvaluatedValue: unknown;
+  } => {
+    if (!dataTreePath) {
+      return {
+        isInvalid: false,
+        errors: [],
+        pathEvaluatedValue: undefined,
+      };
+    }
+
+    const errors = _.get(
+      dataTree,
+      getEvalErrorPath(dataTreePath),
+      [],
+    ) as EvaluationError[];
+
+    const filteredLintErrors = errors.filter(
+      (error) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+
+    return {
+      isInvalid: filteredLintErrors.length > 0,
+      errors: filteredLintErrors,
+      pathEvaluatedValue,
+    };
+  };
+
   render() {
     const {
-      input,
-      meta,
-      theme,
-      disabled,
-      className,
-      placeholder,
-      showLightningMenu,
-      dataTreePath,
-      dynamicData,
-      expected,
-      size,
-      evaluatedValue,
-      height,
-      borderLess,
       border,
-      hoverInteraction,
+      borderLess,
+      className,
+      dataTreePath,
+      disabled,
+      dynamicData,
+      evaluatedValue,
+      evaluationSubstitutionType,
+      expected,
       fill,
+      height,
+      hideEvaluatedValue,
+      hoverInteraction,
+      input,
+      showLightningMenu,
+      size,
+      theme,
+      useValidationMessage,
     } = this.props;
-    const hasError = !!(meta && meta.error);
+    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+    let { errors, isInvalid } = validations;
+    const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
-      evaluated = _.get(dynamicData, dataTreePath);
+      evaluated = pathEvaluatedValue;
     }
+    /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
+    if (this.props.errors) {
+      errors = this.props.errors;
+    }
+    if (this.props.isInvalid !== undefined) {
+      isInvalid = Boolean(this.props.isInvalid);
+    }
+    /*  Evaluation results for snippet snippets */
+
+    if (getFeatureFlags().LINTING) {
+      this.lintCode();
+    }
+
     const showEvaluatedValue =
       this.state.isFocused &&
       ("evaluatedValue" in this.props ||
@@ -344,89 +591,92 @@ class CodeEditor extends Component<Props, State> {
 
     return (
       <DynamicAutocompleteInputWrapper
-        theme={this.props.theme}
-        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
-        isError={hasError}
-        isActive={(this.state.isFocused && !hasError) || this.state.isOpened}
+        isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
+        isError={isInvalid}
         isNotHover={this.state.isFocused || this.state.isOpened}
+        skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
+        theme={this.props.theme}
       >
-        {showLightningMenu !== false && (
-          <Suspense fallback={<div />}>
-            <LightningMenu
-              skin={
-                this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT
-              }
-              updateDynamicInputValue={this.updatePropertyValue}
-              isFocused={this.state.isFocused}
-              isOpened={this.state.isOpened}
-              onOpenLightningMenu={() => {
-                this.setState({ isOpened: true });
-              }}
-              onCloseLightningMenu={() => {
-                this.setState({ isOpened: false });
-              }}
-            />
-          </Suspense>
+        {showLightningMenu !== false && !this.state.isFocused && (
+          <Button
+            className="commands-button"
+            onClick={() => {
+              const newValue =
+                typeof this.props.input.value === "string"
+                  ? this.props.input.value + "/"
+                  : "/";
+              this.updatePropertyValue(newValue, newValue.length);
+            }}
+            tag="button"
+            text="/"
+          />
         )}
         <EvaluatedValuePopup
-          theme={theme || EditorTheme.LIGHT}
-          isOpen={showEvaluatedValue}
+          errors={errors}
           evaluatedValue={evaluated}
+          evaluationSubstitutionType={evaluationSubstitutionType}
           expected={expected}
-          hasError={hasError}
+          hasError={isInvalid}
+          hideEvaluatedValue={hideEvaluatedValue}
+          isOpen={showEvaluatedValue}
+          popperPlacement={this.props.popperPlacement}
+          theme={theme || EditorTheme.LIGHT}
+          useValidationMessage={useValidationMessage}
         >
           <EditorWrapper
-            editorTheme={this.props.theme}
-            hasError={hasError}
-            size={size}
-            isFocused={this.state.isFocused}
-            disabled={disabled}
-            className={className}
-            height={height}
-            borderLess={borderLess}
             border={border}
-            isNotHover={this.state.isFocused || this.state.isOpened}
-            hoverInteraction={hoverInteraction}
+            borderLess={borderLess}
+            className={className}
+            disabled={disabled}
+            editorTheme={this.props.theme}
             fill={fill}
+            hasError={isInvalid}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            ref={this.editorWrapperRef}
+            size={size}
           >
-            <HintStyles editorTheme={theme || EditorTheme.LIGHT} />
             {this.props.leftIcon && (
               <IconContainer>{this.props.leftIcon}</IconContainer>
             )}
 
             {this.props.leftImage && (
               <img
-                src={this.props.leftImage}
                 alt="img"
                 className="leftImageStyles"
+                src={this.props.leftImage}
               />
             )}
-            <textarea
-              ref={this.textArea}
-              {..._.omit(this.props.input, ["onChange", "value"])}
-              defaultValue={input.value}
-              placeholder={placeholder}
-            />
+            <div className="CodeEditorTarget" ref={this.codeEditorTarget}>
+              <BindingPrompt
+                editorTheme={this.props.theme}
+                isOpen={
+                  showBindingPrompt(
+                    showEvaluatedValue,
+                    input.value,
+                    this.state.hinterOpen,
+                  ) && !_.get(this.editor, "state.completionActive")
+                }
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
             {this.props.link && (
-              <React.Fragment>
-                <a
-                  href={this.props.link}
-                  target="_blank"
-                  className="linkStyles"
-                  rel="noopener noreferrer"
-                >
-                  API documentation
-                </a>
-              </React.Fragment>
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                API documentation
+              </a>
             )}
             {this.props.rightIcon && (
               <IconContainer>{this.props.rightIcon}</IconContainer>
             )}
-            <BindingPrompt
-              isOpen={showBindingPrompt(showEvaluatedValue, input.value)}
-              promptMessage={this.props.promptMessage}
-              editorTheme={this.props.theme}
-            />
+            <ScrollIndicator containerRef={this.editorWrapperRef} />
           </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
@@ -436,6 +686,15 @@ class CodeEditor extends Component<Props, State> {
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
   dynamicData: getDataTreeForAutocomplete(state),
+  datasources: state.entities.datasources,
+  pluginIdToImageLocation: getPluginIdToImageLocation(state),
+  recentEntities: getRecentEntityIds(state),
 });
 
-export default connect(mapStateToProps)(CodeEditor);
+const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
+});
+
+export default Sentry.withProfiler(
+  connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
+);

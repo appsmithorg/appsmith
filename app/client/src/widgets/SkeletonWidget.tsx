@@ -10,6 +10,9 @@ const SkeletonWrapper = styled.div`
 `;
 
 class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
+  static getPropertyPaneConfig() {
+    return [];
+  }
   getPageView() {
     return <SkeletonWrapper className="bp3-skeleton" />;
   }

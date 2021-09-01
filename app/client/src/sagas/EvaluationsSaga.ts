@@ -10,69 +10,71 @@ import {
 import {
   EvaluationReduxAction,
   ReduxAction,
-  ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import {
+  getDataTree,
+  getUnevaluatedDataTree,
+} from "selectors/dataTreeSelectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { GracefulWorkerService } from "../utils/WorkerUtil";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EVAL_WORKER_ACTIONS,
-  EvalError,
-  EvalErrorTypes,
-} from "../utils/DynamicBindingUtils";
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
+import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "../utils/PerformanceTracker";
-import { Variant } from "components/ads/common";
-import { Toaster } from "components/ads/Toast";
 import * as Sentry from "@sentry/react";
 import { Action } from "redux";
-import _ from "lodash";
+import {
+  EVALUATE_REDUX_ACTIONS,
+  FIRST_EVAL_REDUX_ACTIONS,
+  setDependencyMap,
+  setEvaluatedTree,
+  shouldProcessBatchedAction,
+} from "actions/evaluationActions";
+import {
+  evalErrorHandler,
+  logSuccessfulBindings,
+  postEvalActionDispatcher,
+  updateTernDefinitions,
+} from "./PostEvaluationSagas";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import {
+  setEvaluatedArgument,
+  setEvaluatedSnippet,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { executeActionTriggers } from "./ActionExecution/ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  SNIPPET_EXECUTION_FAILED,
+  SNIPPET_EXECUTION_SUCCESS,
+} from "constants/messages";
+import { validate } from "workers/validations";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
-const evalErrorHandler = (errors: EvalError[]) => {
-  if (!errors) return;
-  errors.forEach((error) => {
-    if (error.type === EvalErrorTypes.DEPENDENCY_ERROR) {
-      Toaster.show({
-        text: error.message,
-        variant: Variant.danger,
-      });
-    }
-    if (error.type === EvalErrorTypes.EVAL_TREE_ERROR) {
-      Toaster.show({
-        text: "Unexpected error occurred while evaluating the app",
-        variant: Variant.danger,
-      });
-    }
-    if (error.type === EvalErrorTypes.BAD_UNEVAL_TREE_ERROR) {
-      Sentry.captureException(error);
-    }
-    log.debug(error);
-  });
-};
-
-function* postEvalActionDispatcher(actions: ReduxAction<unknown>[]) {
-  for (const action of actions) {
-    yield put(action);
-  }
-}
-
-function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
+function* evaluateTreeSaga(
+  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
-  const unevalTree = yield select(getUnevaluatedDataTree);
-  log.debug({ unevalTree });
-
   const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
@@ -81,22 +83,47 @@ function* evaluateTreeSaga(postEvalActions?: ReduxAction<unknown>[]) {
       widgetTypeConfigMap,
     },
   );
-
-  const { errors, dataTree, dependencies, logs } = workerResponse;
-  log.debug({ dataTree: dataTree });
-  logs.forEach((evalLog: any) => log.debug(evalLog));
-  evalErrorHandler(errors);
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATED_TREE,
-    payload: dataTree,
-  });
-  yield put({
-    type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
-    payload: { inverseDependencyMap: dependencies },
-  });
+  const {
+    dataTree,
+    dependencies,
+    errors,
+    evaluationOrder,
+    logs,
+    unEvalUpdates,
+  } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
   );
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
+  yield put(setEvaluatedTree(dataTree, updates));
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
+
+  const updatedDataTree = yield select(getDataTree);
+
+  log.debug({ dataTree: updatedDataTree });
+  logs.forEach((evalLog: any) => log.debug(evalLog));
+  yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
+  const appMode = yield select(getAppMode);
+  if (appMode !== APP_MODE.PUBLISHED) {
+    yield fork(
+      logSuccessfulBindings,
+      unevalTree,
+      updatedDataTree,
+      evaluationOrder,
+    );
+
+    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  }
+
+  yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
     yield call(postEvalActionDispatcher, postEvalActions);
   }
@@ -117,7 +144,7 @@ export function* evaluateActionBindings(
 
   const { errors, values } = workerResponse;
 
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return values;
 }
 
@@ -134,7 +161,7 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
-  evalErrorHandler(errors);
+  yield call(evalErrorHandler, errors);
   return triggers;
 }
 
@@ -166,74 +193,19 @@ export function* clearEvalPropertyCacheOfWidget(widgetName: string) {
 }
 
 export function* validateProperty(
-  widgetType: WidgetType,
   property: string,
   value: any,
   props: WidgetProps,
 ) {
+  const unevalTree = yield select(getUnevaluatedDataTree);
+  const validation = unevalTree[props.widgetName].validationPaths[property];
   return yield call(worker.request, EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY, {
-    widgetTypeConfigMap,
-    widgetType,
     property,
     value,
     props,
+    validation,
   });
 }
-
-const FIRST_EVAL_REDUX_ACTIONS = [
-  // Pages
-  ReduxActionTypes.FETCH_PAGE_SUCCESS,
-  ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-];
-
-const EVALUATE_REDUX_ACTIONS = [
-  ...FIRST_EVAL_REDUX_ACTIONS,
-  // Actions
-  ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-  ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
-  ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-  ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
-  ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
-  ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
-  ReduxActionTypes.CREATE_ACTION_SUCCESS,
-  ReduxActionTypes.UPDATE_ACTION_PROPERTY,
-  ReduxActionTypes.DELETE_ACTION_SUCCESS,
-  ReduxActionTypes.COPY_ACTION_SUCCESS,
-  ReduxActionTypes.MOVE_ACTION_SUCCESS,
-  ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionErrorTypes.RUN_ACTION_ERROR,
-  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
-  // App Data
-  ReduxActionTypes.SET_APP_MODE,
-  ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-  ReduxActionTypes.UPDATE_APP_STORE,
-  // Widgets
-  ReduxActionTypes.UPDATE_LAYOUT,
-  ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-  ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS,
-  // Widget Meta
-  ReduxActionTypes.SET_META_PROP,
-  ReduxActionTypes.RESET_WIDGET_META,
-  // Batches
-  ReduxActionTypes.BATCH_UPDATES_SUCCESS,
-];
-
-const shouldProcessAction = (action: ReduxAction<unknown>) => {
-  // debugger;
-  if (
-    action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
-    Array.isArray(action.payload)
-  ) {
-    const batchedActionTypes = action.payload.map(
-      (batchedAction) => batchedAction.type,
-    );
-    return (
-      _.intersection(EVALUATE_REDUX_ACTIONS, batchedActionTypes).length > 0
-    );
-  }
-  return true;
-};
 
 function evalQueueBuffer() {
   let canTake = false;
@@ -255,7 +227,7 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessAction(action)) {
+    if (!shouldProcessBatchedAction(action)) {
       return;
     }
     canTake = true;
@@ -291,11 +263,109 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    if (shouldProcessAction(action)) {
+    if (shouldProcessBatchedAction(action)) {
       yield call(evaluateTreeSaga, action.postEvalActions);
     }
   }
-  // TODO(hetu) need an action to stop listening and evaluate (exit app)
+}
+
+export function* evaluateSnippetSaga(action: any) {
+  try {
+    let { expression } = action.payload;
+    const { dataType, isTrigger } = action.payload;
+    if (isTrigger) {
+      expression = `function() { ${expression} }`;
+    }
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression,
+        dataType,
+        isTrigger,
+      },
+    );
+    const { errors, result, triggers } = workerResponse;
+    if (triggers && triggers.length > 0) {
+      yield call(
+        executeActionTriggers,
+        triggers[0],
+        EventType.ON_SNIPPET_EXECUTE,
+      );
+    } else {
+      yield put(
+        setEvaluatedSnippet(
+          result
+            ? JSON.stringify(result, null, 2)
+            : errors && errors.length
+            ? JSON.stringify(errors, null, 2)
+            : "",
+        ),
+      );
+    }
+    Toaster.show({
+      text: createMessage(
+        result || triggers
+          ? SNIPPET_EXECUTION_SUCCESS
+          : SNIPPET_EXECUTION_FAILED,
+      ),
+      variant: result || triggers ? Variant.success : Variant.danger,
+    });
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+  } catch (e) {
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateArgumentSaga(action: any) {
+  const { name, type, value } = action.payload;
+  try {
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression: value,
+      },
+    );
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {});
+      if (!validation.isValid)
+        lintErrors.unshift({
+          ...validation,
+          ...{
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: validation.message,
+          },
+        });
+    }
+    yield put(
+      setEvaluatedArgument({
+        [name]: {
+          type,
+          value: workerResponse.result,
+          name,
+          errors: lintErrors,
+          isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
 }
 
 export default function* evaluationSagaListeners() {

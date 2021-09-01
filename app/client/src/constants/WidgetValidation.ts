@@ -1,32 +1,20 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { EXECUTION_PARAM_KEY } from "./ActionConstants";
+import { EXECUTION_PARAM_KEY } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationConfig } from "./PropertyControlConstants";
 
-// Always add a validator function in ./Validators for these types
-export const VALIDATION_TYPES = {
-  TEXT: "TEXT",
-  REGEX: "REGEX",
-  NUMBER: "NUMBER",
-  BOOLEAN: "BOOLEAN",
-  OBJECT: "OBJECT",
-  ARRAY: "ARRAY",
-  TABLE_DATA: "TABLE_DATA",
-  OPTIONS_DATA: "OPTIONS_DATA",
-  DATE: "DATE",
-  DEFAULT_DATE: "DEFAULT_DATE",
-  MIN_DATE: "MIN_DATE",
-  MAX_DATE: "MAX_DATE",
-  TABS_DATA: "TABS_DATA",
-  CHART_DATA: "CHART_DATA",
-  MARKERS: "MARKERS",
-  ACTION_SELECTOR: "ACTION_SELECTOR",
-  ARRAY_ACTION_SELECTOR: "ARRAY_ACTION_SELECTOR",
-  SELECTED_TAB: "SELECTED_TAB",
-  DEFAULT_OPTION_VALUE: "DEFAULT_OPTION_VALUE",
-  DEFAULT_SELECTED_ROW: "DEFAULT_SELECTED_ROW",
-  COLUMN_PROPERTIES_ARRAY: "COLUMN_PROPERTIES_ARRAY",
-  LAT_LONG: "LAT_LONG",
-};
+// Always add a validator function in ./worker/validation for these types
+export enum ValidationTypes {
+  TEXT = "TEXT",
+  REGEX = "REGEX",
+  NUMBER = "NUMBER",
+  BOOLEAN = "BOOLEAN",
+  OBJECT = "OBJECT",
+  ARRAY = "ARRAY",
+  OBJECT_ARRAY = "OBJECT_ARRAY",
+  DATE_ISO_STRING = "DATE_ISO_STRING",
+  IMAGE_URL = "IMAGE_URL",
+  FUNCTION = "FUNCTION",
+  SAFE_URL = "SAFE_URL",
+}
 
 export type ValidationResponse = {
   isValid: boolean;
@@ -35,14 +23,13 @@ export type ValidationResponse = {
   transformed?: any;
 };
 
-export type ValidationType = typeof VALIDATION_TYPES[keyof typeof VALIDATION_TYPES];
 export type Validator = (
-  value: any,
-  props: WidgetProps,
-  dataTree?: DataTree,
+  config: ValidationConfig,
+  value: unknown,
+  props: Record<string, unknown>,
 ) => ValidationResponse;
 
-export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.Z";
+export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 
 export const JAVASCRIPT_KEYWORDS = {
   true: "true",

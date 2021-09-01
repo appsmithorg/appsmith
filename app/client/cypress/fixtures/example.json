@@ -89,8 +89,13 @@
   "radioInputName": "Test Radio",
   "checkbocInputName": "value",
   "switchInputName": "Switch1",
+  "multiSelectName": "MultiSelect1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "base64image": {
+    "withoutPrefix": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
+    "withPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg=="
+  },
   "textfun": "{{Table1.selectedRow.userName}}",
   "textfunID": "{{Table1.selectedRow.id}}",
   "textfunemail": "{{Table1.selectedRow.email}}",
@@ -102,10 +107,11 @@
   "AlertModalName": "Alert_Modal",
   "FormModalName": "Form_Modal",
   "TextLabelValue": "Test Text Label",
+  "TextLabelValueScrollable": "Test Text Label to check scroll feature",
   "TextName": "TestTextBox",
-  "TextLabel": "Label",
-  "TextBody": "Body",
-  "TextHeading": "Heading",
+  "TextLabel": "Paragraph",
+  "TextBody": "Heading 2",
+  "TextHeading": "Heading 1",
   "Datepickername": "Datepicker",
   "DatepickerLable": "date",
   "RichTextEditorName": "RichtextEditor",
@@ -120,6 +126,7 @@
   "TableInput": [
     {
       "id": 2381224,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
       "email": "michael.lawson@reqres.in",
       "userName": "Michael Lawson",
       "productName": "Chicken Sandwich",
@@ -127,6 +134,7 @@
     },
     {
       "id": 2736212,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
       "email": "lindsay.ferguson@reqres.in",
       "userName": "Lindsay Ferguson",
       "productName": "Tuna Salad",
@@ -134,6 +142,7 @@
     },
     {
       "id": 6788734,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
       "email": "tobias.funke@reqres.in",
       "userName": "Tobias Funke",
       "productName": "Beef steak",
@@ -141,6 +150,7 @@
     },
     {
       "id": 7434532,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
       "email": "byron.fields@reqres.in",
       "userName": "Byron Fields",
       "productName": "Chicken Sandwich",
@@ -148,6 +158,7 @@
     },
     {
       "id": 7434532,
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
       "email": "ryan.holmes@reqres.in",
       "userName": "Ryan Holmes",
       "productName": "Avocado Panini",
@@ -182,6 +193,76 @@
       "userName": "Michael Lawson",
       "productName": "Chicken Sandwich",
       "orderAmount": 4.99
+    },
+    {
+      "id": 2736212,
+      "email": "lindsay.ferguson@reqres.in",
+      "userName": "Lindsay Ferguson",
+      "productName": "Tuna Salad",
+      "orderAmount": 9.99
+    }
+  ],
+  "ChartCustomConfig": {
+      "type":"column2d",
+      "dataSource":{
+          "chart":{
+            "caption":"Monthly revenue for last year",
+            "subCaption":"Harry's SuperMart",
+            "xAxisName":"Month",
+            "yAxisName":"Revenues (In USD)",
+            "numberPrefix":"$",
+            "theme":"fusion"
+          },
+          "data":[
+            {
+                "label":"Jan",
+                "value":"420000"
+            },
+            {
+                "label":"Feb",
+                "value":"810000"
+            },
+            {
+                "label":"Mar",
+                "value":"720000"
+            },
+            {
+                "label":"Apr",
+                "value":"550000"
+            },
+            {
+                "label":"May",
+                "value":"910000"
+            },
+            {
+                "label":"Jun",
+                "value":"256000"
+            },
+            {
+                "label":"Jul",
+                "value":"512000"
+            }
+          ],
+          "trendlines":[
+            {
+                "line":[
+                  {
+                      "startvalue":"700000",
+                      "valueOnRight":"1",
+                      "displayvalue":"Monthly Target"
+                  }
+                ]
+            }
+          ]
+      }
+    },
+  "TableInputWithNull": [
+    {
+      "id": 2381224,
+      "email": "michael.lawson@reqres.in",
+      "userName": "Michael Lawson",
+      "productName": "Chicken Sandwich",
+      "orderAmount": null
     },
     {
       "id": 2736212,

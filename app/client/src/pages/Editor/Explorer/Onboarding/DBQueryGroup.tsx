@@ -36,7 +36,7 @@ const Wrapper = styled.div`
   padding-top: 25px;
 `;
 
-const DBQueryGroup = (props: any) => {
+function DBQueryGroup(props: any) {
   const pages = useSelector((state: AppState) => {
     return state.entities.pageList.pages;
   });
@@ -44,8 +44,8 @@ const DBQueryGroup = (props: any) => {
   const actions = useActions("");
   const datasources = useFilteredDatasources("");
   const plugins = useSelector(getPlugins);
-  const dbPluginMap = ACTION_PLUGIN_MAP.filter(
-    (plugin) => plugin?.type === PluginType.DB,
+  const dbPluginMap = ACTION_PLUGIN_MAP.filter((plugin) =>
+    plugin?.types.includes(PluginType.DB),
   );
   const addedWidget = useSelector(
     (state: AppState) => state.ui.onBoarding.addedWidget,
@@ -101,6 +101,6 @@ const DBQueryGroup = (props: any) => {
       )}
     </Wrapper>
   );
-};
+}
 
 export default DBQueryGroup;

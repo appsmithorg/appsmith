@@ -10,6 +10,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
+import _ from "lodash";
 
 export const EntityProperties = memo(
   (props: {
@@ -61,8 +62,19 @@ export const EntityProperties = memo(
                 value = "Function";
                 actionProperty = actionProperty + "()";
               }
+              if (actionProperty === "clear") {
+                value = "Function";
+                actionProperty = actionProperty + "()";
+              }
               if (actionProperty === "data") {
-                value = entity.data?.body;
+                if (
+                  _.isEmpty(entity.data) ||
+                  !entity.data.hasOwnProperty("body")
+                ) {
+                  value = "{}";
+                } else {
+                  value = entity.data.body;
+                }
               }
               return {
                 propertyName: actionProperty,
@@ -76,7 +88,10 @@ export const EntityProperties = memo(
       case ENTITY_TYPE.WIDGET:
         const type: Exclude<
           Partial<WidgetType>,
-          "CANVAS_WIDGET" | "ICON_WIDGET" | "SKELETON_WIDGET"
+          | "CANVAS_WIDGET"
+          | "ICON_WIDGET"
+          | "SKELETON_WIDGET"
+          | "TABS_MIGRATOR_WIDGET"
         > = entity.type;
         config = entityDefinitions[type];
         if (!config) {

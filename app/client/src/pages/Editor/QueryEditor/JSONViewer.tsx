@@ -17,6 +17,9 @@ const ResponseContent = styled.div`
 
 const Record = styled(Card)`
   margin: 5px;
+  span.string-value {
+    overflow-wrap: anywhere;
+  }
 `;
 
 type JSONOutputProps = {
@@ -28,7 +31,7 @@ type Props = JSONOutputProps;
 
 class JSONOutput extends React.Component<Props> {
   render() {
-    const { src, collapsed = 1 } = this.props;
+    const { collapsed = 1, src } = this.props;
     const reactJsonProps = {
       name: null,
       enableClipboard: false,

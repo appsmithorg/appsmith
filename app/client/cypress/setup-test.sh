@@ -20,6 +20,7 @@ echo "$APPSMITH_SSL_KEY" > ./docker/dev.appsmith.com-key.pem
 
 echo "Going to run the nginx server"
 sudo docker pull nginx:latest
+sudo docker pull postgres:latest
 
 sudo docker run --network host --name wildcard-nginx -d -p 80:80 -p 443:443 \
 	-v `pwd`/docker/nginx-root.conf:/etc/nginx/nginx.conf \
@@ -34,11 +35,40 @@ sudo docker run --network host --name postgres -d -p 5432:5432 \
  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
  postgres:latest &
 
-echo "Sleeping for 20 seconds to let the servers start"
-sleep 20
+sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
+
+echo "Sleeping for 30 seconds to let the MySQL start"
+sleep 30
+
+sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
+
+
+echo "Sleeping for 30 seconds to let the servers start"
+sleep 30
 
 echo "Checking if the containers have started"
 sudo docker ps -a 
+
+echo "Checking if the server has started"
+status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+
+retry_count=1
+
+while [  "$retry_count" -le "3"  -a  "$status_code" -eq "502"  ]; do
+	echo "Hit 502.Server not started retrying..."
+	retry_count=$((1 + $retry_count))
+	sleep 30
+	status_code=$(curl -o /dev/null -s -w "%{http_code}\n" https://dev.appsmith.com/api/v1/users)
+done
+
+echo "Checking if client and server have started"
+ps -ef |grep java 2>&1 
+ps -ef |grep  serve 2>&1
+
+if [ "$status_code" -eq "502" ]; then
+  echo "Unable to connect to server"
+  exit 1
+fi
 
 # Create the test user 
 curl -k --request POST -v 'https://dev.appsmith.com/api/v1/users' \

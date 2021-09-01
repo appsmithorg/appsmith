@@ -48,6 +48,7 @@ public class LayoutServiceImpl implements LayoutService {
                     }
                     //Adding an Id to the layout to ensure that a layout can be referred to by its ID as well.
                     layout.setId(new ObjectId().toString());
+
                     layoutList.add(layout);
                     page.setLayouts(layoutList);
                     return page;

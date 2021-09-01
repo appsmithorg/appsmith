@@ -1,21 +1,25 @@
 import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
+import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 
 const Wrapper = styled.div`
   display: flex;
 
   div {
-    flex-basis: calc(100% - 110px);
+    flex-basis: calc(100% - 90px);
   }
-  a {
-    flex-basis: 110px;
+  input:disabled {
+    color: #555;
+  }
+  button {
+    flex-basis: 80px;
+    margin-left: 10px;
   }
 `;
 
-const CopyToClipboard = (props: any) => {
+function CopyToClipboard(props: any) {
   const { copyText } = props;
   const copyURLInput = createRef<HTMLInputElement>();
   const [isCopied, setIsCopied] = useState(false);
@@ -35,26 +39,23 @@ const CopyToClipboard = (props: any) => {
   };
   return (
     <Wrapper>
-      <TextInput
+      <BaseTextInput
+        defaultValue={copyText}
+        disabled
         fill
-        ref={copyURLInput}
-        readOnly
         onChange={() => {
           selectText();
         }}
-        defaultValue={copyText}
       />
 
-      <Button
-        text={isCopied ? "Copied" : "Copy"}
-        category={Category.tertiary}
+      <BaseButton
         onClick={() => {
           copyToClipboard(copyText);
         }}
-        size={Size.large}
+        text={isCopied ? "Copied" : "Copy"}
       />
     </Wrapper>
   );
-};
+}
 
 export default CopyToClipboard;

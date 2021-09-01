@@ -1,7 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { connect } from "react-redux";
-import { getCurrentUser } from "actions/authActions";
 import PageHeader from "pages/common/PageHeader";
 import LoginHeader from "pages/common/LoginHeader";
 import { Route, Switch } from "react-router";
@@ -15,9 +13,7 @@ import { withRouter, RouteComponentProps } from "react-router";
 import AppViewerHeader from "pages/AppViewer/viewer/AppViewerHeader";
 import AppEditorHeader from "pages/Editor/EditorHeader";
 
-type Props = {
-  getCurrentUser: () => void;
-} & RouteComponentProps;
+type Props = RouteComponentProps;
 
 const headerRoot = document.getElementById("header-root");
 
@@ -25,7 +21,6 @@ class AppHeader extends React.Component<Props, any> {
   private container = document.createElement("div");
 
   componentDidMount() {
-    this.props.getCurrentUser();
     headerRoot?.appendChild(this.container);
   }
   componentWillUnmount() {
@@ -33,14 +28,12 @@ class AppHeader extends React.Component<Props, any> {
   }
   get header() {
     return (
-      <React.Fragment>
-        <Switch>
-          <Route path={BUILDER_URL} component={AppEditorHeader} />
-          <Route path={APP_VIEW_URL} component={AppViewerHeader} />
-          <Route path={USER_AUTH_URL} component={LoginHeader} />
-          <Route path={BASE_URL} component={PageHeader} />
-        </Switch>
-      </React.Fragment>
+      <Switch>
+        <Route component={AppEditorHeader} path={BUILDER_URL} />
+        <Route component={AppViewerHeader} path={APP_VIEW_URL} />
+        <Route component={LoginHeader} path={USER_AUTH_URL} />
+        <Route component={PageHeader} path={BASE_URL} />
+      </Switch>
     );
   }
   render() {
@@ -48,8 +41,4 @@ class AppHeader extends React.Component<Props, any> {
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getCurrentUser: () => dispatch(getCurrentUser()),
-});
-
-export default withRouter(connect(null, mapDispatchToProps)(AppHeader));
+export default withRouter(AppHeader);

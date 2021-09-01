@@ -16,16 +16,17 @@ import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";
-
+import "./polyfills/corejs-add-on";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 setAutoFreeze(shouldAutoFreeze);
 
 import AppErrorBoundary from "./AppErrorBoundry";
+import GlobalStyles from "globalStyles";
 appInitializer();
 
-const App = () => {
+function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
       <Provider store={store}>
@@ -35,7 +36,7 @@ const App = () => {
       </Provider>
     </Sentry.ErrorBoundary>
   );
-};
+}
 
 class ThemedApp extends React.Component<{
   currentTheme: any;
@@ -50,13 +51,14 @@ class ThemedApp extends React.Component<{
     return (
       <ThemeProvider theme={this.props.currentTheme}>
         <StyledToastContainer
-          hideProgressBar
-          draggable={false}
-          transition={Slide}
           autoClose={5000}
           closeButton={false}
+          draggable={false}
+          hideProgressBar
           pauseOnHover={false}
+          transition={Slide}
         />
+        <GlobalStyles />
         <AppErrorBoundary>
           <AppRouter />
         </AppErrorBoundary>

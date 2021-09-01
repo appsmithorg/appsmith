@@ -1,21 +1,27 @@
 import {
   DependencyMap,
+  EVAL_ERROR_PATH,
+  EvaluationError,
+  getEvalErrorPath,
+  getEvalValuePath,
   isChildPropertyPath,
   isDynamicValue,
-} from "../utils/DynamicBindingUtils";
-import { WidgetType } from "../constants/WidgetConstants";
-import { WidgetProps } from "../widgets/BaseWidget";
-import { WidgetTypeConfigMap } from "../utils/WidgetFactory";
-import { VALIDATORS } from "./validations";
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
+import { validate } from "./validations";
 import { Diff } from "deep-diff";
 import {
   DataTree,
   DataTreeAction,
+  DataTreeAppsmith,
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
-} from "../entities/DataTree/dataTreeFactory";
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { WidgetTypeConfigMap } from "utils/WidgetFactory";
+import { ValidationConfig } from "constants/PropertyControlConstants";
+import { Severity } from "entities/AppsmithConsole";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -29,7 +35,7 @@ export enum DataTreeDiffEvent {
   NOOP = "NOOP",
 }
 
-type DataTreeDiff = {
+export type DataTreeDiff = {
   payload: {
     propertyPath: string;
     value?: string;
@@ -57,14 +63,33 @@ export const convertPathToString = (arrPath: Array<string | number>) => {
 // Todo: improve the logic here
 // Right now NaN, Infinity, floats, everything works
 function isInt(val: string | number): boolean {
-  if (typeof val === "number") return true;
-  return !isNaN(parseInt(val));
+  return Number.isInteger(val) || (_.isString(val) && /^\d+$/.test(val));
+}
+
+// Removes the entity name from the property path
+export function getEntityNameAndPropertyPath(
+  fullPath: string,
+): {
+  entityName: string;
+  propertyPath: string;
+} {
+  const indexOfFirstDot = fullPath.indexOf(".");
+  if (indexOfFirstDot === -1) {
+    // No dot was found so path is the entity name itself
+    return {
+      entityName: fullPath,
+      propertyPath: "",
+    };
+  }
+  const entityName = fullPath.substring(0, indexOfFirstDot);
+  const propertyPath = fullPath.substring(indexOfFirstDot + 1);
+  return { entityName, propertyPath };
 }
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
-): DataTreeDiff => {
-  const result: DataTreeDiff = {
+): DataTreeDiff | DataTreeDiff[] => {
+  let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
       value: "",
@@ -101,25 +126,53 @@ export const translateDiffEventToDataTreeDiffEvent = (
           propertyPath,
           value: difference.rhs,
         };
-      } else {
+      } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
         // old bindings being eligible
-        if (
-          difference.lhs === undefined &&
-          typeof difference.rhs === "object"
-        ) {
+        if (difference.lhs === undefined && isTrueObject(difference.rhs)) {
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
-        if (
-          difference.rhs === undefined &&
-          typeof difference.lhs === "object"
-        ) {
+        if (difference.rhs === undefined && isTrueObject(difference.lhs)) {
           result.event = DataTreeDiffEvent.DELETE;
           result.payload = { propertyPath };
         }
-      }
+      } else if (
+        isTrueObject(difference.lhs) &&
+        !isTrueObject(difference.rhs)
+      ) {
+        // This will happen for static value changes where a property went
+        // from being an object to any other type like string or number
+        // in such a case we want to delete all nested paths of the
+        // original lhs object
 
+        result = Object.keys(difference.lhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.DELETE,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      } else if (
+        !isTrueObject(difference.lhs) &&
+        isTrueObject(difference.rhs)
+      ) {
+        // This will happen for static value changes where a property went
+        // from being any other type like string or number to an object
+        // in such a case we want to add all nested paths of the
+        // new rhs object
+        result = Object.keys(difference.rhs).map((diffKey) => {
+          const path = `${propertyPath}.${diffKey}`;
+          return {
+            event: DataTreeDiffEvent.NEW,
+            payload: {
+              propertyPath: path,
+            },
+          };
+        });
+      }
       break;
     }
     case "A": {
@@ -177,24 +230,30 @@ export function isAction(entity: DataTreeEntity): entity is DataTreeAction {
   );
 }
 
+export function isAppsmithEntity(
+  entity: DataTreeEntity,
+): entity is DataTreeAppsmith {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
+  );
+}
+
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
   } else if (_.isObject(value)) {
-    return JSON.parse(JSON.stringify(value));
+    return JSON.parse(
+      JSON.stringify(value, (_, v) =>
+        typeof v === "bigint" ? v.toString() : v,
+      ),
+    );
   } else {
     return value;
   }
-};
-
-export const removeFunctionsFromDataTree = (dataTree: DataTree) => {
-  dataTree.actionPaths?.forEach((functionPath) => {
-    _.set(dataTree, functionPath, {});
-  });
-  delete dataTree.actionPaths;
-  return dataTree;
 };
 
 export const makeParentsDependOnChildren = (
@@ -252,73 +311,59 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export function validateWidgetProperty(
-  widgetConfigMap: WidgetTypeConfigMap,
-  widgetType: WidgetType,
-  property: string,
-  value: any,
-  props: WidgetProps,
-  dataTree?: DataTree,
+  config: ValidationConfig,
+  value: unknown,
+  props: Record<string, unknown>,
 ) {
-  const propertyValidationTypes = widgetConfigMap[widgetType].validations;
-  const validationTypeOrValidator = propertyValidationTypes[property];
-  let validator;
-
-  if (typeof validationTypeOrValidator === "function") {
-    validator = validationTypeOrValidator;
-  } else {
-    validator = VALIDATORS[validationTypeOrValidator];
+  if (!config) {
+    return {
+      isValid: true,
+      parsed: value,
+    };
   }
-  if (validator) {
-    return validator(value, props, dataTree);
-  } else {
-    return { isValid: true, parsed: value };
-  }
+  return validate(config, value, props);
 }
 
-export function getValidatedTree(
-  widgetConfigMap: WidgetTypeConfigMap,
-  tree: DataTree,
-) {
+export function getValidatedTree(tree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
     if (!isWidget(entity)) {
       return tree;
     }
     const parsedEntity = { ...entity };
-    Object.keys(entity).forEach((property: string) => {
-      const validationProperties = widgetConfigMap[entity.type].validations;
-
-      if (property in validationProperties) {
-        const value = _.get(entity, property);
-        // Pass it through parse
-        const {
-          parsed,
-          isValid,
-          message,
-          transformed,
-        } = validateWidgetProperty(
-          widgetConfigMap,
-          entity.type,
-          property,
-          value,
-          entity,
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { isValid, message, parsed, transformed } = validateWidgetProperty(
+        validation,
+        value,
+        entity,
+      );
+      _.set(parsedEntity, property, parsed);
+      const evaluatedValue = isValid
+        ? parsed
+        : _.isUndefined(transformed)
+        ? value
+        : transformed;
+      const safeEvaluatedValue = removeFunctions(evaluatedValue);
+      _.set(
+        parsedEntity,
+        getEvalValuePath(`${entityKey}.${property}`, false),
+        safeEvaluatedValue,
+      );
+      if (!isValid) {
+        addErrorToEntityProperty(
+          [
+            {
+              errorType: PropertyEvaluationErrorType.VALIDATION,
+              errorMessage: message || "",
+              severity: Severity.ERROR,
+              raw: value,
+            },
+          ],
           tree,
+          getEvalErrorPath(`${entityKey}.${property}`, false),
         );
-        parsedEntity[property] = parsed;
-        const evaluatedValue = isValid
-          ? parsed
-          : _.isUndefined(transformed)
-          ? value
-          : transformed;
-        const safeEvaluatedValue = removeFunctions(evaluatedValue);
-        _.set(parsedEntity, `evaluatedValues.${property}`, safeEvaluatedValue);
-        if (!isValid) {
-          _.set(parsedEntity, `invalidProps.${property}`, true);
-          _.set(parsedEntity, `validationMessages.${property}`, message);
-        } else {
-          _.set(parsedEntity, `invalidProps.${property}`, false);
-          _.set(parsedEntity, `validationMessages.${property}`, "");
-        }
       }
     });
     return { ...tree, [entityKey]: parsedEntity };
@@ -367,4 +412,74 @@ export const trimDependantChangePaths = (
     }
   }
   return trimmedPaths;
+};
+
+export function getSafeToRenderDataTree(
+  tree: DataTree,
+  widgetTypeConfigMap: WidgetTypeConfigMap,
+) {
+  return Object.keys(tree).reduce((tree, entityKey: string) => {
+    const entity = tree[entityKey] as DataTreeWidget;
+    if (!isWidget(entity)) {
+      return tree;
+    }
+    const safeToRenderEntity = { ...entity };
+    // Set user input values to their parsed values
+    Object.entries(entity.validationPaths).forEach(([property, validation]) => {
+      const value = _.get(entity, property);
+      // Pass it through parse
+      const { parsed } = validateWidgetProperty(validation, value, entity);
+      _.set(safeToRenderEntity, property, parsed);
+    });
+    // Set derived values to undefined or else they would go as bindings
+    Object.keys(widgetTypeConfigMap[entity.type].derivedProperties).forEach(
+      (property) => {
+        _.set(safeToRenderEntity, property, undefined);
+      },
+    );
+    return { ...tree, [entityKey]: safeToRenderEntity };
+  }, tree);
+}
+
+export const addErrorToEntityProperty = (
+  errors: EvaluationError[],
+  dataTree: DataTree,
+  path: string,
+) => {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+  const logBlackList = _.get(dataTree, `${entityName}.logBlackList`, {});
+  if (propertyPath && !(propertyPath in logBlackList)) {
+    const existingErrors = _.get(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      [],
+    ) as EvaluationError[];
+    _.set(
+      dataTree,
+      `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`,
+      existingErrors.concat(errors),
+    );
+  }
+  return dataTree;
+};
+
+// For the times when you need to know if something truly an object like { a: 1, b: 2}
+// typeof, lodash.isObject and others will return false positives for things like array, null, etc
+export const isTrueObject = (
+  item: unknown,
+): item is Record<string, unknown> => {
+  return Object.prototype.toString.call(item) === "[object Object]";
+};
+
+export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
+  const [entityName, ...propPathEls] = _.toPath(propertyPath);
+  // Framework feature: Top level items are never leaves
+  if (entityName === propertyPath) return false;
+  // Ignore if this was a delete op
+  if (!(entityName in unEvalTree)) return false;
+
+  const entity = unEvalTree[entityName];
+  if (!isAction(entity) && !isWidget(entity)) return false;
+  const relativePropertyPath = convertPathToString(propPathEls);
+  return relativePropertyPath in entity.bindingPaths;
 };

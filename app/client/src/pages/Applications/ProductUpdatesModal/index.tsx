@@ -69,19 +69,19 @@ const Header = withTheme(
         <Heading>Product Updates</Heading>
         <HeaderRight>
           <ViewInGithubLink
-            target="_blank"
             href="https://github.com/appsmithorg/appsmith/releases"
+            target="_blank"
           >
             View on Github
           </ViewInGithubLink>
           <CloseIconContainer
-            onClick={onClose}
             data-cy="t--product-updates-close-btn"
+            onClick={onClose}
           >
             <CloseIcon
+              color={theme.colors.text.normal as Color}
               height={20}
               width={20}
-              color={theme.colors.text.normal as Color}
             />
           </CloseIconContainer>
         </HeaderRight>
@@ -93,8 +93,8 @@ const Header = withTheme(
   ),
 );
 
-const ProductUpdatesModal = () => {
-  const { releaseItems, newReleasesCount } = useSelector(
+function ProductUpdatesModal() {
+  const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
   const dispatch = useDispatch();
@@ -109,22 +109,22 @@ const ProductUpdatesModal = () => {
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Dialog
-      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
-      width={"580px"}
-      maxHeight={"80vh"}
-      triggerZIndex={Layers.productUpdates}
-      showHeaderUnderline
-      onOpening={onOpening}
-      isOpen={isOpen}
-      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
-      canOutsideClickClose
       canEscapeKeyClose
+      canOutsideClickClose
+      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
+      isOpen={isOpen}
+      maxHeight={"80vh"}
+      onOpening={onOpening}
+      showHeaderUnderline
+      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
+      triggerZIndex={Layers.productUpdates}
+      width={"580px"}
     >
       {releaseItems.map((release: Release, index: number) => (
-        <ReleaseComponent release={release} key={index} />
+        <ReleaseComponent key={index} release={release} />
       ))}
     </Dialog>
   ) : null;
-};
+}
 
 export default ProductUpdatesModal;

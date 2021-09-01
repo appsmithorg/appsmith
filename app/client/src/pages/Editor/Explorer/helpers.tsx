@@ -5,6 +5,10 @@ import {
   QUERIES_EDITOR_ID_URL,
   DATA_SOURCES_EDITOR_ID_URL,
 } from "constants/routes";
+import {
+  SAAS_EDITOR_API_ID_URL,
+  SAAS_EDITOR_DATASOURCE_ID_URL,
+} from "../SaaSEditor/constants";
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
@@ -38,6 +42,12 @@ export const getActionIdFromURL = () => {
   if (match?.params?.queryId) {
     return match.params.queryId;
   }
+  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
+    path: SAAS_EDITOR_API_ID_URL(),
+  });
+  if (saasMatch?.params?.apiId) {
+    return saasMatch.params.apiId;
+  }
 };
 
 export const getQueryIdFromURL = () => {
@@ -55,5 +65,14 @@ export const getDatasourceIdFromURL = () => {
   });
   if (match?.params?.datasourceId) {
     return match.params.datasourceId;
+  }
+  const saasMatch = matchPath<{ datasourceId: string }>(
+    window.location.pathname,
+    {
+      path: SAAS_EDITOR_DATASOURCE_ID_URL(),
+    },
+  );
+  if (saasMatch?.params?.datasourceId) {
+    return saasMatch.params.datasourceId;
   }
 };

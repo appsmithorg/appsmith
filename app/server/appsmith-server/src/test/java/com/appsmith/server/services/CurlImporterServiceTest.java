@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -28,6 +29,7 @@ import reactor.test.StepVerifier;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -51,9 +53,6 @@ public class CurlImporterServiceTest {
 
     @Autowired
     UserService userService;
-
-    @Autowired
-    OrganizationService organizationService;
 
     String orgId;
 
@@ -104,15 +103,38 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testImportAction_EmptyLex() {
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, orgId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction("'", page.getId(), "actionName", orgId);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
         app.setName("curlTest App");
 
         Application application = applicationPageService.createApplication(app, orgId).block();
+        assert application != null;
         PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
 
         String command = "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
+        assert page != null;
         Mono<ActionDTO> action = curlImporterService.importAction(command, page.getId(), "actionName", orgId);
         StepVerifier
                 .create(action)
@@ -639,6 +661,23 @@ public class CurlImporterServiceTest {
     }
 
     @Test
+    public void parseMultiFormData() throws AppsmithException {
+        // In the curl command, we test for a combination of --form and -F
+        // Also some values are double-quoted while some aren't. This tests a permutation of all such fields
+        ActionDTO action = curlImporterService.curlToAction("curl --request POST 'http://httpbin.org/post' -F 'somekey=value' --form 'anotherKey=\"anotherValue\"'");
+        assertMethod(action, HttpMethod.POST);
+        assertUrl(action, "http://httpbin.org");
+        assertPath(action, "/post");
+        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
+        assertEmptyBody(action);
+        assertBodyFormData(
+                action,
+                new Property("somekey", "value"),
+                new Property("anotherKey", "anotherValue")
+        );
+    }
+
+    @Test
     public void dontEatBackslashesInSingleQuotes() throws AppsmithException {
         ActionDTO action = curlImporterService.curlToAction("curl http://httpbin.org/post -d 'a\\n'");
         assertMethod(action, HttpMethod.POST);
@@ -650,6 +689,24 @@ public class CurlImporterServiceTest {
                 action,
                 new Property("a\\n", "")
         );
+    }
+
+    @Test
+    public void importInvalidMethod() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -X invalid-method http://httpbin.org/get");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_METHOD);
+    }
+
+    @Test
+    public void importInvalidHeader() {
+        assertThatThrownBy(() -> {
+            curlImporterService.curlToAction("curl -H x-custom http://httpbin.org/headers");
+        })
+                .isInstanceOf(AppsmithException.class)
+                .matches(err -> ((AppsmithException) err).getError() == AppsmithError.INVALID_CURL_HEADER);
     }
 
     @Test

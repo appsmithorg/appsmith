@@ -1,9 +1,12 @@
 import React, { RefObject, ReactNode, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 import { ComponentProps } from "./BaseComponent";
-import { TabsWidgetProps, TabContainerWidgetProps } from "widgets/TabsWidget";
+import {
+  TabsWidgetProps,
+  TabContainerWidgetProps,
+} from "widgets/Tabs/TabsWidget";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import { getBorderCSSShorthand, scrollbarLight } from "constants/DefaultTheme";
+import ScrollIndicator from "components/ads/ScrollIndicator";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -15,6 +18,7 @@ interface TabsComponentProps extends ComponentProps {
     id: string;
     label: string;
     widgetId: string;
+    isVisible?: boolean;
   }>;
 }
 
@@ -32,14 +36,13 @@ const TabsContainerWrapper = styled.div<{
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+  box-shadow: 0px 0px 0px 1px #e7e7e7;
   border-radius: 0;
-  box-shadow: none;
   overflow: hidden;
 `;
 
 const ChildrenWrapper = styled.div`
-  height: 100%;
+  height: calc(100% - 40px);
   width: 100%;
   position: relative;
   background: ${(props) => props.theme.colors.builderBodyBG};
@@ -60,7 +63,6 @@ const TabsContainer = styled.div`
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  ${scrollbarLight};
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
@@ -108,12 +110,14 @@ const StyledText = styled.div<TabProps>`
   }
 `;
 
-const TabsComponent = (props: TabsComponentProps) => {
+function TabsComponent(props: TabsComponentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { onTabChange, ...remainingProps } = props;
   const tabContainerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
+  const tabsRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!props.shouldScrollContents) {
       tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -122,22 +126,22 @@ const TabsComponent = (props: TabsComponentProps) => {
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {props.shouldShowTabs ? (
-        <TabsContainer>
-          {props.tabs &&
-            props.tabs.map((tab, index) => (
-              <StyledText
-                className={`t--tab-${tab.label}`}
-                onClick={(event: React.MouseEvent<HTMLDivElement>) => {
-                  onTabChange(tab.widgetId);
-                  event.stopPropagation();
-                }}
-                selected={props.selectedTabWidgetId === tab.widgetId}
-                key={index}
-              >
-                {tab.label}
-              </StyledText>
-            ))}
+        <TabsContainer ref={tabsRef}>
+          {props.tabs.map((tab, index) => (
+            <StyledText
+              className={`t--tab-${tab.label}`}
+              key={index}
+              onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+                onTabChange(tab.widgetId);
+                event.stopPropagation();
+              }}
+              selected={props.selectedTabWidgetId === tab.widgetId}
+            >
+              {tab.label}
+            </StyledText>
+          ))}
           <StyledTab />
+          <ScrollIndicator containerRef={tabContainerRef} mode="LIGHT" />
         </TabsContainer>
       ) : (
         undefined
@@ -154,6 +158,6 @@ const TabsComponent = (props: TabsComponentProps) => {
       </ChildrenWrapper>
     </TabsContainerWrapper>
   );
-};
+}
 
 export default TabsComponent;

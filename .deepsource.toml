@@ -1,5 +1,7 @@
 version = 1
 
+test_patterns = ["**/test/**"]
+
 exclude_patterns = [
     "static/**",
     "deploy/**",
@@ -14,6 +16,10 @@ enabled = true
   plugins = ["react"]
   environment = [
     "nodejs",
-    "browser"
+    "browser",
+    "cypress"
   ]
   dialect = "typescript"
+  dependency_file_paths = [
+  '/app/client/'
+  ]

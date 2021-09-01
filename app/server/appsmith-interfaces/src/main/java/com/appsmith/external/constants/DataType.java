@@ -11,5 +11,10 @@ public enum DataType {
     ASCII,
     BINARY,
     BYTES,
-    STRING
+    STRING,
+    NULL,
+    ARRAY,
+    JSON_OBJECT,
+    TIMESTAMP,
+    BSON
 }

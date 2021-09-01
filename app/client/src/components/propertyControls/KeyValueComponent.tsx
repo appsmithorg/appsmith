@@ -12,6 +12,7 @@ import {
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { generateReactKey } from "utils/generators";
+import { Category, Size } from "components/ads/Button";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -48,12 +49,15 @@ function updateOptionValue<T>(
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   padding: 0px 5px;
   position: absolute;
-  right: 22px;
+  right: 4px;
   cursor: pointer;
+  && svg path {
+    fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
+  }
 `;
 
 const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
+  margin-right: 5px;
 `;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
@@ -61,6 +65,10 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   justify-content: flex-start;
   padding-right: 16px;
   width: calc(100% - 10px);
+`;
+
+const StyledBox = styled.div`
+  width: 10px;
 `;
 
 type UpdatePairFunction = (pair: DropdownOption[]) => any;
@@ -140,43 +148,47 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
-          <StyledOptionControlWrapper orientation={"HORIZONTAL"} key={pair.key}>
+          <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
             <StyledOptionControlInputGroup
-              type={"text"}
-              placeholder={"Name"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateKey(index, event.target.value);
-              }}
+              dataType={"text"}
               defaultValue={pair.label}
-            />
-            <StyledOptionControlInputGroup
-              type={"text"}
-              placeholder={"Value"}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                updateValue(index, event.target.value);
+              onChange={(value: string) => {
+                updateKey(index, value);
               }}
+              placeholder={"Name"}
+            />
+            <StyledBox />
+            <StyledInputGroup
+              dataType={"text"}
               defaultValue={pair.value}
+              onChange={(value: string) => {
+                updateValue(index, value);
+              }}
+              placeholder={"Value"}
             />
             <StyledDeleteIcon
               height={20}
-              width={20}
               onClick={() => {
                 deletePair(index);
               }}
+              width={20}
             />
           </StyledOptionControlWrapper>
         );
       })}
+
       <StyledPropertyPaneButton
-        text={props.addLabel || "Option"}
-        icon={"plus"}
-        color={"#FFFFFF"}
-        minimal={true}
+        category={Category.tertiary}
+        icon="plus"
         onClick={addPair}
+        size={Size.medium}
+        tag="button"
+        text={props.addLabel || "Option"}
+        type="button"
       />
-    </React.Fragment>
+    </>
   );
 }

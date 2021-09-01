@@ -36,6 +36,8 @@ export const getIsDuplicatingApplication = (state: AppState) =>
   state.ui.applications.duplicatingApplication;
 export const getIsSavingAppName = (state: AppState) =>
   state.ui.applications.isSavingAppName;
+export const getIsErroredSavingAppName = (state: AppState) =>
+  state.ui.applications.isErrorSavingAppName;
 export const getUserApplicationsOrgs = (state: AppState) => {
   return state.ui.applications.userOrgs;
 };
@@ -141,3 +143,6 @@ export const getIsDeletingApplications = createSelector(
 
 export const getIsSavingOrgInfo = (state: AppState) =>
   state.ui.applications.isSavingOrgInfo;
+
+export const showAppInviteUsersDialogSelector = (state: AppState) =>
+  state.ui.applications.showAppInviteUsersDialog;

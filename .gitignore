@@ -2,3 +2,8 @@
 .idea
 *.iml
 .env
+.vscode/*
+
+# test coverage
+coverage-summary.json
+app/client/cypress/locators/Widgets.json

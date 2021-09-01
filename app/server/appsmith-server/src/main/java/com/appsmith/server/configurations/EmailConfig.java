@@ -22,4 +22,7 @@ public class EmailConfig {
     @Value("${emails.welcome.enabled:true}")
     private boolean isWelcomeEmailEnabled;
 
+    @Value("${mail.support}")
+    private String supportEmailAddress;
+
 }

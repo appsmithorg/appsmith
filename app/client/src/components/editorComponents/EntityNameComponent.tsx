@@ -7,6 +7,7 @@ import {
   FIELD_REQUIRED_ERROR,
   VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
+  createMessage,
 } from "constants/messages";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
@@ -56,11 +57,11 @@ export function validateEntityName(name: string, allNames?: string[]) {
 
   if (!/^[a-zA-Z_][0-9a-zA-Z_]*$/.test(name)) {
     validation.isValid = false;
-    validation.validationMessage += VALID_FUNCTION_NAME_ERROR;
+    validation.validationMessage += createMessage(VALID_FUNCTION_NAME_ERROR);
   }
   if (!name) {
     validation.isValid = false;
-    validation.validationMessage += FIELD_REQUIRED_ERROR;
+    validation.validationMessage += createMessage(FIELD_REQUIRED_ERROR);
   }
 
   if (
@@ -68,7 +69,7 @@ export function validateEntityName(name: string, allNames?: string[]) {
     allNames.findIndex((entityName) => entityName === name) !== -1
   ) {
     validation.isValid = false;
-    validation.validationMessage += UNIQUE_NAME_ERROR;
+    validation.validationMessage += createMessage(UNIQUE_NAME_ERROR);
   }
 
   return validation;
@@ -126,29 +127,29 @@ class EntityNameComponent extends React.Component<
     const { focused } = this.state;
     const {
       isValid,
+      onChange,
+      placeholder,
       validationMessage,
       value,
-      placeholder,
-      onChange,
     } = this.props;
 
     return (
       <ErrorTooltip isOpen={!isValid} message={validationMessage || ""}>
         <InputContainer focused={focused} isValid={isValid}>
           <input
-            value={value}
-            placeholder={placeholder}
+            onBlur={this.onBlur}
             onChange={onChange}
+            onFocus={this.onFocus}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
                 this.onPressEnter(e);
               }
             }}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
+            placeholder={placeholder}
+            value={value}
           />
           {!focused && (
-            <EditPen onClick={this.onFocus} src={Edit} alt="Edit pen" />
+            <EditPen alt="Edit pen" onClick={this.onFocus} src={Edit} />
           )}
         </InputContainer>
       </ErrorTooltip>

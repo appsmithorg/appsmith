@@ -66,11 +66,15 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
     @Override
     public Mono<T> update(ID id, T resource) {
+        return update(id, resource, "id");
+    }
+
+    public Mono<T> update(ID id, T resource, String key) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        Query query = new Query(Criteria.where("id").is(id));
+        Query query = new Query(Criteria.where(key).is(id));
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.

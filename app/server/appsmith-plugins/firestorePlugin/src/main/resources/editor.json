@@ -49,11 +49,49 @@
           ]
         },
         {
-          "label": "Document/Collection Path",
+          "label": "Collection/Document Path",
           "configProperty": "actionConfiguration.path",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
           "initialValue": ""
+        },
+        {
+          "label": "Timestamp Value Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "timestampValuePath",
+          "hidden": true
+        },
+        {
+          "label": "Timestamp Value Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[8].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"checkinLog.timestampKey\", \"auditLog.timestampKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT"]
+          }
+        },
+        {
+          "label": "Delete Key Value Pair Path Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "deleteKeyValuePairPath",
+          "hidden": true
+        },
+        {
+          "label": "Delete Key Value Pair Path (use dot(.) notation to reference nested key e.g. [\"key1.key2\"])",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[9].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "[\"userKey.nestedNamekey\", \"cityKey.nestedPincodeKey\"]",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "IN",
+            "value":  ["GET_DOCUMENT", "GET_COLLECTION", "DELETE_DOCUMENT", "CREATE_DOCUMENT", "ADD_TO_COLLECTION", "SET_DOCUMENT"]
+          }
         },
         {
           "label": "Order By Key",
@@ -63,9 +101,46 @@
           "initialValue": "orderBy"
         },
         {
-          "label": "Order By",
+          "label": "Order By (JSON array of field names to order by)",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "placeholderText": "[\"ascendingField\", \"-descendingField\", \"nestedObj.field\"]",
+          "initialValue": ""
+        },
+        {
+          "label": "Start After Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].key",
           "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "Start After",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[6].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "initialValue": ""
+        },
+        {
+          "label": "End Before Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "limit"
+        },
+        {
+          "label": "End Before",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[7].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -83,7 +158,7 @@
         {
           "label": "Limit Documents",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[2].value",
-          "controlType": "INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "hidden": {
             "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
             "comparison": "NOT_EQUALS",
@@ -92,43 +167,32 @@
           "initialValue": "10"
         },
         {
-          "sectionName": "Query",
-          "id": 2,
-          "children": [
+          "label": "Where Conditions Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
+          "controlType": "INPUT_TEXT",
+          "hidden": true,
+          "initialValue": "whereConditionTuples"
+        },
+        {
+          "label": "Where Conditions",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
+          "controlType": "ARRAY_FIELD",
+          "hidden": {
+            "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "GET_COLLECTION"
+          },
+          "schema": [
             {
-              "label": "Field Path Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldPath"
+              "label": "Path",
+              "key": "path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "key1/nestedKey2"
             },
             {
-              "label": "Where Condition: Field Path (leave emtpy to not apply any conditions)",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[3].value",
-              "controlType": "INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
-            },
-            {
-              "label": "Operator Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "operator"
-            },
-            {
-              "label": "Where Condition: Operator",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[4].value",
+              "label": "Operator",
+              "key": "operator",
               "controlType": "DROP_DOWN",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
               "initialValue": "EQ",
               "options": [
                 {
@@ -166,22 +230,10 @@
               ]
             },
             {
-              "label": "Value Key",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].key",
-              "controlType": "INPUT_TEXT",
-              "hidden": true,
-              "initialValue": "fieldValue"
-            },
-            {
-              "label": "Where Condition: Value",
-              "configProperty": "actionConfiguration.pluginSpecifiedTemplates[5].value",
-              "controlType": "INPUT_TEXT",
-              "hidden": {
-                "path": "actionConfiguration.pluginSpecifiedTemplates[0].value",
-                "comparison": "NOT_EQUALS",
-                "value": "GET_COLLECTION"
-              },
-              "initialValue": ""
+              "label": "Value",
+              "key": "value",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "value"
             }
           ]
         },

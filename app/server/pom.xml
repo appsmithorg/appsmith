@@ -46,6 +46,10 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>2.0.0</version>
             </plugin>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
         </plugins>
 
     </build>
@@ -54,6 +58,7 @@
         <module>appsmith-interfaces</module>
         <module>appsmith-plugins</module>
         <module>appsmith-server</module>
+        <module>appsmith-git</module>
     </modules>
 
 </project>

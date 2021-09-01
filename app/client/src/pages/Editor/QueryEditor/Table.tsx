@@ -1,14 +1,20 @@
 import React from "react";
-import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import { useTable, useFlexLayout } from "react-table";
-import styled from "styled-components";
-import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
-import { getType, Types } from "utils/TypeHelpers";
+import styled, { withTheme } from "styled-components";
+import { FixedSizeList } from "react-window";
+import { useTable, useBlockLayout } from "react-table";
+
 import { Colors } from "constants/Colors";
+import { scrollbarWidth } from "utils/helpers";
+import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
+import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
+import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   data: Record<string, any>[];
+  tableBodyHeight?: number;
+  theme: Theme;
 }
 
 const TABLE_SIZES = {
@@ -16,6 +22,7 @@ const TABLE_SIZES = {
   TABLE_HEADER_HEIGHT: 42,
   ROW_HEIGHT: 40,
   ROW_FONT_SIZE: 14,
+  SCROLL_SIZE: 20,
 };
 
 export const TableWrapper = styled.div`
@@ -41,19 +48,20 @@ export const TableWrapper = styled.div`
     background: ${Colors.ATHENS_GRAY_DARKER};
     display: table;
     width: 100%;
+    height: 100%;
     .thead,
     .tbody {
       overflow: hidden;
     }
     .tbody {
-      overflow-y: scroll;
-      height: 100%;
+      height: calc(100% - ${TABLE_SIZES.COLUMN_HEADER_HEIGHT}px);
       .tr {
         width: 100%;
       }
     }
     .tr {
       overflow: hidden;
+      border-right: 1px solid ${Colors.GEYSER_LIGHT};
       :nth-child(even) {
         background: ${Colors.ATHENS_GRAY_DARKER};
       }
@@ -181,7 +189,7 @@ const renderCell = (props: any) => {
   );
 };
 
-const Table = (props: TableProps) => {
+function Table(props: TableProps) {
   const data = React.useMemo(() => props.data, [props.data]);
   const columns = React.useMemo(() => {
     if (data.length) {
@@ -197,80 +205,117 @@ const Table = (props: TableProps) => {
     return [];
   }, [data]);
 
+  const tableBodyHeightComputed =
+    (props.tableBodyHeight || window.innerHeight) -
+    TABLE_SIZES.COLUMN_HEADER_HEIGHT -
+    props.theme.tabPanelHeight -
+    TABLE_SIZES.SCROLL_SIZE -
+    2 * props.theme.spaces[5]; //top and bottom padding
+
+  const defaultColumn = React.useMemo(
+    () => ({
+      width: 170,
+    }),
+    [],
+  );
+
   const {
-    getTableProps,
     getTableBodyProps,
+    getTableProps,
     headerGroups,
-    rows,
     prepareRow,
+    rows,
+    totalColumnsWidth,
   } = useTable(
     {
       columns,
       data,
       manualPagination: true,
+      defaultColumn,
     },
-    useFlexLayout,
+    useBlockLayout,
   );
 
-  if (rows.length === 0 || headerGroups.length === 0) return null;
+  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+
+  const RenderRow = React.useCallback(
+    ({ index, style }) => {
+      const row = rows[index];
+
+      prepareRow(row);
+      return (
+        <div
+          {...row.getRowProps({
+            style,
+          })}
+          className="tr"
+        >
+          {row.cells.map((cell: any, cellIndex: number) => {
+            return (
+              <div key={cellIndex} {...cell.getCellProps()} className="td">
+                <CellWrapper>{cell.render("Cell")}</CellWrapper>
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    [prepareRow, rows],
+  );
+
+  if (rows.length === 0 || headerGroups.length === 0)
+    return <span>No data records to show</span>;
 
   return (
     <ErrorBoundary>
       <TableWrapper>
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
-            {headerGroups.map((headerGroup: any, index: number) => (
-              <div
-                key={index}
-                {...headerGroup.getHeaderGroupProps()}
-                className="tr"
-              >
-                {headerGroup.headers.map((column: any, columnIndex: number) => (
-                  <div
-                    key={columnIndex}
-                    {...column.getHeaderProps()}
-                    className="th header-reorder"
-                  >
-                    <div
-                      className={
-                        !column.isHidden ? "draggable-header" : "hidden-header"
-                      }
-                    >
-                      {column.render("Header")}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-            <div {...getTableBodyProps()} className="tbody">
-              {rows.map((row: any, index: number) => {
-                prepareRow(row);
-                return (
-                  <div key={index} {...row.getRowProps()} className={"tr"}>
-                    {row.cells.map((cell: any, cellIndex: number) => {
-                      return (
+            <div>
+              {headerGroups.map((headerGroup: any, index: number) => (
+                <div
+                  key={index}
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="tr"
+                >
+                  {headerGroup.headers.map(
+                    (column: any, columnIndex: number) => (
+                      <div
+                        key={columnIndex}
+                        {...column.getHeaderProps()}
+                        className="th header-reorder"
+                      >
                         <div
-                          key={cellIndex}
-                          {...cell.getCellProps()}
-                          className="td"
-                          data-rowindex={index}
-                          data-colindex={cellIndex}
+                          className={
+                            !column.isHidden
+                              ? "draggable-header"
+                              : "hidden-header"
+                          }
                         >
-                          <CellWrapper isHidden={false}>
-                            {cell.render("Cell")}
-                          </CellWrapper>
+                          {column.render("Header")}
                         </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
+                      </div>
+                    ),
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div {...getTableBodyProps()} className="tbody">
+              <FixedSizeList
+                height={tableBodyHeightComputed || window.innerHeight}
+                itemCount={rows.length}
+                itemSize={35}
+                width={totalColumnsWidth + scrollBarSize}
+              >
+                {RenderRow}
+              </FixedSizeList>
             </div>
           </div>
         </div>
       </TableWrapper>
     </ErrorBoundary>
   );
-};
+}
 
-export default Table;
+export default withTheme(Table);

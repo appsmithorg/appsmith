@@ -18,6 +18,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxAction,
+  WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 
 import {
@@ -28,12 +29,11 @@ import {
   getWidgetMetaProps,
 } from "sagas/selectors";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  resetChildrenMetaProperty,
-  updateWidgetMetaProperty,
-} from "actions/metaActions";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 import { focusWidget } from "actions/widgetActions";
+import log from "loglevel";
 import { flatten } from "lodash";
+import AppsmithConsole from "utils/AppsmithConsole";
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
   try {
@@ -52,7 +52,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       tabId: "",
     };
     yield put({
-      type: ReduxActionTypes.WIDGET_ADD_CHILD,
+      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
       payload: props,
     });
 
@@ -61,7 +61,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
       payload: { modalId: modalWidgetId },
     });
   } catch (error) {
-    console.log(error);
+    log.error(error);
     yield put({
       type: ReduxActionErrorTypes.CREATE_MODAL_ERROR,
       payload: { error },
@@ -80,11 +80,28 @@ export function* showModalByNameSaga(
       widget.widgetName === action.payload.modalName,
   );
   if (modal) {
+    AppsmithConsole.info({
+      text: action.payload.modalName
+        ? `showModal('${action.payload.modalName}') was triggered`
+        : `showModal() was triggered`,
+    });
+
     yield put({
       type: ReduxActionTypes.SHOW_MODAL,
       payload: {
         modalId: modal.widgetId,
       },
+    });
+  }
+}
+
+export function* showIfModalSaga(
+  action: ReduxAction<{ widgetId: string; type: string }>,
+) {
+  if (action.payload.type === "MODAL_WIDGET") {
+    yield put({
+      type: ReduxActionTypes.SHOW_MODAL,
+      payload: { modalId: action.payload.widgetId },
     });
   }
 }
@@ -100,7 +117,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   });
 
   yield put({
-    type: ReduxActionTypes.SELECT_WIDGET,
+    type: ReduxActionTypes.SELECT_WIDGET_INIT,
     payload: { widgetId: action.payload.modalId },
   });
   yield put(focusWidget(action.payload.modalId));
@@ -167,14 +184,13 @@ export function* closeModalSaga(
           widgetIds.map((widgetId: string) => {
             return [
               put(updateWidgetMetaProperty(widgetId, "isVisible", false)),
-              put(resetChildrenMetaProperty(widgetId)),
             ];
           }),
         ),
       );
     }
   } catch (error) {
-    console.log(error);
+    log.error(error);
   }
 }
 
@@ -184,5 +200,6 @@ export default function* modalSagas() {
     takeLatest(ReduxActionTypes.CREATE_MODAL_INIT, createModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL, showModalSaga),
     takeLatest(ReduxActionTypes.SHOW_MODAL_BY_NAME, showModalByNameSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_CHILD_ADDED, showIfModalSaga),
   ]);
 }

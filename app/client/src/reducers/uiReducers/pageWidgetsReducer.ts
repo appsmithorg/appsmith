@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
-import { DSL } from "./pageCanvasStructure";
+import { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
@@ -13,6 +13,9 @@ export interface PageWidgetsReduxState {
 const initalState: PageWidgetsReduxState = {};
 
 const pageWidgetsReducer = createImmerReducer(initalState, {
+  // Reducer to clear all pageWidgets before finishing creating
+  // a new application
+  [ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST]: () => ({}),
   [ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS]: (
     state: PageWidgetsReduxState,
     action: ReduxAction<Array<{ pageId: string; dsl: DSL }>>,

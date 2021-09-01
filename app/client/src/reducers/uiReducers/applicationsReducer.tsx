@@ -6,21 +6,30 @@ import {
   ApplicationPayload,
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
-import { ERROR_MESSAGE_CREATE_APPLICATION } from "constants/messages";
+import {
+  createMessage,
+  ERROR_MESSAGE_CREATE_APPLICATION,
+} from "constants/messages";
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
   isSavingAppName: false,
+  isErrorSavingAppName: false,
   isFetchingApplication: false,
   isChangingViewAccess: false,
   applicationList: [],
   creatingApplication: {},
   deletingApplication: false,
+  forkingApplication: false,
   duplicatingApplication: false,
   userOrgs: [],
   isSavingOrgInfo: false,
+  importingApplication: false,
+  importedApplication: null,
+  showAppInviteUsersDialog: false,
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -58,7 +67,7 @@ const applicationsReducer = createReducer(initialState, {
       deletingApplication: false,
     };
   },
-  [ReduxActionTypes.DELETE_APPLICATION_ERROR]: (
+  [ReduxActionErrorTypes.DELETE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
     return { ...state, deletingApplication: false };
@@ -114,6 +123,16 @@ const applicationsReducer = createReducer(initialState, {
       name: action.payload,
     },
   }),
+  [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ appLayout: AppLayoutConfig }>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      appLayout: action.payload,
+    },
+  }),
   [ReduxActionTypes.CREATE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
     action: ReduxAction<CreateApplicationFormValues>,
@@ -162,7 +181,62 @@ const applicationsReducer = createReducer(initialState, {
     return {
       ...state,
       creatingApplication: updatedCreatingApplication,
-      createApplicationError: ERROR_MESSAGE_CREATE_APPLICATION,
+      createApplicationError: createMessage(ERROR_MESSAGE_CREATE_APPLICATION),
+    };
+  },
+  [ReduxActionTypes.FORK_APPLICATION_INIT]: (state: ApplicationsReduxState) => {
+    return { ...state, forkingApplication: true };
+  },
+  [ReduxActionTypes.FORK_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ orgId: string; application: ApplicationPayload }>,
+  ) => {
+    const _organizations = state.userOrgs.map((org: Organization) => {
+      if (org.organization.id === action.payload.orgId) {
+        const applications = org.applications;
+        org.applications = [...applications, action.payload.application];
+        return {
+          ...org,
+        };
+      }
+      return org;
+    });
+
+    return {
+      ...state,
+      forkingApplication: false,
+      applicationList: [...state.applicationList, action.payload.application],
+      userOrgs: _organizations,
+    };
+  },
+  [ReduxActionErrorTypes.FORK_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      forkingApplication: false,
+    };
+  },
+  [ReduxActionTypes.IMPORT_APPLICATION_INIT]: (
+    state: ApplicationsReduxState,
+  ) => ({ ...state, importingApplication: true }),
+  [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<{ importedApplication: any }>,
+  ) => {
+    const { importedApplication } = action.payload;
+    return {
+      ...state,
+      importingApplication: false,
+      importedApplication,
+    };
+  },
+  [ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      importingApplication: false,
     };
   },
   [ReduxActionTypes.SAVING_ORG_INFO]: (state: ApplicationsReduxState) => {
@@ -198,7 +272,7 @@ const applicationsReducer = createReducer(initialState, {
       isSavingOrgInfo: false,
     };
   },
-  [ReduxActionTypes.SAVE_ORG_ERROR]: (state: ApplicationsReduxState) => {
+  [ReduxActionErrorTypes.SAVE_ORG_ERROR]: (state: ApplicationsReduxState) => {
     return {
       ...state,
       isSavingOrgInfo: false,
@@ -228,7 +302,7 @@ const applicationsReducer = createReducer(initialState, {
       applicationList: [...state.applicationList, action.payload],
     };
   },
-  [ReduxActionTypes.DUPLICATE_APPLICATION_ERROR]: (
+  [ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
     return { ...state, duplicatingApplication: false };
@@ -241,6 +315,18 @@ const applicationsReducer = createReducer(initialState, {
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    return {
+      ...state,
+      isSavingAppName: isSavingAppName,
+      isErrorSavingAppName: false,
+    };
+  },
+  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<UpdateApplicationRequest>,
+  ) => {
+    // userOrgs data has to be saved to localStorage only if the action is successful
+    // It introduces bug if we prematurely save it during init action.
     const { id, ...rest } = action.payload;
     const _organizations = state.userOrgs.map((org: Organization) => {
       const appIndex = org.applications.findIndex((app) => app.id === id);
@@ -254,26 +340,28 @@ const applicationsReducer = createReducer(initialState, {
 
       return org;
     });
-
     return {
       ...state,
       userOrgs: _organizations,
-      isSavingAppName: isSavingAppName,
+      isSavingAppName: false,
+      isErrorSavingAppName: false,
     };
-  },
-  [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, isSavingAppName: false };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: false };
+    return { ...state, isSavingAppName: false, isErrorSavingAppName: true };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
   ) => ({ ...state, currentApplication: null }),
+  [ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    showAppInviteUsersDialog: action.payload,
+  }),
 });
 
 export type creatingApplicationMap = Record<string, boolean>;
@@ -283,15 +371,20 @@ export interface ApplicationsReduxState {
   searchKeyword?: string;
   isFetchingApplications: boolean;
   isSavingAppName: boolean;
+  isErrorSavingAppName: boolean;
   isFetchingApplication: boolean;
   isChangingViewAccess: boolean;
   creatingApplication: creatingApplicationMap;
   createApplicationError?: string;
   deletingApplication: boolean;
+  forkingApplication: boolean;
   duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
+  importingApplication: boolean;
+  importedApplication: any;
+  showAppInviteUsersDialog: boolean;
 }
 
 export interface Application {
@@ -301,7 +394,6 @@ export interface Application {
   isPublic: boolean;
   appIsExample: boolean;
   new: boolean;
-  pageCount: number;
   defaultPageId: string;
   pages: Array<{ id: string; isDefault: boolean; default: boolean }>;
   userPermissions: string[];

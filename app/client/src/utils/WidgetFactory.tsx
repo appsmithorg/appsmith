@@ -5,20 +5,17 @@ import {
   WidgetDataProps,
   WidgetState,
 } from "widgets/BaseWidget";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "./WidgetValidation";
 import React from "react";
 import {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
+  ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { generateReactKey } from "./generators";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
-export type TriggerPropertiesMap = Record<string, true | RegExp[]>;
 
 // TODO (abhinav): To enforce the property pane config structure in this function
 // Throw an error if the config is not of the desired format.
@@ -45,14 +42,55 @@ const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
     return sectionOrControlConfig;
   });
 };
+
+function validatePropertyPaneConfig(config: PropertyPaneConfig[]) {
+  return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
+    if (sectionOrControlConfig.children) {
+      sectionOrControlConfig.children = sectionOrControlConfig.children.map(
+        validatePropertyControl,
+      );
+    }
+    return sectionOrControlConfig;
+  });
+}
+
+function validatePropertyControl(
+  config: PropertyPaneConfig,
+): PropertyPaneConfig {
+  const _config = config as PropertyPaneControlConfig;
+  if (_config.validation !== undefined) {
+    _config.validation = validateValidationStructure(_config.validation);
+  }
+  if (_config.children) {
+    _config.children = _config.children.map(validatePropertyControl);
+  }
+  return _config;
+}
+
+function validateValidationStructure(
+  config: ValidationConfig,
+): ValidationConfig {
+  // Todo(abhinav): This only checks for top level params. Throwing nothing here.
+  if (
+    config.type === ValidationTypes.FUNCTION &&
+    config.params &&
+    config.params.fn
+  ) {
+    config.params.fnString = config.params.fn.toString();
+    if (!config.params.expected)
+      console.error(
+        `Error in configuration ${JSON.stringify(config)}: For a ${
+          ValidationTypes.FUNCTION
+        } type validation, expected type and example are mandatory`,
+      );
+    delete config.params.fn;
+  }
+  return config;
+}
 class WidgetFactory {
   static widgetMap: Map<
     WidgetType,
     WidgetBuilder<WidgetProps, WidgetState>
-  > = new Map();
-  static widgetPropValidationMap: Map<
-    WidgetType,
-    WidgetPropertyValidationType
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
@@ -61,10 +99,6 @@ class WidgetFactory {
   static derivedPropertiesMap: Map<
     WidgetType,
     DerivedPropertiesMap
-  > = new Map();
-  static triggerPropertiesMap: Map<
-    WidgetType,
-    TriggerPropertiesMap
   > = new Map();
   static defaultPropertiesMap: Map<
     WidgetType,
@@ -79,25 +113,26 @@ class WidgetFactory {
   static registerWidgetBuilder(
     widgetType: WidgetType,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
-    widgetPropertyValidation: WidgetPropertyValidationType,
     derivedPropertiesMap: DerivedPropertiesMap,
-    triggerPropertiesMap: TriggerPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
   ) {
     this.widgetMap.set(widgetType, widgetBuilder);
-    this.widgetPropValidationMap.set(widgetType, widgetPropertyValidation);
     this.derivedPropertiesMap.set(widgetType, derivedPropertiesMap);
-    this.triggerPropertiesMap.set(widgetType, triggerPropertiesMap);
     this.defaultPropertiesMap.set(widgetType, defaultPropertiesMap);
     this.metaPropertiesMap.set(widgetType, metaPropertiesMap);
 
-    propertyPaneConfig &&
+    if (propertyPaneConfig) {
+      const validatedPropertyPaneConfig = validatePropertyPaneConfig(
+        propertyPaneConfig,
+      );
+
       this.propertyPaneConfigsMap.set(
         widgetType,
-        Object.freeze(addPropertyConfigIds(propertyPaneConfig)),
+        Object.freeze(addPropertyConfigIds(validatedPropertyPaneConfig)),
       );
+    }
   }
 
   static createWidget(
@@ -129,34 +164,12 @@ class WidgetFactory {
     return Array.from(this.widgetMap.keys());
   }
 
-  static getWidgetPropertyValidationMap(
-    widgetType: WidgetType,
-  ): WidgetPropertyValidationType {
-    const map = this.widgetPropValidationMap.get(widgetType);
-    if (!map) {
-      console.error("Widget type validation is not defined");
-      return BASE_WIDGET_VALIDATION;
-    }
-    return map;
-  }
-
   static getWidgetDerivedPropertiesMap(
     widgetType: WidgetType,
   ): DerivedPropertiesMap {
     const map = this.derivedPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget type validation is not defined");
-      return {};
-    }
-    return map;
-  }
-
-  static getWidgetTriggerPropertiesMap(
-    widgetType: WidgetType,
-  ): TriggerPropertiesMap {
-    const map = this.triggerPropertiesMap.get(widgetType);
-    if (!map) {
-      console.error("Widget trigger map is not defined");
       return {};
     }
     return map;
@@ -175,7 +188,7 @@ class WidgetFactory {
 
   static getWidgetMetaPropertiesMap(
     widgetType: WidgetType,
-  ): Record<string, any> {
+  ): Record<string, string> {
     const map = this.metaPropertiesMap.get(widgetType);
     if (!map) {
       console.error("Widget meta properties not defined: ", widgetType);
@@ -199,10 +212,8 @@ class WidgetFactory {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
-        validations: WidgetFactory.getWidgetPropertyValidationMap(type),
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
         derivedProperties: WidgetFactory.getWidgetDerivedPropertiesMap(type),
-        triggerProperties: WidgetFactory.getWidgetTriggerPropertiesMap(type),
         metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
       };
     });
@@ -213,11 +224,9 @@ class WidgetFactory {
 export type WidgetTypeConfigMap = Record<
   string,
   {
-    validations: WidgetPropertyValidationType;
-    derivedProperties: WidgetDerivedPropertyType;
-    triggerProperties: TriggerPropertiesMap;
     defaultProperties: Record<string, string>;
     metaProperties: Record<string, any>;
+    derivedProperties: WidgetDerivedPropertyType;
   }
 >;
 

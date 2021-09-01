@@ -9,7 +9,7 @@
           "configProperty": "datasourceConfiguration.url",
           "controlType": "INPUT_TEXT",
           "isRequired": true,
-          "placeholder": "https://your-project-id.firebaseio.com"
+          "placeholderText": "https://your-project-id.firebaseio.com"
         },
         {
           "label": "Project Id",

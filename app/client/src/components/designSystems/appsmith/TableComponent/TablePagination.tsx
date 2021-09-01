@@ -17,14 +17,14 @@ function PagerIcon(props: {
   return (
     <Icon
       className={props.className}
+      icon={props.icon}
+      iconSize={14}
+      onClick={props.onClick as any}
       style={{
         padding: 14,
         marginTop: 5,
       }}
-      icon={props.icon}
-      iconSize={14}
-      onClick={props.onClick as any}
-    ></Icon>
+    />
   );
 }
 interface PagerProps {
@@ -46,14 +46,14 @@ export function TablePagination(props: PagerProps) {
     <PagerContainer className={"e-control e-pager e-lib"}>
       <PageWrapper>
         <PagerIcon
-          icon={"chevron-left"}
-          onClick={props.prevPageClick}
           className={
             props.pageNo <= 1
               ? "e-prev e-icons e-icon-prev e-prevpagedisabled e-disable"
               : "e-prev e-icons e-icon-prev e-prevpage"
           }
-        ></PagerIcon>
+          icon={"chevron-left"}
+          onClick={props.prevPageClick}
+        />
         <div
           className={"e-numericcontainer"}
           style={{
@@ -71,7 +71,7 @@ export function TablePagination(props: PagerProps) {
           className={"e-next e-icons e-icon-next e-nextpage"}
           icon={"chevron-right"}
           onClick={props.nextPageClick}
-        ></PagerIcon>
+        />
       </PageWrapper>
     </PagerContainer>
   );

@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useRef,
   forwardRef,
+  useCallback,
 } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -15,10 +16,13 @@ import { useEntityUpdateState, useEntityEditState } from "../hooks";
 import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
+import { useDispatch } from "react-redux";
 import useClick from "utils/hooks/useClick";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
+  RIGHT_ICON = "entity-right-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -34,9 +38,15 @@ export const EntityItem = styled.div<{
   active: boolean;
   step: number;
   spaced: boolean;
+  highlight: boolean;
+  rightIconClickable?: boolean;
+  alwaysShowRightIcon?: boolean;
 }>`
   position: relative;
+  border-top: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
+  border-bottom: ${(props) => (props.highlight ? "1px solid #e7e7e7" : "none")};
   font-size: 12px;
+  user-select: none;
   padding-left: ${(props) =>
     props.step * props.theme.spaces[2] + props.theme.spaces[2]}px;
   background: ${(props) => (props.active ? Colors.TUNDORA : "none")};
@@ -44,7 +54,7 @@ export const EntityItem = styled.div<{
   width: 100%;
   display: inline-grid;
   grid-template-columns: ${(props) =>
-    props.spaced ? "20px auto 1fr 30px" : "8px auto 1fr 30px"};
+    props.spaced ? "20px auto 1fr auto 30px" : "8px auto 1fr auto 30px"};
   border-radius: 0;
   color: ${(props) => (props.active ? Colors.WHITE : Colors.ALTO)};
   cursor: pointer;
@@ -71,6 +81,29 @@ export const EntityItem = styled.div<{
   &&&&:hover .${EntityClassNames.CONTEXT_MENU} {
     visibility: visible;
   }
+
+  & .${EntityClassNames.RIGHT_ICON} {
+    visibility: ${(props) =>
+      props.alwaysShowRightIcon ? "visible" : "hidden"};
+    height: 30px;
+    width: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & .${EntityClassNames.RIGHT_ICON}:hover {
+    background: ${(props) =>
+      props.rightIconClickable ? Colors.SHARK2 : "initial"};
+  }
+
+  & .${EntityClassNames.RIGHT_ICON} svg {
+    cursor: ${(props) => (props.rightIconClickable ? "pointer" : "initial")};
+  }
+
+  &:hover .${EntityClassNames.RIGHT_ICON} {
+    visibility: visible;
+  }
 `;
 
 const IconWrapper = styled.span`
@@ -82,9 +115,11 @@ export type EntityProps = {
   className?: string;
   name: string;
   children?: ReactNode;
+  highlight?: boolean;
   icon: ReactNode;
+  rightIcon?: ReactNode;
   disabled?: boolean;
-  action?: () => void;
+  action?: (e: any) => void;
   active?: boolean;
   isDefaultExpanded?: boolean;
   onCreate?: () => void;
@@ -95,6 +130,8 @@ export type EntityProps = {
   runActionOnExpand?: boolean;
   onNameEdit?: (input: string, limit?: number) => string;
   onToggle?: (isOpen: boolean) => void;
+  alwaysShowRightIcon?: boolean;
+  onClickRightIcon?: () => void;
 };
 
 export const Entity = forwardRef(
@@ -102,6 +139,7 @@ export const Entity = forwardRef(
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
+    const dispatch = useDispatch();
 
     /* eslint-disable react-hooks/exhaustive-deps */
     useEffect(() => {
@@ -117,11 +155,11 @@ export const Entity = forwardRef(
     }, [props.searchKeyword]);
     /* eslint-enable react-hooks/exhaustive-deps */
 
-    const toggleChildren = () => {
+    const toggleChildren = (e: any) => {
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
       if (props.runActionOnExpand && !isOpen) {
-        props.action && props.action();
+        props.action && props.action(e);
       }
 
       if (props.onToggle) {
@@ -135,10 +173,28 @@ export const Entity = forwardRef(
       );
     };
 
-    const handleClick = () => {
-      if (props.action) props.action();
-      else toggleChildren();
+    const handleClick = (e: any) => {
+      if (props.action) props.action(e);
+      else toggleChildren(e);
     };
+
+    const exitEditMode = useCallback(() => {
+      dispatch({
+        type: ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT,
+      });
+    }, [dispatch]);
+
+    const enterEditMode = useCallback(
+      () =>
+        props.updateEntityName &&
+        dispatch({
+          type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
+          payload: {
+            id: props.entityId,
+          },
+        }),
+      [dispatch, props.entityId, props.updateEntityName],
+    );
 
     const itemRef = useRef<HTMLDivElement | null>(null);
     useClick(itemRef, handleClick, noop);
@@ -151,35 +207,49 @@ export const Entity = forwardRef(
       >
         <EntityItem
           active={!!props.active}
-          step={props.step}
+          alwaysShowRightIcon={props.alwaysShowRightIcon}
+          className={`${props.highlight ? "highlighted" : ""} ${
+            props.active ? "active" : ""
+          }`}
+          highlight={!!props.highlight}
+          rightIconClickable={typeof props.onClickRightIcon === "function"}
           spaced={!!props.children}
+          step={props.step}
         >
           <CollapseToggle
+            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
+            disabled={!!props.disabled}
             isOpen={isOpen}
             isVisible={!!props.children}
             onClick={toggleChildren}
-            disabled={!!props.disabled}
-            className={`${EntityClassNames.COLLAPSE_TOGGLE}`}
           />
           <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
           <EntityName
-            entityId={props.entityId}
             className={`${EntityClassNames.NAME}`}
-            ref={itemRef}
+            enterEditMode={enterEditMode}
+            entityId={props.entityId}
+            exitEditMode={exitEditMode}
+            isEditing={!!props.updateEntityName && isEditing}
             name={props.name}
             nameTransformFn={props.onNameEdit}
-            isEditing={!!props.updateEntityName && isEditing}
-            updateEntityName={updateNameCallback}
+            ref={itemRef}
             searchKeyword={props.searchKeyword}
+            updateEntityName={updateNameCallback}
           />
+          <IconWrapper
+            className={EntityClassNames.RIGHT_ICON}
+            onClick={props.onClickRightIcon}
+          >
+            {props.rightIcon}
+          </IconWrapper>
           <AddButton
-            onClick={props.onCreate}
             className={`${EntityClassNames.ADD_BUTTON}`}
+            onClick={props.onCreate}
           />
           {props.contextMenu}
           <Loader isVisible={isUpdating} />
         </EntityItem>
-        <Collapse step={props.step} isOpen={isOpen} active={props.active}>
+        <Collapse active={props.active} isOpen={isOpen} step={props.step}>
           {props.children}
         </Collapse>
       </Wrapper>

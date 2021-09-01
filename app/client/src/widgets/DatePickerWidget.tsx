@@ -1,21 +1,151 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "components/designSystems/blueprint/DatePickerComponent";
 import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  DerivedPropertiesMap,
-  TriggerPropertiesMap,
-} from "utils/WidgetFactory";
+  ISO_DATE_FORMAT,
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
 import moment from "moment";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
+function defaultDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
+): ValidationResponse {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+  if (value === null) {
+    return {
+      isValid: true,
+      parsed: "",
+      message: "",
+    };
+  }
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message: `This value does not evaluate to type: Date ${dateFormat}`,
+    };
+  }
+
+  const isValid = moment(value as string, dateFormat).isValid();
+
+  return {
+    isValid,
+    parsed: isValid ? value : "",
+    message:
+      isValid === false
+        ? `Value does not match ISO 8601 standard date string`
+        : "",
+  };
+}
+
+function minDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
+): ValidationResponse {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message:
+        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+    };
+  }
+  const parsedMinDate = moment(value as string, dateFormat);
+  let isValid = parsedMinDate.isValid();
+
+  if (!props.defaultDate) {
+    return {
+      isValid: isValid,
+      parsed: value,
+      message: "",
+    };
+  }
+  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+  if (
+    isValid &&
+    parsedDefaultDate.isValid() &&
+    parsedDefaultDate.isBefore(parsedMinDate)
+  ) {
+    isValid = false;
+  }
+  if (!isValid) {
+    return {
+      isValid: isValid,
+      parsed: "",
+      message:
+        `Value does not match: Date String ` + (dateFormat ? dateFormat : ""),
+    };
+  }
+  return {
+    isValid: isValid,
+    parsed: value,
+    message: "",
+  };
+}
+
+function maxDateValidation(
+  value: unknown,
+  props: DatePickerWidgetProps,
+  _?: any,
+  moment?: any,
+): ValidationResponse {
+  const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+  if (value === undefined) {
+    return {
+      isValid: false,
+      parsed: "",
+      message:
+        `Value does not match type: Date String ` +
+        (dateFormat ? dateFormat : ""),
+    };
+  }
+  const parsedMaxDate = moment(value as string, dateFormat);
+  let isValid = parsedMaxDate.isValid();
+  if (!props.defaultDate) {
+    return {
+      isValid: isValid,
+      parsed: value,
+      message: "",
+    };
+  }
+  const parsedDefaultDate = moment(props.defaultDate, dateFormat);
+
+  if (
+    isValid &&
+    parsedDefaultDate.isValid() &&
+    parsedDefaultDate.isAfter(parsedMaxDate)
+  ) {
+    isValid = false;
+  }
+  if (!isValid) {
+    return {
+      isValid: isValid,
+      parsed: "",
+      message:
+        `Value does not match type: Date String ` +
+        (dateFormat ? dateFormat : ""),
+    };
+  }
+  return {
+    isValid: isValid,
+    parsed: value,
+    message: "",
+  };
+}
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -32,6 +162,18 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            dependencies: ["dateFormat"],
           },
           {
             helpText: "Sets the format of the selected date",
@@ -63,6 +205,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             ],
             isBindProperty: true,
             isTriggerProperty: false,
+            dateFormat: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -72,6 +215,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -81,6 +225,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -90,6 +235,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "minDate",
@@ -99,6 +245,18 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            dependencies: ["dateFormat", "defaultDate"],
           },
           {
             propertyName: "maxDate",
@@ -108,6 +266,18 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: maxDateValidation,
+                expected: {
+                  type: "ISO 8601 string",
+                  example: moment().toISOString(),
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+            dependencies: ["dateFormat", "defaultDate"],
           },
         ],
       },
@@ -126,33 +296,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      defaultDate: VALIDATION_TYPES.DEFAULT_DATE,
-      timezone: VALIDATION_TYPES.TEXT,
-      enableTimePicker: VALIDATION_TYPES.BOOLEAN,
-      dateFormat: VALIDATION_TYPES.TEXT,
-      label: VALIDATION_TYPES.TEXT,
-      datePickerType: VALIDATION_TYPES.TEXT,
-      maxDate: VALIDATION_TYPES.MAX_DATE,
-      minDate: VALIDATION_TYPES.MIN_DATE,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onDateSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-      // onDateRangeSelected: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
       value: `{{ this.selectedDate }}`,
-    };
-  }
-
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onDateSelected: true,
     };
   }
 
@@ -198,22 +346,23 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   getPageView() {
     return (
       <DatePickerComponent
-        label={`${this.props.label}`}
         dateFormat={this.props.dateFormat}
-        widgetId={this.props.widgetId}
-        isDisabled={this.props.isDisabled}
         datePickerType={"DATE_PICKER"}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading}
+        label={`${this.props.label}`}
+        maxDate={this.props.maxDate}
+        minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.selectedDate}
-        isLoading={this.props.isLoading}
-        minDate={this.props.minDate}
-        maxDate={this.props.maxDate}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onDateSelected = (selectedDate: string) => {
     this.props.updateWidgetMetaProperty("selectedDate", selectedDate, {
+      triggerPropertyName: "onDateSelected",
       dynamicString: this.props.onDateSelected,
       event: {
         type: EventType.ON_DATE_SELECTED,

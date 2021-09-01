@@ -2,15 +2,11 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import RadioGroupComponent from "components/designSystems/blueprint/RadioGroupComponent";
-import { EventType } from "constants/ActionConstants";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -27,6 +23,38 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              unique: ["value"],
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          required: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
             helpText: "Selects a value of the options entered by default",
@@ -36,6 +64,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -45,6 +74,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -54,6 +84,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isDisabled",
@@ -63,6 +94,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -83,28 +115,12 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
       },
     ];
   }
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      label: VALIDATION_TYPES.TEXT,
-      options: VALIDATION_TYPES.OPTIONS_DATA,
-      selectedOptionValue: VALIDATION_TYPES.TEXT,
-      defaultOptionValue: VALIDATION_TYPES.TEXT,
-      isRequired: VALIDATION_TYPES.BOOLEAN,
-      // onSelectionChange: VALIDATION_TYPES.ACTION_SELECTOR,
-    };
-  }
   static getDerivedPropertiesMap() {
     return {
       selectedOption:
         "{{_.find(this.options, { value: this.selectedOptionValue })}}",
       isValid: `{{ this.isRequired ? !!this.selectedOptionValue : true }}`,
       value: `{{this.selectedOptionValue}}`,
-    };
-  }
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onSelectionChange: true,
     };
   }
 
@@ -123,20 +139,21 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   getPageView() {
     return (
       <RadioGroupComponent
-        widgetId={this.props.widgetId}
-        onRadioSelectionChange={this.onRadioSelectionChange}
+        isDisabled={this.props.isDisabled}
+        isLoading={this.props.isLoading}
         key={this.props.widgetId}
         label={`${this.props.label}`}
+        onRadioSelectionChange={this.onRadioSelectionChange}
+        options={this.props.options || []}
         selectedOptionValue={this.props.selectedOptionValue}
-        options={this.props.options}
-        isLoading={this.props.isLoading}
-        isDisabled={this.props.isDisabled}
+        widgetId={this.props.widgetId}
       />
     );
   }
 
   onRadioSelectionChange = (updatedValue: string) => {
     this.props.updateWidgetMetaProperty("selectedOptionValue", updatedValue, {
+      triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
@@ -156,7 +173,7 @@ export interface RadioOption {
 
 export interface RadioGroupWidgetProps extends WidgetProps, WithMeta {
   label: string;
-  options: RadioOption[];
+  options?: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;

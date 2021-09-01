@@ -1,18 +1,29 @@
 import React from "react";
-import _ from "lodash";
+import { get, isString } from "lodash";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import CodeEditor from "components/editorComponents/CodeEditor";
+import CodeEditor, {
+  CodeEditorExpected,
+} from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import * as Sentry from "@sentry/react";
+import { Size, Category } from "components/ads/Button";
+import { AllChartData, ChartData } from "widgets/ChartWidget";
+import { generateReactKey } from "utils/generators";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+
+const Wrapper = styled.div`
+  background-color: ${(props) =>
+    props.theme.colors.propertyPane.dropdownSelectBg};
+  padding: 0 8px;
+`;
 
 const StyledOptionControlWrapper = styled(ControlWrapper)`
   display: flex;
@@ -42,40 +53,93 @@ const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
   position: relative;
   margin-left: 15px;
   cursor: pointer;
+
+  &&& svg {
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.jsIconBg};
+    }
+  }
+`;
+
+const ActionHolder = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const StyledLabel = styled.label`
+  margin: 8px auto 8px 0;
+
+  && {
+    color: ${(props) => props.theme.colors.propertyPane.label};
+  }
+`;
+
+const Box = styled.div`
+  height: 16px;
 `;
 
 type RenderComponentProps = {
-  index: number;
-  item: {
-    seriesName: string;
-    data: Array<{ x: string; y: string }> | string;
-  };
+  index: string;
+  item: ChartData;
   length: number;
-  isValid: boolean;
-  validationMessage: string;
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, key: string, value: string) => void;
+  dataTreePath: string;
+  deleteOption: (index: string) => void;
+  updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
     data: Array<{ x: string; y: string }> | any;
   };
+  theme: EditorTheme;
+};
+
+const expectedSeriesName: CodeEditorExpected = {
+  type: "string",
+  example: "series1",
+  autocompleteDataType: AutocompleteDataType.STRING,
+};
+const expectedSeriesData: CodeEditorExpected = {
+  type: "Array<{ x: string, y: string | number }>",
+  example: [
+    {
+      x: "Mon",
+      y: 10000,
+    },
+  ],
+  autocompleteDataType: AutocompleteDataType.ARRAY,
 };
 
 function DataControlComponent(props: RenderComponentProps) {
   const {
+    dataTreePath,
     deleteOption,
-    updateOption,
-    item,
-    index,
-    length,
-    isValid,
     evaluated,
+    index,
+    item,
+    length,
+    updateOption,
   } = props;
+
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
+      <ActionHolder>
+        <StyledLabel>Series Title</StyledLabel>
+        {length > 1 && (
+          <StyledDeleteIcon
+            height={20}
+            onClick={() => {
+              deleteOption(index);
+            }}
+            width={20}
+          />
+        )}
+      </ActionHolder>
       <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
         <CodeEditor
-          expected={"string"}
+          dataTreePath={`${dataTreePath}.seriesName`}
+          evaluatedValue={evaluated?.seriesName}
+          expected={expectedSeriesName}
           input={{
             value: item.seriesName,
             onChange: (
@@ -88,28 +152,21 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "seriesName", value);
             },
           }}
-          evaluatedValue={evaluated?.seriesName}
-          theme={EditorTheme.DARK}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.TEXT_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder="Series Name"
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
-        {length > 1 && (
-          <StyledDeleteIcon
-            height={20}
-            width={20}
-            onClick={() => {
-              deleteOption(index);
-            }}
-          />
-        )}
       </StyledOptionControlWrapper>
+      <StyledLabel>Series Data</StyledLabel>
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
         <CodeEditor
-          expected={`Array<x:string, y:number>`}
+          dataTreePath={`${dataTreePath}.data`}
+          evaluatedValue={evaluated?.data}
+          expected={expectedSeriesData}
           input={{
             value: item.data,
             onChange: (
@@ -122,193 +179,111 @@ function DataControlComponent(props: RenderComponentProps) {
               updateOption(index, "data", value);
             },
           }}
-          evaluatedValue={evaluated?.data}
-          meta={{
-            error: isValid ? "" : "There is an error",
-            touched: true,
-          }}
-          theme={EditorTheme.DARK}
-          size={EditorSize.EXTENDED}
           mode={EditorModes.JSON_WITH_BINDING}
-          tabBehaviour={TabBehaviour.INPUT}
           placeholder=""
+          size={EditorSize.EXTENDED}
+          tabBehaviour={TabBehaviour.INPUT}
+          theme={props.theme}
         />
       </StyledDynamicInput>
+      <Box />
     </StyledOptionControlWrapper>
   );
 }
 
 class ChartDataControl extends BaseControl<ControlProps> {
-  getValidations = (message: string, isValid: boolean, len: number) => {
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = [];
-    let index = -1;
-    let validationMessage = "";
-    if (message.indexOf("##") !== -1) {
-      const messages = message.split("##");
-      index = Number(messages[0]);
-      validationMessage = messages[1];
-    }
-    for (let i = 0; i < len; i++) {
-      if (i === index) {
-        validations.push({
-          isValid: false,
-          validationMessage: validationMessage,
-        });
-      } else {
-        validations.push({
-          isValid: true,
-          validationMessage: "",
-        });
-      }
-    }
-    return validations;
-  };
-
-  getEvaluatedValue = () => {
-    if (Array.isArray(this.props.evaluatedValue)) {
-      return this.props.evaluatedValue;
-    }
-    return [];
-  };
-
-  componentDidMount() {
-    this.migrateChartData(this.props.propertyValue);
-  }
-
-  migrateChartData(chartData: Array<{ seriesName: string; data: string }>) {
-    // Added a migration script for older chart data that was strings
-    // deprecate after enough charts have moved to the new format
-    if (_.isString(chartData)) {
-      try {
-        const parsedData: Array<{
-          seriesName: string;
-          data: string;
-        }> = JSON.parse(chartData);
-        this.updateProperty(this.props.propertyName, parsedData);
-        return parsedData;
-      } catch (error) {
-        Sentry.captureException({
-          message: "Chart Migration Failed",
-          oldData: this.props.propertyValue,
-        });
-      }
-    } else {
-      return this.props.propertyValue;
-    }
-  }
-
   render() {
-    const chartData: Array<{ seriesName: string; data: string }> = _.isString(
-      this.props.propertyValue,
-    )
-      ? []
+    const chartData: AllChartData = isString(this.props.propertyValue)
+      ? {}
       : this.props.propertyValue;
-    const dataLength = chartData.length;
-    const { validationMessage, isValid } = this.props;
-    const validations: Array<{
-      isValid: boolean;
-      validationMessage: string;
-    }> = this.getValidations(
-      validationMessage || "",
-      isValid,
-      chartData.length,
-    );
 
-    const evaluatedValue = this.getEvaluatedValue();
+    const dataLength = Object.keys(chartData).length;
+
+    const evaluatedValue = this.props.evaluatedValue;
+    const firstKey = Object.keys(chartData)[0] as string;
+
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
-      const data = chartData.length
-        ? chartData[0]
+      const data = dataLength
+        ? get(chartData, `${firstKey}`)
         : {
             seriesName: "",
-            data: "",
+            data: [],
           };
+
       return (
         <DataControlComponent
-          index={0}
+          dataTreePath={`${this.props.dataTreePath}.${firstKey}`}
+          deleteOption={this.deleteOption}
+          evaluated={get(evaluatedValue, `${firstKey}`)}
+          index={firstKey}
           item={data}
           length={1}
-          deleteOption={this.deleteOption}
+          theme={this.props.theme}
           updateOption={this.updateOption}
-          isValid={validations[0].isValid}
-          validationMessage={validations[0].validationMessage}
-          evaluated={evaluatedValue[0]}
         />
       );
     }
+
     return (
-      <React.Fragment>
-        {chartData.map((data, index) => {
-          return (
-            <DataControlComponent
-              key={index}
-              index={index}
-              item={data}
-              length={dataLength}
-              deleteOption={this.deleteOption}
-              updateOption={this.updateOption}
-              isValid={validations[index].isValid}
-              validationMessage={validations[index].validationMessage}
-              evaluated={evaluatedValue[index]}
-            />
-          );
-        })}
+      <>
+        <Wrapper>
+          {Object.keys(chartData).map((key: string) => {
+            const data = get(chartData, `${key}`);
+
+            return (
+              <DataControlComponent
+                dataTreePath={`${this.props.dataTreePath}.${key}`}
+                deleteOption={this.deleteOption}
+                evaluated={get(evaluatedValue, `${key}`)}
+                index={key}
+                item={data}
+                key={key}
+                length={dataLength}
+                theme={this.props.theme}
+                updateOption={this.updateOption}
+              />
+            );
+          })}
+        </Wrapper>
+
         <StyledPropertyPaneButton
-          text="Add Series"
+          category={Category.tertiary}
           icon="plus"
-          color="#FFFFFF"
-          minimal
           onClick={this.addOption}
+          size={Size.medium}
+          tag="button"
+          text="Add Series"
+          type="button"
         />
-      </React.Fragment>
+      </>
     );
   }
 
-  deleteOption = (index: number) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    chartData.splice(index, 1);
-    this.updateProperty(this.props.propertyName, chartData);
+  deleteOption = (index: string) => {
+    this.deleteProperties([`${this.props.propertyName}.${index}`]);
   };
 
   updateOption = (
-    index: number,
+    index: string,
     propertyName: string,
     updatedValue: string,
   ) => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    const updatedChartData = chartData.map((item, i) => {
-      if (index === i) {
-        return {
-          ...item,
-          [propertyName]: updatedValue,
-        };
-      }
-      return item;
-    });
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    this.updateProperty(
+      `${this.props.propertyName}.${index}.${propertyName}`,
+      updatedValue,
+    );
   };
 
+  /**
+   * it adds new series data object in the chartData
+   */
   addOption = () => {
-    const chartData: Array<{
-      seriesName: string;
-      data: string;
-    }> = this.props.propertyValue;
-    const updatedChartData = [
-      ...chartData,
-      {
-        seriesName: "",
-        data: JSON.stringify([{ x: "label", y: 50 }]),
-      },
-    ];
-    this.updateProperty(this.props.propertyName, updatedChartData);
+    const randomString = generateReactKey();
+
+    this.updateProperty(`${this.props.propertyName}.${randomString}`, {
+      seriesName: "",
+      data: JSON.stringify([{ x: "label", y: 50 }]),
+    });
   };
 
   static getControlType() {

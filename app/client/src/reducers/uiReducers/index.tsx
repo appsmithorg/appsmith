@@ -21,16 +21,30 @@ import explorerReducer from "./explorerReducer";
 import confirmRunActionReducer from "./confirmRunActionReducer";
 import themeReducer from "./themeReducer";
 import datasourceNameReducer from "./datasourceNameReducer";
-import pageCanvasStructureReducer from "./pageCanvasStructure";
+import pageCanvasStructureReducer from "reducers/uiReducers/pageCanvasStructureReducer";
 import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
+import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
+import commentsReducer from "./commentsReducer/commentsReducer";
+import websocketReducer from "./websocketReducer";
+import debuggerReducer from "./debuggerReducer";
+import tourReducer from "./tourReducer";
+import tableFilterPaneReducer from "./tableFilterPaneReducer";
+import notificationsReducer from "./notificationsReducer";
+import appCollabReducer from "./appCollabReducer";
+import canvasSelectionReducer from "./canvasSelectionReducer";
+import actionTabsReducer from "./actionTabsReducer";
+import gitSyncReducer from "./gitSyncReducer";
+import crudInfoModalReducer from "./crudInfoModalReducer";
 
 const uiReducer = combineReducers({
+  actionTabs: actionTabsReducer,
   widgetSidebar: widgetSidebarReducer,
   editor: editorReducer,
   errors: errorReducer,
   propertyPane: propertyPaneReducer,
+  tableFilterPane: tableFilterPaneReducer,
   appView: appViewReducer,
   applications: applicationsReducer,
   apiPane: apiPaneReducer,
@@ -52,6 +66,17 @@ const uiReducer = combineReducers({
   theme: themeReducer,
   confirmRunAction: confirmRunActionReducer,
   onBoarding: onBoardingReducer,
+  globalSearch: globalSearchReducer,
   releases: releasesReducer,
+  comments: commentsReducer,
+  websocket: websocketReducer,
+  debugger: debuggerReducer,
+  tour: tourReducer,
+  notifications: notificationsReducer,
+  canvasSelection: canvasSelectionReducer,
+  gitSync: gitSyncReducer,
+  appCollab: appCollabReducer,
+  crudInfoModal: crudInfoModalReducer,
 });
+
 export default uiReducer;

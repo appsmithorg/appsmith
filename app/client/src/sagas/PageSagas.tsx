@@ -20,6 +20,10 @@ import {
   updateCurrentPage,
   updateWidgetNameSuccess,
   updateAndSaveLayout,
+  saveLayout,
+  setLastUpdatedTime,
+  ClonePageActionPayload,
+  CreatePageActionPayload,
 } from "actions/pageActions";
 import PageApi, {
   ClonePageRequest,
@@ -32,6 +36,7 @@ import PageApi, {
   FetchPublishedPageResponse,
   PageLayout,
   SavePageResponse,
+  SetPageOrderRequest,
   UpdatePageRequest,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
@@ -49,7 +54,10 @@ import {
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import {
+  checkIfMigrationIsNeeded,
+  extractCurrentDSL,
+} from "utils/WidgetPropsUtils";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -57,9 +65,8 @@ import {
   getWidgets,
 } from "./selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { validateResponse } from "./ErrorSagas";
-import { executePageLoadActions } from "actions/widgetActions";
-import { ApiResponse } from "api/ApiResponses";
+import { IncorrectBindingError, validateResponse } from "./ErrorSagas";
+import { ApiResponse, GenericApiResponse } from "api/ApiResponses";
 import {
   getCurrentApplicationId,
   getCurrentLayoutId,
@@ -67,18 +74,35 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import {
+  executePageLoadActions,
   fetchActionsForPage,
   setActionsToExecuteOnPageLoad,
-} from "actions/actionActions";
-import { APP_MODE, UrlDataState } from "reducers/entityReducers/appReducer";
+} from "actions/pluginActionActions";
+import { UrlDataState } from "reducers/entityReducers/appReducer";
+import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "./EvaluationsSaga";
 import { getQueryParams } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import log from "loglevel";
 import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import * as Sentry from "@sentry/react";
+import { ERROR_CODES } from "constants/ApiConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import DEFAULT_TEMPLATE from "templates/default";
+import { GenerateTemplatePageRequest } from "../api/PageApi";
+import { getGenerateTemplateURL } from "../constants/routes";
+import {
+  generateTemplateError,
+  generateTemplateSuccess,
+} from "../actions/pageActions";
+import { getAppMode } from "selectors/applicationSelectors";
+import { setCrudInfoModalData } from "actions/crudInfoModalActions";
+import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -96,13 +120,14 @@ export function* fetchPageListSaga(
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
     const response: FetchPageListResponse = yield call(apiCall, applicationId);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
       const pages: PageListPayload = response.data.pages.map((page) => ({
         pageName: page.name,
         pageId: page.id,
         isDefault: page.isDefault,
+        isHidden: !!page.isHidden,
       }));
       yield put({
         type: ReduxActionTypes.SET_CURRENT_ORG_ID,
@@ -145,7 +170,7 @@ export function* fetchPageListSaga(
   }
 }
 
-const getCanvasWidgetsPayload = (
+export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
 ): UpdateCanvasPayload => {
   const normalizedResponse = CanvasWidgetsNormalizer.normalize(
@@ -162,11 +187,58 @@ const getCanvasWidgetsPayload = (
   };
 };
 
+function* handleFetchedPage({
+  fetchPageResponse,
+  isFirstLoad = false,
+  pageId,
+}: {
+  fetchPageResponse: FetchPageResponse;
+  pageId: string;
+  isFirstLoad?: boolean;
+}) {
+  const isValidResponse = yield validateResponse(fetchPageResponse);
+  const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
+  const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
+
+  if (isValidResponse) {
+    // Clear any existing caches
+    yield call(clearEvalCache);
+    // Set url params
+    yield call(setDataUrl);
+    // Get Canvas payload
+    const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
+    // Update the canvas
+    yield put(initCanvasLayout(canvasWidgetsPayload));
+    // set current page
+    yield put(updateCurrentPage(pageId));
+    // dispatch fetch page success
+    yield put(
+      fetchPageSuccess(
+        // Execute page load actions post page load
+        isFirstLoad ? [] : [executePageLoadActions()],
+      ),
+    );
+    // Sets last updated time
+    yield put(setLastUpdatedTime(lastUpdatedTime));
+    const extractedDSL = extractCurrentDSL(fetchPageResponse);
+    yield put({
+      type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
+      payload: extractedDSL,
+    });
+
+    if (willPageBeMigrated) {
+      yield put(saveLayout());
+    }
+  }
+}
+const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
+  pageResponse.data.lastUpdatedTime;
+
 export function* fetchPageSaga(
   pageRequestAction: ReduxAction<FetchPageRequest>,
 ) {
   try {
-    const { id } = pageRequestAction.payload;
+    const { id, isFirstLoad } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
@@ -174,37 +246,17 @@ export function* fetchPageSaga(
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
-    if (isValidResponse) {
-      // Clear any existing caches
-      yield call(clearEvalCache);
-      // Set url params
-      yield call(setDataUrl);
-      // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(fetchPageResponse);
-      // Update the canvas
-      yield put(initCanvasLayout(canvasWidgetsPayload));
-      // set current page
-      yield put(updateCurrentPage(id));
-      // dispatch fetch page success
-      yield put(
-        fetchPageSuccess([
-          // Execute page load actions after evaluation of fetch page
-          executePageLoadActions(canvasWidgetsPayload.pageActions),
-        ]),
-      );
+    yield handleFetchedPage({
+      fetchPageResponse,
+      pageId: id,
+      isFirstLoad,
+    });
 
-      yield put({
-        type: ReduxActionTypes.UPDATE_CANVAS_STRUCTURE,
-        payload: extractCurrentDSL(fetchPageResponse),
-      });
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
-    }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+    );
   } catch (error) {
-    console.log(error);
+    log.error(error);
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -224,10 +276,13 @@ export function* fetchPublishedPageSaga(
   pageRequestAction: ReduxAction<{ pageId: string; bustCache: boolean }>,
 ) {
   try {
-    const { pageId, bustCache } = pageRequestAction.payload;
+    const { bustCache, pageId } = pageRequestAction.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId: pageId, published: true },
+      {
+        pageId: pageId,
+        published: true,
+      },
     );
     const request: FetchPublishedPageRequest = {
       pageId,
@@ -237,7 +292,7 @@ export function* fetchPublishedPageSaga(
       PageApi.fetchPublishedPage,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -252,13 +307,8 @@ export function* fetchPublishedPageSaga(
       // dispatch fetch page success
       yield put(
         fetchPublishedPageSuccess(
-          {
-            dsl: response.data.layouts[0].dsl,
-            pageId: request.pageId,
-            pageWidgetId: canvasWidgetsPayload.pageWidgetId,
-          },
           // Execute page load actions post published page eval
-          [executePageLoadActions(canvasWidgetsPayload.pageActions)],
+          [executePageLoadActions()],
         ),
       );
       PerformanceTracker.stopAsyncTracking(
@@ -290,11 +340,11 @@ export function* fetchAllPublishedPagesSaga() {
       }),
     );
   } catch (error) {
-    console.log({ error });
+    log.error({ error });
   }
 }
 
-function* savePageSaga() {
+function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   const widgets = yield select(getWidgets);
   const editorConfigs = yield select(getEditorConfigs) as any;
   const savePageRequest = getLayoutSavePayload(widgets, editorConfigs);
@@ -323,9 +373,9 @@ function* savePageSaga() {
       PageApi.savePage,
       savePageRequest,
     );
-    const isValidResponse = yield validateResponse(savePageResponse);
+    const isValidResponse: boolean = yield validateResponse(savePageResponse);
     if (isValidResponse) {
-      const { messages, actionUpdates } = savePageResponse.data;
+      const { actionUpdates, messages } = savePageResponse.data;
       // Show toast messages from the server
       if (messages && messages.length) {
         savePageResponse.data.messages.forEach((message) => {
@@ -339,6 +389,7 @@ function* savePageSaga() {
       if (actionUpdates && actionUpdates.length > 0) {
         yield put(setActionsToExecuteOnPageLoad(actionUpdates));
       }
+      yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.SAVE_PAGE_API,
@@ -359,6 +410,44 @@ function* savePageSaga() {
         show: false,
       },
     });
+
+    if (error instanceof IncorrectBindingError) {
+      const { isRetry } = action?.payload;
+      const incorrectBindingError = JSON.parse(error.message);
+      const { message } = incorrectBindingError;
+      if (isRetry) {
+        Sentry.captureException(new Error("Failed to correct binding paths"));
+        yield put({
+          type: ReduxActionErrorTypes.FAILED_CORRECTING_BINDING_PATHS,
+          payload: {
+            error: {
+              message,
+              code: ERROR_CODES.FAILED_TO_CORRECT_BINDING,
+              crash: true,
+            },
+          },
+        });
+      } else {
+        // Create a denormalized structure because the migration needs the children in the dsl form
+        const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
+          canvasWidgets: widgets,
+        });
+        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
+          denormalizedWidgets,
+        );
+        // Normalize the widgets because the save page needs it in the flat structure
+        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
+          correctedWidgets,
+        );
+        AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
+          error: error.message,
+          correctWidget: JSON.stringify(normalizedWidgets),
+        });
+        yield put(
+          updateAndSaveLayout(normalizedWidgets.entities.canvasWidgets, true),
+        );
+      }
+    }
   }
 }
 
@@ -378,11 +467,12 @@ function getLayoutSavePayload(
   };
 }
 
-export function* saveLayoutSaga() {
+export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVE_PAGE_INIT,
-    });
+    const appMode: APP_MODE | undefined = yield select(getAppMode);
+    if (appMode === APP_MODE.EDIT) {
+      yield put(saveLayout(action.payload.isRetry));
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_PAGE_ERROR,
@@ -394,12 +484,12 @@ export function* saveLayoutSaga() {
 }
 
 export function* createPageSaga(
-  createPageAction: ReduxAction<CreatePageRequest>,
+  createPageAction: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
@@ -417,12 +507,15 @@ export function* createPageSaga(
           dsl: extractCurrentDSL(response),
         },
       });
-      history.push(
-        BUILDER_PAGE_URL(
-          createPageAction.payload.applicationId,
-          response.data.id,
-        ),
-      );
+      // route to generate template for new page created
+      if (!createPageAction.payload.blockNavigation) {
+        history.push(
+          getGenerateTemplateURL(
+            createPageAction.payload.applicationId,
+            response.data.id,
+          ),
+        );
+      }
     }
   } catch (error) {
     yield put({
@@ -438,7 +531,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   try {
     const request: UpdatePageRequest = action.payload;
     const response: ApiResponse = yield call(PageApi.updatePage, request);
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
@@ -468,7 +561,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       throw Error("Cannot delete the home page.");
     } else {
       const response: ApiResponse = yield call(PageApi.deletePage, request);
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
@@ -497,14 +590,16 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
   }
 }
 
-export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
+export function* clonePageSaga(
+  clonePageAction: ReduxAction<ClonePageActionPayload>,
+) {
   try {
     const request: ClonePageRequest = clonePageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
     const applicationId = yield select(
       (state: AppState) => state.entities.pageList.applicationId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
         clonePageSuccess(
@@ -523,8 +618,11 @@ export function* clonePageSaga(clonePageAction: ReduxAction<ClonePageRequest>) {
       });
 
       yield put(fetchActionsForPage(response.data.id));
+      yield put(selectMultipleWidgetsAction([]));
 
-      history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      if (!clonePageAction.payload.blockNavigation) {
+        history.push(BUILDER_PAGE_URL(applicationId, response.data.id));
+      }
     }
   } catch (error) {
     yield put({
@@ -556,13 +654,14 @@ export function* updateWidgetNameSaga(
 
     // TODO(abhinav): Why do we need to jump through these hoops just to
     // change the tab name? Figure out a better design to make this moot.
-    const tabs:
-      | Array<{
-          id: string;
-          widgetId: string;
-          label: string;
-        }>
-      | undefined = yield select((state: AppState) => {
+    const tabsObj: Record<
+      string,
+      {
+        id: string;
+        widgetId: string;
+        label: string;
+      }
+    > = yield select((state: AppState) => {
       // Check if this widget exists in the canvas widgets
       if (state.entities.canvasWidgets.hasOwnProperty(action.payload.id)) {
         // If it does assign it to a variable
@@ -577,7 +676,7 @@ export function* updateWidgetNameSaga(
           // Check if this parent is a TABS_WIDGET
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             // If it is return the tabs property
-            return parent.tabs;
+            return parent.tabsObj;
           }
         }
       }
@@ -586,7 +685,8 @@ export function* updateWidgetNameSaga(
     });
 
     // If we're trying to update the name of a tab in the TABS_WIDGET
-    if (tabs !== undefined) {
+    if (tabsObj !== undefined) {
+      const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
       const stateWidgets = yield select(getWidgets);
       // Shallow copy canvas widgets as they're immutable
@@ -601,14 +701,19 @@ export function* updateWidgetNameSaga(
       // Shallow copy the parent widget so that we can update the properties
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
-      parent.tabs = tabs.map(
-        (tab: { widgetId: string; label: string; id: string }) => {
-          if (tab.widgetId === action.payload.id) {
-            return { ...tab, label: action.payload.newName };
-          }
-          return tab;
-        },
+      const tabToChange = tabs.find(
+        (each: any) => each.widgetId === action.payload.id,
       );
+      const updatedTab = {
+        ...tabToChange,
+        label: action.payload.newName,
+      };
+      parent.tabsObj = {
+        ...parent.tabsObj,
+        [updatedTab.id]: {
+          ...updatedTab,
+        },
+      };
       // replace the parent widget in the canvas widgets
       widgets[parentId] = parent;
       // Update and save the new widgets
@@ -634,7 +739,7 @@ export function* updateWidgetNameSaga(
           PageApi.updateWidgetName,
           request,
         );
-        const isValidResponse = yield validateResponse(response);
+        const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
 
@@ -709,7 +814,7 @@ function* fetchPageDSLSaga(pageId: string) {
     const fetchPageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
       id: pageId,
     });
-    const isValidResponse = yield validateResponse(fetchPageResponse);
+    const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
     if (isValidResponse) {
       return {
         pageId: pageId,
@@ -718,13 +823,17 @@ function* fetchPageDSLSaga(pageId: string) {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionTypes.FETCH_PAGE_DSL_ERROR,
+      type: ReduxActionErrorTypes.FETCH_PAGE_DSL_ERROR,
       payload: {
         pageId: pageId,
         error,
-        show: false,
+        show: true,
       },
     });
+    return {
+      pageId: pageId,
+      dsl: DEFAULT_TEMPLATE,
+    };
   }
 }
 
@@ -755,6 +864,91 @@ export function* populatePageDSLsSaga() {
   }
 }
 
+/**
+ * saga to update the page order
+ *
+ * @param action
+ */
+export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
+  try {
+    const request: SetPageOrderRequest = action.payload;
+    const response: ApiResponse = yield call(PageApi.setPageOrder, request);
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
+        payload: {
+          pages: response.data.pages,
+        },
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.SET_PAGE_ORDER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* generateTemplatePageSaga(
+  action: ReduxAction<GenerateTemplatePageRequest>,
+) {
+  try {
+    const request: GenerateTemplatePageRequest = action.payload;
+    // if pageId is available in request, it will just update that page else it will generate new page.
+    const response: GenericApiResponse<{
+      page: any;
+      successImageUrl: string;
+      successMessage: string;
+    }> = yield call(PageApi.generateTemplatePage, request);
+
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const pageId = response.data.page.id;
+      const applicationId =
+        response.data.page.applicationId || request.applicationId;
+      yield handleFetchedPage({
+        fetchPageResponse: {
+          data: response.data.page,
+          responseMeta: response.responseMeta,
+        },
+        pageId,
+      });
+
+      // TODO : Add this to onSuccess (Redux Action)
+      yield put(
+        generateTemplateSuccess({
+          page: response.data.page,
+          isNewPage: !request.pageId, // if pageId if not defined, that means a new page is generated.
+        }),
+      );
+      // TODO : Add this to onSuccess (Redux Action)
+      yield put(fetchActionsForPage(pageId, [executePageLoadActions()]));
+      // TODO : Add it to onSuccessCallback
+      history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+      // TODO : Add it to onSuccessCallback
+      Toaster.show({
+        text: "Successfully generated a page",
+        variant: Variant.success,
+      });
+
+      yield put(
+        setCrudInfoModalData({
+          open: true,
+          generateCRUDSuccessInfo: {
+            successImageUrl: response.data.successImageUrl,
+            successMessage: response.data.successMessage,
+          },
+        }),
+      );
+    }
+  } catch (error) {
+    yield put(generateTemplateError());
+  }
+}
+
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
@@ -774,5 +968,10 @@ export default function* pageSagas() {
       ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
       fetchAllPublishedPagesSaga,
     ),
+    takeLatest(
+      ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT,
+      generateTemplatePageSaga,
+    ),
+    takeLatest(ReduxActionTypes.SET_PAGE_ORDER_INIT, setPageOrderSaga),
   ]);
 }

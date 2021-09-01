@@ -1,5 +1,6 @@
 import React from "react";
-import FilePicker, { CloudinaryUploader } from "../ads/FilePicker";
+import FilePicker, { CloudinaryUploader, FileType } from "../ads/FilePicker";
+import log from "loglevel";
 
 export default {
   title: "FilePicker",
@@ -7,12 +8,21 @@ export default {
 };
 
 function ShowUploadedFile(data: any) {
-  console.log(data);
+  log.debug(data);
 }
 
 export const withDynamicProps = () => (
   <FilePicker
-    onFileUploaded={(data) => ShowUploadedFile(data)}
+    fileType={FileType.IMAGE}
     fileUploader={CloudinaryUploader}
+    onFileUploaded={(data) => ShowUploadedFile(data)}
+  />
+);
+
+export const withJsonInputType = () => (
+  <FilePicker
+    fileType={FileType.JSON}
+    fileUploader={CloudinaryUploader}
+    onFileUploaded={(data) => ShowUploadedFile(data)}
   />
 );

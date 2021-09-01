@@ -3,8 +3,6 @@ import { debounce } from "lodash";
 import styled from "styled-components";
 import { useScript, ScriptStatus } from "utils/hooks/useScript";
 
-import { isString } from "utils/helpers";
-
 const StyledRTEditor = styled.div`
   && {
     width: 100%;
@@ -23,9 +21,7 @@ export interface RichtextEditorComponentProps {
   isVisible?: boolean;
   onValueChange: (valueAsString: string) => void;
 }
-export const RichtextEditorComponent = (
-  props: RichtextEditorComponentProps,
-) => {
+export function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const status = useScript(
     "https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.7.0/tinymce.min.js",
   );
@@ -50,7 +46,7 @@ export const RichtextEditorComponent = (
       (editorContent.current.length === 0 ||
         editorContent.current !== props.defaultValue)
     ) {
-      const content = getContent();
+      const content = props.defaultValue;
 
       editorInstance.setContent(content, {
         format: "html",
@@ -63,7 +59,18 @@ export const RichtextEditorComponent = (
       editorContent.current = content;
       props.onValueChange(content);
     }, 200);
-    const selector = `textarea#rte-${props.widgetId}`;
+
+    const editorId = `rte-${props.widgetId}`;
+    const selector = `textarea#${editorId}`;
+
+    const prevEditor = (window as any).tinyMCE.get(editorId);
+    if (prevEditor) {
+      // following code is just a patch for tinyMCE's issue with firefox
+      prevEditor.contentWindow = window;
+      // removing in case it was not properly removed, which will cause problems
+      prevEditor.remove();
+    }
+
     (window as any).tinyMCE.init({
       forced_root_block: false,
       height: "100%",
@@ -73,20 +80,20 @@ export const RichtextEditorComponent = (
       resize: false,
       setup: (editor: any) => {
         editor.mode.set(props.isDisabled === true ? "readonly" : "design");
-        const content = getContent();
+        const content = props.defaultValue;
         editor.setContent(content, { format: "html" });
         editor
           .on("Change", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Undo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("Redo", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           })
           .on("KeyUp", () => {
-            onChange(editor.getContent());
+            onChange(editor.getContent({ format: "html" }));
           });
         setEditorInstance(editor);
         editor.on("init", () => {
@@ -99,7 +106,7 @@ export const RichtextEditorComponent = (
         "insertdatetime media table paste code help",
       ],
       toolbar:
-        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
+        "undo redo | formatselect | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | table | help",
     });
 
     return () => {
@@ -108,22 +115,13 @@ export const RichtextEditorComponent = (
     };
   }, [status]);
 
-  /**
-   * get content for rich text editor
-   */
-  const getContent = () => {
-    return props.defaultValue && isString(props.defaultValue)
-      ? props.defaultValue.replace(/\n/g, "<br/>")
-      : props.defaultValue;
-  };
-
   if (status !== ScriptStatus.READY) return null;
 
   return (
     <StyledRTEditor>
-      <textarea id={`rte-${props.widgetId}`}></textarea>
+      <textarea id={`rte-${props.widgetId}`} />
     </StyledRTEditor>
   );
-};
+}
 
 export default RichtextEditorComponent;

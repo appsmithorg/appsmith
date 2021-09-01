@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
+import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
   ApplicationPayload,
   ReduxActionTypes,
@@ -11,7 +12,6 @@ import {
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import HelpModal from "components/designSystems/appsmith/help/HelpModal";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
@@ -19,25 +19,24 @@ import { AppState } from "reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getIsPageSaving,
   getIsPublishingApplication,
-  getPageSavingError,
 } from "selectors/editorSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { HeaderIcons } from "icons/HeaderIcons";
-import ThreeDotLoading from "components/designSystems/appsmith/header/ThreeDotsLoading";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { EditInteractionKind, SavingState } from "components/ads/EditableText";
 import { updateApplication } from "actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
+  getIsErroredSavingAppName,
+  showAppInviteUsersDialogSelector,
 } from "selectors/applicationSelectors";
-import EditableAppName from "./EditableAppName";
+import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
+import GlobalSearch from "components/editorComponents/GlobalSearch";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -46,10 +45,22 @@ import Button, { Size } from "components/ads/Button";
 import { IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import { Colors } from "constants/Colors";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import { useLocation } from "react-router";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import RealtimeAppEditors from "./RealtimeAppEditors";
+import { EditorSaveIndicator } from "./EditorSaveIndicator";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
+  width: 100%;
   padding-right: 0;
   padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
@@ -80,15 +91,27 @@ const HeaderWrapper = styled(StyledHeader)`
   }
 `;
 
+// looks offset by 1px even though, checking bounding rect values
 const HeaderSection = styled.div`
+  position: relative;
+  top: -1px;
   display: flex;
   flex: 1;
+  overflow: visible;
   align-items: center;
   :nth-child(1) {
     justify-content: flex-start;
+    max-width: 30%;
   }
   :nth-child(2) {
+    justify-content: center;
+  }
+  :nth-child(3) {
     justify-content: flex-end;
+  }
+  > .${Popover2Classes.POPOVER2_TARGET} {
+    max-width: calc(100% - 50px);
+    min-width: 100px;
   }
 `;
 
@@ -97,14 +120,6 @@ const AppsmithLogoImg = styled.img`
   height: 24px;
 `;
 
-const SaveStatusContainer = styled.div`
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
 const DeploySection = styled.div`
   display: flex;
 `;
@@ -119,6 +134,29 @@ const StyledDeployButton = styled(Button)`
   padding: ${(props) => props.theme.spaces[2]}px;
 `;
 
+const BindingBanner = styled.div`
+  position: fixed;
+  width: 199px;
+  height: 36px;
+  left: 50%;
+  top: ${(props) => props.theme.smallHeaderHeight};
+  transform: translate(-50%, 0);
+  text-align: center;
+  background: ${Colors.DANUBE};
+
+  color: ${Colors.WHITE};
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  /* Depth: 01 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+`;
+
 type EditorHeaderProps = {
   pageSaveError?: boolean;
   pageName?: string;
@@ -131,24 +169,36 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   darkTheme: any;
+  lastUpdatedTime?: number;
 };
 
-export const EditorHeader = (props: EditorHeaderProps) => {
+export function EditorHeader(props: EditorHeaderProps) {
   const {
-    currentApplication,
-    isSaving,
-    pageSaveError,
-    pageId,
-    orgId,
     applicationId,
-    publishApplication,
+    currentApplication,
     isPublishing,
+    orgId,
+    pageId,
+    publishApplication,
   } = props;
-
+  const location = useLocation();
   const dispatch = useDispatch();
+  const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
+  const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
+
+  useEffect(() => {
+    if (window.location.href) {
+      const searchParams = new URL(window.location.href).searchParams;
+      const isSnipingMode = searchParams.get("isSnipingMode");
+      const updatedIsSnipingMode = isSnipingMode === "true";
+      dispatch(setSnipingModeAction(updatedIsSnipingMode));
+    }
+  }, [location]);
+
+  const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
   const handlePublish = () => {
     if (applicationId) {
@@ -162,31 +212,6 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     }
   };
 
-  let saveStatusIcon: React.ReactNode;
-  if (isSaving) {
-    saveStatusIcon = <ThreeDotLoading className="t--save-status-is-saving" />;
-  } else {
-    if (!pageSaveError) {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_SUCCESS
-          color={"#36AB80"}
-          height={20}
-          width={20}
-          className="t--save-status-success"
-        />
-      );
-    } else {
-      saveStatusIcon = (
-        <HeaderIcons.SAVE_FAILURE
-          color={"#F69D2C"}
-          height={20}
-          width={20}
-          className={"t--save-status-error"}
-        />
-      );
-    }
-  }
-
   const updateApplicationDispatch = (
     id: string,
     data: { name: string; currentApp: boolean },
@@ -194,114 +219,144 @@ export const EditorHeader = (props: EditorHeaderProps) => {
     dispatch(updateApplication(id, data));
   };
 
+  const showAppInviteUsersDialog = useSelector(
+    showAppInviteUsersDialogSelector,
+  );
+
+  // eslint-disable-next-line
+  const showGitSyncModal = useCallback(() => {
+    dispatch(setIsGitSyncModalOpen(true));
+  }, [dispatch, setIsGitSyncModalOpen]);
+
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link to={APPLICATIONS_URL} style={{ height: 24 }}>
+          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
             <AppsmithLogoImg
-              src={AppsmithLogo}
               alt="Appsmith logo"
               className="t--appsmith-logo"
+              src={AppsmithLogo}
             />
           </Link>
           <Boxed step={OnboardingStep.FINISH}>
-            {currentApplication && (
-              <EditableAppName
-                defaultValue={currentApplication.name || ""}
-                editInteractionKind={EditInteractionKind.SINGLE}
-                className="t--application-name editable-application-name"
-                fill={false}
-                savingState={
-                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                }
-                isNewApp={
-                  applicationList.filter((el) => el.id === applicationId)
-                    .length > 0
-                }
-                onBlur={(value: string) =>
-                  updateApplicationDispatch(applicationId || "", {
-                    name: value,
-                    currentApp: true,
-                  })
-                }
-              />
-            )}
+            <EditorAppName
+              applicationId={applicationId}
+              className="t--application-name editable-application-name"
+              currentDeployLink={getApplicationViewerPageURL(
+                applicationId,
+                pageId,
+              )}
+              defaultSavingState={
+                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+              }
+              defaultValue={currentApplication?.name || ""}
+              deploy={handlePublish}
+              editInteractionKind={EditInteractionKind.SINGLE}
+              fill
+              isError={isErroredSavingName}
+              isNewApp={
+                applicationList.filter((el) => el.id === applicationId).length >
+                0
+              }
+              isPopoverOpen={isPopoverOpen}
+              onBlur={(value: string) =>
+                updateApplicationDispatch(applicationId || "", {
+                  name: value,
+                  currentApp: true,
+                })
+              }
+              setIsPopoverOpen={setIsPopoverOpen}
+            />
+            <ToggleModeButton showSelectedMode={!isPopoverOpen} />
           </Boxed>
         </HeaderSection>
         <HeaderSection>
+          <HelpBar />
+          <HelpButton />
+        </HeaderSection>
+        <HeaderSection>
+          <EditorSaveIndicator />
+          {isMultiplayerEnabledForUser && (
+            <RealtimeAppEditors applicationId={applicationId} />
+          )}
           <Boxed step={OnboardingStep.FINISH}>
-            <SaveStatusContainer className={"t--save-status-container"}>
-              {saveStatusIcon}
-            </SaveStatusContainer>
             <FormDialogComponent
-              trigger={
-                <Button
-                  text={"Share"}
-                  icon={"share"}
-                  size={Size.small}
-                  className="t--application-share-btn header__application-share-btn"
-                />
-              }
-              canOutsideClickClose={true}
               Form={AppInviteUsersForm}
-              orgId={orgId}
               applicationId={applicationId}
+              canOutsideClickClose
+              isOpen={showAppInviteUsersDialog}
+              orgId={orgId}
               title={
                 currentApplication
                   ? currentApplication.name
                   : "Share Application"
               }
+              trigger={
+                <Button
+                  className="t--application-share-btn header__application-share-btn"
+                  icon={"share"}
+                  size={Size.small}
+                  text={"Share"}
+                />
+              }
             />
           </Boxed>
           <Boxed
-            step={OnboardingStep.DEPLOY}
             alternative={<EndOnboardingTour />}
+            step={OnboardingStep.DEPLOY}
           >
             <DeploySection>
               <OnboardingIndicator
-                step={OnboardingStep.DEPLOY}
                 hasButton={false}
+                step={OnboardingStep.DEPLOY}
                 width={75}
               >
                 <StyledDeployButton
-                  fill
-                  onClick={handlePublish}
-                  text={"Deploy"}
-                  isLoading={isPublishing}
-                  size={Size.small}
                   className="t--application-publish-btn"
+                  isLoading={isPublishing}
+                  onClick={handlePublish}
+                  size={Size.small}
+                  text={"Deploy"}
                 />
               </OnboardingIndicator>
 
               <DeployLinkButtonDialog
+                link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
                   <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
                 }
-                link={getApplicationViewerPageURL(applicationId, pageId)}
               />
             </DeploySection>
           </Boxed>
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                userName={user?.username || ""}
                 hideThemeSwitch
+                name={user.name}
+                userName={user?.username || ""}
               />
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <HelpModal page={"Editor"} />
         <OnboardingHelper />
+        <GlobalSearch />
+        {isSnipingMode && (
+          <BindingBanner className="t--sniping-mode-banner">
+            Select a widget to bind
+          </BindingBanner>
+        )}
       </HeaderWrapper>
     </ThemeProvider>
   );
-};
+}
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
-  isSaving: getIsPageSaving(state),
-  pageSaveError: getPageSavingError(state),
   orgId: getCurrentOrgId(state),
   applicationId: getCurrentApplicationId(state),
   currentApplication: state.ui.applications.currentApplication,

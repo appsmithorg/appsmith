@@ -1,16 +1,18 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import lombok.NonNull;
@@ -33,17 +35,20 @@ import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.models.Connection.Mode.READ_ONLY;
 
 
@@ -125,7 +130,7 @@ public class RedshiftPlugin extends BasePlugin {
                 "         kcu.ordinal_position;\n";
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
-            if(resultSet == null) {
+            if (resultSet == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
                                 "Redshift plugin: getRow: driver failed to fetch result: resultSet is null."
@@ -146,18 +151,18 @@ public class RedshiftPlugin extends BasePlugin {
              * 1. Ideally metaData is never supposed to be null. Redshift JDBC driver does null check before returning
              *    ResultSetMetaData.
              */
-            if(metaData == null) {
+            if (metaData == null) {
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
-                        "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
-                        "that something has gone wrong while processing the query result."
+                                "Redshift plugin: getRow: metaData is null. Ideally this is never supposed to " +
+                                "happen as the Redshift JDBC driver does a null check before passing this object. This means " +
+                                "that something has gone wrong while processing the query result."
                 );
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_ERROR,
                         "metaData is null. Ideally this is never supposed to happen as the Redshift JDBC driver " +
-                        "does a null check before passing this object. This means that something has gone wrong " +
-                        "while processing the query result"
+                                "does a null check before passing this object. This means that something has gone wrong " +
+                                "while processing the query result"
                 );
             }
 
@@ -187,8 +192,7 @@ public class RedshiftPlugin extends BasePlugin {
                     value = DateTimeFormatter.ISO_DATE_TIME.format(
                             resultSet.getObject(i, OffsetDateTime.class)
                     );
-                }
-                else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
+                } else if ("time".equalsIgnoreCase(typeName) || "timetz".equalsIgnoreCase(typeName)) {
                     value = resultSet.getString(i);
                 } else {
                     value = resultSet.getObject(i);
@@ -215,7 +219,10 @@ public class RedshiftPlugin extends BasePlugin {
         public Mono<ActionExecutionResult> execute(Connection connection,
                                                    DatasourceConfiguration datasourceConfiguration,
                                                    ActionConfiguration actionConfiguration) {
+
             String query = actionConfiguration.getBody();
+            List<RequestParamDTO> requestParams = List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  query, null
+                    , null, null));
 
             if (query == null) {
                 return Mono.error(
@@ -226,7 +233,7 @@ public class RedshiftPlugin extends BasePlugin {
                 );
             }
 
-            return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+            return Mono.fromCallable(() -> {
                 /*
                  * 1. If there is any issue with checking connection validity then assume that the connection is stale.
                  */
@@ -237,6 +244,7 @@ public class RedshiftPlugin extends BasePlugin {
                 }
 
                 List<Map<String, Object>> rowsList = new ArrayList<>(50);
+                final List<String> columnsList = new ArrayList<>();
                 Statement statement = null;
                 ResultSet resultSet = null;
 
@@ -246,6 +254,8 @@ public class RedshiftPlugin extends BasePlugin {
 
                     if (isResultSet) {
                         resultSet = statement.getResultSet();
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
                         while (resultSet.next()) {
                             Map<String, Object> row = getRow(resultSet);
@@ -259,6 +269,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                     }
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
                 } finally {
                     if (resultSet != null) {
@@ -280,22 +291,57 @@ public class RedshiftPlugin extends BasePlugin {
 
                 ActionExecutionResult result = new ActionExecutionResult();
                 result.setBody(objectMapper.valueToTree(rowsList));
+                result.setMessages(populateHintMessages(columnsList));
                 result.setIsExecutionSuccess(true);
                 System.out.println(
                         Thread.currentThread().getName() + ": " +
-                        "In RedshiftPlugin, got action execution result"
+                                "In RedshiftPlugin, got action execution result"
                 );
                 return Mono.just(result);
             })
-            .flatMap(obj -> obj)
-            .onErrorMap(e -> {
-                if(!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
-                }
+                    .flatMap(obj -> obj)
+                    .map(obj -> (ActionExecutionResult) obj)
+                    .onErrorMap(e -> {
+                        if (!(e instanceof AppsmithPluginException) && !(e instanceof StaleConnectionException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
 
-                return e;
-            })
-            .subscribeOn(scheduler);
+                        return e;
+                    })
+                    .onErrorResume(error -> {
+                        error.printStackTrace();
+                        if (error instanceof StaleConnectionException) {
+                            return Mono.error(error);
+                        }
+                        ActionExecutionResult result = new ActionExecutionResult();
+                        result.setIsExecutionSuccess(false);
+                        result.setErrorInfo(error);
+                        return Mono.just(result);
+                    })
+                    // Now set the request in the result to be returned back to the server
+                    .map(actionExecutionResult -> {
+                        ActionExecutionRequest request = new ActionExecutionRequest();
+                        request.setQuery(query);
+                        request.setRequestParams(requestParams);
+                        ActionExecutionResult result = actionExecutionResult;
+                        result.setRequest(request);
+                        return result;
+                    })
+                    .subscribeOn(scheduler);
+        }
+
+        private Set<String> populateHintMessages(List<String> columnNames) {
+
+            Set<String> messages = new HashSet<>();
+
+            List<String> identicalColumns = getIdenticalColumns(columnNames);
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
+                messages.add("Your Redshift query result may not have all the columns because duplicate column names " +
+                        "were found for the column(s): " + String.join(", ", identicalColumns) + ". You may use the " +
+                        "SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+            }
+
+            return messages;
         }
 
         @Override
@@ -351,6 +397,7 @@ public class RedshiftPlugin extends BasePlugin {
                             configurationConnection != null && READ_ONLY.equals(configurationConnection.getMode()));
                     return Mono.just(connection);
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -359,9 +406,9 @@ public class RedshiftPlugin extends BasePlugin {
                     );
                 }
             })
-            .flatMap(obj -> obj)
-            .map(conn -> (Connection) conn)
-            .subscribeOn(scheduler);
+                    .flatMap(obj -> obj)
+                    .map(conn -> (Connection) conn)
+                    .subscribeOn(scheduler);
         }
 
         @Override
@@ -444,9 +491,12 @@ public class RedshiftPlugin extends BasePlugin {
                 final String schemaName = columnsResultSet.getString("schema_name");
                 final String tableName = columnsResultSet.getString("table_name");
                 final String fullTableName = schemaName + "." + tableName;
+                final String defaultExpr = columnsResultSet.getString("default_expr");
+                boolean isAutogenerated = !StringUtils.isEmpty(defaultExpr) && defaultExpr.toLowerCase().contains("identity");
                 if (!tablesByName.containsKey(fullTableName)) {
                     tablesByName.put(fullTableName, new DatasourceStructure.Table(
                             kind == 'r' ? DatasourceStructure.TableType.TABLE : DatasourceStructure.TableType.VIEW,
+                            schemaName,
                             fullTableName,
                             new ArrayList<>(),
                             new ArrayList<>(),
@@ -457,7 +507,8 @@ public class RedshiftPlugin extends BasePlugin {
                 table.getColumns().add(new DatasourceStructure.Column(
                         columnsResultSet.getString("name"),
                         columnsResultSet.getString("column_type"),
-                        columnsResultSet.getString("default_expr")
+                        defaultExpr,
+                        isAutogenerated
                 ));
             }
         }
@@ -558,15 +609,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                 table.getTemplates().addAll(List.of(
-                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
+                        new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
                         new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                 + " (" + String.join(", ", columnNames) + ")\n"
-                                + "  VALUES (" + String.join(", ", columnValues) + ");"),
+                                + "  VALUES (" + String.join(", ", columnValues) + ");", null),
                         new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                 + setFragments.toString() + "\n"
-                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
                         new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
+                                + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
                 ));
             }
         }
@@ -605,16 +656,16 @@ public class RedshiftPlugin extends BasePlugin {
 
                     // Get templates for each table and put those in.
                     getTemplates(tablesByName);
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
+                    e.printStackTrace();
                     return Mono.error(
                             new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     e.getMessage()
                             )
                     );
-                }
-                catch (AppsmithPluginException e) {
+                } catch (AppsmithPluginException e) {
+                    e.printStackTrace();
                     return Mono.error(e);
                 }
 
@@ -626,15 +677,15 @@ public class RedshiftPlugin extends BasePlugin {
 
                 return structure;
             })
-            .map(resultStructure -> (DatasourceStructure) resultStructure)
-            .onErrorMap(e -> {
-                if(!(e instanceof AppsmithPluginException)) {
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
-                }
+                    .map(resultStructure -> (DatasourceStructure) resultStructure)
+                    .onErrorMap(e -> {
+                        if (!(e instanceof AppsmithPluginException)) {
+                            return new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e.getMessage());
+                        }
 
-                return e;
-            })
-            .subscribeOn(scheduler);
+                        return e;
+                    })
+                    .subscribeOn(scheduler);
         }
     }
 }

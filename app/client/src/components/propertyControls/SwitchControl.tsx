@@ -1,14 +1,14 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import { StyledSwitch } from "./StyledControls";
+import Switch from "components/ads/Switch";
 
 class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
-      <StyledSwitch
-        onChange={this.onToggle}
+      <Switch
         defaultChecked={this.props.propertyValue}
         large
+        onChange={this.onToggle}
       />
     );
   }

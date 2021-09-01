@@ -1,0 +1,15 @@
+name: Mastermind Labeler Workflow
+
+on:
+  issues:
+    types: [labeled, unlabeled]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: Videndum/label-mastermind@2.1.1
+
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,12 +1,14 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
 import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import IconComponent, {
   IconType,
 } from "components/designSystems/appsmith/IconComponent";
-import { EventType, ExecutionResult } from "constants/ActionConstants";
+import {
+  EventType,
+  ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import * as Sentry from "@sentry/react";
 
 const IconWrapper = styled.div`
@@ -14,10 +16,8 @@ const IconWrapper = styled.div`
   justify-content: flex-end;
 `;
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onClick: true,
-    };
+  static getPropertyPaneConfig() {
+    return [];
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
   /* eslint-disable @typescript-eslint/no-empty-function */
@@ -26,6 +26,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   onClick = () => {
     if (this.props.onClick) {
       super.executeAction({
+        triggerPropertyName: "onClick",
         dynamicString: this.props.onClick,
         event: {
           type: EventType.ON_CLICK,
@@ -39,10 +40,10 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
     return (
       <IconWrapper>
         <IconComponent
-          iconName={this.props.iconName}
-          disabled={this.props.disabled}
-          iconSize={this.props.iconSize}
           color={this.props.color}
+          disabled={this.props.disabled}
+          iconName={this.props.iconName}
+          iconSize={this.props.iconSize}
           onClick={this.onClick}
         />
       </IconWrapper>

@@ -4,6 +4,10 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Variant } from "./common";
 import { Toaster } from "./Toast";
+import {
+  createMessage,
+  ERROR_EMPTY_APPLICATION_NAME,
+} from "constants/messages";
 
 type EditableTextWrapperProps = EditableTextProps & {
   variant: "UNDERLINE" | "ICON";
@@ -82,23 +86,16 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
   return (
     <Container
       isEditing={isEditing}
-      savingState={props.savingState}
       isInvalid={isValid}
+      savingState={props.savingState}
     >
       <EditableText
+        className={props.className}
         defaultValue={props.defaultValue}
         editInteractionKind={props.editInteractionKind}
-        placeholder={props.placeholder}
+        fill={!!props.fill}
         hideEditIcon={props.hideEditIcon}
         isEditingDefault={props.isNewApp}
-        savingState={props.savingState}
-        fill={!!props.fill}
-        onBlur={(value) => {
-          setIsEditing(false);
-          props.onBlur && props.onBlur(value);
-        }}
-        className={props.className}
-        onTextChanged={() => setIsEditing(true)}
         isInvalid={(value: string) => {
           setIsEditing(true);
           if (props.isInvalid) {
@@ -106,7 +103,7 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
             return props.isInvalid(value);
           } else if (value.trim() === "") {
             Toaster.show({
-              text: "Application name can't be empty",
+              text: createMessage(ERROR_EMPTY_APPLICATION_NAME),
               variant: Variant.danger,
             });
             return false;
@@ -114,6 +111,13 @@ export default function EditableTextWrapper(props: EditableTextWrapperProps) {
             return false;
           }
         }}
+        onBlur={(value) => {
+          setIsEditing(false);
+          props.onBlur && props.onBlur(value);
+        }}
+        onTextChanged={() => setIsEditing(true)}
+        placeholder={props.placeholder}
+        savingState={props.savingState}
       />
     </Container>
   );

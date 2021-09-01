@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Classes, TagInput } from "@blueprintjs/core";
 import { Intent } from "constants/DefaultTheme";
-import { INVITE_USERS_VALIDATION_EMAIL_LIST } from "constants/messages";
+import {
+  createMessage,
+  INVITE_USERS_VALIDATION_EMAIL_LIST,
+} from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
@@ -59,7 +62,7 @@ type TagInputProps = {
  * On addition or removal of tags, passes the comman separated string to input.onChange prop
  * @param props : TagInputProps
  */
-const TagInputComponent = (props: TagInputProps) => {
+function TagInputComponent(props: TagInputProps) {
   const _values =
     props.input.value && props.input.value.length > 0
       ? props.input.value.split(",")
@@ -79,7 +82,7 @@ const TagInputComponent = (props: TagInputProps) => {
       let error = "";
       newValues.forEach((user: any) => {
         if (!isEmail(user)) {
-          error = INVITE_USERS_VALIDATION_EMAIL_LIST;
+          error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
       props.customError(error);
@@ -142,25 +145,25 @@ const TagInputComponent = (props: TagInputProps) => {
   return (
     <TagInputWrapper intent={props.intent}>
       <TagInput
+        addOnPaste
         inputProps={{
           type: props.type,
           value: currentValue,
           onBlur: handleInputBlur,
         }}
-        onInputChange={handleInputChange}
-        placeholder={props.placeholder}
-        values={_values || [""]}
-        separator={props.separator || ","}
-        addOnPaste
+        large={false}
         onChange={onTagsChange}
+        onInputChange={handleInputChange}
         onKeyDown={onKeyDown}
+        placeholder={props.placeholder}
+        separator={props.separator || ","}
         tagProps={{
           round: true,
         }}
-        large={false}
+        values={_values || [""]}
       />
     </TagInputWrapper>
   );
-};
+}
 
 export default TagInputComponent;

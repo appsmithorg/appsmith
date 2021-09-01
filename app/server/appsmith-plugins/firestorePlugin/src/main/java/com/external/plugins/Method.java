@@ -3,10 +3,10 @@ package com.external.plugins;
 public enum Method {
     GET_DOCUMENT(true, false),
     GET_COLLECTION(false, false),
-    SET_DOCUMENT(true, true),
-    CREATE_DOCUMENT(true, true),
-    ADD_TO_COLLECTION(false, true),
-    UPDATE_DOCUMENT(true, true),
+    SET_DOCUMENT(true, false),
+    CREATE_DOCUMENT(true, false),
+    ADD_TO_COLLECTION(false, false),
+    UPDATE_DOCUMENT(true, false),
     DELETE_DOCUMENT(true, false),
     ;
 

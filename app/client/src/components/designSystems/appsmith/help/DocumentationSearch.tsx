@@ -22,13 +22,10 @@ import {
 } from "actions/helpActions";
 import { Icon } from "@blueprintjs/core";
 import moment from "moment";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { User } from "constants/userConstants";
 
-const {
-  algolia,
-  appVersion,
-  cloudHosting,
-  intercomAppID,
-} = getAppsmithConfigs();
+const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -44,7 +41,7 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)`
   width: 12px;
   height: 12px;
   display: none;
-  svg {
+  && svg {
     width: 12px;
     height: 12px;
   }
@@ -82,7 +79,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
   }
 `;
 
-const Hit = (props: { hit: { path: string } }) => {
+function Hit(props: { hit: { path: string } }) {
   return (
     <div
       className="t--docHit"
@@ -91,7 +88,7 @@ const Hit = (props: { hit: { path: string } }) => {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon width={11.2} height={14} color="#181F24" />
+        <StyledDocumentIcon color="#181F24" height={14} width={11.2} />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
@@ -100,12 +97,12 @@ const Hit = (props: { hit: { path: string } }) => {
       </div>
     </div>
   );
-};
+}
 
-const DefaultHelpMenuItem = (props: {
+function DefaultHelpMenuItem(props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
   onSelect: () => void;
-}) => {
+}) {
   return (
     <li className="ais-Hits-item">
       <div
@@ -114,7 +111,7 @@ const DefaultHelpMenuItem = (props: {
         onClick={() => {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
-            if (cloudHosting && intercomAppID && window.Intercom) {
+            if (intercomAppID && window.Intercom) {
               window.Intercom("show");
             }
           }
@@ -132,12 +129,11 @@ const DefaultHelpMenuItem = (props: {
       </div>
     </li>
   );
-};
+}
 
 const SearchContainer = styled.div`
   height: 100%;
-  background: #181f24;
-
+  background: ${(props) => props.theme.colors.helpModal.background};
   .ais-SearchBox {
     position: relative;
     height: 30px;
@@ -290,12 +286,26 @@ const HelpFooter = styled.div`
   font-size: 6pt;
 `;
 
-const HelpBody = styled.div`
-  padding-top: 68px;
+const HelpBody = styled.div<{ hideSearch?: boolean }>`
+  ${(props) =>
+    props.hideSearch
+      ? `
+    padding: ${props.theme.spaces[2]}px;
+  `
+      : `
+    padding-top: 68px;
+  `}
   flex: 5;
 `;
 
-type Props = { hitsPerPage: number; defaultRefinement: string; dispatch: any };
+type Props = {
+  hitsPerPage: number;
+  defaultRefinement: string;
+  dispatch: any;
+  hideSearch?: boolean;
+  hideMinimizeBtn?: boolean;
+  user?: User;
+};
 type State = { showResults: boolean };
 
 type HelpItem = {
@@ -307,33 +317,28 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon width={11.2} height={14} color="#181F24" />,
+    icon: <StyledDocumentIcon color="#181F24" height={14} width={11.2} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon width={11.2} height={14} color="#fff" />,
+    icon: <StyledGithubIcon color="#fff" height={14} width={11.2} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
-    label: "Chat with us",
-    link: "https://github.com/appsmithorg/appsmith/discussions",
-  },
-  {
-    icon: <StyledDiscordIcon width={16} height={16} />,
+    icon: <StyledDiscordIcon height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
 ];
 
-if (cloudHosting) {
-  HELP_MENU_ITEMS[2] = {
-    icon: <StyledChatIcon width={11.2} height={14} color="#fff" />,
+if (intercomAppID && window.Intercom) {
+  HELP_MENU_ITEMS.push({
+    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
-  };
+  });
 }
 
 class DocumentationSearch extends React.Component<Props, State> {
@@ -343,6 +348,7 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
+
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available
@@ -365,42 +371,46 @@ class DocumentationSearch extends React.Component<Props, State> {
     if (!algolia.enabled) return null;
     return (
       <SearchContainer className="ais-InstantSearch t--docSearchModal">
-        <Icon
-          className="t--docsMinimize"
-          style={{
-            position: "absolute",
-            top: 6,
-            right: 10,
-            cursor: "pointer",
-            zIndex: 1,
-          }}
-          icon="minus"
-          color="white"
-          iconSize={14}
-          onClick={this.handleClose}
-        />
+        {!this.props.hideMinimizeBtn && (
+          <Icon
+            className="t--docsMinimize"
+            color="white"
+            icon="minus"
+            iconSize={14}
+            onClick={this.handleClose}
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 10,
+              cursor: "pointer",
+              zIndex: 1,
+            }}
+          />
+        )}
         <InstantSearch
           indexName={algolia.indexName}
           searchClient={searchClient}
         >
           <Configure hitsPerPage={this.props.hitsPerPage} />
           <HelpContainer>
-            <Header>
-              <StyledPoweredBy />
-              <SearchBox
-                onChange={this.onSearchValueChange}
-                defaultRefinement={this.props.defaultRefinement}
-              />
-            </Header>
-            <HelpBody>
+            {!this.props.hideSearch && (
+              <Header>
+                <StyledPoweredBy />
+                <SearchBox
+                  defaultRefinement={this.props.defaultRefinement}
+                  onChange={this.onSearchValueChange}
+                />
+              </Header>
+            )}
+            <HelpBody hideSearch={this.props.hideSearch}>
               {this.state.showResults ? (
                 <Hits hitComponent={Hit as any} />
               ) : (
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
-                      key={item.label}
                       item={item}
+                      key={item.label}
                       onSelect={this.handleClose}
                     />
                   ))}
@@ -422,6 +432,7 @@ class DocumentationSearch extends React.Component<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   defaultRefinement: getDefaultRefinement(state),
+  user: getCurrentUser(state),
 });
 
 export default connect(mapStateToProps)(DocumentationSearch);

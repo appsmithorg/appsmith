@@ -2,7 +2,7 @@ import React from "react";
 import styled from "constants/DefaultTheme";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 const ItemWrapper = styled.div`
-  padding-right: 16px;
+  padding-right: 0;
   margin: 8px 0 0 0;
 `;
 
@@ -81,16 +81,16 @@ export class DroppableComponent extends React.Component<
 
   render() {
     const {
-      renderComponent,
       deleteOption,
-      updateOption,
-      toggleVisibility,
       onEdit,
+      renderComponent,
+      toggleVisibility,
+      updateOption,
     } = this.props;
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppable">
-          {({ innerRef, droppableProps, placeholder }) => (
+          {({ droppableProps, innerRef, placeholder }) => (
             <DroppableWrapper
               ref={innerRef as React.Ref<HTMLDivElement>}
               {...droppableProps}
@@ -100,10 +100,10 @@ export class DroppableComponent extends React.Component<
                   return (
                     <Draggable
                       draggableId={item.id}
-                      key={item.id}
                       index={index}
+                      key={item.id}
                     >
-                      {({ innerRef, draggableProps, dragHandleProps }) => (
+                      {({ draggableProps, dragHandleProps, innerRef }) => (
                         <ItemWrapper
                           ref={innerRef as React.Ref<HTMLDivElement>}
                           {...draggableProps}

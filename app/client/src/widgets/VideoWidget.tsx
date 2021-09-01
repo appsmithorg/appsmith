@@ -1,18 +1,14 @@
 import React, { Suspense, lazy } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/ActionConstants";
-import { VALIDATION_TYPES } from "constants/WidgetValidation";
-import {
-  WidgetPropertyValidationType,
-  BASE_WIDGET_VALIDATION,
-} from "utils/WidgetValidation";
-import { TriggerPropertiesMap } from "utils/WidgetFactory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import Skeleton from "components/utils/Skeleton";
 import * as Sentry from "@sentry/react";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import withMeta, { WithMeta } from "./MetaHOC";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 const VideoComponent = lazy(() =>
   retryPromise(() =>
@@ -41,6 +37,17 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
+                expected: {
+                  type: "Video URL",
+                  example: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
           },
           {
             propertyName: "autoPlay",
@@ -50,6 +57,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls the visibility of the widget",
@@ -59,6 +67,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -97,12 +106,6 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     ];
   }
   private _player = React.createRef<ReactPlayer>();
-  static getPropertyValidationMap(): WidgetPropertyValidationType {
-    return {
-      ...BASE_WIDGET_VALIDATION,
-      url: VALIDATION_TYPES.TEXT,
-    };
-  }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
@@ -114,32 +117,38 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {};
   }
 
-  static getTriggerPropertyMap(): TriggerPropertiesMap {
-    return {
-      onEnd: true,
-      onPlay: true,
-      onPause: true,
-    };
-  }
-
-  shouldComponentUpdate(nextProps: VideoWidgetProps) {
-    return nextProps.url !== this.props.url;
-  }
-
   getPageView() {
-    const { url, autoPlay, onEnd, onPause, onPlay } = this.props;
+    const { autoPlay, onEnd, onPause, onPlay, url } = this.props;
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
-          player={this._player}
-          url={url}
           autoplay={autoPlay}
-          controls={true}
+          controls
+          onEnded={() => {
+            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
+              triggerPropertyName: "onEnd",
+              dynamicString: onEnd,
+              event: {
+                type: EventType.ON_VIDEO_END,
+              },
+            });
+          }}
+          onPause={() => {
+            //TODO: We do not want the pause event for onSeek or onEnd.
+            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
+              triggerPropertyName: "onPause",
+              dynamicString: onPause,
+              event: {
+                type: EventType.ON_VIDEO_PAUSE,
+              },
+            });
+          }}
           onPlay={() => {
             this.props.updateWidgetMetaProperty(
               "playState",
               PlayState.PLAYING,
               {
+                triggerPropertyName: "onPlay",
                 dynamicString: onPlay,
                 event: {
                   type: EventType.ON_VIDEO_PLAY,
@@ -147,23 +156,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
               },
             );
           }}
-          onPause={() => {
-            //TODO: We do not want the pause event for onSeek or onEnd.
-            this.props.updateWidgetMetaProperty("playState", PlayState.PAUSED, {
-              dynamicString: onPause,
-              event: {
-                type: EventType.ON_VIDEO_PAUSE,
-              },
-            });
-          }}
-          onEnded={() => {
-            this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
-              dynamicString: onEnd,
-              event: {
-                type: EventType.ON_VIDEO_END,
-              },
-            });
-          }}
+          player={this._player}
+          url={url}
         />
       </Suspense>
     );

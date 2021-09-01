@@ -8,11 +8,10 @@ import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
-import FeatureFlag from "utils/featureFlags";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "constants/ApiConstants";
-import { ERROR_500 } from "../constants/messages";
+import { createMessage, ERROR_500 } from "../constants/messages";
 import localStorage from "utils/localStorage";
 
 export const createReducer = (
@@ -44,7 +43,6 @@ export const createImmerReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
-  FeatureFlag.initialize(appsmithConfigs.featureFlag);
 
   if (appsmithConfigs.sentry.enabled) {
     Sentry.init({
@@ -150,7 +148,11 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const noop = () => {
-  console.log("noop");
+  log.debug("noop");
+};
+
+export const stopEventPropagation = (e: any) => {
+  e.stopPropagation();
 };
 
 export const createNewQueryName = (
@@ -178,7 +180,9 @@ export const convertToString = (value: any): string => {
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
   if (localStorage && localStorage.getItem) {
-    const localStorageLevel = localStorage.getItem("logLevel") as LogLevelDesc;
+    const localStorageLevel = localStorage.getItem(
+      "logLevelOverride",
+    ) as LogLevelDesc;
     if (localStorageLevel) logLevel = localStorageLevel;
   }
   return logLevel;
@@ -190,14 +194,14 @@ export const getInitialsAndColorCode = (
 ): string[] => {
   let inits = "";
   // if name contains space. eg: "Full Name"
-  if (fullName.includes(" ")) {
+  if (fullName && fullName.includes(" ")) {
     const namesArr = fullName.split(" ");
     let initials = namesArr.map((name: string) => name.charAt(0));
     initials = initials.join("").toUpperCase();
     inits = initials.slice(0, 2);
   } else {
     // handle for camelCase
-    const str = fullName.replace(/([a-z])([A-Z])/g, "$1 $2");
+    const str = fullName ? fullName.replace(/([a-z])([A-Z])/g, "$1 $2") : "";
     const namesArr = str.split(" ");
     let initials = namesArr.map((name: string) => name.charAt(0));
     initials = initials.join("").toUpperCase();
@@ -283,7 +287,7 @@ export const retryPromise = (
           if (retriesLeft === 1) {
             return Promise.reject({
               code: ERROR_CODES.SERVER_ERROR,
-              message: ERROR_500,
+              message: createMessage(ERROR_500),
               show: false,
             });
           }
@@ -297,4 +301,36 @@ export const retryPromise = (
 
 export const getRandomPaletteColor = (colorPalette: string[]) => {
   return colorPalette[Math.floor(Math.random() * colorPalette.length)];
+};
+
+export const isBlobUrl = (url: string) => {
+  return typeof url === "string" && url.startsWith("blob:");
+};
+
+/**
+ *
+ * @param data string file data
+ * @param type string file type
+ * @returns string containing blob id and type
+ */
+export const createBlobUrl = (data: string, type: string) => {
+  let url = URL.createObjectURL(data);
+  url = url.replace(
+    `${window.location.protocol}//${window.location.hostname}/`,
+    "",
+  );
+
+  return `${url}?type=${type}`;
+};
+
+/**
+ *
+ * @param blobId string blob id along with type.
+ * @returns [string,string] [blobUrl, type]
+ */
+export const parseBlobUrl = (blobId: string) => {
+  const url = `blob:${window.location.protocol}//${
+    window.location.hostname
+  }/${blobId.substring(5)}`;
+  return url.split("?type=");
 };

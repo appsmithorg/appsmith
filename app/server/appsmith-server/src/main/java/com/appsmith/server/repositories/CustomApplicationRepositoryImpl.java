@@ -77,7 +77,16 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         final ApplicationPage applicationPage = new ApplicationPage(pageId, isDefault);
         return mongoOperations.updateFirst(
                 Query.query(getIdCriteria(applicationId)),
-                new Update().addToSet(FieldName.PAGES, applicationPage),
+                new Update().push(fieldName(QApplication.application.pages), applicationPage),
+                Application.class
+        );
+    }
+
+    @Override
+    public Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
+        return mongoOperations.updateFirst(
+                Query.query(getIdCriteria(applicationId)),
+                new Update().set(fieldName(QApplication.application.pages), pages),
                 Application.class
         );
     }

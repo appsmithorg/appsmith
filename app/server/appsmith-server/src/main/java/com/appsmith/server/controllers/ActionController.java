@@ -1,13 +1,13 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
-import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorNameDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.LayoutActionService;
@@ -62,7 +62,7 @@ public class ActionController {
     }
 
     @PutMapping("/{id}")
-    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @RequestBody ActionDTO resource) {
+    public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @Valid @RequestBody ActionDTO resource) {
         log.debug("Going to update resource with id: {}", id);
         return actionCollectionService.updateAction(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -82,8 +82,8 @@ public class ActionController {
     }
 
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorNameDTO refactorNameDTO) {
-        return layoutActionService.refactorActionName(refactorNameDTO)
+    public Mono<ResponseDTO<LayoutDTO>> refactorActionName(@RequestBody RefactorActionNameDTO refactorActionNameDTO) {
+        return layoutActionService.refactorActionName(refactorActionNameDTO)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

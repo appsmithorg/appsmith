@@ -38,7 +38,8 @@ const OptionWrapper = styled.div<{ selected?: boolean }>`
   cursor: pointer;
   margin-bottom: 4px;
   background: ${(props) => (props.selected ? Colors.POLAR : Colors.WHITE)};
-  border-left: ${(props) => (props.selected ? "4px solid #29CCA3" : "none")};
+  border-left: ${(props) =>
+    props.selected ? "4px solid rgb(3, 179, 101)" : "none"};
   border-radius: 4px;
   .option-title {
     font-weight: 500;
@@ -75,26 +76,26 @@ interface TableCompactModeProps {
   updateCompactMode: (mode: CompactMode) => void;
 }
 
-const TableCompactMode = (props: TableCompactModeProps) => {
+function TableCompactMode(props: TableCompactModeProps) {
   const [selected, selectMenu] = React.useState(false);
   return (
     <Popover
-      minimal
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      position={Position.BOTTOM}
+      isOpen={selected}
+      minimal
       onClose={() => {
         selectMenu(false);
       }}
-      isOpen={selected}
+      position={Position.BOTTOM}
     >
       <TableActionIcon
-        tooltip="Row Height"
-        selected={selected}
+        className="t--table-compact-mode-toggle-btn"
         selectMenu={(selected: boolean) => {
           selectMenu(selected);
         }}
-        className="t--table-compact-mode-toggle-btn"
+        selected={selected}
+        tooltip="Row Height"
       >
         <CompactIcon />
       </TableActionIcon>
@@ -102,14 +103,14 @@ const TableCompactMode = (props: TableCompactModeProps) => {
         {CompactModes.map((item: CompactModeItem, index: number) => {
           return (
             <OptionWrapper
-              selected={
-                props.compactMode ? props.compactMode === item.value : false
-              }
+              className={`${Classes.POPOVER_DISMISS} t--table-compact-mode-option`}
               key={index}
               onClick={() => {
                 props.updateCompactMode(item.value);
               }}
-              className={`${Classes.POPOVER_DISMISS} t--table-compact-mode-option`}
+              selected={
+                props.compactMode ? props.compactMode === item.value : false
+              }
             >
               {item.title}
             </OptionWrapper>
@@ -118,6 +119,6 @@ const TableCompactMode = (props: TableCompactModeProps) => {
       </DropDownWrapper>
     </Popover>
   );
-};
+}
 
 export default TableCompactMode;

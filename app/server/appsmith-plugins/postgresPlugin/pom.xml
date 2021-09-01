@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.pf4j</groupId>
             <artifactId>pf4j-spring</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -49,7 +49,6 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.2.12</version>
-            <scope>runtime</scope>
         </dependency>
 
         <dependency>

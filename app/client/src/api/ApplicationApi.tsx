@@ -1,8 +1,9 @@
-import Api from "./Api";
+import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
 import { AppIconName } from "components/ads/AppIcon";
+import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -29,11 +30,13 @@ export interface ApplicationResponsePayload {
   organizationId: string;
   pages?: ApplicationPagePayload[];
   appIsExample: boolean;
+  appLayout?: AppLayoutConfig;
+  unreadCommentThreads?: number;
 }
 
-// export interface FetchApplicationResponse extends ApiResponse {
-//   data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
-// }
+export interface FetchApplicationResponse extends ApiResponse {
+  data: ApplicationResponsePayload & { pages: ApplicationPagePayload[] };
+}
 
 export interface FetchApplicationsResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
@@ -63,6 +66,11 @@ export interface DuplicateApplicationRequest {
   applicationId: string;
 }
 
+export interface ForkApplicationRequest {
+  applicationId: string;
+  organizationId: string;
+}
+
 export interface GetAllApplicationResponse extends ApiResponse {
   data: Array<ApplicationResponsePayload & { pages: ApplicationPagePayload[] }>;
 }
@@ -72,6 +80,7 @@ export type UpdateApplicationPayload = {
   color?: string;
   name?: string;
   currentApp?: boolean;
+  appLayout?: AppLayoutConfig;
 };
 
 export type UpdateApplicationRequest = UpdateApplicationPayload & {
@@ -111,6 +120,13 @@ export interface FetchUsersApplicationsOrgsResponse extends ApiResponse {
   };
 }
 
+export interface ImportApplicationRequest {
+  orgId: string;
+  applicationFile?: File;
+  progress?: (progressEvent: ProgressEvent) => void;
+  onSuccessCallback?: () => void;
+}
+
 class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
@@ -139,13 +155,13 @@ class ApplicationApi extends Api {
 
   static fetchApplication(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
-  ): AxiosPromise<FetchApplicationsResponse> {
+  ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 
@@ -192,6 +208,32 @@ class ApplicationApi extends Api {
     request: DuplicateApplicationRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.post(ApplicationApi.baseURL + "clone/" + request.applicationId);
+  }
+
+  static forkApplication(
+    request: ForkApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(
+      "v1/applications/" +
+        request.applicationId +
+        "/fork/" +
+        request.organizationId,
+    );
+  }
+
+  static importApplicationToOrg(
+    request: ImportApplicationRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+    if (request.applicationFile) {
+      formData.append("file", request.applicationFile);
+    }
+    return Api.post("v1/applications/import/" + request.orgId, formData, null, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress: request.progress,
+    });
   }
 }
 

@@ -40,6 +40,11 @@
       "color": "074ac6",
       "description": ""
     },
+    "Collaboration": {
+      "name": "Collaboration",
+      "color": "d802a3",
+      "description": "Example apps created for new signups"
+    },
     "Container Widget": {
       "name": "Container Widget",
       "color": "19AD0D",
@@ -80,8 +85,8 @@
       "color": "0075ca",
       "description": "Improvements or additions to documentation"
     },
-    "Dropdown Widget": {
-      "name": "Dropdown Widget",
+    "Select Widget": {
+      "name": "Select Widget",
       "color": "0c669e",
       "description": ""
     },
@@ -130,6 +135,16 @@
       "color": "7057ff",
       "description": "Good for newcomers"
     },
+    "Google Sheets": {
+      "name": "Google Sheets",
+      "color": "7057ff",
+      "description": "Issues related to Google Sheets"
+    },
+    "Generate Page": {
+      "name": "Generate Page",
+      "color": "7057ff",
+      "description": "Issues related to page generation"
+    },
     "Help Wanted": {
       "name": "Help Wanted",
       "color": "008672",
@@ -150,6 +165,11 @@
       "color": "8de8ad",
       "description": ""
     },
+    "In App Comms": {
+      "name": "In App Comms",
+      "color": "56C8E3",
+      "description": ""
+    },
     "Input Widget": {
       "name": "Input Widget",
       "color": "ae65d8",
@@ -165,6 +185,10 @@
       "color": "50ba23",
       "description": ""
     },
+    "Import-Export-App": {
+      "name": "Import-Export-App",
+      "color": "50ba23"
+    },
     "JS": {
       "name": "JS",
       "color": "ffc1c2",
@@ -179,6 +203,11 @@
       "name": "Low",
       "color": "79e53b",
       "description": "An unexpected or annoying bug"
+    },
+    "List Widget": {
+      "name": "List Widget",
+      "color": "79e53b",
+      "description": "Issues Related to the list widget"
     },
     "Map Widget": {
       "name": "Map Widget",
@@ -214,6 +243,11 @@
       "name": "Needs Triaging",
       "color": "e8b851",
       "description": "Needs attention from maintainers to triage"
+    },
+    "New Integration": {
+      "name": "New Integration",
+      "color": "BD53D8",
+      "description": "Requests for new integrations"
     },
     "New Widget": {
       "name": "New Widget",
@@ -476,6 +510,11 @@
               },
               {
                 "type": "hasLabel",
+                "label": "Google Sheets",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
                 "label": "API pane",
                 "value": true
               },
@@ -492,6 +531,11 @@
               {
                 "type": "hasLabel",
                 "label": "Actions",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "New Integration",
                 "value": true
               }
             ]
@@ -525,7 +569,7 @@
                 "value": true
               },
               {
-                "label": "Dropdown Widget",
+                "label": "Select Widget",
                 "type": "hasLabel",
                 "value": true
               },
@@ -546,6 +590,11 @@
               },
               {
                 "label": "Input Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "List Widget",
                 "type": "hasLabel",
                 "value": true
               },
@@ -595,6 +644,31 @@
                 "value": true
               },
               {
+                "label": "iFrame",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Menu Button",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Divider",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Rating",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
+                "label": "Widget Validation",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Widgets",
                 "type": "hasLabel",
                 "value": true
@@ -623,6 +697,11 @@
                 "type": "hasLabel",
                 "label": "UI Building",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "UI Performance",
+                "value": true
               }
             ]
           },
@@ -637,6 +716,11 @@
               {
                 "type": "hasLabel",
                 "label": "Debugger",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Import-Export-App",
                 "value": true
               },
               {
@@ -671,6 +755,16 @@
               },
               {
                 "type": "hasLabel",
+                "label": "In App Comms",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Generate Page",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
                 "label": "Settings",
                 "value": true
               },
@@ -687,6 +781,11 @@
               {
                 "type": "hasLabel",
                 "label": "Version Control",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "Collaboration",
                 "value": true
               },
               {

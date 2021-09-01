@@ -2,7 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import { Form, reduxForm, InjectedFormProps, Field } from "redux-form";
 import { CREATE_APPLICATION_FORM_NAME } from "constants/forms";
-import { ERROR_MESSAGE_NAME_EMPTY, NAME_SPACE_ERROR } from "constants/messages";
+import {
+  createMessage,
+  ERROR_MESSAGE_NAME_EMPTY,
+  NAME_SPACE_ERROR,
+} from "constants/messages";
 import { AppState } from "reducers";
 import {
   CreateApplicationFormValues,
@@ -29,10 +33,14 @@ type Props = InjectedFormProps<
 
 const validate = (values: CreateApplicationFormValues) => {
   if (!values[CREATE_APPLICATION_FORM_NAME_FIELD]) {
-    return { [CREATE_APPLICATION_FORM_NAME_FIELD]: ERROR_MESSAGE_NAME_EMPTY };
+    return {
+      [CREATE_APPLICATION_FORM_NAME_FIELD]: createMessage(
+        ERROR_MESSAGE_NAME_EMPTY,
+      ),
+    };
   } else if (!values[CREATE_APPLICATION_FORM_NAME_FIELD].trim()) {
     return {
-      [CREATE_APPLICATION_FORM_NAME_FIELD]: NAME_SPACE_ERROR,
+      [CREATE_APPLICATION_FORM_NAME_FIELD]: createMessage(NAME_SPACE_ERROR),
     };
   }
   return {};
@@ -40,8 +48,8 @@ const validate = (values: CreateApplicationFormValues) => {
 
 // TODO(abhinav): abstract onCancel out.
 
-const CreateApplicationForm = (props: Props) => {
-  const { error, handleSubmit, pristine, submitting, invalid } = props;
+function CreateApplicationForm(props: Props) {
+  const { error, handleSubmit, invalid, pristine, submitting } = props;
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
@@ -50,22 +58,22 @@ const CreateApplicationForm = (props: Props) => {
           name={CREATE_APPLICATION_FORM_NAME_FIELD}
           placeholder="Name"
         />
-        <Field type="hidden" name="orgId" component="input" />
+        <Field component="input" name="orgId" type="hidden" />
       </FormGroup>
       <FormFooter
+        canSubmit={!invalid}
+        data-cy="t--create-app-submit"
+        divider
         onCancel={props.onCancel}
         onSubmit={handleSubmit(createApplicationFormSubmitHandler)}
-        divider
-        canSubmit={!invalid}
-        submitOnEnter
-        data-cy="t--create-app-submit"
-        submitText="Submit"
         size="small"
+        submitOnEnter
+        submitText="Submit"
         submitting={submitting && !error}
       />
     </Form>
   );
-};
+}
 
 const mapStateToProps = (state: AppState, props: Props): any => {
   const orgId = props.orgId;

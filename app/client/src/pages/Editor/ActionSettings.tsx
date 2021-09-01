@@ -1,6 +1,7 @@
 import React from "react";
 import { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
+import log from "loglevel";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 
@@ -14,7 +15,7 @@ const FormRow = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[10] + 1}px;
 `;
 
-const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
+function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <>
       {props.actionSettingsConfig.map((section: any) =>
@@ -22,7 +23,7 @@ const ActionSettings = (props: ActionSettingsProps): JSX.Element => {
       )}
     </>
   );
-};
+}
 
 const renderEachConfig = (section: any, formName: string): any => {
   return section.children.map((formControlOrSection: ControlProps) => {
@@ -37,7 +38,7 @@ const renderEachConfig = (section: any, formName: string): any => {
           </FormRow>
         );
       } catch (e) {
-        console.log(e);
+        log.error(e);
       }
     }
     return null;

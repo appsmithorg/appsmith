@@ -1,12 +1,12 @@
 package com.external.plugins;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -94,11 +94,11 @@ public class RapidApiPlugin extends BasePlugin {
                 for (Property property : actionConfiguration.getRouteParameters()) {
                     // If either the key or the value is empty, skip
                     if (property.getKey() != null && !property.getKey().isEmpty() &&
-                            property.getValue() != null && !property.getValue().isEmpty()) {
+                            property.getValue() != null && !((String) property.getValue()).isEmpty()) {
 
                         Pattern pattern = Pattern.compile("\\{" + property.getKey() + "\\}");
                         Matcher matcher = pattern.matcher(url);
-                        url = matcher.replaceAll(URLEncoder.encode(property.getValue()));
+                        url = matcher.replaceAll(URLEncoder.encode((String) property.getValue()));
                     }
                 }
             }
@@ -126,11 +126,11 @@ public class RapidApiPlugin extends BasePlugin {
 
                     if (property.getValue() != null) {
                         if (!property.getType().equals(JSON_TYPE)) {
-                            keyValueMap.put(property.getKey(), property.getValue());
+                            keyValueMap.put(property.getKey(), (String) property.getValue());
                         } else {
                             // This is actually supposed to be the body and should not be in key-value format. No need to
                             // convert the same.
-                            jsonString = property.getValue();
+                            jsonString = (String) property.getValue();
                             break;
                         }
                     }
@@ -285,7 +285,7 @@ public class RapidApiPlugin extends BasePlugin {
         private void addHeadersToRequest(WebClient.Builder webClientBuilder, List<Property> headers) {
             for (Property header : headers) {
                 if (header.getKey() != null && !header.getKey().isEmpty()) {
-                    webClientBuilder.defaultHeader(header.getKey(), header.getValue());
+                    webClientBuilder.defaultHeader(header.getKey(), (String) header.getValue());
                 }
             }
         }
@@ -305,8 +305,8 @@ public class RapidApiPlugin extends BasePlugin {
                 for (Property queryParam : queryParams) {
                     // If either the key or the value is empty, skip
                     if (queryParam.getKey() != null && !queryParam.getKey().isEmpty() &&
-                            queryParam.getValue() != null && !queryParam.getValue().isEmpty()) {
-                        uriBuilder.queryParam(queryParam.getKey(), URLEncoder.encode(queryParam.getValue(),
+                            queryParam.getValue() != null && !((String) queryParam.getValue()).isEmpty()) {
+                        uriBuilder.queryParam(queryParam.getKey(), URLEncoder.encode((String) queryParam.getValue(),
                                 StandardCharsets.UTF_8));
                     }
                 }

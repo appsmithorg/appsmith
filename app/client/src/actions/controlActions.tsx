@@ -1,13 +1,12 @@
 import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
 import { RenderMode } from "constants/WidgetConstants";
-import { BatchAction, batchAction } from "actions/batchActions";
+import { DynamicPath } from "utils/DynamicBindingUtils";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
   propertyPath: string,
   propertyValue: any,
   renderMode: RenderMode,
-  isDynamicTrigger?: boolean,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -16,27 +15,19 @@ export const updateWidgetPropertyRequest = (
       propertyPath,
       propertyValue,
       renderMode,
-      isDynamicTrigger,
     },
   };
 };
 
-export const updateWidgetProperty = (
-  widgetId: string,
-  updates: Record<string, unknown>,
-): BatchAction<UpdateWidgetPropertyPayload> => {
-  return batchAction({
-    type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY,
-    payload: {
-      widgetId,
-      updates,
-    },
-  });
-};
+export interface BatchPropertyUpdatePayload {
+  modify?: Record<string, unknown>; //Key value pairs of paths and values to update
+  remove?: string[]; //Array of paths to delete
+  triggerPaths?: string[]; // Array of paths in the modify and remove list which are trigger paths
+}
 
 export const batchUpdateWidgetProperty = (
   widgetId: string,
-  updates: Record<string, unknown>,
+  updates: BatchPropertyUpdatePayload,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
@@ -76,12 +67,20 @@ export interface UpdateWidgetPropertyRequestPayload {
   propertyPath: string;
   propertyValue: any;
   renderMode: RenderMode;
-  isDynamicTrigger?: boolean;
 }
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
-  updates: Record<string, unknown>;
+  updates: BatchPropertyUpdatePayload;
+  dynamicUpdates?: {
+    dynamicBindingPathList: DynamicPath[];
+    dynamicTriggerPathList: DynamicPath[];
+  };
+}
+
+export interface UpdateCanvasLayout {
+  width: number;
+  height: number;
 }
 
 export interface SetWidgetDynamicPropertyPayload {

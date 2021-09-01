@@ -4,6 +4,8 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.querydsl.core.annotations.QueryEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,8 +14,12 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
 @Setter
@@ -43,12 +49,33 @@ public class Application extends BaseDomain {
     @Transient
     boolean appIsExample = false;
 
+    @Transient
+    long unreadCommentThreads;
+
     @JsonIgnore
     String clonedFromApplicationId;
 
     String color;
 
     String icon;
+
+    @JsonIgnore
+    AppLayout unpublishedAppLayout;
+
+    @JsonIgnore
+    AppLayout publishedAppLayout;
+
+    Boolean forkingEnabled;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    Instant lastDeployedAt; // when this application was last deployed
+
+    public String getLastDeployedAt() {
+        if(lastDeployedAt != null) {
+            return ISO_FORMATTER.format(lastDeployedAt);
+        }
+        return null;
+    }
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
@@ -60,10 +87,51 @@ public class Application extends BaseDomain {
         this.clonedFromApplicationId = application.getId();
         this.color = application.getColor();
         this.icon = application.getIcon();
+        this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
+        this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
     }
 
     public List<ApplicationPage> getPages() {
-        return viewMode ? publishedPages : pages;
+        return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
+    }
+
+    public AppLayout getAppLayout() {
+        return Boolean.TRUE.equals(viewMode) ? publishedAppLayout : unpublishedAppLayout;
+    }
+
+    public void setAppLayout(AppLayout appLayout) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            publishedAppLayout = appLayout;
+        } else {
+            unpublishedAppLayout = appLayout;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AppLayout implements Serializable {
+        Type type;
+
+        /**
+         * @deprecated The following field is deprecated and now removed, because it's needed in a migration. After the
+         * migration has been run, it may be removed (along with the migration or there'll be compile errors there).
+         */
+        @JsonIgnore
+        @Deprecated(forRemoval = true)
+        Integer width = null;
+
+        public AppLayout(Type type) {
+            this.type = type;
+        }
+
+        public enum Type {
+            DESKTOP,
+            TABLET_LARGE,
+            TABLET,
+            MOBILE,
+            FLUID,
+        }
     }
 
 }
