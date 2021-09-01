@@ -9,7 +9,7 @@ import { IconName } from "@blueprintjs/icons";
 import { Alignment } from "@blueprintjs/core";
 import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
-
+import { ButtonStyle as IconButtonStyle } from "../IconButtonComponent";
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
   TABLE_HEADER_HEIGHT: number;
@@ -110,6 +110,8 @@ export interface CellLayoutProperties {
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
+  buttonVariant: ButtonVariant;
+  iconButtonStyle: IconButtonStyle;
   isCellVisible: boolean;
   isCompact?: boolean;
   menuItems: Record<
@@ -166,7 +168,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
 
 export interface ColumnProperties {
   id: string;
-  label: string;
+  label?: string;
   columnType: string;
   isVisible: boolean;
   isDisabled?: boolean;
@@ -191,6 +193,8 @@ export interface ColumnProperties {
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
+  buttonVariant?: ButtonVariant;
+  iconButtonStyle?: IconButtonStyle;
   isCellVisible?: boolean;
   isCompact?: boolean;
   menuItems?: Record<

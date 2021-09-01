@@ -50,6 +50,10 @@ import {
 import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 import { Popover2 } from "@blueprintjs/popover2";
+import {
+  StyledButton,
+  ButtonStyle as IconButtonStyle,
+} from "../IconButtonComponent";
 
 export const renderCell = (
   value: any,
@@ -175,6 +179,95 @@ export const renderCell = (
       );
   }
 };
+
+interface RenderIconButtonProps {
+  isSelected: boolean;
+  columnActions?: ColumnAction[];
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  buttonStyle: IconButtonStyle;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isCellVisible: boolean;
+}
+export const renderIconButton = (
+  props: RenderIconButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  if (!props.columnActions)
+    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+
+  return (
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
+      {props.columnActions.map((action: ColumnAction, index: number) => {
+        return (
+          <IconButton
+            action={action}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
+            buttonStyle={props.buttonStyle}
+            buttonVariant={props.buttonVariant}
+            iconName={props.iconName}
+            isSelected={props.isSelected}
+            key={index}
+            onCommandClick={props.onCommandClick}
+          />
+        );
+      })}
+    </CellWrapper>
+  );
+};
+function IconButton(props: {
+  iconName?: IconName;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isSelected: boolean;
+  action: ColumnAction;
+  buttonStyle?: IconButtonStyle;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+}): JSX.Element {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (props.isSelected) {
+      e.stopPropagation();
+    }
+  };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
+  return (
+    <div onClick={handlePropagation}>
+      <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
+        buttonStyle={props.buttonStyle}
+        buttonVariant={props.buttonVariant}
+        icon={props.iconName}
+        loading={loading}
+        onClick={handleClick}
+      />
+    </div>
+  );
+}
 
 interface RenderActionProps {
   isSelected: boolean;
@@ -469,9 +562,12 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
-            return (
-              <div {...cell.getCellProps()} className="td" key={cellIndex} />
-            );
+            const cellProps = cell.getCellProps();
+            if (columns[0]?.columnProperties?.cellBackground) {
+              cellProps.style.background =
+                columns[0].columnProperties.cellBackground;
+            }
+            return <div {...cellProps} className="td" key={cellIndex} />;
           })}
         </div>
       );

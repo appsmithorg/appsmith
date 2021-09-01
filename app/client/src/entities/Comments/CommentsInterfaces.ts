@@ -77,6 +77,21 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   viewedByUsers?: Array<string>;
 } & { _id: string };
 
+export type DraggedCommentThread = {
+  dragPosition: {
+    x: number;
+    y: number;
+  };
+  containerSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  refId: string;
+  widgetType?: WidgetType;
+};
+
 export type CommentEventPayload = {
   type: typeof COMMENT_EVENTS[keyof typeof COMMENT_EVENTS];
   payload: any; // based on comment event
