@@ -31,6 +31,7 @@ import {
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
   migrateTableWidgetDelimiterProperties,
+  migrateTableSanitizeColumnKeys,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -829,6 +830,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 33) {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL.version = 34;
+  }
+
+  if (currentDSL.version === 34) {
+    currentDSL = migrateTableSanitizeColumnKeys(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

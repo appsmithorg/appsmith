@@ -310,3 +310,87 @@ export const migrateTablePrimaryColumnsComputedValue = (
   });
   return currentDSL;
 };
+
+/**
+ * This migration sanitizes the following properties -
+ * primaryColumns object key, for the value of each key - id, computedValue are sanitized
+ * columnOrder
+ * dynamicBindingPathList
+ *
+ * This migration solves the following issue -
+ * https://github.com/appsmithorg/appsmith/issues/6897
+ */
+export const migrateTableSanitizeColumnKeys = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      // primaryColumnKeyTuples keeps track of the keys that were sanitized
+      // these keys can be updated elsewhere
+      const primaryColumnKeyTuples: [string, string][] = [];
+
+      const primaryColumnEntries: [string, ColumnProperties][] = Object.entries(
+        child.primaryColumns || {},
+      );
+
+      const newPrimaryColumns: Record<string, ColumnProperties> = {};
+      if (primaryColumnEntries.length) {
+        for (const [key, value] of primaryColumnEntries) {
+          const sanitizedKey = removeSpecialChars(key, 200);
+          const id = removeSpecialChars(value.id, 200);
+
+          if (sanitizedKey !== key) {
+            primaryColumnKeyTuples.push([key, sanitizedKey]);
+          }
+
+          // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
+          // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
+          const computedValue = (value?.computedValue || "").replace(
+            key,
+            sanitizedKey,
+          );
+
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue,
+            id,
+          };
+        }
+
+        child.primaryColumns = newPrimaryColumns;
+      }
+
+      // Sanitizes [ "id", "name", $$$random_header ]
+      // to [ "id", "name", _random_header ]
+      child.columnOrder = (child.columnOrder || []).map((co: string) =>
+        removeSpecialChars(co, 200),
+      );
+
+      // Sanitizes [ {key: primaryColumns.$$$random_header.computedValue }]
+      // to [ {key: primaryColumns._random_header.computedValue }]
+      child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
+        (path) => {
+          const sanitizedPrimaryColumnKey = primaryColumnKeyTuples.find(
+            ([oldKey]) => path.key.includes(oldKey),
+          );
+
+          if (sanitizedPrimaryColumnKey) {
+            const [key, sanitizedKey] = sanitizedPrimaryColumnKey;
+
+            return {
+              key: path.key.replace(key, sanitizedKey),
+            };
+          }
+
+          return path;
+        },
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTablePrimaryColumnsComputedValue(child);
+    }
+
+    return child;
+  });
+
+  return currentDSL;
+};
