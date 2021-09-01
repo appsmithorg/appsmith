@@ -30,7 +30,11 @@ import DataSourceOption from "../DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
-import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
+import {
+  GENERATE_PAGE_FORM_TITLE,
+  createMessage,
+  GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
+} from "constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -584,7 +588,7 @@ function GeneratePageForm() {
       </Wrapper>
       <FormWrapper>
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>Select Datasource</Label>
+          <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
