@@ -31,6 +31,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { createMessage, DEBUGGER_TRIGGER_ERROR } from "constants/messages";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -87,6 +88,8 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     event: { type },
     responseData,
+    source,
+    triggerPropertyName,
   } = payload;
   log.debug({ dynamicString, responseData });
   if (dynamicString === undefined) {
@@ -98,6 +101,8 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     responseData,
   );
+
+  AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
 
   log.debug({ triggers });
   if (triggers && triggers.length) {
@@ -119,7 +124,6 @@ function* initiateActionTriggerExecution(
     if (event.callback) {
       event.callback({ success: true });
     }
-    AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   } catch (e) {
     // handle errors here
     if (event.callback) {
@@ -127,24 +131,25 @@ function* initiateActionTriggerExecution(
     }
     log.error(e);
 
-    AppsmithConsole.addError({
-      id: `${source?.id}-${triggerPropertyName}`,
-      logType: LOG_TYPE.EVAL_ERROR,
-      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-      source: {
-        type: ENTITY_TYPE.WIDGET,
-        id: source?.id ?? "",
-        name: source?.name ?? "",
-        propertyPath: triggerPropertyName,
-      },
-      messages: [
-        {
-          // We show the exact error message thrown by for e.g plugin action saga
-          // else we show the default message
-          message: e?.error?.message ?? e.message,
+    if (e instanceof TriggerEvaluationError) {
+      AppsmithConsole.addError({
+        id: `${source?.id}-${triggerPropertyName}`,
+        logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+        text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+        source: {
+          type: ENTITY_TYPE.WIDGET,
+          id: source?.id ?? "",
+          name: source?.name ?? "",
+          propertyPath: triggerPropertyName,
         },
-      ],
-    });
+        messages: [
+          {
+            type: PropertyEvaluationErrorType.PARSE,
+            message: e.message,
+          },
+        ],
+      });
+    }
   }
 }
 

@@ -199,8 +199,9 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     // Fall through intentional here
-    case LOG_TYPE.EVAL_ERROR:
+    case LOG_TYPE.TRIGGER_EVAL_ERROR:
       yield put(debuggerLog(payload));
+    case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
       if (payload.source && payload.source.propertyPath) {
