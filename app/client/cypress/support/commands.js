@@ -1621,8 +1621,8 @@ Cypress.Commands.add("Deletepage", (Pagename) => {
   cy.get(".t--page-sidebar-" + Pagename + "");
   cy.get(
     ".t--page-sidebar-" +
-    Pagename +
-    ">.t--page-sidebar-menu-actions>.bp3-popover-target",
+      Pagename +
+      ">.t--page-sidebar-menu-actions>.bp3-popover-target",
   ).click({ force: true });
   cy.get(pages.Menuaction).click({ force: true });
   cy.get(pages.Delete).click({ force: true });
@@ -2497,6 +2497,7 @@ Cypress.Commands.add("startRoutesForDatasource", () => {
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
+  cy.server();
   //To update route with intercept after working on alias wrt wait and alias
   cy.intercept("GET", "/api/v1/applications/new").as("applications");
   //cy.intercept("GET", "/api/v1/users/profile").as("getUser");
@@ -2591,7 +2592,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.intercept("POST", "/api/v1/comments?threadId=*").as("createNewComment");
-
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
