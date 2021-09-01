@@ -37,7 +37,6 @@ import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
 import { fetchPage } from "actions/pageActions";
-import * as log from "loglevel";
 
 type EditorProps = {
   currentApplicationId?: string;
