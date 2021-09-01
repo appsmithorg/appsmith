@@ -64,8 +64,7 @@ const NumberBox = styled.div`
 `;
 
 const PaginationTypeView = styled.div`
-  margin-left: 330px;
-  width: 100%;
+  margin-left: 20px;
   display: flex;
   justify-content: space-between;
 `;
@@ -112,11 +111,7 @@ const GifContainer = styled.div`
 export default function Pagination(props: PaginationProps) {
   return (
     <PaginationSection>
-      <FormRow
-        style={{
-          position: "fixed",
-        }}
-      >
+      <FormRow>
         <RadioFieldGroup
           className="t--apiFormPaginationType"
           name="actionConfiguration.paginationType"

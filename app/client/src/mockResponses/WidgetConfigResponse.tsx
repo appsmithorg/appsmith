@@ -182,7 +182,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      totalRecordCount: 0,
+      totalRecordsCount: 0,
       defaultPageSize: 0,
       dynamicBindingPathList: [
         {
