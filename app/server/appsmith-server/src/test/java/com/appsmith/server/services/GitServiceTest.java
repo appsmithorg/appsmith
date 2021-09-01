@@ -117,4 +117,47 @@ public class GitServiceTest {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateConfig_ValidProfileName_Success() {
+        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
+        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test.url","anagh@appsmith.com","anagh@appsmith.com",
+                "Test123", "", false, "test1");
+
+        Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO)
+                .flatMap(userData -> {
+                    gitGlobalConfigDTO.setAuthor("Test");
+                    return gitDataService.updateGitConfigData(gitGlobalConfigDTO);
+                });
+
+        StepVerifier
+                .create(userDataMono)
+                .assertNext(userData -> {
+                   assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO));
+                });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateConfig_InValidProfileName_NoUpdate() {
+        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
+        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test.url","anagh@appsmith.com","anagh@appsmith.com",
+                "Test123", "", false, "test1");
+
+        Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO)
+                .flatMap(userData -> {
+                    gitGlobalConfigDTO.setAuthor("Test");
+                    gitGlobalConfigDTO.setProfileName("new");
+                    return gitDataService.updateGitConfigData(gitGlobalConfigDTO);
+                });
+
+        StepVerifier
+                .create(userDataMono)
+                .assertNext(userData -> {
+                    assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO)).isFalse();
+                });
+    }
+
 }

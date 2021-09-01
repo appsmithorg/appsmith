@@ -42,7 +42,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
-        if(gitConfig.getProfileName() == null) {
+        if(gitConfig.getProfileName() == null || gitConfig.getProfileName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Profile Name", ""));
         }
         return userService.findByEmail(gitConfig.getUserName())
