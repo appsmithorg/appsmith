@@ -27,9 +27,9 @@ class JsonViewWidget extends BaseWidget<JsonViewWidgetProps, WidgetState> {
           },
           {
             propertyName: "collapsed",
-            label: "Collapsed",
-            helpText: "When true, all nodes will be collapsed by default.",
-            controlType: "SWITCH",
+            label: "Expand Depth",
+            helpText: "Depth of nested objects to expand by default.",
+            controlType: "INPUT_TEXT",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -41,12 +41,14 @@ class JsonViewWidget extends BaseWidget<JsonViewWidgetProps, WidgetState> {
     return {
       ...BASE_WIDGET_VALIDATION,
       source: VALIDATION_TYPES.OBJECT,
-      collapsed: VALIDATION_TYPES.BOOLEAN,
+      collapsed: VALIDATION_TYPES.NUMBER,
     };
   }
 
   getPageView() {
-    return <JSONViewer src={this.props.source} />;
+    return (
+      <JSONViewer src={this.props.source} collapsed={this.props.collapsed} />
+    );
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -62,7 +64,7 @@ class JsonViewWidget extends BaseWidget<JsonViewWidgetProps, WidgetState> {
 
 export interface JsonViewWidgetProps extends WidgetProps {
   source: any;
-  isLoading: boolean;
+  collapsed: number;
 }
 
 export default JsonViewWidget;

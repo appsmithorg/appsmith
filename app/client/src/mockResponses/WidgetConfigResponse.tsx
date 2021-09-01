@@ -454,7 +454,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 6,
       columns: 6,
       widgetName: "JSON View",
-      isLoading: true,
+      collapsed: 1,
       source: [{ key: "Value", keyTwo: { nested: "value" } }],
     },
   },

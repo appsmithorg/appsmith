@@ -21,13 +21,14 @@ const Record = styled(Card)`
 
 type JSONOutputProps = {
   src: Record<string, any>[];
+  collapsed?: boolean | number;
 };
 
 type Props = JSONOutputProps;
 
 class JSONOutput extends React.Component<Props> {
   render() {
-    const { src } = this.props;
+    const { src, collapsed = 1 } = this.props;
     const reactJsonProps = {
       name: null,
       enableClipboard: false,
@@ -36,7 +37,7 @@ class JSONOutput extends React.Component<Props> {
       style: {
         fontSize: "14px",
       },
-      collapsed: 1,
+      collapsed,
     };
 
     if (typeof src !== "object") {

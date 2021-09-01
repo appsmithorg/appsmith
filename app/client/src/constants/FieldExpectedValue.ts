@@ -160,7 +160,7 @@ const FIELD_VALUES: Record<
   },
   JSON_VIEW_WIDGET: {
     source: "string",
-    collapse: "boolean",
+    collapsed: "number",
   },
 };
 
