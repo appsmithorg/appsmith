@@ -47,7 +47,7 @@ public class MustacheHelper {
 
     /**
      * Appsmith smart replacement with placeholder : The regex pattern below looks for `APPSMITH_SUBSTITUTION_PLACEHOLDER`
-     * surrounded by quotes. This pattern is later replaced with APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
+     * surrounded by quotes (or not). This pattern is later replaced with APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
      * of JSON smart replacement
      */
     private static String regexPlaceholderTrimming = "([\"']" + APPSMITH_SUBSTITUTION_PLACEHOLDER + "[\"'])";
