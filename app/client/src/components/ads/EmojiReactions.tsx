@@ -14,7 +14,7 @@ const Bubble = styled.div<{ active?: boolean }>`
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: ${(props) => `2px ${props.theme.spaces[2]}px`};
+  padding: ${(props) => `2px ${props.theme.spaces[1]}px`};
 
   background-color: ${(props) =>
     props.active
@@ -29,10 +29,12 @@ const Bubble = styled.div<{ active?: boolean }>`
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
   margin-right: ${(props) => `${props.theme.radii[1]}px`};
+  margin-top: ${(props) => `${props.theme.radii[1]}px`};
 
   /* At times the rendered emoji has width as 16px */
   & span.emoji {
     min-width: 20px;
+    text-align: center;
   }
 `;
 
@@ -42,7 +44,6 @@ const Count = styled.div<{ active?: boolean }>`
     props.active
       ? props.theme.colors.reactionsComponent.textActive
       : props.theme.colors.reactionsComponent.text};
-  margin-left: ${(props) => props.theme.spaces[1]}px;
   max-width: 30px;
   text-overflow: ellipsis;
   overflow: hidden;
