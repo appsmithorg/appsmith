@@ -1,6 +1,7 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
 import { zipObject } from "lodash";
+import log from "loglevel";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "DELETE", "PATCH"];
 const HTTP_METHOD_COLORS = [
@@ -50,6 +51,46 @@ export enum ApiContentTypes {
   FORM_URLENCODED = "x-www-form-urlencoded",
   MULTIPART_FORM_DATA = "multi-part",
   RAW = "raw",
+  NONE = "none",
+}
+
+export class POST_BODY_FORMAT_OPTIONS_CLASS {
+  public static readonly JSON = new POST_BODY_FORMAT_OPTIONS_CLASS(
+    ApiContentTypes.JSON,
+    "application/json",
+  );
+  public static readonly FORM_URLENCODED = new POST_BODY_FORMAT_OPTIONS_CLASS(
+    ApiContentTypes.FORM_URLENCODED,
+    "application/x-www-form-urlencoded",
+  );
+  public static readonly MULTIPART_FORM_DATA = new POST_BODY_FORMAT_OPTIONS_CLASS(
+    ApiContentTypes.MULTIPART_FORM_DATA,
+    "multipart/form-data",
+  );
+  public static readonly RAW = new POST_BODY_FORMAT_OPTIONS_CLASS(
+    ApiContentTypes.RAW,
+    "raw",
+  );
+  public static readonly NONE = new POST_BODY_FORMAT_OPTIONS_CLASS(
+    ApiContentTypes.NONE,
+    "none",
+  );
+
+  private constructor(
+    public readonly label: ApiContentTypes,
+    public readonly value: string,
+  ) {}
+
+  public getFormatTitles() {
+    return { title: this.label, key: this.value };
+  }
+
+  public static getAllItems() {
+    for (const item in ApiContentTypes) {
+      log.debug("****** yo ******");
+      log.debug(item);
+    }
+  }
 }
 
 export const POST_BODY_FORMAT_OPTIONS: Array<{
@@ -63,6 +104,7 @@ export const POST_BODY_FORMAT_OPTIONS: Array<{
   },
   { label: ApiContentTypes.MULTIPART_FORM_DATA, value: "multipart/form-data" },
   { label: ApiContentTypes.RAW, value: "raw" },
+  { label: ApiContentTypes.NONE, value: "none" },
 ];
 
 export const POST_BODY_FORMATS = POST_BODY_FORMAT_OPTIONS.map((option) => {

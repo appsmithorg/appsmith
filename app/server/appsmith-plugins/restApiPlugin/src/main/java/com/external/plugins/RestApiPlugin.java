@@ -273,15 +273,12 @@ public class RestApiPlugin extends BasePlugin {
             // Based on the content-type, this Object may be of type MultiValueMap or String
             Object requestBodyObj = "";
 
-            // Add request body only for non GET calls.
-            if (!HttpMethod.GET.equals(httpMethod)) {
-                // Adding request body
-                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            // Adding request body for all HTTP calls. We also attach the HTTP body for GET calls as well
+            requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
 
-                if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                        || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                    requestBodyObj = actionConfiguration.getBodyFormData();
-                }
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                requestBodyObj = actionConfiguration.getBodyFormData();
             }
 
             // If users have chosen to share the Appsmith signature in the header, calculate and add that

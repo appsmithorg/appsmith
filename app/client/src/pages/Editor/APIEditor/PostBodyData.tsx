@@ -5,6 +5,7 @@ import { formValueSelector } from "redux-form";
 import {
   ApiContentTypes,
   POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_OPTIONS_CLASS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -22,6 +23,8 @@ import MultiSwitch from "components/ads/MultiSwitch";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { Classes } from "components/ads/common";
+import { createMessage, API_PANE_NO_BODY } from "constants/messages";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -38,6 +41,15 @@ const JSONEditorFieldWrapper = styled.div`
   }
 `;
 
+const NoBodyMessage = styled.div`
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+
+  .${Classes.TEXT} {
+    color: ${(props) => props.theme.colors.apiPane.body.text};
+  }
+`;
 interface PostDataProps {
   displayFormat: any;
   dataTreePath: string;
@@ -68,6 +80,9 @@ function PostBodyData(props: Props) {
     contentType: ApiContentTypes,
   ): JSX.Element => {
     return {
+      [ApiContentTypes.NONE]: (
+        <NoBodyMessage> {createMessage(API_PANE_NO_BODY)} </NoBodyMessage>
+      ),
       [ApiContentTypes.JSON]: (
         <JSONEditorFieldWrapper className={"t--apiFormPostBody"} key={key}>
           <DynamicTextField
@@ -152,7 +167,7 @@ export default connect((state: AppState) => {
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const displayFormat =
     extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3];
-
+  POST_BODY_FORMAT_OPTIONS_CLASS.getAllItems();
   return {
     displayFormat,
     apiId,

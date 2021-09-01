@@ -477,3 +477,6 @@ export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
 export const EMOJI = () => "Emoji";
+
+// API Pane
+export const API_PANE_NO_BODY = () => "This request does not have a body";

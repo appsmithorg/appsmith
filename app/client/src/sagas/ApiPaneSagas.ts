@@ -18,6 +18,7 @@ import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_OPTIONS_CLASS,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE_HEADER_KEY,
@@ -154,7 +155,8 @@ function* handleUpdateBodyContentType(
     log.error("Display format not supported", title);
     return;
   }
-  if (displayFormatObject.value === POST_BODY_FORMATS[3]) {
+
+  if (displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_CLASS.JSON.value) {
     // Dont update the content type header if raw has been selected
     yield put({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
@@ -189,8 +191,10 @@ function* handleUpdateBodyContentType(
   );
 
   if (
-    displayFormatObject.value === POST_BODY_FORMATS[1] ||
-    displayFormatObject.value === POST_BODY_FORMATS[2]
+    displayFormatObject.value ===
+      POST_BODY_FORMAT_OPTIONS_CLASS.FORM_URLENCODED.value ||
+    displayFormatObject.value ===
+      POST_BODY_FORMAT_OPTIONS_CLASS.MULTIPART_FORM_DATA.value
   ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(

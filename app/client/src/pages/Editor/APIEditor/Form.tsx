@@ -42,7 +42,11 @@ import Text, { Case, TextType } from "components/ads/Text";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
-import { createMessage, WIDGET_BIND_HELP } from "constants/messages";
+import {
+  createMessage,
+  WIDGET_BIND_HELP,
+  API_PANE_NO_BODY,
+} from "constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
@@ -436,8 +440,7 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const allowPostBody =
-    httpMethodFromForm && httpMethodFromForm !== HTTP_METHODS[0];
+  const allowPostBody = httpMethodFromForm;
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -574,7 +577,7 @@ function ApiEditorForm(props: Props) {
                     ) : (
                       <NoBodyMessage>
                         <Text type={TextType.P2}>
-                          This request does not have a body
+                          {createMessage(API_PANE_NO_BODY)}
                         </Text>
                       </NoBodyMessage>
                     ),
