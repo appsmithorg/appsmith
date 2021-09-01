@@ -1,10 +1,14 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
+import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
@@ -16,6 +20,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.KeyPair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -28,6 +35,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +55,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
+    private final EncryptionService encryptionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -57,12 +66,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   AnalyticsService analyticsService,
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
-                                  CommentThreadRepository commentThreadRepository, SessionUserService sessionUserService) {
+                                  CommentThreadRepository commentThreadRepository,
+                                  SessionUserService sessionUserService,
+                                  EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -302,6 +314,36 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    @Override
+    public Mono<String> generateSshKeyPair(String applicationId) {
+        JSch jsch = new JSch();
+        KeyPair kpair;
+        try {
+            kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA, 2048);
+        } catch (JSchException e) {
+            log.error("failed to generate RSA key pair", e);
+            throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Failed to generate SSH Keypair");
+        }
+
+        StringOutputStream privateKeyOutput = new StringOutputStream();
+        StringOutputStream publicKeyOutput = new StringOutputStream();
+
+        kpair.writePrivateKey(privateKeyOutput);
+        kpair.writePublicKey(publicKeyOutput, "appsmith");
+
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey(publicKeyOutput.toString());
+        gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
+        gitAuth.setGeneratedAt(Instant.now());
+
+        Application applicationDto = new Application();
+        applicationDto.setGitApplicationMetadata(new GitApplicationMetadata());
+        applicationDto.getGitApplicationMetadata().setGitAuth(gitAuth);
+
+        return repository
+                .updateById(applicationId, applicationDto, MANAGE_APPLICATIONS)
+                .thenReturn(gitAuth.getPublicKey());
+    }
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
      * @param applicationId Application ID
