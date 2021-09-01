@@ -97,7 +97,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
-                ? handleOAuth2Redirect(webFilterExchange, defaultApplication, isFromSignup)
+                ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
                 : handleRedirect(webFilterExchange, defaultApplication, isFromSignup);
 
         final boolean isFromSignupFinal = isFromSignup;
@@ -139,7 +139,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // Disabling this because although the reference in the Javadoc is to a private method, it is still useful.
            "JavadocReference"
     )
-    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
+    private Mono<Void> handleOAuth2Redirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
