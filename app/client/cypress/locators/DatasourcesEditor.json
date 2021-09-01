@@ -31,6 +31,7 @@
   "DynamoDB": ".t--plugin-name:contains('DynamoDB')",
   "Redis": ".t--plugin-name:contains('Redis')",
   "MsSQL": ".t--plugin-name:contains('MsSQL')",
+  "ArangoDB": ".t--plugin-name:contains('ArangoDB')",
   "Firestore": ".t--plugin-name:contains('Firestore')",
   "Redshift": ".t--plugin-name:contains('Redshift')",
   "AmazonS3": ".t--plugin-name:contains('S3')",

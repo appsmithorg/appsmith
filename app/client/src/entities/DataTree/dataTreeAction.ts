@@ -30,6 +30,7 @@ export const generateDataTreeAction = (
   });
   return {
     run: {},
+    clear: {},
     actionId: action.config.id,
     name: action.config.name,
     pluginType: action.config.pluginType,
