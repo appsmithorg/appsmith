@@ -6,13 +6,13 @@ import { processDiff, DSLDiff, getPathsFromDiff } from "./replayUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const _DIFF_ = "diff";
+type ReplayType = "UNDO" | "REDO";
 
 export default class ReplayDSL {
   diffMap: any;
   undoManager: UndoManager;
   dsl: CanvasWidgetsReduxState;
   logs: any[] = [];
-  prevRedoDiff: Array<DSLDiff> | undefined;
 
   constructor(widgets: CanvasWidgetsReduxState) {
     const doc = new Doc();
@@ -23,16 +23,19 @@ export default class ReplayDSL {
   }
 
   /**
-   * checks if there is anything to replay or not based on differences between diffs
+   * checks if there is anything is the redoStack or undoStack
    *
    * @return boolean
    */
-  shouldReplay(isUndo: boolean) {
-    const diffs = this.getDiffs();
-    const isDiffNotEmpty = diffs && diffs.length > 0;
-
-    if (isUndo) return isDiffNotEmpty;
-    else return diffs !== this.prevRedoDiff && isDiffNotEmpty;
+  canReplay(replayType: ReplayType) {
+    switch (replayType) {
+      case "UNDO":
+        return this.undoManager.undoStack.length > 0;
+      case "REDO":
+        return this.undoManager.redoStack.length > 0;
+      default:
+        return false;
+    }
   }
 
   /**
@@ -45,21 +48,34 @@ export default class ReplayDSL {
   }
 
   /**
-   * undo the last action. gets diff from yMap and apply that on currentDSL
+   * replay actions ( undo redo )
+   * important thing to note is that for redo we redo first, then
+   * get the diff map
    *
-   * @returns
+   * @param replayType
    */
-  undo() {
+  replay(replayType: ReplayType) {
     const start = performance.now();
-    const diffs = this.getDiffs();
 
-    if (this.shouldReplay(true)) {
-      this.undoManager.undo();
-      const replay = this.applyDiffs(diffs, true);
+    if (this.canReplay(replayType)) {
+      let diffs;
+
+      switch (replayType) {
+        case "UNDO":
+          diffs = this.getDiffs();
+          this.undoManager.undo();
+          break;
+        case "REDO":
+          this.undoManager.redo();
+          diffs = this.getDiffs();
+          break;
+      }
+
+      const replay = this.applyDiffs(diffs, replayType);
       const stop = performance.now();
 
       this.logs.push({
-        log: "replay undo",
+        log: `replay ${replayType}`,
         replay,
         diffs,
         dsl: this.dsl,
@@ -69,45 +85,12 @@ export default class ReplayDSL {
         replayWidgetDSL: this.dsl,
         replay,
         logs: this.logs,
-        event: "REPLAY_UNDO",
+        event: `REPLAY_${replayType}`,
         timeTaken: stop - start,
         paths: getPathsFromDiff(diffs),
       };
     }
 
-    return null;
-  }
-
-  /**
-   * redo the last action. gets diff from yMap and apply that on currentDSL
-   *
-   * @returns
-   */
-  redo() {
-    const start = performance.now();
-    this.undoManager.redo();
-    const diffs = this.getDiffs();
-
-    if (this.shouldReplay(false)) {
-      const replay = this.applyDiffs(diffs, false);
-      this.logs.push({
-        log: "replay redo",
-        replay,
-        diffs,
-        dsl: this.dsl,
-      });
-
-      const stop = performance.now();
-
-      return {
-        replayWidgetDSL: this.dsl,
-        replay,
-        logs: this.logs,
-        event: "REPLAY_REDO",
-        timeTaken: stop - start,
-        paths: getPathsFromDiff(diffs),
-      };
-    }
     return null;
   }
 
@@ -142,10 +125,10 @@ export default class ReplayDSL {
    * @param diffs
    * @param diffUpdate
    */
-  applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean) {
+  applyDiffs(diffs: Array<DSLDiff>, replayType: ReplayType) {
     const replay = {};
-    const diffUpdate = isUndo ? revertChange : applyChange;
-    if (!isUndo) this.prevRedoDiff = diffs;
+    const isUndo = replayType === "UNDO";
+    const applyDiffFn = isUndo ? revertChange : applyChange;
 
     for (const diff of diffs) {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
@@ -153,7 +136,7 @@ export default class ReplayDSL {
       }
       try {
         processDiff(this.dsl, diff, replay, isUndo);
-        diffUpdate(this.dsl, true, diff);
+        applyDiffFn(this.dsl, true, diff);
       } catch (e) {
         captureException(e, {
           extra: {

@@ -71,8 +71,6 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
-            // eslint-disable-next-line
-            console.log({ shouldReplay });
             shouldReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
@@ -190,14 +188,14 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.UNDO: {
         if (!replayDSL) return;
 
-        const replayResult = replayDSL.undo();
+        const replayResult = replayDSL.replay("UNDO");
         replayDSL.clearLogs();
         return replayResult;
       }
       case EVAL_WORKER_ACTIONS.REDO: {
         if (!replayDSL) return;
 
-        const replayResult = replayDSL.redo();
+        const replayResult = replayDSL.replay("REDO");
         replayDSL.clearLogs();
         return replayResult;
       }
