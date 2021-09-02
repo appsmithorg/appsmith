@@ -1,5 +1,3 @@
-name: Mastermind Labeler Workflow
-
 on:
   issues:
     types: [labeled, unlabeled]
