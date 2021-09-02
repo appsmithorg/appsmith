@@ -4,8 +4,8 @@ import {
   GIT_CONNECTION,
   DEPLOY,
   MERGE,
-  SHARE_APPLICATION,
-  SETTINGS,
+  // SHARE_APPLICATION,
+  // SETTINGS,
 } from "constants/messages";
 
 export enum MENU_ITEM {

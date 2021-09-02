@@ -48,9 +48,9 @@ const CloseBtnContainer = styled.div`
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
-function NoopComponent() {
-  return <div />;
-}
+// function NoopComponent() {
+//   return <div />;
+// }
 
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
