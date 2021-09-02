@@ -1,6 +1,6 @@
 import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
-import _, { isEmpty } from "lodash";
+import _ from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = _.cloneDeep(data);
@@ -57,6 +57,6 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
   return keyValueArray.filter(
-    (data: any) => !isEmpty(data.key) || !isEmpty(data.value),
+    (data: any) => !_.isEmpty(data.key) || !_.isEmpty(data.value),
   );
 }
