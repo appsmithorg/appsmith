@@ -7,6 +7,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import withMeta, { WithMeta } from "./MetaHOC";
 import RecorderComponent from "components/designSystems/appsmith/RecorderComponent";
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 export interface RecorderWidgetProps extends WidgetProps, WithMeta {
   backgroundColor: string;
@@ -94,6 +95,12 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      url: `{{URL.createObjectURL(this.value)}}`,
     };
   }
 

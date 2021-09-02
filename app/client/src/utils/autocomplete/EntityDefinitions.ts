@@ -335,6 +335,7 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/recorder",
     isVisible: isVisible,
     value: "blob",
+    url: "string",
   },
 };
 
