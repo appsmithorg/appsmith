@@ -19,6 +19,8 @@ const checkPathsInConfig = (
   const configBindingPaths: Record<string, EvaluationSubstitutionType> = {};
   const configTriggerPaths: Record<string, true> = {};
   const configValidationPaths: Record<any, ValidationConfig> = {};
+
+  // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
     configBindingPaths[path] =
       config.evaluationSubstitutionType || EvaluationSubstitutionType.TEMPLATE;
@@ -78,6 +80,7 @@ const childHasPanelConfig = (
                     ...configValidationPaths,
                     ...validationPaths,
                   };
+                  // Has child Panel Config
                   if (panelColumnControlConfig.panelConfig) {
                     const {
                       bindingPaths: panelBindingPaths,
