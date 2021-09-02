@@ -8,7 +8,6 @@ import {
   all,
   call,
   put,
-  putResolve,
   race,
   select,
   take,
@@ -35,7 +34,7 @@ import {
   updateAction,
   updateActionProperty,
   updateActionSuccess,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 import {
   DynamicPath,
   isChildPropertyPath,
@@ -77,8 +76,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import {
   ACTION_COPY_SUCCESS,
-  ACTION_CREATED_SUCCESS,
-  ACTION_DELETE_SUCCESS,
   ACTION_MOVE_SUCCESS,
   createMessage,
   ERROR_ACTION_COPY_FAIL,
@@ -92,7 +89,11 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
-import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import {
+  createNewApiName,
+  createNewQueryName,
+  getQueryParams,
+} from "utils/AppsmithUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
   toggleShowGlobalSearchModal,
@@ -102,7 +103,11 @@ import {
   filterCategories,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
-import { getWidgetById } from "./selectors";
+import { getSelectedWidget, getWidgetById } from "./selectors";
+import {
+  onApiEditor,
+  onQueryEditor,
+} from "components/editorComponents/Debugger/helpers";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -138,14 +143,6 @@ export function* createActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const actionName = actionPayload.payload.name
-        ? actionPayload.payload.name
-        : "";
-      Toaster.show({
-        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
@@ -372,59 +369,56 @@ export function* deleteActionSaga(
       id,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
-        variant: Variant.success,
-      });
-      if (isApi) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_API", {
-          apiName: name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isSaas) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_SAAS", {
-          apiName: action.name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isQuery) {
-        AnalyticsUtil.logEvent("DELETE_QUERY", {
-          queryName: action.name,
-        });
-      }
-
-      if (!!actionPayload.payload.onSuccess) {
-        actionPayload.payload.onSuccess();
-      } else {
-        const applicationId = yield select(getCurrentApplicationId);
-        const pageId = yield select(getCurrentPageId);
-
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
-      }
-
-      AppsmithConsole.info({
-        logType: LOG_TYPE.ENTITY_DELETED,
-        text: "Action was deleted",
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: response.data.name,
-          id: response.data.id,
-        },
-        analytics: {
-          pluginId: action.pluginId,
-        },
-      });
-
-      yield put(deleteActionSuccess({ id }));
+    if (!isValidResponse) {
+      return;
     }
+    if (isApi) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_API", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isSaas) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_SAAS", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isQuery) {
+      AnalyticsUtil.logEvent("DELETE_QUERY", {
+        queryName: name,
+      });
+    }
+
+    if (!!actionPayload.payload.onSuccess) {
+      actionPayload.payload.onSuccess();
+    } else {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+    }
+
+    AppsmithConsole.info({
+      logType: LOG_TYPE.ENTITY_DELETED,
+      text: "Action was deleted",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: response.data.name,
+        id: response.data.id,
+      },
+      analytics: {
+        pluginId: action.pluginId,
+      },
+    });
+
+    yield put(deleteActionSuccess({ id }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -770,6 +764,71 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+function* buildMetaForSnippets(
+  entityId: any,
+  entityType: string,
+  expectedType: string,
+  propertyPath: string,
+) {
+  const refinements: any = {};
+  const fieldMeta: { dataType: string; fields?: string } = {
+    dataType: expectedType,
+  };
+  if (propertyPath) {
+    const relevantField = propertyPath
+      .split(".")
+      .slice(-1)
+      .pop();
+    fieldMeta.fields = `${relevantField}<score=2>`;
+  }
+  let currentEntity, type;
+  if (entityType === ENTITY_TYPE.ACTION && entityId) {
+    currentEntity = yield select(getActionById, {
+      match: { params: { apiId: entityId } },
+    });
+    const plugin = yield select(getPlugin, currentEntity.pluginId);
+    type = (plugin.packageName || "")
+      .toLowerCase()
+      .replace("-plugin", "")
+      .split("-")
+      .join(" ");
+    refinements.entities = [entityType.toLowerCase()].concat(type);
+  }
+  if (entityType === ENTITY_TYPE.WIDGET && entityId) {
+    currentEntity = yield select(getWidgetById, entityId);
+    type = (currentEntity.type || "")
+      .replace("_WIDGET", "")
+      .toLowerCase()
+      .split("_")
+      .join("");
+    refinements.entities = [type];
+  }
+  return { refinements, fieldMeta };
+}
+
+function* getCurrentEntity(
+  applicationId: string,
+  pageId: string,
+  params: Record<string, string>,
+) {
+  let entityId = "",
+    entityType = "";
+  if (
+    onApiEditor(applicationId, pageId) ||
+    onQueryEditor(applicationId, pageId)
+  ) {
+    const id = params.apiId || params.queryId;
+    const action = yield select(getAction, id);
+    entityId = action.actionId;
+    entityType = ENTITY_TYPE.ACTION;
+  } else {
+    const widget = yield select(getSelectedWidget);
+    entityId = widget.widgetId;
+    entityType = ENTITY_TYPE.WIDGET;
+  }
+  return { entityId, entityType };
+}
+
 function* executeCommand(
   actionPayload: ReduxAction<{
     actionType: string;
@@ -779,32 +838,47 @@ function* executeCommand(
 ) {
   const pageId = yield select(getCurrentPageId);
   const applicationId = yield select(getCurrentApplicationId);
+  const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      const { entityId, entityType, expectedType, propertyPath } = get(
-        actionPayload,
-        "payload.args",
-      );
+      let { entityId, entityType } = get(actionPayload, "payload.args");
+      const { expectedType, propertyPath } = get(actionPayload, "payload.args");
+      // Entity is derived using the dataTreePath property.
+      // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
+      if (!entityId) {
+        const currentEntity = yield getCurrentEntity(
+          applicationId,
+          pageId,
+          params,
+        );
+        entityId = currentEntity.entityId;
+        entityType = currentEntity.entityType;
+      }
       const { fieldMeta, refinements } = yield buildMetaForSnippets(
         entityId,
         entityType,
         expectedType,
         propertyPath,
       );
-      yield putResolve(
+      yield put(
         setGlobalSearchFilterContext({
-          category: filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
           refinements,
           fieldMeta,
         }),
       );
-      yield put(toggleShowGlobalSearchModal());
+      yield put(
+        toggleShowGlobalSearchModal(
+          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+        ),
+      );
       const effectRaceResult = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });
       if (effectRaceResult.failure) return;
-      actionPayload.payload.callback(effectRaceResult.success.payload);
+      actionPayload.payload.callback(
+        `{{ ${effectRaceResult.success.payload} }}`,
+      );
       break;
     case "NEW_INTEGRATION":
       history.push(
@@ -852,34 +926,6 @@ function* executeCommand(
       actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
       break;
   }
-}
-
-function* buildMetaForSnippets(
-  entityId: any,
-  entityType: string,
-  expectedType: string,
-  propertyPath: string,
-) {
-  const refinements: any = {};
-  const fieldMeta = {
-    dataType: expectedType,
-    fields: `${propertyPath}<score=2>`,
-  };
-  let currentEntity, type;
-  if (entityType === ENTITY_TYPE.ACTION) {
-    currentEntity = yield select(getActionById, {
-      match: { params: { apiId: entityId } },
-    });
-    const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "").toLowerCase().split("-");
-    refinements.entities = [entityType.toLowerCase()].concat(type);
-  }
-  if (entityType === ENTITY_TYPE.WIDGET) {
-    currentEntity = yield select(getWidgetById, entityId);
-    type = currentEntity.type.toLowerCase().split("_");
-    refinements.entities = type;
-  }
-  return { refinements, fieldMeta };
 }
 
 export function* watchActionSagas() {

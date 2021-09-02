@@ -14,7 +14,7 @@ import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 
-const Container = styled.div<{ errorCount: number }>`
+const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
   background-color: ${(props) =>
     props.theme.colors.debugger.floatingButton.background};
@@ -41,8 +41,10 @@ const Container = styled.div<{ errorCount: number }>`
     height: 16px;
     padding: ${(props) => props.theme.spaces[1]}px;
     background-color: ${(props) =>
-      !!props.errorCount
-        ? props.theme.colors.debugger.floatingButton.errorCount
+      props.errorCount + props.warningCount > 0
+        ? props.errorCount === 0
+          ? props.theme.colors.debugger.floatingButton.warningCount
+          : props.theme.colors.debugger.floatingButton.errorCount
         : props.theme.colors.debugger.floatingButton.noErrorCount};
     border-radius: 10px;
     position: absolute;
@@ -56,9 +58,15 @@ const Container = styled.div<{ errorCount: number }>`
 
 function Debugger() {
   const dispatch = useDispatch();
-  const errorCount = useSelector(
-    (state: AppState) => Object.keys(getFilteredErrors(state)).length,
-  );
+  const messageCounters = useSelector((state) => {
+    const errorKeys = Object.keys(getFilteredErrors(state));
+    const warnings = errorKeys.filter((key: string) => key.includes("warning"))
+      .length;
+    const errors = errorKeys.length - warnings;
+    return { errors, warnings };
+  });
+
+  const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
@@ -75,16 +83,19 @@ function Debugger() {
     return (
       <Container
         className="t--debugger"
-        errorCount={errorCount}
+        errorCount={messageCounters.errors}
         onClick={onClick}
+        warningCount={messageCounters.warnings}
       >
         <Icon name="bug" size={IconSize.XL} />
-        {!!errorCount && (
-          <div className="debugger-count t--debugger-count">{errorCount}</div>
+        {!!messageCounters.errors && (
+          <div className="debugger-count t--debugger-count">
+            {totalMessageCount}
+          </div>
         )}
       </Container>
     );
-  return <DebuggerTabs defaultIndex={errorCount ? 0 : 1} />;
+  return <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />;
 }
 
 export default Debugger;

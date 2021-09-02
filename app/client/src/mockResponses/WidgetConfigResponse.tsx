@@ -20,6 +20,7 @@ import {
   ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import { LabelOrientation } from "constants/ChartConstants";
 
 /*
  ********************************{Grid Density Migration}*********************************
@@ -88,6 +89,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      defaultText: "",
       maxChars: 255,
       iconAlign: "left",
       autoFocus: false,
@@ -174,13 +176,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
       columns: 9 * GRID_DENSITY_MIGRATION_V1,
+      defaultSelectedRow: "0",
       label: "Data",
       widgetName: "Table",
       searchKey: "",
       textSize: "PARAGRAPH",
       horizontalAlignment: "LEFT",
       verticalAlignment: "CENTER",
-      totalRecordCount: 0,
+      totalRecordsCount: 0,
       defaultPageSize: 0,
       dynamicBindingPathList: [
         {
@@ -737,6 +740,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {

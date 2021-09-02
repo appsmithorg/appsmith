@@ -362,7 +362,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params?.required) {
         return {
           isValid: false,
@@ -440,7 +440,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
           isValid: false,
@@ -528,7 +528,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         invalidResponse.message =
           "This property is required for the widget to function correctly";
@@ -568,7 +568,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params?.required) return invalidResponse;
       return { isValid: true, parsed: value };
     }

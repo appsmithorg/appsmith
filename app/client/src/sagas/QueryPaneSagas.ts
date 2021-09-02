@@ -29,7 +29,7 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
-import { setActionProperty } from "actions/actionActions";
+import { setActionProperty } from "actions/pluginActionActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
