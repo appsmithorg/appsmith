@@ -14,7 +14,7 @@ const Bubble = styled.div<{ active?: boolean }>`
   cursor: pointer;
   display: flex;
   align-items: center;
-  padding: ${(props) => `2px ${props.theme.spaces[2]}px`};
+  padding: ${(props) => `2px ${props.theme.spaces[1]}px`};
 
   background-color: ${(props) =>
     props.active
@@ -29,10 +29,22 @@ const Bubble = styled.div<{ active?: boolean }>`
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
   margin-right: ${(props) => `${props.theme.radii[1]}px`};
+  margin-top: ${(props) => `${props.theme.radii[1]}px`};
 
-  /* At times the rendered emoji has width as 16px */
   & span.emoji {
-    min-width: 20px;
+    /*
+    * center align emoji for non-retina displays
+    * https://bugs.chromium.org/p/chromium/issues/detail?id=551420#c15
+    * ref: https://stackoverflow.com/a/31578187/1543567 (mq for non-retina displays)
+    */
+    @media not screen and (-webkit-min-device-pixel-ratio: 2),
+      not screen and (min--moz-device-pixel-ratio: 2),
+      not screen and (-o-min-device-pixel-ratio: 2/1),
+      not screen and (min-device-pixel-ratio: 2),
+      not screen and (min-resolution: 192dpi),
+      not screen and (min-resolution: 2dppx) {
+      margin-right: 3px;
+    }
   }
 `;
 
@@ -42,11 +54,11 @@ const Count = styled.div<{ active?: boolean }>`
     props.active
       ? props.theme.colors.reactionsComponent.textActive
       : props.theme.colors.reactionsComponent.text};
-  margin-left: ${(props) => props.theme.spaces[1]}px;
   max-width: 30px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  margin-left: 2px;
 `;
 
 const ReactionsByContainer = styled.span`
