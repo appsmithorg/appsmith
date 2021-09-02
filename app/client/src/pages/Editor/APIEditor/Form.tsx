@@ -190,7 +190,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 126px);
+  height: calc(100% - 118px);
   position: relative;
 `;
 interface APIFormProps {
