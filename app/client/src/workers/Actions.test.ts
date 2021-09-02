@@ -37,12 +37,8 @@ describe("Add functions", () => {
     ]);
 
     // Action run
-    const onSuccess = () => {
-      /* success run */
-    };
-    const onError = () => {
-      /* failure run */
-    };
+    const onSuccess = () => "success";
+    const onError = () => "failure";
     const actionParams = { param1: "value1" };
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -63,14 +59,8 @@ describe("Add functions", () => {
             },
           },
         ],
-        then: [
-          `{{ () => {
-      /* success run */
-    } }}`,
-        ],
-        catch: `{{ () => {
-      /* failure run */
-    } }}`,
+        then: [`{{ () => "success" }}`],
+        catch: `{{ () => "failure" }}`,
       },
     });
 
