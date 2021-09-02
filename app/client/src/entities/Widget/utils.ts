@@ -8,6 +8,19 @@ import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReduc
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { WidgetTypes } from "constants/WidgetConstants";
 
+/**
+ * @typedef {Object} Paths
+ * @property {Object} configBindingPaths - The Binding Path
+ * @property {Object} configTriggerPaths - The Trigger Path
+ * @property {Object} configValidationPaths - The Validation Path
+ */
+
+/**
+ * This function gets the binding validation and trigger paths from a config
+ * @param config
+ * @param path
+ * @returns {Paths} Paths
+ */
 const checkPathsInConfig = (
   config: any,
   path: string,
@@ -171,24 +184,20 @@ export const getAllPathsFromPropertyConfig = (
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
               controlConfig.children.forEach((childPropertyConfig: any) => {
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
-
-                if (
-                  childPropertyConfig.isBindProperty &&
-                  !childPropertyConfig.isTriggerProperty
-                ) {
-                  bindingPaths[childArrayPropertyPath] =
-                    childPropertyConfig.evaluationSubstitutionType ||
-                    EvaluationSubstitutionType.TEMPLATE;
-                  if (childPropertyConfig.validation) {
-                    validationPaths[childArrayPropertyPath] =
-                      childPropertyConfig.validation;
-                  }
-                } else if (
-                  childPropertyConfig.isBindProperty &&
-                  childPropertyConfig.isTriggerProperty
-                ) {
-                  triggerPaths[childArrayPropertyPath] = true;
-                }
+                const {
+                  configBindingPaths,
+                  configTriggerPaths,
+                  configValidationPaths,
+                } = checkPathsInConfig(
+                  childPropertyConfig,
+                  childArrayPropertyPath,
+                );
+                bindingPaths = { ...configBindingPaths, ...bindingPaths };
+                triggerPaths = { ...configTriggerPaths, ...triggerPaths };
+                validationPaths = {
+                  ...configValidationPaths,
+                  ...validationPaths,
+                };
               });
             });
           }
