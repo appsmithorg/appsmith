@@ -843,7 +843,7 @@ function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
   const {
-    payload: { propertyPath, propertyValue, shouldReplay, widgetId },
+    payload: { propertyPath, propertyValue, widgetId },
   } = updateAction;
 
   // Holder object to collect all updates
@@ -853,7 +853,7 @@ function* updateWidgetPropertySaga(
   // Push these updates via the batch update
   yield call(
     batchUpdateWidgetPropertySaga,
-    batchUpdateWidgetProperty(widgetId, { modify: updates }, shouldReplay),
+    batchUpdateWidgetProperty(widgetId, { modify: updates }),
   );
 }
 
@@ -979,7 +979,7 @@ function* batchUpdateWidgetPropertySaga(
   action: ReduxAction<UpdateWidgetPropertyPayload>,
 ) {
   const start = performance.now();
-  const { shouldReplay, updates, widgetId } = action.payload;
+  const { updates, widgetId } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -1027,7 +1027,7 @@ function* batchUpdateWidgetPropertySaga(
   );
 
   // Save the layout
-  yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
+  yield put(updateAndSaveLayout(widgets));
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {

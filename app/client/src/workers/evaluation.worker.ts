@@ -71,6 +71,8 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
+            // eslint-disable-next-line
+            console.log({ shouldReplay });
             shouldReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;

@@ -231,7 +231,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 
   if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
 
-  yield put(updateAndSaveLayout(replayWidgetDSL, false, true));
+  yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
 
   if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
 }
