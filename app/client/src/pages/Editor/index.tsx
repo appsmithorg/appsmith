@@ -10,7 +10,6 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getIsEditorLoading,
   getIsPublishingApplication,
@@ -40,7 +39,6 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 type EditorProps = {
   currentApplicationId?: string;
-  currentPageId?: string;
   currentApplicationName?: string;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
@@ -82,7 +80,7 @@ class Editor extends Component<Props> {
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
-      nextProps.match?.params?.pageId !== this.props.currentPageId ||
+      nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -96,10 +94,10 @@ class Editor extends Component<Props> {
     );
   }
 
-  componentDidUpdate() {
-    const { pageId } = this.props.match.params;
-    const { currentPageId } = this.props;
-    if (pageId !== currentPageId) {
+  componentDidUpdate(prevProps: Props) {
+    const { pageId } = this.props.match.params || {};
+    const { pageId: prevPageId } = prevProps.match.params || {};
+    if (pageId && pageId !== prevPageId) {
       this.props.updateCurrentPage(pageId);
       this.props.fetchPage(pageId);
     }
@@ -158,7 +156,6 @@ class Editor extends Component<Props> {
 
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
-  currentPageId: getCurrentPageId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
