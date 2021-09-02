@@ -87,6 +87,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Escape",
   "Comma",
   "Backspace",
+  "Semicolon",
+  "Space",
 ];
 
 interface ReduxStateProps {

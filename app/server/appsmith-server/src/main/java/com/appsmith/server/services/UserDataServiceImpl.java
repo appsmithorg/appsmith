@@ -8,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.mongodb.DBObject;
 import org.apache.commons.lang3.ObjectUtils;
@@ -34,7 +35,7 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 @Service
 public class UserDataServiceImpl extends BaseService<UserDataRepository, UserData, String> implements UserDataService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     private final SessionUserService sessionUserService;
 
@@ -53,13 +54,13 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                UserDataRepository repository,
                                AnalyticsService analyticsService,
-                               UserService userService,
+                               UserRepository userRepository,
                                SessionUserService sessionUserService,
                                AssetService assetService,
                                ReleaseNotesService releaseNotesService,
                                FeatureFlagService featureFlagService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
@@ -89,14 +90,14 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     @Override
     public Mono<UserData> getForUserEmail(String email) {
-        return userService.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .flatMap(this::getForUser);
     }
 
     @Override
     public Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .flatMap(user -> userRepository.findByEmail(user.getEmail()))
                 .flatMap(user -> {
                     // If a UserData document exists for this user, update it. If not, create one.
                     updates.setUserId(user.getId());
@@ -156,7 +157,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         }
 
         return Mono.justOrEmpty(user.getId())
-                .switchIfEmpty(userService
+                .switchIfEmpty(userRepository
                         .findByEmail(user.getEmail())
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
                 )
