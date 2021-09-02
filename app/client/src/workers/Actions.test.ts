@@ -59,8 +59,8 @@ describe("Add functions", () => {
             },
           },
         ],
-        then: [`{{ function() { return "success" } }}`],
-        catch: `{{ function() { return "failure" } }}`,
+        then: [`{{ function () { return "success"; } }}`],
+        catch: `{{ function () { return "failure"; } }}`,
       },
     });
 
