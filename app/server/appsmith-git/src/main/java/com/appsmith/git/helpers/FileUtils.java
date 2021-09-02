@@ -110,6 +110,13 @@ public class FileUtils implements FileInterface {
         return Mono.just(baseRepoPath);
     }
 
+    /**
+     * This method will be used to store the DB resource to JSON file
+     * @param sourceEntity resource extracted from DB to be stored in file
+     * @param path file path where the resource to be stored
+     * @param gson
+     * @return if the file operation is successful
+     */
     private boolean saveFile(Object sourceEntity, String path, Gson gson) {
         File file = new File(path);
         try {
@@ -125,6 +132,12 @@ public class FileUtils implements FileInterface {
         return false;
     }
 
+    /**
+     * This method will delete the JSON resource available in local git directory on subsequent commit made after the
+     * deletion of respective resource from DB
+     * @param validResources resources those are still available in DB
+     * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
+     */
     private void scanAndDeleteFileForDeletedResources(Set<String> validResources, String resourceDirectory) {
         // Scan page directory and delete if any unwanted file if present
         try (Stream<Path> paths = Files.walk(Paths.get(resourceDirectory))) {
@@ -136,6 +149,12 @@ public class FileUtils implements FileInterface {
         }
     }
 
+    /**
+     * This method will delete the file from local repo
+     * @param filePath file that needs to be deleted
+     * @param isDirectory if the file is directory
+     * @return if the deletion operation was successful
+     */
     private boolean deleteFile(Path filePath, boolean isDirectory) {
         try
         {
@@ -192,6 +211,12 @@ public class FileUtils implements FileInterface {
         return applicationGitReference;
     }
 
+    /**
+     * This method will be used to read and dehydrate the json file present from the local git repo
+     * @param filePath file on which the read operation will be performed
+     * @param gson
+     * @return resource stored in the JSON file
+     */
     private Object readFile(String filePath, Gson gson) {
         JsonReader reader = null;
         try {
@@ -203,6 +228,12 @@ public class FileUtils implements FileInterface {
         return gson.fromJson(reader, Object.class);
     }
 
+    /**
+     * This method will be used to read and dehydrate the json files present from the local git repo
+     * @param directoryPath directory path for files on which read operation will be performed
+     * @param gson
+     * @return resources stored in the directory
+     */
     private Map<String, Object> readFiles(String directoryPath, Gson gson) {
         Map<String, Object> resource = new HashMap<>();
         File directory = new File(directoryPath);
