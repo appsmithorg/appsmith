@@ -152,6 +152,7 @@ public class ImportExportApplicationService {
                 final String organizationId = application.getOrganizationId();
                 application.setOrganizationId(null);
                 application.setPages(null);
+                application.setModifiedBy(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
