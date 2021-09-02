@@ -63,8 +63,14 @@ describe("Add functions", () => {
             },
           },
         ],
-        then: ["{{ () => {\n" + "      /* success run */\n" + "    } }}"],
-        catch: "{{ () => {\n" + "      /* failure run */\n" + "    } }}",
+        then: [
+          `{{ () => {
+      /* success run */
+    } }}`,
+        ],
+        catch: `{{ () => {
+      /* failure run */
+    } }}`,
       },
     });
 
