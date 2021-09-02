@@ -27,22 +27,22 @@ describe("Checks ReplayDSL functionality", () => {
   });
 
   it("checks if dsl is reverted on undo", () => {
-    replayDSL.undo();
+    replayDSL.replay("UNDO");
 
     const currentDSL = replayDSL.dsl;
     expect(currentDSL).toStrictEqual({});
   });
 
   it("checks if undo is reverted on redo", () => {
-    replayDSL.redo();
+    replayDSL.replay("REDO");
 
     const currentDSL = replayDSL.dsl;
     expect(currentDSL).toStrictEqual(updatedWidgets);
   });
 
-  it("should not replay if there are no diffs", () => {
-    replayDSL.undo();
-    const shouldReplay = replayDSL.shouldReplay();
+  it("should not replay if there are no undo stacks", () => {
+    replayDSL.replay("UNDO");
+    const shouldReplay = replayDSL.canReplay("UNDO");
 
     expect(shouldReplay).toStrictEqual(false);
   });

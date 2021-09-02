@@ -7,7 +7,6 @@ export const updateWidgetPropertyRequest = (
   propertyPath: string,
   propertyValue: any,
   renderMode: RenderMode,
-  shouldReplay = true,
 ): ReduxAction<UpdateWidgetPropertyRequestPayload> => {
   return {
     type: ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
@@ -16,7 +15,6 @@ export const updateWidgetPropertyRequest = (
       propertyPath,
       propertyValue,
       renderMode,
-      shouldReplay,
     },
   };
 };
@@ -30,13 +28,11 @@ export interface BatchPropertyUpdatePayload {
 export const batchUpdateWidgetProperty = (
   widgetId: string,
   updates: BatchPropertyUpdatePayload,
-  shouldReplay = true,
 ): ReduxAction<UpdateWidgetPropertyPayload> => ({
   type: ReduxActionTypes.BATCH_UPDATE_WIDGET_PROPERTY,
   payload: {
     widgetId,
     updates,
-    shouldReplay,
   },
 });
 
@@ -71,13 +67,11 @@ export interface UpdateWidgetPropertyRequestPayload {
   propertyPath: string;
   propertyValue: any;
   renderMode: RenderMode;
-  shouldReplay: boolean;
 }
 
 export interface UpdateWidgetPropertyPayload {
   widgetId: string;
   updates: BatchPropertyUpdatePayload;
-  shouldReplay: boolean;
   dynamicUpdates?: {
     dynamicBindingPathList: DynamicPath[];
     dynamicTriggerPathList: DynamicPath[];

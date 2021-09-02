@@ -13,13 +13,9 @@ abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
   S
 > {
-  updateProperty(
-    propertyName: string,
-    propertyValue: any,
-    shouldReplay = true,
-  ) {
+  updateProperty(propertyName: string, propertyValue: any) {
     if (!_.isNil(this.props.onPropertyChange))
-      this.props.onPropertyChange(propertyName, propertyValue, shouldReplay);
+      this.props.onPropertyChange(propertyName, propertyValue);
   }
   deleteProperties(propertyPaths: string[]) {
     if (this.props.deleteProperties) {
@@ -49,11 +45,7 @@ export interface ControlData
   additionalDynamicData: Record<string, Record<string, unknown>>;
 }
 export interface ControlFunctions {
-  onPropertyChange?: (
-    propertyName: string,
-    propertyValue: string,
-    shouldReplay: boolean,
-  ) => void;
+  onPropertyChange?: (propertyName: string, propertyValue: string) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;

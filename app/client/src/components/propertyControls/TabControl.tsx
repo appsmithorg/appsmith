@@ -259,7 +259,7 @@ class TabControl extends BaseControl<ControlProps> {
       },
     };
 
-    this.updateProperty(this.props.propertyName, tabs, false);
+    this.updateProperty(this.props.propertyName, tabs);
   };
 
   static getControlType() {

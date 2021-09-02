@@ -1,22 +1,6 @@
 const CracoAlias = require("craco-alias");
-const { addBeforeLoader, loaderByName } = require("@craco/craco");
 
-const config = {
-  webpack: {
-    configure: function(webpackConfig) {
-      const fragLoader = {
-        test: /\.worker\.(c|m)?[tj]s$/i,
-        loader: "worker-loader",
-        options: {
-          filename: "[name].[contenthash].worker.js",
-        },
-      };
-
-      addBeforeLoader(webpackConfig, loaderByName("file-loader"), fragLoader);
-
-      return webpackConfig;
-    },
-  },
+module.exports = {
   plugins: [
     {
       plugin: CracoAlias,
@@ -40,5 +24,3 @@ const config = {
     },
   ],
 };
-
-module.exports = config;
