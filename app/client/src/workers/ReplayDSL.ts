@@ -23,7 +23,7 @@ export default class ReplayDSL {
   }
 
   /**
-   * checks if there is anything is the redoStack or undoStack
+   * checks if there is anything in the redoStack or undoStack
    *
    * @return boolean
    */
@@ -49,8 +49,10 @@ export default class ReplayDSL {
 
   /**
    * replay actions ( undo redo )
+   *
+   * Note:
    * important thing to note is that for redo we redo first, then
-   * get the diff map
+   * get the diff map and undo, we get diff first, then undo
    *
    * @param replayType
    */
@@ -128,7 +130,7 @@ export default class ReplayDSL {
   applyDiffs(diffs: Array<DSLDiff>, replayType: ReplayType) {
     const replay = {};
     const isUndo = replayType === "UNDO";
-    const applyDiffFn = isUndo ? revertChange : applyChange;
+    const applyDiff = isUndo ? revertChange : applyChange;
 
     for (const diff of diffs) {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
@@ -136,7 +138,7 @@ export default class ReplayDSL {
       }
       try {
         processDiff(this.dsl, diff, replay, isUndo);
-        applyDiffFn(this.dsl, true, diff);
+        applyDiff(this.dsl, true, diff);
       } catch (e) {
         captureException(e, {
           extra: {

@@ -32,6 +32,11 @@ export const getReplayToastActionText = (replayType = "undo") => {
   }
 };
 
+/**
+ * process the toast for undo/redo
+ *
+ * @param undoRedoToasts
+ */
 export const processUndoRedoToasts = (
   undoRedoToasts: {
     isCreated: boolean;
@@ -54,6 +59,15 @@ export const processUndoRedoToasts = (
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
 
+/**
+ * shows a toast for undo/redo
+ *
+ * @param widgetName
+ * @param isMultiple
+ * @param isCreated
+ * @param shouldUndo
+ * @returns
+ */
 export const showUndoRedoToast = (
   widgetName: string | undefined,
   isMultiple: boolean,

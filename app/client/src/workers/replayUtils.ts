@@ -26,6 +26,16 @@ export const UPDATES = "propertyUpdates";
 
 export const WIDGETS = "widgets";
 
+/**
+ * this function update the replay object that holds info about change happened in widgets
+ * also, it creates toast for new/deleted widgets on undo/redo
+ *
+ * @param dsl
+ * @param diff
+ * @param replay
+ * @param isUndo
+ * @returns
+ */
 export function processDiff(
   dsl: CanvasWidgetsReduxState,
   diff: DSLDiff,
@@ -37,6 +47,7 @@ export function processDiff(
   const widgetId = diff.path[0];
 
   switch (diff.kind) {
+    // new elements is added in dsl
     case "N":
       if (diff.path.length == 1) {
         const toast = createToast(
@@ -52,6 +63,7 @@ export function processDiff(
         set(replay, UPDATES, true);
       }
       break;
+    // element is deleted in dsl
     case "D":
       if (diff.path.length == 1) {
         const toast = createToast(
@@ -67,6 +79,7 @@ export function processDiff(
         set(replay, UPDATES, true);
       }
       break;
+    // element is edited
     case "E":
       const propertyName = diff.path[diff.path.length - 1];
       if (!isString(propertyName)) break;
@@ -83,6 +96,16 @@ export function processDiff(
   }
 }
 
+/**
+ * creates toast on undo/redo ( most used in addition/deletion of widgets )
+ *
+ * @param diffWidget
+ * @param dslWidget
+ * @param widgetId
+ * @param isUndo
+ * @param isCreated
+ * @returns
+ */
 function createToast(
   diffWidget: CanvasWidgetsReduxState,
   dslWidget: CanvasWidgetsReduxState | undefined,
@@ -99,10 +122,24 @@ function createToast(
   };
 }
 
+/**
+ * checks property changed is a positional property
+ *
+ * @param widgetProperty
+ * @returns
+ */
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
 
+/**
+ * pushes value to array element in array of objects
+ *
+ * @param obj
+ * @param key
+ * @param value
+ * @returns
+ */
 function addToArray(obj: any, key: string, value: any) {
   if (!obj) return;
 
