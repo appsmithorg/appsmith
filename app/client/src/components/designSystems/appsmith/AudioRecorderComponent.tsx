@@ -525,7 +525,7 @@ export interface RecorderComponentProps extends ComponentProps {
   width: number;
 }
 
-function RecorderComponent(props: RecorderComponentProps) {
+function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
     backgroundColor,
     height,
@@ -704,4 +704,4 @@ function RecorderComponent(props: RecorderComponentProps) {
   );
 }
 
-export default RecorderComponent;
+export default AudioRecorderComponent;

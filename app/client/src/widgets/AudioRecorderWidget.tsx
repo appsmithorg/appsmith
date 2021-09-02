@@ -6,10 +6,10 @@ import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import withMeta, { WithMeta } from "./MetaHOC";
-import RecorderComponent from "components/designSystems/appsmith/RecorderComponent";
+import AudioRecorderComponent from "components/designSystems/appsmith/AudioRecorderComponent";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-export interface RecorderWidgetProps extends WidgetProps, WithMeta {
+export interface AudioRecorderWidgetProps extends WidgetProps, WithMeta {
   backgroundColor: string;
   iconColor: string;
   isDisabled: boolean;
@@ -18,7 +18,10 @@ export interface RecorderWidgetProps extends WidgetProps, WithMeta {
   onRecordingComplete?: string;
 }
 
-class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
+class AudioRecorderWidget extends BaseWidget<
+  AudioRecorderWidgetProps,
+  WidgetState
+> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -145,7 +148,7 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
     } = this.props;
 
     return (
-      <RecorderComponent
+      <AudioRecorderComponent
         backgroundColor={backgroundColor}
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
@@ -159,11 +162,11 @@ class RecorderWidget extends BaseWidget<RecorderWidgetProps, WidgetState> {
   }
 
   getWidgetType(): WidgetType {
-    return "RECORDER_WIDGET";
+    return "AUDIO_RECORDER_WIDGET";
   }
 }
 
-export default RecorderWidget;
-export const ProfiledRecorderWidget = Sentry.withProfiler(
-  withMeta(RecorderWidget),
+export default AudioRecorderWidget;
+export const ProfiledAudioRecorderWidget = Sentry.withProfiler(
+  withMeta(AudioRecorderWidget),
 );

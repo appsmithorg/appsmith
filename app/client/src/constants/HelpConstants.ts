@@ -147,9 +147,9 @@ export const HelpMap = {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",
   },
-  RECORDER_WIDGET: {
-    path: "/widget-reference/recorder",
-    searchKey: "Recorder",
+  AUDIO_RECORDER_WIDGET: {
+    path: "/widget-reference/audio-recorder",
+    searchKey: "Audio Recorder",
   },
 };
 

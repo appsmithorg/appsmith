@@ -29,7 +29,7 @@ import { ReactComponent as DividerIcon } from "assets/icons/widget/divider.svg";
 import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-button.svg";
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
-import { ReactComponent as RecorderIcon } from "assets/icons/widget/recorder.svg";
+import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 
 /* eslint-disable react/display-name */
 
@@ -186,9 +186,9 @@ export const WidgetIcons: {
       <CheckboxGroupIcon />
     </IconWrapper>
   ),
-  RECORDER_WIDGET: (props: IconProps) => (
+  AUDIO_RECORDER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <RecorderIcon />
+      <AudioRecorderIcon />
     </IconWrapper>
   ),
 };
