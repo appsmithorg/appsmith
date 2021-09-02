@@ -31,11 +31,11 @@ export interface ButtonStyleProps {
   buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
   dimension?: number;
+  hasOnClickAction?: boolean;
 }
 
-const StyledButton = styled(Button)<
-  ThemeProp & ButtonStyleProps & { hasOnClickAction: boolean }
->`
+export const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
