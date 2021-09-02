@@ -327,7 +327,7 @@ export function Table(props: TableProps) {
   }
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
-  if (props.serverSidePaginationEnabled) {
+  if (props.serverSidePaginationEnabled || props.infiniteScroll) {
     startIndex = 0;
     endIndex = props.data.length;
   }
