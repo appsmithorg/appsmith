@@ -130,7 +130,6 @@ const TabbedViewContainer = styled.div`
 
 const SettingsWrapper = styled.div`
   padding: 16px 30px;
-  overflow-y: auto;
   height: 100%;
   ${thinScrollbar};
 `;
@@ -329,7 +328,7 @@ const TabContainerView = styled.div`
     margin-top: 15px;
   }
   .react-tabs__tab-panel {
-    overflow: scroll;
+    overflow: auto;
   }
   .react-tabs__tab-list {
     margin: 0px;

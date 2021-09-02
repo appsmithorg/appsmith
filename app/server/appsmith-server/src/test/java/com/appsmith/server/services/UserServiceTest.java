@@ -13,6 +13,7 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -402,7 +403,8 @@ public class UserServiceTest {
         signUpUser.setPassword("123456");
 
         Mono<User> invitedUserSignUpMono =
-                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080");
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                        .map(UserSignupDTO::getUser);
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
@@ -478,7 +480,8 @@ public class UserServiceTest {
         newUser.setEmail("abCd@gmail.com"); // same as above except c in uppercase
         newUser.setSource(LoginSource.FORM);
         newUser.setPassword("abcdefgh");
-        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null);
+        Mono<User> userAndSendEmail = userService.createUserAndSendEmail(newUser, null)
+                .map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
                 .expectErrorMessage(

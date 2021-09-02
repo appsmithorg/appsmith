@@ -756,6 +756,7 @@ type ColorType = {
       border: ShadeColor;
       text: ShadeColor;
     };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -1656,6 +1657,7 @@ export const dark: ColorType = {
       border: darkShades[0],
       text: darkShades[7],
     },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -2234,6 +2236,7 @@ export const light: ColorType = {
       border: lightShades[2],
       text: lightShades[7],
     },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
