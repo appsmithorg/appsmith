@@ -45,6 +45,7 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
+  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -124,7 +125,10 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount = Math.ceil(props.data.length / props.pageSize);
+  const pageCount =
+    props.serverSidePaginationEnabled && props.totalRecordsCount
+      ? Math.ceil(props.totalRecordsCount / props.pageSize)
+      : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -256,6 +260,7 @@ export function Table(props: TableProps) {
                 tableColumns={columns}
                 tableData={props.data}
                 tableSizes={tableSizes}
+                totalRecordsCount={props.totalRecordsCount}
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}

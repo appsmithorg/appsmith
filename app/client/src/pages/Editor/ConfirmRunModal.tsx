@@ -7,7 +7,7 @@ import {
   showRunActionConfirmModal,
   cancelRunActionConfirmModal,
   acceptRunActionConfirmModal,
-} from "actions/actionActions";
+} from "actions/pluginActionActions";
 
 type Props = {
   isModalOpen: boolean;
