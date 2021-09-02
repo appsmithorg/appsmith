@@ -109,11 +109,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (template) {
       Object.keys(template).map((key: string) => {
         const currentTemplate = template[key];
-        const widgetType = currentTemplate.type;
+        const widgetType = currentTemplate?.type;
 
-        childrenEntityDefinitions[widgetType] = Object.keys(
-          omit(get(entityDefinitions, `${widgetType}`), ["!doc", "!url"]),
-        );
+        if (widgetType) {
+          childrenEntityDefinitions[widgetType] = Object.keys(
+            omit(get(entityDefinitions, `${widgetType}`), ["!doc", "!url"]),
+          );
+        }
       });
     }
 
@@ -135,7 +137,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       Object.keys(template).map((key: string) => {
         const currentTemplate = template[key];
         const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-          currentTemplate.type,
+          currentTemplate?.type,
         );
 
         Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
@@ -165,7 +167,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       Object.keys(template).map((key: string) => {
         const currentTemplate = template[key];
         const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
-          currentTemplate.type,
+          currentTemplate?.type,
         );
 
         Object.keys(metaProperties).map((metaPropertyKey: string) => {
