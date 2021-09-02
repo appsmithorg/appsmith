@@ -4,6 +4,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -49,7 +50,9 @@ public class CustomFormLoginServiceImpl implements ReactiveUserDetailsService {
                         // We can have a implementation to give which login method user should use but this will
                         // expose the sign-in source for external world and in turn to spammers
                         throw new InternalAuthenticationServiceException(
-                            AppsmithError.INVALID_LOGIN_METHOD.getMessage(user.getSource().toString())
+                            AppsmithError.INVALID_LOGIN_METHOD.getMessage(
+                                WordUtils.capitalize(user.getSource().toString().toLowerCase())
+                            )
                         );
                     }
                     return user;

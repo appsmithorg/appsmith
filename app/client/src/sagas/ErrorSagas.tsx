@@ -78,23 +78,22 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
   }
   if (response.responseMeta.success) {
     return true;
-  } else {
-    if (
-      response.responseMeta.error.code ===
-      SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
-    ) {
-      throw new IncorrectBindingError(response.responseMeta.error.message);
-    } else {
-      yield put({
-        type: ReduxActionErrorTypes.API_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-          show,
-        },
-      });
-      throw Error(response.responseMeta.error.message);
-    }
   }
+  if (
+    response.responseMeta.error.code ===
+    SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET
+  ) {
+    throw new IncorrectBindingError(response.responseMeta.error.message);
+  }
+
+  yield put({
+    type: ReduxActionErrorTypes.API_ERROR,
+    payload: {
+      error: response.responseMeta.error,
+      show,
+    },
+  });
+  throw Error(response.responseMeta.error.message);
 }
 
 export function getResponseErrorMessage(response: ApiResponse) {
