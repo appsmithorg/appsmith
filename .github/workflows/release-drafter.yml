@@ -4,15 +4,17 @@ on:
   push:
     branches:
       - release
-    # pull_request event is required only for autolabeler
-    pull_request:
-      types: [opened, reopened, synchronize]
-
     # Only trigger if files have changed in this specific path
     paths:
       - 'app/client/**'
       - 'app/server/**'
-      
+      - 'app/rts/**'
+
+  # pull_request event is required only for autolabeler
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches:
+      - release
 
 jobs:
   update_release_draft:
