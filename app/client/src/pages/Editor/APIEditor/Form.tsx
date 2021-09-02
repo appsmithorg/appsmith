@@ -85,7 +85,6 @@ const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
-  height: 124px;
 `;
 
 const ActionButtons = styled.div`
