@@ -159,8 +159,12 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  const setCategory = (category: SearchCategory) =>
+  const setCategory = (category: SearchCategory) => {
+    if (isSnippet(category)) {
+      AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
+    }
     dispatch(setGlobalSearchFilterContext({ category: category }));
+  };
   const setRefinements = (entityMeta: any) =>
     dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
   const refinements = useSelector(

@@ -169,7 +169,8 @@ export type EventName =
   | "SNIPPET_CUSTOMIZE"
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
-  | "SNIPPET_COPIED";
+  | "SNIPPET_COPIED"
+  | "SNIPPET_CATEGORY_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
