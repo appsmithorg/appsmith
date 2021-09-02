@@ -33,12 +33,15 @@ import {
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import getFeatureFlags from "utils/featureFlags";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -269,6 +272,19 @@ class GlobalHotKeys extends React.Component<Props> {
               this.props.groupSelectedWidget();
             }
           }}
+        />
+        <Hotkey
+          combo="mod + s"
+          global
+          label="Save progress"
+          onKeyDown={() => {
+            Toaster.show({
+              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
+              variant: Variant.info,
+            });
+          }}
+          preventDefault
+          stopPropagation
         />
       </Hotkeys>
     );
