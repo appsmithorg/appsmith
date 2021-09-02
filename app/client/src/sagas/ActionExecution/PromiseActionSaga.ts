@@ -57,8 +57,7 @@ export default function* executePromiseSaga(
     }
   } catch (e) {
     log.error(e);
-    const appMode = yield select(getAppMode);
-    if (appMode === APP_MODE.EDIT && !trigger.catch) {
+    if (!trigger.catch) {
       Toaster.show({
         text: e.message || "There was an error while executing",
         variant: Variant.danger,
@@ -70,6 +69,7 @@ export default function* executePromiseSaga(
       if (e instanceof PluginTriggerFailureError) {
         responseData = e.responseData;
       }
+      // if the catch callback is not an anonymous function, passing arguments will cause errors in execution
       const catchArguments = ACTION_ANONYMOUS_FUNC_REGEX.test(trigger.catch)
         ? responseData
         : undefined;
