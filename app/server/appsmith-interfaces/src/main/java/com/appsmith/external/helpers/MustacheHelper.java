@@ -38,7 +38,7 @@ public class MustacheHelper {
     private final static Pattern pattern = Pattern.compile("[a-zA-Z_][a-zA-Z0-9._]*");
     /**
      * Appsmith smart replacement : The regex pattern below looks for '?' or "?". This pattern is later replaced with ?
-     * to fit the requirements of prepared statements/Appsmith's JSON smart replacement.
+     * to fit the requirements of prepared statements.
      */
     private static String regexQuotesTrimming = "([\"']\\?[\"'])";
     private static Pattern quoteQuestionPattern = Pattern.compile(regexQuotesTrimming);
@@ -47,8 +47,8 @@ public class MustacheHelper {
 
     /**
      * Appsmith smart replacement with placeholder : The regex pattern below looks for `APPSMITH_SUBSTITUTION_PLACEHOLDER`
-     * surrounded by quotes (or not). This pattern is later replaced with APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
-     * of JSON smart replacement
+     * surrounded by quotes. This pattern is later replaced with just APPSMITH_SUBSTITUTION_PLACEHOLDER to fit the requirements
+     * of JSON smart replacement aka trim the quotes present.
      */
     private static String regexPlaceholderTrimming = "([\"']" + APPSMITH_SUBSTITUTION_PLACEHOLDER + "[\"'])";
     private static Pattern placeholderTrimmingPattern = Pattern.compile(regexPlaceholderTrimming);

@@ -1638,7 +1638,7 @@ public class MongoPluginTest {
     }
 
     @Test
-    public void testSmartSubstitutionEvaluatedValueContainsQuestionMark() {
+    public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<Integer, Object> configMap = new HashMap<>();

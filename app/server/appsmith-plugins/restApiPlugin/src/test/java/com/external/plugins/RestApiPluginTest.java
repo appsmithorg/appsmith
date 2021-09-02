@@ -506,7 +506,7 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testSmartSubstitutionEvaluatedValueContainsQuestionMark() {
+    public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
 
