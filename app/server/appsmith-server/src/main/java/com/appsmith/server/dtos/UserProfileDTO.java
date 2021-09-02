@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Set;
@@ -18,5 +19,8 @@ public class UserProfileDTO {
     String gender;
 
     boolean isEmptyInstance = false;
+
+    @JsonProperty("isSuperUser")
+    boolean isSuperUser = false;
 
 }
