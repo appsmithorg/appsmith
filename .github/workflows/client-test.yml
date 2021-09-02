@@ -409,12 +409,23 @@ jobs:
           tag: ${{ github.event_name }}
           env: "NODE_ENV=development"
 
+      - name: Check if the server logs are present
+        working-directory: app/server
+        run: |
+            ls -l
+            ls -l scripts/
+            ls -l dist/
+  
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v1
-        if: failure()
+      - name: Upload failed screenshots as an artifact
+        uses: actions/upload-artifact@v1
+        # TODO: Only commenting for testing. Please uncomment
+        # if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
-          path: app/client/cypress/screenshots/
+          path: |
+            app/server/nohup.out
+            app/client/cypress/screenshots/
 
   ui-test-result:
     needs: ui-test
