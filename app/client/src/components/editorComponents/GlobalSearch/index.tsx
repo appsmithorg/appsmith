@@ -66,9 +66,10 @@ import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 
-const StyledContainer = styled.div`
+const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
   max-height: 530px;
+  height: ${(props) => (isMenu(props.category) ? "auto" : "530px")};
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
   padding: ${(props) => props.theme.spaces[5]}px;
@@ -516,7 +517,7 @@ function GlobalSearch() {
             refinements={refinements}
             setRefinement={setRefinements}
           >
-            <StyledContainer>
+            <StyledContainer category={category}>
               <SearchBox
                 category={category}
                 query={query}
