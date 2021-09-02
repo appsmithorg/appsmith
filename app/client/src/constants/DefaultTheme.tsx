@@ -756,6 +756,7 @@ type ColorType = {
       border: ShadeColor;
       text: ShadeColor;
     };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -1000,8 +1001,12 @@ type ColorType = {
     sectionTitle: string;
     navigateToEntityEnterkey: string;
     mainContainerBackground: string;
-    filterListBackground: string;
-    filterBtnText: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+    };
   };
   gif: {
     overlay: string;
@@ -1131,6 +1136,7 @@ type ColorType = {
       shadow: string;
       errorCount: string;
       noErrorCount: string;
+      warningCount: string;
     };
     blankState: {
       shortcut: string;
@@ -1346,8 +1352,12 @@ const globalSearch = {
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
   mainContainerBackground: "#F0F0F0",
-  filterListBackground: lightShades[0],
-  filterBtnText: lightShades[8],
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+  },
 };
 
 const mentionsInput = {
@@ -1647,6 +1657,7 @@ export const dark: ColorType = {
       border: darkShades[0],
       text: darkShades[7],
     },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1923,6 +1934,7 @@ export const dark: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#D4D4D4",
@@ -2224,6 +2236,7 @@ export const light: ColorType = {
       border: lightShades[2],
       text: lightShades[7],
     },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -2501,6 +2514,7 @@ export const light: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#090707",

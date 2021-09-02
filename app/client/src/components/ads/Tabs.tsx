@@ -21,6 +21,7 @@ const TabsWrapper = styled.div<{
 }>`
   border-radius: 0px;
   height: 100%;
+  overflow: hidden;
   .react-tabs {
     height: 100%;
   }
@@ -66,6 +67,10 @@ const TabsWrapper = styled.div<{
       content: none;
     }
   }
+
+  .react-tabs__tab--selected {
+    background-color: transparent;
+  }
 `;
 
 export const TabTitle = styled.span`
@@ -74,15 +79,18 @@ export const TabTitle = styled.span`
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
   letter-spacing: ${(props) => props.theme.typography.h5.letterSpacing}px;
   margin: 0;
+  display: flex;
+  align-items: center;
 `;
 
 export const TabCount = styled.div`
   background-color: ${(props) => props.theme.colors.tabs.countBg};
   border-radius: 8px;
   width: 17px;
-  height: 14px;
+  height: 17px;
   font-size: 9px;
   line-height: 14px;
+  margin-left: 2px;
 `;
 
 const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
@@ -91,7 +99,7 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
 
   padding: ${(props) => props.theme.spaces[3] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
-    ${(props) => props.theme.spaces[4]}px
+    ${(props) => props.theme.spaces[4] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)};
 
   &:hover {
@@ -119,8 +127,8 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
     content: "";
     position: absolute;
     width: ${props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
-    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
-    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "100%"};
+    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[1] - 2}px`};
+    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "unset"};
     left: ${props.theme.spaces[0]}px;
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
