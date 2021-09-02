@@ -237,7 +237,7 @@ class ButtonGroupWidget extends BaseWidget<
                       `${propertyPath}.buttonType`,
                       "",
                     );
-                    return buttonType === "MENU";
+                    return buttonType !== "MENU";
                   },
                   children: [
                     {
@@ -264,6 +264,73 @@ class ButtonGroupWidget extends BaseWidget<
                           ];
                         },
                         children: [
+                          {
+                            sectionName: "General",
+                            children: [
+                              {
+                                propertyName: "label",
+                                helpText: "Sets the label of a menu item",
+                                label: "Label",
+                                controlType: "INPUT_TEXT",
+                                placeholderText: "Enter label",
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                helpText: "Controls button color",
+                                propertyName: "buttonStyle",
+                                label: "Button Style",
+                                controlType: "DROP_DOWN",
+                                options: [
+                                  {
+                                    label: "Primary",
+                                    value: "PRIMARY",
+                                  },
+                                  {
+                                    label: "Warning",
+                                    value: "WARNING",
+                                  },
+                                  {
+                                    label: "Danger",
+                                    value: "DANGER",
+                                  },
+                                  {
+                                    label: "Info",
+                                    value: "INFO",
+                                  },
+                                  {
+                                    label: "Secondary",
+                                    value: "SECONDARY",
+                                  },
+                                ],
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "isDisabled",
+                                helpText: "Disables input to the widget",
+                                label: "Disabled",
+                                controlType: "SWITCH",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.BOOLEAN },
+                              },
+                              {
+                                propertyName: "isVisible",
+                                helpText:
+                                  "Controls the visibility of the widget",
+                                label: "Visible",
+                                controlType: "SWITCH",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.BOOLEAN },
+                              },
+                            ],
+                          },
                           {
                             sectionName: "Icon Options",
                             children: [
@@ -429,6 +496,21 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       iconName?: IconName;
       iconAlign?: Alignment;
       onClick?: string;
+      menuItems?: Record<
+        string,
+        {
+          widgetId: string;
+          id: string;
+          index: number;
+          isVisible?: boolean;
+          isDisabled?: boolean;
+          label?: string;
+          buttonStyle?: ButtonStyle;
+          iconName?: IconName;
+          iconAlign?: Alignment;
+          onClick?: string;
+        }
+      >;
     }
   >;
 }

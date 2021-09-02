@@ -1,6 +1,7 @@
 import React from "react";
 import { sortBy } from "lodash";
 import { Alignment, Icon } from "@blueprintjs/core";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import {
   ButtonBorderRadius,
@@ -18,7 +19,7 @@ import {
 } from "constants/WidgetConstants";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
 interface WrapperStyleProps {
@@ -65,6 +66,20 @@ const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
       : "none"} !important;
 `;
 
+const MenuButtonWrapper = styled.div`
+  flex: 1 1 auto;
+
+  & > .${Classes.POPOVER2_TARGET} {
+    height: 100%;
+  }
+`;
+
+const PopoverStyles = createGlobalStyle`
+  .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
+    background: none;
+  }
+`;
+
 interface ButtonStyleProps {
   isHorizontal: boolean;
   buttonVariant?: ButtonVariant; // solid | outline | ghost
@@ -74,7 +89,7 @@ interface ButtonStyleProps {
 }
 
 const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   cursor: pointer;
   justify-content: space-evenly;
@@ -191,13 +206,88 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
   `}
 `;
 
+interface PopoverContentProps {
+  menuItems: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      buttonStyle?: ButtonStyle;
+      iconName?: IconName;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
+  onItemClicked: (onClick: string | undefined) => () => void;
+}
+
+function PopoverContent(props: PopoverContentProps) {
+  const items = Object.keys(props.menuItems)
+    .map((itemKey) => props.menuItems[itemKey])
+    .filter((item) => item.isVisible === true);
+
+  return (
+    <div>
+      {items.map((item) => {
+        return (
+          <div key={item.id} onClick={props.onItemClicked(item.onClick)}>
+            {item.label}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
   onButtonClick = (onClick: string | undefined) => () => {
     this.props.buttonClickHandler(onClick);
   };
 
-  render() {
+  renderMenuButton = (button: GroupButtonProps, isHorizontal: boolean) => {
+    const { menuItems } = button;
+
+    return (
+      <MenuButtonWrapper>
+        <PopoverStyles />
+        <Popover2
+          content={
+            <PopoverContent
+              menuItems={menuItems || {}}
+              onItemClicked={this.onButtonClick}
+            />
+          }
+          disabled={button.isDisabled}
+          fill
+          minimal
+          placement="bottom-end"
+          popoverClassName="menu-button-popover"
+        >
+          <StyledButton
+            buttonStyle={button.buttonStyle}
+            buttonVariant={button.buttonVariant}
+            iconAlign={button.iconAlign}
+            isDisabled={button.isDisabled}
+            isHorizontal={isHorizontal}
+            style={{ height: "100%", width: "100%" }}
+          >
+            {button.iconName && <Icon icon={button.iconName} />}
+            {!!button.label && <span>{button.label}</span>}
+          </StyledButton>
+        </Popover2>
+      </MenuButtonWrapper>
+    );
+  };
+
+  render = () => {
     const { groupButtons, orientation } = this.props;
+    /* eslint-disable no-console */
+    // prettier-ignore
+    console.log("🚀 ~ file: ButtonGroupComponent.tsx ~ line 201 ~ ButtonGroupComponent ~ render ~ this.props", this.props)
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -214,34 +304,44 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
         isHorizontal={isHorizontal}
       >
         {items.map((button) => {
-          return (
-            <StyledButton
-              buttonStyle={button.buttonStyle}
-              buttonVariant={button.buttonVariant}
-              iconAlign={button.iconAlign}
-              isDisabled={button.isDisabled}
-              isHorizontal={isHorizontal}
-              key={button.id}
-              onClick={this.onButtonClick(button.onClick)}
-            >
-              {button.iconName && <Icon icon={button.iconName} />}
-              <span>{button.label}</span>
-            </StyledButton>
-          );
+          if (button.buttonType === "MENU") {
+            return this.renderMenuButton(button, isHorizontal);
+          } else {
+            return (
+              <StyledButton
+                buttonStyle={button.buttonStyle}
+                buttonVariant={button.buttonVariant}
+                iconAlign={button.iconAlign}
+                isDisabled={button.isDisabled}
+                isHorizontal={isHorizontal}
+                key={button.id}
+                onClick={this.onButtonClick(button.onClick)}
+              >
+                {button.iconName && <Icon icon={button.iconName} />}
+                {!!button.label && <span>{button.label}</span>}
+              </StyledButton>
+            );
+          }
         })}
       </ButtonGroupWrapper>
     );
-  }
+  };
 }
 
-export interface ButtonGroupComponentProps extends ComponentProps {
-  orientation: string;
-  isDisabled: boolean;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
-  buttonClickHandler: (onClick: string | undefined) => void;
-  groupButtons: Record<
+interface GroupButtonProps {
+  widgetId: string;
+  id: string;
+  index: number;
+  isVisible?: boolean;
+  isDisabled?: boolean;
+  label?: string;
+  buttonType?: string;
+  buttonStyle?: ButtonStyle;
+  buttonVariant: ButtonVariant;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onClick?: string;
+  menuItems?: Record<
     string,
     {
       widgetId: string;
@@ -251,12 +351,21 @@ export interface ButtonGroupComponentProps extends ComponentProps {
       isDisabled?: boolean;
       label?: string;
       buttonStyle?: ButtonStyle;
-      buttonVariant: ButtonVariant;
       iconName?: IconName;
       iconAlign?: Alignment;
       onClick?: string;
     }
   >;
+}
+
+export interface ButtonGroupComponentProps extends ComponentProps {
+  orientation: string;
+  isDisabled: boolean;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  buttonClickHandler: (onClick: string | undefined) => void;
+  groupButtons: Record<string, GroupButtonProps>;
 }
 
 export default ButtonGroupComponent;
