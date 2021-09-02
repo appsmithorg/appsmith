@@ -8,6 +8,7 @@ ff4j:
   audit: false
 
   features:
+
     - uid: TEST_FEATURE_1
       enable: true
       description: The test feature should only be visible to Appsmith users

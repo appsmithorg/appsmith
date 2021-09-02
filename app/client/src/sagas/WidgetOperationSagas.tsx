@@ -1830,6 +1830,7 @@ export default function* widgetOperationSagas() {
       WidgetReduxActionTypes.WIDGET_BULK_DELETE,
       deleteAllSelectedWidgetsSaga,
     ),
+
     takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,

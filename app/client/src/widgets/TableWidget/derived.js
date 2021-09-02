@@ -76,7 +76,7 @@ export default {
   },
   //
   getSanitizedTableData: (props, moment, _) => {
-    const separatorRegex = /\s/;
+    const separatorRegex = /\W+/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
       return props.tableData.map((entry) => {

@@ -8,6 +8,7 @@ ff4j:
   audit: false
 
   features:
+
     - uid: JS_EDITOR
       enable: true
       description: Should the JS Editor be visible?
