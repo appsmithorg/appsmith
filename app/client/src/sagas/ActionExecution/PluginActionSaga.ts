@@ -316,6 +316,7 @@ export default function* executePluginActionTriggerSaga(
     Toaster.show({
       text: createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
       variant: Variant.danger,
+      showDebugButton: true,
     });
     throw new TriggerFailureError(
       "Failed to execute plugin action",

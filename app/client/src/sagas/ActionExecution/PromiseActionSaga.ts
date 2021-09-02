@@ -44,12 +44,6 @@ export default function* executePromiseSaga(
   } catch (e) {
     log.error(e);
     const appMode = yield select(getAppMode);
-    if (appMode === APP_MODE.EDIT) {
-      Toaster.show({
-        text: "There was an error while executing",
-        variant: Variant.danger,
-      });
-    }
     if (trigger.catch) {
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
@@ -59,6 +53,12 @@ export default function* executePromiseSaga(
         responseData: [e.message],
       });
     } else {
+      if (appMode === APP_MODE.EDIT) {
+        Toaster.show({
+          text: "There was an error while executing",
+          variant: Variant.danger,
+        });
+      }
       throw new TriggerFailureError("Uncaught promise rejection", e);
     }
   }
