@@ -19,6 +19,7 @@ import {
   dataSetForSouthAmerica,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
+  EntityData,
   MapType,
   MapTypes,
 } from "components/designSystems/appsmith/MapChartComponent";
@@ -337,11 +338,17 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     ];
   }
 
-  handleEntityClick = () => {
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      entityData: undefined,
+    };
+  }
+
+  handleEntityClick = (data: EntityData) => {
     const { onEntityClick } = this.props;
 
     if (onEntityClick) {
-      super.executeAction({
+      this.props.updateWidgetMetaProperty("entityData", data, {
         triggerPropertyName: "onEntityClick",
         dynamicString: onEntityClick,
         event: {

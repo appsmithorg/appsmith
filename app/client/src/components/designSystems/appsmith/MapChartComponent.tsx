@@ -1085,12 +1085,20 @@ export enum MapTypes {
 
 export type MapType = keyof typeof MapTypes;
 
+export interface EntityData {
+  id: string;
+  label: string;
+  originalId: string;
+  shortLabel: string;
+  value: number;
+}
+
 export interface MapChartComponentProps {
   caption: string;
   data: MapData[];
   height: number;
   isVisible: boolean;
-  onEntityClick: () => void;
+  onEntityClick: (data: EntityData) => void;
   showLabels: boolean;
   type: MapType;
   width: number;
@@ -1113,13 +1121,8 @@ function MapChartComponent(props: MapChartComponentProps) {
   useEffect(() => {
     // Attach event handlers
     const newChartConfigs: any = { ...chartConfigs };
-    newChartConfigs["events"]["entityClick"] = (
-      evt: FusionCharts.EventObject,
-      data: any,
-    ) => {
-      // console.log(evt);
-      // console.log(data);
-      onEntityClick();
+    newChartConfigs["events"]["entityClick"] = (evt: any) => {
+      onEntityClick(evt.data);
     };
   }, []);
 
@@ -1199,14 +1202,13 @@ function MapChartComponent(props: MapChartComponentProps) {
   }, [showLabels]);
 
   // Called by FC-React component to return the rendered chart
-  const renderComplete = (chart: FusionCharts.FusionCharts) => {
-    // console.log(chart);
-    // setChart(chart);
-  };
+  // const renderComplete = (chart: FusionCharts.FusionCharts) => {
+  //   setChart(chart);
+  // };
 
   return (
     <MapChartContainer>
-      <ReactFC {...chartConfigs} onRender={renderComplete} />
+      <ReactFC {...chartConfigs} />
     </MapChartContainer>
   );
 }
