@@ -64,7 +64,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static io.r2dbc.spi.ConnectionFactoryOptions.SSL;

@@ -1637,4 +1637,58 @@ public class MongoPluginTest {
                 .verifyComplete();
     }
 
+    @Test
+    public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<Integer, Object> configMap = new HashMap<>();
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.TRUE);
+        configMap.put(COMMAND, "INSERT");
+        configMap.put(COLLECTION, "users");
+        configMap.put(INSERT_DOCUMENT, "{\"name\" : {{Input1.text}}, \"gender\" : {{Input2.text}}, \"age\" : 40, \"tag\" : \"test\"}");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("This string contains ? symbol");
+        params.add(param1);
+        Param param3 = new Param();
+        param3.setKey("Input2.text");
+        param3.setValue("F");
+        params.add(param3);
+        executeActionDTO.setParams(params);
+
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        // Clean up this newly inserted value
+        configMap = new HashMap<>();
+        configMap.put(SMART_BSON_SUBSTITUTION, Boolean.FALSE);
+        configMap.put(COMMAND, "DELETE");
+        configMap.put(COLLECTION, "users");
+        configMap.put(DELETE_QUERY, "{\"tag\" : \"test\"}");
+        configMap.put(DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setPluginSpecifiedTemplates(generateMongoFormConfigTemplates(configMap));
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+    }
+
 }
