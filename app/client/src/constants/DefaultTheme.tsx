@@ -1355,7 +1355,7 @@ const globalSearch = {
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
   sectionTitle: "#716E6E",
-  navigateToEntityEnterkey: "#3DA5D9",
+  navigateToEntityEnterkey: "white",
   primaryBgColor: "#ffffff",
   primaryTextColor: "#090707",
   secondaryTextColor: "#4b4848",

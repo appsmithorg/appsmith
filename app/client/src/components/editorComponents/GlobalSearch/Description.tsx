@@ -160,7 +160,9 @@ const StyledHitEnterMessageContainer = styled.div`
     props.theme.colors.globalSearch.navigateUsingEnterSection};
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
-  ${(props) => getTypographyByKey(props, "p3")}
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
+  ${(props) => getTypographyByKey(props, "p3")};
 `;
 
 const StyledKey = styled.span`

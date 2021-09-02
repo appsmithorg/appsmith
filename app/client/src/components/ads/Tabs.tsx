@@ -116,11 +116,11 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
   ${(props) =>
     props.selected
       ? `
-  color: ${props.theme.colors.tabs.selected};
+  color: ${props.theme.colors.tabs.default};
   background-color: transparent;
 
   path {
-    fill: ${props.theme.colors.tabs.selected};
+    fill: ${props.theme.colors.tabs.default};
   }
 
   &::after {
