@@ -168,8 +168,12 @@ export const invisible = css`
 
 export const disable = css`
   & {
-    opacity: 0.5;
-    pointer-events: none;
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   }
 `;
 
