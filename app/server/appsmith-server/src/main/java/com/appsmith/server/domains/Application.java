@@ -74,9 +74,12 @@ public class Application extends BaseDomain {
      * This method has been added because the updatedAt property in base domain has @JsonIgnore annotation
      * @return updated time as a string
      */
-    @JsonProperty(value = "updatedAt", access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     public String getLastUpdateTime() {
-        return ISO_FORMATTER.format(updatedAt);
+        if(updatedAt != null) {
+            return ISO_FORMATTER.format(updatedAt);
+        }
+        return null;
     }
 
     public String getLastDeployedAt() {
