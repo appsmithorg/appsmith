@@ -238,30 +238,6 @@ function TableHead(
   );
 }
 
-// const useElementOnScreen = (options: any) => {
-//   const containerRef = useRef<HTMLDivElement | null>(null);
-//   const [isVisible, setIsVisible] = React.useState(false);
-
-//   const callbackFunction = (entries: any) => {
-//     const [entry] = entries;
-//     setIsVisible(entry.isIntersecting);
-//   };
-
-//   React.useEffect(() => {
-//     const observer = new IntersectionObserver(callbackFunction, options);
-//     if (containerRef.current) {
-//       observer.observe(containerRef.current);
-//     }
-//     return () => {
-//       if (containerRef.current) {
-//         observer.unobserve(containerRef.current);
-//       }
-//     };
-//   }, [containerRef, options]);
-
-//   return [containerRef, isVisible];
-// };
-
 const createIntersectionObserver = (
   elementRef: React.MutableRefObject<HTMLDivElement | null>,
   callback: () => void,
@@ -501,11 +477,7 @@ export function Table(props: TableProps) {
           pageOptions,
         })}
       <div
-        className={
-          props.isLoading && !props.infiniteScroll
-            ? Classes.SKELETON
-            : "tableWrap"
-        }
+        className={props.isLoading ? Classes.SKELETON : "tableWrap"}
         ref={tableWrapperRef}
       >
         <Scrollbars
