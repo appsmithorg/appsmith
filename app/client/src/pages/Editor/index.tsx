@@ -36,7 +36,7 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
-import { fetchPage } from "actions/pageActions";
+import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 type EditorProps = {
   currentApplicationId?: string;
@@ -55,6 +55,7 @@ type EditorProps = {
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
+  updateCurrentPage: (pageId: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -99,6 +100,7 @@ class Editor extends Component<Props> {
     const { pageId } = this.props.match.params;
     const { currentPageId } = this.props;
     if (pageId !== currentPageId) {
+      this.props.updateCurrentPage(pageId);
       this.props.fetchPage(pageId);
     }
   }
@@ -176,6 +178,7 @@ const mapDispatchToProps = (dispatch: any) => {
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
     fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
   };
 };
 
