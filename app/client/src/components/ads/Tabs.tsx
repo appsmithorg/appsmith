@@ -26,7 +26,7 @@ const TabsWrapper = styled.div<{
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: 100%;
+    height: calc(100% - 36px);
     overflow: auto;
   }
   .react-tabs__tab-list {

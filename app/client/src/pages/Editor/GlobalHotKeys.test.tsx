@@ -1,9 +1,11 @@
 import React from "react";
+import { Slide } from "react-toastify";
+
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent } from "test/testUtils";
+import { act, render, fireEvent, waitFor } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "./MainContainer";
 import { MemoryRouter } from "react-router-dom";
@@ -21,6 +23,9 @@ import {
 import { MockCanvas } from "test/testMockedWidgets";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
+import { StyledToastContainer } from "components/ads/Toast";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
+
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
@@ -516,5 +521,40 @@ describe("Cut/Copy/Paste hotkey", () => {
 
     selectedWidgets = await component.queryAllByTestId("t--selected");
     expect(selectedWidgets.length).toBe(2);
+  });
+});
+
+describe("cmd + s hotkey", () => {
+  it("Should render toast message", async () => {
+    const component = render(
+      <>
+        <StyledToastContainer
+          autoClose={5000}
+          closeButton={false}
+          draggable={false}
+          hideProgressBar
+          pauseOnHover={false}
+          transition={Slide}
+        />
+        <GlobalHotKeys>
+          <div />
+        </GlobalHotKeys>
+      </>,
+    );
+
+    dispatchTestKeyboardEventWithCode(
+      component.container,
+      "keydown",
+      "s",
+      83,
+      false,
+      true,
+    );
+
+    await waitFor(() => {
+      expect(
+        component.getByText(createMessage(SAVE_HOTKEY_TOASTER_MESSAGE)),
+      ).toBeDefined();
+    });
   });
 });
