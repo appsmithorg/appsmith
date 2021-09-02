@@ -90,7 +90,7 @@ const DatasourceImage = styled.img`
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
   cypressSelector: string;
-  optionWidth?: string;
+  optionWidth: string;
 }
 
 function DataSourceOption({
