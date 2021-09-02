@@ -180,7 +180,7 @@ export const getAllPathsFromPropertyConfig = (
             !isUndefined(widgetPropertyValue) &&
             isObject(widgetPropertyValue)
           ) {
-            Object.keys(widgetPropertyValue).map((key: string) => {
+            Object.keys(widgetPropertyValue).forEach((key: string) => {
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
               controlConfig.children.forEach((childPropertyConfig: any) => {
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
