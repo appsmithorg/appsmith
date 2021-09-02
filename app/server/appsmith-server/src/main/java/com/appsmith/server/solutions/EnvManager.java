@@ -36,6 +36,11 @@ public class EnvManager {
     @Value("${appsmith.admin.envfile:/opt/appsmith/docker.env}")
     public String envFilePath;
 
+    /**
+     * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
+     * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
+     * respectively.
+     */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
