@@ -52,7 +52,6 @@ export const SearchItemContainer = styled.div<{
   align-items: center;
   padding: ${(props) => props.theme.spaces[4]}px};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
-  margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
     props.isActiveItem &&
     props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
@@ -97,9 +96,9 @@ export const SearchItemContainer = styled.div<{
     }
   }
 
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${(props) => getTypographyByKey(props, "p1")};
   }
 `;
 
@@ -120,7 +119,7 @@ const StyledDocumentIcon = styled(DocumentIcon)<{ isActiveItem: boolean }>`
     width: 14px;
     height: 14px;
     path {
-      fill: #6a86ce !important;
+      fill: #716e6e !important;
     }
   }
   display: flex;

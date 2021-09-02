@@ -36,7 +36,9 @@ import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import { ReactComponent as PlayIcon } from "assets/icons/menu/play-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getTypographyByKey } from "constants/DefaultTheme";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -52,26 +54,36 @@ const SnippetContainer = styled.div`
       position: absolute;
       top: 4px;
       right: 4px;
-      padding: 4px 0;
       display: flex;
+      transition: 0.2s opacity ease;
+      background: #f0f0f0;
+      opacity: 0;
       justify-content: space-between;
     }
     .action-icons > * {
       height: 12px;
       width: 12px;
       cursor: pointer;
-      margin: 0 4px;
       &:hover {
         transform: scale(1.1);
       }
+      margin: 6px;
     }
     &:hover {
       .t--copy-snippet {
         opacity: 1;
       }
+      .action-icons {
+        opacity: 1;
+      }
     }
     pre {
-      padding: 1.5em 1em !important;
+      padding: 12px !important;
+      margin: 0 !important;
+      background: ${(props) =>
+        props.theme.colors.globalSearch.codeBackground} !important;
+      white-space: pre-wrap;
+      border: none;
     }
   }
   .snippet-title {
@@ -96,12 +108,11 @@ const SnippetContainer = styled.div`
   .snippet-group {
     margin: 5px 0;
     .header {
+      ${(props) => getTypographyByKey(props, "p1")}
       font-weight: 500;
-      font-size: 14px;
     }
     .content {
-      font-weight: 400;
-      font-size: 14px;
+      ${(props) => getTypographyByKey(props, "p1")}
     }
     .argument {
       display: flex;
@@ -310,6 +321,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 <CopyIcon
                   onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
                 />
+                <PlayIcon onClick={handleRun} />
               </div>
             </div>
             <div className="snippet-group">

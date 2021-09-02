@@ -6,7 +6,7 @@ import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 const RefinementListContainer = styled.div`
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
-  padding: 0 16px 10px;
+  padding: 5px 5px 0;
   justify-content: flex-start;
   align-items: center;
   font-size: 12px;

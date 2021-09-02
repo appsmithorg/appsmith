@@ -791,6 +791,7 @@ type ColorType = {
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
+    selected: string;
   };
   settingHeading: ShadeColor;
   table: {
@@ -997,14 +998,13 @@ type ColorType = {
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
-    helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
-    mainContainerBackground: string;
     primaryBgColor: string;
     primaryTextColor: string;
     secondaryTextColor: string;
     primaryBorderColor: string;
+    defaultIconsColor: string;
     snippets: {
       refinementPillsColor: string;
       refinementPillsBg: string;
@@ -1350,19 +1350,17 @@ const globalSearch = {
   emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "#154E6B",
   codeBackground: "#ffffff",
-  documentLink: "#69B5FF",
+  documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
-  helpBarBorder: "#404040",
-  helpButtonBorder: "#404040",
   sectionTitle: "#716E6E",
   navigateToEntityEnterkey: "#3DA5D9",
-  mainContainerBackground: "#ffffff",
   primaryBgColor: "#ffffff",
   primaryTextColor: "#090707",
   secondaryTextColor: "#4b4848",
   primaryBorderColor: "#E0DEDE",
+  defaultIconsColor: "#716e6e",
   snippets: {
     refinementPillsColor: "#4b4848",
     refinementPillsBg: "white",
@@ -1705,6 +1703,7 @@ export const dark: ColorType = {
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
+    selected: Colors.CRUSTA,
   },
   settingHeading: darkShades[9],
   table: {
@@ -2284,6 +2283,7 @@ export const light: ColorType = {
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
+    selected: Colors.CRUSTA,
   },
   settingHeading: lightShades[9],
   table: {

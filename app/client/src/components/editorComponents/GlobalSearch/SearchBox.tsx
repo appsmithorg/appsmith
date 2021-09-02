@@ -15,6 +15,7 @@ import {
 } from "constants/messages";
 import { SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 
 const Container = styled.div`
   background: #ffffff;
@@ -31,8 +32,7 @@ const Container = styled.div`
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  background: ${(props) =>
-    props.theme.colors.globalSearch.mainContainerBackground};
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
   border: 1px solid
     ${(props) => props.theme.colors.globalSearch.searchInputBorder};
@@ -114,6 +114,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   return (
     <Container>
       <InputContainer>
+        <SearchIcon style={{ marginRight: "10px" }} />
         {category.title && (
           <CategoryDisplay>
             {category.id}

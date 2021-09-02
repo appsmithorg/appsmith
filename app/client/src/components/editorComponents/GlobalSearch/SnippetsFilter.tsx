@@ -8,6 +8,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
   snippetsEmpty: boolean;
+  hasRefinements: boolean;
 }>`
   position: absolute;
   bottom: 20px;
@@ -18,18 +19,37 @@ const SnippetsFilterContainer = styled.div<{
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   button {
     background: ${(props) =>
-      props.theme.colors.globalSearch.snippets.filterBtnBg};
+      !props.hasRefinements
+        ? props.theme.colors.globalSearch.snippets.filterBtnBg
+        : !props.showFilter
+        ? "#4b4848"
+        : props.theme.colors.globalSearch.snippets.filterBtnBg};
     border-radius: 20px;
     transition: 0.2s width ease;
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
+    color: ${(props) =>
+      !props.hasRefinements
+        ? props.theme.colors.globalSearch.snippets.filterBtnText
+        : !props.showFilter
+        ? "white"
+        : props.theme.colors.globalSearch.snippets.filterBtnText};
     border: none;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     height: 100%;
     cursor: pointer;
     position: relative;
+    svg {
+      path {
+        fill: ${(props) =>
+          !props.hasRefinements
+            ? props.theme.colors.globalSearch.snippets.filterBtnText
+            : props.showFilter
+            ? props.theme.colors.globalSearch.snippets.filterBtnText
+            : "white"};
+      }
+    }
   }
   .filter-list {
     display: block;
@@ -54,7 +74,7 @@ const SnippetsFilterContainer = styled.div<{
         border-radius: none;
         box-shadow: unset;
         cursor: pointer;
-        color: ${(props) => props.theme.colors.globalSearch.activeCategory};
+        color: ${(props) => props.theme.colors.globalSearch.searchInputBorder};
         font-weight: ${(props) => props.theme.fontWeights[2]};
         transition: 0.1s;
         background: ${(props) =>
@@ -124,6 +144,7 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
 
   return (
     <SnippetsFilterContainer
+      hasRefinements={refinements.entities && refinements.entities.length > 0}
       ref={ref}
       showFilter={showSnippetFilter}
       snippetsEmpty={snippetsEmpty}

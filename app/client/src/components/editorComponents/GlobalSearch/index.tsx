@@ -81,7 +81,7 @@ const StyledContainer = styled.div<{ category: SearchCategory }>`
     margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: hidden;
     background-color: ${(props) =>
-      props.theme.colors.globalSearch.mainContainerBackground};
+      props.theme.colors.globalSearch.primaryBgColor};
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,

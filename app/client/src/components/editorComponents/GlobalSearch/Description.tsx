@@ -58,6 +58,15 @@ const Container = styled.div`
     color: #484848;
   }
 
+  table {
+    th:nth-child(1) {
+      width: 150px;
+    }
+    th:nth-child(2) {
+      width: 300px;
+    }
+  }
+
   .documentation-cta {
     ${(props) => getTypographyByKey(props, "p3")}
     white-space: nowrap;
@@ -68,6 +77,7 @@ const Container = styled.div`
     margin: 0 ${(props) => props.theme.spaces[2]}px;
     position: relative;
     bottom: 3px;
+    float: right;
   }
 
   & a {
@@ -77,14 +87,14 @@ const Container = styled.div`
   code {
     word-break: break-word;
     font-size: 12px;
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
   }
 
   pre {
-    background: ${(props) =>
-      props.theme.colors.globalSearch.codeBackground} !important;
+    background: #f0f0f0 !important;
     white-space: pre-wrap;
     overflow: hidden;
+    border-left: 3px solid #f86a2b;
+    padding: 12px;
   }
   .CodeMirror {
     pre {
