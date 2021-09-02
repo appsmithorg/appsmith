@@ -104,6 +104,7 @@ public class MySqlPluginTest {
                                     "    time1 time not null,\n" +
                                     "    created_on timestamp not null,\n" +
                                     "    updated_on datetime not null,\n" +
+                                    "    isEmployee boolean not null,\n" +
                                     "    constraint unique index (username, email)\n" +
                                     ")"
                             )
@@ -122,21 +123,13 @@ public class MySqlPluginTest {
                             .add("INSERT INTO users VALUES (" +
                                     "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
                                     " '18:32:45'," +
-                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
+                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00', true" +
                                     ")"
                             )
                             .add("INSERT INTO users VALUES (" +
                                     "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
                                     " '15:45:30'," +
-                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
-                                    ")"
-                            )
-                            .add("INSERT INTO users VALUES (" +
-                                    "3, 'MiniJackJill', 'jaji', 'jaji@exemplars.com', NULL, '2021-01-31'," +
-                                    " '15:45:30', '04:05:06 PST'," +
-                                    " TIMESTAMP '2021-01-31 23:59:59', TIMESTAMP WITH TIME ZONE '2021-01-31 23:59:59 CET'," +
-                                    " '0 years'," +
-                                    " '{1, 2, 3}', '{\"a\", \"b\"}'" +
+                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59', false" +
                                     ")"
                             );
                 })
@@ -515,7 +508,8 @@ public class MySqlPluginTest {
                                     "yob",
                                     "time1",
                                     "created_on",
-                                    "updated_on"
+                                    "updated_on",
+                                    "isEmployee"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -687,6 +681,7 @@ public class MySqlPluginTest {
                                     new DatasourceStructure.Column("time1", "time", null, false),
                                     new DatasourceStructure.Column("created_on", "timestamp", null, false),
                                     new DatasourceStructure.Column("updated_on", "datetime", null, false),
+                                    new DatasourceStructure.Column("isEmployee", "tinyint", null, false),
                             },
                             usersTable.getColumns().toArray()
                     );
