@@ -43,6 +43,7 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
@@ -112,6 +113,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
+    totalRecordsCount,
     triggerRowSelection,
     unSelectAllRow,
     updateCompactMode,
@@ -281,6 +283,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
+      totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
@@ -320,6 +323,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.infiniteScroll === next.infiniteScroll &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
+    prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
     prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&

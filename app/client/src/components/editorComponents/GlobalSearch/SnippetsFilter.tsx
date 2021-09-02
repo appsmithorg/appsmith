@@ -4,13 +4,17 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 
-const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
+const SnippetsFilterContainer = styled.div<{
+  showFilter: boolean;
+  snippetsEmpty: boolean;
+}>`
   position: absolute;
-  bottom: 10px;
+  bottom: 50px;
   display: flex;
-  width: 100%;
+  width: 220px;
   height: 32px;
   justify-content: center;
+  display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   button {
     background: ${(props) => props.theme.colors.tertiary.light};
     border-radius: 20px;
@@ -18,7 +22,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: ${(props) => props.theme.colors.globalSearch.filterBtnText};
+    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
     border: none;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     height: 100%;
@@ -33,9 +37,9 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
     height: ${(props) => (props.showFilter ? "185px" : "0")};
     bottom: 40px;
     background: ${(props) =>
-      props.theme.colors.globalSearch.filterListBackground};
+      props.theme.colors.globalSearch.snippets.filterListBackground};
     border: 1px solid rgba(240, 240, 240, 1);
-    color: ${(props) => props.theme.colors.globalSearch.filterBtnText};
+    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     [class^="ais-"] {
       font-size: 12px;
@@ -52,17 +56,17 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
         font-weight: ${(props) => props.theme.fontWeights[2]};
         transition: 0.1s;
         background: ${(props) =>
-          props.theme.colors.globalSearch.filterListBackground};
+          props.theme.colors.globalSearch.snippets.filterListBackground};
         &:hover {
           background: ${(props) =>
-            props.theme.colors.globalSearch.filterListBackground};
+            props.theme.colors.globalSearch.snippets.filterListBackground};
           font-weight: ${(props) => props.theme.fontWeights[3]};
         }
         &.ais-ClearRefinements-button--disabled {
           font-weight: ${(props) => props.theme.fontWeights[1]};
           &:hover {
             background: ${(props) =>
-              props.theme.colors.globalSearch.filterListBackground};
+              props.theme.colors.globalSearch.snippets.filterListBackground};
             cursor: block;
           }
         }
@@ -101,7 +105,7 @@ const SnippetsFilterContainer = styled.div<{ showFilter: boolean }>`
   }
 `;
 
-function SnippetsFilter({ refinements }: any) {
+function SnippetsFilter({ refinements, snippetsEmpty }: any) {
   const [showSnippetFilter, toggleSnippetFilter] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const handleOutsideClick = useCallback(
@@ -117,7 +121,11 @@ function SnippetsFilter({ refinements }: any) {
   }, []);
 
   return (
-    <SnippetsFilterContainer ref={ref} showFilter={showSnippetFilter}>
+    <SnippetsFilterContainer
+      ref={ref}
+      showFilter={showSnippetFilter}
+      snippetsEmpty={snippetsEmpty}
+    >
       <button onClick={() => toggleSnippetFilter(!showSnippetFilter)}>
         {!showSnippetFilter && <FilterIcon />}
         {!showSnippetFilter &&

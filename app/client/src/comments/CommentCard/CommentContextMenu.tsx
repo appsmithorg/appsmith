@@ -9,12 +9,14 @@ import {
   UNPIN_COMMENT,
   createMessage,
   EDIT_COMMENT,
+  MORE_OPTIONS,
 } from "constants/messages";
 import { noop } from "lodash";
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Popover2 } from "@blueprintjs/popover2";
+import Tooltip from "components/ads/Tooltip";
 
 // render over popover portals
 const Container = styled.div``;
@@ -149,7 +151,9 @@ function CommentContextMenu({
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
+      <Tooltip content={createMessage(MORE_OPTIONS)}>
+        <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
+      </Tooltip>
     </Popover2>
   );
 }

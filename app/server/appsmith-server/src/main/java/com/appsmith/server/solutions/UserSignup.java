@@ -6,6 +6,7 @@ import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.ConfigNames;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -15,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
@@ -30,6 +32,8 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
@@ -41,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
+import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
@@ -59,6 +64,7 @@ public class UserSignup {
     private final ConfigService configService;
     private final AnalyticsService analyticsService;
     private final PolicyUtils policyUtils;
+    private final ApplicationPageService applicationPageService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -93,17 +99,34 @@ public class UserSignup {
                 )
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
-                    final User savedUser = tuple.getT1();
+                    final User savedUser = tuple.getT1().getUser();
+                    final String organizationId = tuple.getT1().getDefaultOrganizationId();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser, null, savedUser.getAuthorities());
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            savedUser, null, savedUser.getAuthorities()
+                    );
                     securityContext.setAuthentication(authentication);
                     session.getAttributes().put(DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME, securityContext);
 
                     final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, EMPTY_WEB_FILTER_CHAIN);
+
+                    MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+                    String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
+
+                    if(StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId)) {
+                        // need to create default application
+                        Application application = new Application();
+                        application.setOrganizationId(organizationId);
+                        application.setName("My first application");
+                        return applicationPageService.createApplication(application).flatMap(createdApplication ->
+                                authenticationSuccessHandler
+                                .onAuthenticationSuccess(webFilterExchange, authentication, createdApplication, true)
+                                .thenReturn(savedUser));
+                    }
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, null, true)
                             .thenReturn(savedUser);
                 });
     }
@@ -125,7 +148,7 @@ public class UserSignup {
                 .map(formData -> {
                     final User user = new User();
                     user.setEmail(formData.getFirst(FieldName.EMAIL));
-                    user.setPassword(formData.getFirst("password"));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
                     }
@@ -198,6 +221,51 @@ public class UserSignup {
                             configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
+                });
+    }
+
+    public Mono<Void> signupAndLoginSuperFromFormData(ServerWebExchange exchange) {
+        return exchange.getFormData()
+                .map(formData -> {
+                    final UserSignupRequestDTO user = new UserSignupRequestDTO();
+                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
+                    user.setSource(LoginSource.FORM);
+                    user.setState(UserState.ACTIVATED);
+                    user.setEnabled(true);
+                    if (formData.containsKey(FieldName.NAME)) {
+                        user.setName(formData.getFirst(FieldName.NAME));
+                    }
+                    if (formData.containsKey("role")) {
+                        user.setRole(formData.getFirst("role"));
+                    }
+                    if (formData.containsKey("companyName")) {
+                        user.setCompanyName(formData.getFirst("companyName"));
+                    }
+                    if (formData.containsKey("allowCollectingAnonymousData")) {
+                        user.setAllowCollectingAnonymousData("true".equals(formData.getFirst("allowCollectingAnonymousData")));
+                    }
+                    if (formData.containsKey("signupForNewsletter")) {
+                        user.setSignupForNewsletter("true".equals(formData.getFirst("signupForNewsletter")));
+                    }
+                    return user;
+                })
+                .flatMap(user -> signupAndLoginSuper(user, exchange))
+                .then()
+                .onErrorResume(error -> {
+                    String referer = exchange.getRequest().getHeaders().getFirst("referer");
+                    if (referer == null) {
+                        referer = DEFAULT_ORIGIN_HEADER;
+                    }
+                    final URIBuilder redirectUriBuilder = new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
+                    URI redirectUri;
+                    try {
+                        redirectUri = redirectUriBuilder.build();
+                    } catch (URISyntaxException e) {
+                        log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
+                        redirectUri = URI.create(referer);
+                    }
+                    return redirectStrategy.sendRedirect(exchange, redirectUri);
                 });
     }
 
