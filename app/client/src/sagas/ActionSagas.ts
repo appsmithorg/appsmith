@@ -76,8 +76,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import {
   ACTION_COPY_SUCCESS,
-  ACTION_CREATED_SUCCESS,
-  ACTION_DELETE_SUCCESS,
   ACTION_MOVE_SUCCESS,
   createMessage,
   ERROR_ACTION_COPY_FAIL,
@@ -145,14 +143,6 @@ export function* createActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const actionName = actionPayload.payload.name
-        ? actionPayload.payload.name
-        : "";
-      Toaster.show({
-        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
@@ -379,59 +369,56 @@ export function* deleteActionSaga(
       id,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
-        variant: Variant.success,
-      });
-      if (isApi) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_API", {
-          apiName: name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isSaas) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_SAAS", {
-          apiName: action.name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isQuery) {
-        AnalyticsUtil.logEvent("DELETE_QUERY", {
-          queryName: action.name,
-        });
-      }
-
-      if (!!actionPayload.payload.onSuccess) {
-        actionPayload.payload.onSuccess();
-      } else {
-        const applicationId = yield select(getCurrentApplicationId);
-        const pageId = yield select(getCurrentPageId);
-
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
-      }
-
-      AppsmithConsole.info({
-        logType: LOG_TYPE.ENTITY_DELETED,
-        text: "Action was deleted",
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: response.data.name,
-          id: response.data.id,
-        },
-        analytics: {
-          pluginId: action.pluginId,
-        },
-      });
-
-      yield put(deleteActionSuccess({ id }));
+    if (!isValidResponse) {
+      return;
     }
+    if (isApi) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_API", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isSaas) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_SAAS", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isQuery) {
+      AnalyticsUtil.logEvent("DELETE_QUERY", {
+        queryName: name,
+      });
+    }
+
+    if (!!actionPayload.payload.onSuccess) {
+      actionPayload.payload.onSuccess();
+    } else {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+    }
+
+    AppsmithConsole.info({
+      logType: LOG_TYPE.ENTITY_DELETED,
+      text: "Action was deleted",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: response.data.name,
+        id: response.data.id,
+      },
+      analytics: {
+        pluginId: action.pluginId,
+      },
+    });
+
+    yield put(deleteActionSuccess({ id }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
