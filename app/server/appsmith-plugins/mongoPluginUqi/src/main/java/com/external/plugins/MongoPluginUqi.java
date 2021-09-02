@@ -389,7 +389,7 @@ public class MongoPluginUqi extends BasePlugin {
             // First extract all the bindings in order
             List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(rawQuery);
             // Replace all the bindings with a ? as expected in a prepared statement.
-            String updatedQuery = MustacheHelper.replaceMustacheWithQuestionMark(rawQuery, mustacheKeysInOrder);
+            String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(rawQuery, mustacheKeysInOrder);
 
             updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
                     mustacheKeysInOrder,
