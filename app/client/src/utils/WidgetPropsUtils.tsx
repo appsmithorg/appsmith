@@ -819,18 +819,19 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 31) {
     currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
-    currentDSL.version = 31;
-  }
-
-  if (currentDSL.version === 31) {
-    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 32;
   }
 
   if (currentDSL.version === 32) {
+    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL.version = 33;
+  }
+
+  if (currentDSL.version === 33) {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
   return currentDSL;
 };
 

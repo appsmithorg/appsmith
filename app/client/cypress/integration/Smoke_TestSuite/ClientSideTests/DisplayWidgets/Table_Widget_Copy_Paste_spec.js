@@ -32,11 +32,6 @@ describe("Test Suite to validate copy/paste table Widget", function() {
     cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
       "not.exist",
     );
-    /*
-    cy.get(commonlocators.toastAction)
-      .contains("UNDO")
-      .click({ force: true });
-    */
     cy.GlobalSearchEntity("Table1Copy");
     cy.get(".t--entity-collapse-toggle")
       .last()

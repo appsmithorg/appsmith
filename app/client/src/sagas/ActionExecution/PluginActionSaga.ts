@@ -309,6 +309,7 @@ export default function* executePluginActionTriggerSaga(
         {
           message: payload.body as string,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
         },
       ],
     });
@@ -452,6 +453,7 @@ function* runActionSaga(
         {
           message: error,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
         },
       ],
       state: payload.request,
@@ -549,7 +551,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         id: pageAction.id,
       },
       state: payload.request,
-      messages: [{ message: error, type: PLATFORM_ERROR.PLUGIN_EXECUTION }],
+      messages: [
+        {
+          message: error,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
+        },
+      ],
     });
 
     yield put(

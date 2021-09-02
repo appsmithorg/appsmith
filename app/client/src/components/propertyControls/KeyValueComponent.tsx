@@ -111,7 +111,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   const debouncedUpdatePairs = useCallback(
     debounce((updatedPairs: DropdownOption[]) => {
       props.updatePairs(updatedPairs);
-    }, 400),
+    }, 200),
     [props.updatePairs],
   );
 
