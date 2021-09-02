@@ -8,11 +8,11 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 const _DIFF_ = "diff";
 
 export default class ReplayDSL {
-  diffMap: any;
-  undoManager: UndoManager;
-  dsl: CanvasWidgetsReduxState;
+  private diffMap: any;
+  private undoManager: UndoManager;
+  private dsl: CanvasWidgetsReduxState;
+  private prevRedoDiff: Array<DSLDiff> | undefined;
   logs: any[] = [];
-  prevRedoDiff: Array<DSLDiff> | undefined;
 
   constructor(widgets: CanvasWidgetsReduxState) {
     const doc = new Doc();
@@ -40,7 +40,7 @@ export default class ReplayDSL {
    *
    * @returns
    */
-  getDiffs() {
+  private getDiffs() {
     return this.diffMap.get(_DIFF_);
   }
 
@@ -60,9 +60,7 @@ export default class ReplayDSL {
 
       this.logs.push({
         log: "replay undo",
-        replay,
-        diffs,
-        dsl: this.dsl,
+        undoTime: `${stop - start} ms`,
       });
 
       return {
@@ -90,14 +88,12 @@ export default class ReplayDSL {
 
     if (this.shouldReplay(false)) {
       const replay = this.applyDiffs(diffs, false);
-      this.logs.push({
-        log: "replay redo",
-        replay,
-        diffs,
-        dsl: this.dsl,
-      });
 
       const stop = performance.now();
+      this.logs.push({
+        log: "replay redo",
+        redoTime: `${stop - start} ms`,
+      });
 
       return {
         replayWidgetDSL: this.dsl,
@@ -127,7 +123,6 @@ export default class ReplayDSL {
     const endTime = performance.now();
     this.logs.push({
       log: "replay updating",
-      diffs,
       updateTime: `${endTime - startTime} ms`,
     });
   }
@@ -140,11 +135,11 @@ export default class ReplayDSL {
    * apply the diff on the current dsl
    *
    * @param diffs
-   * @param diffUpdate
+   * @param isUndo
    */
-  applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean) {
+  private applyDiffs(diffs: Array<DSLDiff>, isUndo: boolean) {
     const replay = {};
-    const diffUpdate = isUndo ? revertChange : applyChange;
+    const applyDSLChange = isUndo ? revertChange : applyChange;
     if (!isUndo) this.prevRedoDiff = diffs;
 
     for (const diff of diffs) {
@@ -153,7 +148,7 @@ export default class ReplayDSL {
       }
       try {
         processDiff(this.dsl, diff, replay, isUndo);
-        diffUpdate(this.dsl, true, diff);
+        applyDSLChange(this.dsl, true, diff);
       } catch (e) {
         captureException(e, {
           extra: {

@@ -62,13 +62,7 @@ export const showUndoRedoToast = (
 ) => {
   if (shouldDisallowToast(shouldUndo)) return;
 
-  const actionDescription = isCreated
-    ? isMultiple
-      ? BULK_WIDGET_ADDED
-      : WIDGET_ADDED
-    : isMultiple
-    ? BULK_WIDGET_REMOVED
-    : WIDGET_REMOVED;
+  const actionDescription = getActionDescription(isCreated, isMultiple);
 
   const text = createMessage(actionDescription, widgetName);
   const actionElement = getReplayToastActionText(shouldUndo ? "undo" : "redo");
@@ -78,6 +72,11 @@ export const showUndoRedoToast = (
     actionElement,
   });
 };
+
+function getActionDescription(isCreated: boolean, isMultiple: boolean) {
+  if (isCreated) return isMultiple ? BULK_WIDGET_ADDED : WIDGET_ADDED;
+  else return isMultiple ? BULK_WIDGET_REMOVED : WIDGET_REMOVED;
+}
 
 /**
  * search the dom with id of element and scroll the page to its position

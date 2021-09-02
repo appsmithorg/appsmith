@@ -14,8 +14,10 @@ import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
-import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
-import { ReplayOperation } from "workers/dslReplay.worker";
+import {
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -375,7 +377,7 @@ export function undoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayOperation.UNDO,
+      operation: ReplayReduxActionTypes.UNDO,
     },
   };
 }
@@ -384,7 +386,7 @@ export function redoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayOperation.REDO,
+      operation: ReplayReduxActionTypes.REDO,
     },
   };
 }

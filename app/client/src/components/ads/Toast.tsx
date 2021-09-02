@@ -117,7 +117,7 @@ const StyledDebugButton = styled(DebugButton)`
 `;
 
 const StyledActionText = styled(Text)`
-  color: #f8682b !important;
+  color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
 `;
 
 function ToastComponent(props: ToastProps & { undoAction?: () => void }) {

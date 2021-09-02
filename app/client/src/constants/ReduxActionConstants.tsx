@@ -656,6 +656,11 @@ export const ReduxFormActionTypes = {
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
 };
 
+export enum ReplayReduxActionTypes {
+  UNDO = "undo",
+  REDO = "redo",
+}
+
 export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_ADD_CHILD: "WIDGET_ADD_CHILD",
   WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",

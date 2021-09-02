@@ -1,6 +1,5 @@
 import { takeEvery, put, select } from "redux-saga/effects";
 
-import { ReplayOperation } from "workers/dslReplay.worker";
 import { undoRedoSaga } from "./EvaluationsSaga";
 
 import {
@@ -15,7 +14,10 @@ import {
   selectMultipleWidgetsAction,
   selectWidgetAction,
 } from "actions/widgetSelectionActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
   scrollWidgetIntoView,
@@ -23,7 +25,7 @@ import {
 } from "utils/replayHelpers";
 
 export type UndoRedoPayload = {
-  operation: ReplayOperation;
+  operation: ReplayReduxActionTypes;
 };
 
 export default function* undoRedoListenerSaga() {
@@ -38,8 +40,8 @@ export function* openPropertyPaneSaga(replay: any) {
 
   scrollWidgetIntoView(replayWidgetId);
 
-  const isPropertyPaneVisible = yield select(getIsPropertyPaneVisible);
-  const selectedWidgetId = yield select(getCurrentWidgetId);
+  const isPropertyPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
+  const selectedWidgetId: string = yield select(getCurrentWidgetId);
 
   let flashTimeout = 500;
 
@@ -57,7 +59,7 @@ export function* openPropertyPaneSaga(replay: any) {
 }
 
 export function* postUndoRedoSaga(replay: any) {
-  const isPropertyPaneVisible = yield select(getIsPropertyPaneVisible);
+  const isPropertyPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
 
   if (isPropertyPaneVisible) yield put(closePropertyPane());
 
