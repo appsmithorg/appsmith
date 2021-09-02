@@ -47,7 +47,7 @@
         },
         {
           "label": "Collection Name",
-          "configProperty": "actionConfiguration.formData.collectionName",
+          "configProperty": "actionConfiguration.formData.collection",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {

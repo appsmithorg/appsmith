@@ -2960,29 +2960,4 @@ public class DatabaseChangelog {
             mongoTemplate.save(plugin);
         }
     }
-
-    /**
-     * DO NOT MERGE THIS FUNCTION TO release
-     * @param mongoTemplate
-     */
-    @ChangeSet(order = "077", id = "add-mongo-uqi-plugin", author = "")
-    public void addMongoUqiPlugin(MongockTemplate mongoTemplate) {
-        Plugin plugin = new Plugin();
-        plugin.setName("MongoPluginUQI");
-        plugin.setType(PluginType.DB);
-        plugin.setPackageName("mongo-uqi-plugin");
-        plugin.setUiComponent("UQIDbEditorForm");
-        plugin.setDatasourceComponent("AutoForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/mongodb.svg");
-        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/datasource-reference/querying-mongodb");
-        plugin.setDefaultInstall(true);
-        try {
-            mongoTemplate.insert(plugin);
-        } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
-        }
-
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-    }
 }
