@@ -3,11 +3,9 @@ import {
   executeActionTriggers,
   executeAppAction,
 } from "sagas/ActionExecution/ActionExecutionSagas";
-import { all, call, select } from "redux-saga/effects";
+import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-import { getAppMode } from "selectors/entitiesSelector";
-import { APP_MODE } from "entities/App";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
