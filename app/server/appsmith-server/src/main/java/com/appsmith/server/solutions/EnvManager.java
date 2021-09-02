@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,14 +78,7 @@ public class EnvManager {
     }
 
     public Mono<Void> applyChanges(Map<String, String> changes) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
-                .filter(user -> policyUtils.isPermissionPresentForUser(
-                        user.getPolicies(),
-                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                        user.getUsername()
-                ))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+        return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
                     final String originalContent;
                     try {
@@ -104,6 +99,49 @@ public class EnvManager {
 
                     return Mono.empty();
                 });
+    }
+
+    public Map<String, String> parseToMap(String content) {
+        final Map<String, String> data = new HashMap<>();
+
+        content.lines()
+                .forEach(line -> {
+                    final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
+                    if (matcher.matches()) {
+                        final String name = matcher.group("name");
+                        if (!VARIABLE_BLACKLIST.contains(name)) {
+                            data.put(name, matcher.group("value"));
+                        }
+                    }
+                });
+
+        return data;
+    }
+
+    public Mono<Map<String, String>> getAll() {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    final String originalContent;
+                    try {
+                        originalContent = Files.readString(Path.of(envFilePath));
+                    } catch (IOException e) {
+                        log.error("Unable to read env file " + envFilePath, e);
+                        return Mono.error(e);
+                    }
+
+                    return Mono.justOrEmpty(parseToMap(originalContent));
+                });
+    }
+
+    public Mono<User> verifyCurrentUserIsSuper() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .filter(user -> policyUtils.isPermissionPresentForUser(
+                        user.getPolicies(),
+                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                        user.getUsername()
+                ))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
     }
 
 }
