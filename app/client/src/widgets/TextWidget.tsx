@@ -40,6 +40,16 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "disableLink",
+            helpText: "Controls parsing text as Link",
+            label: "Disable Link",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
@@ -157,6 +167,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return (
       <TextComponent
         backgroundColor={this.props.backgroundColor}
+        disableLink={this.props.disableLink || false}
         fontSize={this.props.fontSize}
         fontStyle={this.props.fontStyle}
         isLoading={this.props.isLoading}
@@ -195,6 +206,7 @@ export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;
+  disableLink: boolean;
 }
 
 export default TextWidget;
