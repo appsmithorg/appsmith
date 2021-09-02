@@ -78,12 +78,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for MongoPlugin
+ * Unit tests for MongoPluginUqi
  */
 
-public class MongoPluginTest {
+public class MongoPluginUqiTest {
 
-    MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
+    MongoPluginUqi.MongoPluginUqiExecutor pluginExecutor = new MongoPluginUqi.MongoPluginUqiExecutor();
 
     private static String address;
     private static Integer port;
@@ -169,7 +169,7 @@ public class MongoPluginTest {
     }
 
     /**
-     * 1. Test "testDatasource" method in MongoPluginExecutor class.
+     * 1. Test "testDatasource" method in MongoPluginUqiExecutor class.
      */
     @Test
     public void testDatasourceFail() {
@@ -199,23 +199,23 @@ public class MongoPluginTest {
         when(mockMongoCommandException.getMessage()).thenReturn("Mock Unauthorized Exception");
 
         /*
-         * 1. Spy MongoPluginExecutor class.
+         * 1. Spy MongoPluginUqiExecutor class.
          *      - On calling testDatasource(...) -> call the real method.
          *      - On calling datasourceCreate(...) -> throw the mock exception defined above.
          */
-        MongoPlugin.MongoPluginExecutor mongoPluginExecutor = new MongoPlugin.MongoPluginExecutor();
-        MongoPlugin.MongoPluginExecutor spyMongoPluginExecutor = spy(mongoPluginExecutor);
+        MongoPluginUqi.MongoPluginUqiExecutor mongoPluginUqiExecutor = new MongoPluginUqi.MongoPluginUqiExecutor();
+        MongoPluginUqi.MongoPluginUqiExecutor spyMongoPluginUqiExecutor = spy(mongoPluginUqiExecutor);
         /* Please check this out before modifying this line: https://stackoverflow
          * .com/questions/11620103/mockito-trying-to-spy-on-method-is-calling-the-original-method
          */
-        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginExecutor).datasourceCreate(any());
+        doReturn(Mono.error(mockMongoCommandException)).when(spyMongoPluginUqiExecutor).datasourceCreate(any());
 
         /*
          * 1. Test that MongoCommandException with error code "Unauthorized" is caught and no error is reported.
          */
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         StepVerifier
-                .create(spyMongoPluginExecutor.testDatasource(dsConfig))
+                .create(spyMongoPluginUqiExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
                     assertTrue(datasourceTestResult.isSuccess());
                 })

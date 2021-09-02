@@ -84,7 +84,7 @@ import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
 import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
 import static java.lang.Boolean.TRUE;
 
-public class MongoPlugin extends BasePlugin {
+public class MongoPluginUqi extends BasePlugin {
 
     private static final Set<DBAuth.Type> VALID_AUTH_TYPES = Set.of(
             DBAuth.Type.SCRAM_SHA_1,
@@ -154,13 +154,13 @@ public class MongoPlugin extends BasePlugin {
             UPDATE_UPDATE
     ));
 
-    public MongoPlugin(PluginWrapper wrapper) {
+    public MongoPluginUqi(PluginWrapper wrapper) {
         super(wrapper);
     }
 
     @Slf4j
     @Extension
-    public static class MongoPluginExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
+    public static class MongoPluginUqiExecutor implements PluginExecutor<MongoClient>, SmartSubstitutionInterface {
 
         private final Scheduler scheduler = Schedulers.elastic();
 

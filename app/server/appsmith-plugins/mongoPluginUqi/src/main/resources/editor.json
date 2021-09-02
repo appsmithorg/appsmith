@@ -1,7 +1,8 @@
 {
   "editor": [
     {
-      "sectionName": "",
+      "controlType": "SECTION",
+      "label": "",
       "id": 1,
       "children": [
         {
@@ -45,59 +46,22 @@
           ]
         },
         {
-          "label": "Entity",
-          "_comment": "(Entity Selector)",
-          "controlType": "ENTITY_SELECTOR",
-          "children": [
-            {
-              "label": "Sheet",
-              "controlType": "DROP_DOWN",
-              "configProperty": "actionConfiguration.formData.collection.sheet",
-              "conditionals": {
-                "enable": true,
-                "trigger": {
-                  "url": "/datasources/{datasourceId}/structure/entities/",
-                  "params": {
-                    "component": "DROP_DOWN"
-                  },
-                  "body": ""
-                }
-              }
-            },
-            {
-              "label": "Sub-Sheet",
-              "controlType": "DROP_DOWN",
-              "configProperty": "actionConfiguration.formData.collection.subSheet",
-              "options": [],
-              "conditionals": {
-                "enable": "{{!!actionConfiguration.formData.collection.sheet && options.length>0}}",
-                "trigger": {
-                  "url": "/datasources/{{datasourceId}}/structure/entities/",
-                  "params": {
-                    "entity1Value": "{{actionConfiguration.formData.collection.sheet}}",
-                    "component": "DROP_DOWN"
-                  },
-                  "body": ""
-                }
-              }
-            },
-            {
-              "label": "Header Row Index",
-              "controlType": "QUERY",
-              "configProperty": "actionConfiguration.formData.collection.headerRowIndex",
-              "evaluationSubstitutionType": "TEMPLATE",
-              "conditionals": {
-                "enable": "{{!!actionConfiguration.formData.collection.subSheet}}"
-              }
-            }
-          ],
+          "label": "Collection Name",
+          "configProperty": "actionConfiguration.formData.collectionName",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
           "conditionals": {
             "hide": "{{actionConfiguration.formData.command === 'RAW'}}"
+          },
+          "_hidden": {
+            "path": "actionConfiguration.formData.command",
+            "comparison": "EQUALS",
+            "value": "RAW"
           }
         },
         {
-          "sectionName": "",
-          "id": 2,
+          "controlType": "SECTION",
+          "label": "",
           "serverLabel": "findCommandForm",
           "conditionals": {
             "show": "{{actionConfiguration.formData.command === 'FIND'}}"
@@ -141,7 +105,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 4,
           "serverLabel": "updateMany",
           "conditionals": {
@@ -181,7 +146,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 5,
           "serverLabel": "delete",
           "conditionals": {
@@ -214,7 +180,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 6,
           "serverLabel": "count",
           "_conditionals": {
@@ -231,7 +198,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 7,
           "serverLabel": "distinct",
           "conditionals": {
@@ -255,7 +223,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 8,
           "serverLabel": "aggregate",
           "conditionals": {
@@ -272,7 +241,8 @@
           ]
         },
         {
-          "sectionName": "",
+          "controlType": "SECTION",
+          "label": "",
           "id": 9,
           "serverLabel": "insert",
           "conditionals": {
@@ -289,6 +259,7 @@
           ]
         },
         {
+          "controlType": "SECTION",
           "label": "",
           "internalLabel": "Query",
           "configProperty": "actionConfiguration.body",
@@ -299,6 +270,7 @@
           }
         },
         {
+          "controlType": "SECTION",
           "label": "",
           "configProperty": "actionConfiguration.body",
           "internalLabel": "Query",
