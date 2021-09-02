@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
@@ -23,28 +22,18 @@ public class JSLib extends BaseDomain {
     /* Library version. */
     String version;
 
-    /**
-     * - A short description of the library.
-     * - This info will be fetched from cloud API server. It is not stored locally since this attribute remains
-     * constant forever.
-     */
-    @Transient
+    /* A short description of the library. */
     String description;
 
-    /**
-     * - URL to find information about the library.
-     * - This info will be fetched from cloud API server. It is not stored locally since this attribute remains
-     * constant forever.
-     */
-    @Transient
+    /* URL to find information about the library. */
     String url;
 
     /**
      * - Namespace string for the library. e.g. if the accessor is "#", then the library methods get accessed like
      * #.concat().
-     * - This info will be fetched from cloud API server. It is not stored locally since this attribute remains
-     * constant forever.
      */
-    @Transient
     String accessor;
+
+    /* JSON type definition to be used by the Tern server to provide auto-complete feature for the JS library. */
+    String jsonTypeDefinition;
 }
