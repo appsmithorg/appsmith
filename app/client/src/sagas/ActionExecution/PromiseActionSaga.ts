@@ -10,6 +10,7 @@ import { getAppMode } from "selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
+import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -19,24 +20,37 @@ export class TriggerFailureError extends Error {
   }
 }
 
+export class PluginTriggerFailureError extends TriggerFailureError {
+  responseData: unknown[] = [];
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
+    this.responseData = responseData;
+  }
+}
+
 export default function* executePromiseSaga(
   trigger: AppsmithPromisePayload,
   eventType: EventType,
 ): any {
   try {
-    yield all(
+    const responses = yield all(
       trigger.executor.map((executionTrigger) =>
         call(executeActionTriggers, executionTrigger, eventType),
       ),
     );
     if (trigger.then) {
       if (trigger.then.length) {
+        let responseData: unknown[] = [];
+        if (responses.length === 1) {
+          responseData = responses[0];
+        }
         for (const thenable of trigger.then) {
-          yield call(executeAppAction, {
+          responseData = yield call(executeAppAction, {
             dynamicString: thenable,
             event: {
               type: eventType,
             },
+            responseData,
           });
         }
       }
@@ -44,20 +58,28 @@ export default function* executePromiseSaga(
   } catch (e) {
     log.error(e);
     const appMode = yield select(getAppMode);
-    if (appMode === APP_MODE.EDIT) {
+    if (appMode === APP_MODE.EDIT && !trigger.catch) {
       Toaster.show({
-        text: "There was an error while executing",
+        text: e.message || "There was an error while executing",
         variant: Variant.danger,
         showDebugButton: true,
       });
     }
     if (trigger.catch) {
+      let responseData = [e.message];
+      if (e instanceof PluginTriggerFailureError) {
+        responseData = e.responseData;
+      }
+      const catchArguments = ACTION_ANONYMOUS_FUNC_REGEX.test(trigger.catch)
+        ? responseData
+        : undefined;
+
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
         event: {
           type: eventType,
         },
-        responseData: [e.message],
+        responseData: catchArguments,
       });
     } else {
       throw new TriggerFailureError("Uncaught promise rejection", e);
