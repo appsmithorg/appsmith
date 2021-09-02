@@ -101,7 +101,7 @@ public class EnvManager {
                 });
     }
 
-    public Map<String, String> parseToMap(String content) {
+    public static Map<String, String> parseToMap(String content) {
         final Map<String, String> data = new HashMap<>();
 
         content.lines()
