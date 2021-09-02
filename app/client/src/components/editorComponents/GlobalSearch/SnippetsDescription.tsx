@@ -57,7 +57,6 @@ const SnippetContainer = styled.div`
       display: flex;
       transition: 0.2s opacity ease;
       background: #f0f0f0;
-      opacity: 0;
       justify-content: space-between;
     }
     .action-icons > * {
@@ -73,12 +72,9 @@ const SnippetContainer = styled.div`
       .t--copy-snippet {
         opacity: 1;
       }
-      .action-icons {
-        opacity: 1;
-      }
     }
     pre {
-      padding: 12px !important;
+      padding: 25px 12px !important;
       margin: 0 !important;
       background: ${(props) =>
         props.theme.colors.globalSearch.codeBackground} !important;
