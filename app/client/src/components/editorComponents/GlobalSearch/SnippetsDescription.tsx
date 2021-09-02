@@ -36,6 +36,7 @@ import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -43,7 +44,10 @@ const SnippetContainer = styled.div`
   display: flex;
   flex-direction: column;
   .snippet-container {
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     position: relative;
+    border: 1px solid
+      ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
     .action-icons {
       position: absolute;
       top: 4px;
@@ -127,7 +131,6 @@ const SnippetContainer = styled.div`
       background: white !important;
       height: auto !important;
       overflow: clip;
-      margin-top: 2px;
       border-top: 1px solid #f0f0f0;
       code {
         .token.arrow {
@@ -232,6 +235,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       text: "Snippet copied to clipboard",
       variant: Variant.success,
     });
+    AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet: value, title });
   }, []);
 
   const handleRun = useCallback(() => {
@@ -247,6 +251,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
         isTrigger,
       }),
     );
+    AnalyticsUtil.logEvent("SNIPPET_EXECUTE", {
+      snippet: getSnippet(template, selectedArgs),
+      title,
+    });
   }, [snippet, selectedArgs, dataType]);
 
   const handleArgChange = useCallback(
@@ -373,7 +381,12 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">
         <TabComponent
-          onSelect={setSelectedIndex}
+          onSelect={(selectedIndex: number) => {
+            if (selectedIndex === 1) {
+              AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
+            }
+            setSelectedIndex(selectedIndex);
+          }}
           selectedIndex={selectedIndex}
           tabs={tabs}
         />

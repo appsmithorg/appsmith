@@ -3,20 +3,22 @@ import { ClearRefinements, RefinementList } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
   snippetsEmpty: boolean;
 }>`
   position: absolute;
-  bottom: 50px;
+  bottom: 20px;
   display: flex;
   width: 220px;
   height: 32px;
   justify-content: center;
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   button {
-    background: ${(props) => props.theme.colors.tertiary.light};
+    background: ${(props) =>
+      props.theme.colors.globalSearch.snippets.filterBtnBg};
     border-radius: 20px;
     transition: 0.2s width ease;
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
@@ -137,7 +139,15 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
       <div className="filter-list">
-        <div className="container">
+        <div
+          className="container"
+          onClick={(e: React.MouseEvent) => {
+            AnalyticsUtil.logEvent("SNIPPET_FILTER", {
+              filter: (e.target as HTMLSpanElement).textContent,
+            });
+            e.stopPropagation();
+          }}
+        >
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}

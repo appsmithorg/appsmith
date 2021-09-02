@@ -69,19 +69,19 @@ import { getAppsmithConfigs } from "configs";
 
 const StyledContainer = styled.div`
   width: 785px;
-  height: 530px;
-  background: ${(props) => props.theme.colors.globalSearch.containerBackground};
-  box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
+  max-height: 530px;
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
+  padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
+  position: relative;
   & .main {
     display: flex;
     flex: 1;
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: hidden;
     background-color: ${(props) =>
       props.theme.colors.globalSearch.mainContainerBackground};
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[7]}px;
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
@@ -554,10 +554,9 @@ function GlobalSearch() {
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
+                      category={category}
                       query={query}
-                      refinements={refinements}
                       searchResults={searchResults}
-                      showFilter={isSnippet(category)}
                     />
                     {showDescription && (
                       <Description
@@ -578,7 +577,7 @@ function GlobalSearch() {
                   />
                 )}
               </div>
-              <Footer />
+              {/* <Footer /> */}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

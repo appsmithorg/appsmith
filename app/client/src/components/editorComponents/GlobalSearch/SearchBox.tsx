@@ -17,15 +17,13 @@ import { SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
 const Container = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[7]}px`};
   background: #ffffff;
   & input {
     ${(props) => getTypographyByKey(props, "cardSubheader")}
     background: transparent;
     color: ${(props) => props.theme.colors.globalSearch.searchInputText};
     border: none;
-    padding: ${(props) => `${props.theme.spaces[7]}px 0`};
+    padding: ${(props) => `${props.theme.spaces[6]}px 0`};
     flex: 1;
   }
 `;
@@ -36,6 +34,8 @@ const InputContainer = styled.div`
   background: ${(props) =>
     props.theme.colors.globalSearch.mainContainerBackground};
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.searchInputBorder};
 `;
 
 const CategoryDisplay = styled.div`
@@ -45,12 +45,16 @@ const CategoryDisplay = styled.div`
   padding: ${(props) => `${props.theme.spaces[3]}px`};
   display: flex;
   align-items: center;
-  border: 1px solid ${(props) => props.theme.colors.globalSearch.activeCategory};
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
   margin-right: ${(props) => props.theme.spaces[4]}px;
   ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
     cursor: pointer;
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+    path {
+      fill: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+    }
   }
 `;
 

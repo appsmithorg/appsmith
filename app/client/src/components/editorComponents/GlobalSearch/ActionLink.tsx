@@ -12,7 +12,7 @@ export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   svg {
     rect,
     path {
-      stroke: ${(props) => (props.isActiveItem ? "white" : "#484848")};
+      stroke: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     }
   }
 `;

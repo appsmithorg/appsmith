@@ -4,13 +4,13 @@ import styled from "styled-components";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 
 const RefinementListContainer = styled.div`
-  background: white;
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
   padding: 0 16px 10px;
   justify-content: flex-start;
   align-items: center;
   font-size: 12px;
-  color: #4b4848;
+  color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
   .pill-container {
     display: flex;
     align-items: center;
@@ -20,7 +20,9 @@ const RefinementListContainer = styled.div`
       margin: 2px 5px 0;
       padding: 5px;
       text-transform: capitalize;
-      background: #f0f0f0;
+      color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
+      border: 1px solid
+        ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
       svg {
         cursor: pointer;
         margin-left: ${(props) => `${props.theme.spaces[4]}px`};

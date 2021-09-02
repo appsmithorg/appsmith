@@ -12,6 +12,8 @@ import {
   getItemTitle,
   SEARCH_ITEM_TYPES,
   SearchItem,
+  SearchCategory,
+  isMenu,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -48,12 +50,8 @@ export const SearchItemContainer = styled.div<{
       : "default"};
   display: flex;
   align-items: center;
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
-  color: ${(props) =>
-    props.isActiveItem
-      ? "white"
-      : props.theme.colors.globalSearch.searchItemText};
+  padding: ${(props) => props.theme.spaces[4]}px};
+  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
   margin: ${(props) => props.theme.spaces[1]}px 0;
   background-color: ${(props) =>
     props.isActiveItem &&
@@ -64,10 +62,7 @@ export const SearchItemContainer = styled.div<{
 
   .text {
     max-width: 300px;
-    color: ${(props) =>
-      props.isActiveItem
-        ? "white"
-        : props.theme.colors.globalSearch.searchItemText};
+    color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[1]}px`};
@@ -75,10 +70,7 @@ export const SearchItemContainer = styled.div<{
   }
 
   .subtext {
-    color: ${(props) =>
-      props.isActiveItem
-        ? "white"
-        : props.theme.colors.globalSearch.searchItemSubText};
+    color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
@@ -93,13 +85,6 @@ export const SearchItemContainer = styled.div<{
       props.itemType !== SEARCH_ITEM_TYPES.placeholder
         ? "#E8E8E8"
         : "unset"};
-    color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    .category-title {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    }
-    .category-desc {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    }
     ${StyledActionLink} {
       visibility: visible;
     }
@@ -109,10 +94,6 @@ export const SearchItemContainer = styled.div<{
           fill: #484848 !important;
         }
       }
-    }
-    .subtext,
-    .text {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
     }
   }
 
@@ -139,8 +120,7 @@ const StyledDocumentIcon = styled(DocumentIcon)<{ isActiveItem: boolean }>`
     width: 14px;
     height: 14px;
     path {
-      fill: ${(props) =>
-        props.isActiveItem ? "transparent" : "#6a86ce !important"};
+      fill: #6a86ce !important;
     }
   }
   display: flex;
@@ -172,7 +152,7 @@ const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
   svg {
     height: 14px;
     path {
-      fill: ${(props) => (props.isActiveItem ? "white" : "#716E6E !important")};
+      fill: #716e6e !important;
     }
   }
 `;
@@ -336,7 +316,6 @@ const CategoryContainer = styled.div`
   flex-direction: row;
   align-item: center;
   justify-content: space-between;
-  padding: 12px 10px;
   width: 100%;
 `;
 
@@ -351,21 +330,15 @@ const CategoryListItem = styled.div<{ isActiveItem: boolean }>`
     flex-direction: column;
     .category-title {
       ${(props) => getTypographyByKey(props, "h5")}
-      color: ${(props) =>
-        props.isActiveItem
-          ? props.theme.colors.globalSearch.searchItemAltText
-          : props.theme.colors.globalSearch.searchItemText};
+      color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
     }
     .category-desc {
       ${(props) => getTypographyByKey(props, "p3")}
-      color: ${(props) =>
-        props.isActiveItem
-          ? props.theme.colors.globalSearch.searchItemAltText
-          : props.theme.colors.globalSearch.searchItemSubText};
+      color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     }
   }
   .action-msg {
-    color: ${(props) => props.theme.colors.globalSearch.searchItemAltText};
+    color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     ${(props) => getTypographyByKey(props, "p3")}
     flex-shrink: 0;
   }
@@ -460,7 +433,7 @@ function SearchItemComponent(props: ItemProps) {
   );
 }
 
-const SearchResultsContainer = styled.div`
+const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   flex: 1;
   background: white;
   position: relative;
@@ -468,21 +441,21 @@ const SearchResultsContainer = styled.div`
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-bottom: 50px;
+    padding-bottom: ${(props) => (isMenu(props.category) ? "0" : "50px")};
   }
 `;
 
 function SearchResults({
+  category,
   query,
   searchResults,
 }: {
   searchResults: SearchItem[];
   query: string;
-  showFilter: boolean;
-  refinements: any;
+  category: SearchCategory;
 }) {
   return (
-    <SearchResultsContainer>
+    <SearchResultsContainer category={category}>
       <div className="container">
         {searchResults.map((item: SearchItem, index: number) => (
           <SearchItemComponent
