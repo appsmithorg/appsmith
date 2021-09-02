@@ -33,7 +33,7 @@ public class EnvManager {
     private final UserService userService;
     private final PolicyUtils policyUtils;
 
-    @Value("${appsmith.admin.envfile:/opt/appsmith/docker.env}")
+    @Value("${appsmith.admin.envfile:}")
     public String envFilePath;
 
     /**
