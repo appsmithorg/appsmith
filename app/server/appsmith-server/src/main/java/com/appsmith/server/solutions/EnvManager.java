@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -9,7 +10,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -32,9 +32,7 @@ public class EnvManager {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final PolicyUtils policyUtils;
-
-    @Value("${appsmith.admin.envfile:}")
-    public String envFilePath;
+    private final CommonConfig commonConfig;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -86,8 +84,10 @@ public class EnvManager {
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
                     final String originalContent;
+                    final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+
                     try {
-                        originalContent = Files.readString(Path.of(envFilePath));
+                        originalContent = Files.readString(envFilePath);
                     } catch (IOException e) {
                         log.error("Unable to read env file " + envFilePath, e);
                         return Mono.error(e);
@@ -96,7 +96,7 @@ public class EnvManager {
                     final List<String> changedContent = transformEnvContent(originalContent, changes);
 
                     try {
-                        Files.write(Path.of(envFilePath), changedContent);
+                        Files.write(envFilePath, changedContent);
                     } catch (IOException e) {
                         log.error("Unable to write to env file " + envFilePath, e);
                         return Mono.error(e);
@@ -128,9 +128,9 @@ public class EnvManager {
                 .flatMap(user -> {
                     final String originalContent;
                     try {
-                        originalContent = Files.readString(Path.of(envFilePath));
+                        originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
                     } catch (IOException e) {
-                        log.error("Unable to read env file " + envFilePath, e);
+                        log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
                         return Mono.error(e);
                     }
 
