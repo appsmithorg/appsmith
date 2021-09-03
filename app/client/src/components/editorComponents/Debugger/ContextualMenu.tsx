@@ -36,7 +36,7 @@ const getOptions = (type?: string, subType?: string) => {
   } else {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
-        return ["copy", "google", "intercom"];
+        return ["copy", "docs", "intercom"];
       case PropertyEvaluationErrorType.PARSE:
         return ["copy", "google"];
       case PropertyEvaluationErrorType.LINT:
