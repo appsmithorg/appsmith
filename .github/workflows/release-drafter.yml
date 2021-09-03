@@ -11,10 +11,10 @@ on:
       - 'app/rts/**'
 
   # pull_request event is required only for autolabeler
-  pull_request:
-    types: [opened, reopened, synchronize]
-    branches:
-      - release
+  # pull_request:
+  #   types: [opened, reopened, synchronize]
+  #   branches:
+  #     - release
 
 jobs:
   update_release_draft:
