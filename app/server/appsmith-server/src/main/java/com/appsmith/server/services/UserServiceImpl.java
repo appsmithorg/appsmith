@@ -508,22 +508,16 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
-                            .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
-                            .flatMap(tuple -> {
-                                final User savedUser = tuple.getT1();
-                                final String templateOrganizationId = tuple.getT2();
+                            .flatMap(savedUser -> {
                                 final UserSignupDTO userSignupDTO = new UserSignupDTO();
                                 userSignupDTO.setUser(savedUser);
-                                if (!StringUtils.hasText(templateOrganizationId)) {
-                                    // Since template organization is not configured, we create an empty default organization.
-                                    log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                    return organizationService.createDefault(new Organization(), savedUser)
-                                            .map(org -> {
-                                                userSignupDTO.setDefaultOrganizationId(org.getId());
-                                                return userSignupDTO;
-                                            });
-                                }
-                                return Mono.just(userSignupDTO);
+
+                                log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                                return organizationService.createDefault(new Organization(), savedUser)
+                                        .map(org -> {
+                                            userSignupDTO.setDefaultOrganizationId(org.getId());
+                                            return userSignupDTO;
+                                        });
                             })
                             .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
                                 userSignupDTO.setUser(user1);
