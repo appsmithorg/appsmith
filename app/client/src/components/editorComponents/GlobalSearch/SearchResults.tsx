@@ -14,6 +14,7 @@ import {
   SearchItem,
   SearchCategory,
   isMenu,
+  comboHelpText,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -29,7 +30,6 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
-import { APPLY_SEARCH_CATEGORY, createMessage } from "constants/messages";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -347,7 +347,7 @@ function CategoryItem({
   isActiveItem,
   item,
 }: {
-  item: SearchItem;
+  item: SearchCategory;
   isActiveItem: boolean;
 }) {
   return (
@@ -357,11 +357,7 @@ function CategoryItem({
           <span className="category-title">{item.title}</span>
           <span className="category-desc">{item.desc}</span>
         </div>
-        {isActiveItem && (
-          <div className="action-msg">
-            {createMessage(APPLY_SEARCH_CATEGORY)}
-          </div>
-        )}
+        <div className="action-msg">{comboHelpText[item.id]}</div>
       </CategoryListItem>
     </CategoryContainer>
   );

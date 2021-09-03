@@ -1,3 +1,4 @@
+import React from "react";
 import {
   createMessage,
   DOC_DESCRIPTION,
@@ -9,6 +10,7 @@ import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import getFeatureFlags from "utils/featureFlags";
+import { modText } from "./HelpBar";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -50,6 +52,13 @@ export type DocSearchItem = {
   };
   kind: string;
   path: string;
+};
+
+export const comboHelpText = {
+  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
 };
 
 export type Snippet = {
