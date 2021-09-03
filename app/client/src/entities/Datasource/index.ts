@@ -77,6 +77,7 @@ export interface Datasource extends BaseDatasource {
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
+  success?: boolean;
 }
 
 export interface MockDatasource {

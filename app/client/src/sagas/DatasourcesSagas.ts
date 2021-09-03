@@ -500,6 +500,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         }
         if (responseData.messages && responseData.messages.length) {
           messages = responseData.messages;
+          if (responseData.success) {
+            Toaster.show({
+              text: createMessage(DATASOURCE_VALID, payload.name),
+              variant: Variant.success,
+            });
+          }
         }
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
