@@ -239,8 +239,8 @@ public class UserSignup {
                     if (formData.containsKey("role")) {
                         user.setRole(formData.getFirst("role"));
                     }
-                    if (formData.containsKey("userCase")) {
-                        user.setUseCase(formData.getFirst("userCase"));
+                    if (formData.containsKey("useCase")) {
+                        user.setUseCase(formData.getFirst("useCase"));
                     }
                     if (formData.containsKey("allowCollectingAnonymousData")) {
                         user.setAllowCollectingAnonymousData("true".equals(formData.getFirst("allowCollectingAnonymousData")));
