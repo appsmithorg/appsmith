@@ -1,6 +1,6 @@
 import React from "react";
 import TabsComponent from "components/designSystems/appsmith/TabsComponent";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import {
@@ -9,7 +9,6 @@ import {
 } from "constants/WidgetValidation";
 import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
 import withMeta, { WithMeta } from "../MetaHOC";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
@@ -241,18 +240,6 @@ class TabsWidget extends BaseWidget<
     return "TABS_WIDGET";
   }
 
-  updateTabContainerNames = () => {
-    this.props.children.forEach((each) => {
-      const tab = this.props.tabsObj[each.tabId];
-      if (tab && each.tabName !== tab.label) {
-        this.updateWidget(WidgetOperations.UPDATE_PROPERTY, each.widgetId, {
-          propertyPath: "tabName",
-          propertyValue: tab.label,
-        });
-      }
-    });
-  };
-
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
     const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
@@ -298,43 +285,6 @@ class TabsWidget extends BaseWidget<
       }
     }
   }
-
-  generateTabContainers = () => {
-    const { tabsObj, widgetId } = this.props;
-    const tabs = Object.values(tabsObj || {});
-    const childWidgetIds = this.props.children
-      ?.filter(Boolean)
-      .map((child) => child.widgetId);
-    let tabsToCreate = tabs || [];
-    if (childWidgetIds && childWidgetIds.length > 0 && Array.isArray(tabs)) {
-      tabsToCreate = tabs.filter(
-        (tab) => childWidgetIds.indexOf(tab.widgetId) === -1,
-      );
-    }
-
-    const tabContainers = tabsToCreate.map((tab) => ({
-      type: WidgetTypes.CANVAS_WIDGET,
-      tabId: tab.id,
-      tabName: tab.label,
-      widgetId: tab.widgetId,
-      parentId: widgetId,
-      detachFromLayout: true,
-      children: [],
-      parentRowSpace: 1,
-      parentColumnSpace: 1,
-      leftColumn: 0,
-      rightColumn:
-        (this.props.rightColumn - this.props.leftColumn) *
-        this.props.parentColumnSpace,
-      topRow: 0,
-      bottomRow:
-        (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace,
-      isLoading: false,
-    }));
-    this.updateWidget(WidgetOperations.ADD_CHILDREN, widgetId, {
-      children: tabContainers,
-    });
-  };
 
   getVisibleTabs = () => {
     const tabs = Object.values(this.props.tabsObj || {});
@@ -384,7 +334,6 @@ class TabsWidget extends BaseWidget<
         visibleTabs.length ? visibleTabs[0].widgetId : undefined,
       );
     }
-    this.generateTabContainers();
   }
 }
 
