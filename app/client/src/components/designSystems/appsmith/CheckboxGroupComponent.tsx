@@ -15,7 +15,7 @@ export interface CheckboxGroupContainerProps {
 const CheckboxGroupContainer = styled.div<
   ThemeProp & CheckboxGroupContainerProps
 >`
-  display: flex;
+  display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
   ${({ inline }) => `
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
@@ -46,8 +46,8 @@ const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
 
   &.bp3-control.bp3-checkbox {
     color: ${({ theme }) => theme.colors.comments.resolved};
-    margin-bottom: ${({ inline, optionCount }) =>
-      (inline || optionCount === 1) && `6px`};
+    margin-top: ${({ inline, optionCount }) =>
+      (inline || optionCount === 1) && `4px`};
   }
 
   &.bp3-control input:checked ~ .bp3-control-indicator {
