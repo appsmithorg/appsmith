@@ -13,7 +13,8 @@ import getFeatureFlags from "utils/featureFlags";
 export type SelectEvent =
   | React.MouseEvent
   | React.KeyboardEvent
-  | KeyboardEvent;
+  | KeyboardEvent
+  | null;
 
 export type RecentEntity = {
   type: string;

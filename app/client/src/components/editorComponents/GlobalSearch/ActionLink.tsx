@@ -35,7 +35,11 @@ export const ActionLink = withTheme(
           name="link"
           onClick={(e) => {
             e.stopPropagation(); // to prevent toggleModal getting called twice
-            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM_ICON_CLICK");
+            searchContext?.handleItemLinkClick(
+              null,
+              item,
+              "SEARCH_ITEM_ICON_CLICK",
+            );
           }}
           size={IconSize.LARGE}
         />

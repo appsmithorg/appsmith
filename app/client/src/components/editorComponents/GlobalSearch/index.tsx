@@ -390,7 +390,16 @@ function GlobalSearch() {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: SearchItem) => {
+  const handleDocumentationItemClick = (
+    item: SearchItem,
+    event?: SelectEvent,
+  ) => {
+    if (event && event.type === "click") {
+      setActiveItemIndex(
+        searchResults.findIndex((doc: any) => doc.objectID === item.objectID),
+      );
+      return;
+    }
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -437,7 +446,7 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
-    if (event.type === "click") {
+    if (event && event.type === "click") {
       setActiveItemIndex(
         searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
       );
@@ -449,7 +458,7 @@ function GlobalSearch() {
 
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.document]: (e: SelectEvent, item: any) =>
-      handleDocumentationItemClick(item),
+      handleDocumentationItemClick(item, e),
     [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
       handleWidgetClick(item),
     [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
