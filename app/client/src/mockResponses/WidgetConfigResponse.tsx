@@ -454,14 +454,52 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       shouldShowTabs: true,
       defaultTab: "Tab 1",
       blueprint: {
+        view: [
+          {
+            type: WidgetTypes.CANVAS_WIDGET,
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab1",
+              tabName: "Tab 1",
+              children: [],
+              version: 1,
+            },
+          },
+          {
+            type: WidgetTypes.CANVAS_WIDGET,
+            position: { left: 0, top: 0 },
+            props: {
+              detachFromLayout: true,
+              canExtend: true,
+              isVisible: true,
+              isDisabled: false,
+              shouldScrollContents: false,
+              tabId: "tab2",
+              tabName: "Tab 2",
+              children: [],
+              version: 1,
+            },
+          },
+        ],
         operations: [
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const tabs = Object.values({ ...widget.tabsObj });
+              const tabIds: Record<string, string> = (
+                widget.children || []
+              ).reduce((idsObj, eachChild) => {
+                idsObj = { ...idsObj, [eachChild.tabId]: eachChild.widgetId };
+                return idsObj;
+              }, {});
               const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
-                newTab.widgetId = generateReactKey();
+                newTab.widgetId = tabIds[newTab.id];
                 obj[newTab.id] = newTab;
                 return obj;
               }, {});
@@ -1305,6 +1343,97 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 1 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "IconButton",
       version: 1,
+    },
+    [WidgetTypes.STATBOX_WIDGET]: {
+      rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Statbox",
+      backgroundColor: "white",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              version: 1,
+              blueprint: {
+                view: [
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 0, left: 1 },
+                    props: {
+                      text: "Page Views",
+                      fontSize: "PARAGRAPH2",
+                      textColor: "#999999",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 1 * GRID_DENSITY_MIGRATION_V1,
+                      left: 1,
+                    },
+                    props: {
+                      text: "2.6 M",
+                      fontSize: "HEADING1",
+                      fontStyle: "BOLD",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 2 * GRID_DENSITY_MIGRATION_V1,
+                      left: 1,
+                    },
+                    props: {
+                      text: "21% more than last month",
+                      fontSize: "PARAGRAPH2",
+                      textColor: Colors.GREEN,
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "ICON_BUTTON_WIDGET",
+                    size: {
+                      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 2,
+                      left: 11.5 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    props: {
+                      iconName: "arrow-top-right",
+                      buttonStyle: "PRIMARY",
+                      buttonVariant: "SOLID",
+                      version: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
     },
     [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
       rows: 2 * GRID_DENSITY_MIGRATION_V1,

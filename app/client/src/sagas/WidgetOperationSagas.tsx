@@ -98,7 +98,7 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { updateCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
+import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 
@@ -123,7 +123,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
     const updatedCanvasBottomRow: number = yield call(
-      updateCanvasSizeAfterWidgetMove,
+      getCanvasSizeAfterWidgetMove,
       parentId,
       bottomRow,
     );
@@ -469,7 +469,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   );
 
   log.debug(
-    "Batch widget property update calculations took: ",
+    "Batch multi-widget properties update calculations took: ",
     performance.now() - start,
     "ms",
   );

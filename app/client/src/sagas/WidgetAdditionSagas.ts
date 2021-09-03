@@ -359,7 +359,7 @@ const getChildTabData = (
     rightColumn:
       (tabProps.rightColumn - tabProps.leftColumn) * tabProps.parentColumnSpace,
     bottomRow: (tabProps.bottomRow - tabProps.topRow) * tabProps.parentRowSpace,
-    tabProps: {
+    props: {
       tabId: tab.id,
       tabName: tab.label,
       containerStyle: "none",
