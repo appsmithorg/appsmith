@@ -113,7 +113,7 @@ export default {
   },
   //
   getPageSize: (props, moment, _) => {
-    const LIST_WIDGEY_PAGINATION_HEIGHT = 36;
+    const LIST_WIDGET_PAGINATION_HEIGHT = 36;
     const DEFAULT_GRID_ROW_HEIGHT = 10;
     const WIDGET_PADDING = DEFAULT_GRID_ROW_HEIGHT * 0.4;
 
@@ -125,7 +125,7 @@ export default {
       (props.bottomRow - props.topRow) * props.parentRowSpace;
 
     const totalSpaceAvailable =
-      componentHeight - (LIST_WIDGEY_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
+      componentHeight - (LIST_WIDGET_PAGINATION_HEIGHT + WIDGET_PADDING * 2);
     const spaceTakenByOneContainer = templateHeight + (props.gridGap * 3) / 4;
 
     const perPage = totalSpaceAvailable / spaceTakenByOneContainer;

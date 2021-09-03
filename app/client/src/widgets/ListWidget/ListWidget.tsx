@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from "react";
 import log from "loglevel";
 import {
@@ -12,6 +11,7 @@ import {
   isBoolean,
   omit,
   floor,
+  isEmpty,
 } from "lodash";
 import * as Sentry from "@sentry/react";
 
@@ -89,6 +89,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         currentIndex: "",
       });
     }
+
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
@@ -293,8 +294,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           type: EventType.ON_ROW_SELECTED,
         },
       });
-    } else {
-      this.props.updateWidgetMetaProperty("selectedItemIndex", undefined);
     }
 
     if (!action) return;
@@ -641,8 +640,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   paginateItems = (children: ContainerWidgetProps<WidgetProps>[]) => {
     // return all children if serverside pagination
-    // if (this.props.serverSidePaginationEnabled) return children;
-    // else calculate and paginate based on size
+    if (this.props.serverSidePaginationEnabled) return children;
+
     const { page } = this.state;
     const { perPage, shouldPaginate } = this.shouldPaginate();
 
@@ -734,6 +733,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (serverSidePaginationEnabled) {
       return { shouldPaginate: true, perPage: this.props.pageSize };
     }
+
     if (!listData?.length) {
       return { shouldPaginate: false, perPage: 0 };
     }
@@ -773,8 +773,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getPageView() {
     const children = this.renderChildren();
     const { componentHeight } = this.getComponentDimensions();
-    const { perPage, shouldPaginate } = this.shouldPaginate();
     const { pageNo, serverSidePaginationEnabled } = this.props;
+    const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
       this.props.children,
       "0.children.0.bottomRow",
@@ -811,7 +811,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (
       Array.isArray(this.props.listData) &&
-      this.props.listData.length === 0 &&
+      this.props.listData.filter((item) => !isEmpty(item)).length === 0 &&
       this.props.renderMode === RenderModes.PAGE
     ) {
       return <ListComponentEmpty>No data to display</ListComponentEmpty>;
