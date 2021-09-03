@@ -217,7 +217,7 @@ ctx.addEventListener(
               variables: variables,
             };
           } else {
-            throw "syntax error";
+            throw new Error("syntax error");
           }
         } catch (e) {
           const errors = dataTreeEvaluator.errors;
