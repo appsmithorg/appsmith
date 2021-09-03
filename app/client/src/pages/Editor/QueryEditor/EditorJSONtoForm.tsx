@@ -43,7 +43,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { isHidden } from "components/formControls/utils";
 import {
@@ -65,8 +64,9 @@ import ActionRightPane, {
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
-import TooltipComponent from "../../../components/ads/Tooltip";
+import TooltipComponent from "components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
   display: flex;
@@ -130,7 +130,6 @@ const TabbedViewContainer = styled.div`
 
 const SettingsWrapper = styled.div`
   padding: 16px 30px;
-  overflow-y: auto;
   height: 100%;
   ${thinScrollbar};
 `;
@@ -329,7 +328,7 @@ const TabContainerView = styled.div`
     margin-top: 15px;
   }
   .react-tabs__tab-panel {
-    overflow: scroll;
+    overflow: auto;
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -388,6 +387,7 @@ type QueryFormProps = {
 type ReduxProps = {
   actionName: string;
   responseType: string | undefined;
+  plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
   formEvaluationState: Record<string, any>;
@@ -411,6 +411,7 @@ export function EditorJSONtoForm(props: Props) {
     isRunning,
     onCreateDatasourceClick,
     onRunClick,
+    plugin,
     responseType,
     runErrorMessage,
     settingConfig,
@@ -497,18 +498,13 @@ export function EditorJSONtoForm(props: Props) {
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (props?.documentationLink) {
-      const query = omnibarDocumentationHelper(props.documentationLink);
-      if (query !== "") {
-        dispatch(setGlobalSearchQuery(query));
-      } else {
-        dispatch(setGlobalSearchQuery("Connect to Databases"));
-      }
-      dispatch(toggleShowGlobalSearchModal());
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DATASOURCE_DOCUMENTATION_CLICK",
-      });
-    }
+    const query = plugin?.name || "Connecting to datasources";
+    dispatch(setGlobalSearchQuery(query));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "DATASOURCE_DOCUMENTATION_CLICK",
+      query,
+    });
   };
 
   // Added function to handle the render of the configs

@@ -15,6 +15,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
+  RTS_BASE_PATH,
   websocketDisconnectedEvent,
   websocketConnectedEvent,
 } from "constants/WebsocketConstants";
@@ -29,7 +30,9 @@ import { isMultiplayerEnabledForUser } from "selectors/appCollabSelectors";
 import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
 
 function connect() {
-  const socket = io();
+  const socket = io({
+    path: RTS_BASE_PATH,
+  });
 
   return new Promise((resolve) => {
     socket.on("connect", () => {
