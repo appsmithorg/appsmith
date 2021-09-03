@@ -2960,5 +2960,4 @@ public class DatabaseChangelog {
             mongoTemplate.save(plugin);
         }
     }
-
 }

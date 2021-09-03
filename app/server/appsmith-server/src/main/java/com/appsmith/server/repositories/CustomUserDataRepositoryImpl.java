@@ -63,14 +63,5 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
                         .addCriteria(where("userId").is(userId))
                         .addCriteria(where("gitLocalConfigData.profileName").is(profileName)),
                 UserData.class);
-        /*
-        *
-                .flatMap(count -> {
-                    if(count == null) {
-                        return Mono.just(false);
-                    } else {
-                        return Mono.just(true);
-                    }
-        })*/
     }
 }
