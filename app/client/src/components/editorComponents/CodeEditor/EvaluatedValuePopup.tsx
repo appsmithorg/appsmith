@@ -7,7 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
@@ -107,7 +107,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
   white-space: pre-wrap;
 `;
 
-const ErrorText = styled.p`
+const ErrorText = styled.div`
   margin: ${(props) => props.theme.spaces[2]}px 0px;
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[5]}px;
@@ -135,9 +135,7 @@ const StyledTitle = styled.p`
   cursor: pointer;
 `;
 
-const StyledDebugButton = styled(DebugButton)`
-  margin-left: auto;
-`;
+const StyledDebugButton = styled(EvaluatedValueDebugButton)``;
 
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
@@ -357,8 +355,7 @@ function PopoverContent(props: PopoverContentProps) {
               : error.errorMessage}
           </span>
           <StyledDebugButton
-            className="evaluated-value"
-            source={"EVALUATED_VALUE"}
+            error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
       )}

@@ -7,6 +7,57 @@ import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Message } from "entities/AppsmithConsole";
+import ContextualMenu from "./ContextualMenu";
+import { Position } from "@blueprintjs/core";
+
+const EVDebugButton = styled.div`
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 13px;
+  display: flex;
+  padding: 4px;
+  border: 1px solid #f22b2b;
+  width: fit-content;
+
+  .${Classes.ICON} {
+    margin-left: 5px;
+  }
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  cursor: pointer;
+  margin-top: 6px;
+`;
+
+export function EvaluatedValueDebugButton(props: { error: Message }) {
+  return (
+    <Wrapper>
+      <ContextualMenu
+        error={props.error}
+        modifiers={{
+          offset: {
+            offset: "0, 0",
+          },
+        }}
+        position={Position.BOTTOM_RIGHT}
+      >
+        <EVDebugButton>
+          DEBUG
+          <Icon
+            fillColor={"#F22B2B"}
+            hoverFillColor={"#F22B2B"}
+            name={"downArrow"}
+            size={IconSize.XXS}
+          />
+        </EVDebugButton>
+      </ContextualMenu>
+    </Wrapper>
+  );
+}
 
 const StyledButton = styled(Button)`
  && {

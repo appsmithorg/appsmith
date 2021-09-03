@@ -15,7 +15,11 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { getAppsmithConfigs } from "configs";
 import { createMessage, DEBUGGER_INTERCOM_TEXT } from "constants/messages";
 import { useDispatch } from "react-redux";
-import { Classes as BPClasses, Position } from "@blueprintjs/core";
+import {
+  Classes as BPClasses,
+  PopperModifiers,
+  Position,
+} from "@blueprintjs/core";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
@@ -54,6 +58,8 @@ const getOptions = (type?: string, subType?: string) => {
 type ContextualMenuProps = {
   error: Message;
   children: JSX.Element;
+  position?: Position;
+  modifiers?: PopperModifiers;
 };
 
 const searchAction: Record<string, any> = {
@@ -152,12 +158,14 @@ export default function ContextualMenu(props: ContextualMenuProps) {
   return (
     <Menu
       menuItemWrapperWidth={"175px"}
-      modifiers={{
-        offset: {
-          offset: "25px, 5px",
-        },
-      }}
-      position={Position.RIGHT}
+      modifiers={
+        props.modifiers || {
+          offset: {
+            offset: "25px, 5px",
+          },
+        }
+      }
+      position={props.position || Position.RIGHT}
       target={props.children}
     >
       {options.map((e) => {
