@@ -1324,6 +1324,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 4 * GRID_DENSITY_MIGRATION_V1,
       columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isVisible: true,
+      text: JSON.stringify(
+        {
+          fruits: ["apple", "orange", "lemon"],
+        },
+        null,
+        2,
+      ),
       widgetName: "JsonEditor",
       version: 1,
     },
