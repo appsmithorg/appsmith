@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.GitConfig;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -16,7 +15,6 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +25,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private final UserDataService userDataService;
 
+    private final SessionUserService sessionUserService;
+
     public GitServiceImpl(Scheduler scheduler,
                           Validator validator,
                           MongoConverter mongoConverter,
@@ -34,10 +34,12 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                           UserDataRepository repository,
                           AnalyticsService analyticsService,
                           UserService userService,
-                          UserDataService userDataService) {
+                          UserDataService userDataService,
+                          SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.userDataService = userDataService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -49,7 +51,6 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-                            List<GitConfig> gitConfigs = new ArrayList<>();
 
                             /*
                             *  The gitConfig will be null if the user has not created profiles.
@@ -58,36 +59,44 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             * */
 
                             if( Optional.ofNullable(userData.getGitLocalConfigData()).isEmpty() ) {
+                                List<GitConfig> gitConfigs = new ArrayList<>();
                                 gitConfigs.add(gitConfig);
                                 userData.setGitLocalConfigData(gitConfigs);
+                                return userDataService.updateForUser(user, userData);
                             } else {
-                                gitConfigs = userData.getGitLocalConfigData();
-                                if( isProfileNameExists(gitConfigs, gitConfig.getProfileName()) ) {
-                                    return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                            "Profile Name - " + gitConfig.getProfileName(),
-                                            "Profile Name.",
-                                            null));
-                                }
-                                gitConfigs.add(gitConfig);
-                                userData.setGitLocalConfigData(gitConfigs);
+                                return isProfileNameExists(user.getId(), gitConfig.getProfileName())
+                                        .flatMap(isProfile -> {
+                                            if(isProfile) {
+                                                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                                        "Profile Name - " + gitConfig.getProfileName(),
+                                                        "Profile Name.",
+                                                        null));
+                                            } else {
+                                                List<GitConfig> gitConfigs = new ArrayList<>();
+                                                gitConfigs.add(gitConfig);
+                                                userData.setGitLocalConfigData(gitConfigs);
+                                                return userDataService.updateForUser(user, userData);
+                                            }
+                                        });
                             }
-                            return userDataService.updateForUser(user, userData);
                         }));
     }
 
-    private boolean isProfileNameExists(List<GitConfig> gitConfigs, String name) {
-        for (GitConfig config: gitConfigs) {
-            if(config.getProfileName().equals(name)) {
-                return true;
-            }
-        }
-        return false;
+    private Mono<Boolean> isProfileNameExists(String userId, String name) {
+        return userDataService.findByProfileName(userId, name)
+                .flatMap(count -> {
+                    if(count == null) {
+                        return Mono.just(false);
+                    } else {
+                        return Mono.just(true);
+                    }
+                });
     }
 
     @Override
     public Mono<UserData> updateGitConfigData(GitConfig gitConfig) {
-        return userService.findByEmail(gitConfig.getUserName())
-                .flatMap(user -> userDataService.getForUser(user.getId())
-                        .flatMap(userData -> userDataService.updateGitConfigProfile(user, gitConfig)));
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .flatMap(user -> userDataService.updateGitConfigProfile(user, gitConfig));
     }
 }

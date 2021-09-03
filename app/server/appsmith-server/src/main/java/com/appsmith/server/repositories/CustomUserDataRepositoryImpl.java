@@ -56,4 +56,21 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
                 UserData.class
                 );
     }
+
+    public Mono<UserData> findByProfileName(String userId, String profileName) {
+        return mongoOperations.findOne(
+                new Query()
+                        .addCriteria(where("userId").is(userId))
+                        .addCriteria(where("gitLocalConfigData.profileName").is(profileName)),
+                UserData.class);
+        /*
+        *
+                .flatMap(count -> {
+                    if(count == null) {
+                        return Mono.just(false);
+                    } else {
+                        return Mono.just(true);
+                    }
+        })*/
+    }
 }

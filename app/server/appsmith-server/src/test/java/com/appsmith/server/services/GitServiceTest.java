@@ -48,7 +48,6 @@ public class GitServiceTest {
         GitConfig gitConfig = new GitConfig();
         gitConfig.setUserName(userName);
         gitConfig.setAuthorEmail(commitEmail);
-        gitConfig.setPassword(password);
         gitConfig.setProfileName(profileName);
         return gitConfig;
     }

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +38,7 @@ public class GitController extends BaseController<GitService, UserData, String> 
 
     }
 
-    @PostMapping("/config/update")
+    @PutMapping("/config/update")
     public Mono<ResponseDTO<List<GitConfig>>> updateGitConfigData(@RequestBody GitConfig gitConfig) {
         //update userData object - git config data
         return gitService.updateGitConfigData(gitConfig)

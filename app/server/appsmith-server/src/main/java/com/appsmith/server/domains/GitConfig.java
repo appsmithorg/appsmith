@@ -25,12 +25,6 @@ public class GitConfig implements AppsmithDomain {
     String authorEmail;
 
     @Transient
-    String password;
-
-    @Transient
-    String sshKey;
-
-    @Transient
     String userName;
 
 }

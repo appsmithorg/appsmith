@@ -261,4 +261,9 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(userId -> repository.updateGitConfigForProfile(userId, config))
                 .flatMap(updateResult -> getForCurrentUser());
     }
+
+    @Override
+    public Mono<UserData> findByProfileName(String userId, String profileName) {
+        return repository.findByProfileName(userId, profileName);
+    }
 }
