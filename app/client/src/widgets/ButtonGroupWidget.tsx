@@ -278,35 +278,21 @@ class ButtonGroupWidget extends BaseWidget<
                                 validation: { type: ValidationTypes.TEXT },
                               },
                               {
-                                helpText: "Controls button color",
-                                propertyName: "buttonStyle",
-                                label: "Button Style",
-                                controlType: "DROP_DOWN",
-                                options: [
-                                  {
-                                    label: "Primary",
-                                    value: "PRIMARY",
-                                  },
-                                  {
-                                    label: "Warning",
-                                    value: "WARNING",
-                                  },
-                                  {
-                                    label: "Danger",
-                                    value: "DANGER",
-                                  },
-                                  {
-                                    label: "Info",
-                                    value: "INFO",
-                                  },
-                                  {
-                                    label: "Secondary",
-                                    value: "SECONDARY",
-                                  },
-                                ],
-                                isBindProperty: true,
+                                propertyName: "backgroundColor",
+                                helpText:
+                                  "Sets the background color of a menu item",
+                                label: "Background color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
                                 isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "textColor",
+                                helpText: "Sets the text color of a menu item",
+                                label: "Text color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
                               },
                               {
                                 propertyName: "isDisabled",
@@ -338,20 +324,44 @@ class ButtonGroupWidget extends BaseWidget<
                                 propertyName: "iconName",
                                 label: "Icon",
                                 helpText:
-                                  "Sets the icon to be used for a button",
+                                  "Sets the icon to be used for a menu item",
                                 controlType: "ICON_SELECT",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
                               },
                               {
+                                propertyName: "iconColor",
+                                helpText: "Sets the icon color of a menu item",
+                                label: "Icon color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                              {
                                 propertyName: "iconAlign",
                                 label: "Icon alignment",
-                                helpText: "Sets the icon alignment of a button",
+                                helpText:
+                                  "Sets the icon alignment of a menu item",
                                 controlType: "ICON_ALIGN",
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
+                              },
+                            ],
+                          },
+                          {
+                            sectionName: "Actions",
+                            children: [
+                              {
+                                helpText:
+                                  "Triggers an action when the menu item is clicked",
+                                propertyName: "onClick",
+                                label: "onClick",
+                                controlType: "ACTION_SELECTOR",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: true,
                               },
                             ],
                           },
@@ -362,6 +372,17 @@ class ButtonGroupWidget extends BaseWidget<
                 },
                 {
                   sectionName: "Actions",
+                  hidden: (
+                    props: ButtonGroupWidgetProps,
+                    propertyPath: string,
+                  ) => {
+                    const buttonType = get(
+                      props,
+                      `${propertyPath}.buttonType`,
+                      "",
+                    );
+                    return buttonType === "MENU";
+                  },
                   children: [
                     {
                       helpText: "Triggers an action when the button is clicked",
@@ -391,14 +412,13 @@ class ButtonGroupWidget extends BaseWidget<
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                allowedValues: ["SHARP", "ROUNDED"],
               },
             },
           },
@@ -496,7 +516,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       iconName?: IconName;
       iconAlign?: Alignment;
       onClick?: string;
-      menuItems?: Record<
+      menuItems: Record<
         string,
         {
           widgetId: string;
@@ -505,8 +525,10 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
           isVisible?: boolean;
           isDisabled?: boolean;
           label?: string;
-          buttonStyle?: ButtonStyle;
+          backgroundColor?: string;
+          textColor?: string;
           iconName?: IconName;
+          iconColor?: string;
           iconAlign?: Alignment;
           onClick?: string;
         }

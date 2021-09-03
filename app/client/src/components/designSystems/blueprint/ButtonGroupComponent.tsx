@@ -1,8 +1,10 @@
 import React from "react";
 import { sortBy } from "lodash";
-import { Alignment, Icon } from "@blueprintjs/core";
+import { Alignment, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
+import tinycolor from "tinycolor2";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -86,6 +88,18 @@ interface ButtonStyleProps {
   buttonStyle?: ButtonStyle; // primary | warning ...
   iconAlign?: string;
   isDisabled?: boolean;
+}
+
+export interface BaseStyleProps {
+  backgroundColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  buttonColor?: string;
+  buttonStyle?: ButtonStyle;
+  buttonVariant?: ButtonVariant;
+  prevButtonStyle?: ButtonStyle;
+  textColor?: string;
 }
 
 const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
@@ -206,6 +220,47 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
   `}
 `;
 
+const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  ${({ backgroundColor, theme }) =>
+    backgroundColor
+      ? `
+      background-color: ${backgroundColor} !important;
+      &:hover {
+        background-color: ${darkenHover(backgroundColor)} !important;
+      }
+      &:active {
+        background-color: ${darkenActive(backgroundColor)} !important;
+      }
+  `
+      : `
+    background: none !important
+      &:hover {
+        background-color: ${tinycolor(
+          theme.colors.button.primary.solid.textColor,
+        )
+          .darken()
+          .toString()} !important;
+      }
+      &:active {
+        background-color: ${tinycolor(
+          theme.colors.button.primary.solid.textColor,
+        )
+          .darken()
+          .toString()} !important;
+      }
+    `}
+  ${({ textColor }) =>
+    textColor &&
+    `
+      color: ${textColor} !important;
+  `}
+`;
+
+const StyledMenu = styled(Menu)`
+  padding: 0;
+  background: none;
+`;
+
 interface PopoverContentProps {
   menuItems: Record<
     string,
@@ -216,8 +271,10 @@ interface PopoverContentProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
-      buttonStyle?: ButtonStyle;
+      backgroundColor?: string;
+      textColor?: string;
       iconName?: IconName;
+      iconColor?: string;
       iconAlign?: Alignment;
       onClick?: string;
     }
@@ -226,21 +283,51 @@ interface PopoverContentProps {
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const items = Object.keys(props.menuItems)
-    .map((itemKey) => props.menuItems[itemKey])
+  const { menuItems, onItemClicked } = props;
+
+  const items = Object.keys(menuItems)
+    .map((itemKey) => menuItems[itemKey])
     .filter((item) => item.isVisible === true);
 
-  return (
-    <div>
-      {items.map((item) => {
-        return (
-          <div key={item.id} onClick={props.onItemClicked(item.onClick)}>
-            {item.label}
-          </div>
-        );
-      })}
-    </div>
-  );
+  const listItems = items.map((menuItem) => {
+    const {
+      backgroundColor,
+      iconAlign,
+      iconColor,
+      iconName,
+      id,
+      isDisabled,
+      label,
+      onClick,
+      textColor,
+    } = menuItem;
+    if (iconAlign === Alignment.RIGHT) {
+      return (
+        <BaseMenuItem
+          backgroundColor={backgroundColor}
+          disabled={isDisabled}
+          key={id}
+          labelElement={<Icon color={iconColor} icon={iconName} />}
+          onClick={onItemClicked(onClick)}
+          text={label}
+          textColor={textColor}
+        />
+      );
+    }
+    return (
+      <BaseMenuItem
+        backgroundColor={backgroundColor}
+        disabled={isDisabled}
+        icon={<Icon color={iconColor} icon={iconName} />}
+        key={id}
+        onClick={onItemClicked(onClick)}
+        text={label}
+        textColor={textColor}
+      />
+    );
+  });
+
+  return <StyledMenu>{listItems}</StyledMenu>;
 }
 
 class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
@@ -285,9 +372,6 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
 
   render = () => {
     const { groupButtons, orientation } = this.props;
-    /* eslint-disable no-console */
-    // prettier-ignore
-    console.log("🚀 ~ file: ButtonGroupComponent.tsx ~ line 201 ~ ButtonGroupComponent ~ render ~ this.props", this.props)
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -341,7 +425,7 @@ interface GroupButtonProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   onClick?: string;
-  menuItems?: Record<
+  menuItems: Record<
     string,
     {
       widgetId: string;
@@ -350,8 +434,10 @@ interface GroupButtonProps {
       isVisible?: boolean;
       isDisabled?: boolean;
       label?: string;
-      buttonStyle?: ButtonStyle;
+      backgroundColor?: string;
+      textColor?: string;
       iconName?: IconName;
+      iconColor?: string;
       iconAlign?: Alignment;
       onClick?: string;
     }
