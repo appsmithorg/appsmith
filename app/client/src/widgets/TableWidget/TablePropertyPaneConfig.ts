@@ -1157,6 +1157,27 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
       {
+        helpText: "Selects row(s) by default",
+        propertyName: "defaultSelectedRow",
+        label: "Default Selected Row",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Enter row index",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultSelectedRowValidation,
+            expected: {
+              type: "Index of row(s)",
+              example: "0 | [0, 1]",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+        dependencies: ["multiRowSelection"],
+      },
+      {
         propertyName: "compactMode",
         helpText: "Selects row height",
         label: "Row Height",
@@ -1178,27 +1199,6 @@ export default [
             value: "TALL",
           },
         ],
-      },
-      {
-        helpText: "Selects row(s) by default",
-        propertyName: "defaultSelectedRow",
-        label: "Default Selected Row",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Enter row index",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.FUNCTION,
-          params: {
-            fn: defaultSelectedRowValidation,
-            expected: {
-              type: "Index of row(s)",
-              example: "0 | [0, 1]",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-        dependencies: ["multiRowSelection"],
       },
       {
         helpText:
