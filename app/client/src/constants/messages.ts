@@ -435,16 +435,15 @@ export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
 export const SETTINGS = () => "Settings";
-export const CONNECT_TO_GIT = () => "Connect to Git";
+export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Choose an existing empty repository to host your project and keep it in sync";
+  "Checkout branches, Make commits, add deploy your application";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
 
