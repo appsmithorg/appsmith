@@ -35,7 +35,7 @@ export type WidgetMoveParams = {
   allWidgets: CanvasWidgetsReduxState;
 };
 
-export function* updateCanvasSizeAfterWidgetMove(
+export function* getCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,
   movedWidgetsBottomRow: number,
 ) {
@@ -113,7 +113,7 @@ function* moveWidgetsSaga(
     }, widgets);
 
     const updatedCanvasBottomRow: number = yield call(
-      updateCanvasSizeAfterWidgetMove,
+      getCanvasSizeAfterWidgetMove,
       canvasId,
       bottomMostRowAfterMove,
     );
