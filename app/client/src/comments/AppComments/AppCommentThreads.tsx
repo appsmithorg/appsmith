@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import {
-  getSortedAndFilteredAppCommentThreadIds,
-  applicationCommentsSelector,
   allCommentThreadsMap,
-  getAppCommentThreads,
-  shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
+  applicationCommentsSelector,
+  getAppCommentThreads,
+  getSortedAndFilteredAppCommentThreadIds,
+  shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -30,10 +30,7 @@ const Container = styled.div`
   overflow: auto;
 `;
 
-function AppCommentThreads() {
-  const dispatch = useDispatch();
-  const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
-  const applicationId = useSelector(getCurrentApplicationId) as string;
+export const useSortedCommentThreadIds = (applicationId: string) => {
   const appCommentThreadsByRefMap = useSelector(
     applicationCommentsSelector(applicationId),
   );
@@ -45,7 +42,7 @@ function AppCommentThreads() {
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
 
-  const commentThreadIds = useMemo(
+  return useMemo(
     () =>
       getSortedAndFilteredAppCommentThreadIds(
         appCommentThreadIds,
@@ -62,6 +59,18 @@ function AppCommentThreads() {
       currentUsername,
     ],
   );
+};
+
+function AppCommentThreads() {
+  const dispatch = useDispatch();
+  const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
+  const applicationId = useSelector(getCurrentApplicationId) as string;
+  const appCommentThreadsByRefMap = useSelector(
+    applicationCommentsSelector(applicationId),
+  );
+  const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+
+  const commentThreadIds = useSortedCommentThreadIds(applicationId);
 
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,

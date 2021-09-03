@@ -14,6 +14,7 @@ import {
 } from "selectors/editorSelectors";
 import { useLocation } from "react-router";
 import { AppState } from "reducers";
+import { useSortedCommentThreadIds } from "../AppComments/AppCommentThreads";
 
 // TODO refactor application comment threads by page id to optimise
 // if lists turn out to be expensive
@@ -64,19 +65,26 @@ export const useSelectCommentThreadUsingQuery = () => {
  * Children set their position themselves
  */
 function Comments({ refId }: { refId: string }) {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const commentsThreadIds = useSelector(
+  const applicationId = useSelector(getCurrentApplicationId) as string;
+  const commentThreadIdsByRef = useSelector(
     refCommentThreadsSelector(refId, applicationId),
   );
+  const commentThreadIds = useSortedCommentThreadIds(
+    applicationId,
+  ).filter((id) => (commentThreadIdsByRef as string[]).includes(id));
   const unpublishedCommentThread = useSelector(
     unpublishedCommentThreadSelector(refId),
   );
   const commentThreadIdInUrl = useSelectCommentThreadUsingQuery();
-
+  // eslint-disable-next-line no-console
+  console.log({
+    commentsThreadIds:
+      Array.isArray(commentThreadIds) && commentThreadIds.reverse(),
+  });
   return (
     <>
-      {Array.isArray(commentsThreadIds) &&
-        commentsThreadIds.map((commentsThreadId: any) => (
+      {Array.isArray(commentThreadIds) &&
+        commentThreadIds.map((commentsThreadId: any) => (
           <MemoisedInlinePageCommentPin
             commentThreadId={commentsThreadId}
             focused={commentThreadIdInUrl === commentsThreadId}
