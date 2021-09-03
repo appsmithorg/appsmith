@@ -89,6 +89,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      defaultText: "",
       maxChars: 255,
       iconAlign: "left",
       autoFocus: false,
