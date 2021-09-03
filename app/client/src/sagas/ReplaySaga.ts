@@ -55,6 +55,7 @@ export function* openPropertyPaneSaga(replay: any) {
     btoa(replay.widgets[replayWidgetId].propertyUpdates.join(".")),
     0,
     flashTimeout,
+    "#E0DEDE",
   );
 }
 
