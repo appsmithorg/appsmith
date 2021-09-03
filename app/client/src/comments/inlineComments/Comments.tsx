@@ -76,11 +76,7 @@ function Comments({ refId }: { refId: string }) {
     unpublishedCommentThreadSelector(refId),
   );
   const commentThreadIdInUrl = useSelectCommentThreadUsingQuery();
-  // eslint-disable-next-line no-console
-  console.log({
-    commentsThreadIds:
-      Array.isArray(commentThreadIds) && commentThreadIds.reverse(),
-  });
+
   return (
     <>
       {Array.isArray(commentThreadIds) &&

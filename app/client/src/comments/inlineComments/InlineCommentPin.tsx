@@ -224,8 +224,7 @@ function InlineCommentPin(props: Props) {
   };
 
   if (!commentThread) return null;
-  // eslint-disable-next-line no-console
-  console.log({ seq: commentThread.sequenceId, id: commentThreadId });
+
   return isPinVisible ? (
     <CommentTriggerContainer
       data-cy="inline-comment-pin"
