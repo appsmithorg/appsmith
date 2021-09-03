@@ -31,7 +31,7 @@ export default memo(function DataCollectionForm() {
   return (
     <DataCollectionFormWrapper>
       <FormHeaderWrapper>
-        <FormHeaderIndex>2/3</FormHeaderIndex>
+        <FormHeaderIndex>2.</FormHeaderIndex>
         <FormHeaderLabel>Usage data preference</FormHeaderLabel>
         <FormHeaderSubtext>
           Data is collected anonymously to improve your experience. <br />

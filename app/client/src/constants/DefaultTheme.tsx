@@ -1218,6 +1218,9 @@ type ColorType = {
     buttonBackgroundHover: string;
   };
   link: string;
+  welcomePage?: {
+    text: string;
+  };
 };
 
 const editorBottomBar = {
@@ -2594,6 +2597,9 @@ export const light: ColorType = {
   actionSidePane,
   pagesEditor,
   link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
 };
 
 export const theme: Theme = {

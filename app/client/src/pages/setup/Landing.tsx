@@ -2,9 +2,10 @@ import React, { memo } from "react";
 import styled from "styled-components";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
 import Button, { Category, Size } from "components/ads/Button";
-import HowAppsmithWorks from "./HowAppsmithWorks";
 import { StyledLink } from "./common";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";
+import { useEffect } from "react";
+import { playOnboardingAnimation } from "utils/helpers";
 
 const LandingPageWrapper = styled.div`
   width: 100%;
@@ -26,11 +27,13 @@ const AppsmithLogoImg = styled.img`
 `;
 
 const ActionContainer = styled.div`
-  margin-top: 72px;
+  margin-top: 32px;
 `;
 
-const StyledHeader = styled.h2`
-  margin: 40px 0px 48px;
+const StyledBanner = styled.h2`
+  margin: 16px 0px;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.welcomePage.text};
 `;
 
 const StyledButton = styled(Button)`
@@ -40,7 +43,10 @@ const StyledButton = styled(Button)`
 `;
 
 const Footer = styled.div`
-  margin-top: 88px;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translate(-50%, 0);
 `;
 
 type LandingPageProps = {
@@ -48,17 +54,23 @@ type LandingPageProps = {
 };
 
 export default memo(function LandingPage(props: LandingPageProps) {
+  useEffect(() => {
+    playOnboardingAnimation();
+  }, []);
   return (
     <LandingPageWrapper>
       <LandingPageContent>
         <LogoContainer>
           <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
         </LogoContainer>
-        <StyledHeader>
-          We’ll quickly get to know you, connect you to your data and your CRUD
-          application will be ready in a jiffy!
-        </StyledHeader>
-        <HowAppsmithWorks />
+        <StyledBanner>
+          Thank you for trying Appsmith.
+          <br />
+          You’ll be building your new app very soon!
+        </StyledBanner>
+        <StyledBanner>
+          We have a few questions to set up your account.
+        </StyledBanner>
         <ActionContainer>
           <StyledButton
             category={Category.primary}

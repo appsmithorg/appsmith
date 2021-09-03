@@ -31,7 +31,7 @@ export default memo(function NewsletterForm(props: NewsletterFormProps) {
   return (
     <NewsletterContainer>
       <FormHeaderWrapper>
-        <FormHeaderIndex>3/3</FormHeaderIndex>
+        <FormHeaderIndex>3.</FormHeaderIndex>
         <FormHeaderLabel>Stay in touch</FormHeaderLabel>
       </FormHeaderWrapper>
       <FormBodyWrapper>

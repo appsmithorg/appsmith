@@ -13,6 +13,7 @@ import { ThemeMode } from "selectors/themeSelectors";
 
 const StyledSetupContainer = styled.div`
   background-color: ${(props) => props.theme.colors.homepageBackground};
+  height: 100vh;
 `;
 
 function Setup() {

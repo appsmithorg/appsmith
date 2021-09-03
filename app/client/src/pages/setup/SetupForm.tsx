@@ -19,6 +19,7 @@ import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword, isValidFullName } from "utils/formhelpers";
 import { AppState } from "reducers";
 import { SUPER_USER_SUBMIT_PATH } from "constants/ApiConstants";
+import { useState } from "react";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -29,6 +30,10 @@ const PageWrapper = styled.div`
 const SetupFormContainer = styled.div`
   width: 496px;
   padding-top: 120px;
+`;
+
+const SetupStep = styled.div<{ active: boolean }>`
+  display: ${(props) => (props.active ? "block" : "none")};
 `;
 
 const LogoContainer = styled.div`
@@ -93,6 +98,7 @@ const validate = (values: DetailsFormValues) => {
 function SetupForm(props: InjectedFormProps & DetailsFormValues) {
   const { valid } = props;
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
+  const [showDetailsForm, setShowDetailsForm] = useState(true);
   const onSubmit = () => {
     const form: HTMLFormElement = document.querySelector(
       "#super-user-form",
@@ -130,9 +136,13 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
           method="POST"
           onSubmit={onSubmit}
         >
-          <DetailsForm {...props} />
-          <DataCollectionForm />
-          <NewsletterForm invalid={!valid} />
+          <SetupStep active={showDetailsForm}>
+            <DetailsForm {...props} />
+          </SetupStep>
+          <SetupStep active={!showDetailsForm}>
+            <DataCollectionForm />
+            <NewsletterForm invalid={!valid} />
+          </SetupStep>
         </form>
         <SpaceFiller />
       </SetupFormContainer>

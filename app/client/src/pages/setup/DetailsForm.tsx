@@ -12,6 +12,7 @@ import {
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderWrapper,
+  StyledButton,
 } from "./common";
 import Dropdown from "components/ads/Dropdown";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
@@ -20,6 +21,8 @@ import FormTextField, {
   FormTextFieldProps,
 } from "components/ads/formFields/TextField";
 import { DetailsFormValues } from "./SetupForm";
+import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
+import { Category, Size } from "components/ads/Button";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -74,8 +77,8 @@ export default memo(function DetailsForm(
   return (
     <DetailsFormWrapper ref={ref}>
       <FormHeaderWrapper>
-        <FormHeaderIndex>1/3</FormHeaderIndex>
-        <FormHeaderLabel>What should we call you?</FormHeaderLabel>
+        <FormHeaderIndex>1.</FormHeaderIndex>
+        <FormHeaderLabel>Let us get to know you better!</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>
         <StyledFormGroup label={createMessage(() => "FULL NAME")}>
@@ -109,6 +112,16 @@ export default memo(function DetailsForm(
         <StyledFormGroup label={createMessage(() => "COMPANY NAME(OPTIONAL)")}>
           <FormTextField name="companyName" placeholder="" type="text" />
         </StyledFormGroup>
+        <ButtonWrapper>
+          <StyledButton
+            category={Category.tertiary}
+            disabled={props.invalid}
+            size={Size.medium}
+            tag="button"
+            text="Next"
+            type="button"
+          />
+        </ButtonWrapper>
       </StyledFormBodyWrapper>
     </DetailsFormWrapper>
   );
