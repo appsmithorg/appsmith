@@ -555,6 +555,7 @@ const lightShades = [
   "#E0DEDE",
   "#EBEBEB",
   "#858282",
+  "#000000",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -801,6 +802,7 @@ type ColorType = {
   };
   tabs: {
     normal: ShadeColor;
+    icon: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
@@ -1714,6 +1716,7 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
+    icon: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
@@ -2305,12 +2308,13 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[6],
+    normal: lightShades[8],
+    icon: lightShades[15],
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
   },
-  settingHeading: lightShades[9],
+  settingHeading: lightShades[16],
   table: {
     headerBg: lightShades[1],
     headerText: lightShades[6],

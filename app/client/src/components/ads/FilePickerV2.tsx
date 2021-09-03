@@ -1,13 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
-import axios from "axios";
-import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
+import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload-v2.svg";
 import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
 import Text, { TextType } from "./Text";
-import { Classes, Variant } from "./common";
+import { Variant } from "./common";
 import { Toaster } from "./Toast";
 import {
   createMessage,
@@ -17,196 +16,29 @@ import {
 import TooltipComponent from "components/ads/Tooltip";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import Icon, { IconSize } from "./Icon";
-const CLOUDINARY_PRESETS_NAME = "";
-const CLOUDINARY_CLOUD_NAME = "";
+import {
+  ContainerDiv,
+  FileEndings,
+  FileType,
+  FilePickerProps,
+} from "./FilePicker";
 
-export const FileEndings = {
-  IMAGE: ".jpeg,.png,.svg",
-  JSON: ".json",
-  TEXT: ".txt",
-  ANY: "*",
-};
-
-export enum FileType {
-  IMAGE = "IMAGE",
-  JSON = "JSON",
-  TEXT = "TEXT",
-  ANY = "ANY",
-}
-
-export type FilePickerProps = {
-  onFileUploaded?: (fileUrl: string) => void;
-  onFileRemoved?: () => void;
-  fileUploader?: FileUploader;
-  url?: string;
-  logoUploadError?: string;
-  fileType: FileType;
-  delayedUpload?: boolean;
-};
-
-export const ContainerDiv = styled.div<{
+const ContainerDivWithBorder = styled(ContainerDiv)<{
   isUploaded: boolean;
   isActive: boolean;
   canDrop: boolean;
   fileType: FileType;
 }>`
-  width: 320px;
-  height: 190px;
-  background-color: ${(props) => props.theme.colors.filePicker.bg};
-  position: relative;
-
-  #fileInput {
-    display: none;
-  }
-
-  .drag-drop-text {
-    margin: ${(props) => props.theme.spaces[6]}px 0
-      ${(props) => props.theme.spaces[6]}px 0;
-    color: ${(props) => props.theme.colors.filePicker.color};
-  }
-
-  .upload-form-container {
-    width: 100%;
-    height: 100%;
-    display: grid;
-    place-items: center;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-  }
-
-  .centered {
-    justify-content: center;
-    flex-direction: column;
-    align-items: center;
-
-    .success-container {
-      display: flex;
-      align-items: center;
-      .success-icon {
-        margin-right: ${(props) => props.theme.spaces[4]}px;
-      }
-
-      .success-text {
-        color: #03b365;
-        margin-right: ${(props) => props.theme.spaces[4]}px;
-      }
-    }
-  }
-
-  .file-description {
-    width: 95%;
-    margin: 0 auto;
-    margin-top: ${(props) =>
-      props.fileType === FileType.IMAGE ? "auto" : "0px"};
-    margin-bottom: ${(props) => props.theme.spaces[6] + 1}px;
-    display: none;
-  }
-
-  .file-spec {
-    margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    span {
-      margin-right: ${(props) => props.theme.spaces[4]}px;
-    }
-  }
-
-  .progress-container {
-    width: 100%;
-    background: ${(props) => props.theme.colors.filePicker.progress};
-    transition: height 0.2s;
-  }
-
-  .progress-inner {
-    background-color: ${(props) => props.theme.colors.success.light};
-    transition: width 0.4s ease;
-    height: ${(props) => props.theme.spaces[1]}px;
-    border-radius: ${(props) => props.theme.spaces[1] - 1}px;
-    width: 0%;
-  }
-
-  .button-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .remove-button {
-    display: none;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: linear-gradient(
-      180deg,
-      ${(props) => props.theme.colors.filePicker.shadow.from},
-      ${(props) => props.theme.colors.filePicker.shadow.to}
-    );
-    opacity: 0.6;
-    width: 100%;
-
-    a {
-      width: 110px;
-      margin: ${(props) => props.theme.spaces[13]}px
-        ${(props) => props.theme.spaces[3]}px
-        ${(props) => props.theme.spaces[3]}px auto;
-      .${Classes.ICON} {
-        margin-right: ${(props) => props.theme.spaces[2] - 1}px;
-      }
-    }
-  }
-
-  &:hover {
-    .remove-button {
-      display: ${(props) => (props.isUploaded ? "block" : "none")};
-    }
-  }
+  width: 100%;
+  height: 188px;
+  font-family: "SF Pro Text";
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23F86A2B' stroke-width='1.2' stroke-dasharray='6.4%2c 6.4' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
 `;
 
 const IconWrapper = styled.div`
   width: ${(props) => props.theme.spaces[9]}px;
   padding-left: ${(props) => props.theme.spaces[2]}px;
 `;
-
-export type SetProgress = (percentage: number) => void;
-export type UploadCallback = (url: string) => void;
-export type FileUploader = (
-  file: any,
-  setProgress: SetProgress,
-  onUpload: UploadCallback,
-) => void;
-
-export function CloudinaryUploader(
-  file: any,
-  setProgress: SetProgress,
-  onUpload: UploadCallback,
-) {
-  const formData = new FormData();
-  formData.append("upload_preset", CLOUDINARY_PRESETS_NAME);
-  if (file) {
-    formData.append("file", file);
-  }
-  axios
-    .post(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        onUploadProgress: function(progressEvent: ProgressEvent) {
-          const uploadPercentage = Math.round(
-            (progressEvent.loaded / progressEvent.total) * 100,
-          );
-          setProgress(uploadPercentage);
-        },
-      },
-    )
-    .then((data) => {
-      onUpload(data.data.url);
-    })
-    .catch((error) => {
-      console.error("error in file uploading", error);
-    });
-}
 
 function FilePickerComponent(props: FilePickerProps) {
   const { fileType, logoUploadError } = props;
@@ -462,7 +294,7 @@ function FilePickerComponent(props: FilePickerProps) {
   );
 
   return (
-    <ContainerDiv
+    <ContainerDivWithBorder
       canDrop={canDrop}
       fileType={fileType}
       isActive={isActive}
@@ -470,11 +302,11 @@ function FilePickerComponent(props: FilePickerProps) {
       ref={drop}
     >
       {fileType === FileType.IMAGE ? imageUploadComponent : uploadComponent}
-    </ContainerDiv>
+    </ContainerDivWithBorder>
   );
 }
 
-function FilePicker(props: FilePickerProps) {
+function FilePickerV2(props: FilePickerProps) {
   return (
     <DndProvider backend={HTML5Backend}>
       <FilePickerComponent {...props} />
@@ -482,4 +314,4 @@ function FilePicker(props: FilePickerProps) {
   );
 }
 
-export default FilePicker;
+export default FilePickerV2;
