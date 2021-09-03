@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
