@@ -191,6 +191,9 @@ export const SHOW_REQUEST = () => `Show Request`;
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT = () =>
   `Change column datatype to see filter operators`;
 
+export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
+  "Don't worry about saving, we've got you covered!";
+
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `To add a widget, please drag and drop a widget on the canvas to the right`;
