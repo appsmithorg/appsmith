@@ -56,7 +56,8 @@ const SnippetContainer = styled.div`
       right: 4px;
       display: flex;
       transition: 0.2s opacity ease;
-      background: #f0f0f0;
+      background: ${(props) =>
+        props.theme.colors.globalSearch.documentationCodeBackground};
       justify-content: space-between;
     }
     .action-icons > * {
@@ -66,7 +67,7 @@ const SnippetContainer = styled.div`
       &:hover {
         transform: scale(1.1);
       }
-      margin: 6px;
+      margin: ${(props) => props.theme.spaces[2]}px;
     }
     &:hover {
       .t--copy-snippet {
@@ -74,7 +75,8 @@ const SnippetContainer = styled.div`
       }
     }
     pre {
-      padding: 25px 12px !important;
+      padding: ${(props) => props.theme.spaces[11]}px
+        ${(props) => props.theme.spaces[5]}px !important;
       margin: 0 !important;
       background: ${(props) =>
         props.theme.colors.globalSearch.codeBackground} !important;
@@ -83,9 +85,8 @@ const SnippetContainer = styled.div`
     }
   }
   .snippet-title {
-    color: #090707;
-    font-size: 17px;
-    font-weight: 500;
+    color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
+    ${(props) => getTypographyByKey(props, "h3")}
     display: flex;
     justify-content: space-between;
     .action-msg {
@@ -96,9 +97,8 @@ const SnippetContainer = styled.div`
     }
   }
   .snippet-desc {
-    color: #4b4848;
-    font-size: 14px;
-    font-weight: 400;
+    color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+    ${(props) => getTypographyByKey(props, "p1")}
     margin: 10px 0;
   }
   .snippet-group {
@@ -127,10 +127,6 @@ const SnippetContainer = styled.div`
         }
       }
     }
-    .danger {
-      color: red;
-      font-size: 12px;
-    }
   }
   .tab-container {
     border-top: none;
@@ -138,7 +134,8 @@ const SnippetContainer = styled.div`
       background: white !important;
       height: auto !important;
       overflow: clip;
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid
+        ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
       code {
         .token.arrow {
           background: transparent !important;
@@ -147,15 +144,6 @@ const SnippetContainer = styled.div`
       .actions-container {
         display: flex;
         margin: 30px 0 15px;
-        button {
-          margin-right: 5px;
-        }
-        .copy-snippet-btn {
-          border: 2px solid #a9a7a7;
-          color: #a9a7a7;
-          background: white;
-          transition: 0.5s;
-        }
       }
     }
     .react-tabs__tab-list {

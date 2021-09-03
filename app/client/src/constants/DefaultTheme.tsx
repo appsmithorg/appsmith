@@ -994,6 +994,7 @@ type ColorType = {
     emptyStateText: string;
     navigateUsingEnterSection: string;
     codeBackground: string;
+    documentationCodeBackground: string;
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
@@ -1350,6 +1351,7 @@ const globalSearch = {
   emptyStateText: "#A9A7A7",
   navigateUsingEnterSection: "white",
   codeBackground: "#ffffff",
+  documentationCodeBackground: "#f0f0f0",
   documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",

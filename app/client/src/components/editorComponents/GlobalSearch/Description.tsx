@@ -90,7 +90,8 @@ const Container = styled.div`
   }
 
   pre {
-    background: #f0f0f0 !important;
+    background: ${(props) =>
+      props.theme.colors.globalSearch.documentationCodeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
     border-left: 3px solid #f86a2b;
