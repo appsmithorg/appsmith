@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import styled from "styled-components";
 import {
   Field,
@@ -6,13 +6,11 @@ import {
   WrappedFieldInputProps,
   WrappedFieldMetaProps,
 } from "redux-form";
-import { useState } from "react";
 import {
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderWrapper,
-  StyledButton,
 } from "./common";
 import Dropdown from "components/ads/Dropdown";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
@@ -22,7 +20,8 @@ import FormTextField, {
 } from "components/ads/formFields/TextField";
 import { DetailsFormValues } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import { Category, Size } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
+import { OptionType, roleOptions, useCaseOptions } from "./constants";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -35,7 +34,7 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
 
-const RoleDropdownWrapper = styled(StyledFormGroup)`
+const DropdownWrapper = styled(StyledFormGroup)`
   && {
     margin-bottom: 33px;
   }
@@ -44,33 +43,36 @@ const RoleDropdownWrapper = styled(StyledFormGroup)`
   }
 `;
 
-function Fieldropdown(
-  ComponentProps: FormTextFieldProps & {
-    meta: Partial<WrappedFieldMetaProps>;
-    input: Partial<WrappedFieldInputProps>;
-  },
-) {
-  function onSelect(value?: string, option: options = {}) {
-    ComponentProps.input.onChange && ComponentProps.input.onChange(value);
-    ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
-    setSelected(option);
-  }
+function withDropdown(options: OptionType[]) {
+  return function Fieldropdown(
+    ComponentProps: FormTextFieldProps & {
+      meta: Partial<WrappedFieldMetaProps>;
+      input: Partial<WrappedFieldInputProps>;
+    },
+  ) {
+    function onSelect(value?: string) {
+      ComponentProps.input.onChange && ComponentProps.input.onChange(value);
+      ComponentProps.input.onBlur && ComponentProps.input.onBlur(value);
+    }
 
-  const [selected, setSelected] = useState<options>({});
+    const selected =
+      options.find((option) => option.value == ComponentProps.input.value) ||
+      {};
 
-  return (
-    <Dropdown
-      onSelect={onSelect}
-      options={roleOptions}
-      selected={selected}
-      showLabelOnly
-      width="260px"
-    />
-  );
+    return (
+      <Dropdown
+        onSelect={onSelect}
+        options={options}
+        selected={selected}
+        showLabelOnly
+        width="260px"
+      />
+    );
+  };
 }
 
-export default memo(function DetailsForm(
-  props: InjectedFormProps & DetailsFormValues,
+export default function DetailsForm(
+  props: InjectedFormProps & DetailsFormValues & { onNext?: () => void },
 ) {
   const ref = React.createRef<HTMLDivElement>();
 
@@ -93,29 +95,36 @@ export default memo(function DetailsForm(
         <StyledFormGroup label={createMessage(() => "VERIFY PASSWORD")}>
           <FormTextField name="verifyPassword" placeholder="" type="password" />
         </StyledFormGroup>
-        <RoleDropdownWrapper
-          label={createMessage(() => "WHAT ROLE DO YOU PLAY?")}
-        >
+        <DropdownWrapper label={createMessage(() => "WHAT ROLE DO YOU PLAY?")}>
           <Field
             asyncControl
-            component={Fieldropdown}
+            component={withDropdown(roleOptions)}
             name="role"
             placeholder=""
             type="text"
           />
-        </RoleDropdownWrapper>
+        </DropdownWrapper>
         {props.role == "other" && (
           <StyledFormGroup label={createMessage(() => "ROLE")}>
             <FormTextField name="role_name" placeholder="" type="text" />
           </StyledFormGroup>
         )}
-        <StyledFormGroup label={createMessage(() => "COMPANY NAME(OPTIONAL)")}>
-          <FormTextField name="companyName" placeholder="" type="text" />
-        </StyledFormGroup>
+        <DropdownWrapper
+          label={createMessage(() => "Tell us about your use case")}
+        >
+          <Field
+            asyncControl
+            component={withDropdown(useCaseOptions)}
+            name="useCase"
+            placeholder=""
+            type="text"
+          />
+        </DropdownWrapper>
         <ButtonWrapper>
-          <StyledButton
+          <Button
             category={Category.tertiary}
             disabled={props.invalid}
+            onClick={props.onNext}
             size={Size.medium}
             tag="button"
             text="Next"
@@ -125,36 +134,4 @@ export default memo(function DetailsForm(
       </StyledFormBodyWrapper>
     </DetailsFormWrapper>
   );
-});
-
-type options = {
-  label?: string;
-  value?: string;
-};
-
-const roleOptions: options[] = [
-  {
-    label: "Engineer",
-    value: "engineer",
-  },
-  {
-    label: "Product manager",
-    value: "product manager",
-  },
-  {
-    label: "Founder",
-    value: "founder",
-  },
-  {
-    label: "Operations",
-    value: "operations",
-  },
-  {
-    label: "Business Analyst",
-    value: "business analyst",
-  },
-  {
-    label: "Other",
-    value: "other",
-  },
-];
+}

@@ -1,7 +1,7 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Category, Size } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
 import Toggle from "components/ads/Toggle";
 import {
   AllowToggle,
@@ -12,9 +12,13 @@ import {
   FormHeaderIndex,
   FormHeaderLabel,
   FormHeaderWrapper,
-  StyledButton,
 } from "./common";
 import { memo } from "react";
+
+export const StyledButton = styled(Button)`
+  width: 201px;
+  height: 38px;
+`;
 
 const NewsletterContainer = styled.div`
   widht: 100%;
@@ -23,11 +27,7 @@ const NewsletterContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[12] * 2}px;
 `;
 
-type NewsletterFormProps = {
-  invalid: boolean;
-};
-
-export default memo(function NewsletterForm(props: NewsletterFormProps) {
+export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
       <FormHeaderWrapper>
@@ -44,7 +44,6 @@ export default memo(function NewsletterForm(props: NewsletterFormProps) {
         <ButtonWrapper>
           <StyledButton
             category={Category.primary}
-            disabled={props.invalid}
             size={Size.medium}
             tag="button"
             text="Make your first App"

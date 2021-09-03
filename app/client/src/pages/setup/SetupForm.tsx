@@ -6,7 +6,7 @@ import DetailsForm from "./DetailsForm";
 import NewsletterForm from "./NewsletterForm";
 import AppsmithLogo from "assets/images/appsmith_logo.png";
 import {
-  WELCOME_FORM_COMPANY_FIELD_NAME,
+  WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_FORM_EMAIL_FIELD_NAME,
   WELCOME_FORM_NAME,
   WELCOME_FORM_NAME_FIELD_NAME,
@@ -62,7 +62,7 @@ export type DetailsFormValues = {
   password?: string;
   verifyPassword?: string;
   role?: string;
-  company?: string;
+  useCase?: string;
   role_name?: string;
 };
 
@@ -92,11 +92,14 @@ const validate = (values: DetailsFormValues) => {
     errors.role_name = "Please enter a role";
   }
 
+  if (!values.useCase) {
+    errors.useCase = "Please select a use case";
+  }
+
   return errors;
 };
 
 function SetupForm(props: InjectedFormProps & DetailsFormValues) {
-  const { valid } = props;
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const onSubmit = () => {
@@ -106,21 +109,27 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
-    const input = document.createElement("input");
+    const roleInput = document.createElement("input");
     verifyPassword.removeAttribute("name");
-    input.type = "text";
-    input.name = "role";
+    roleInput.type = "text";
+    roleInput.name = "role";
+    roleInput.style.display = "none";
     if (props.role != "other") {
-      input.value = props.role as string;
+      roleInput.value = props.role as string;
     } else {
-      input.value = props.role_name as string;
-      const roleInput: HTMLInputElement = document.querySelector(
+      roleInput.value = props.role_name as string;
+      const roleNameInput: HTMLInputElement = document.querySelector(
         `[name="role_name"]`,
       ) as HTMLInputElement;
-      if (roleInput) roleInput.remove();
+      if (roleNameInput) roleNameInput.remove();
     }
-    input.style.display = "none";
-    form.appendChild(input);
+    form.appendChild(roleInput);
+    const useCaseInput = document.createElement("input");
+    useCaseInput.type = "text";
+    useCaseInput.name = "useCase";
+    useCaseInput.value = props.useCase as string;
+    useCaseInput.style.display = "none";
+    form.appendChild(useCaseInput);
     return true;
   };
 
@@ -137,11 +146,11 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
           onSubmit={onSubmit}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} />
+            <DetailsForm {...props} onNext={() => setShowDetailsForm(false)} />
           </SetupStep>
           <SetupStep active={!showDetailsForm}>
             <DataCollectionForm />
-            <NewsletterForm invalid={!valid} />
+            <NewsletterForm />
           </SetupStep>
         </form>
         <SpaceFiller />
@@ -159,7 +168,7 @@ export default connect((state: AppState) => {
     verify_password: selector(state, WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME),
     role: selector(state, WELCOME_FORM_ROLE_FIELD_NAME),
     role_name: selector(state, WELCOME_FORM_ROLE_NAME_FIELD_NAME),
-    company: selector(state, WELCOME_FORM_COMPANY_FIELD_NAME),
+    useCase: selector(state, WELCOME_FORM_USECASE_FIELD_NAME),
   };
 }, null)(
   reduxForm<DetailsFormValues>({

@@ -1,4 +1,3 @@
-import Button from "components/ads/Button";
 import styled from "styled-components";
 
 export const FormHeaderWrapper = styled.div`
@@ -8,7 +7,7 @@ export const FormHeaderWrapper = styled.div`
 export const FormHeaderLabel = styled.h5`
   width: 100%;
   font-size: 20px;
-  margin: 8px 0 8px;
+  margin: 8px 0 16px;
   font-weight: 500;
 `;
 
@@ -50,11 +49,6 @@ export const AllowToggle = styled.div`
 export const AllowToggleLabel = styled.p`
   margin-bottom: 0px;
   margin-top: 2px;
-`;
-
-export const StyledButton = styled(Button)`
-  width: 201px;
-  height: 38px;
 `;
 
 export const StyledLink = styled.a`
