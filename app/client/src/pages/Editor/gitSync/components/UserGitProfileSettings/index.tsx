@@ -48,12 +48,14 @@ const TitleWrapper = styled.div`
 
 const OptionWrapper = styled.div<{
   selected: boolean;
+  width: string;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
   cursor: pointer;
   display: flex;
   align-items: center;
+  width: ${(props) => props.width};
 
   background-color: ${(props) =>
     props.selected ? props.theme.colors.propertyPane.dropdownSelectBg : null};
@@ -75,21 +77,23 @@ function AuthConfig({ authType }: AuthConfigProps) {
           <InputContainer>
             <Dropdown
               disabled={SSH_PROFILE_OPTION.length === 0}
+              fillOptions
               onSelect={() => {
                 //
               }}
-              // optionWidth="100%"
               options={SSH_PROFILE_OPTION}
               renderOption={({
                 isSelectedNode,
                 option,
                 optionClickHandler,
+                optionWidth,
               }) => (
                 <OptionWrapper
                   onClick={() =>
                     optionClickHandler && optionClickHandler(option)
                   }
                   selected={!!isSelectedNode}
+                  width={optionWidth || ""}
                 >
                   <Text type={TextType.P1}>{option.label}</Text>
                 </OptionWrapper>
