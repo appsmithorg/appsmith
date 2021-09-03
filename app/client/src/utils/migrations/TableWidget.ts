@@ -17,6 +17,19 @@ import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
 
+export const getSubstringBetweenTwoWords = (
+  str: string,
+  startWord: string,
+  endWord: string,
+) => {
+  const endIndexOfStartWord = str.indexOf(startWord) + startWord.length;
+  const startIndexOfEndWord = str.lastIndexOf(endWord);
+
+  if (startIndexOfEndWord < endIndexOfStartWord) return "";
+
+  return str.substring(startIndexOfEndWord, endIndexOfStartWord);
+};
+
 export const tableWidgetPropertyPaneMigrations = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -325,10 +338,6 @@ export const migrateTableSanitizeColumnKeys = (
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
     if (child.type === WidgetTypes.TABLE_WIDGET) {
-      // primaryColumnKeyTuples keeps track of the keys that were sanitized
-      // these keys can be updated elsewhere
-      const primaryColumnKeyTuples: [string, string][] = [];
-
       const primaryColumnEntries: [string, ColumnProperties][] = Object.entries(
         child.primaryColumns || {},
       );
@@ -338,10 +347,6 @@ export const migrateTableSanitizeColumnKeys = (
         for (const [key, value] of primaryColumnEntries) {
           const sanitizedKey = removeSpecialChars(key, 200);
           const id = removeSpecialChars(value.id, 200);
-
-          if (sanitizedKey !== key) {
-            primaryColumnKeyTuples.push([key, sanitizedKey]);
-          }
 
           // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
           // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
@@ -366,23 +371,31 @@ export const migrateTableSanitizeColumnKeys = (
         removeSpecialChars(co, 200),
       );
 
-      // Sanitizes [ {key: primaryColumns.$$$random_header.computedValue }]
+      // Sanitizes [ {key: primaryColumns.$random.header.computedValue }]
       // to [ {key: primaryColumns._random_header.computedValue }]
       child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
         (path) => {
-          const sanitizedPrimaryColumnKey = primaryColumnKeyTuples.find(
-            ([oldKey]) => path.key.includes(oldKey),
-          );
+          const pathChunks = path.key.split("."); // primaryColumns.$random.header.computedValue -> [ "primaryColumns", "$random", "header", "computedValue"]
 
-          if (sanitizedPrimaryColumnKey) {
-            const [key, sanitizedKey] = sanitizedPrimaryColumnKey;
-
-            return {
-              key: path.key.replace(key, sanitizedKey),
-            };
+          // tableData is a valid dynamicBindingPath and pathChunks would have just one entry
+          if (pathChunks.length < 2) {
+            return path;
           }
 
-          return path;
+          const firstPart = pathChunks[0] + "."; // "primaryColumns."
+          const lastPart = "." + pathChunks[pathChunks.length - 1]; // ".computedValue"
+
+          const key = getSubstringBetweenTwoWords(
+            path.key,
+            firstPart,
+            lastPart,
+          ); // primaryColumns.$random.header.computedValue -> $random.header
+
+          const sanitizedPrimaryColumnKey = removeSpecialChars(key, 200);
+
+          return {
+            key: firstPart + sanitizedPrimaryColumnKey + lastPart,
+          };
         },
       );
     } else if (child.children && child.children.length > 0) {

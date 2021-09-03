@@ -5,6 +5,7 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTableSanitizeColumnKeys,
+  getSubstringBetweenTwoWords,
 } from "./TableWidget";
 
 const input1: ContainerWidgetProps<WidgetProps> = {
@@ -1202,6 +1203,26 @@ describe("Table Widget Property Pane Upgrade", () => {
     };
     const newDsl = migrateTableWidgetHeaderVisibilityProperties(inputDsl);
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl));
+  });
+});
+
+describe("#getSubstringBetweenTwoWords", () => {
+  it("returns substring between 2 words from a string", () => {
+    const input: [string, string, string][] = [
+      ["aaa.bbb.ccc", "aaa.", ".ccc"],
+      ["aaa.bbb.bbb.ccc", "aaa.", ".ccc"],
+      ["aaa.aaa.aaa.aaa", "aaa", "aaa"],
+      ["aaa...aaa.aaa.aaa", "aaa", "aaa"],
+      ["aaa..bbb", "aaa.", ".bbb"],
+      ["aaa.bbb", "aaa.", ".bbb"],
+      ["aaabbb", "aaab", "abbb"],
+    ];
+
+    const output = ["bbb", "bbb.bbb", ".aaa.aaa.", "...aaa.aaa.", "", "", ""];
+
+    input.forEach((inp, index) => {
+      expect(getSubstringBetweenTwoWords(...inp)).toBe(output[index]);
+    });
   });
 });
 
