@@ -177,7 +177,7 @@ export default {
       const columnData = columnProperties;
       columns.push(columnData);
     }
-    return columns;
+    return columns.filter((column) => column.accessor);
   },
   //
   getFilteredTableData: (props, moment, _) => {
