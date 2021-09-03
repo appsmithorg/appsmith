@@ -1,0 +1,45 @@
+{
+  "editor": [
+    {
+      "label": "Select Method",
+      "description": "Choose method you would like to use to query the database",
+      "configProperty": "actionConfiguration.formData.command",
+      "controlType": "DROP_DOWN",
+      "initialValue": "FIND",
+      "options": [
+        {
+          "label": "Fetch",
+          "fileName" : "fetch.json"
+        },
+        {
+          "label": "Insert",
+          "fileName" : "insert.json"
+        },
+        {
+          "label": "Update",
+          "fileName" : "update.json"
+        },
+        {
+          "label": "Delete",
+          "fileName" : "delete.json"
+        },
+        {
+          "label": "Count",
+          "fileName" : "count.json"
+        },
+        {
+          "label": "Distinct",
+          "fileName" : "distinct.json"
+        },
+        {
+          "label": "Aggregate",
+          "fileName" : "aggregate.json"
+        },
+        {
+          "label": "Raw",
+          "fileName" : "raw.json"
+        }
+      ]
+    }
+  ]
+}

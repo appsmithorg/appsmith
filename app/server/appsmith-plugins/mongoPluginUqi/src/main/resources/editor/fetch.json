@@ -1,0 +1,61 @@
+{
+  "identifier": "FIND",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'FIND_ONE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select Collection to Query",
+      "children": [
+        {
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "children": [
+        {
+          "label": "Query",
+          "configProperty": "actionConfiguration.formData.findCmdForm.query",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{rating : {$gte : 9}}"
+        },
+        {
+          "label": "Sort",
+          "configProperty": "actionConfiguration.formData.findCmdForm.sort",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{name : 1}"
+        },
+        {
+          "label": "Projection",
+          "configProperty": "actionConfiguration.formData.findCmdForm.projection",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{name : 1}"
+        },
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.findCmdForm.limit",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "10"
+        },
+        {
+          "label": "Skip",
+          "configProperty": "actionConfiguration.formData.findCmdForm.skip",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "0"
+        }
+      ]
+    }
+  ]
+}
