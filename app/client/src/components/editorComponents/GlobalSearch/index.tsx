@@ -537,7 +537,8 @@ function GlobalSearch() {
                 setCategory={setCategory}
                 setQuery={setQuery}
               />
-              {refinements &&
+              {isSnippet(category) &&
+                refinements &&
                 refinements.entities &&
                 refinements.entities.length && <SnippetRefinements />}
               <div className="main">

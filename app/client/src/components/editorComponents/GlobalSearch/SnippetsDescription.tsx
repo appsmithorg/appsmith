@@ -197,6 +197,9 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     evaluatedArguments = useSelector(
       (state: AppState) =>
         state.ui.globalSearch.filterContext.evaluatedArguments,
+    ),
+    shouldInsertSnippet = useSelector(
+      (state: AppState) => state.ui.globalSearch.filterContext.insertSnippet,
     );
 
   const handleArgsValidation = useCallback(
@@ -372,7 +375,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
-        <span className="action-msg">{createMessage(SEARCH_ITEM_SELECT)}</span>
+        {shouldInsertSnippet && (
+          <span className="action-msg">
+            {createMessage(SEARCH_ITEM_SELECT)}
+          </span>
+        )}
       </div>
       <div className="snippet-desc">{summary}</div>
       <TabbedViewContainer className="tab-container">
