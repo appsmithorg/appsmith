@@ -19,6 +19,7 @@ const CenteredIcon = styled(Icon)`
 const PrimaryBox = styled.div`
   display: flex;
   flex-direction: column;
+  width: min-content;
   border: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   padding: 10px;
   border-radius: 5px;
@@ -27,6 +28,7 @@ const PrimaryBox = styled.div`
 const SecondaryBox = styled.div`
   display: flex;
   flex-direction: row;
+  width: min-content;
   align-items: center;
   justify-content: space-between;
   padding: 5px;
