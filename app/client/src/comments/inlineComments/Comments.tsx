@@ -80,13 +80,15 @@ function Comments({ refId }: { refId: string }) {
   return (
     <>
       {Array.isArray(commentThreadIds) &&
-        commentThreadIds.map((commentsThreadId: any) => (
-          <MemoisedInlinePageCommentPin
-            commentThreadId={commentsThreadId}
-            focused={commentThreadIdInUrl === commentsThreadId}
-            key={commentsThreadId}
-          />
-        ))}
+        commentThreadIds
+          .reverse()
+          .map((commentsThreadId: any) => (
+            <MemoisedInlinePageCommentPin
+              commentThreadId={commentsThreadId}
+              focused={commentThreadIdInUrl === commentsThreadId}
+              key={commentsThreadId}
+            />
+          ))}
       {/**
        * Exists in store, not yet created in db
        * Its kept separately in state to reset easily
