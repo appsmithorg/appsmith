@@ -35,7 +35,7 @@ export type WidgetMoveParams = {
   allWidgets: CanvasWidgetsReduxState;
 };
 
-function* updateCanvasSizeAfterWidgetMove(
+export function* updateCanvasSizeAfterWidgetMove(
   canvasWidgetId: string,
   movedWidgetsBottomRow: number,
 ) {

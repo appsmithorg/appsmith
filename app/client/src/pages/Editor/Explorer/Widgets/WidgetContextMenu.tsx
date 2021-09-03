@@ -9,7 +9,7 @@ import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetTypes } from "constants/WidgetConstants";
 import { WidgetReduxActionTypes } from "constants/ReduxActionConstants";
 
 export function WidgetContextMenu(props: {
@@ -39,12 +39,7 @@ export function WidgetContextMenu(props: {
       const filteredTabs = Object.values(tabsObj);
       if (widget.parentId && !!filteredTabs.length) {
         dispatch(
-          updateWidgetPropertyRequest(
-            widget.parentId,
-            "tabsObj",
-            tabsObj,
-            RenderModes.CANVAS,
-          ),
+          updateWidgetPropertyRequest(widget.parentId, "tabsObj", tabsObj),
         );
       }
 

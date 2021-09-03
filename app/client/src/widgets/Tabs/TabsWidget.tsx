@@ -11,10 +11,9 @@ import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WidgetOperations } from "widgets/BaseWidget";
 import * as Sentry from "@sentry/react";
-import { generateReactKey } from "utils/generators";
 import withMeta, { WithMeta } from "../MetaHOC";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { WidgetProperties } from "selectors/propertyPaneSelectors";
 
 export function selectedTabValidation(
   value: unknown,
@@ -47,6 +46,31 @@ class TabsWidget extends BaseWidget<
             controlType: "TABS_INPUT",
             isBindProperty: false,
             isTriggerProperty: false,
+            updateRelatedWidgetProperties: (
+              propertyPath: string,
+              propertyValue: string,
+              props: WidgetProperties,
+            ) => {
+              const propertyPathSplit = propertyPath.split(".");
+              const property = propertyPathSplit.pop();
+              if (property === "label") {
+                const itemId = propertyPathSplit.pop() || "";
+                const item = props.tabsObj[itemId];
+                if (item) {
+                  return [
+                    {
+                      widgetId: item.widgetId,
+                      updates: {
+                        modify: {
+                          tabName: propertyValue,
+                        },
+                      },
+                    },
+                  ];
+                }
+              }
+              return [];
+            },
             panelConfig: {
               editableTitle: true,
               titlePropertyName: "label",
@@ -217,54 +241,6 @@ class TabsWidget extends BaseWidget<
     return "TABS_WIDGET";
   }
 
-  addTabContainer = (widgetIds: string[]) => {
-    const tabs = Object.values(this.props.tabsObj || {});
-    widgetIds.forEach((newWidgetId: string) => {
-      const tab = _.find(tabs, {
-        widgetId: newWidgetId,
-      });
-      if (tab) {
-        const columns =
-          (this.props.rightColumn - this.props.leftColumn) *
-          this.props.parentColumnSpace;
-        // GRID_DENSITY_MIGRATION_V1 used to adjust code as per new scaled canvas.
-        const rows =
-          (this.props.bottomRow -
-            this.props.topRow -
-            GRID_DENSITY_MIGRATION_V1) *
-          this.props.parentRowSpace;
-        const config = {
-          type: WidgetTypes.CANVAS_WIDGET,
-          columns: columns,
-          rows: rows,
-          topRow: 1,
-          newWidgetId,
-          widgetId: this.props.widgetId,
-          leftColumn: 0,
-          rightColumn:
-            (this.props.rightColumn - this.props.leftColumn) *
-            this.props.parentColumnSpace,
-          bottomRow:
-            (this.props.bottomRow - this.props.topRow) *
-            this.props.parentRowSpace,
-          props: {
-            tabId: tab.id,
-            tabName: tab.label,
-            containerStyle: "none",
-            canExtend: false,
-            detachFromLayout: true,
-            children: [],
-          },
-        };
-        this.updateWidget(
-          WidgetOperations.ADD_CHILD,
-          this.props.widgetId,
-          config,
-        );
-      }
-    });
-  };
-
   updateTabContainerNames = () => {
     this.props.children.forEach((each) => {
       const tab = this.props.tabsObj[each.tabId];
@@ -277,59 +253,7 @@ class TabsWidget extends BaseWidget<
     });
   };
 
-  removeTabContainer = (widgetIds: string[]) => {
-    widgetIds.forEach((widgetIdToRemove: string) => {
-      this.updateWidget(WidgetOperations.DELETE, widgetIdToRemove, {
-        parentId: this.props.widgetId,
-      });
-    });
-  };
-
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (
-      JSON.stringify(this.props.tabsObj) !== JSON.stringify(prevProps.tabsObj)
-    ) {
-      const tabWidgetIds = Object.values(this.props.tabsObj).map(
-        (tab) => tab.widgetId,
-      );
-      const childWidgetIds = this.props.children
-        .filter(Boolean)
-        .map((child) => child.widgetId);
-      // If the tabs and children are different,
-      // add and/or remove tab container widgets
-
-      if (_.xor(childWidgetIds, tabWidgetIds).length > 0) {
-        const widgetIdsToRemove: string[] = _.without(
-          childWidgetIds,
-          ...tabWidgetIds,
-        );
-        const widgetIdsToCreate: string[] = _.without(
-          tabWidgetIds,
-          ...childWidgetIds,
-        );
-        if (widgetIdsToCreate && widgetIdsToCreate.length) {
-          this.addTabContainer(widgetIdsToCreate);
-        }
-        if (widgetIdsToRemove && widgetIdsToRemove.length) {
-          this.removeTabContainer(widgetIdsToRemove);
-        }
-      }
-      this.updateTabContainerNames();
-
-      // If all tabs were removed.
-      if (tabWidgetIds.length === 0) {
-        const newTabContainerWidgetId = generateReactKey();
-        const tabs = {
-          tab1: {
-            id: "tab1",
-            widgetId: newTabContainerWidgetId,
-            label: "Tab 1",
-            index: 0,
-          },
-        };
-        this.updateWidgetProperty("tabsObj", tabs);
-      }
-    }
     const visibleTabs = this.getVisibleTabs();
     if (this.props.defaultTab) {
       if (this.props.defaultTab !== prevProps.defaultTab) {

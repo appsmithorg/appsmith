@@ -219,7 +219,6 @@ function* listenForAddInputWidget() {
             inputWidget.widgetId,
             "widgetName",
             "Standup_Input",
-            RenderModes.CANVAS,
           ),
         );
         yield put(
@@ -272,7 +271,6 @@ function* listenForAddInputWidget() {
               inputWidget.widgetId,
               "onSubmit",
               "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-              RenderModes.CANVAS,
             ),
           );
           AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -819,7 +817,6 @@ function* addOnSubmitHandler() {
           inputWidget.widgetId,
           "onSubmit",
           "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-          RenderModes.CANVAS,
         ),
       );
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -853,7 +850,6 @@ function* addBinding() {
         standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
-        RenderModes.CANVAS,
       ),
     );
 
