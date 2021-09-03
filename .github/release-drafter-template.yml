@@ -28,25 +28,24 @@ version-resolver:
     labels:
       - 'Patch'
   default: patch
-
 template: |
-  ## What's new?
+  ## Changes
 
   $CHANGES
 
 # The below configurations will label our PRs automatically
-autolabeler:
-  - label: 'Chore'
-    title:
-      - '/chore/i'
-      - '/docs/i'
-  - label: 'Test'
-    title:
-      - '/test/i'
-  - label: 'Bug'
-    title:
-      - '/fix/i'
-  - label: 'Enhancement'
-    title:
-      - '/feature\/.+/'
-      - '/feat/i'
+# autolabeler:
+#   - label: 'Chore'
+#     title:
+#       - '/chore/i'
+#       - '/docs/i'
+#   - label: 'Test'
+#     title:
+#       - '/test/i'
+#   - label: 'Bug'
+#     title:
+#       - '/fix/i'
+#   - label: 'Enhancement'
+#     title:
+#       - '/feature\/.+/'
+#       - '/feat/i'
