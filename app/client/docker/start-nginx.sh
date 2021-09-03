@@ -6,8 +6,7 @@ set -o errexit
 set -o xtrace
 
 if [ -z "$APPSMITH_SERVER_PROXY_PASS" ]; then
-  echo "Missing APPSMITH_SERVER_PROXY_PASS env variable. Please point it to where server is avilable." >&2
-  exit 1
+  echo "!!! WARNING: Missing APPSMITH_SERVER_PROXY_PASS env variable. Please point it to where server is avilable." >&2
 fi
 
 cp /nginx-root.conf.template /etc/nginx/nginx.conf
