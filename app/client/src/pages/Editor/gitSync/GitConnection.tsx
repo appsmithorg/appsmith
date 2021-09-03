@@ -26,14 +26,6 @@ const UrlOptionContainer = styled.div`
   }
 `;
 
-const CheckContainer = styled.div`
-  display: flex;
-  height: 100%;
-  align-items: center;
-  padding: ${(props) => props.theme.spaces[2]}px;
-  padding-left: 0;
-`;
-
 const UrlContainer = styled.div`
   display: flex;
   align-items: center;

@@ -39,7 +39,7 @@ type UserGitProfileSettingsProps = {
   authType: string;
 };
 
-function UserGitProfileSettings({ authType }: UserGitProfileSettingsProps) {
+function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
   return (
     <>
