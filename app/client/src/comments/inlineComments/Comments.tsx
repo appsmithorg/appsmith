@@ -71,7 +71,8 @@ function Comments({ refId }: { refId: string }) {
   );
   const commentThreadIds = useSortedCommentThreadIds(
     applicationId,
-  ).filter((id) => (commentThreadIdsByRef as string[]).includes(id));
+    commentThreadIdsByRef as string[],
+  );
   const unpublishedCommentThread = useSelector(
     unpublishedCommentThreadSelector(refId),
   );
@@ -81,6 +82,7 @@ function Comments({ refId }: { refId: string }) {
     <>
       {Array.isArray(commentThreadIds) &&
         commentThreadIds
+          .slice()
           .reverse()
           .map((commentsThreadId: any) => (
             <MemoisedInlinePageCommentPin
