@@ -8,6 +8,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -48,7 +49,6 @@ public class EnvManager {
             "APPSMITH_REPLY_TO",
             "APPSMITH_MAIL_HOST",
             "APPSMITH_MAIL_PORT",
-            "APPSMITH_MAIL_SMTP_AUTH",
             "APPSMITH_MAIL_USERNAME",
             "APPSMITH_MAIL_PASSWORD",
             "APPSMITH_MAIL_SMTP_TLS_ENABLED",
@@ -75,6 +75,14 @@ public class EnvManager {
 
         if (!variablesNotInWhitelist.isEmpty()) {
             throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
+        }
+
+        if (changes.containsKey("APPSMITH_MAIL_HOST")) {
+            changes.put("APPSMITH_MAIL_ENABLED", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_HOST"))));
+        }
+
+        if (changes.containsKey("APPSMITH_MAIL_USERNAME")) {
+            changes.put("APPSMITH_MAIL_SMTP_AUTH", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_USERNAME"))));
         }
 
         final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
