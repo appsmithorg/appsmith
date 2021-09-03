@@ -9,19 +9,22 @@ type WrapperProps = {
   theme: Theme;
 };
 
-const getSelectedStyles = (props: WrapperProps) =>
-  props.selected
-    ? `color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
-      font-weight: 500;
-      border-bottom: 2px solid ${props.theme.colors.info.light};
-     `
-    : `color: ${props.theme.colors.tabItemBackgroundFill.textColor};
-      `;
+const getFocusedStyles = (props: WrapperProps) => `
+  background-color: ${props.theme.colors.tabItemBackgroundFill.highlightBackground};
+  color: ${props.theme.colors.tabItemBackgroundFill.highlightTextColor};
+  font-weight: 500;
+`;
 
 const Wrapper = styled.div<WrapperProps>`
   display: flex;
-  ${(props) => getTypographyByKey(props, "p1")};
-  ${(props) => getSelectedStyles(props)};
+  ${(props) => getTypographyByKey(props, "p1")}
+
+  ${(props) =>
+    props.selected
+      ? getFocusedStyles(props)
+      : `
+      color: ${props.theme.colors.tabItemBackgroundFill.textColor};  
+    `};
 
   &:hover,
   &:focus {
@@ -29,7 +32,8 @@ const Wrapper = styled.div<WrapperProps>`
       props.theme.colors.tabItemBackgroundFill.highlightTextColor};
   }
 
-  padding: ${(props) => `${props.theme.spaces[5]}px 0px`};
+  padding: ${(props) =>
+    `${props.theme.spaces[5] - 1}px ${props.theme.spaces[11]}px`};
 
   width: 100%;
 `;
@@ -41,7 +45,7 @@ export default function TabItemBackgroundFill(props: {
 }) {
   const { selected, tab, vertical } = props;
   return (
-    <Wrapper key={tab.title} selected={selected} vertical={vertical}>
+    <Wrapper selected={selected} vertical={vertical}>
       {tab.title}
     </Wrapper>
   );
