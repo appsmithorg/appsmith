@@ -433,7 +433,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
-export const GIT_CONNECTION = () => "GIT Connection";
+export const GIT_CONNECTION = () => "Git Connections";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
