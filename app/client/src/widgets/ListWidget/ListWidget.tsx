@@ -642,7 +642,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return (
         shallowEqual(prev[1], next[1]) &&
         shallowEqual(prev[2], next[2]) &&
-        (prev[2], next[2]) &&
         prev[3] === next[3]
       );
     },
