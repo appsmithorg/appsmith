@@ -273,7 +273,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 ? props.cell.value
                 : undefined,
             });
-          } else if (columnProperties.columnType === "label") {
+          } else if (columnProperties.columnType === "tag") {
             return renderTags(props.cell.value, cellProperties);
           } else if (columnProperties.columnType === "image") {
             const isSelected = !!props.row.isSelected;

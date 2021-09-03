@@ -14,7 +14,7 @@ describe("Table Widget Functionality", function() {
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
     cy.wait("@updateLayout");
     cy.editColumn("status");
-    cy.changeColumnType("Label");
+    cy.changeColumnType("Tag");
     cy.isSelectRow(1);
     cy.enableColorOption();
     cy.openLabelColorPicker();

@@ -347,8 +347,8 @@ export default [
                       value: "button",
                     },
                     {
-                      label: "Label",
-                      value: "label",
+                      label: "Tag",
+                      value: "tag",
                     },
                     {
                       label: "Icon Button",
@@ -694,7 +694,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   options: [
                     {
@@ -735,7 +735,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   options: [
                     {
@@ -789,7 +789,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   options: [
                     {
@@ -823,7 +823,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   options: [
                     {
@@ -864,7 +864,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -888,7 +888,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType === "label";
+                    return columnType === "tag";
                   },
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -911,7 +911,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType !== "label";
+                    return columnType !== "tag";
                   },
                   dependencies: [
                     "primaryColumns",
@@ -940,7 +940,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
-                    return columnType !== "label";
+                    return columnType !== "tag";
                   },
                   dependencies: [
                     "primaryColumns",
