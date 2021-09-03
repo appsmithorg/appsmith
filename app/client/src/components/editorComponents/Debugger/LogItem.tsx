@@ -24,6 +24,7 @@ import {
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getAppsmithConfigs } from "configs";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import ContextualMenu from "./ContextualMenu";
 const { intercomAppID } = getAppsmithConfigs();
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
@@ -244,7 +245,9 @@ function LogItem(props: LogItemProps) {
     <Wrapper
       className={props.severity}
       collapsed={!isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => {
+        if (!isOpen) setIsOpen(true);
+      }}
     >
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
@@ -294,12 +297,11 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <span
-                    className="debugger-message t--debugger-message"
-                    onClick={(event) => onLogClick(event, e)}
-                  >
-                    {e.message}
-                  </span>
+                  <ContextualMenu error={e}>
+                    <span className="debugger-message t--debugger-message">
+                      {e.message}
+                    </span>
+                  </ContextualMenu>
                 </MessageWrapper>
               );
             })}

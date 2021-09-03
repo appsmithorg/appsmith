@@ -102,6 +102,8 @@ const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return (
       <ItemRow
+        // TODO: Check whether this will affect anything else
+        className={props.className}
         data-cy={props.cypressSelector}
         disabled={props.disabled}
         href={props.href}
@@ -110,7 +112,7 @@ const MenuItemContent = forwardRef(
         selected={props.selected}
         type={props.type}
       >
-        <IconContainer className={props.className}>
+        <IconContainer>
           {props.icon ? (
             <Icon
               isLoading={props.isLoading}
