@@ -15,9 +15,10 @@ import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
 const Container = styled.div`
-  height: 70vh;
+  height: 660px;
   width: 100%;
   display: flex;
+  flex-direction: column;
   position: relative;
   overflow-y: hidden;
 `;
@@ -32,17 +33,14 @@ const BodyContainer = styled.div`
 `;
 
 const MenuContainer = styled.div`
-  flex: 1;
-  height: 100%;
-  background-color: ${(props) =>
-    props.theme.colors.gitSyncModal.menuBackgroundColor};
-  padding-top: ${(props) => props.theme.spaces[15]}px;
+  padding: ${(props) =>
+    `${props.theme.spaces[12]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 55px;
-  top: 53px;
+  right: 10px;
+  top: 10px;
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }
@@ -50,16 +48,16 @@ const CloseBtnContainer = styled.div`
   border-radius: ${(props) => props.theme.radii[1]}px;
 `;
 
-function NoopComponent() {
-  return <div />;
-}
+// function NoopComponent() {
+//   return <div />;
+// }
 
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
   [MENU_ITEM.DEPLOY]: Deploy,
   [MENU_ITEM.MERGE]: Merge,
-  [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
-  [MENU_ITEM.SETTINGS]: NoopComponent,
+  // [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
+  // [MENU_ITEM.SETTINGS]: NoopComponent,
 };
 
 function GitSyncModal() {
@@ -81,7 +79,7 @@ function GitSyncModal() {
       isOpen={isModalOpen}
       maxWidth={"900px"}
       onClose={handleClose}
-      width={"60vw"}
+      width={"600px"}
     >
       <Container>
         <MenuContainer>
