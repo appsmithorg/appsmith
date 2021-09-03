@@ -1,7 +1,8 @@
 import React from "react";
 import copy from "copy-to-clipboard";
 import Menu from "components/ads/Menu";
-import MenuItem from "components/ads/MenuItem";
+import styled from "styled-components";
+import Text, { FontWeight, TextType } from "components/ads/Text";
 import { Message } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { Dispatch } from "redux";
@@ -14,11 +15,14 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { getAppsmithConfigs } from "configs";
 import { createMessage, DEBUGGER_INTERCOM_TEXT } from "constants/messages";
 import { useDispatch } from "react-redux";
-import { Classes, Position } from "@blueprintjs/core";
+import { Classes as BPClasses, Position } from "@blueprintjs/core";
+import Icon, { IconSize } from "components/ads/Icon";
+import { Classes } from "components/ads/common";
+import { Colors } from "constants/Colors";
 const { intercomAppID } = getAppsmithConfigs();
 
 const getOptions = (type?: string, subType?: string) => {
-  const defaultOptions = ["copy", "docs", "intercom", "google"];
+  const defaultOptions = ["copy", "docs", "google", "intercom"];
 
   if (subType) {
     switch (subType) {
@@ -98,12 +102,56 @@ const searchAction: Record<string, any> = {
   },
 };
 
+const IconContainer = styled.span`
+  display: flex;
+  align-items: center;
+
+  .${Classes.ICON} {
+    margin-right: ${(props) => props.theme.spaces[4]}px;
+  }
+`;
+
+const MenuItem = styled.a`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
+  height: 28px;
+
+  .${Classes.TEXT} {
+    color: ${Colors.CODE_GRAY};
+  }
+
+  .${Classes.ICON} {
+    path {
+      fill: ${Colors.CODE_GRAY};
+    }
+  }
+
+  &:hover {
+    text-decoration: none;
+    cursor: pointer;
+    background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
+
+    .${Classes.TEXT} {
+      color: ${(props) => props.theme.colors.menuItem.hoverText};
+    }
+    .${Classes.ICON} {
+      path {
+        fill: ${(props) => props.theme.colors.menuItem.hoverIcon};
+      }
+    }
+  }
+`;
+
 export default function ContextualMenu(props: ContextualMenuProps) {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
 
   return (
     <Menu
+      menuItemWrapperWidth={"175px"}
       modifiers={{
         offset: {
           offset: "25px, 5px",
@@ -120,12 +168,17 @@ export default function ContextualMenu(props: ContextualMenuProps) {
 
         return (
           <MenuItem
-            className={Classes.POPOVER_DISMISS}
-            icon={menuProps.icon}
+            className={BPClasses.POPOVER_DISMISS}
             key={e}
-            onSelect={onSelect}
-            text={menuProps.text}
-          />
+            onClick={onSelect}
+          >
+            <IconContainer>
+              <Icon name={menuProps.icon} size={IconSize.XS} />
+              <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                {menuProps.text}
+              </Text>
+            </IconContainer>
+          </MenuItem>
         );
       })}
     </Menu>

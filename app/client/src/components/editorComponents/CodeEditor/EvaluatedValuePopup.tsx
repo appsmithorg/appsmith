@@ -337,7 +337,7 @@ function PopoverContent(props: PopoverContentProps) {
     onMouseLeave,
     theme,
   } = props;
-  let error;
+  let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
   }
