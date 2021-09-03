@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+// import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -14,7 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 function isValidJSON(
   value: unknown,
-  props: JsonEditorWidgetProps,
+  // props: JsonEditorWidgetProps,
 ): ValidationResponse {
   let isValid = true;
   let message = "";

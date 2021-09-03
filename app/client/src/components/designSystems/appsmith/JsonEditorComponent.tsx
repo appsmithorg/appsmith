@@ -1,9 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
+import { Button } from "@blueprintjs/core";
 import JSONEditor, { JSONEditorMode } from "jsoneditor";
 import "jsoneditor/dist/jsoneditor.css";
+import copy from "copy-to-clipboard";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 function isValidJSON(json: any) {
   try {
@@ -14,11 +18,20 @@ function isValidJSON(json: any) {
   }
 }
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
+
 const JsonEditorContainer = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
 `;
+
+const MenuBarContainer = styled.div``;
 
 export interface JsonEditorComponentProps extends ComponentProps {
   text: string;
@@ -63,7 +76,32 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
     }
   }, [text]);
 
-  return <JsonEditorContainer ref={containerRef} />;
+  const handleCopyToClipboard = () => {
+    let json = "";
+    if (editorRef.current) {
+      json = JSON.stringify(editorRef.current.get(), null, 2);
+    }
+
+    copy(json);
+    Toaster.show({
+      text: "JSON has been copied",
+      variant: Variant.success,
+    });
+  };
+
+  return (
+    <Container>
+      <MenuBarContainer>
+        <Button
+          icon="clipboard"
+          onClick={handleCopyToClipboard}
+          outlined
+          text="Copy to clipboard"
+        />
+      </MenuBarContainer>
+      <JsonEditorContainer ref={containerRef} />
+    </Container>
+  );
 }
 
 export default JsonEditorComponent;
