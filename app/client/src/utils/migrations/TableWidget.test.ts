@@ -1231,7 +1231,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
         {
           widgetName: "Table1",
           defaultPageSize: 0,
-          columnOrder: ["id", "name", "'random_header"],
+          columnOrder: ["id", "name", "'random_header", "Employee.id"],
           isVisibleDownload: true,
           dynamicPropertyPathList: [],
           topRow: 8,
@@ -1245,6 +1245,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
             { key: "primaryColumns.id.computedValue" },
             { key: "primaryColumns.name.computedValue" },
             { key: "primaryColumns.'random_header.computedValue" },
+            { key: "primaryColumns.Employee.id.computedValue" },
           ],
           leftColumn: 1,
           primaryColumns: {
@@ -1300,6 +1301,22 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
               computedValue:
                 "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.'random_header))}}",
             },
+            "Employee.id": {
+              index: 20,
+              width: 150,
+              id: "Employee.id",
+              horizontalAlignment: "LEFT",
+              verticalAlignment: "CENTER",
+              columnType: "text",
+              textSize: "PARAGRAPH",
+              enableFilter: true,
+              enableSort: true,
+              isVisible: true,
+              isDerived: false,
+              label: "Employee.id",
+              computedValue:
+                "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.Employee.id))}}",
+            },
           },
           delimiter: ",",
           derivedColumns: {},
@@ -1354,7 +1371,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
         {
           widgetName: "Table1",
           defaultPageSize: 0,
-          columnOrder: ["id", "name", "_random_header"],
+          columnOrder: ["id", "name", "_random_header", "Employee_id"],
           isVisibleDownload: true,
           dynamicPropertyPathList: [],
           topRow: 8,
@@ -1368,6 +1385,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
             { key: "primaryColumns.id.computedValue" },
             { key: "primaryColumns.name.computedValue" },
             { key: "primaryColumns._random_header.computedValue" },
+            { key: "primaryColumns.Employee_id.computedValue" },
           ],
           leftColumn: 1,
           primaryColumns: {
@@ -1422,6 +1440,22 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
               label: "'random_header",
               computedValue:
                 "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}",
+            },
+            Employee_id: {
+              index: 20,
+              width: 150,
+              id: "Employee_id",
+              horizontalAlignment: "LEFT",
+              verticalAlignment: "CENTER",
+              columnType: "text",
+              textSize: "PARAGRAPH",
+              enableFilter: true,
+              enableSort: true,
+              isVisible: true,
+              isDerived: false,
+              label: "Employee.id",
+              computedValue:
+                "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.Employee_id))}}",
             },
           },
           delimiter: ",",
