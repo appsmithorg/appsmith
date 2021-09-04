@@ -43,6 +43,7 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
+import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
 import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
@@ -70,6 +71,7 @@ export const PropertyControls = {
   ButtonTabControl,
   ComputeTablePropertyControl,
   MenuItemsControl,
+  ButtonListControl,
   IconSelectControl,
   IconAlignControl,
   BoxShadowOptionsControl,

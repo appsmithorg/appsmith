@@ -221,6 +221,7 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
 `;
 
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
+  padding: 8px 10px !important;
   ${({ backgroundColor, theme }) =>
     backgroundColor
       ? `
@@ -285,9 +286,12 @@ interface PopoverContentProps {
 function PopoverContent(props: PopoverContentProps) {
   const { menuItems, onItemClicked } = props;
 
-  const items = Object.keys(menuItems)
+  let items = Object.keys(menuItems)
     .map((itemKey) => menuItems[itemKey])
     .filter((item) => item.isVisible === true);
+
+  // sort btns by index
+  items = sortBy(items, ["index"]);
 
   const listItems = items.map((menuItem) => {
     const {

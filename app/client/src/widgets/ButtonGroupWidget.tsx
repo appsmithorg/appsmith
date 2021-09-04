@@ -72,7 +72,7 @@ class ButtonGroupWidget extends BaseWidget<
           {
             helpText: "Group Buttons",
             propertyName: "groupButtons",
-            controlType: "MENU_ITEMS",
+            controlType: "GROUP_BUTTONS",
             label: "",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -296,7 +296,7 @@ class ButtonGroupWidget extends BaseWidget<
                               },
                               {
                                 propertyName: "isDisabled",
-                                helpText: "Disables input to the widget",
+                                helpText: "Disables menu item",
                                 label: "Disabled",
                                 controlType: "SWITCH",
                                 isJSConvertible: true,
@@ -307,7 +307,7 @@ class ButtonGroupWidget extends BaseWidget<
                               {
                                 propertyName: "isVisible",
                                 helpText:
-                                  "Controls the visibility of the widget",
+                                  "Controls the visibility of menu item",
                                 label: "Visible",
                                 controlType: "SWITCH",
                                 isJSConvertible: true,
