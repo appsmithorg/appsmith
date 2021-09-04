@@ -93,7 +93,10 @@ export const TabCount = styled.div`
   margin-left: 2px;
 `;
 
-const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
+const TabTitleWrapper = styled.div<{
+  selected: boolean;
+  vertical: boolean;
+}>`
   display: flex;
   width: 100%;
 
@@ -116,11 +119,11 @@ const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
   ${(props) =>
     props.selected
       ? `
-  color: ${props.theme.colors.tabs.default};
+  color: ${props.theme.colors.tabs.hover};
   background-color: transparent;
 
   path {
-    fill: ${props.theme.colors.tabs.default};
+    fill: ${props.theme.colors.tabs.hover};
   }
 
   &::after {

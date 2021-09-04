@@ -52,6 +52,7 @@ export const SearchItemContainer = styled.div<{
   align-items: center;
   padding: ${(props) => props.theme.spaces[4]}px};
   color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  transition: 0.3s background-color ease;
   background-color: ${(props) =>
     props.isActiveItem &&
     props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
@@ -86,6 +87,9 @@ export const SearchItemContainer = styled.div<{
         : "unset"};
     ${StyledActionLink} {
       visibility: visible;
+      &:hover {
+        transform: scale(1.2);
+      }
     }
     .icon-wrapper {
       svg {

@@ -25,12 +25,16 @@ const RefinementListContainer = styled.div`
         ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
       svg {
         cursor: pointer;
-        margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+        transition: 0.2s all ease;
+        margin-left: ${(props) => props.theme.spaces[4]}px;
         path {
           fill: #4b4848;
         }
+        &:hover {
+          transform: scale(1.2);
+        }
       }
-    }˝
+    }
   }
 `;
 

@@ -13,7 +13,7 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "constants/messages";
-import { SEARCH_CATEGORY_ID } from "./utils";
+import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 
@@ -36,6 +36,11 @@ const InputContainer = styled.div`
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
   border: 1px solid
     ${(props) => props.theme.colors.globalSearch.searchInputBorder};
+  .t--global-clear-input:hover {
+    svg > path {
+      fill: #4b4848;
+    }
+  }
 `;
 
 const CategoryDisplay = styled.div`
@@ -54,6 +59,10 @@ const CategoryDisplay = styled.div`
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};
     path {
       fill: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+    }
+    transition: 0.2s all ease;
+    &:hover {
+      transform: scale(1.2);
     }
   }
 `;
@@ -107,6 +116,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
       // to prevent key combo to open modal from trigging query update
       if (!listenToChange) return;
       setQuery(query);
+      (document.querySelector("#global-search") as HTMLInputElement)?.focus();
     },
     [listenToChange],
   );
@@ -114,7 +124,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   return (
     <Container>
       <InputContainer>
-        <SearchIcon style={{ marginRight: "10px" }} />
+        {isMenu(category) && <SearchIcon style={{ marginRight: "10px" }} />}
         {category.title && (
           <CategoryDisplay>
             {category.id}

@@ -64,15 +64,11 @@ const SnippetContainer = styled.div`
       height: 12px;
       width: 12px;
       cursor: pointer;
+      transition: 0.2s all ease;
       &:hover {
-        transform: scale(1.1);
+        transform: scale(1.2);
       }
       margin: ${(props) => props.theme.spaces[2]}px;
-    }
-    &:hover {
-      .t--copy-snippet {
-        opacity: 1;
-      }
     }
     pre {
       padding: ${(props) => props.theme.spaces[11]}px
@@ -149,6 +145,7 @@ const SnippetContainer = styled.div`
     .react-tabs__tab-list {
       background: white !important;
       padding: 0 10px !important;
+      height: 30px;
     }
   }
 `;
@@ -237,6 +234,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   }, []);
 
   const handleRun = useCallback(() => {
+    if (executionInProgress) return;
     dispatch(
       setGlobalSearchFilterContext({
         executionInProgress: true,
@@ -268,10 +266,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   );
 
   useEffect(() => {
-    document
-      .querySelector("#snippet-evaluator")
-      ?.scrollIntoView({ behavior: "smooth" });
-  }, [evaluatedSnippet]);
+    if (!executionInProgress)
+      document
+        .querySelector("#snippet-evaluator")
+        ?.scrollIntoView({ behavior: "smooth" });
+  }, [executionInProgress]);
 
   const tabs = [
     {
