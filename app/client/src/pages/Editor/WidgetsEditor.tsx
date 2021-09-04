@@ -16,7 +16,6 @@ import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
 import { flashElementsById } from "utils/helpers";
 import { useParams } from "react-router";
-import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -69,13 +68,6 @@ function WidgetsEditor() {
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
-
-  // Switch page
-  useEffect(() => {
-    if (currentPageId !== params.pageId && !!params.pageId) {
-      dispatch(fetchPage(params.pageId));
-    }
-  }, [currentPageId, params.pageId, dispatch]);
 
   // log page load
   useEffect(() => {
