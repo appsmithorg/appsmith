@@ -89,7 +89,15 @@ const boxStyles = (
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
+  const { dataType, inputRef, ...inputProps } = props;
+  delete inputProps.cypressSelector;
+  delete inputProps.fill;
+  delete inputProps.hasLeftIcon;
+  delete inputProps.inputStyle;
+  delete inputProps.isValid;
+  delete inputProps.rightSideComponentWidth;
+  delete inputProps.theme;
+  delete inputProps.validator;
   return props.asyncControl ? (
     <AsyncControllableInput
       {...inputProps}
