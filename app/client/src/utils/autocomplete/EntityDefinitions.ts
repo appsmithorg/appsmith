@@ -336,6 +336,11 @@ export const entityDefinitions = {
     isVisible: isVisible,
     isDisabled: "bool",
   },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {

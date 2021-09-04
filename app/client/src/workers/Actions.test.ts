@@ -37,9 +37,9 @@ describe("Add functions", () => {
     ]);
 
     // Action run
-    const onSuccess = "() => {successRun()}";
-    const onError = "() => {failureRun()}";
-    const actionParams = "{ param1: value1 }";
+    const onSuccess = () => "success";
+    const onError = () => "failure";
+    const actionParams = { param1: "value1" };
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const actionRunResponse = dataTreeWithFunctions.action1.run(
@@ -55,12 +55,34 @@ describe("Add functions", () => {
             type: "RUN_PLUGIN_ACTION",
             payload: {
               actionId: "123",
-              params: "{ param1: value1 }",
+              params: { param1: "value1" },
             },
           },
         ],
-        then: ["{{ new Promise(() => {successRun()}) }}"],
-        catch: "{{ new Promise(() => {failureRun()}) }}",
+        then: [`{{ function () { return "success"; } }}`],
+        catch: `{{ function () { return "failure"; } }}`,
+      },
+    });
+
+    // New syntax for action run with params passed as first argument
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const actionNewRunResponse = dataTreeWithFunctions.action1.run(
+      actionParams,
+    );
+    expect(actionNewRunResponse.action).toStrictEqual({
+      type: "PROMISE",
+      payload: {
+        executor: [
+          {
+            type: "RUN_PLUGIN_ACTION",
+            payload: {
+              actionId: "123",
+              params: { param1: "value1" },
+            },
+          },
+        ],
+        then: [],
       },
     });
 

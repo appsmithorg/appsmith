@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
@@ -14,9 +14,6 @@ import {
   BUILD_FROM_SCRATCH_ACTION_TITLE,
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
 } from "constants/messages";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { fetchPage } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type routeId = {
@@ -38,17 +35,6 @@ const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
 };
 
 function ActionCards() {
-  const params = useParams<{ applicationId: string; pageId: string }>();
-  const dispatch = useDispatch();
-
-  const currentPageId = useSelector(getCurrentPageId);
-
-  // Switch page
-  useEffect(() => {
-    if (currentPageId !== params.pageId && !!params.pageId) {
-      dispatch(fetchPage(params.pageId));
-    }
-  }, [currentPageId, params.pageId, dispatch]);
   const { applicationId, pageId } = useParams<ExplorerURLParams>();
 
   return (
