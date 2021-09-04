@@ -394,12 +394,7 @@ function GlobalSearch() {
     item: SearchItem,
     event?: SelectEvent,
   ) => {
-    if (event && event.type === "click") {
-      setActiveItemIndex(
-        searchResults.findIndex((doc: any) => doc.objectID === item.objectID),
-      );
-      return;
-    }
+    if (event && event.type === "click") return;
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -446,12 +441,7 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
-    if (event && event.type === "click") {
-      setActiveItemIndex(
-        searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
-      );
-      return;
-    }
+    if (event && event.type === "click") return;
     dispatch(insertSnippet(get(item, "body.snippet", "")));
     toggleShow();
   };
