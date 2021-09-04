@@ -19,6 +19,7 @@
     {
       "controlType": "SECTION",
       "label": "Query",
+      "description" : "Optional",
       "children": [
         {
           "label": "Query",

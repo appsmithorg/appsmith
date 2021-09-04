@@ -13,7 +13,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -494,6 +496,47 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         }
 
         return templates;
+    }
+
+    @Override
+    public Mono<Map> loadEditorPluginResource(String pluginId) {
+        String resourcePath = "editor/root.json";
+        findById(pluginId)
+                .flatMap(plugin -> {
+                    InputStream resourceAsStream = pluginManager
+                            .getPlugin(plugin.getPackageName())
+                            .getPluginClassLoader()
+                            .getResourceAsStream(resourcePath);
+
+                    if (resourceAsStream == null) {
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found"));
+                    }
+
+                    JsonNode rootTree;
+                    try {
+                        rootTree = objectMapper.readTree(resourceAsStream);
+                    } catch (IOException e) {
+                        log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);
+                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
+                    }
+
+                    JsonNode commands = rootTree.get("commands");
+                    if (commands != null) {
+                        
+                    }
+
+                    JsonNode editor = rootTree.get("editor");
+                    if (editor != null && editor.isArray()) {
+                        for (JsonNode child : editor) {
+                            JsonNode label = child.get("label");
+                            if (label != null && label.asText().equals("Commands")) {
+                                for (JsonNode command : )
+                            }
+                        }
+
+                    }
+                });
+        return null;
     }
 
     @Override
