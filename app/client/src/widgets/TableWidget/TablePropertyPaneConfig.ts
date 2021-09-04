@@ -961,6 +961,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                      ColumnTypes.MENU_BUTTON,
                     ]);
                   },
                   dependencies: [
@@ -1191,11 +1192,11 @@ export default [
                       value: "CUSTOM",
                     },
                   ],
-                  updateHook: (
+                  updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
                     propertyValue: string,
-                  ) => {
+                  ) {
                     let propertiesToUpdate = [
                       { propertyPath, propertyValue },
                       { propertyPath: "prevMenuStyle", propertyValue },
@@ -1250,7 +1251,7 @@ export default [
                     const columnType = get(props, `${property}.columnType`, "");
                     return (
                       menuStyle !== ButtonStyleTypes.CUSTOM ||
-                      columnType !== "menuButton"
+                      columnType !== ColumnTypes.MENU_BUTTON
                     );
                   },
                   dependencies: [
@@ -1259,11 +1260,11 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
-                  updateHook: (
+                  updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
                     propertyValue: string,
-                  ) => {
+                  ) {
                     const property = getBasePropertyPath(propertyPath);
                     const prevMenuStyle = get(
                       props,
@@ -1311,25 +1312,7 @@ export default [
                     },
                   ],
                   isJSConvertible: true,
-                  updateHook: (
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) => {
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1358,25 +1341,7 @@ export default [
                   controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: (
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) => {
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
@@ -1402,25 +1367,7 @@ export default [
                   controlType: "BOX_SHADOW_OPTIONS",
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: (
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) => {
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -1452,25 +1399,7 @@ export default [
                   controlType: "COLOR_PICKER",
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: (
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) => {
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -1506,11 +1435,11 @@ export default [
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },
-                  updateHook: (
+                  updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
                     propertyValue: string,
-                  ) => {
+                  ) {
                     const property = getBasePropertyPath(propertyPath);
                     const iconAlign = get(props, `${property}.iconAlign`, "");
                     let propertiesToUpdate = [{ propertyPath, propertyValue }];
@@ -1545,25 +1474,7 @@ export default [
                   controlType: "ICON_ALIGN",
                   isBindProperty: false,
                   isTriggerProperty: false,
-                  updateHook: (
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) => {
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.MENU_BUTTON,
@@ -1655,27 +1566,8 @@ export default [
                             isBindProperty: true,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.TEXT },
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1690,27 +1582,8 @@ export default [
                             controlType: "COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1724,27 +1597,8 @@ export default [
                             controlType: "COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1760,27 +1614,8 @@ export default [
                             isBindProperty: true,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.BOOLEAN },
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1796,27 +1631,8 @@ export default [
                             isBindProperty: true,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.BOOLEAN },
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1851,27 +1667,8 @@ export default [
                             controlType: "COLOR_PICKER",
                             isBindProperty: false,
                             isTriggerProperty: false,
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",
@@ -1886,27 +1683,8 @@ export default [
                             isBindProperty: false,
                             isTriggerProperty: false,
                             validation: { type: ValidationTypes.TEXT },
-                            updateHook: (
-                              props: TableWidgetProps,
-                              propertyPath: string,
-                              propertyValue: string,
-                            ) => {
-                              let propertiesToUpdate = [
-                                { propertyPath, propertyValue },
-                              ];
-                              const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                                props,
-                                propertyPath,
-                                propertyValue,
-                              );
-                              if (updateDerivedColumnsHookArr) {
-                                propertiesToUpdate = [
-                                  ...updateDerivedColumnsHookArr,
-                                  ...propertiesToUpdate,
-                                ];
-                              }
-                              return propertiesToUpdate;
-                            },
+                            updateHook: updateDerivedColumnsHook,
+
                             dependencies: [
                               "primaryColumns",
                               "derivedColumns",

@@ -5,7 +5,6 @@ import { Classes, Popover2 } from "@blueprintjs/popover2";
 import { IconName } from "@blueprintjs/icons";
 import tinycolor from "tinycolor2";
 
-import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { darkenActive, darkenHover, Theme } from "constants/DefaultTheme";
 import {
   ButtonBoxShadow,
@@ -109,7 +108,7 @@ const getCustomBorderColor = (
     : "none";
 };
 
-export const MenuButtonContainer = styled.div`
+const MenuButtonContainer = styled.div`
   width: 100%;
   height: 100%;
   text-align: center;
@@ -125,7 +124,7 @@ const PopoverStyles = createGlobalStyle`
   }
 `;
 
-export interface BaseStyleProps {
+interface BaseStyleProps {
   backgroundColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
@@ -348,7 +347,7 @@ const StyledMenu = styled(Menu)`
   background: none;
 `;
 
-export interface PopoverContentProps {
+interface PopoverContentProps {
   menuItems: Record<
     string,
     {
@@ -421,7 +420,7 @@ function PopoverContent(props: PopoverContentProps) {
   return <StyledMenu>{listItems}</StyledMenu>;
 }
 
-export interface PopoverTargetButtonProps {
+interface PopoverTargetButtonProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
@@ -487,7 +486,7 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   );
 }
 
-export interface MenuButtonComponentProps extends ComponentProps {
+export interface MenuButtonComponentProps {
   label?: string;
   isDisabled?: boolean;
   isVisible?: boolean;
@@ -521,7 +520,7 @@ export interface MenuButtonComponentProps extends ComponentProps {
   onItemClicked: (onClick: string | undefined) => void;
 }
 
-function MenuButtonComponent(props: MenuButtonComponentProps) {
+function MenuButtonTableComponent(props: MenuButtonComponentProps) {
   const {
     borderRadius,
     boxShadow,
@@ -574,4 +573,4 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
   );
 }
 
-export default MenuButtonComponent;
+export default MenuButtonTableComponent;

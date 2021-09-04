@@ -41,15 +41,9 @@ import {
   TextSizes,
 } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
-import {
-  MenuButtonContainer,
-  PopoverContent,
-  PopoverStyles,
-  PopoverTargetButton,
-} from "../MenuButtonComponent";
 import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
-import { Popover2 } from "@blueprintjs/popover2";
+import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import {
   StyledButton,
   ButtonStyle as IconButtonStyle,
@@ -395,7 +389,7 @@ function MenuButton({
       e.stopPropagation();
     }
   };
-  const handleClick = (onClick?: string) => {
+  const onItemClicked = (onClick?: string) => {
     if (onClick) {
       onCommandClick(onClick);
     }
@@ -403,37 +397,22 @@ function MenuButton({
 
   return (
     <div onClick={handlePropagation}>
-      <MenuButtonContainer>
-        <PopoverStyles />
-        <Popover2
-          content={
-            <PopoverContent
-              isCompact={isCompact}
-              menuItems={menuItems}
-              onItemClicked={handleClick}
-            />
-          }
-          disabled={isDisabled}
-          fill
-          minimal
-          placement="bottom-end"
-          popoverClassName="menu-button-popover"
-        >
-          <PopoverTargetButton
-            borderRadius={borderRadius}
-            boxShadow={boxShadow}
-            boxShadowColor={boxShadowColor}
-            buttonColor={menuColor}
-            buttonStyle={menuStyle}
-            buttonVariant={menuVariant}
-            iconAlign={iconAlign}
-            iconName={iconName}
-            isDisabled={isDisabled}
-            label={label}
-            prevButtonStyle={prevMenuStyle}
-          />
-        </Popover2>
-      </MenuButtonContainer>
+      <MenuButtonTableComponent
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        iconAlign={iconAlign}
+        iconName={iconName}
+        isCompact={isCompact}
+        isDisabled={isDisabled}
+        label={label}
+        menuColor={menuColor}
+        menuItems={{ ...menuItems }}
+        menuStyle={menuStyle}
+        menuVariant={menuVariant}
+        onItemClicked={onItemClicked}
+        prevMenuStyle={prevMenuStyle}
+      />
     </div>
   );
 }
