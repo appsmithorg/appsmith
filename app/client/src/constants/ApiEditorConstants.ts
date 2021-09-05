@@ -14,6 +14,7 @@ export const HTTP_METHODS_ENUM: Record<
   DELETE: { value: "DELETE", color: "#E22C2C" },
   PATCH: { value: "PATCH", color: "#6D6D6D" },
 };
+Object.freeze(HTTP_METHODS_ENUM);
 
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS_ENUM).map(
   (method) => ({
