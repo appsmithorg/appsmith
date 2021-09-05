@@ -6,13 +6,11 @@ import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import {
-  HTTP_METHODS,
-  HTTP_METHOD_COLOR_MAP,
-} from "constants/ApiEditorConstants";
+import { HTTP_METHODS_ENUM } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
+import log from "loglevel";
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -188,9 +186,9 @@ const StyledTag = styled.div<{ color: string }>`
   line-height: 16px;
 `;
 
-export function MethodTag(props: { type: typeof HTTP_METHODS[number] }) {
+export function MethodTag(props: { type: keyof typeof HTTP_METHODS_ENUM }) {
   return (
-    <StyledTag color={HTTP_METHOD_COLOR_MAP[props.type]}>
+    <StyledTag color={HTTP_METHODS_ENUM[props.type].color}>
       {props.type}
     </StyledTag>
   );

@@ -3,6 +3,7 @@ import { PluginType, ApiAction } from "entities/Action";
 import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_OPTIONS_ENUM,
 } from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
@@ -27,6 +28,7 @@ const BASE_ACTION: ApiAction = {
     encodeParamsToggle: true,
     path: "users",
     headers: [],
+    apiContentType: "none",
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
@@ -138,7 +140,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+          },
         ],
         bodyFormData: [
           {
@@ -159,7 +164,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+          },
         ],
         body: "{ name: 'test' }",
         bodyFormData: [
@@ -185,7 +193,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+          },
         ],
         bodyFormData: [
           {
@@ -205,7 +216,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+          },
         ],
         body: "",
         bodyFormData: [

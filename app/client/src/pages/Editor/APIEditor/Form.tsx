@@ -6,10 +6,7 @@ import {
   InjectedFormProps,
   reduxForm,
 } from "redux-form";
-import {
-  HTTP_METHOD_OPTIONS,
-  HTTP_METHODS,
-} from "constants/ApiEditorConstants";
+import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
