@@ -4,11 +4,10 @@ import {
 } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
-import { isString, cloneDeep } from "lodash";
-import log from "loglevel";
+import _ from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
-  let action = cloneDeep(data);
+  let action = _.cloneDeep(data);
   const actionConfigurationHeaders = action.actionConfiguration.headers;
 
   const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
@@ -25,7 +24,6 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     action.actionConfiguration.httpMethod === HTTP_METHODS_ENUM.GET.value &&
     contentTypeHeaderIndex == -1
   ) {
-    log.debug("Deleting the body for GET request");
     delete action.actionConfiguration.body;
   }
 
@@ -52,7 +50,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       body = action.actionConfiguration.body || undefined;
     }
 
-    if (!isString(body)) body = JSON.stringify(body);
+    if (!_.isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
       actionConfiguration: {
