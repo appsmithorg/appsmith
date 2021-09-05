@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
-import { labelStyle, IntentColors } from "constants/DefaultTheme";
+import {
+  labelStyle,
+  IntentColors,
+  getBorderCSSShorthand,
+} from "constants/DefaultTheme";
 import { ControlGroup, Classes, Label } from "@blueprintjs/core";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
@@ -17,6 +21,11 @@ import {
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "constants/messages";
 
+enum KEYS {
+  Tab = "Tab",
+  Escape = "Escape",
+}
+
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {
     .${Classes.INPUT} {
@@ -28,13 +37,28 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       width: 100%;
       height: inherit;
       align-items: center;
-      &:active {
+      /* &:active {
         border-color: ${(props) =>
           !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
       }
       &:focus {
         border-color: ${(props) =>
           !props.isValid ? IntentColors.danger : Colors.MYSTIC};
+      } */
+      &:active {
+        border-color: ${({ isValid }) =>
+          !isValid ? IntentColors.danger : Colors.HIT_GRAY};
+      }
+      &:focus {
+        border-color: ${({ isValid }) =>
+          !isValid ? IntentColors.danger : Colors.MYSTIC};
+
+        &:focus {
+          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+          border-color: #80bdff;
+          outline: 0;
+          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+        }
       }
     }
     .${Classes.INPUT_GROUP} {
@@ -155,6 +179,7 @@ class DatePickerComponent extends React.Component<
               formatDate={this.formatDate}
               inputProps={{
                 onFocus: this.showPicker,
+                onKeyDown: this.handleKeyDown,
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -263,6 +288,11 @@ class DatePickerComponent extends React.Component<
       this.setState({ showPicker });
     } catch (error) {
       this.setState({ showPicker: false });
+    }
+  };
+  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
+      this.closePicker(e);
     }
   };
 }
