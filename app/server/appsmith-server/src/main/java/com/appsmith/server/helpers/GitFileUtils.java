@@ -2,10 +2,12 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.git.helpers.FileUtils;
+import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +18,11 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@Import({FileUtilsImpl.class})
 public class GitFileUtils {
+
+    @Autowired
+    FileInterface fileUtils;
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -73,7 +79,6 @@ public class GitFileUtils {
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
-        FileInterface fileUtils = new FileUtils();
         // Save application to git repo
         return fileUtils.saveApplicationToGitRepo(organizationId, defaultApplicationId, applicationReference, branchName);
     }
@@ -95,7 +100,6 @@ public class GitFileUtils {
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
         ApplicationJson applicationJson = new ApplicationJson();
-        FileInterface fileUtils = new FileUtils();
 
         ApplicationGitReference applicationReference =
             fileUtils.reconstructApplicationFromGitRepo(organisationId, defaultApplicationId, branchName);

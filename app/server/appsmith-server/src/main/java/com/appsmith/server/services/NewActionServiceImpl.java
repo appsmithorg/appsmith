@@ -1019,7 +1019,10 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Flux<NewAction> saveAll(List<NewAction> actions) {
-        return Flux.fromIterable(actions).flatMap(this::save);
+        actions.stream()
+            .filter(action -> action.getGitSyncId() == null)
+            .forEach(action -> action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString()));
+        return repository.saveAll(actions);
     }
 
     @Override

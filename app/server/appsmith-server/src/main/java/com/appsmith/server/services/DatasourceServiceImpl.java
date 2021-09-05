@@ -390,7 +390,11 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
-        return Flux.fromIterable(datasourceList).flatMap(this::save);
+        datasourceList
+            .stream()
+            .filter(datasource -> datasource.getGitSyncId() == null)
+            .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
+        return repository.saveAll(datasourceList);
     }
 
     @Override

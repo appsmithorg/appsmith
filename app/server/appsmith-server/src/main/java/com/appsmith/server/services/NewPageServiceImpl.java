@@ -115,6 +115,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         return findById(page.getId(), AclPermission.MANAGE_PAGES)
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
+                    // gitSyncId will be used to sync resource across instances
+                    if (newPage.getGitSyncId() == null) {
+                        newPage.setGitSyncId(page.getApplicationId() + "_" + Instant.now().toString());
+                    }
                     return repository.save(newPage);
                 })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
@@ -408,7 +412,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
-        return Flux.fromIterable(pages).flatMap(this::save);
+        pages.stream()
+            .filter(newPage -> newPage.getGitSyncId() == null)
+            .forEach(newPage -> newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString()));
+        return repository.saveAll(pages);
     }
 
     @Override

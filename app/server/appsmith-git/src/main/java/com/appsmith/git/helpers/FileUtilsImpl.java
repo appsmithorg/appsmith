@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
@@ -36,10 +35,10 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 @Slf4j
 @Component
-public class FileUtils implements FileInterface {
+public class FileUtilsImpl implements FileInterface {
 
-    @Value("${appsmith.git_services.repo:./container-volumes/git-repo}")
-    public String GIT_REPO;
+    @Value("${appsmith.git.root:./container-volumes/git-storage}")
+    public String gitRootPath;
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -59,7 +58,7 @@ public class FileUtils implements FileInterface {
                                                  String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
-        String baseRepoPath = GIT_REPO + "/" + organizationId + "/" + defaultApplicationId + "/" + branchName;
+        String baseRepoPath = gitRootPath + "/" + organizationId + "/" + defaultApplicationId + "/" + branchName;
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 
@@ -79,11 +78,11 @@ public class FileUtils implements FileInterface {
          */
 
         // Save application
-        saveFile(applicationGitReference.getApplication(), baseRepoPath + "/application.json", gson);
+        saveFile(applicationGitReference.getApplication(), Paths.get(baseRepoPath, "application.json"), gson);
 
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath + PAGE_DIRECTORY + resource.getKey() + ".json", gson);
+            saveFile(resource.getValue(), Paths.get(baseRepoPath, PAGE_DIRECTORY + resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
@@ -92,7 +91,7 @@ public class FileUtils implements FileInterface {
 
         // Save actions
         for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath + ACTION_DIRECTORY + resource.getKey() + ".json", gson);
+            saveFile(resource.getValue(), Paths.get(baseRepoPath, ACTION_DIRECTORY + resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan actions directory and delete if any unwanted file if present
@@ -101,7 +100,7 @@ public class FileUtils implements FileInterface {
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath + DATASOURCE_DIRECTORY + resource.getKey() + ".json", gson);
+            saveFile(resource.getValue(), Paths.get(baseRepoPath, DATASOURCE_DIRECTORY + resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
@@ -117,16 +116,14 @@ public class FileUtils implements FileInterface {
      * @param gson
      * @return if the file operation is successful
      */
-    private boolean saveFile(Object sourceEntity, String path, Gson gson) {
-        File file = new File(path);
+    private boolean saveFile(Object sourceEntity, Path path, Gson gson) {
         try {
-            // Create a file if absent
-            org.apache.commons.io.FileUtils.write(file, "", StandardCharsets.UTF_8);
-            FileWriter fileWriter = new FileWriter(file);
-            gson.toJson(sourceEntity, fileWriter);
-            fileWriter.close();
-            return file.isFile() && file.length() > 0;
-        } catch (IOException e) {
+            Files.createDirectories(path.getParent());
+            try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+                gson.toJson(sourceEntity, fileWriter);
+                return true;
+            }
+        }catch (IOException e) {
             log.debug(e.getMessage());
         }
         return false;
@@ -139,7 +136,8 @@ public class FileUtils implements FileInterface {
      * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
      */
     private void scanAndDeleteFileForDeletedResources(Set<String> validResources, String resourceDirectory) {
-        // Scan page directory and delete if any unwanted file if present
+        // Scan resource directory and delete any unwanted file if present
+        // unwanted file : corresponding resource from DB has been deleted
         try (Stream<Path> paths = Files.walk(Paths.get(resourceDirectory))) {
             paths
                 .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
@@ -187,26 +185,29 @@ public class FileUtils implements FileInterface {
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        String baseRepo = GIT_REPO + "/" + organisationId + "/" + defaultApplicationId + "/" + branchName;
+        String baseRepoPath = gitRootPath + "/" + organisationId + "/" + defaultApplicationId + "/" + branchName;
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
+
+        // Instance creator is required while de-serialising using Gson as key instance can't be invoked with
+        // no-args constructor
         Gson gson = new GsonBuilder()
             .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
             .create();
 
         // Extract application data from the json
         applicationGitReference.setApplication(
-            readFile( baseRepo + "/application.json", gson)
+            readFile( Paths.get(baseRepoPath, "/application.json"), gson)
         );
 
         // Extract actions
-        applicationGitReference.setActions(readFiles(baseRepo + ACTION_DIRECTORY, gson));
+        applicationGitReference.setActions(readFiles(Paths.get(baseRepoPath, ACTION_DIRECTORY), gson));
 
         // Extract pages
-        applicationGitReference.setPages(readFiles(baseRepo + PAGE_DIRECTORY, gson));
+        applicationGitReference.setPages(readFiles(Paths.get(baseRepoPath, PAGE_DIRECTORY), gson));
 
         // Extract datasources
-        applicationGitReference.setDatasources(readFiles(baseRepo + DATASOURCE_DIRECTORY, gson));
+        applicationGitReference.setDatasources(readFiles(Paths.get(baseRepoPath, DATASOURCE_DIRECTORY), gson));
 
         return applicationGitReference;
     }
@@ -217,15 +218,16 @@ public class FileUtils implements FileInterface {
      * @param gson
      * @return resource stored in the JSON file
      */
-    private Object readFile(String filePath, Gson gson) {
-        JsonReader reader = null;
-        try {
-            reader = new JsonReader(new FileReader(filePath));
-        } catch (FileNotFoundException e) {
+    private Object readFile(Path filePath, Gson gson) {
+
+        Object file;
+        try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
+            file = gson.fromJson(reader, Object.class);
+        } catch (Exception e) {
             log.debug(e.getMessage());
+            return null;
         }
-        assert reader != null;
-        return gson.fromJson(reader, Object.class);
+        return file;
     }
 
     /**
@@ -234,13 +236,13 @@ public class FileUtils implements FileInterface {
      * @param gson
      * @return resources stored in the directory
      */
-    private Map<String, Object> readFiles(String directoryPath, Gson gson) {
+    private Map<String, Object> readFiles(Path directoryPath, Gson gson) {
         Map<String, Object> resource = new HashMap<>();
-        File directory = new File(directoryPath);
+        File directory = new File(directoryPath.toUri());
         if (directory.isDirectory()) {
             Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
-                try {
-                    resource.put(file.getName(), gson.fromJson(new JsonReader(new FileReader(file)), Object.class));
+                try (JsonReader reader = new JsonReader(new FileReader(file))) {
+                    resource.put(file.getName(), gson.fromJson(reader, Object.class));
                 } catch (Exception e) {
                     log.debug(e.getMessage());
                 }
