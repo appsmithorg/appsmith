@@ -11,9 +11,9 @@ on:
       - "app/rts/**"
 
   # pull_request event is required only for autolabeler
-  pull_request:
-    types: [opened, reopened, synchronize]
-    branches: [release]
+  # pull_request:
+  #   types: [opened, reopened, synchronize]
+  #   branches: [release]
 
 jobs:
   update_release_draft:
@@ -24,6 +24,6 @@ jobs:
         with:
           # (Optional) specify config name to use, relative to .github/. Default: release-drafter.yml
           config-name: release-drafter-template.yml
-          disable-autolabeler: false
+          disable-autolabeler: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
