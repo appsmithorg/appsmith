@@ -59,6 +59,7 @@ describe("Chart Widget Functionality", function() {
     cy.get(viewWidgetsPage.ylabel)
       .click({ force: true })
       .type(this.data.command)
+      .click({ force: true })
       .type(this.data.ylabel);
 
     //Close edit prop
@@ -292,14 +293,14 @@ describe("Chart Widget Functionality", function() {
   it("Toggle JS - Chart-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "false");
+    cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
   it("Toggle JS - Chart-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
-    cy.EditWidgetPropertiesUsingJS(widgetsPage.inputToggleVisible, "true");
+    cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
@@ -316,71 +317,6 @@ describe("Chart Widget Functionality", function() {
     cy.get(publish.horizontalTab)
       .eq(1)
       .should("exist");
-  });
-
-  it("Custom Chart Widget Functionality", function() {
-    //changing the Chart type
-    cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.UpdateChartType("Custom Chart");
-
-    cy.testJsontext(
-      "customfusionchartconfiguration",
-      `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
-    );
-
-    //Verifying X-axis labels
-    cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
-    const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-    [0, 1, 2, 3, 4, 5, 6].forEach((k) => {
-      cy.get(viewWidgetsPage.rectangleChart)
-        .eq(k)
-        .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
-    });
-
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.PublishtheApp();
-  });
-
-  it("Toggle JS - Custom Chart Widget Functionality", function() {
-    //changing the Chart type
-    cy.UpdateChartType("Pie Chart");
-    cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
-
-    //Verifying X-axis labels
-    cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
-    const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-    [0, 1, 2, 3, 4, 5, 6].forEach((k) => {
-      cy.get(viewWidgetsPage.rectangleChart)
-        .eq(k)
-        .trigger("mousemove", { force: true });
-      cy.get(viewWidgetsPage.Chartlabel)
-        .eq(k)
-        .should("have.text", labels[k]);
-    });
-
-    //Close edit prop
-    cy.get(commonlocators.editPropCrossButton).click();
-    cy.PublishtheApp();
-  });
-
-  it("Chart-Copy Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    //Copy Chart and verify all properties
-    cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
-
-    cy.PublishtheApp();
-  });
-
-  it("Chart-Delete Verification", function() {
-    // Delete the Chart widget
-    cy.deleteWidget(viewWidgetsPage.chartWidget);
-    cy.PublishtheApp();
-    cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });
 
   afterEach(() => {

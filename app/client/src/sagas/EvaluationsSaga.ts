@@ -20,7 +20,10 @@ import {
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
-import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
+import {
+  EVAL_WORKER_ACTIONS,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import log from "loglevel";
 import { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -41,6 +44,24 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import {
+  setEvaluatedArgument,
+  setEvaluatedSnippet,
+  setGlobalSearchFilterContext,
+} from "actions/globalSearchActions";
+import { executeActionTriggers } from "./ActionExecution/ActionExecutionSagas";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+import {
+  createMessage,
+  SNIPPET_EXECUTION_FAILED,
+  SNIPPET_EXECUTION_SUCCESS,
+} from "constants/messages";
+import { validate } from "workers/validations";
+import { diff } from "deep-diff";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -48,7 +69,6 @@ const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-  isFirstEvaluation = false,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
   log.debug({ unevalTree });
@@ -69,7 +89,7 @@ function* evaluateTreeSaga(
     errors,
     evaluationOrder,
     logs,
-    updates,
+    unEvalUpdates,
   } = workerResponse;
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -77,6 +97,10 @@ function* evaluateTreeSaga(
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
   );
+  const oldDataTree = yield select(getDataTree);
+
+  const updates = diff(oldDataTree, dataTree) || [];
+
   yield put(setEvaluatedTree(dataTree, updates));
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.SET_EVALUATED_TREE,
@@ -87,18 +111,17 @@ function* evaluateTreeSaga(
   log.debug({ dataTree: updatedDataTree });
   logs.forEach((evalLog: any) => log.debug(evalLog));
   yield call(evalErrorHandler, errors, updatedDataTree, evaluationOrder);
-  yield fork(
-    logSuccessfulBindings,
-    unevalTree,
-    updatedDataTree,
-    evaluationOrder,
-  );
-  yield fork(
-    updateTernDefinitions,
-    updatedDataTree,
-    isFirstEvaluation,
-    updates,
-  );
+  const appMode = yield select(getAppMode);
+  if (appMode !== APP_MODE.PUBLISHED) {
+    yield fork(
+      logSuccessfulBindings,
+      unevalTree,
+      updatedDataTree,
+      evaluationOrder,
+    );
+
+    yield fork(updateTernDefinitions, updatedDataTree, unEvalUpdates);
+  }
 
   yield put(setDependencyMap(dependencies));
   if (postEvalActions && postEvalActions.length) {
@@ -231,7 +254,7 @@ function* evaluationChangeListenerSaga() {
   yield call(worker.start);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
-  yield fork(evaluateTreeSaga, initAction.postEvalActions, true);
+  yield fork(evaluateTreeSaga, initAction.postEvalActions);
   const evtActionChannel = yield actionChannel(
     EVALUATE_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -240,13 +263,108 @@ function* evaluationChangeListenerSaga() {
     const action: EvaluationReduxAction<unknown | unknown[]> = yield take(
       evtActionChannel,
     );
-    if (FIRST_EVAL_REDUX_ACTIONS.includes(action.type)) {
-      yield call(evaluateTreeSaga, initAction.postEvalActions, true);
-    } else {
-      if (shouldProcessBatchedAction(action)) {
-        yield call(evaluateTreeSaga, action.postEvalActions);
-      }
+    if (shouldProcessBatchedAction(action)) {
+      yield call(evaluateTreeSaga, action.postEvalActions);
     }
+  }
+}
+
+export function* evaluateSnippetSaga(action: any) {
+  try {
+    let { expression } = action.payload;
+    const { dataType, isTrigger } = action.payload;
+    if (isTrigger) {
+      expression = `function() { ${expression} }`;
+    }
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression,
+        dataType,
+        isTrigger,
+      },
+    );
+    const { errors, result, triggers } = workerResponse;
+    if (triggers && triggers.length > 0) {
+      yield call(
+        executeActionTriggers,
+        triggers[0],
+        EventType.ON_SNIPPET_EXECUTE,
+      );
+    } else {
+      yield put(
+        setEvaluatedSnippet(
+          result
+            ? JSON.stringify(result, null, 2)
+            : errors && errors.length
+            ? JSON.stringify(errors, null, 2)
+            : "",
+        ),
+      );
+    }
+    Toaster.show({
+      text: createMessage(
+        result || triggers
+          ? SNIPPET_EXECUTION_SUCCESS
+          : SNIPPET_EXECUTION_FAILED,
+      ),
+      variant: result || triggers ? Variant.success : Variant.danger,
+    });
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+  } catch (e) {
+    yield put(
+      setGlobalSearchFilterContext({
+        executionInProgress: false,
+      }),
+    );
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluateArgumentSaga(action: any) {
+  const { name, type, value } = action.payload;
+  try {
+    const workerResponse = yield call(
+      worker.request,
+      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
+      {
+        expression: value,
+      },
+    );
+    const lintErrors = (workerResponse.errors || []).filter(
+      (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
+    );
+    if (workerResponse.result) {
+      const validation = validate({ type }, workerResponse.result, {});
+      if (!validation.isValid)
+        lintErrors.unshift({
+          ...validation,
+          ...{
+            errorType: PropertyEvaluationErrorType.VALIDATION,
+            errorMessage: validation.message,
+          },
+        });
+    }
+    yield put(
+      setEvaluatedArgument({
+        [name]: {
+          type,
+          value: workerResponse.result,
+          name,
+          errors: lintErrors,
+          isInvalid: lintErrors.length > 0,
+        },
+      }),
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
   }
 }
 

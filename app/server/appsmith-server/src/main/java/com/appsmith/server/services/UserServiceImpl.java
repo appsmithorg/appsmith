@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
@@ -17,11 +18,15 @@ import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
+import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
@@ -29,6 +34,9 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserChangedHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -46,6 +54,8 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,6 +69,8 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.ORGANIZATION_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_ORGANIZATIONS;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -79,10 +91,12 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
+    private final EncryptionService encryptionService;
+    private final ApplicationPageService applicationPageService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
-    private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s&email=%s";
+    private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     private static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserCreatorTemplate.html";
     private static final String USER_ADDED_TO_ORGANIZATION_EMAIL_TEMPLATE = "email/inviteExistingUserToOrganizationTemplate.html";
@@ -107,7 +121,10 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            ConfigService configService,
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
-                           UserChangedHandler userChangedHandler) {
+                           UserChangedHandler userChangedHandler,
+                           EncryptionService encryptionService,
+                           ApplicationPageService applicationPageService
+    ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -123,6 +140,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.commonConfig = commonConfig;
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
+        this.encryptionService = encryptionService;
+        this.applicationPageService = applicationPageService;
     }
 
     @Override
@@ -192,7 +211,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         String email = resetUserPasswordDTO.getEmail();
 
         // Create a random token to be sent out.
-        String token = UUID.randomUUID().toString();
+        final String token = UUID.randomUUID().toString();
         log.debug("Password reset Token: {} for email: {}", token, email);
 
         // Check if the user exists in our DB. If not, we will not send a password reset link to the user
@@ -204,22 +223,29 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                 .switchIfEmpty(Mono.defer(() -> {
                     PasswordResetToken passwordResetToken = new PasswordResetToken();
                     passwordResetToken.setEmail(email);
+                    passwordResetToken.setRequestCount(1);
+                    passwordResetToken.setFirstRequestTime(Instant.now());
                     return Mono.just(passwordResetToken);
                 }))
                 .map(resetToken -> {
+                    // check the validity of the token
+                    validateResetLimit(resetToken);
                     resetToken.setTokenHash(passwordEncoder.encode(token));
                     return resetToken;
                 });
 
-        // Save the password reset link and send an email to the user
+        // Save the password reset link and send email to the user
         Mono<Boolean> resetFlowMono = passwordResetTokenMono
                 .flatMap(passwordResetTokenRepository::save)
                 .flatMap(obj -> {
+                    List<NameValuePair> nameValuePairs = new ArrayList<>(2);
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("token", token));
+                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
-                            URLEncoder.encode(token, StandardCharsets.UTF_8),
-                            URLEncoder.encode(email, StandardCharsets.UTF_8)
+                            encryptionService.encryptString(urlParams)
                     );
 
                     Map<String, String> params = Map.of("resetUrl", resetUrl);
@@ -230,14 +256,34 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                             params
                     );
                 })
-                .thenReturn(true)
-                .onErrorResume(error -> {
-                    log.error("Unable to send email because the template replacement failed. Cause: ", error);
-                    return Mono.just(true);
-                });
+                .thenReturn(true);
 
         // Connect the components to first find a valid user and then initiate the password reset flow
         return userMono.then(resetFlowMono);
+    }
+
+    /**
+     * This method checks whether the reset request limit has been exceeded.
+     * If the limit has been exceeded, it raises an Exception.
+     * Otherwise, it'll update the counter and date in the resetToken object
+     * @param resetToken {@link PasswordResetToken}
+     */
+    private void validateResetLimit(PasswordResetToken resetToken) {
+        if(resetToken.getRequestCount() >= 3) {
+            Duration duration = Duration.between(resetToken.getFirstRequestTime(), Instant.now());
+            long l = duration.toHours();
+            if(l >= 24) { // ok, reset the counter
+                resetToken.setRequestCount(1);
+                resetToken.setFirstRequestTime(Instant.now());
+            } else { // too many requests, raise an exception
+                throw new AppsmithException(AppsmithError.TOO_MANY_REQUESTS);
+            }
+        } else {
+            resetToken.setRequestCount(resetToken.getRequestCount() + 1);
+            if(resetToken.getFirstRequestTime() == null) {
+                resetToken.setFirstRequestTime(Instant.now());
+            }
+        }
     }
 
     /**
@@ -245,69 +291,79 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * user has already initiated a password reset request via the 'Forgot Password' link. The tokens are stored in the
      * DB using BCrypt hash.
      *
-     * @param email The email of the user whose password is being reset
-     * @param token The one-time token provided to the user for resetting the password
+     * @param encryptedToken The one-time token provided to the user for resetting the password
      * @return Publishes a boolean indicating whether the given token is valid for the given email address
      */
     @Override
-    public Mono<Boolean> verifyPasswordResetToken(String email, String token) {
+    public Mono<Boolean> verifyPasswordResetToken(String encryptedToken) {
+        EmailTokenDTO emailTokenDTO;
+        try {
+            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        } catch (IllegalStateException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
 
         return passwordResetTokenRepository
-                .findByEmail(email)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.EMAIL, email)))
-                .flatMap(obj -> {
-                    boolean matches = this.passwordEncoder.matches(token, obj.getTokenHash());
-                    if (!matches) {
-                        return Mono.just(false);
-                    }
-
-                    return repository
-                            .findByEmail(email)
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, email)))
-                            .map(user -> {
-                                user.setPasswordResetInitiated(true);
-                                return user;
-                            })
-                            .flatMap(repository::save)
-                            // Everything went fine till now. Cheerio!
-                            .thenReturn(true);
-                });
+                .findByEmail(emailTokenDTO.getEmail())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
+                .map(obj -> this.passwordEncoder.matches(emailTokenDTO.getToken(), obj.getTokenHash()));
     }
 
     /**
      * This function resets the password using the one-time token & email of the user.
      * This function can only be called via the forgot password route.
      *
-     * @param token The one-time token provided to the user for resetting the password
+     * @param encryptedToken The one-time token provided to the user for resetting the password
      * @param user  The user object that contains the email & password fields in order to save the new password for the user
      * @return
      */
     @Override
-    public Mono<Boolean> resetPasswordAfterForgotPassword(String token, User user) {
+    public Mono<Boolean> resetPasswordAfterForgotPassword(String encryptedToken, User user) {
+        EmailTokenDTO emailTokenDTO;
+        try {
+            emailTokenDTO = parseValueFromEncryptedToken(encryptedToken);
+        } catch (IllegalStateException e) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
+        }
 
-        return repository
-                .findByEmail(user.getEmail())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getEmail())))
-                .flatMap(userFromDb -> {
-                    if (!userFromDb.getPasswordResetInitiated()) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET));
+        return passwordResetTokenRepository
+                .findByEmail(emailTokenDTO.getEmail())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
+                .map(passwordResetToken -> {
+                    boolean matches = this.passwordEncoder.matches(emailTokenDTO.getToken(), passwordResetToken.getTokenHash());
+                    if (!matches) {
+                        throw new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, FieldName.TOKEN);
+                    } else {
+                        return emailTokenDTO.getEmail();
                     }
+                })
+                .flatMap(emailAddress -> repository
+                        .findByEmail(emailAddress)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
+                        .flatMap(userFromDb -> {
+                            if(!ValidationUtils.validateLoginPassword(user.getPassword())){
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
+                                );
+                            }
 
-                    //User has verified via the forgot password token verfication route. Allow the user to set new password.
-                    userFromDb.setPasswordResetInitiated(false);
-                    userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
+                            //User has verified via the forgot password token verfication route. Allow the user to set new password.
+                            userFromDb.setPasswordResetInitiated(false);
+                            userFromDb.setPassword(passwordEncoder.encode(user.getPassword()));
 
-                    // If the user has been invited but has not signed up yet, and is following the route of reset
-                    // password flow to set up their password, enable the user's account as well
-                    userFromDb.setIsEnabled(true);
+                            // If the user has been invited but has not signed up yet, and is following the route of reset
+                            // password flow to set up their password, enable the user's account as well
+                            userFromDb.setIsEnabled(true);
 
-                    return passwordResetTokenRepository
-                            .findByEmail(user.getEmail())
-                            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.TOKEN, token)))
-                            .flatMap(passwordResetTokenRepository::delete)
-                            .then(repository.save(userFromDb))
-                            .thenReturn(true);
-                });
+                            return passwordResetTokenRepository
+                                    .findByEmail(userFromDb.getEmail())
+                                    .switchIfEmpty(Mono.error(new AppsmithException(
+                                            AppsmithError.NO_RESOURCE_FOUND, FieldName.TOKEN, emailTokenDTO.getToken()
+                                    )))
+                                    .flatMap(passwordResetTokenRepository::delete)
+                                    .then(repository.save(userFromDb))
+                                    .thenReturn(true);
+                        }));
     }
 
     /**
@@ -378,7 +434,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null);
+        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
     }
 
     private Set<Policy> crudUserPolicy(User user) {
@@ -416,7 +472,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return Publishes the user object, after having been saved.
      */
     @Override
-    public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
@@ -442,31 +498,40 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser);
+                        return repository.save(savedUser).map(updatedUser -> {
+                            UserSignupDTO userSignupDTO = new UserSignupDTO();
+                            userSignupDTO.setUser(updatedUser);
+                            return userSignupDTO;
+                        });
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
-                            .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
-                            .flatMap(tuple -> {
-                                final User savedUser = tuple.getT1();
-                                final String templateOrganizationId = tuple.getT2();
+                            .flatMap(savedUser -> {
+                                final UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                userSignupDTO.setUser(savedUser);
 
-                                if (!StringUtils.hasText(templateOrganizationId)) {
-                                    // Since template organization is not configured, we create an empty default organization.
-                                    log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                    return organizationService.createDefault(new Organization(), savedUser).thenReturn(savedUser);
-                                }
-
-                                return Mono.just(savedUser);
+                                log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                                return organizationService.createDefault(new Organization(), savedUser)
+                                        .map(org -> {
+                                            userSignupDTO.setDefaultOrganizationId(org.getId());
+                                            return userSignupDTO;
+                                        });
                             })
-                            .flatMap(savedUser -> findByEmail(savedUser.getEmail()));
+                            .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
+                                userSignupDTO.setUser(user1);
+                                return userSignupDTO;
+                            }));
                 }))
-                .flatMap(savedUser ->
-                        emailConfig.isWelcomeEmailEnabled()
-                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                                : Mono.just(savedUser)
+                .flatMap(userSignupDTO -> {
+                            User savedUser = userSignupDTO.getUser();
+                            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
+                                    ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                    : Mono.just(savedUser);
+                            return userMono.thenReturn(userSignupDTO);
+                        }
+
                 );
     }
 
@@ -783,4 +848,36 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         return params;
     }
 
+    @Override
+    public Mono<Boolean> isUsersEmpty() {
+        return repository.isUsersEmpty();
+    }
+
+    @Override
+    public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+        return isUsersEmpty()
+                .map(isUsersEmpty -> {
+                    final UserProfileDTO profile = new UserProfileDTO();
+
+                    profile.setEmail(user.getEmail());
+                    profile.setOrganizationIds(user.getOrganizationIds());
+                    profile.setUsername(user.getUsername());
+                    profile.setName(user.getName());
+                    profile.setGender(user.getGender());
+                    profile.setEmptyInstance(isUsersEmpty);
+
+                    return profile;
+                });
+    }
+
+    private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
+        String decryptString = encryptionService.decryptString(encryptedToken);
+        List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(decryptString, StandardCharsets.UTF_8);
+        Map<String, String> params = new HashMap<>();
+
+        for(NameValuePair nameValuePair : nameValuePairs) {
+            params.put(nameValuePair.getName(), nameValuePair.getValue());
+        }
+        return new EmailTokenDTO(params.get("email"), params.get("token"));
+    }
 }

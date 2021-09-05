@@ -19,7 +19,7 @@ import {
   redirectAuthorizationCode,
   updateDatasource,
 } from "actions/datasourceActions";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
   ActionButton,
@@ -74,6 +74,12 @@ type DatasourceSaaSEditorProps = StateProps &
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
 
+enum AuthenticationStatus {
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
+  SUCCESS = "SUCCESS",
+}
+
 const StyledButton = styled(Button)`
   &&&& {
     width: 180px;
@@ -88,6 +94,15 @@ const EditDatasourceButton = styled(AdsButton)`
     max-width: 160px;
     border: 1px solid ${Colors.HIT_GRAY};
     width: auto;
+  }
+`;
+
+const StyledAuthMessage = styled.div`
+  color: ${(props) => props.theme.colors.error};
+  margin-top: 15px;
+  &:after {
+    content: " *";
+    color: inherit;
   }
 `;
 
@@ -131,6 +146,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
+      datasource,
       deleteDatasource,
       isDeleting,
       isSaving,
@@ -141,6 +157,10 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
 
     const params: string = location.search;
     const viewMode = new URLSearchParams(params).get("viewMode");
+    const isAuthorized =
+      datasource?.datasourceConfiguration.authentication
+        ?.authenticationStatus === AuthenticationStatus.SUCCESS;
+
     return (
       <form
         onSubmit={(e) => {
@@ -152,6 +172,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <PluginImage alt="Datasource" src={this.props.pluginImage} />
             <FormTitle focusOnMount={this.props.isNewDatasource} />
           </FormTitleContainer>
+
           {viewMode && (
             <EditDatasourceButton
               category={Category.tertiary}
@@ -178,9 +199,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             {!_.isNil(sections)
               ? _.map(sections, this.renderMainSection)
               : null}
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
             <SaveButtonContainer>
               <ActionButton
-                accent="error"
+                // accent="error"
+                buttonStyle="DANGER"
+                buttonVariant="SOLID"
                 className="t--delete-datasource"
                 loading={isDeleting}
                 onClick={() =>
@@ -194,6 +220,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                 }
                 text="Delete"
               />
+
               <StyledButton
                 className="t--save-datasource"
                 disabled={this.validate()}
@@ -215,12 +242,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
                   );
                 }}
                 size="small"
-                text="Continue"
+                text={isAuthorized ? "Re-authorize" : "Authorize"}
               />
             </SaveButtonContainer>
           </>
         ) : (
-          <Connected />
+          <>
+            <Connected />
+            {!isAuthorized && (
+              <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
+            )}
+          </>
         )}
       </form>
     );

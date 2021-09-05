@@ -43,6 +43,7 @@ interface ReactTableComponentProps {
   width: number;
   height: number;
   pageSize: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   disableDrag: (disable: boolean) => void;
   onRowClick: (rowData: Record<string, unknown>, rowIndex: number) => void;
@@ -74,6 +75,7 @@ interface ReactTableComponentProps {
   isVisibleDownload?: boolean;
   isVisibleCompactMode?: boolean;
   isVisiblePagination?: boolean;
+  delimiter: string;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -82,6 +84,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     columns,
     columnSizeMap,
     compactMode,
+    delimiter,
     disableDrag,
     editMode,
     filters,
@@ -108,6 +111,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     serverSidePaginationEnabled,
     sortTableColumn: _sortTableColumn,
     tableData,
+    totalRecordsCount,
     triggerRowSelection,
     unSelectAllRow,
     updateCompactMode,
@@ -246,6 +250,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       columns={columns}
       compactMode={compactMode}
       data={tableData}
+      delimiter={delimiter}
       disableDrag={() => {
         disableDrag(true);
       }}
@@ -275,6 +280,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       serverSidePaginationEnabled={serverSidePaginationEnabled}
       sortTableColumn={sortTableColumn}
       toggleAllRowSelect={toggleAllRowSelect}
+      totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
       updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
@@ -289,6 +295,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
   return (
     prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
+    prev.delimiter === next.delimiter &&
     prev.disableDrag === next.disableDrag &&
     prev.editMode === next.editMode &&
     prev.filters === next.filters &&
@@ -312,6 +319,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.selectedRowIndices === next.selectedRowIndices &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&
     prev.sortTableColumn === next.sortTableColumn &&
+    prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
     prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&

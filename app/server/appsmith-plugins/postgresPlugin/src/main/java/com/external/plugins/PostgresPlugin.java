@@ -22,6 +22,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -68,10 +69,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.MustacheHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.Sizeof.sizeof;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
@@ -109,6 +111,10 @@ public class PostgresPlugin extends BasePlugin {
     private static final int MAXIMUM_POOL_SIZE = 5;
 
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
+
+    private static final int HEAVY_OP_FREQUENCY = 100;
+
+    private static int MAX_SIZE_SUPPORTED;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -162,6 +168,14 @@ public class PostgresPlugin extends BasePlugin {
                         "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        private final SharedConfig sharedConfig;
+
+        public PostgresPluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+            MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
+        }
+
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -319,7 +333,20 @@ public class PostgresPlugin extends BasePlugin {
                         int colCount = metaData.getColumnCount();
                         columnsList.addAll(getColumnsListForJdbcPlugin(metaData));
 
+                        int iterator = 0;
                         while (resultSet.next()) {
+
+                            // Only check the data size at low frequency to ensure the performance is not impacted heavily
+                            if (iterator% HEAVY_OP_FREQUENCY == 0) {
+                                int objectSize = sizeof(rowsList);
+
+                                if (objectSize > MAX_SIZE_SUPPORTED) {
+                                    System.out.println(Thread.currentThread().getName() +
+                                            "[PostgresPlugin] Result size greater than maximum supported size of "
+                                            + MAX_SIZE_SUPPORTED + "bytes. Current size : " + objectSize);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
+                                }
+                            }
 
                             // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
                             Map<String, Object> row = new LinkedHashMap<>(colCount);
@@ -379,6 +406,8 @@ public class PostgresPlugin extends BasePlugin {
                             }
 
                             rowsList.add(row);
+
+                            iterator++;
                         }
                     }
 
@@ -708,6 +737,8 @@ public class PostgresPlugin extends BasePlugin {
                                 value = "''";
                             } else if (type.startsWith("int")) {
                                 value = "1";
+                            } else if (type.startsWith("float") || type.startsWith("double")) {
+                                value = "1.0";
                             } else if ("date".equals(type)) {
                                 value = "'2019-07-01'";
                             } else if ("time".equals(type)) {
@@ -728,20 +759,25 @@ public class PostgresPlugin extends BasePlugin {
 
                             columnNames.add("\"" + name + "\"");
                             columnValues.add(value);
-                            setFragments.append("\n    \"").append(name).append("\" = ").append(value);
+                            setFragments.append("\n    \"").append(name).append("\" = ").append(value).append(",");
+                        }
+
+                        // Delete the last comma
+                        if (setFragments.length() > 0) {
+                            setFragments.deleteCharAt(setFragments.length() - 1);
                         }
 
                         final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
                         table.getTemplates().addAll(List.of(
-                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;", null),
+                                new DatasourceStructure.Template("SELECT", "SELECT * FROM " + quotedTableName + " LIMIT 10;"),
                                 new DatasourceStructure.Template("INSERT", "INSERT INTO " + quotedTableName
                                         + " (" + String.join(", ", columnNames) + ")\n"
-                                        + "  VALUES (" + String.join(", ", columnValues) + ");", null),
+                                        + "  VALUES (" + String.join(", ", columnValues) + ");"),
                                 new DatasourceStructure.Template("UPDATE", "UPDATE " + quotedTableName + " SET"
                                         + setFragments.toString() + "\n"
-                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                                        + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                                 new DatasourceStructure.Template("DELETE", "DELETE FROM " + quotedTableName
-                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
+                                        + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
                         ));
                     }
 
@@ -866,6 +902,8 @@ public class PostgresPlugin extends BasePlugin {
                         break;
                     }
                     case STRING: {
+                    }
+                    case JSON_OBJECT: {
                         preparedStatement.setString(index, value);
                         break;
                     }

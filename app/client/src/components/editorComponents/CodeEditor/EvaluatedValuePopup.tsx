@@ -12,10 +12,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import {
-  ExpectedValueExample,
-  UNDEFINED_VALIDATION,
-} from "utils/validation/common";
+import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { IPopoverSharedProps } from "@blueprintjs/core";
 
 import {
@@ -24,6 +21,8 @@ import {
 } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import { Layers } from "constants/Layers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -154,18 +153,19 @@ interface Props {
   theme: EditorTheme;
   isOpen: boolean;
   hasError: boolean;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   evaluatedValue?: any;
   children: JSX.Element;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
-  expected?: { type: string; example: ExpectedValueExample };
+  expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
   evaluatedValue: any;
@@ -409,6 +409,7 @@ function EvaluatedValuePopup(props: Props) {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
+    if (props.popperPlacement) return props.popperPlacement;
     if (wrapperRef.current) {
       const boundingRect = wrapperRef.current.getBoundingClientRect();
       if (boundingRect.left < theme.evaluatedValuePopup.width) {
@@ -425,7 +426,7 @@ function EvaluatedValuePopup(props: Props) {
         modifiers={modifiers}
         placement={placement}
         targetNode={wrapperRef.current || undefined}
-        zIndex={5}
+        zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
           errors={props.errors}

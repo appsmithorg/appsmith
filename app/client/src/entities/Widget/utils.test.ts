@@ -3,6 +3,7 @@ import { RenderModes, WidgetTypes } from "../../constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/TablePropertyPaneConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -24,6 +25,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentRowSpace: 40,
       tableData: "{{getUsers.data}}",
       isVisible: true,
+      isVisibleDownload: true,
       label: "Data",
       searchKey: "",
       type: WidgetTypes.TABLE_WIDGET,
@@ -98,6 +100,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           enableFilter: true,
           enableSort: true,
           isVisible: true,
+          isDisabled: false,
           isDerived: false,
           label: "status",
           computedValue:
@@ -119,6 +122,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -128,6 +132,10 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+
         "primaryColumns.name.cellBackground":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
@@ -135,6 +143,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.createdAt.outputFormat":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
@@ -152,13 +162,17 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonStyle":
           EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
+        onSort: true,
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
       },
@@ -166,9 +180,13 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: {
           type: "TEXT",
         },
+        delimiter: {
+          type: "TEXT",
+        },
         defaultSelectedRow: {
           params: {
             expected: {
+              autocompleteDataType: AutocompleteDataType.STRING,
               example: "0 | [0, 1]",
               type: "Index of row(s)",
             },
@@ -180,6 +198,9 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         tableData: {
           type: "OBJECT_ARRAY",
+          params: {
+            default: [],
+          },
         },
       },
     };
@@ -244,20 +265,31 @@ describe("getAllPathsFromPropertyConfig", () => {
       },
       validationPaths: {
         "chartData.random-id.data": {
-          children: {
-            params: {
-              allowedKeys: [
-                {
-                  name: "x",
-                  type: "TEXT",
-                },
-                {
-                  name: "y",
-                  type: "NUMBER",
-                },
-              ],
+          params: {
+            children: {
+              params: {
+                required: true,
+                allowedKeys: [
+                  {
+                    name: "x",
+                    type: "TEXT",
+                    params: {
+                      default: "",
+                      required: true,
+                    },
+                  },
+                  {
+                    name: "y",
+                    type: "NUMBER",
+                    params: {
+                      default: 10,
+                      required: true,
+                    },
+                  },
+                ],
+              },
+              type: "OBJECT",
             },
-            type: "OBJECT",
           },
           type: "ARRAY",
         },

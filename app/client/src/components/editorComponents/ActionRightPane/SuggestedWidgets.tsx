@@ -1,6 +1,6 @@
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { WidgetTypes } from "constants/WidgetConstants";
-import React from "react";
+import React, { memo } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
@@ -15,6 +15,10 @@ import {
   SUGGESTED_WIDGET_TOOLTIP,
 } from "constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
+import { useSelector } from "store";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getWidgets } from "sagas/selectors";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 
 const WidgetList = styled.div`
   ${(props) => getTypographyByKey(props, "p1")}
@@ -107,6 +111,7 @@ function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
   actionName: string,
+  widgetName?: string,
 ) {
   const fieldName = widgetInfo.propertyName;
   switch (suggestedWidget.type) {
@@ -134,6 +139,26 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
+    case WidgetTypes.DROP_DOWN_WIDGET:
+      return {
+        type: suggestedWidget.type,
+        props: {
+          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          defaultOptionValue: `{{${widgetName}.options[0].value}}`,
+          dynamicBindingPathList: [
+            { key: widgetInfo.propertyName },
+            { key: "defaultOptionValue" },
+          ],
+        },
+      };
+    case WidgetTypes.TEXT_WIDGET:
+      return {
+        type: suggestedWidget.type,
+        props: {
+          [fieldName]: `{{JSON.stringify(${actionName}.${suggestedWidget.bindingQuery}, null, 2)}}`,
+          dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
+        },
+      };
     default:
       return {
         type: suggestedWidget.type,
@@ -153,15 +178,23 @@ type SuggestedWidgetProps = {
 
 function SuggestedWidgets(props: SuggestedWidgetProps) {
   const dispatch = useDispatch();
+  const dataTree = useSelector(getDataTree);
+  const canvasWidgets = useSelector(getWidgets);
 
   const addWidget = (
     suggestedWidget: SuggestedWidget,
     widgetInfo: WidgetBindingInfo,
   ) => {
+    const widgetName = getNextWidgetName(
+      canvasWidgets,
+      suggestedWidget.type,
+      dataTree,
+    );
     const payload = getWidgetProps(
       suggestedWidget,
       widgetInfo,
       props.actionName,
+      widgetName,
     );
 
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
@@ -204,4 +237,5 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
   );
 }
 
-export default SuggestedWidgets;
+const MemoizedSuggestedWidgets = memo(SuggestedWidgets);
+export default MemoizedSuggestedWidgets;

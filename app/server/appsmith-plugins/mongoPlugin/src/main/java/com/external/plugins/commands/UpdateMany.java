@@ -62,9 +62,11 @@ public class UpdateMany extends MongoCommand {
             if (!StringUtils.isNullOrEmpty(query) && !StringUtils.isNullOrEmpty(update)) {
                 return Boolean.TRUE;
             } else {
+                // Not adding smart defaults for query due to data impact
                 if (StringUtils.isNullOrEmpty(query)) {
                     fieldNamesWithNoConfiguration.add("Query");
                 }
+                // Not adding smart defaults for query due to data impact
                 if (StringUtils.isNullOrEmpty(update)) {
                     fieldNamesWithNoConfiguration.add("Update");
                 }

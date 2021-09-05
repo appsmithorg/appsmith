@@ -16,7 +16,7 @@ describe("Chart Widget Functionality", function() {
     cy.SearchEntityandOpen("Input1");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get(widgetsPage.defaultInput).type(testdata.bindChartData);
+    cy.testJsontext("defaulttext", testdata.bindChartData + "}}");
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -51,5 +51,14 @@ describe("Chart Widget Functionality", function() {
             expect(text.trim()).to.equal(toasttext.trim());
           });
       });
+  });
+
+  it("Chart with seriesTitle feature validation", function() {
+    cy.SearchEntityandOpen("Input2");
+    cy.get(widgetsPage.defaultInput).type(testdata.bindingSeriesTitle);
+
+    cy.get(publish.inputWidget + " " + "input")
+      .last()
+      .should("have.value", dsl.dsl.children[0].chartData[0].seriesName);
   });
 });

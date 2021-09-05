@@ -100,11 +100,12 @@ describe("Entity explorer tests related to query and datasource", function() {
       .find(explorer.collapse)
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(4);
+      expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");
       expect($lis.eq(2)).to.contain("{{Query1.responseMeta}}");
       expect($lis.eq(3)).to.contain("{{Query1.run()}}");
+      expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
     cy.Createpage(pageid);
     cy.GlobalSearchEntity("Query1");

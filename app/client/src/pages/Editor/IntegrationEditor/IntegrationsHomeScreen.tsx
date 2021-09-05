@@ -9,7 +9,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "components/ads/Icon";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import ActiveDataSource from "./ActiveDataSources";
+import ActiveDataSources from "./ActiveDataSources";
 import MockDataSources from "./MockDataSources";
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import { getDatasources, getMockDatasources } from "selectors/entitiesSelector";
@@ -146,7 +146,7 @@ const SECONDARY_MENU: TabProp[] = [
 const getSecondaryMenu = (hasActiveSources: boolean) => {
   const mockDbMenu = {
     key: "MOCK_DATABASE",
-    title: "Mock Databases",
+    title: "Sample Databases",
     panelComponent: <div />,
   };
   return hasActiveSources
@@ -203,7 +203,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Mock Databases</Text>
+      <Text type={TextType.H2}>Sample Databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -415,7 +415,7 @@ class IntegrationsHomeScreen extends React.Component<
       pageId,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
-    let currentScreen = null;
+    let currentScreen;
     const { activePrimaryMenuId, activeSecondaryMenuId } = this.state;
 
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
@@ -470,11 +470,10 @@ class IntegrationsHomeScreen extends React.Component<
       );
     } else {
       currentScreen = (
-        <ActiveDataSource
+        <ActiveDataSources
           applicationId={applicationId}
           dataSources={dataSources}
           history={this.props.history}
-          isCreating={isCreating}
           location={location}
           onCreateNew={() =>
             this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW)

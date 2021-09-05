@@ -9,6 +9,12 @@ import { SearchItem } from "./utils";
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
   display: inline-flex;
+  svg {
+    rect,
+    path {
+      stroke: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+    }
+  }
 `;
 
 export const ActionLink = withTheme(
@@ -29,7 +35,11 @@ export const ActionLink = withTheme(
           name="link"
           onClick={(e) => {
             e.stopPropagation(); // to prevent toggleModal getting called twice
-            searchContext?.handleItemLinkClick(item, "SEARCH_ITEM_ICON_CLICK");
+            searchContext?.handleItemLinkClick(
+              null,
+              item,
+              "SEARCH_ITEM_ICON_CLICK",
+            );
           }}
           size={IconSize.LARGE}
         />

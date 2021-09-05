@@ -2,14 +2,18 @@ package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Security;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ExamplesOrganizationCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -20,6 +24,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -29,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.RedirectHelper.FIRST_TIME_USER_EXPERIENCE_PARAM;
 import static com.appsmith.server.helpers.RedirectHelper.SIGNUP_SUCCESS_URL;
 
 @Slf4j
@@ -42,6 +48,7 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
+    private final UserRepository userRepository;
 
     /**
      * On authentication success, we send a redirect to the endpoint that serve's the user's profile.
@@ -57,12 +64,13 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             WebFilterExchange webFilterExchange,
             Authentication authentication
     ) {
-        return onAuthenticationSuccess(webFilterExchange, authentication, false);
+        return onAuthenticationSuccess(webFilterExchange, authentication, null, false);
     }
 
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
+            Application defaultApplication,
             boolean isFromSignup
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
@@ -72,12 +80,25 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
             // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
-            isFromSignup = ((User) authentication.getPrincipal()).getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            User user = (User) authentication.getPrincipal();
+            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            // If user has previously signed up using password and now using OAuth as a sign in method we are removing
+            // form login method henceforth. This step is taken to avoid any security vulnerability in the login flow
+            // as we are not verifying the user emails at first sign up. In future if we implement the email
+            // verification this can be eliminated safely
+            if (user.getPassword() != null) {
+                user.setPassword(null);
+                user.setSource(
+                    LoginSource.fromString(((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId())
+                );
+                // Update the user in separate thread
+                userRepository.save(user).subscribeOn(Schedulers.boundedElastic()).subscribe();
+            }
         }
 
         Mono<Void> redirectionMono = authentication instanceof OAuth2AuthenticationToken
                 ? handleOAuth2Redirect(webFilterExchange, isFromSignup)
-                : handleRedirect(webFilterExchange, isFromSignup);
+                : handleRedirect(webFilterExchange, defaultApplication, isFromSignup);
 
         final boolean isFromSignupFinal = isFromSignup;
         return sessionUserService.getCurrentUser()
@@ -134,23 +155,30 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
         }
 
         if (isFromSignup) {
-            redirectUrl = buildSignupSuccessUrl(redirectUrl);
+            redirectUrl = buildSignupSuccessUrl(redirectUrl, false);
         }
 
         return redirectStrategy.sendRedirect(exchange, URI.create(redirectUrl));
     }
 
-    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, boolean isFromSignup) {
+    private Mono<Void> handleRedirect(WebFilterExchange webFilterExchange, Application defaultApplication, boolean isFromSignup) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
 
         // On authentication success, we send a redirect to the client's home page. This ensures that the session
         // is set in the cookie on the browser.
         return Mono.just(exchange.getRequest())
                 .flatMap(redirectHelper::getRedirectUrl)
-                .map(url -> {
+                .map(s -> {
+                    String url = s;
+                    boolean addFirstTimeExperienceParam = false;
+                    if(s.endsWith(RedirectHelper.DEFAULT_REDIRECT_URL) && defaultApplication != null) {
+                        addFirstTimeExperienceParam = true;
+                        HttpHeaders headers = exchange.getRequest().getHeaders();
+                        url = redirectHelper.buildApplicationUrl(defaultApplication, headers);
+                    }
                     if (isFromSignup) {
                         // This redirectUrl will be used by the client to redirect after showing a welcome page.
-                        url = buildSignupSuccessUrl(url);
+                        url = buildSignupSuccessUrl(url, addFirstTimeExperienceParam);
                     }
                     return url;
                 })
@@ -158,8 +186,11 @@ public class AuthenticationSuccessHandler implements ServerAuthenticationSuccess
                 .flatMap(redirectUri -> redirectStrategy.sendRedirect(exchange, redirectUri));
     }
 
-    private String buildSignupSuccessUrl(String redirectUrl) {
-        return SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+    private String buildSignupSuccessUrl(String redirectUrl, boolean enableFirstTimeUserExperience) {
+        String url = SIGNUP_SUCCESS_URL + "?redirectUrl=" + URLEncoder.encode(redirectUrl, StandardCharsets.UTF_8);
+        if(enableFirstTimeUserExperience) {
+            url += "&" + FIRST_TIME_USER_EXPERIENCE_PARAM + "=true";
+        }
+        return url;
     }
-
 }

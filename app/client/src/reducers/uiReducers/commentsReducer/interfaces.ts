@@ -13,6 +13,10 @@ export interface CommentsReduxState {
   unreadCommentThreadsCount: number;
   visibleCommentThreadId?: string;
   isIntroCarouselVisible?: boolean;
-  areCommentsEnabled?: boolean;
   unsubscribed: boolean;
+  draggingCommentThreadId: string | null;
+  dragPointerOffset: {
+    x: number;
+    y: number;
+  } | null;
 }
