@@ -17,13 +17,14 @@ import { getFormData } from "selectors/formSelectors";
 import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
+  POST_BODY_FORMAT_OPTIONS_ARRAY,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_OPTIONS_ENUM,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE_HEADER_KEY,
   ApiContentTypes,
   EMPTY_KEY_VALUE_PAIRS,
+  HTTP_METHODS_ENUM,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -148,7 +149,7 @@ function* handleUpdateBodyContentType(
 ) {
   const { apiId, title } = action.payload;
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const displayFormatObject = POST_BODY_FORMAT_OPTIONS.find(
+  const displayFormatObject = POST_BODY_FORMAT_OPTIONS_ARRAY.find(
     (el) => el.label === title,
   );
   if (!displayFormatObject) {
@@ -156,11 +157,8 @@ function* handleUpdateBodyContentType(
     return;
   }
 
-  if (
-    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_ENUM.RAW.value ||
-    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_ENUM.NONE.value
-  ) {
-    // Dont update the content type header if raw/none has been selected
+  if (displayFormatObject.value === POST_BODY_FORMAT_OPTIONS.RAW.value) {
+    // Dont update the content type header if raw has been selected
     yield put({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
       payload: {
@@ -174,7 +172,6 @@ function* handleUpdateBodyContentType(
   }
 
   const headers = cloneDeep(values.actionConfiguration.headers);
-  const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
 
   const contentTypeHeaderIndex = headers.findIndex(
     (element: { key: string; value: string }) =>
@@ -184,20 +181,36 @@ function* handleUpdateBodyContentType(
   );
   const indexToUpdate = getIndextoUpdate(headers, contentTypeHeaderIndex);
 
-  headers[indexToUpdate] = {
-    key: CONTENT_TYPE_HEADER_KEY,
-    value: displayFormatObject.value,
-  };
+  // If the user has selected "None" as the body type & there is a content-type
+  // header present in the API configuration, delete the content-type header
+  // This is the difference between RAW & NONE content-types. RAW doesn't update
+  // the content-type header, while NONE removes it
+  if (
+    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS.NONE.value &&
+    indexToUpdate !== -1
+  ) {
+    headers[indexToUpdate] = {
+      key: "",
+      value: "",
+    };
+  } else {
+    headers[indexToUpdate] = {
+      key: CONTENT_TYPE_HEADER_KEY,
+      value: displayFormatObject.value,
+    };
+  }
 
   yield put(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
+  const bodyFormData = cloneDeep(values.actionConfiguration.bodyFormData);
+
   if (
     displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value ||
+      POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value ||
     displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS_ENUM.MULTIPART_FORM_DATA.value
+      POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA.value
   ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
@@ -276,17 +289,20 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
         header.key.toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
 
-    if (
-      contentType &&
-      contentType.value &&
-      POST_BODY_FORMATS.includes(contentType.value)
-    ) {
+    if (!contentType || !contentType.value) {
+      // If the content-type header is not present, set the display format to None
+      displayFormat = POST_BODY_FORMAT_OPTIONS.NONE;
+    } else if (POST_BODY_FORMATS.includes(contentType.value)) {
+      // If the content-type header is present & we have a tab defined for it, switch
+      // the display format to that specific tab
       displayFormat = {
         label: contentType.value,
         value: contentType.value,
       };
     } else {
-      displayFormat = POST_BODY_FORMAT_OPTIONS_ENUM.RAW;
+      // The content-type header is present but we don't have a specific tab for it.
+      // Default to the RAW option.
+      displayFormat = POST_BODY_FORMAT_OPTIONS.RAW;
     }
   }
 
@@ -320,14 +336,14 @@ function* updateFormFields(
         header.key &&
         header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
-    if (value !== "GET") {
+    if (value !== HTTP_METHODS_ENUM.GET.value) {
       const indexToUpdate = getIndextoUpdate(
         actionConfigurationHeaders,
         contentTypeHeaderIndex,
       );
       actionConfigurationHeaders[indexToUpdate] = {
         key: CONTENT_TYPE_HEADER_KEY,
-        value: POST_BODY_FORMAT_OPTIONS_ENUM.JSON.value,
+        value: POST_BODY_FORMAT_OPTIONS.JSON.value,
       };
     } else {
       log.debug("yoyo: Got the GET request");

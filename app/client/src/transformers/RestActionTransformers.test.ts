@@ -3,7 +3,7 @@ import { PluginType, ApiAction } from "entities/Action";
 import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_OPTIONS_ENUM,
+  // POST_BODY_FORMAT_OPTIONS_ENUM,
 } from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
@@ -142,7 +142,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
           },
         ],
         bodyFormData: [
@@ -166,7 +166,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
           },
         ],
         body: "{ name: 'test' }",
@@ -195,7 +195,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
           },
         ],
         bodyFormData: [
@@ -218,7 +218,7 @@ describe("Api action transformer", () => {
         headers: [
           {
             key: "content-type",
-            value: POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value,
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED.value,
           },
         ],
         body: "",

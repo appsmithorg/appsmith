@@ -1,11 +1,33 @@
-import { HTTP_METHODS_ENUM } from "constants/ApiEditorConstants";
+import {
+  HTTP_METHODS_ENUM,
+  CONTENT_TYPE_HEADER_KEY,
+} from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
-import cloneDeep from "lodash/cloneDeep";
 import isEmpty from "lodash/isEmpty";
-import isString from "lodash/isString";
+import { isString, cloneDeep } from "lodash";
+import log from "loglevel";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
+  const actionConfigurationHeaders = action.actionConfiguration.headers;
+
+  const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+    (header: { key: string; value: string }) =>
+      header &&
+      header.key &&
+      header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+  );
+
+  // GET actions should not save body if the content-type is set to empty
+  // In all other scenarios, GET requests will save & execute the action with
+  // the request body
+  if (
+    action.actionConfiguration.httpMethod === HTTP_METHODS_ENUM.GET.value &&
+    contentTypeHeaderIndex == -1
+  ) {
+    log.debug("Deleting the body for GET request");
+    delete action.actionConfiguration.body;
+  }
 
   // Paths should not have query params
   if (

@@ -10,7 +10,6 @@ import { HTTP_METHODS_ENUM } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
-import log from "loglevel";
 
 export const ENTITY_ICON_SIZE = 16;
 
