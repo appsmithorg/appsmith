@@ -37,14 +37,6 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       width: 100%;
       height: inherit;
       align-items: center;
-      /* &:active {
-        border-color: ${(props) =>
-          !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      }
-      &:focus {
-        border-color: ${(props) =>
-          !props.isValid ? IntentColors.danger : Colors.MYSTIC};
-      } */
       &:active {
         border-color: ${({ isValid }) =>
           !isValid ? IntentColors.danger : Colors.HIT_GRAY};
