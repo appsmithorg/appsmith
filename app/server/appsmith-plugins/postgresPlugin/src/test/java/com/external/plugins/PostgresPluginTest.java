@@ -14,6 +14,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.services.SharedConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -53,7 +54,21 @@ import static org.junit.Assert.assertTrue;
  */
 public class PostgresPluginTest {
 
-    PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor();
+    public class MockSharedConfig implements SharedConfig {
+
+        @Override
+        public int getCodecSize() {
+            return 10 * 1024 * 1024;
+        }
+
+        @Override
+        public int getMaxResponseSize() {
+            return 10000;
+        }
+    }
+
+
+    PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(new MockSharedConfig());
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @ClassRule
