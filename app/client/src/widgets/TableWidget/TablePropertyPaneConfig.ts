@@ -1192,6 +1192,7 @@ export default [
                       value: "CUSTOM",
                     },
                   ],
+                  // Update Menu color once Custom Style is Selected
                   updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
@@ -1260,6 +1261,7 @@ export default [
                     "derivedColumns",
                     "columnOrder",
                   ],
+                  // Remove menu Style once Custom is Chosen
                   updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
@@ -1435,6 +1437,7 @@ export default [
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },
+                  // Select a default Icon Alignment when an icon is chosen
                   updateHook: function updateHook(
                     props: TableWidgetProps,
                     propertyPath: string,
