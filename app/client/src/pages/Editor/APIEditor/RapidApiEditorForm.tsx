@@ -1,7 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps, formValueSelector } from "redux-form";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_OPTIONS_ENUM,
+} from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
@@ -284,8 +287,8 @@ export default connect((state) => {
 
   if (
     typeof actionConfigurationBodyFormData === "string" &&
-    (displayFormat === POST_BODY_FORMAT_OPTIONS[0].value ||
-      displayFormat === POST_BODY_FORMAT_OPTIONS[1].value)
+    (displayFormat === POST_BODY_FORMAT_OPTIONS_ENUM.JSON.value ||
+      displayFormat === POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value)
   ) {
     actionConfigurationBodyFormData = JSON.parse(
       `${actionConfigurationBodyFormData}`,

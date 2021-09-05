@@ -1,13 +1,10 @@
-import { HTTP_METHODS } from "constants/ApiEditorConstants";
+import { HTTP_METHODS_ENUM } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
 import _ from "lodash";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = _.cloneDeep(data);
-  // // GET actions should not save body
-  // if (action.actionConfiguration.httpMethod === HTTP_METHODS[0]) {
-  //   delete action.actionConfiguration.body;
-  // }
+
   // Paths should not have query params
   if (
     action.actionConfiguration.queryParameters &&
@@ -25,7 +22,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     }
   }
   // Body should send correct format depending on the content type
-  if (action.actionConfiguration.httpMethod !== HTTP_METHODS[0]) {
+  if (action.actionConfiguration.httpMethod !== HTTP_METHODS_ENUM.GET.value) {
     let body: any = "";
     if (action.actionConfiguration.body) {
       body = action.actionConfiguration.body || undefined;

@@ -4,8 +4,7 @@ import styled from "styled-components";
 import { formValueSelector } from "redux-form";
 import {
   ApiContentTypes,
-  POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_OPTIONS_CLASS,
+  POST_BODY_FORMAT_OPTIONS_ENUM,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -25,6 +24,7 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Classes } from "components/ads/common";
 import { createMessage, API_PANE_NO_BODY } from "constants/messages";
+import log from "loglevel";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;
@@ -166,8 +166,8 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const displayFormat =
-    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS[3];
-  POST_BODY_FORMAT_OPTIONS_CLASS.getAllItems();
+    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS_ENUM.RAW;
+  log.debug(`extraFormData: ${JSON.stringify(extraFormData)}`);
   return {
     displayFormat,
     apiId,

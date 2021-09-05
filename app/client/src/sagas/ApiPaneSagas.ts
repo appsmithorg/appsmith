@@ -18,7 +18,7 @@ import { API_EDITOR_FORM_NAME, SAAS_EDITOR_FORM } from "constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_OPTIONS_CLASS,
+  POST_BODY_FORMAT_OPTIONS_ENUM,
   REST_PLUGIN_PACKAGE_NAME,
   POST_BODY_FORMATS,
   CONTENT_TYPE_HEADER_KEY,
@@ -156,14 +156,17 @@ function* handleUpdateBodyContentType(
     return;
   }
 
-  if (displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_CLASS.JSON.value) {
-    // Dont update the content type header if raw has been selected
+  if (
+    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_ENUM.RAW.value ||
+    displayFormatObject.value === POST_BODY_FORMAT_OPTIONS_ENUM.NONE.value
+  ) {
+    // Dont update the content type header if raw/none has been selected
     yield put({
       type: ReduxActionTypes.SET_EXTRA_FORMDATA,
       payload: {
         id: apiId,
         values: {
-          displayFormat: POST_BODY_FORMAT_OPTIONS[3],
+          displayFormat: displayFormatObject,
         },
       },
     });
@@ -192,9 +195,9 @@ function* handleUpdateBodyContentType(
 
   if (
     displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS_CLASS.FORM_URLENCODED.value ||
+      POST_BODY_FORMAT_OPTIONS_ENUM.FORM_URLENCODED.value ||
     displayFormatObject.value ===
-      POST_BODY_FORMAT_OPTIONS_CLASS.MULTIPART_FORM_DATA.value
+      POST_BODY_FORMAT_OPTIONS_ENUM.MULTIPART_FORM_DATA.value
   ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
@@ -283,7 +286,7 @@ function* setHeaderFormat(apiId: string, headers?: Property[]) {
         value: contentType.value,
       };
     } else {
-      displayFormat = POST_BODY_FORMAT_OPTIONS[3];
+      displayFormat = POST_BODY_FORMAT_OPTIONS_ENUM.RAW;
     }
   }
 
@@ -303,43 +306,45 @@ function* updateFormFields(
 ) {
   const field = actionPayload.meta.field;
   const value = actionPayload.payload;
+  log.debug("updateFormFields: " + JSON.stringify(value));
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
 
   if (field === "actionConfiguration.httpMethod") {
     const { actionConfiguration } = values;
+    if (!actionConfiguration.headers) return;
+
     const actionConfigurationHeaders = cloneDeep(actionConfiguration.headers);
-    if (actionConfigurationHeaders) {
-      const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
-        (header: { key: string; value: string }) =>
-          header &&
-          header.key &&
-          header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    const contentTypeHeaderIndex = actionConfigurationHeaders.findIndex(
+      (header: { key: string; value: string }) =>
+        header &&
+        header.key &&
+        header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
+    );
+    if (value !== "GET") {
+      const indexToUpdate = getIndextoUpdate(
+        actionConfigurationHeaders,
+        contentTypeHeaderIndex,
       );
-      if (value !== "GET") {
-        const indexToUpdate = getIndextoUpdate(
-          actionConfigurationHeaders,
-          contentTypeHeaderIndex,
-        );
-        actionConfigurationHeaders[indexToUpdate] = {
-          key: CONTENT_TYPE_HEADER_KEY,
-          value: POST_BODY_FORMAT_OPTIONS[0].value,
+      actionConfigurationHeaders[indexToUpdate] = {
+        key: CONTENT_TYPE_HEADER_KEY,
+        value: POST_BODY_FORMAT_OPTIONS_ENUM.JSON.value,
+      };
+    } else {
+      log.debug("yoyo: Got the GET request");
+      if (contentTypeHeaderIndex > -1) {
+        actionConfigurationHeaders[contentTypeHeaderIndex] = {
+          key: "",
+          value: "",
         };
-      } else {
-        if (contentTypeHeaderIndex > -1) {
-          actionConfigurationHeaders[contentTypeHeaderIndex] = {
-            key: "",
-            value: "",
-          };
-        }
       }
-      yield put(
-        change(
-          API_EDITOR_FORM_NAME,
-          "actionConfiguration.headers",
-          actionConfigurationHeaders,
-        ),
-      );
     }
+    yield put(
+      change(
+        API_EDITOR_FORM_NAME,
+        "actionConfiguration.headers",
+        actionConfigurationHeaders,
+      ),
+    );
   } else if (field.includes("actionConfiguration.headers")) {
     const actionConfigurationHeaders = get(
       values,
