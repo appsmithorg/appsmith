@@ -12,8 +12,8 @@ public class SharedConfigImpl implements SharedConfig {
     @Value("${appsmith.codec.max-in-memory-size:10}")
     private int CODEC_SIZE;
 
-    @Value("${appsmith.plugin.response.size.max:5000000}")
-    private int maxPluginResponseSize = 5000000;
+    @Value("${appsmith.plugin.response.size.max:5}")
+    private float maxPluginResponseSize = 5;
 
     @Override
     public int getCodecSize() {
@@ -22,6 +22,6 @@ public class SharedConfigImpl implements SharedConfig {
 
     @Override
     public int getMaxResponseSize() {
-        return this.maxPluginResponseSize;
+        return (int) (this.maxPluginResponseSize * 1024 * 1024);
     }
 }

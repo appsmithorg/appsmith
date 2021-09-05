@@ -343,8 +343,8 @@ public class PostgresPlugin extends BasePlugin {
                                 if (objectSize > MAX_SIZE_SUPPORTED) {
                                     System.out.println(Thread.currentThread().getName() +
                                             "[PostgresPlugin] Result size greater than maximum supported size of "
-                                            + MAX_SIZE_SUPPORTED + ". Current size : " + objectSize);
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, MAX_SIZE_SUPPORTED));
+                                            + MAX_SIZE_SUPPORTED + "bytes. Current size : " + objectSize);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
                                 }
                             }
 
