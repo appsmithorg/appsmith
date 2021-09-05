@@ -1,8 +1,13 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
-import log from "loglevel";
+import { HttpMethod } from "api/Api";
 
-export const HTTP_METHODS_ENUM = {
+// This constant lists all the support HTTP methods & their color in
+// the entity explorer
+export const HTTP_METHODS_ENUM: Record<
+  string,
+  { value: HttpMethod; color: string }
+> = {
   GET: { value: "GET", color: "#457AE6" },
   POST: { value: "POST", color: "#EABB0C" },
   PUT: { value: "PUT", color: "#5BB749" },
@@ -49,7 +54,13 @@ export enum ApiContentTypes {
   RAW = "raw",
 }
 
-export const POST_BODY_FORMAT_OPTIONS_ENUM = {
+// This lists all the support content types in the API body. The value field is the
+// value for the content-type header. In the UI, these content types are displayed in the
+// order defined here.
+export const POST_BODY_FORMAT_OPTIONS: Record<
+  string,
+  { label: ApiContentTypes; value: string }
+> = {
   NONE: {
     label: ApiContentTypes.NONE,
     value: "none",
@@ -72,18 +83,18 @@ export const POST_BODY_FORMAT_OPTIONS_ENUM = {
   },
 };
 
-export const POST_BODY_FORMATS = Object.values(
-  POST_BODY_FORMAT_OPTIONS_ENUM,
-).map((option) => {
-  return option.value;
-});
+export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
+  (option) => {
+    return option.value;
+  },
+);
 
-export const POST_BODY_FORMAT_OPTIONS = Object.values(
-  POST_BODY_FORMAT_OPTIONS_ENUM,
+export const POST_BODY_FORMAT_OPTIONS_ARRAY = Object.values(
+  POST_BODY_FORMAT_OPTIONS,
 );
 
 export const POST_BODY_FORMAT_TITLES = Object.values(
-  POST_BODY_FORMAT_OPTIONS_ENUM,
+  POST_BODY_FORMAT_OPTIONS,
 ).map((option) => {
   return { title: option.label, key: option.value };
 });

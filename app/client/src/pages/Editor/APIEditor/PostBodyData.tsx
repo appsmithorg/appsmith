@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { formValueSelector } from "redux-form";
 import {
   ApiContentTypes,
-  POST_BODY_FORMAT_OPTIONS_ENUM,
+  POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
@@ -166,7 +166,7 @@ export default connect((state: AppState) => {
   const apiId = selector(state, "id");
   const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
   const displayFormat =
-    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS_ENUM.RAW;
+    extraFormData["displayFormat"] || POST_BODY_FORMAT_OPTIONS.RAW;
   log.debug(`extraFormData: ${JSON.stringify(extraFormData)}`);
   return {
     displayFormat,
