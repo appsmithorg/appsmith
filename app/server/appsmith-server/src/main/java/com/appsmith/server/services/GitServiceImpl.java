@@ -47,7 +47,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
         if(gitConfig.getProfileName() == null || gitConfig.getProfileName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Profile Name", ""));
         }
-        return userService.findByEmail(gitConfig.getUserName())
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
@@ -84,8 +85,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private Mono<Boolean> isProfileNameExists(String userId, String name) {
         return userDataService.findByProfileName(userId, name)
-                .flatMap(count -> {
-                    if(count == null) {
+                .flatMap(userData -> {
+                    if(userData == null) {
                         return Mono.just(false);
                     } else {
                         return Mono.just(true);
