@@ -230,6 +230,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
 
   return (
     <Menu
+      className="t--debugger-contextual-error-menu"
       menuItemWrapperWidth={"175px"}
       modifiers={
         props.modifiers || {
@@ -249,7 +250,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
 
         return (
           <MenuItem
-            className={BPClasses.POPOVER_DISMISS}
+            className={`${BPClasses.POPOVER_DISMISS} t--debugger-contextual-menuitem`}
             key={e}
             onClick={onSelect}
           >
