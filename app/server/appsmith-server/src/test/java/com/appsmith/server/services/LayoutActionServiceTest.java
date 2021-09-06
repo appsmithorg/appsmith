@@ -209,24 +209,24 @@ public class LayoutActionServiceTest {
         action3.setDatasource(d2);
 
         Mono<PageDTO> resultMono = layoutActionService
-                .createAction(action)
+                .createSingleAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
                     updates.setDatasource(datasource);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> layoutActionService.createAction(unreferencedAction))
+                .flatMap(savedAction -> layoutActionService.createSingleAction(unreferencedAction))
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
-                .flatMap(savedAction -> layoutActionService.createAction(action3))
+                .flatMap(savedAction -> layoutActionService.createSingleAction(action3))
                 .flatMap(savedAction -> {
                     Assert.assertFalse(savedAction.getActionConfiguration().getIsValid());
                     Assert.assertTrue(savedAction.getInvalids().contains(AppsmithError.INVALID_JS_ACTION.getMessage()));
@@ -234,7 +234,7 @@ public class LayoutActionServiceTest {
                     updates.setExecuteOnLoad(true);
                     updates.setPolicies(null);
                     updates.setUserPermissions(null);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 })
                 // fetch the unpublished page
                 .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false));
@@ -275,7 +275,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -321,7 +321,7 @@ public class LayoutActionServiceTest {
 
         Layout layout = testPage.getLayouts().get(0);
 
-        ActionDTO firstAction = layoutActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         layout.setDsl(layoutActionService.unescapeMongoSpecialCharacters(layout));
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
@@ -332,7 +332,7 @@ public class LayoutActionServiceTest {
 
         // Create another action with the same name as the erstwhile deleted action
         action.setId(null);
-        ActionDTO secondAction = layoutActionService.createAction(action).block();
+        ActionDTO secondAction = layoutActionService.createSingleAction(action).block();
 
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
         refactorActionNameDTO.setPageId(testPage.getId());
@@ -379,7 +379,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO createdAction = layoutActionService.createAction(action).block();
+        ActionDTO createdAction = layoutActionService.createSingleAction(action).block();
 
         LayoutDTO firstLayout = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
 
@@ -432,8 +432,8 @@ public class LayoutActionServiceTest {
         Layout layout = testPage.getLayouts().get(0);
         layout.setDsl(dsl);
 
-        ActionDTO createdAction1 = layoutActionService.createAction(action1).block();
-        ActionDTO createdAction2 = layoutActionService.createAction(action2).block();
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
 
         Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
 
@@ -519,7 +519,7 @@ public class LayoutActionServiceTest {
         unreferencedAction.setDatasource(datasource);
 
         Mono<ActionDTO> resultMono = layoutActionService
-                .createAction(action)
+                .createSingleAction(action)
                 .flatMap(savedAction -> {
                     ActionDTO updates = new ActionDTO();
                     updates.setExecuteOnLoad(true);
@@ -532,7 +532,7 @@ public class LayoutActionServiceTest {
                     ds.getDatasourceConfiguration().setUrl("http://localhost");
                     ds.setPluginId(datasource.getPluginId());
                     updates.setDatasource(ds);
-                    return layoutActionService.updateAction(savedAction.getId(), updates);
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
                 });
 
         StepVerifier
@@ -612,7 +612,7 @@ public class LayoutActionServiceTest {
         layout.setDsl(dsl);
         layout.setPublishedDsl(dsl);
 
-        ActionDTO firstAction = layoutActionService.createAction(action).block();
+        ActionDTO firstAction = layoutActionService.createSingleAction(action).block();
 
         ActionDTO duplicateName = new ActionDTO();
         duplicateName.setName(name);
@@ -678,7 +678,7 @@ public class LayoutActionServiceTest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(datasource);
 
-        layoutActionService.createAction(action).block();
+        layoutActionService.createSingleAction(action).block();
 
         ActionDTO duplicateAction = new ActionDTO();
         duplicateAction.setName(name);
@@ -686,7 +686,7 @@ public class LayoutActionServiceTest {
         duplicateAction.setActionConfiguration(actionConfiguration);
         duplicateAction.setDatasource(datasource);
 
-        Mono<ActionDTO> duplicateActionMono = layoutActionService.createAction(duplicateAction);
+        Mono<ActionDTO> duplicateActionMono = layoutActionService.createSingleAction(duplicateAction);
 
         StepVerifier
                 .create(duplicateActionMono)

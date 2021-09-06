@@ -259,7 +259,7 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(layoutActionService::createAction)
+                            .flatMap(layoutActionService::createSingleAction)
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })

@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.RefactorActionCollectionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ActionCollectionService;
+import com.appsmith.server.services.LayoutCollectionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,17 +32,20 @@ import java.util.List;
 @Slf4j
 public class ActionCollectionController {
     private final ActionCollectionService actionCollectionService;
+    private final LayoutCollectionService layoutCollectionService;
 
     @Autowired
-    public ActionCollectionController(ActionCollectionService actionCollectionService) {
+    public ActionCollectionController(ActionCollectionService actionCollectionService,
+                                      LayoutCollectionService layoutCollectionService) {
         this.actionCollectionService = actionCollectionService;
+        this.layoutCollectionService = layoutCollectionService;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionCollectionDTO>> create(@Valid @RequestBody ActionCollectionDTO resource) {
         log.debug("Going to create action collection {}", resource.getClass().getName());
-        return actionCollectionService.createCollection(resource)
+        return layoutCollectionService.createCollection(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -56,13 +60,13 @@ public class ActionCollectionController {
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionCollectionDTO>> moveActionCollection(@RequestBody @Valid ActionCollectionMoveDTO actionCollectionMoveDTO) {
         log.debug("Going to move action collection with id {} to page {}", actionCollectionMoveDTO.getCollectionId(), actionCollectionMoveDTO.getDestinationPageId());
-        return actionCollectionService.moveCollection(actionCollectionMoveDTO)
+        return layoutCollectionService.moveCollection(actionCollectionMoveDTO)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
     @PutMapping("/refactor")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollectionName(@RequestBody RefactorActionCollectionNameDTO refactorActionCollectionNameDTO) {
-        return actionCollectionService.refactorCollectionName(refactorActionCollectionNameDTO)
+        return layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
@@ -77,7 +81,7 @@ public class ActionCollectionController {
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(@PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
         log.debug("Going to update action collection with id: {}", id);
-        return actionCollectionService.updateUnpublishedActionCollection(id, resource)
+        return layoutCollectionService.updateUnpublishedActionCollection(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
