@@ -78,7 +78,8 @@ const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
-  flex: 1 /* padding-bottom: 300px; */ /* margin-top: 16px; */ & > div {
+  flex: 1;
+  & > div {
     margin-bottom: 20px;
   }
 `;
