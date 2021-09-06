@@ -6,8 +6,66 @@ import { isLabelOrientationApplicableFor } from "components/designSystems/appsmi
 
 export default [
   {
-    sectionName: "Data",
+    sectionName: "General",
     children: [
+      {
+        helpText: "Adds a title to the chart",
+        placeholderText: "Sales Report",
+        propertyName: "chartName",
+        label: "Title",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        helpText: "Changes the visualisation of the chart data",
+        propertyName: "chartType",
+        label: "Chart Type",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Line Chart",
+            value: "LINE_CHART",
+          },
+          {
+            label: "Bar Chart",
+            value: "BAR_CHART",
+          },
+          {
+            label: "Pie Chart",
+            value: "PIE_CHART",
+          },
+          {
+            label: "Column Chart",
+            value: "COLUMN_CHART",
+          },
+          {
+            label: "Area Chart",
+            value: "AREA_CHART",
+          },
+          {
+            label: "Custom Chart",
+            value: "CUSTOM_FUSION_CHART",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+        },
+      },
       {
         helpText: "Configure a Custom FusionChart see docs.appsmith.com",
         placeholderText: `{ 
@@ -138,69 +196,6 @@ export default [
             validation: { type: ValidationTypes.TEXT },
           },
         ],
-      },
-    ],
-  },
-  {
-    sectionName: "General",
-    children: [
-      {
-        helpText: "Adds a title to the chart",
-        placeholderText: "Sales Report",
-        propertyName: "chartName",
-        label: "Title",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Changes the visualisation of the chart data",
-        propertyName: "chartType",
-        label: "Chart Type",
-        controlType: "DROP_DOWN",
-        options: [
-          {
-            label: "Line Chart",
-            value: "LINE_CHART",
-          },
-          {
-            label: "Bar Chart",
-            value: "BAR_CHART",
-          },
-          {
-            label: "Pie Chart",
-            value: "PIE_CHART",
-          },
-          {
-            label: "Column Chart",
-            value: "COLUMN_CHART",
-          },
-          {
-            label: "Area Chart",
-            value: "AREA_CHART",
-          },
-          {
-            label: "Custom Chart",
-            value: "CUSTOM_FUSION_CHART",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "LINE_CHART",
-              "BAR_CHART",
-              "PIE_CHART",
-              "COLUMN_CHART",
-              "AREA_CHART",
-              "CUSTOM_FUSION_CHART",
-            ],
-          },
-        },
       },
       {
         propertyName: "isVisible",

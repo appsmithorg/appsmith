@@ -41,7 +41,7 @@ class FilePickerWidget extends BaseWidget<
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Sets the label of the button",
-            placeholderText: "Enter label text",
+            placeholderText: "Select Files",
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,

@@ -249,12 +249,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.REGEX },
           },
           {
-            helpText:
-              "Ability to control input validity based on a JS expression",
+            helpText: "Sets the input validity based on a JS expression",
             propertyName: "validation",
             label: "Valid",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter input validation expression",
+            placeholderText: "{{ Input1.text.length > 0 }}",
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -262,7 +261,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText:
-              "Displays the error message if the regex validation fails",
+              "The error message to display if the regex or valid property check fails",
             propertyName: "errorMessage",
             label: "Error Message",
             controlType: "INPUT_TEXT",
@@ -303,9 +302,29 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Focus input automatically on load",
-            propertyName: "autoFocus",
-            label: "Auto Focus",
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Disables input to this widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -316,6 +335,16 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Clears the input value after submit",
             propertyName: "resetOnSubmit",
             label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -349,11 +378,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Text Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -367,7 +396,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Text Size",
             controlType: "DROP_DOWN",
             options: [
               {
