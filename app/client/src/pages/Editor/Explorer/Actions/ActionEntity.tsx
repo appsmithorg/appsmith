@@ -8,10 +8,8 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { fetchPage } from "actions/pageActions";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
-import { useDispatch } from "react-redux";
 
 const getUpdateActionNameReduxAction = (id: string, name: string) => {
   return saveActionName({ id, name });
@@ -29,16 +27,11 @@ type ExplorerActionEntityProps = {
 
 export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const { pageId } = useParams<ExplorerURLParams>();
-  const dispatch = useDispatch();
   const switchToAction = useCallback(() => {
     PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
       url: props.url,
     });
     props.url && history.push(props.url);
-
-    if (pageId !== props.pageId) {
-      dispatch(fetchPage(props.pageId));
-    }
   }, [props.url, pageId, props.pageId]);
 
   const contextMenu = (

@@ -41,5 +41,22 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     };
   }
 
+  action.actionConfiguration.bodyFormData = removeEmptyPairs(
+    action.actionConfiguration.bodyFormData,
+  );
+  action.actionConfiguration.headers = removeEmptyPairs(
+    action.actionConfiguration.headers,
+  );
+  action.actionConfiguration.queryParameters = removeEmptyPairs(
+    action.actionConfiguration.queryParameters,
+  );
+
   return action;
 };
+
+function removeEmptyPairs(keyValueArray: any) {
+  if (!keyValueArray || !keyValueArray.length) return keyValueArray;
+  return keyValueArray.filter(
+    (data: any) => !_.isEmpty(data.key) || !_.isEmpty(data.value),
+  );
+}

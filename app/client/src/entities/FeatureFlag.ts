@@ -4,6 +4,7 @@ type FeatureFlag = {
   MULTIPLAYER: boolean;
   LINTING: boolean;
   SNIPPET: boolean;
+  GIT: boolean;
 };
 
 export default FeatureFlag;
