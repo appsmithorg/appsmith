@@ -91,7 +91,6 @@ const StyledButton = styled(Button)`
 
 type DebugCTAProps = {
   className?: string;
-  showMenu?: boolean;
   // For Analytics
   source?: string;
 };

@@ -20,7 +20,7 @@ import {
   PopperModifiers,
   Position,
 } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
+import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 const { intercomAppID } = getAppsmithConfigs();
@@ -102,7 +102,14 @@ type ContextualMenuProps = {
   modifiers?: PopperModifiers;
 };
 
-const searchAction: Record<string, any> = {
+const searchAction: Record<
+  CONTEXT_MENU_ACTIONS,
+  {
+    icon: IconName;
+    text: string;
+    onSelect: (error: Message, dispatch: Dispatch) => void;
+  }
+> = {
   [CONTEXT_MENU_ACTIONS.COPY]: {
     icon: "duplicate",
     text: "Copy",
