@@ -122,6 +122,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
@@ -146,7 +147,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
-
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.verticalAlignment":
@@ -166,8 +166,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        // "primaryColumns.createdAt.isVisible":
-        //   EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },

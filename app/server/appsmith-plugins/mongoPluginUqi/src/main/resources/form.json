@@ -1,0 +1,218 @@
+{
+  "form": [
+    {
+      "sectionName": "Connection",
+      "children": [
+        {
+          "label": "Use Mongo Connection String URI Key",
+          "configProperty": "datasourceConfiguration.properties[0].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "Use Mongo Connection String URI",
+          "hidden": true
+        },
+        {
+          "label": "Use Mongo Connection String URI",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "DROP_DOWN",
+          "initialValue": "No",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "Yes"
+            },
+            {
+              "label": "No",
+              "value": "No"
+            }
+          ]
+        },
+        {
+          "label": "Connection String URI Key",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "Connection String URI",
+          "hidden": true
+        },
+        {
+          "label": "Connection String URI",
+          "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "NOT_EQUALS",
+            "value": "Yes"
+          }
+        },
+        {
+          "label": "Connection Mode",
+          "configProperty": "datasourceConfiguration.connection.mode",
+          "controlType": "DROP_DOWN",
+          "initialValue": "READ_WRITE",
+          "options": [
+            {
+              "label": "Read Only",
+              "value": "READ_ONLY"
+            },
+            {
+              "label": "Read / Write",
+              "value": "READ_WRITE"
+            }
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
+        },
+        {
+          "label": "Connection Type",
+          "configProperty": "datasourceConfiguration.connection.type",
+          "initialValue": "DIRECT",
+          "controlType": "DROP_DOWN",
+          "options": [
+            {
+              "label": "Direct Connection",
+              "value": "DIRECT"
+            },
+            {
+              "label": "Replica set",
+              "value": "REPLICA_SET"
+            }
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
+        },
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Host Address",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.mongodb.net",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[0].value",
+                "comparison": "EQUALS",
+                "value": "Yes"
+              }
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[0].value",
+                "comparison": "EQUALS",
+                "value": "Yes"
+              }
+            }
+          ]
+        },
+        {
+          "label": "Default Database Name",
+          "placeholderText": "(Optional)",
+          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
+          "controlType": "INPUT_TEXT",
+          "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+          }
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
+      "children": [
+        {
+          "label": "Database Name",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "admin"
+        },
+        {
+          "label": "Authentication Type",
+          "configProperty": "datasourceConfiguration.authentication.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "SCRAM_SHA_1",
+          "options": [
+            {
+              "label": "SCRAM-SHA-1",
+              "value": "SCRAM_SHA_1"
+            },
+            {
+              "label": "SCRAM-SHA-256",
+              "value": "SCRAM_SHA_256"
+            },
+            {
+              "label": "MONGODB-CR",
+              "value": "MONGODB_CR"
+            }
+          ]
+        },
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Username",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
+            },
+            {
+              "label": "Password",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password",
+              "encrypted": true
+              }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionName": "SSL (optional)",
+      "hidden": {
+        "path": "datasourceConfiguration.properties[0].value",
+        "comparison": "EQUALS",
+        "value": "Yes"
+      },
+      "children": [
+        {
+          "label": "SSL Mode",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "DEFAULT",
+          "options": [
+            {
+              "label": "Default",
+              "value": "DEFAULT"
+            },
+            {
+              "label": "Enabled",
+              "value": "ENABLED"
+            },
+            {
+              "label": "Disabled",
+              "value": "DISABLED"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
