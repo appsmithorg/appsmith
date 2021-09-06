@@ -40,7 +40,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
-import getFeatureFlags from "utils/featureFlags";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 
 type Props = {
@@ -233,7 +232,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode && getFeatureFlags().COMMENT) {
+            if (this.props.isCommentMode) {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: this.props.appMode,
                 source: "HOTKEY",
@@ -253,7 +252,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
-            if (getFeatureFlags().COMMENT && this.props.isCommentMode)
+            if (this.props.isCommentMode)
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: this.props.appMode,
                 source: "HOTKEY",
@@ -269,7 +268,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Comment Mode"
           onKeyDown={() => {
-            if (getFeatureFlags().COMMENT && !this.props.isCommentMode)
+            if (!this.props.isCommentMode)
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: "COMMENT",
                 source: "HOTKEY",
