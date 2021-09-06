@@ -402,6 +402,7 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
+
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
@@ -579,6 +580,10 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
     /*  Evaluation results for snippet snippets */
+
+    if (getFeatureFlags().LINTING) {
+      this.lintCode();
+    }
 
     if (getFeatureFlags().LINTING) {
       this.lintCode();

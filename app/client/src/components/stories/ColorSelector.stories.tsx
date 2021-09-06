@@ -1,28 +1,40 @@
 import React from "react";
 import { action } from "@storybook/addon-actions";
-import ColorSelector from "components/ads/ColorSelector";
-import { withKnobs, array, boolean } from "@storybook/addon-knobs";
+import ColorSelector, {
+  ColorSelectorProps,
+} from "components/ads/ColorSelector";
 import { withDesign } from "storybook-addon-designs";
-// import { appCardColors } from "constants/AppConstants";
-import { StoryWrapper } from "components/ads/common";
 import { theme } from "constants/DefaultTheme";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "ColorSelector",
+  title: storyName.platform.form.colorSelector.PATH,
   component: ColorSelector,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
 const defaultValue = theme.colors.appCardColors;
 
-export function ColorPickerStory() {
-  return (
-    <StoryWrapper>
-      <ColorSelector
-        colorPalette={array("colorPalette", defaultValue)}
-        fill={boolean("fill", false)}
-        onSelect={action("color-picker")}
-      />
-    </StoryWrapper>
-  );
+export function Primary(args: ColorSelectorProps) {
+  return <ColorSelector {...args} onSelect={action("color-picker")} />;
 }
+
+Primary.args = {
+  colorPalette: defaultValue,
+  fill: false,
+};
+
+Primary.argTypes = {
+  colorPalette: {
+    control: controlType.ARRAY,
+  },
+  fill: { control: controlType.BOOLEAN },
+};
+
+Primary.storyName = storyName.platform.form.colorSelector.NAME;
