@@ -11,31 +11,32 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
+import { SeverityIconColor } from "./helpers";
 
 const EVDebugButton = styled.button`
-  font-size: 11px;
-  font-weight: 600;
+  ${(props) => getTypographyByKey(props, "btnSmall")};
   display: flex;
-  padding: 4px;
-  line-height: 13px;
-  border: 1px solid #f22b2b;
+  padding: ${(props) => props.theme.spaces[1]}px;
+  border: 1px solid ${SeverityIconColor.error};
   width: fit-content;
   background-color: transparent;
-  color: #f22b2b;
+  color: ${SeverityIconColor.error};
   align-items: center;
   justify-content: center;
   cursor: pointer;
 
   &:hover {
-    background-color: #fafafaaa;
+    background-color: ${(props) =>
+      props.theme.colors.debugger.evalDebugButton.hover};
   }
 
   &:active {
-    background-color: #fafafaff;
+    background-color: ${(props) =>
+      props.theme.colors.debugger.evalDebugButton.active};
   }
 
   .${Classes.ICON} {
-    margin-left: 5px;
+    margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
 

@@ -1134,6 +1134,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    evalDebugButton: {
+      hover: string;
+      active: string;
+    };
     inspectElement: {
       color: string;
     };
@@ -1942,6 +1946,10 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -2523,6 +2531,10 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
