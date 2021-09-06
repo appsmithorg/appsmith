@@ -389,6 +389,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
+        className="t--buttongroup-widget"
         isHorizontal={isHorizontal}
       >
         {items.map((button) => {
