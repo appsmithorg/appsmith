@@ -1,24 +1,31 @@
 import { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "constants/ApiConstants";
 import { HttpMethod } from "api/Api";
+import log from "loglevel";
 
 // This constant lists all the support HTTP methods & their color in
 // the entity explorer
-export const HTTP_METHODS_ENUM: Record<
-  string,
-  { value: HttpMethod; color: string }
-> = {
-  GET: { value: "GET", color: "#457AE6" },
-  POST: { value: "POST", color: "#EABB0C" },
-  PUT: { value: "PUT", color: "#5BB749" },
-  DELETE: { value: "DELETE", color: "#E22C2C" },
-  PATCH: { value: "PATCH", color: "#6D6D6D" },
-};
-Object.freeze(HTTP_METHODS_ENUM);
+export enum HTTP_METHODS {
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
+  PATCH = "PATCH",
+}
 
-export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS_ENUM).map(
+export const HTTP_METHODS_COLOR: {
+  [key in keyof typeof HTTP_METHODS]: string;
+} = {
+  GET = "#457AE6",
+  POST = "#EABB0C",
+  PUT = "#5BB749",
+  DELETE = "#E22C2C",
+  PATCH = "#6D6D6D",
+};
+
+export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHODS).map(
   (method) => ({
-    value: method.value,
+    value: method,
   }),
 );
 
@@ -32,7 +39,7 @@ export const EMPTY_KEY_VALUE_PAIRS = [
 export const DEFAULT_API_ACTION_CONFIG: ApiActionConfig = {
   timeoutInMillisecond: DEFAULT_ACTION_TIMEOUT,
   encodeParamsToggle: true,
-  httpMethod: HTTP_METHODS_ENUM.GET.value,
+  httpMethod: HTTP_METHODS.GET,
   headers: EMPTY_KEY_VALUE_PAIRS.slice(),
   queryParameters: EMPTY_KEY_VALUE_PAIRS.slice(),
   body: "",
@@ -58,35 +65,20 @@ export enum ApiContentTypes {
 // This lists all the support content types in the API body. The value field is the
 // value for the content-type header. In the UI, these content types are displayed in the
 // order defined here.
-export const POST_BODY_FORMAT_OPTIONS: Record<
-  string,
-  { label: ApiContentTypes; value: string }
-> = {
-  NONE: {
-    label: ApiContentTypes.NONE,
-    value: "none",
-  },
-  JSON: {
-    label: ApiContentTypes.JSON,
-    value: "application/json",
-  },
-  FORM_URLENCODED: {
-    label: ApiContentTypes.FORM_URLENCODED,
-    value: "application/x-www-form-urlencoded",
-  },
-  MULTIPART_FORM_DATA: {
-    label: ApiContentTypes.MULTIPART_FORM_DATA,
-    value: "multipart/form-data",
-  },
-  RAW: {
-    label: ApiContentTypes.RAW,
-    value: "raw",
-  },
+export const POST_BODY_FORMAT_OPTIONS: {
+  [key in keyof typeof ApiContentTypes]: string;
+} = {
+  NONE: "none",
+  JSON: "application/json",
+  FORM_URLENCODED: "application/x-www-form-urlencoded",
+  MULTIPART_FORM_DATA: "multipart/form-data",
+  RAW: "raw",
 };
 
 export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
   (option) => {
-    return option.value;
+    log.debug();
+    return option;
   },
 );
 

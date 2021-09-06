@@ -24,7 +24,7 @@ import {
   CONTENT_TYPE_HEADER_KEY,
   ApiContentTypes,
   EMPTY_KEY_VALUE_PAIRS,
-  HTTP_METHODS_ENUM,
+  HTTP_METHODS,
 } from "constants/ApiEditorConstants";
 import history from "utils/history";
 import {
@@ -336,7 +336,7 @@ function* updateFormFields(
         header.key &&
         header.key.trim().toLowerCase() === CONTENT_TYPE_HEADER_KEY,
     );
-    if (value !== HTTP_METHODS_ENUM.GET.value) {
+    if (value !== HTTP_METHODS.GET) {
       const indexToUpdate = getIndextoUpdate(
         actionConfigurationHeaders,
         contentTypeHeaderIndex,

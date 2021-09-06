@@ -7,7 +7,7 @@ import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import QueryImageOutline from "assets/images/query-image-outline.png";
 import styled from "styled-components";
-import { HTTP_METHODS_ENUM } from "constants/ApiEditorConstants";
+import { HTTP_METHODS, HTTP_METHODS_COLOR } from "constants/ApiEditorConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
@@ -165,10 +165,8 @@ const StyledTag = styled.div<{ color: string }>`
   line-height: 16px;
 `;
 
-export function MethodTag(props: { type: keyof typeof HTTP_METHODS_ENUM }) {
+export function MethodTag(props: { type: keyof typeof HTTP_METHODS }) {
   return (
-    <StyledTag color={HTTP_METHODS_ENUM[props.type].color}>
-      {props.type}
-    </StyledTag>
+    <StyledTag color={HTTP_METHODS_COLOR[props.type]}>{props.type}</StyledTag>
   );
 }

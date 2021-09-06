@@ -1,5 +1,5 @@
 import {
-  HTTP_METHODS_ENUM,
+  HTTP_METHODS,
   CONTENT_TYPE_HEADER_KEY,
 } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
@@ -20,7 +20,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
   // In all other scenarios, GET requests will save & execute the action with
   // the request body
   if (
-    action.actionConfiguration.httpMethod === HTTP_METHODS_ENUM.GET.value &&
+    action.actionConfiguration.httpMethod === HTTP_METHODS.GET &&
     contentTypeHeaderIndex == -1
   ) {
     delete action.actionConfiguration.body;
@@ -43,7 +43,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
     }
   }
   // Body should send correct format depending on the content type
-  if (action.actionConfiguration.httpMethod !== HTTP_METHODS_ENUM.GET.value) {
+  if (action.actionConfiguration.httpMethod !== HTTP_METHODS.GET) {
     let body: any = "";
     if (action.actionConfiguration.body) {
       body = action.actionConfiguration.body || undefined;
