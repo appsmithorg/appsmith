@@ -32,8 +32,6 @@ describe("Widget error state", function() {
   });
 
   it("Clicking on a message should open the search menu", function() {
-    cy.testJsontext("label", "{{[]}}");
-
     cy.get(debuggerLocators.errorMessage)
       .first()
       .click();
