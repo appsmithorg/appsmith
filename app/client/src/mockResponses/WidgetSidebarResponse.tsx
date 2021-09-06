@@ -144,6 +144,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Checkbox Group",
     key: generateReactKey(),
   },
+  {
+    type: "IMAGE_ANNOTATOR_WIDGET",
+    widgetCardName: "Image Annotator",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;

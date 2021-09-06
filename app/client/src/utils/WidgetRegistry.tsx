@@ -137,6 +137,10 @@ import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
 } from "widgets/CheckboxGroupWidget";
+import ImageAnnotatorWidget, {
+  ImageAnnotatorWidgetProps,
+  ProfiledImageAnnotatorWidget,
+} from "widgets/ImageAnnotatorWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -606,6 +610,19 @@ export default class WidgetBuilderRegistry {
       CheckboxGroupWidget.getDefaultPropertiesMap(),
       CheckboxGroupWidget.getMetaPropertiesMap(),
       CheckboxGroupWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.IMAGE_ANNOTATOR_WIDGET,
+      {
+        buildWidget(widgetData: ImageAnnotatorWidgetProps): JSX.Element {
+          return <ProfiledImageAnnotatorWidget {...widgetData} />;
+        },
+      },
+      ImageAnnotatorWidget.getDerivedPropertiesMap(),
+      ImageAnnotatorWidget.getDefaultPropertiesMap(),
+      ImageAnnotatorWidget.getMetaPropertiesMap(),
+      ImageAnnotatorWidget.getPropertyPaneConfig(),
     );
   }
 }

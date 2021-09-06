@@ -151,6 +151,10 @@ export const HelpMap = {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",
   },
+  IMAGE_ANNOTATOR_WIDGET: {
+    path: "/widget-reference/image-annotator",
+    searchKey: "Image Annotator",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

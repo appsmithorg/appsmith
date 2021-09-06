@@ -334,6 +334,12 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/stat-box",
     isVisible: isVisible,
   },
+  IMAGE_ANNOTATOR_WIDGET: {
+    "!doc":
+      "Image annotator widget can be used to label objects inside images.",
+    "!url": "https://docs.appsmith.com/widget-reference/image-annotator",
+    isVisible: isVisible,
+  },
 };
 
 export const GLOBAL_DEFS = {

@@ -1411,6 +1411,15 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
+    [WidgetTypes.IMAGE_ANNOTATOR_WIDGET]: {
+      rows: 4 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      imageUrl: "https://placekitten.com/408/287",
+      isDisabled: false,
+      isVisible: true,
+      widgetName: "ImageAnnotator",
+      version: 1,
+    },
   },
   configVersion: 1,
 };
