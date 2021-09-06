@@ -30,7 +30,11 @@ import DataSourceOption from "../DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
-import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
+import {
+  GENERATE_PAGE_FORM_TITLE,
+  createMessage,
+  GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
+} from "constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -127,8 +131,6 @@ const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
-
-//
 
 function GeneratePageSubmitBtn({
   disabled,
@@ -586,7 +588,7 @@ function GeneratePageForm() {
       </Wrapper>
       <FormWrapper>
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>Select Datasource</Label>
+          <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
@@ -602,6 +604,7 @@ function GeneratePageForm() {
                 key={option.id}
                 option={option}
                 optionClickHandler={optionClickHandler}
+                optionWidth={DROPDOWN_DIMENSION.WIDTH}
               />
             )}
             selected={selectedDatasource}

@@ -16,10 +16,7 @@ import {
   deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
-import {
-  setGlobalSearchFilterContext,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -30,18 +27,21 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import getFeatureFlags from "utils/featureFlags";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -57,7 +57,6 @@ type Props = {
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
-  setGlobalSearchFilterContext: (payload: { category: any }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
@@ -85,15 +84,17 @@ class GlobalHotKeys extends React.Component<Props> {
     return false;
   }
 
-  public onOnmnibarHotKeyDown(e: KeyboardEvent) {
+  public onOnmnibarHotKeyDown(
+    e: KeyboardEvent,
+    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+  ) {
     e.preventDefault();
-    // this.props.setGlobalSearchFilterContext({
-    //   category: filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    // });
-    this.props.toggleShowGlobalSearchModal(
-      filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    );
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
+    const category = filterCategories[categoryId];
+    this.props.toggleShowGlobalSearchModal(category);
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "HOTKEY_COMBO",
+      category: category.title,
+    });
   }
 
   public renderHotkeys() {
@@ -123,10 +124,30 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput={false}
+          combo="mod + j"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
+          combo="mod + l"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
           combo="mod + p"
           global
           label="Show omnibar"
-          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
+          }
         />
         <Hotkey
           combo="mod + d"
@@ -277,6 +298,19 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
+        <Hotkey
+          combo="mod + s"
+          global
+          label="Save progress"
+          onKeyDown={() => {
+            Toaster.show({
+              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
+              variant: Variant.info,
+            });
+          }}
+          preventDefault
+          stopPropagation
+        />
       </Hotkeys>
     );
   }
@@ -310,8 +344,6 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
-    setGlobalSearchFilterContext: (payload: { category: any }) =>
-      dispatch(setGlobalSearchFilterContext(payload)),
   };
 };
 

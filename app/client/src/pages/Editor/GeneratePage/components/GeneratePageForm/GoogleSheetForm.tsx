@@ -21,6 +21,13 @@ import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
 import Text, { TextType, FontWeight } from "components/ads/Text";
+import {
+  createMessage,
+  GEN_CRUD_TABLE_HEADER_LABEL,
+  GEN_CRUD_COLUMN_HEADER_TITLE,
+  GEN_CRUD_NO_COLUMNS,
+  GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
+} from "constants/messages";
 
 type Props = {
   googleSheetPluginId: string;
@@ -305,10 +312,12 @@ function GoogleSheetForm(props: Props) {
         <>
           <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
             <Row>
-              <RowHeading>Table Header Index </RowHeading>
+              <RowHeading>
+                {createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}
+              </RowHeading>
               <TooltipWrapper>
                 <Tooltip
-                  content="Row index of the column headers in the sheet table"
+                  content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
                   hoverOpenDelay={200}
                 >
                   <RoundBg>
@@ -322,9 +331,8 @@ function GoogleSheetForm(props: Props) {
                 </Tooltip>
               </TooltipWrapper>
             </Row>
-
             <TextInput
-              dataType="number"
+              dataType="text"
               fill
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
@@ -335,7 +343,7 @@ function GoogleSheetForm(props: Props) {
             {columnHeaderList.length ? (
               <>
                 <Text type={TextType.P3} weight={FontWeight.BOLD}>
-                  Column Headers fetched :&nbsp;{" "}
+                  {createMessage(GEN_CRUD_COLUMN_HEADER_TITLE)} :&nbsp;
                 </Text>
                 {columnHeaderList
                   .slice(0, MAX_COLUMNS_VISIBLE)
@@ -356,13 +364,13 @@ function GoogleSheetForm(props: Props) {
                 )}
               </>
             ) : (
-              <ColumnName>No columns found</ColumnName>
+              <ColumnName>{createMessage(GEN_CRUD_NO_COLUMNS)}</ColumnName>
             )}
           </ColumnInfoWrapper>
         </>
       ) : null}
 
-      {selectedSheet.value && columnHeaderList.length
+      {selectedSheet.value
         ? renderSubmitButton({
             onSubmit,
             disabled: !columnHeaderList.length || isFetchingColumnHeaderList,
