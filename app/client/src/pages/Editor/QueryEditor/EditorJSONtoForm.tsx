@@ -69,15 +69,12 @@ import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px 0px 0px 0px;
   width: 100%;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.backBanner}
-  );
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
