@@ -35,6 +35,7 @@ describe("Login from UI and check the functionality", function() {
   });
 
   it("Icon of fab button of help modal should change on open and close", function() {
+    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(HelpLocators.HelpButton).click();
     cy.get(`${HelpLocators.HelpButton} .bp3-icon-cross`).should(
       "have.length",
