@@ -39,8 +39,4 @@ public interface UserDataService {
     Mono<UserData> updateLastUsedOrgList(String currentOrgId);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
-
-    Mono<UserData> updateGitConfigProfile(User user, GitConfig config);
-
-    Mono<UserData> findByProfileName(String userId, String profileName);
 }

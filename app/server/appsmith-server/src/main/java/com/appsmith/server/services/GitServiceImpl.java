@@ -44,8 +44,11 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
-        if(gitConfig.getProfileName() == null || gitConfig.getProfileName().length() == 0) {
-            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Profile Name", ""));
+        if(gitConfig.getAuthor() == null || gitConfig.getAuthor().length() == 0) {
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name ", ""));
+        }
+        if(gitConfig.getAuthorEmail() == null || gitConfig.getAuthorEmail().length() == 0) {
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email ", ""));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
@@ -56,48 +59,12 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             /*
                             *  The gitConfig will be null if the user has not created profiles.
                             *  If null then we need to create this field for the currentUser and save the profile data
-                            *  Else, append the
+                            *  Else, replace the existing config value with the latest information
+                            *  This config is used as the default git metadata in application object
                             * */
 
-                            if( Optional.ofNullable(userData.getGitLocalConfigData()).isEmpty() ) {
-                                List<GitConfig> gitConfigs = new ArrayList<>();
-                                gitConfigs.add(gitConfig);
-                                userData.setGitLocalConfigData(gitConfigs);
-                                return userDataService.updateForUser(user, userData);
-                            } else {
-                                return isProfileNameExists(user.getId(), gitConfig.getProfileName())
-                                        .flatMap(isProfile -> {
-                                            if(isProfile) {
-                                                return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                                        "Profile Name - " + gitConfig.getProfileName(),
-                                                        "Profile Name.",
-                                                        null));
-                                            } else {
-                                                List<GitConfig> gitConfigs = new ArrayList<>();
-                                                gitConfigs.add(gitConfig);
-                                                userData.setGitLocalConfigData(gitConfigs);
-                                                return userDataService.updateForUser(user, userData);
-                                            }
-                                        });
-                            }
+                            userData.setGitGlobalConfigData(gitConfig);
+                            return userDataService.updateForUser(user, userData);
                         }));
-    }
-
-    private Mono<Boolean> isProfileNameExists(String userId, String name) {
-        return userDataService.findByProfileName(userId, name)
-                .flatMap(userData -> {
-                    if(userData == null) {
-                        return Mono.just(false);
-                    } else {
-                        return Mono.just(true);
-                    }
-                });
-    }
-
-    @Override
-    public Mono<UserData> updateGitConfigData(GitConfig gitConfig) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
-                .flatMap(user -> userDataService.updateGitConfigProfile(user, gitConfig));
     }
 }

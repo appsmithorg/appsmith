@@ -22,27 +22,16 @@ import java.util.List;
 @RequestMapping(Url.GIT_URL)
 public class GitController extends BaseController<GitService, UserData, String> {
 
-    private final GitService gitService;
-
     @Autowired
     public GitController(GitService gitService) {
         super(gitService);
-        this.gitService = gitService;
     }
 
     @PostMapping("/config/save")
     public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitConfig) {
         //Add to the userData object - git config data
-        return gitService.saveGitConfigData(gitConfig)
+        return service.saveGitConfigData(gitConfig)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
-
-    }
-
-    @PutMapping("/config/update")
-    public Mono<ResponseDTO<List<GitConfig>>> updateGitConfigData(@RequestBody GitConfig gitConfig) {
-        //update userData object - git config data
-        return gitService.updateGitConfigData(gitConfig)
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse.getGitLocalConfigData(), null));
 
     }
 }

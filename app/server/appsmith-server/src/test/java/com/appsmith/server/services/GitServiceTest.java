@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -35,10 +36,12 @@ public class GitServiceTest {
     @MockBean
     UserService userService;
 
-    private GitConfig getConnectRequest( String commitEmail, String profileName, String author) {
+    @SpyBean
+    SessionUserService sessionUserService;
+
+    private GitConfig getConnectRequest( String commitEmail, String author) {
         GitConfig gitConfig = new GitConfig();
         gitConfig.setAuthorEmail(commitEmail);
-        gitConfig.setProfileName(profileName);
         gitConfig.setAuthor(author);
         return gitConfig;
     }
@@ -47,14 +50,14 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void saveConfig_gitConfigValues_SaveToUserObject() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "Test 1", "Test 1");
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com", "Test 1");
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
 
         StepVerifier
                 .create(userDataMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO));
+                    assertThat(userData.getGitGlobalConfigData().getAuthor()).isEqualTo(gitGlobalConfigDTO.getAuthor());
+                    assertThat(userData.getGitGlobalConfigData().getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
                 });
     }
 
@@ -62,105 +65,42 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void saveConfig_gitConfigValues_updateUserObject() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "Test 1", "Test 1");
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com", "Test 1");
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
 
         StepVerifier
                 .create(userDataMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO));
+                    assertThat(userData.getGitGlobalConfigData().getAuthor()).isEqualTo(gitGlobalConfigDTO.getAuthor());
+                    assertThat(userData.getGitGlobalConfigData().getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
                 });
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void saveConfig_DuplicateProfileName_ThrowDuplicateKeyError() {
+    public void saveConfig_AuthorEmailNull_ThrowInvalidParameterError() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "Test 1", "Test 1");
-        Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO)
-                .flatMap(userData -> gitDataService.saveGitConfigData(gitGlobalConfigDTO));
-
-        StepVerifier
-                .create(userDataMono)
-                .assertNext(userData -> {
-                    assertThat(userData.getGitLocalConfigData()).isNotNull();
-                });
-
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void saveConfig_ProfileNameNull_ThrowInvalidParameterError() {
-        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                null, "Test 1");
+        GitConfig gitGlobalConfigDTO = getConnectRequest(null, "Test 1");
 
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains("Please enter a valid parameter Profile Name."))
+                        && throwable.getMessage().contains("Please enter a valid parameter Author Email ."))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void saveConfig_ProfileNameEmptyString_ThrowInvalidParameterError() {
+    public void saveConfig_AuthorNameEmptyString_ThrowInvalidParameterError() {
         Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "", "Test 1");
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",  null);
 
         Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO);
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains("Please enter a valid parameter Profile Name."))
+                        && throwable.getMessage().contains("Please enter a valid parameter Author Name ."))
                 .verify();
     }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateConfig_ValidProfileName_Success() {
-        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "Test 1", "Test 1");
-
-        Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO)
-                .flatMap(userData -> {
-                    gitGlobalConfigDTO.setAuthor("Test");
-                    return gitDataService.updateGitConfigData(gitGlobalConfigDTO);
-                });
-
-        StepVerifier
-                .create(userDataMono)
-                .assertNext(userData -> {
-                   assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO));
-                });
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateConfig_InValidProfileName_NoUpdate() {
-        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
-        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com",
-                "Test 1", "Test 1");
-
-        Mono<UserData> userDataMono = gitDataService.saveGitConfigData(gitGlobalConfigDTO)
-                .flatMap(userData -> {
-                    gitGlobalConfigDTO.setAuthor("Test");
-                    gitGlobalConfigDTO.setProfileName("Test");
-                    return gitDataService.updateGitConfigData(gitGlobalConfigDTO);
-                });
-
-        StepVerifier
-                .create(userDataMono)
-                .assertNext(userData -> {
-                    assertThat(userData.getGitLocalConfigData().contains(gitGlobalConfigDTO)).isFalse();
-                });
-    }
-
 }

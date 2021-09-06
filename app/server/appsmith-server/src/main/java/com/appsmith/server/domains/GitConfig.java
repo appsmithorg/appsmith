@@ -18,8 +18,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class GitConfig implements AppsmithDomain {
 
-    String profileName;
-
     String author;
 
     String authorEmail;

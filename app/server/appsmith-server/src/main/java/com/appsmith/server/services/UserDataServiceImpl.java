@@ -246,24 +246,4 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
         return featureFlagService.getAllFeatureFlagsForUser();
     }
-
-    @Override
-    public Mono<UserData> updateGitConfigProfile(User user, GitConfig config) {
-        if (user == null) {
-            return Mono.empty();
-        }
-
-        return Mono.justOrEmpty(user.getId())
-                .switchIfEmpty(userService
-                        .findByEmail(user.getEmail())
-                        .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
-                )
-                .flatMap(userId -> repository.updateGitConfigForProfile(userId, config))
-                .flatMap(updateResult -> getForCurrentUser());
-    }
-
-    @Override
-    public Mono<UserData> findByProfileName(String userId, String profileName) {
-        return repository.findByProfileName(userId, profileName);
-    }
 }

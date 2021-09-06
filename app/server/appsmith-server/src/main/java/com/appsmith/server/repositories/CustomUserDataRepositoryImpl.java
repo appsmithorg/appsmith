@@ -42,26 +42,4 @@ public class CustomUserDataRepositoryImpl extends BaseAppsmithRepositoryImpl<Use
                 UserData.class
                 );
     }
-
-    @Override
-    public Mono<UpdateResult> updateGitConfigForProfile(String userId, GitConfig config) {
-        return mongoOperations.updateFirst(
-                new Query()
-                        .addCriteria(where("userId").is(userId))
-                        .addCriteria(where("gitLocalConfigData.profileName").is(config.getProfileName())),
-                new Update()
-                        .set("gitLocalConfigData.$.profileName", config.getProfileName())
-                        .set("gitLocalConfigData.$.author", config.getAuthor())
-                        .set("gitLocalConfigData.$.authorEmail", config.getAuthorEmail()),
-                UserData.class
-                );
-    }
-
-    public Mono<UserData> findByProfileName(String userId, String profileName) {
-        return mongoOperations.findOne(
-                new Query()
-                        .addCriteria(where("userId").is(userId))
-                        .addCriteria(where("gitLocalConfigData.profileName").is(profileName)),
-                UserData.class);
-    }
 }

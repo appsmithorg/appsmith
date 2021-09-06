@@ -11,8 +11,4 @@ public interface CustomUserDataRepository extends AppsmithRepository<UserData> {
     Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version);
 
     Mono<UpdateResult> removeOrgFromRecentlyUsedList(String userId, String organizationId);
-
-    Mono<UpdateResult> updateGitConfigForProfile(String userId, GitConfig config);
-
-    Mono<UserData> findByProfileName(String userId, String profileName);
 }
