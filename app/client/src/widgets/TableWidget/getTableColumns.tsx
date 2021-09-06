@@ -9,12 +9,6 @@ export const getPropertyValue = (
   index: number,
   preserveCase = false,
 ) => {
-  if (isBoolean(value)) {
-    return value;
-  }
-  if (Array.isArray(value) && isBoolean(value[index])) {
-    return value[index];
-  }
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
@@ -27,6 +21,15 @@ export const getPropertyValue = (
   } else {
     return value;
   }
+};
+export const getBooleanPropertyValue = (value: any, index: number) => {
+  if (isBoolean(value)) {
+    return value;
+  }
+  if (Array.isArray(value) && isBoolean(value[index])) {
+    return value[index];
+  }
+  return !!value;
 };
 
 export const getCellProperties = (
@@ -74,9 +77,12 @@ export const getCellProperties = (
     textSize: getPropertyValue(columnProperties.textSize, rowIndex),
     textColor: getPropertyValue(columnProperties.textColor, rowIndex),
     fontStyle: getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-    isVisible: getPropertyValue(columnProperties.isVisible, rowIndex),
-    isDisabled: getPropertyValue(columnProperties.isDisabled, rowIndex),
-    isCellVisible: getPropertyValue(columnProperties.isCellVisible, rowIndex),
+    isVisible: getBooleanPropertyValue(columnProperties.isVisible, rowIndex),
+    isDisabled: getBooleanPropertyValue(columnProperties.isDisabled, rowIndex),
+    isCellVisible: getBooleanPropertyValue(
+      columnProperties.isCellVisible,
+      rowIndex,
+    ),
     displayText: getPropertyValue(columnProperties.displayText, rowIndex, true),
 
     iconAlign: getPropertyValue(columnProperties.iconAlign, rowIndex, true),
