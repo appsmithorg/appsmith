@@ -107,7 +107,7 @@ const TypeText = styled.pre<{ colorTheme: EditorTheme; padded?: boolean }>`
   white-space: pre-wrap;
 `;
 
-const ErrorText = styled.div`
+const ErrorText = styled.p`
   margin: ${(props) => props.theme.spaces[2]}px 0px;
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[5]}px;
@@ -134,8 +134,6 @@ const StyledTitle = styled.p`
   text-transform: uppercase;
   cursor: pointer;
 `;
-
-const StyledDebugButton = styled(EvaluatedValueDebugButton)``;
 
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
@@ -354,7 +352,7 @@ function PopoverContent(props: PopoverContentProps) {
               ? `This value does not evaluate to type "${expected?.type}".`
               : error.errorMessage}
           </span>
-          <StyledDebugButton
+          <EvaluatedValueDebugButton
             error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
