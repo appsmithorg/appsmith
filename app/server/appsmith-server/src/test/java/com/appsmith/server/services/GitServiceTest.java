@@ -42,7 +42,7 @@ public class GitServiceTest {
     private GitConfig getConnectRequest( String commitEmail, String author) {
         GitConfig gitConfig = new GitConfig();
         gitConfig.setAuthorEmail(commitEmail);
-        gitConfig.setAuthor(author);
+        gitConfig.setAuthorName(author);
         return gitConfig;
     }
 
@@ -56,7 +56,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getGitGlobalConfigData().getAuthor()).isEqualTo(gitGlobalConfigDTO.getAuthor());
+                    assertThat(userData.getGitGlobalConfigData().getAuthorName()).isEqualTo(gitGlobalConfigDTO.getAuthorName());
                     assertThat(userData.getGitGlobalConfigData().getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
                 });
     }
@@ -71,7 +71,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getGitGlobalConfigData().getAuthor()).isEqualTo(gitGlobalConfigDTO.getAuthor());
+                    assertThat(userData.getGitGlobalConfigData().getAuthorName()).isEqualTo(gitGlobalConfigDTO.getAuthorName());
                     assertThat(userData.getGitGlobalConfigData().getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
                 });
     }
