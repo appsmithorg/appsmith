@@ -42,7 +42,11 @@ import {
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { getEntityNameAndPropertyPath, isAction } from "./evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isTrueObject,
+} from "./evaluationUtils";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -140,9 +144,7 @@ export class AppsmithPromise {
 
   then(executor?: Function) {
     if (executor) {
-      this.action.payload.then.push(
-        `{{ new Promise(${executor.toString()}) }}`,
-      );
+      this.action.payload.then.push(`{{ ${executor.toString()} }}`);
       this._attachToSelfTriggers();
     }
     return this;
@@ -150,7 +152,7 @@ export class AppsmithPromise {
 
   catch(executor: Function) {
     if (executor) {
-      this.action.payload.catch = `{{ new Promise(${executor.toString()}) }}`;
+      this.action.payload.catch = `{{ ${executor.toString()} }}`;
       this._attachToSelfTriggers();
     }
     return this;
@@ -158,7 +160,7 @@ export class AppsmithPromise {
 
   finally(executor: Function) {
     if (executor) {
-      this.action.payload.finally = `{{ new Promise(${executor.toString()}) }}`;
+      this.action.payload.finally = `{{ ${executor.toString()} }}`;
       this._attachToSelfTriggers();
     }
     return this;
@@ -259,18 +261,26 @@ const DATA_TREE_FUNCTIONS: Record<
   run: {
     qualifier: (entity) => isAction(entity),
     func: (entity) =>
-      function(onSuccess: Function, onError: Function, params = {}) {
+      function(
+        onSuccessOrParams?: Function | Record<string, unknown>,
+        onError?: Function,
+        params = {},
+      ) {
+        const isOldSignature = typeof onSuccessOrParams === "function";
+        const isNewSignature = isTrueObject(onSuccessOrParams);
         const runActionPromise = new AppsmithPromise([
           {
             type: ActionTriggerType.RUN_PLUGIN_ACTION,
             payload: {
               actionId: isAction(entity) ? entity.actionId : "",
-              params,
+              params: isNewSignature ? onSuccessOrParams : params,
             },
           },
         ]);
-        if (onSuccess) runActionPromise.then(onSuccess);
-        if (onError) runActionPromise.catch(onError);
+        if (isOldSignature && typeof onSuccessOrParams === "function") {
+          if (onSuccessOrParams) runActionPromise.then(onSuccessOrParams);
+          if (onError) runActionPromise.catch(onError);
+        }
         return runActionPromise;
       },
   },

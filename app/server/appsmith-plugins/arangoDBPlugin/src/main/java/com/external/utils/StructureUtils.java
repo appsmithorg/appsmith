@@ -84,8 +84,7 @@ public class StructureUtils {
 
         return new DatasourceStructure.Template(
                 "Select",
-                rawQuery,
-                null
+                rawQuery
         );
     }
 
@@ -100,8 +99,7 @@ public class StructureUtils {
 
         return new DatasourceStructure.Template(
                 "Create",
-                rawQuery,
-                null
+                rawQuery
         );
     }
 
@@ -123,8 +121,7 @@ public class StructureUtils {
 
         return new DatasourceStructure.Template(
                 "Update",
-                rawQuery,
-                null
+                rawQuery
         );
     }
 
@@ -137,8 +134,7 @@ public class StructureUtils {
 
         return new DatasourceStructure.Template(
                 "Delete",
-                rawQuery,
-                null
+                rawQuery
         );
     }
 

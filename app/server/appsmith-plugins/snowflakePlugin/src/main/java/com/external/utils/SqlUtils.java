@@ -152,15 +152,15 @@ public class SqlUtils {
 
             final String tableName = table.getSchema() + "." + table.getName();
             table.getTemplates().addAll(List.of(
-                    new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;", null),
+                    new DatasourceStructure.Template("SELECT", "SELECT * FROM " + tableName + " LIMIT 10;"),
                     new DatasourceStructure.Template("INSERT", "INSERT INTO " + tableName
                             + " (" + String.join(", ", columnNames) + ")\n"
-                            + "  VALUES (" + String.join(", ", columnValues) + ");", null),
+                            + "  VALUES (" + String.join(", ", columnValues) + ");"),
                     new DatasourceStructure.Template("UPDATE", "UPDATE " + tableName + " SET"
                             + setFragments.toString() + "\n"
-                            + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!", null),
+                            + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
                     new DatasourceStructure.Template("DELETE", "DELETE FROM " + tableName
-                            + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!", null)
+                            + "\n  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!")
             ));
         }
     }

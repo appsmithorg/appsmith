@@ -26,7 +26,7 @@ const TabsWrapper = styled.div<{
     height: 100%;
   }
   .react-tabs__tab-panel {
-    height: 100%;
+    height: calc(100% - 36px);
     overflow: auto;
   }
   .react-tabs__tab-list {
@@ -93,7 +93,10 @@ export const TabCount = styled.div`
   margin-left: 2px;
 `;
 
-const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
+const TabTitleWrapper = styled.div<{
+  selected: boolean;
+  vertical: boolean;
+}>`
   display: flex;
   width: 100%;
 

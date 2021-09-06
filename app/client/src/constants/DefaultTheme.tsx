@@ -791,6 +791,7 @@ type ColorType = {
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
+    selected: string;
   };
   settingHeading: ShadeColor;
   table: {
@@ -993,20 +994,26 @@ type ColorType = {
     emptyStateText: string;
     navigateUsingEnterSection: string;
     codeBackground: string;
+    documentationCodeBackground: string;
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
-    helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
-    mainContainerBackground: string;
+    primaryBgColor: string;
+    primaryTextColor: string;
+    secondaryTextColor: string;
+    primaryBorderColor: string;
+    defaultIconsColor: string;
     snippets: {
       refinementPillsColor: string;
       refinementPillsBg: string;
       filterListBackground: string;
       filterBtnText: string;
+      codeContainerBorder: string;
     };
+    searchInputBorder: string;
   };
   gif: {
     overlay: string;
@@ -1327,36 +1334,42 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "#6A86CE",
-  activeCategory: "#6A86CE",
-  searchInputText: "#484848",
+  activeSearchItemBackground: "#EBEBEB",
+  activeCategory: "#090707",
+  searchInputText: "#090707",
+  searchInputBorder: "#F86A2B",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemAltText: "#fff",
-  searchItemText: "#484848",
-  searchItemSubText: "#A9A7A7",
+  searchItemText: "#090707",
+  searchItemSubText: "#4B4848;",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
   emptyStateText: "#A9A7A7",
-  navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#F0F0F0",
-  documentLink: "#69B5FF",
+  navigateUsingEnterSection: "white",
+  codeBackground: "#ffffff",
+  documentationCodeBackground: "#f0f0f0",
+  documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
-  helpBarBorder: "#404040",
-  helpButtonBorder: "#404040",
   sectionTitle: "#716E6E",
-  navigateToEntityEnterkey: "#3DA5D9",
-  mainContainerBackground: "#F0F0F0",
+  navigateToEntityEnterkey: "#090707",
+  primaryBgColor: "#ffffff",
+  primaryTextColor: "#090707",
+  secondaryTextColor: "#4b4848",
+  primaryBorderColor: "#E0DEDE",
+  defaultIconsColor: "#716e6e",
   snippets: {
     refinementPillsColor: "#4b4848",
     refinementPillsBg: "white",
     filterListBackground: lightShades[0],
     filterBtnText: lightShades[8],
+    filterBtnBg: "#FAFAFA",
+    codeContainerBorder: "#E0DEDE",
   },
 };
 
@@ -1692,6 +1705,7 @@ export const dark: ColorType = {
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
+    selected: Colors.CRUSTA,
   },
   settingHeading: darkShades[9],
   table: {
@@ -2271,6 +2285,7 @@ export const light: ColorType = {
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
+    selected: Colors.CRUSTA,
   },
   settingHeading: lightShades[9],
   table: {
