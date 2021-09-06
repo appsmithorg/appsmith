@@ -4,6 +4,16 @@ import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
 import { Layers } from "constants/Layers";
 import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
+import { debounce } from "lodash";
+
+const ResizableDiv = styled.div<{ resizable: boolean }>`
+  ${(props) =>
+    props.resizable
+      ? `resize: both;
+   overflow: auto;`
+      : ""}
+`;
 
 const Container = styled.div<{
   width?: number;
@@ -61,6 +71,8 @@ export type ModalComponentProps = {
   children: ReactNode;
   width?: number;
   className?: string;
+  usePortal?: boolean;
+  portalContainer?: HTMLElement;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
   overlayClassName?: string;
@@ -73,6 +85,8 @@ export type ModalComponentProps = {
   hasBackDrop?: boolean;
   zIndex?: number;
   portalClassName?: string;
+  resizable?: boolean;
+  onResize?: (height: number, width: number) => void;
 };
 
 /* eslint-disable react/display-name */
@@ -80,7 +94,18 @@ export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
+  const { resizable = false, onResize = noop } = props;
+  const resizeRef = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
+    if (resizeRef.current && resizable) {
+      const debouncedResize = debounce(onResize, 500);
+      const resizeObserver = new ResizeObserver(function() {
+        const height = resizeRef.current?.offsetHeight || 0;
+        const width = resizeRef.current?.offsetWidth || 0;
+        debouncedResize(height, width);
+      });
+      resizeObserver.observe(resizeRef.current);
+    }
     return () => {
       // handle modal close events when this component unmounts
       // will be called in all cases :-
@@ -102,7 +127,8 @@ export function ModalComponent(props: ModalComponentProps) {
       isOpen={props.isOpen}
       onClose={props.onClose}
       portalClassName={`${MODAL_PORTAL_CLASSNAME} ${props.portalClassName}`}
-      usePortal
+      portalContainer={props.portalContainer}
+      usePortal={props.usePortal}
     >
       <Container
         bottom={props.bottom}
@@ -125,7 +151,7 @@ export function ModalComponent(props: ModalComponentProps) {
           onClose={props.onClose}
           usePortal={false}
         >
-          <div>
+          <ResizableDiv ref={resizeRef} resizable={resizable}>
             <Content
               className={`${getCanvasClassName()} ${props.className}`}
               height={props.height}
@@ -134,7 +160,7 @@ export function ModalComponent(props: ModalComponentProps) {
             >
               {props.children}
             </Content>
-          </div>
+          </ResizableDiv>
         </Overlay>
       </Container>
     </Overlay>

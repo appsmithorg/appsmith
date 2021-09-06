@@ -152,17 +152,28 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     );
   }
 
-  makeModalComponent(content: ReactNode) {
+  onModalResize(height: number, width: number) {
+    const c = 1;
+  }
+
+  makeModalComponent(content: ReactNode, isEditMode: boolean) {
+    const artBoard = document.getElementById("art-board");
+    const portalContainer = isEditMode && artBoard ? artBoard : undefined;
     return (
       <ModalComponent
         canEscapeKeyClose={!!this.props.canEscapeKeyClose}
         canOutsideClickClose={!!this.props.canOutsideClickClose}
         className={`t--modal-widget ${generateClassName(this.props.widgetId)}`}
+        hasBackDrop
         height={MODAL_SIZE[this.props.size].height}
         isOpen={!!this.props.isVisible}
         onClose={this.closeModal}
         onModalClose={this.onModalClose}
+        onResize={this.onModalResize}
+        portalContainer={portalContainer}
+        resizable
         scrollContents={!!this.props.shouldScrollContents}
+        usePortal={false}
         width={this.getModalWidth()}
       >
         {content}
@@ -174,12 +185,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     let children = this.getChildren();
     children = this.makeModalSelectable(children);
     children = this.showWidgetName(children, true);
-    return this.makeModalComponent(children);
+    return this.makeModalComponent(children, true);
   }
 
   getPageView() {
     const children = this.getChildren();
-    return this.makeModalComponent(children);
+    return this.makeModalComponent(children, false);
   }
 
   getWidgetType() {
