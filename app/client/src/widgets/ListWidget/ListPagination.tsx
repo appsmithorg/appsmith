@@ -1,6 +1,8 @@
 import React from "react";
 import Pagination from "rc-pagination";
 import styled from "styled-components";
+import { Icon } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 
 const locale = {
   // Options.jsx
@@ -32,7 +34,6 @@ const StyledPagination = styled(Pagination)<{
   z-index: 3;
   pointer-events: ${(props) => (props.disabled ? "none" : "all")};
   opacity: ${(props) => (props.disabled ? "0.4" : "1")};
-
   .rc-pagination::after {
     display: block;
     clear: both;
@@ -321,6 +322,70 @@ function ListPagination(props: ListPaginationProps) {
       pageSize={props.perPage}
       total={props.total}
     />
+  );
+}
+
+const PaginationWrapper = styled.div`
+  margin: 0 auto;
+  font-size: 14px;
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 20px;
+  color: ${Colors.GRAY};
+`;
+
+const PaginationItemWrapper = styled.div<{
+  disabled?: boolean;
+  selected?: boolean;
+}>`
+  background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
+  border: 1px solid ${Colors.ALTO2};
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 4px;
+  pointer-events: ${(props) => props.disabled && "none"};
+  cursor: pointer;
+  &:hover {
+    border-color: ${Colors.GREEN};
+  }
+`;
+
+export function ServerSideListPagination(props: any) {
+  return (
+    <PaginationWrapper>
+      <PaginationItemWrapper
+        className="t--list-widget-prev-page"
+        disabled={props.pageNo === 1}
+        onClick={() => {
+          props.prevPageClick();
+        }}
+      >
+        <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
+      </PaginationItemWrapper>
+      <PaginationItemWrapper className="page-item" selected>
+        {props.pageNo}
+      </PaginationItemWrapper>
+      <PaginationItemWrapper
+        className="t--list-widget-next-page"
+        disabled={false}
+        onClick={() => {
+          props.nextPageClick();
+        }}
+      >
+        <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
+      </PaginationItemWrapper>
+    </PaginationWrapper>
   );
 }
 
