@@ -10,7 +10,6 @@ import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * This model is intended to hold any user-specific information that is not directly about the user's authentication.

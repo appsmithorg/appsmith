@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
