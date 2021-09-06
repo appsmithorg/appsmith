@@ -53,3 +53,12 @@ ff4j:
         param:
           - name: emailDomains
             value: appsmith.com
+
+    - uid: GIT
+      enable: true
+      description: Enable git for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: test.com
