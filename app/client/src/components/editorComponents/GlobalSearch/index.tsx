@@ -59,7 +59,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, keyBy, noop } from "lodash";
-import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
@@ -67,21 +66,22 @@ import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
 
-const StyledContainer = styled.div`
+const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
-  height: 530px;
-  background: ${(props) => props.theme.colors.globalSearch.containerBackground};
-  box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
+  max-height: 530px;
+  height: ${(props) => (isMenu(props.category) ? "auto" : "530px")};
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
+  padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
+  position: relative;
   & .main {
     display: flex;
     flex: 1;
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: hidden;
     background-color: ${(props) =>
-      props.theme.colors.globalSearch.mainContainerBackground};
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[7]}px;
+      props.theme.colors.globalSearch.primaryBgColor};
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
@@ -159,8 +159,12 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  const setCategory = (category: SearchCategory) =>
+  const setCategory = (category: SearchCategory) => {
+    if (isSnippet(category)) {
+      AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
+    }
     dispatch(setGlobalSearchFilterContext({ category: category }));
+  };
   const setRefinements = (entityMeta: any) =>
     dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
   const refinements = useSelector(
@@ -386,7 +390,11 @@ function GlobalSearch() {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: SearchItem) => {
+  const handleDocumentationItemClick = (
+    item: SearchItem,
+    event?: SelectEvent,
+  ) => {
+    if (event && event.type === "click") return;
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -433,19 +441,14 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
-    if (event.type === "click") {
-      setActiveItemIndex(
-        searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
-      );
-      return;
-    }
+    if (event && event.type === "click") return;
     dispatch(insertSnippet(get(item, "body.snippet", "")));
     toggleShow();
   };
 
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.document]: (e: SelectEvent, item: any) =>
-      handleDocumentationItemClick(item),
+      handleDocumentationItemClick(item, e),
     [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
       handleWidgetClick(item),
     [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
@@ -517,14 +520,15 @@ function GlobalSearch() {
             refinements={refinements}
             setRefinement={setRefinements}
           >
-            <StyledContainer>
+            <StyledContainer category={category}>
               <SearchBox
                 category={category}
                 query={query}
                 setCategory={setCategory}
                 setQuery={setQuery}
               />
-              {refinements &&
+              {isSnippet(category) &&
+                refinements &&
                 refinements.entities &&
                 refinements.entities.length && <SnippetRefinements />}
               <div className="main">
@@ -554,10 +558,9 @@ function GlobalSearch() {
                 {searchResults.length > 0 ? (
                   <>
                     <SearchResults
+                      category={category}
                       query={query}
-                      refinements={refinements}
                       searchResults={searchResults}
-                      showFilter={isSnippet(category)}
                     />
                     {showDescription && (
                       <Description
@@ -578,7 +581,7 @@ function GlobalSearch() {
                   />
                 )}
               </div>
-              <Footer />
+              {/* <Footer /> */}
             </StyledContainer>
           </AlgoliaSearchWrapper>
         </SearchModal>

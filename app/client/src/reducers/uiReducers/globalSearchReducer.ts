@@ -19,6 +19,7 @@ const initialState: GlobalSearchReduxState = {
     evaluatedSnippet: "",
     executionInProgress: false,
     evaluatedArguments: {},
+    insertSnippet: false,
   },
 };
 
@@ -33,7 +34,11 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({
     ...state,
     modalOpen: !state.modalOpen,
-    filterContext: { ...state.filterContext, category: action.payload },
+    filterContext: {
+      ...state.filterContext,
+      category: action.payload,
+      insertSnippet: false,
+    },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
@@ -112,6 +117,7 @@ export interface GlobalSearchReduxState {
       dataType?: string;
       field?: string;
     };
+    insertSnippet: boolean;
     evaluatedSnippet: string;
     executionInProgress: boolean;
     evaluatedArguments: any;

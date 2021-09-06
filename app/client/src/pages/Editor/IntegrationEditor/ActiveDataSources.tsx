@@ -16,9 +16,7 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
+  flex: 1;
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -33,9 +31,7 @@ const CreateButton = styled(Button)`
 `;
 
 const EmptyActiveDatasource = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
