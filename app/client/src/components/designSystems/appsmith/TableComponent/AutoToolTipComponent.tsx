@@ -46,6 +46,7 @@ function LinkWrapper(props: Props) {
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
       isHyperLink
+      isTextType
       onClick={() => {
         window.open(props.title, "_blank");
       }}
@@ -95,6 +96,7 @@ function AutoToolTipComponent(props: Props) {
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
+      isTextType
       ref={ref}
     >
       {useToolTip && props.children ? (
