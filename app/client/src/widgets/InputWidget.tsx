@@ -321,7 +321,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-          }
+          },
         ],
       },
       {
