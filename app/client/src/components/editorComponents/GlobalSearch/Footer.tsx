@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   span {
     color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-variant: all-small-caps;

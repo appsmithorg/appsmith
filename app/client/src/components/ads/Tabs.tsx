@@ -93,7 +93,10 @@ export const TabCount = styled.div`
   margin-left: 2px;
 `;
 
-const TabTitleWrapper = styled.div<{ selected: boolean; vertical: boolean }>`
+const TabTitleWrapper = styled.div<{
+  selected: boolean;
+  vertical: boolean;
+}>`
   display: flex;
   width: 100%;
 
