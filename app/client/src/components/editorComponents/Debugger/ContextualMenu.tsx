@@ -71,7 +71,7 @@ const searchAction: Record<string, any> = {
     },
   },
   google: {
-    icon: "share",
+    icon: "share-2",
     text: "Ask Google",
     onSelect: (error: Message) => {
       window.open("http://google.com/search?q=" + error.message);
@@ -94,7 +94,7 @@ const searchAction: Record<string, any> = {
     },
   },
   intercom: {
-    icon: "chat",
+    icon: "support",
     text: "Get Appsmith Support",
     onSelect: (error: Message) => {
       // Search through the omnibar
