@@ -100,6 +100,10 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import {
+  getIsFirstTimeUserExperienceEnabled,
+  getFirstTimeUserExperienceApplicationId,
+} from "selectors/onboardingSelectors";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -509,12 +513,31 @@ export function* createPageSaga(
       });
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          getGenerateTemplateURL(
-            createPageAction.payload.applicationId,
-            response.data.id,
-          ),
+        const firstTimeUserExperienceApplicationId = yield select(
+          getFirstTimeUserExperienceApplicationId,
         );
+        const isFirstTimeUserExperienceEnabled = yield select(
+          getIsFirstTimeUserExperienceEnabled,
+        );
+        if (
+          firstTimeUserExperienceApplicationId ==
+            createPageAction.payload.applicationId &&
+          isFirstTimeUserExperienceEnabled
+        ) {
+          history.push(
+            BUILDER_PAGE_URL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        } else {
+          history.push(
+            getGenerateTemplateURL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        }
       }
     }
   } catch (error) {

@@ -13,6 +13,7 @@ import {
   getActions,
   getCanvasWidgets,
   getDatasources,
+  getPageActions,
 } from "selectors/entitiesSelector";
 import { getFirstTimeUserExperienceModal } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
@@ -78,7 +79,7 @@ export default function OnboardingTasks() {
   const pageId = useSelector(getCurrentPageId);
   let content;
   const datasources = useSelector(getDatasources);
-  const actions = useSelector(getActions);
+  const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
   const showModal = useSelector(getFirstTimeUserExperienceModal);
@@ -128,7 +129,7 @@ export default function OnboardingTasks() {
               dispatch(forceOpenWidgetPanel(true));
             }}
           >
-            Add widgets
+            add a widget
           </span>
           &nbsp;first.
         </Taskfootnote>
@@ -179,7 +180,7 @@ export default function OnboardingTasks() {
               dispatch(forceOpenWidgetPanel(true));
             }}
           >
-            Add widgets
+            add a widget
           </span>
         </Taskfootnote>
       </CenteredContainer>
@@ -228,7 +229,7 @@ export default function OnboardingTasks() {
               });
             }}
           >
-            Deploy your applications
+            deploy your application
           </span>
           .
         </Taskfootnote>

@@ -9,6 +9,7 @@ import {
   getActions,
   getCanvasWidgets,
   getDatasources,
+  getPageActions,
 } from "selectors/entitiesSelector";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
@@ -125,10 +126,23 @@ const BannerText = styled.p`
   margin: 8px 0px 16px;
 `;
 
+const StyledImg = styled.img`
+  width: 20px;
+  transform: translate(0px, 5px);
+  margin-right: 5px;
+`;
+
+const StyledFooter = styled.div`
+  position: absolute;
+  bottom: 10px;
+  cursor: pointer;
+`;
+
 export default function OnboardingChecklist() {
   const dispatch = useDispatch();
   const datasources = useSelector(getDatasources);
-  const actions = useSelector(getActions);
+  const pageId = useSelector(getCurrentPageId);
+  const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const deps = useSelector(getEvaluationInverseDependencyMap);
   const isConnectionPresent = useIsWidgetActionConnectionPresent(
@@ -138,7 +152,6 @@ export default function OnboardingChecklist() {
   );
   const theme = useSelector(getCurrentThemeDetails);
   const applicationId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserExperienceComplete);
   const isFirstTimeUserExperienceEnabled = useSelector(
@@ -227,7 +240,7 @@ export default function OnboardingChecklist() {
         <span data-testid="checklist-completion-info">
           {completedTasks} of 5
         </span>
-        &nbsp;completed
+        &nbsp;complete
       </StatusWrapper>
       <StyledList>
         <StyledListItem>
@@ -275,7 +288,7 @@ export default function OnboardingChecklist() {
                   ),
                 );
               }}
-              text="CREATE A DATASOURCE"
+              text="CONNECT DATA SOURCE"
               type="button"
             />
           )}
@@ -425,12 +438,36 @@ export default function OnboardingChecklist() {
                   },
                 });
               }}
-              text="DEPLOY APPLICATIONS"
+              text="DEPLOY APPLICATION"
               type="button"
             />
           )}
         </StyledListItem>
       </StyledList>
+      <StyledFooter
+        onClick={() => {
+          AnalyticsUtil.logEvent("SIGNPOSTING_WELCOME_TOUR_CLICK");
+          history.push(APPLICATIONS_URL);
+          dispatch({
+            type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+            payload: false,
+          });
+          dispatch({
+            type:
+              ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+            payload: "",
+          });
+          dispatch({
+            type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
+          });
+        }}
+      >
+        <StyledImg src="https://assets.appsmith.com/Rocket.png" />
+        <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
+          Not sure where to start? Take the welcome tour
+        </Text>
+        <Icon color={Colors.DIESEL} icon="chevron-right" iconSize={16} />
+      </StyledFooter>
     </Wrapper>
   );
 }

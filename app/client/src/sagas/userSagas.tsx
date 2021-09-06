@@ -57,6 +57,7 @@ import { initSocketConnection } from "actions/websocketActions";
 import {
   getEnableFirstTimeUserExperience,
   getFirstTimeUserExperienceApplicationId,
+  getFirstTimeUserExperienceIntroModalVisibility,
 } from "utils/storage";
 
 export function* createUserSaga(
@@ -426,6 +427,7 @@ function* updateFirstTimeUserExperienceSage() {
 
   if (enable) {
     const applicationId = yield getFirstTimeUserExperienceApplicationId() || "";
+    const introModalVisibility = yield getFirstTimeUserExperienceIntroModalVisibility();
     yield put({
       type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
       payload: true,
@@ -433,6 +435,10 @@ function* updateFirstTimeUserExperienceSage() {
     yield put({
       type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
       payload: applicationId,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
+      payload: introModalVisibility,
     });
   }
 }

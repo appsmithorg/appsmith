@@ -20,6 +20,7 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
+import { stat } from "fs";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -509,3 +510,11 @@ export const getIsOnboardingTasksView = createSelector(
 
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getPageActions = (pageId = "") => {
+  return (state: AppState) => {
+    return state.entities.actions.filter((action) => {
+      return action.config.pageId == pageId;
+    });
+  };
+};

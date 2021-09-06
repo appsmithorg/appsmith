@@ -16,6 +16,8 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ENABLE_FIRST_TIME_USER_EXPERIENCE: "ENABLE_FIRST_TIME_USER_EXPERIENCE",
   FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID:
     "FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID",
+  FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY:
+    "FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY",
 };
 
 const store = localforage.createInstance({
@@ -288,6 +290,37 @@ export const getFirstTimeUserExperienceApplicationId = async () => {
   } catch (error) {
     log.error(
       "An error occurred while fetching FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserExperienceIntroModalVisibility = async (
+  flag: boolean,
+) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY,
+      flag,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserExperienceIntroModalVisibility = async () => {
+  try {
+    const flag = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY,
+    );
+    return flag;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_EXPERIENCE_INTRO_MODAL_VISIBILITY",
     );
     log.error(error);
   }

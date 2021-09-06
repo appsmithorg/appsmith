@@ -3,6 +3,7 @@ import Button, { Category } from "components/ads/Button";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import React from "react";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -120,6 +121,11 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
   };
+  useEffect(() => {
+    dispatch({
+      type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+    });
+  }, []);
   return (
     <Overlay hasBackdrop isOpen transitionDuration={25} usePortal>
       <Wrapper>

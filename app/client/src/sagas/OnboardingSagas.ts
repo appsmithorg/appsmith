@@ -31,6 +31,7 @@ import {
   getOnboardingState,
   setEnableFirstTimeUserExperience as storeEnableFirstTimerUserExperience,
   setFirstTimeUserExperienceApplicationId as storeFirstTimeUserExperienceApplicationId,
+  setFirstTimeUserExperienceIntroModalVisibility as storeFirstTimeUserExperienceIntroModalVisibility,
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
@@ -923,6 +924,12 @@ function* setFirstTimeUserExperienceApplicationId(action: ReduxAction<string>) {
   yield storeFirstTimeUserExperienceApplicationId(action.payload);
 }
 
+function* setFirstTimeUserExperienceIntroModalVisibility(
+  action: ReduxAction<boolean>,
+) {
+  yield storeFirstTimeUserExperienceIntroModalVisibility(action.payload);
+}
+
 function* endFirstTimeUserExperienceSaga() {
   const firstTimeUserExperienceAppId = yield select(
     getFirstTimeUserExperienceApplicationId,
@@ -1009,6 +1016,10 @@ function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
       setFirstTimeUserExperienceApplicationId,
+    ),
+    takeLatest(
+      ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
+      setFirstTimeUserExperienceIntroModalVisibility,
     ),
     takeLatest(
       ReduxActionTypes.END_FIRST_TIME_USER_EXPERIENCE,

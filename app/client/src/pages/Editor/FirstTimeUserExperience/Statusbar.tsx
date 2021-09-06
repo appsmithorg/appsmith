@@ -15,6 +15,7 @@ import {
   getActions,
   getCanvasWidgets,
   getDatasources,
+  getPageActions,
 } from "selectors/entitiesSelector";
 import { getFirstTimeUserExperienceComplete } from "selectors/onboardingSelectors";
 import styled from "styled-components";
@@ -99,7 +100,8 @@ export function StatusProgressbar(props: StatusProgressbarType) {
 
 const useStatus = (): { percentage: number; content: string } => {
   const datasources = useSelector(getDatasources);
-  const actions = useSelector(getActions);
+  const pageId = useSelector(getCurrentPageId);
+  const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const deps = useSelector(getEvaluationInverseDependencyMap);
   const isConnectionPresent = useIsWidgetActionConnectionPresent(
@@ -172,6 +174,9 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
     props.location.pathname.indexOf("/generate-page/form") > -1;
+  const isFirstTimeUserExperienceComplete = useSelector(
+    getFirstTimeUserExperienceComplete,
+  );
   if (isGenerateAppPage) {
     return null;
   }
@@ -181,7 +186,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       type: ReduxActionTypes.END_FIRST_TIME_USER_EXPERIENCE,
     });
   };
-  if (percentage == 100) {
+  if (percentage == 100 && !isFirstTimeUserExperienceComplete) {
     dispatch({
       type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
       payload: false,

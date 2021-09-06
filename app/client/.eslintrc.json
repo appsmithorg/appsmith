@@ -35,10 +35,7 @@
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
-    "no-console": ["error", {
-      "allow": ["error"]
-    }]
+    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}]
   },
   "settings": {
     "react": {
