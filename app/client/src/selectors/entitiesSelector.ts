@@ -497,14 +497,9 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
 };
 
 export const getIsOnboardingTasksView = createSelector(
-  getDatasources,
-  getActions,
   getCanvasWidgets,
-  (datasources, actions, widgets) => {
-    return (
-      (!datasources.length || !actions.length) &&
-      Object.keys(widgets).length == 1
-    );
+  (widgets) => {
+    return Object.keys(widgets).length == 1;
   },
 );
 
