@@ -412,13 +412,14 @@ class ButtonGroupWidget extends BaseWidget<
             options: [
               ButtonBorderRadiusTypes.SHARP,
               ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
             ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                allowedValues: ["SHARP", "ROUNDED"],
+                allowedValues: ["SHARP", "ROUNDED", "CIRCLE"],
               },
             },
           },
