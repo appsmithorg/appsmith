@@ -59,7 +59,6 @@ export default function* executePromiseSaga(
       Toaster.show({
         text: e.message || "There was an error while executing",
         variant: Variant.danger,
-        showDebugButton: true,
       });
     }
     if (trigger.catch) {
