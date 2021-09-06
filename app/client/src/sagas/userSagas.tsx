@@ -372,7 +372,8 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
-      yield put(logoutUserSuccess());
+      const currentUser = yield select(getCurrentUser);
+      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }

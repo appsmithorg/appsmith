@@ -84,16 +84,33 @@ export default function DetailsForm(
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>
         <StyledFormGroup label={createMessage(() => "FULL NAME")}>
-          <FormTextField autoFocus name="name" placeholder="" type="text" />
+          <FormTextField
+            autoFocus
+            name="name"
+            placeholder="John Doe"
+            type="text"
+          />
         </StyledFormGroup>
         <StyledFormGroup label={createMessage(() => "EMAIL ID")}>
-          <FormTextField name="email" placeholder="" type="email" />
+          <FormTextField
+            name="email"
+            placeholder="How can we reach you?"
+            type="email"
+          />
         </StyledFormGroup>
         <StyledFormGroup label={createMessage(() => "CREATE PASSWORD")}>
-          <FormTextField name="password" placeholder="" type="password" />
+          <FormTextField
+            name="password"
+            placeholder="Make it strong!"
+            type="password"
+          />
         </StyledFormGroup>
         <StyledFormGroup label={createMessage(() => "VERIFY PASSWORD")}>
-          <FormTextField name="verifyPassword" placeholder="" type="password" />
+          <FormTextField
+            name="verifyPassword"
+            placeholder="Type correctly"
+            type="password"
+          />
         </StyledFormGroup>
         <DropdownWrapper label={createMessage(() => "WHAT ROLE DO YOU PLAY?")}>
           <Field
@@ -110,7 +127,7 @@ export default function DetailsForm(
           </StyledFormGroup>
         )}
         <DropdownWrapper
-          label={createMessage(() => "Tell us about your use case")}
+          label={createMessage(() => "TELL US ABOUT YOUR USE CASE")}
         >
           <Field
             asyncControl

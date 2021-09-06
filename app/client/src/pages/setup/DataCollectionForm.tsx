@@ -34,7 +34,7 @@ export default memo(function DataCollectionForm() {
         <FormHeaderIndex>2.</FormHeaderIndex>
         <FormHeaderLabel>Usage data preference</FormHeaderLabel>
         <FormHeaderSubtext>
-          Data is collected anonymously to improve your experience. <br />
+          Your data. Your choice. Data is collected anonymously. <br />
           <StyledLink href={TELEMETRY_URL} target="_blank">
             List of tracked items
           </StyledLink>

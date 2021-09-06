@@ -16,7 +16,7 @@ import {
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
 } from "constants/forms";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
-import { isEmail, isStrongPassword, isValidFullName } from "utils/formhelpers";
+import { isEmail, isStrongPassword } from "utils/formhelpers";
 import { AppState } from "reducers";
 import { SUPER_USER_SUBMIT_PATH } from "constants/ApiConstants";
 import { useState } from "react";
@@ -28,7 +28,7 @@ const PageWrapper = styled.div`
 `;
 
 const SetupFormContainer = styled.div`
-  width: 496px;
+  width: 566px;
   padding-top: 120px;
 `;
 
@@ -42,7 +42,7 @@ const LogoContainer = styled.div`
   transform: translate(-11px, 0);
   background-color: ${(props) => props.theme.colors.homepageBackground};
   position: fixed;
-  width: 496px;
+  width: 566px;
   height: 112px;
   z-index: 1;
   top: 0;
@@ -64,6 +64,10 @@ export type DetailsFormValues = {
   role?: string;
   useCase?: string;
   role_name?: string;
+};
+
+const isValidFullName = (name = "") => {
+  return /^([a-zA-Z\xC0-\uFFFF]{4,60}[ \-\']{0,1}){1,3}$/.test(name);
 };
 
 const validate = (values: DetailsFormValues) => {

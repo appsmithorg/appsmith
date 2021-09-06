@@ -39,7 +39,9 @@ export default memo(function NewsletterForm() {
           <AllowToggle>
             <Toggle name="signupForNewsletter" onToggle={() => noop} value />
           </AllowToggle>
-          <AllowToggleLabel>Get updates. We do not spam you.</AllowToggleLabel>
+          <AllowToggleLabel>
+            Get updates about what we are cooking. We do not spam you.
+          </AllowToggleLabel>
         </AllowToggleWrapper>
         <ButtonWrapper>
           <StyledButton
