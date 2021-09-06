@@ -103,4 +103,20 @@ public class GitServiceTest {
                         && throwable.getMessage().contains("Please enter a valid parameter Author Name ."))
                 .verify();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getConfig_ValueExistsInDB_Success() {
+        Mockito.when(userService.findByEmail(Mockito.anyString())).thenReturn(Mono.just(new User()));
+        GitConfig gitGlobalConfigDTO = getConnectRequest("test@appsmith.com", "Test 1");
+        UserData userData = gitDataService.saveGitConfigData(gitGlobalConfigDTO).block();
+        Mono<GitConfig> gitConfigMono = gitDataService.getGitConfigForUser();
+
+        StepVerifier
+                .create(gitConfigMono)
+                .assertNext(configData -> {
+                    assertThat(configData.getAuthorName()).isEqualTo(gitGlobalConfigDTO.getAuthorName());
+                    assertThat(configData.getAuthorEmail()).isEqualTo(gitGlobalConfigDTO.getAuthorEmail());
+                });
+    }
 }

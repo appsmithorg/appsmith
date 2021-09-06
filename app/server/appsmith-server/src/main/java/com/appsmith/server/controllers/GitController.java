@@ -8,6 +8,7 @@ import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +33,11 @@ public class GitController extends BaseController<GitService, UserData, String> 
         //Add to the userData object - git config data
         return service.saveGitConfigData(gitConfig)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+    }
 
+    @GetMapping("/config")
+    public Mono<ResponseDTO<GitConfig>> getGitConfigForUser() {
+        return service.getGitConfigForUser()
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 }

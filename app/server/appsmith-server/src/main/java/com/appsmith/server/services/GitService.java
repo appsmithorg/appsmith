@@ -7,4 +7,6 @@ import reactor.core.publisher.Mono;
 public interface GitService extends CrudService<UserData, String> {
 
     Mono<UserData> saveGitConfigData(GitConfig gitConfig);
+
+    Mono<GitConfig> getGitConfigForUser();
 }

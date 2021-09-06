@@ -67,4 +67,10 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             return userDataService.updateForUser(user, userData);
                         }));
     }
+
+    @Override
+    public Mono<GitConfig> getGitConfigForUser() {
+        return userDataService.getForCurrentUser()
+                .map(userData -> userData.getGitGlobalConfigData());
+    }
 }
