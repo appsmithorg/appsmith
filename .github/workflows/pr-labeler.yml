@@ -3,6 +3,7 @@ name: Label PRs based on title
 on:
   pull_request:
     branches: [release]
+    types: [opened, reopened, edited]
 
 jobs:
   build:
