@@ -25,30 +25,70 @@ import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 const { intercomAppID } = getAppsmithConfigs();
 
+enum CONTEXT_MENU_ACTIONS {
+  COPY = "COPU",
+  DOCS = "DOCS",
+  SNIPPET = "SNIPPET",
+  GOOGLE = "GOOGLE",
+  INTERCOM = "INTERCOM",
+}
+
 const getOptions = (type?: string, subType?: string) => {
-  const defaultOptions = ["copy", "docs", "snippet", "google", "intercom"];
+  const defaultOptions = [
+    CONTEXT_MENU_ACTIONS.COPY,
+    CONTEXT_MENU_ACTIONS.DOCS,
+    CONTEXT_MENU_ACTIONS.SNIPPET,
+    CONTEXT_MENU_ACTIONS.GOOGLE,
+    CONTEXT_MENU_ACTIONS.INTERCOM,
+  ];
 
   if (subType) {
     switch (subType) {
+      // These types are sent by the server
       case "DATASOURCE_CONFIGURATION_ERROR":
-        return ["copy", "google", "intercom"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.GOOGLE,
+          CONTEXT_MENU_ACTIONS.INTERCOM,
+        ];
       case "PLUGIN_ERROR":
-        return ["copy", "google", "intercom"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.GOOGLE,
+          CONTEXT_MENU_ACTIONS.INTERCOM,
+        ];
       case "CONNECTIVITY_ERROR":
-        return ["copy", "docs"];
+        return [CONTEXT_MENU_ACTIONS.COPY, CONTEXT_MENU_ACTIONS.DOCS];
       case "ACTION_CONFIGURATION_ERROR":
-        return ["copy", "docs", "intercom"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.DOCS,
+          CONTEXT_MENU_ACTIONS.INTERCOM,
+        ];
       default:
         return defaultOptions;
     }
   } else {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
-        return ["copy", "docs", "snippet", "intercom"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.DOCS,
+          CONTEXT_MENU_ACTIONS.SNIPPET,
+          CONTEXT_MENU_ACTIONS.INTERCOM,
+        ];
       case PropertyEvaluationErrorType.PARSE:
-        return ["copy", "snippet", "google"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.SNIPPET,
+          CONTEXT_MENU_ACTIONS.GOOGLE,
+        ];
       case PropertyEvaluationErrorType.LINT:
-        return ["copy", "snippet", "google"];
+        return [
+          CONTEXT_MENU_ACTIONS.COPY,
+          CONTEXT_MENU_ACTIONS.SNIPPET,
+          CONTEXT_MENU_ACTIONS.GOOGLE,
+        ];
       default:
         return defaultOptions;
     }
@@ -63,21 +103,21 @@ type ContextualMenuProps = {
 };
 
 const searchAction: Record<string, any> = {
-  copy: {
+  [CONTEXT_MENU_ACTIONS.COPY]: {
     icon: "duplicate",
     text: "Copy",
     onSelect: (error: Message) => {
       copy(error.message);
     },
   },
-  google: {
+  [CONTEXT_MENU_ACTIONS.GOOGLE]: {
     icon: "share-2",
     text: "Ask Google",
     onSelect: (error: Message) => {
       window.open("http://google.com/search?q=" + error.message);
     },
   },
-  docs: {
+  [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
     text: "Open Documentation",
     onSelect: (error: Message, dispatch: Dispatch) => {
@@ -93,7 +133,7 @@ const searchAction: Record<string, any> = {
       );
     },
   },
-  intercom: {
+  [CONTEXT_MENU_ACTIONS.INTERCOM]: {
     icon: "support",
     text: "Get Appsmith Support",
     onSelect: (error: Message) => {
@@ -106,7 +146,7 @@ const searchAction: Record<string, any> = {
       }
     },
   },
-  snippet: {
+  [CONTEXT_MENU_ACTIONS.SNIPPET]: {
     icon: "play",
     text: "Trigger a snippet",
     onSelect: (error: Message, dispatch: Dispatch) => {
