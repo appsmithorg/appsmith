@@ -57,14 +57,14 @@ public class ActionController {
                                                @RequestHeader(name = "Origin", required = false) String originHeader,
                                                ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
-        return actionCollectionService.createAction(resource)
+        return layoutActionService.createSingleAction(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(@PathVariable String id, @Valid @RequestBody ActionDTO resource) {
         log.debug("Going to update resource with id: {}", id);
-        return actionCollectionService.updateAction(id, resource)
+        return layoutActionService.updateSingleAction(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

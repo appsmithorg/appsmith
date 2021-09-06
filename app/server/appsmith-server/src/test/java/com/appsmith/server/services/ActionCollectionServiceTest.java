@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -7,13 +8,17 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -24,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +66,13 @@ public class ActionCollectionServiceTest {
     ActionCollectionService actionCollectionService;
 
     @Autowired
+    LayoutCollectionService layoutCollectionService;
+
+    @Autowired
     ApplicationPageService applicationPageService;
+
+    @Autowired
+    LayoutActionService layoutActionService;
 
     @Autowired
     NewPageService newPageService;
@@ -72,9 +84,6 @@ public class ActionCollectionServiceTest {
     OrganizationService organizationService;
 
     @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
     OrganizationRepository organizationRepository;
 
     @Autowired
@@ -83,12 +92,17 @@ public class ActionCollectionServiceTest {
     @Autowired
     UserOrganizationService userOrganizationService;
 
+    @Autowired
+    NewActionService newActionService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
     Application testApp = null;
 
     PageDTO testPage = null;
+
+    Plugin testPlugin = null;
 
     Datasource datasource;
 
@@ -97,8 +111,8 @@ public class ActionCollectionServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
-
         User apiUser = userService.findByEmail("api_user").block();
+        assert apiUser != null;
         orgId = apiUser.getOrganizationIds().iterator().next();
         Organization organization = organizationService.getById(orgId).block();
 
@@ -106,12 +120,15 @@ public class ActionCollectionServiceTest {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
+            assert organization != null;
             testApp = applicationPageService.createApplication(application, organization.getId()).block();
 
+            assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
 
             testPage = newPageService.findPageById(pageId, READ_PAGES, false).block();
 
+            assert testPage != null;
             Layout layout = testPage.getLayouts().get(0);
             JSONObject dsl = new JSONObject(Map.of("text", "{{ query1.data }}"));
 
@@ -135,12 +152,14 @@ public class ActionCollectionServiceTest {
         }
 
         Organization testOrg = organizationRepository.findByName("Another Test Organization", AclPermission.READ_ORGANIZATIONS).block();
+        assert testOrg != null;
         orgId = testOrg.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
-        datasource.setPluginId(installed_plugin.getId());
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+        datasource.setPluginId(installedJsPlugin.getId());
     }
 
     @After
@@ -149,7 +168,6 @@ public class ActionCollectionServiceTest {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
         testPage = null;
-
     }
 
     @Test
@@ -173,7 +191,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        Mono<ActionCollection> actionCollectionMono = actionCollectionService.createCollection(actionCollectionDTO)
+        Mono<ActionCollection> actionCollectionMono = layoutCollectionService.createCollection(actionCollectionDTO)
                 .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
 
         StepVerifier
@@ -199,7 +217,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
         ActionCollectionDTO actionCollection =
-                actionCollectionService.createCollection(actionCollectionDTO).block();
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         UserRole userRole = new UserRole();
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
@@ -233,6 +251,80 @@ public class ActionCollectionServiceTest {
                                     readActionCollectionPolicy,
                                     executeActionCollectionPolicy));
 
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * For a given collection testCollection2, that refers to another action testCollection1.testAction1,
+     * When testAction1 is renamed to newTestAction1,
+     * Then the reference in testCollection2 should also get updated
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void refactorNameForActionRefactorsNameInCollection() {
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(testPage.getId());
+        actionCollectionDTO1.setApplicationId(testApp.getId());
+        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setPluginId(datasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
+        actionCollectionDTO2.setName("testCollection2");
+        actionCollectionDTO2.setPageId(testPage.getId());
+        actionCollectionDTO2.setApplicationId(testApp.getId());
+        actionCollectionDTO2.setOrganizationId(orgId);
+        actionCollectionDTO2.setPluginId(datasource.getPluginId());
+        ActionDTO action2 = new ActionDTO();
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.setName("testAction2");
+        action2.getActionConfiguration().setBody("testCollection1.testAction1()");
+        actionCollectionDTO2.setActions(List.of(action2));
+        actionCollectionDTO2.setPluginType(PluginType.JS);
+        actionCollectionDTO2.setBody("testCollection1.testAction1()");
+
+        final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService.createCollection(actionCollectionDTO2).block();
+
+        RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
+        assert createdActionCollectionDTO1 != null;
+        refactorActionNameDTO.setActionId(createdActionCollectionDTO1.getActions().stream().findFirst().get().getId());
+        refactorActionNameDTO.setPageId(testPage.getId());
+        refactorActionNameDTO.setLayoutId(testPage.getLayouts().get(0).getId());
+        refactorActionNameDTO.setCollectionName("testCollection1");
+        refactorActionNameDTO.setOldName("testAction1");
+        refactorActionNameDTO.setNewName("newTestAction1");
+
+        final LayoutDTO layoutDTO = layoutActionService.refactorActionName(refactorActionNameDTO).block();
+
+        assert createdActionCollectionDTO2 != null;
+        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO2.getId());
+
+        StepVerifier.create(actionCollectionMono)
+                .assertNext(actionCollection -> {
+                    Assert.assertEquals(
+                            "testCollection1.newTestAction1()",
+                            actionCollection.getUnpublishedCollection().getBody()
+                    );
+                })
+                .verifyComplete();
+
+        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream().findFirst().get().getId());
+
+        StepVerifier.create(actionMono)
+                .assertNext(action -> {
+                    Assert.assertEquals(
+                            "testCollection1.newTestAction1()",
+                            action.getUnpublishedAction().getActionConfiguration().getBody()
+                    );
                 })
                 .verifyComplete();
     }

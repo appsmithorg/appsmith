@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Collection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ActionDTO;
@@ -46,15 +47,15 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
     @Override
     public Mono<ActionDTO> addSingleActionToCollection(String collectionId, ActionDTO action) {
         if (collectionId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         if (action.getId() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
         }
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collection Id")))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collectionId")))
                 .flatMap(collection1 -> {
                     List<NewAction> actions = collection1.getActions();
                     if (actions == null) {
@@ -81,7 +82,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
     @Override
     public Mono<NewAction> removeSingleActionFromCollection(String collectionId, Mono<NewAction> actionMono) {
         if (collectionId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
         return repository
@@ -93,7 +94,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
                     NewAction action = tuple.getT2();
 
                     if (action.getId() == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "action"));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION));
                     }
 
                     List<NewAction> actions = collection.getActions();
