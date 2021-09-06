@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import {
-  getActions,
   getCanvasWidgets,
   getDatasources,
   getPageActions,
@@ -41,6 +40,7 @@ const Wrapper = styled.div`
   padding: 15px 55px;
   background: #fff;
   height: calc(100vh - 35px);
+  overflow: auto;
 `;
 
 const Pageheader = styled.h4`
@@ -133,9 +133,9 @@ const StyledImg = styled.img`
 `;
 
 const StyledFooter = styled.div`
-  position: absolute;
-  bottom: 10px;
   cursor: pointer;
+  display: inline-block;
+  margin-top: 20px;
 `;
 
 export default function OnboardingChecklist() {
@@ -328,6 +328,7 @@ export default function OnboardingChecklist() {
                   ),
                 );
               }}
+              tag="button"
               text="CREATE A QUERY"
               type="button"
             />
@@ -398,8 +399,9 @@ export default function OnboardingChecklist() {
                   : Category.tertiary
               }
               data-testid="checklist-connection-button"
-              disabled={Object.keys(widgets).length == 1}
+              disabled={Object.keys(widgets).length == 1 || !actions.length}
               onClick={onconnectYourWidget}
+              tag="button"
               text="CONNECT DATA TO WIDGETS"
               type="button"
             />

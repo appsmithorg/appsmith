@@ -20,7 +20,6 @@ import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer"
 import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
-import { stat } from "fs";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -503,7 +502,8 @@ export const getIsOnboardingTasksView = createSelector(
   getCanvasWidgets,
   (datasources, actions, widgets) => {
     return (
-      !datasources.length || !actions.length || Object.keys(widgets).length == 1
+      (!datasources.length || !actions.length) &&
+      Object.keys(widgets).length == 1
     );
   },
 );

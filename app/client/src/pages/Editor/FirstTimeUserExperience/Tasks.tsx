@@ -10,7 +10,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
-  getActions,
   getCanvasWidgets,
   getDatasources,
   getPageActions,
