@@ -13,7 +13,15 @@ import {
 } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { getAppsmithConfigs } from "configs";
-import { createMessage, DEBUGGER_INTERCOM_TEXT } from "constants/messages";
+import {
+  createMessage,
+  DEBUGGER_APPSMITH_SUPPORT,
+  DEBUGGER_COPY_MESSAGE,
+  DEBUGGER_INTERCOM_TEXT,
+  DEBUGGER_OPEN_DOCUMENTATION,
+  DEBUGGER_SEARCH_GOOGLE,
+  DEBUGGER_SEARCH_SNIPPET,
+} from "constants/messages";
 import { useDispatch } from "react-redux";
 import {
   Classes as BPClasses,
@@ -112,21 +120,21 @@ const searchAction: Record<
 > = {
   [CONTEXT_MENU_ACTIONS.COPY]: {
     icon: "duplicate",
-    text: "Copy",
+    text: createMessage(DEBUGGER_COPY_MESSAGE),
     onSelect: (error: Message) => {
       copy(error.message);
     },
   },
   [CONTEXT_MENU_ACTIONS.GOOGLE]: {
     icon: "share-2",
-    text: "Ask Google",
+    text: createMessage(DEBUGGER_SEARCH_GOOGLE),
     onSelect: (error: Message) => {
       window.open("http://google.com/search?q=" + error.message);
     },
   },
   [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
-    text: "Open Documentation",
+    text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
     onSelect: (error: Message, dispatch: Dispatch) => {
       // Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
@@ -142,7 +150,7 @@ const searchAction: Record<
   },
   [CONTEXT_MENU_ACTIONS.INTERCOM]: {
     icon: "support",
-    text: "Get Appsmith Support",
+    text: createMessage(DEBUGGER_APPSMITH_SUPPORT),
     onSelect: (error: Message) => {
       // Search through the omnibar
       if (intercomAppID && window.Intercom) {
@@ -155,7 +163,7 @@ const searchAction: Record<
   },
   [CONTEXT_MENU_ACTIONS.SNIPPET]: {
     icon: "play",
-    text: "Trigger a snippet",
+    text: createMessage(DEBUGGER_SEARCH_SNIPPET),
     onSelect: (error: Message, dispatch: Dispatch) => {
       /// Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
