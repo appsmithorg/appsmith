@@ -43,12 +43,18 @@ export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
 ) {
+  // when called via a promise, a trigger can return some value to be used in .then
+  let response: unknown[] = [];
   switch (trigger.type) {
     case ActionTriggerType.PROMISE:
       yield call(executePromiseSaga, trigger.payload, eventType);
       break;
     case ActionTriggerType.RUN_PLUGIN_ACTION:
-      yield call(executePluginActionTriggerSaga, trigger.payload, eventType);
+      response = yield call(
+        executePluginActionTriggerSaga,
+        trigger.payload,
+        eventType,
+      );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
       yield put(clearActionResponse(trigger.payload.actionId));
@@ -81,6 +87,7 @@ export function* executeActionTriggers(
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
   }
+  return response;
 }
 
 export function* executeAppAction(payload: ExecuteTriggerPayload) {
