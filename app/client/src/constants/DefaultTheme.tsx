@@ -2837,7 +2837,7 @@ export const theme: Theme = {
     leftPane: {
       width: 240,
       leftPadding: 16,
-      rightMargin: 113,
+      rightMargin: 12,
     },
     search: {
       height: 68,
@@ -2860,8 +2860,8 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 150,
-    minHeight: 150,
+    minWidth: 228,
+    minHeight: 124,
     titleHeight: 48,
     divider: {
       thickness: 1,
