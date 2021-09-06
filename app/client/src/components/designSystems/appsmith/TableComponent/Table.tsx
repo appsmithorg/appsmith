@@ -78,8 +78,6 @@ interface TableProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
@@ -139,12 +137,10 @@ function Header(
           <TableHeader
             applyFilter={props.applyFilter}
             columns={tableHeadercolumns}
-            compactMode={props.compactMode}
             currentPageIndex={props.currentPageIndex}
             delimiter={props.delimiter}
             filters={props.filters}
             infiniteScroll={props.infiniteScroll}
-            isVisibleCompactMode={props.isVisibleCompactMode}
             isVisibleDownload={props.isVisibleDownload}
             isVisibleFilters={props.isVisibleFilters}
             isVisiblePagination={props.isVisiblePagination}
@@ -161,7 +157,6 @@ function Header(
             tableData={props.data}
             tableSizes={props.tableSizes}
             totalRecordsCount={props.totalRecordsCount}
-            updateCompactMode={props.updateCompactMode}
             updatePageNo={props.updatePageNo}
             widgetId={props.widgetId}
             widgetName={props.widgetName}
@@ -372,7 +367,6 @@ export function Table(props: TableProps) {
     props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
-    props.isVisibleCompactMode ||
     props.isVisiblePagination;
   const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
   const RenderRow = React.useCallback(

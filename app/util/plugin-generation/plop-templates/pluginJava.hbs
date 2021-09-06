@@ -1,0 +1,56 @@
+package com.external.plugins;
+
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.plugins.BasePlugin;
+import com.appsmith.external.plugins.PluginExecutor;
+import org.pf4j.Extension;
+import org.pf4j.PluginWrapper;
+import reactor.core.publisher.Mono;
+
+import java.util.Set;
+
+public class {{pascalCase name}} extends BasePlugin {
+    public {{pascalCase name}}(PluginWrapper wrapper) {
+        super(wrapper);
+    }
+
+    @Extension
+    public static class {{pascalCase name}}Executor implements PluginExecutor<C> {
+
+        @Override
+        public Mono<ActionExecutionResult> execute(C connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+        }
+
+        @Override
+        public Mono datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+        }
+
+        @Override
+        public void datasourceDestroy(C connection) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement");
+        }
+
+        @Override
+        public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement");
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+        }
+
+        @Override
+        public Mono<DatasourceStructure> getStructure(C connection, DatasourceConfiguration datasourceConfiguration) {
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Please implement"));
+        }
+    }
+}

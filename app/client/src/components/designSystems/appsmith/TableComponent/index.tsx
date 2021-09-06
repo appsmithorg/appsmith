@@ -70,11 +70,9 @@ interface ReactTableComponentProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
-  isVisibleCompactMode?: boolean;
   isVisiblePagination?: boolean;
   delimiter: string;
 }
@@ -94,7 +92,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     height,
     infiniteScroll,
     isLoading,
-    isVisibleCompactMode,
     isVisibleDownload,
     isVisibleFilters,
     isVisiblePagination,
@@ -116,7 +113,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     totalRecordsCount,
     triggerRowSelection,
     unSelectAllRow,
-    updateCompactMode,
     updatePageNo,
     widgetId,
     widgetName,
@@ -265,7 +261,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       height={height}
       infiniteScroll={infiniteScroll}
       isLoading={isLoading}
-      isVisibleCompactMode={isVisibleCompactMode}
       isVisibleDownload={isVisibleDownload}
       isVisibleFilters={isVisibleFilters}
       isVisiblePagination={isVisiblePagination}
@@ -285,7 +280,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       toggleAllRowSelect={toggleAllRowSelect}
       totalRecordsCount={totalRecordsCount}
       triggerRowSelection={triggerRowSelection}
-      updateCompactMode={updateCompactMode}
       updatePageNo={updatePageNo}
       widgetId={widgetId}
       widgetName={widgetName}
@@ -306,7 +300,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.handleResizeColumn === next.handleResizeColumn &&
     prev.height === next.height &&
     prev.isLoading === next.isLoading &&
-    prev.isVisibleCompactMode === next.isVisibleCompactMode &&
     prev.isVisibleDownload === next.isVisibleDownload &&
     prev.isVisibleFilters === next.isVisibleFilters &&
     prev.isVisiblePagination === next.isVisiblePagination &&
@@ -325,7 +318,6 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.sortTableColumn === next.sortTableColumn &&
     prev.totalRecordsCount === next.totalRecordsCount &&
     prev.triggerRowSelection === next.triggerRowSelection &&
-    prev.updateCompactMode === next.updateCompactMode &&
     prev.updatePageNo === next.updatePageNo &&
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
