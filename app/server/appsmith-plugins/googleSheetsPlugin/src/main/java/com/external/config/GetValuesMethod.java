@@ -46,55 +46,55 @@ public class GetValuesMethod implements Method {
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Sheet name");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unexpected value for table header index. Please use a number starting from 1");
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }
         if ("ROWS".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getRowOffset() == null || methodConfig.getRowOffset().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row offset");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row offset");
             }
             int rowOffset = 0;
             try {
                 rowOffset = Integer.parseInt(methodConfig.getRowOffset());
                 if (rowOffset < 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unexpected value for row offset. Please use a number starting from 0");
                 }
 
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for row offset. Please use a number starting from 0");
             }
             if (methodConfig.getRowLimit() == null || methodConfig.getRowLimit().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Row limit");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Row limit");
             }
             int rowLimit = 1;
             try {
                 rowLimit = Integer.parseInt(methodConfig.getRowLimit());
                 if (rowLimit <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unexpected value for row limit. Please use a number starting from 1");
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for row limit. Please use a number starting from 1");
             }
         } else if ("RANGE".equalsIgnoreCase(methodConfig.getQueryFormat())) {
             if (methodConfig.getSpreadsheetRange() == null || methodConfig.getSpreadsheetRange().isBlank()) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Data Range");
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Data Range");
             }
         } else {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Invalid query format");
