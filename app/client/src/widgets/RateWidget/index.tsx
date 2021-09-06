@@ -67,10 +67,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "maxCount",
-            helpText: "Sets the maximum limit of the number of stars",
-            label: "Max count",
+            helpText: "Sets the maximum number of stars",
+            label: "Max Rating",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter max count",
+            placeholderText: "Enter max rating",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -80,8 +80,8 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "defaultRate",
-            helpText: "Sets the default number of stars",
-            label: "Default rate",
+            helpText: "Sets the default rating",
+            label: "Default Rating",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter default value",
             isBindProperty: true,

@@ -74,8 +74,7 @@ class CheckboxGroupWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText:
-              "Displays a list of options for a user to select. Values must be unique",
+            helpText: "Displays a list of unique checkbox options",
             propertyName: "options",
             label: "Options",
             controlType: "OPTION_INPUT",
@@ -112,7 +111,7 @@ class CheckboxGroupWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Selects values of the options checked by default",
+            helpText: "Sets the values of the options checked by default",
             propertyName: "defaultSelectedValues",
             label: "Default Selected Values",
             placeholderText: "Enter option values",
@@ -124,7 +123,7 @@ class CheckboxGroupWidget extends BaseWidget<
               params: {
                 fn: defaultSelectedValuesValidation,
                 expected: {
-                  type: "Value or Array of values",
+                  type: "String or Array<string>",
                   example: `value1 | ['value1', 'value2']`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },

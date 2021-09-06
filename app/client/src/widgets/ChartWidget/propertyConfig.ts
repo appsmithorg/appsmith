@@ -6,80 +6,7 @@ import { isLabelOrientationApplicableFor } from "components/designSystems/appsmi
 
 export default [
   {
-    sectionName: "General",
-    children: [
-      {
-        helpText: "Adds a title to the chart",
-        placeholderText: "Enter title",
-        propertyName: "chartName",
-        label: "Title",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Changes the visualisation of the chart data",
-        propertyName: "chartType",
-        label: "Chart Type",
-        controlType: "DROP_DOWN",
-        options: [
-          {
-            label: "Line Chart",
-            value: "LINE_CHART",
-          },
-          {
-            label: "Bar Chart",
-            value: "BAR_CHART",
-          },
-          {
-            label: "Pie Chart",
-            value: "PIE_CHART",
-          },
-          {
-            label: "Column Chart",
-            value: "COLUMN_CHART",
-          },
-          {
-            label: "Area Chart",
-            value: "AREA_CHART",
-          },
-          {
-            label: "Custom Chart",
-            value: "CUSTOM_FUSION_CHART",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: [
-              "LINE_CHART",
-              "BAR_CHART",
-              "PIE_CHART",
-              "COLUMN_CHART",
-              "AREA_CHART",
-              "CUSTOM_FUSION_CHART",
-            ],
-          },
-        },
-      },
-      {
-        propertyName: "isVisible",
-        label: "Visible",
-        helpText: "Controls the visibility of the widget",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-    ],
-  },
-  {
-    sectionName: "Chart Data",
+    sectionName: "Data",
     children: [
       {
         helpText:
@@ -161,15 +88,6 @@ export default [
         dependencies: ["chartType"],
         children: [
           {
-            helpText: "Series Name",
-            propertyName: "seriesName",
-            label: "Series Name",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Series data",
             propertyName: "data",
             label: "Series Data",
@@ -208,7 +126,99 @@ export default [
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
+          {
+            helpText: "Series Name",
+            propertyName: "seriesName",
+            label: "Series Name",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
+      },
+    ],
+  },
+  {
+    sectionName: "General",
+    children: [
+      {
+        helpText: "Adds a title to the chart",
+        placeholderText: "Sales Report",
+        propertyName: "chartName",
+        label: "Title",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        helpText: "Changes the visualisation of the chart data",
+        propertyName: "chartType",
+        label: "Chart Type",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Line Chart",
+            value: "LINE_CHART",
+          },
+          {
+            label: "Bar Chart",
+            value: "BAR_CHART",
+          },
+          {
+            label: "Pie Chart",
+            value: "PIE_CHART",
+          },
+          {
+            label: "Column Chart",
+            value: "COLUMN_CHART",
+          },
+          {
+            label: "Area Chart",
+            value: "AREA_CHART",
+          },
+          {
+            label: "Custom Chart",
+            value: "CUSTOM_FUSION_CHART",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              "LINE_CHART",
+              "BAR_CHART",
+              "PIE_CHART",
+              "COLUMN_CHART",
+              "AREA_CHART",
+              "CUSTOM_FUSION_CHART",
+            ],
+          },
+        },
+      },
+      {
+        propertyName: "isVisible",
+        label: "Visible",
+        helpText: "Controls the visibility of the widget",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        helpText: "Enables scrolling inside the chart",
+        propertyName: "allowHorizontalScroll",
+        label: "Allow horizontal scroll",
+        controlType: "SWITCH",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
     ],
   },
@@ -221,7 +231,7 @@ export default [
       {
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",
-        placeholderText: "Enter label text",
+        placeholderText: "Dates",
         label: "x-axis Label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
@@ -231,22 +241,12 @@ export default [
       {
         helpText: "Specifies the label of the y-axis",
         propertyName: "yAxisName",
-        placeholderText: "Enter label text",
+        placeholderText: "Revenue",
         label: "y-axis Label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
-      },
-      {
-        helpText: "Enables scrolling inside the chart",
-        propertyName: "allowHorizontalScroll",
-        label: "Allow horizontal scroll",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
-        dependencies: ["chartType"],
       },
       {
         helpText: "Changes the x-axis label orientation",
