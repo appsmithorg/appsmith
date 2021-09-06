@@ -12,14 +12,27 @@ import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 
-const EVDebugButton = styled.div`
+const EVDebugButton = styled.button`
   font-size: 11px;
   font-weight: 600;
-  line-height: 13px;
   display: flex;
   padding: 4px;
+  line-height: 13px;
   border: 1px solid #f22b2b;
   width: fit-content;
+  background-color: transparent;
+  color: #f22b2b;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #fafafaaa;
+  }
+
+  &:active {
+    background-color: #fafafaff;
+  }
 
   .${Classes.ICON} {
     margin-left: 5px;

@@ -26,7 +26,7 @@ import { Colors } from "constants/Colors";
 const { intercomAppID } = getAppsmithConfigs();
 
 const getOptions = (type?: string, subType?: string) => {
-  const defaultOptions = ["copy", "docs", "google", "intercom"];
+  const defaultOptions = ["copy", "docs", "snippet", "google", "intercom"];
 
   if (subType) {
     switch (subType) {
@@ -44,11 +44,11 @@ const getOptions = (type?: string, subType?: string) => {
   } else {
     switch (type) {
       case PropertyEvaluationErrorType.VALIDATION:
-        return ["copy", "docs", "intercom"];
+        return ["copy", "docs", "snippet", "intercom"];
       case PropertyEvaluationErrorType.PARSE:
-        return ["copy", "google"];
+        return ["copy", "snippet", "google"];
       case PropertyEvaluationErrorType.LINT:
-        return ["copy", "google"];
+        return ["copy", "snippet", "google"];
       default:
         return defaultOptions;
     }
@@ -85,7 +85,7 @@ const searchAction: Record<string, any> = {
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",
         searchTerm: error.message,
-        errorType: PropertyEvaluationErrorType.VALIDATION,
+        errorType: error.type,
       });
       dispatch(setGlobalSearchQuery(error.message || ""));
       dispatch(
@@ -104,6 +104,24 @@ const searchAction: Record<string, any> = {
           createMessage(DEBUGGER_INTERCOM_TEXT, error.message),
         );
       }
+    },
+  },
+  snippet: {
+    icon: "play",
+    text: "Trigger a snippet",
+    onSelect: (error: Message, dispatch: Dispatch) => {
+      /// Search through the omnibar
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DEBUGGER",
+        searchTerm: error.message,
+        errorType: error.type,
+      });
+      dispatch(setGlobalSearchQuery(error.message || ""));
+      dispatch(
+        toggleShowGlobalSearchModal(
+          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
+        ),
+      );
     },
   },
 };
