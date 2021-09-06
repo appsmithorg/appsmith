@@ -70,7 +70,6 @@ function Comments({ refId }: { refId: string }) {
     refCommentThreadsSelector(refId, applicationId),
   );
   const commentThreadIds = useSortedCommentThreadIds(
-    applicationId,
     commentThreadIdsByRef as string[],
   );
   const unpublishedCommentThread = useSelector(

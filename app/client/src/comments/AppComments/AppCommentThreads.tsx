@@ -30,10 +30,7 @@ const Container = styled.div`
   overflow: auto;
 `;
 
-export const useSortedCommentThreadIds = (
-  applicationId: string,
-  commentThreadIds: string[],
-) => {
+export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
   const commentThreadsMap = useSelector(allCommentThreadsMap);
   const shouldShowResolved = useSelector(shouldShowResolvedSelector);
   const appCommentsFilter = useSelector(appCommentsFilterSelector);
@@ -69,10 +66,7 @@ function AppCommentThreads() {
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
 
-  const commentThreadIds = useSortedCommentThreadIds(
-    applicationId,
-    appCommentThreadIds,
-  );
+  const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
 
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
