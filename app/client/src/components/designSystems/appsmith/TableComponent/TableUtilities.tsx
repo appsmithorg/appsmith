@@ -33,11 +33,7 @@ import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
-import {
-  ButtonStyle,
-  ButtonVariant,
-  StyledButton,
-} from "../IconButtonComponent";
+import { ButtonVariant, StyledButton } from "../IconButtonComponent";
 
 export const renderCell = (
   value: any,
@@ -169,7 +165,7 @@ interface RenderIconButtonProps {
   columnActions?: ColumnAction[];
   iconName?: IconName;
   buttonVariant: ButtonVariant;
-  buttonStyle: ButtonStyle;
+  buttonColor: string;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
@@ -197,7 +193,7 @@ export const renderIconButton = (
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
             boxShadowColor={props.boxShadowColor}
-            buttonStyle={props.buttonStyle}
+            buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
             iconName={props.iconName}
             isSelected={props.isSelected}
@@ -214,7 +210,7 @@ function IconButton(props: {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isSelected: boolean;
   action: ColumnAction;
-  buttonStyle: ButtonStyle;
+  buttonColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -243,7 +239,7 @@ function IconButton(props: {
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
         boxShadowColor={props.boxShadowColor}
-        buttonStyle={props.buttonStyle}
+        buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
         icon={props.iconName}
         loading={loading}

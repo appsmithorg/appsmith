@@ -5,8 +5,6 @@ import { IconName } from "@blueprintjs/icons";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import {
-  ButtonStyle,
-  ButtonStyleTypes,
   ButtonVariant,
   WidgetType,
   WidgetTypes,
@@ -39,8 +37,6 @@ export interface MenuButtonWidgetProps extends WidgetProps {
       onClick?: string;
     }
   >;
-  menuStyle?: ButtonStyle;
-  prevMenuStyle?: ButtonStyle;
   menuVariant?: ButtonVariant;
   menuColor?: string;
   borderRadius?: ButtonBorderRadius;
@@ -231,100 +227,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "menuStyle",
-            label: "Menu Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the menu button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Custom",
-                value: "CUSTOM",
-              },
-            ],
-            updateHook: (
-              props: MenuButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              let propertiesToUpdate = [
-                { propertyPath, propertyValue },
-                { propertyPath: "prevMenuStyle", propertyValue },
-              ];
-
-              if (propertyValue === "CUSTOM") {
-                propertiesToUpdate = [{ propertyPath, propertyValue }];
-              }
-
-              propertiesToUpdate.push({
-                propertyPath: "menuColor",
-                propertyValue: "",
-              });
-
-              return propertiesToUpdate;
-            },
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "PRIMARY",
-                  "WARNING",
-                  "DANGER",
-                  "INFO",
-                  "SECONDARY",
-                  "CUSTOM",
-                ],
-              },
-            },
-          },
-          {
             propertyName: "menuColor",
-            helpText:
-              "Sets the custom color preset based on the menu button variant",
+            helpText: "Sets the style of the Menu button",
             label: "Menu Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: MenuButtonWidgetProps) =>
-              props.menuStyle !== ButtonStyleTypes.CUSTOM,
-            dependencies: ["menuStyle"],
-            updateHook: (
-              props: MenuButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-              if (props.prevMenuStyle) {
-                propertiesToUpdate.push({
-                  propertyPath: "prevMenuStyle",
-                  propertyValue: "",
-                });
-              }
-
-              return propertiesToUpdate;
-            },
           },
           {
             propertyName: "menuVariant",
@@ -448,12 +356,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
         ],
       },
     ];
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      prevMenuStyle: "menuStyle",
-    };
   }
 
   menuItemClickHandler = (onClick: string | undefined) => {

@@ -188,7 +188,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               : undefined}
             <SaveButtonContainer>
               <ActionButton
-                buttonStyle="DANGER"
+                buttonColor={Colors.DANGER_SOLID}
                 buttonVariant="SOLID"
                 // accent="error"
                 className="t--delete-datasource"
@@ -199,7 +199,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
               <ActionButton
                 // accent="secondary"
-                buttonStyle="PRIMARY"
+                buttonColor={Colors.GREEN}
                 buttonVariant="OUTLINE"
                 className="t--test-datasource"
                 loading={isTesting}

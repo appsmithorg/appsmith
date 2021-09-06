@@ -47,6 +47,7 @@ import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { isArray } from "lodash";
+import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -133,8 +134,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnProperties.cellBackground,
         rowIndex,
       ),
-      buttonStyle: this.getPropertyValue(
-        columnProperties.buttonStyle,
+      buttonColor: this.getPropertyValue(
+        columnProperties.buttonColor,
         rowIndex,
       ),
       buttonLabelColor: this.getPropertyValue(
@@ -168,11 +169,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
       boxShadowColor: this.getPropertyValue(
         columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
-      iconButtonStyle: this.getPropertyValue(
-        columnProperties.iconButtonStyle,
         rowIndex,
         true,
       ),
@@ -248,7 +244,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
+              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -304,7 +300,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
               iconName: cellProperties.iconName as IconName,
-              buttonStyle: cellProperties.iconButtonStyle,
+              buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,

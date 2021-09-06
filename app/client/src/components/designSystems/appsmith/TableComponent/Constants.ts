@@ -4,7 +4,7 @@ import { TextSize } from "constants/WidgetConstants";
 import { IconName } from "@blueprintjs/icons";
 import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
 import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
-import { ButtonStyle, ButtonVariant } from "../IconButtonComponent";
+import { ButtonVariant } from "../IconButtonComponent";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -100,7 +100,7 @@ export interface CellLayoutProperties {
   fontStyle?: string;
   textColor?: string;
   cellBackground?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   buttonLabel?: string;
   isVisible?: boolean;
@@ -111,7 +111,6 @@ export interface CellLayoutProperties {
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
-  iconButtonStyle: ButtonStyle;
   isCellVisible: boolean;
 }
 
@@ -157,7 +156,7 @@ export interface ColumnProperties {
   isDerived: boolean;
   computedValue: string;
   buttonLabel?: string;
-  buttonStyle?: string;
+  buttonColor?: string;
   buttonLabelColor?: string;
   onClick?: string;
   outputFormat?: string;
@@ -170,7 +169,6 @@ export interface ColumnProperties {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  iconButtonStyle?: ButtonStyle;
   isCellVisible?: boolean;
 }
 

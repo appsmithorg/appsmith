@@ -11,6 +11,7 @@ import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
+import { Colors } from "constants/Colors";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -101,7 +102,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
       <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
-          buttonStyle="PRIMARY"
+          buttonColor={Colors.GREEN}
           buttonVariant="OUTLINE"
           onClick={() => {
             this.openModal();

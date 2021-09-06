@@ -6,8 +6,6 @@ import { IconName } from "@blueprintjs/icons";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
-  ButtonStyle,
-  ButtonStyleTypes,
   ButtonType,
   ButtonVariant,
 } from "components/designSystems/blueprint/ButtonComponent";
@@ -117,84 +115,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Custom",
-                value: "CUSTOM",
-              },
-            ],
-            updateHook: (
-              props: ButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              let propertiesToUpdate = [
-                { propertyPath, propertyValue },
-                { propertyPath: "prevButtonStyle", propertyValue },
-              ];
-
-              if (propertyValue === "CUSTOM") {
-                propertiesToUpdate = [{ propertyPath, propertyValue }];
-              }
-
-              propertiesToUpdate.push({
-                propertyPath: "buttonColor",
-                propertyValue: "",
-              });
-
-              return propertiesToUpdate;
-            },
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "PRIMARY",
-                  "WARNING",
-                  "DANGER",
-                  "INFO",
-                  "SECONDARY",
-                  "CUSTOM",
-                ],
-              },
-            },
-          },
-          {
             propertyName: "buttonColor",
-            helpText:
-              "Sets the custom color preset based on the button variant",
+            helpText: "Changes the color of the button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: ButtonWidgetProps) =>
-              props.buttonStyle !== ButtonStyleTypes.CUSTOM,
-            dependencies: ["buttonStyle"],
           },
           {
             propertyName: "buttonVariant",
@@ -324,12 +250,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     ];
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      prevButtonStyle: "buttonStyle",
-    };
-  }
-
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
@@ -384,7 +304,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
         buttonColor={this.props.buttonColor}
-        buttonStyle={this.props.buttonStyle}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
@@ -395,7 +314,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
-        prevButtonStyle={this.props.prevButtonStyle}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         tooltip={this.props.tooltip}
@@ -419,8 +337,6 @@ export interface ButtonWidgetProps extends WidgetProps, WithMeta {
   recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
-  buttonStyle?: ButtonStyle;
-  prevButtonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;

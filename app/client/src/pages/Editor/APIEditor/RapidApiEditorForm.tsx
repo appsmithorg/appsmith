@@ -18,6 +18,7 @@ import Pagination from "./Pagination";
 import { PaginationType, Action } from "entities/Action";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
+import { Colors } from "constants/Colors";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -163,13 +164,13 @@ function RapidApiEditorForm(props: Props) {
 
           <ActionButtons>
             <ActionButton
-              buttonStyle="DANGER"
+              buttonColor={Colors.DANGER_SOLID}
               loading={isDeleting}
               onClick={onDeleteClick}
               text="Delete"
             />
             <ActionButton
-              buttonStyle="PRIMARY"
+              buttonColor={Colors.GREEN}
               loading={isRunning}
               onClick={() => {
                 onRunClick();

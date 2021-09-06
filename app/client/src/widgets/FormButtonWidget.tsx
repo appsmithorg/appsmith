@@ -2,7 +2,6 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import ButtonComponent, {
-  ButtonStyle,
   ButtonType,
 } from "components/designSystems/blueprint/ButtonComponent";
 import {
@@ -45,24 +44,10 @@ class FormButtonWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "buttonStyle",
-            label: "Button Style",
+            propertyName: "buttonColor",
             helpText: "Changes the style of the button",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Primary Button",
-                value: "PRIMARY_BUTTON",
-              },
-              {
-                label: "Secondary Button",
-                value: "SECONDARY_BUTTON",
-              },
-              {
-                label: "Danger Button",
-                value: "DANGER_BUTTON",
-              },
-            ],
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -193,7 +178,7 @@ class FormButtonWidget extends BaseWidget<
 
     return (
       <ButtonComponent
-        buttonStyle={this.props.buttonStyle}
+        buttonColor={this.props.buttonColor}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
         isDisabled={disabled}
@@ -222,7 +207,7 @@ class FormButtonWidget extends BaseWidget<
 
 export interface FormButtonWidgetProps extends WidgetProps, WithMeta {
   text?: string;
-  buttonStyle?: ButtonStyle;
+  buttonColor?: string;
   onClick?: string;
   isVisible?: boolean;
   buttonType: ButtonType;

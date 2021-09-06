@@ -55,6 +55,7 @@ import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import Callout from "components/ads/Callout";
 import CloseEditor from "components/editorComponents/CloseEditor";
+import { Colors } from "constants/Colors";
 
 interface DatasourceRestApiEditorProps {
   updateDatasource: (
@@ -330,7 +331,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       <SaveButtonContainer>
         <ActionButton
           // accent="error"
-          buttonStyle="DANGER"
+          buttonColor={Colors.DANGER_SOLID}
           buttonVariant="SOLID"
           className="t--delete-datasource"
           loading={isDeleting}

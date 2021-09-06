@@ -8,7 +8,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent, {
-  ButtonStyle,
   ButtonVariant,
 } from "components/designSystems/appsmith/IconButtonComponent";
 import {
@@ -16,10 +15,11 @@ import {
   ButtonBorderRadiusTypes,
 } from "components/propertyControls/BorderRadiusOptionsControl";
 import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
+import { Colors } from "../constants/Colors";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  buttonStyle: ButtonStyle;
+  buttonColor?: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -84,32 +84,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
+            propertyName: "buttonColor",
             helpText: "Sets the style of the icon button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-            ],
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -195,7 +173,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       borderRadius,
       boxShadow,
       boxShadowColor,
-      buttonStyle,
+      buttonColor,
       buttonVariant,
       iconName,
       isDisabled,
@@ -208,7 +186,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonStyle={buttonStyle}
+        buttonColor={buttonColor || Colors.GREEN}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={

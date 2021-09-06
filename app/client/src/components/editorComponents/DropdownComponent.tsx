@@ -16,6 +16,7 @@ import {
 } from "@blueprintjs/select";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { WrappedFieldInputProps } from "redux-form";
+import { Colors } from "constants/Colors";
 
 interface ButtonWrapperProps {
   width?: string;
@@ -84,7 +85,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 
     const displayMode = (
       <BaseButton
-        buttonStyle="PRIMARY"
+        buttonColor={Colors.GREEN}
         icon-right="plus"
         onClick={this.showTextBox}
         text={addItem?.displayText}
@@ -186,7 +187,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              buttonStyle="PRIMARY"
+              buttonColor={Colors.GREEN}
               buttonVariant="OUTLINE"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
