@@ -27,6 +27,7 @@ import { ReactComponent as ShowColumnIcon } from "assets/icons/control/hide-colu
 import { ReactComponent as HideColumnIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactComponent as DeleteColumnIcon } from "assets/icons/control/delete-column.svg";
 import { ReactComponent as BoldFontIcon } from "assets/icons/control/bold.svg";
+import { ReactComponent as UnderlineIcon } from "assets/icons/control/underline.svg";
 import { ReactComponent as ItalicsFontIcon } from "assets/icons/control/italics.svg";
 import { ReactComponent as LeftAlignIcon } from "assets/icons/control/left-align.svg";
 import { ReactComponent as CenterAlignIcon } from "assets/icons/control/center-align.svg";
@@ -208,6 +209,11 @@ export const ControlIcons: {
   BOLD_FONT: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoldFontIcon />
+    </IconWrapper>
+  ),
+  UNDERLINE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <UnderlineIcon />
     </IconWrapper>
   ),
   ITALICS_FONT: (props: IconProps) => (

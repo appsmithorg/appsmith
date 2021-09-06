@@ -135,6 +135,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "STATBOX_WIDGET",
+    widgetCardName: "Stat Box",
+    key: generateReactKey(),
+  },
+  {
     type: "CHECKBOX_GROUP_WIDGET",
     widgetCardName: "Checkbox Group",
     key: generateReactKey(),

@@ -8,16 +8,13 @@ import {
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-// import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import TableFilters from "components/designSystems/appsmith/TableComponent/TableFilters";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
-  CompactMode,
   TableSizes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
-import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -116,10 +113,7 @@ interface TableHeaderProps {
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
@@ -137,9 +131,7 @@ function TableHeader(props: TableHeaderProps) {
           value={props.searchKey}
         />
       )}
-      {(props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.isVisibleCompactMode) && (
+      {(props.isVisibleFilters || props.isVisibleDownload) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
           {props.isVisibleFilters && (
             <TableFilters
@@ -156,13 +148,6 @@ function TableHeader(props: TableHeaderProps) {
               data={props.tableData}
               delimiter={props.delimiter}
               widgetName={props.widgetName}
-            />
-          )}
-
-          {props.isVisibleCompactMode && (
-            <TableCompactMode
-              compactMode={props.compactMode}
-              updateCompactMode={props.updateCompactMode}
             />
           )}
         </CommonFunctionsMenuWrapper>
