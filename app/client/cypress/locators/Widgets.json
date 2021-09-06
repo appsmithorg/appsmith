@@ -54,6 +54,7 @@
     "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
     "dropdownSingleSelect": ".bp3-popover-target > div > .bp3-button",
     "defaultSingleSelectValue": ".bp3-popover-target > div > .bp3-button > .bp3-button-text",
+    "defaultMultiSelectValue": ".rc-select-selection-placeholder",
     "widgetBtn": ".t--widget-buttonwidget button",
     "actionSelect": ".t--open-dropdown-Select-Action",
     "inputOnTextChange": ".t--property-control-ontextchanged .t--open-dropdown-Select-Action",
