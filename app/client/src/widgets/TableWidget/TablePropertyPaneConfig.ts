@@ -1178,6 +1178,29 @@ export default [
         dependencies: ["multiRowSelection"],
       },
       {
+        propertyName: "compactMode",
+        helpText: "Selects row height",
+        label: "Row Height",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Short",
+            value: "SHORT",
+          },
+          {
+            label: "Default",
+            value: "DEFAULT",
+          },
+          {
+            label: "Tall",
+            value: "TALL",
+          },
+        ],
+      },
+      {
         helpText:
           "Bind the Table.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
@@ -1301,14 +1324,6 @@ export default [
         helpText: "Toggle visibility of the data download",
         propertyName: "isVisibleDownload",
         label: "Download",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the row height",
-        propertyName: "isVisibleCompactMode",
-        label: "Row Height",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

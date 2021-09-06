@@ -41,7 +41,6 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
-  CompactMode,
   SortOrderTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
@@ -765,7 +764,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter,
       pageSize,
       filteredTableData = [],
-      isVisibleCompactMode,
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
@@ -775,7 +773,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isVisibleHeaderOptions =
-      isVisibleCompactMode ||
       isVisibleDownload ||
       isVisibleFilters ||
       isVisiblePagination ||
@@ -796,7 +793,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
-          isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
@@ -825,7 +821,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
-          updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -834,14 +829,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
-
-  handleCompactModeChange = (compactMode: CompactMode) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("compactMode", compactMode);
-    } else {
-      this.props.updateWidgetMetaProperty("compactMode", compactMode);
-    }
-  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
