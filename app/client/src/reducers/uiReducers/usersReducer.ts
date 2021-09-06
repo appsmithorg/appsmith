@@ -131,7 +131,12 @@ const usersReducer = createReducer(initialState, {
       ...DefaultCurrentUserDetails,
       emptyInstance: action.payload,
     },
-    users: [DefaultCurrentUserDetails],
+    users: [
+      {
+        ...DefaultCurrentUserDetails,
+        emptyInstance: action.payload,
+      },
+    ],
   }),
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
