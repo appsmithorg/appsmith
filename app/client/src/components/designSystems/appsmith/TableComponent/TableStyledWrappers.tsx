@@ -600,6 +600,10 @@ export const TableUpdateCell = styled.div`
 export const InputCellWrapper = styled(CellWrapper)`
   & > div {
     height: unset !important;
+
+    .bp3-input {
+      margin-left: -1px;
+    }
   }
 `;
 
