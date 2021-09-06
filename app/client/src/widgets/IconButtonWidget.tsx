@@ -8,11 +8,14 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent, {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonStyle,
   ButtonVariant,
 } from "components/designSystems/appsmith/IconButtonComponent";
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/propertyControls/BorderRadiusOptionsControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
@@ -41,6 +44,45 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
           {
             propertyName: "buttonStyle",
             label: "Button Style",
@@ -99,6 +141,11 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
@@ -138,40 +185,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the button is clicked",
-            propertyName: "onClick",
-            label: "onClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
         ],
       },
     ];
@@ -197,6 +210,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         boxShadowColor={boxShadowColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
+        hasOnClickAction={!!this.props.onClick}
         height={
           (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
         }

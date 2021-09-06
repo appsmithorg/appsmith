@@ -3,6 +3,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
+const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -663,8 +664,8 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.xpath(apiwidget.Responsetab)
-      .should("be.visible")
+    cy.get("[data-cy=t--tab-body]")
+      .first()
       .click({ force: true });
   },
 );
@@ -1471,6 +1472,13 @@ Cypress.Commands.add("showColumn", (colId) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("makeColumnVisible", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn).scrollIntoView();
   cy.get(widgetsPage.addColumn)
@@ -1528,7 +1536,18 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
-Cypress.Commands.add("selectShowMsg", (value) => {
+Cypress.Commands.add("onTableAction", (value, value1, value2) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .eq(value)
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.testJsontext(value1, value2);
+});
+
+Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show Message")
@@ -2034,6 +2053,110 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "fillMySQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-databaseName"] + "  "
+      : datasourceFormData["mysql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mysql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillMsSQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-host"] + "  "
+      : datasourceFormData["mssql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-databaseName"] + "  "
+      : datasourceFormData["mssql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mssql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mssql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillArangoDBDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-host"] + "  "
+      : datasourceFormData["arango-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-databaseName"] + "  "
+      : datasourceFormData["arango-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["arango-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["arango-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillRedshiftDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-host"] + "  "
+      : datasourceFormData["redshift-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-databaseName"] + "  "
+      : datasourceFormData["redshift-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["redshift-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["redshift-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
   "fillUsersMockDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const userMockDatabaseName = shouldAddTrailingSpaces
@@ -2161,6 +2284,21 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 });
 
+Cypress.Commands.add(
+  "dragAndDropToWidget",
+  (widgetType, destinationWidget, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.get(selector)
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    const selector2 = `.t--draggable-${destinationWidget}`;
+    cy.get(selector2)
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
@@ -2259,10 +2397,9 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
+    .first()
     .click({ force: true })
-    .get("a.single-select div")
-    .contains(forSuccess)
-    .click();
+    .selectOnClickOption(forSuccess);
 
   cy.wait(2000);
   // For Failure
@@ -2279,9 +2416,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .get("button.t--open-dropdown-Select-type")
     .last()
     .click({ force: true })
-    .get("a.single-select div")
-    .contains(forFailure)
-    .click();
+    .selectOnClickOption(forFailure);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
@@ -2383,14 +2518,14 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = Cypress.moment()
+  const eDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   return eDate;
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = Cypress.moment()
+  const expDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;

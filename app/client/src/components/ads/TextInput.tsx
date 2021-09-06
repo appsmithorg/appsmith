@@ -105,6 +105,7 @@ const StyledInput = styled((props) => {
 >`
   width: ${(props) => (props.fill ? "100%" : "320px")};
   border-radius: 0;
+  caret-color: ${(props) => props.theme.colors.textInput.caretColor};
   outline: 0;
   box-shadow: none;
   border: 1px solid ${(props) => props.inputStyle.borderColor};

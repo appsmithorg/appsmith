@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import store from "store";
+import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -17,6 +17,8 @@ import {
   APP_COLLAB_EVENTS,
   NAMESPACE_COLLAB_PAGE_EDIT,
 } from "constants/AppCollabConstants";
+import { RTS_BASE_PATH } from "constants/WebsocketConstants";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
@@ -24,7 +26,9 @@ interface CanvasProps {
 }
 
 // This auto connects the socket
-const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
+const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT, {
+  path: RTS_BASE_PATH,
+});
 
 const shareMousePointer = (e: any, pageId: string) => {
   if (store.getState().ui.appCollab.editors.length < 2) return;
@@ -46,12 +50,16 @@ const shareMousePointer = (e: any, pageId: string) => {
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
   const { pageId } = props;
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
   const delayedShareMousePointer = useCallback(
     throttle((e) => shareMousePointer(e, pageId), 50, {
       trailing: false,
     }),
     [shareMousePointer, pageId],
   );
+
   try {
     return (
       <>
@@ -62,16 +70,19 @@ const Canvas = memo((props: CanvasProps) => {
           id="art-board"
           onMouseMove={(e) => {
             e.persist();
+            if (!isMultiplayerEnabledForUser) return;
             delayedShareMousePointer(e);
           }}
           width={props.dsl.rightColumn}
         >
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-          <CanvasMultiPointerArena
-            pageEditSocket={pageEditSocket}
-            pageId={pageId}
-          />
+          {isMultiplayerEnabledForUser && (
+            <CanvasMultiPointerArena
+              pageEditSocket={pageEditSocket}
+              pageId={pageId}
+            />
+          )}
         </ArtBoard>
       </>
     );

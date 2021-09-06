@@ -567,6 +567,27 @@ type buttonVariant = {
   darkest: string;
 };
 
+type ButtonVariantColor = {
+  solid: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  outline: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor: Color;
+  };
+  ghost: {
+    bgColor?: Color;
+    borderColor?: Color;
+    hoverColor: Color;
+    textColor?: Color;
+  };
+};
+
 type ColorType = {
   overlayColor: string;
   button: {
@@ -587,116 +608,35 @@ type ColorType = {
     /**
      * PRIMARY style
      */
-    primary: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    primary: ButtonVariantColor;
+
     /**
      * WARNING style
      */
-    warning: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    warning: ButtonVariantColor;
     /**
      * DANGER style
      */
-    danger: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    danger: ButtonVariantColor;
     /**
      * INFO style
      */
-    info: {
-      solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
-      };
-    };
+    info: ButtonVariantColor;
     /**
      * SECONDARY style
      */
-    secondary: {
+    secondary: ButtonVariantColor;
+    /**
+     * CUSTOM style
+     */
+    custom: {
       solid: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      outline: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor: Color;
-      };
-      ghost: {
-        bgColor?: Color;
-        borderColor?: Color;
-        hoverColor: Color;
-        textColor?: Color;
+        dark: {
+          textColor: Color;
+        };
+        light: {
+          textColor: Color;
+        };
       };
     };
   };
@@ -816,6 +756,7 @@ type ColorType = {
       border: ShadeColor;
       text: ShadeColor;
     };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -850,6 +791,7 @@ type ColorType = {
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
+    selected: string;
   };
   settingHeading: ShadeColor;
   table: {
@@ -1052,16 +994,26 @@ type ColorType = {
     emptyStateText: string;
     navigateUsingEnterSection: string;
     codeBackground: string;
+    documentationCodeBackground: string;
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
-    helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
-    mainContainerBackground: string;
-    filterListBackground: string;
-    filterBtnText: string;
+    primaryBgColor: string;
+    primaryTextColor: string;
+    secondaryTextColor: string;
+    primaryBorderColor: string;
+    defaultIconsColor: string;
+    snippets: {
+      refinementPillsColor: string;
+      refinementPillsBg: string;
+      filterListBackground: string;
+      filterBtnText: string;
+      codeContainerBorder: string;
+    };
+    searchInputBorder: string;
   };
   gif: {
     overlay: string;
@@ -1191,6 +1143,7 @@ type ColorType = {
       shadow: string;
       errorCount: string;
       noErrorCount: string;
+      warningCount: string;
     };
     blankState: {
       shortcut: string;
@@ -1381,33 +1334,43 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "#6A86CE",
-  activeCategory: "#6A86CE",
-  searchInputText: "#484848",
+  activeSearchItemBackground: "#EBEBEB",
+  activeCategory: "#090707",
+  searchInputText: "#090707",
+  searchInputBorder: "#F86A2B",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemAltText: "#fff",
-  searchItemText: "#484848",
-  searchItemSubText: "#A9A7A7",
+  searchItemText: "#090707",
+  searchItemSubText: "#4B4848;",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
   emptyStateText: "#A9A7A7",
-  navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#F0F0F0",
-  documentLink: "#69B5FF",
+  navigateUsingEnterSection: "white",
+  codeBackground: "#ffffff",
+  documentationCodeBackground: "#f0f0f0",
+  documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
-  helpBarBorder: "#404040",
-  helpButtonBorder: "#404040",
   sectionTitle: "#716E6E",
-  navigateToEntityEnterkey: "#3DA5D9",
-  mainContainerBackground: "#F0F0F0",
-  filterListBackground: lightShades[0],
-  filterBtnText: lightShades[8],
+  navigateToEntityEnterkey: "#090707",
+  primaryBgColor: "#ffffff",
+  primaryTextColor: "#090707",
+  secondaryTextColor: "#4b4848",
+  primaryBorderColor: "#E0DEDE",
+  defaultIconsColor: "#716e6e",
+  snippets: {
+    refinementPillsColor: "#4b4848",
+    refinementPillsBg: "white",
+    filterListBackground: lightShades[0],
+    filterBtnText: lightShades[8],
+    filterBtnBg: "#FAFAFA",
+    codeContainerBorder: "#E0DEDE",
+  },
 };
 
 const mentionsInput = {
@@ -1488,61 +1451,61 @@ export const dark: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -1558,6 +1521,16 @@ export const dark: ColorType = {
       },
       ghost: {
         hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
       },
     },
   },
@@ -1697,6 +1670,7 @@ export const dark: ColorType = {
       border: darkShades[0],
       text: darkShades[7],
     },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1731,6 +1705,7 @@ export const dark: ColorType = {
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
+    selected: Colors.CRUSTA,
   },
   settingHeading: darkShades[9],
   table: {
@@ -1973,6 +1948,7 @@ export const dark: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#D4D4D4",
@@ -2055,61 +2031,61 @@ export const light: ColorType = {
     primary: {
       solid: {
         bgColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_SOLID_HOVER,
+        hoverColor: Colors.PRIMARY_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
         borderColor: Colors.GREEN,
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_OUTLINE_HOVER,
+        hoverColor: Colors.PRIMARY_OUTLINE_HOVER,
         textColor: Colors.GREEN,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_PRIMARY_GHOST_HOVER,
+        hoverColor: Colors.PRIMARY_GHOST_HOVER,
       },
     },
     warning: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_SOLID_HOVER,
+        bgColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_WARNING_SOLID,
-        hoverColor: Colors.ICON_BUTTON_WARNING_OUTLINE_HOVER,
-        textColor: Colors.ICON_BUTTON_WARNING_SOLID,
+        borderColor: Colors.WARNING_SOLID,
+        hoverColor: Colors.WARNING_OUTLINE_HOVER,
+        textColor: Colors.WARNING_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_WARNING_GHOST_HOVER,
+        hoverColor: Colors.WARNING_GHOST_HOVER,
       },
     },
     danger: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_SOLID_HOVER,
+        bgColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_DANGER_SOLID,
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_DANGER_SOLID,
+        borderColor: Colors.DANGER_SOLID,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
+        textColor: Colors.DANGER_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_DANGER_NO_SOLID_HOVER,
+        hoverColor: Colors.DANGER_NO_SOLID_HOVER,
       },
     },
     info: {
       solid: {
-        bgColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_SOLID_HOVER,
+        bgColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_SOLID_HOVER,
         textColor: Colors.WHITE,
       },
       outline: {
-        borderColor: Colors.ICON_BUTTON_INFO_SOLID,
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
-        textColor: Colors.ICON_BUTTON_INFO_SOLID,
+        borderColor: Colors.INFO_SOLID,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
+        textColor: Colors.INFO_SOLID,
       },
       ghost: {
-        hoverColor: Colors.ICON_BUTTON_INFO_NO_SOLID_HOVER,
+        hoverColor: Colors.INFO_NO_SOLID_HOVER,
       },
     },
     secondary: {
@@ -2125,6 +2101,16 @@ export const light: ColorType = {
       },
       ghost: {
         hoverColor: Colors.MERCURY,
+      },
+    },
+    custom: {
+      solid: {
+        dark: {
+          textColor: Colors.CUSTOM_SOLID_DARK_TEXT_COLOR,
+        },
+        light: {
+          textColor: Colors.WHITE,
+        },
       },
     },
   },
@@ -2264,6 +2250,7 @@ export const light: ColorType = {
       border: lightShades[2],
       text: lightShades[7],
     },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -2298,6 +2285,7 @@ export const light: ColorType = {
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
+    selected: Colors.CRUSTA,
   },
   settingHeading: lightShades[9],
   table: {
@@ -2541,6 +2529,7 @@ export const light: ColorType = {
       shadow: "0px 12px 28px -6px rgba(0, 0, 0, 0.32)",
       errorCount: "#F22B2B",
       noErrorCount: "#03B365",
+      warningCount: "#DCAD00",
     },
     inspectElement: {
       color: "#090707",

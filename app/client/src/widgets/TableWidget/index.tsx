@@ -21,13 +21,17 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  renderIconButton,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import withMeta from "../MetaHOC";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { ReactTableFilter } from "components/designSystems/appsmith/TableComponent/Constants";
+import {
+  OperatorTypes,
+  ReactTableFilter,
+} from "components/designSystems/appsmith/TableComponent/Constants";
 import { TableWidgetProps } from "./TableWidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 
@@ -37,10 +41,11 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
-  CompactMode,
+  SortOrderTypes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { IconName } from "@blueprintjs/icons";
 import { isArray } from "lodash";
 
 const ReactTableComponent = lazy(() =>
@@ -62,6 +67,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       searchText: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
     };
   }
 
@@ -85,13 +94,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getPropertyValue = (value: any, index: number, preserveCase = false) => {
+  getBooleanPropertyValue = (value: any, index: number) => {
     if (isBoolean(value)) {
       return value;
     }
     if (Array.isArray(value) && isBoolean(value[index])) {
       return value[index];
     }
+    return value;
+  };
+
+  getPropertyValue = (value: any, index: number, preserveCase = false) => {
     if (value && Array.isArray(value) && value[index]) {
       return preserveCase
         ? value[index].toString()
@@ -133,12 +146,48 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         rowIndex,
         true,
       ),
+      iconName: this.getPropertyValue(
+        columnProperties.iconName,
+        rowIndex,
+        true,
+      ),
+      buttonVariant: this.getPropertyValue(
+        columnProperties.buttonVariant,
+        rowIndex,
+        true,
+      ),
+      borderRadius: this.getPropertyValue(
+        columnProperties.borderRadius,
+        rowIndex,
+        true,
+      ),
+      boxShadow: this.getPropertyValue(
+        columnProperties.boxShadow,
+        rowIndex,
+        true,
+      ),
+      boxShadowColor: this.getPropertyValue(
+        columnProperties.boxShadowColor,
+        rowIndex,
+        true,
+      ),
+      iconButtonStyle: this.getPropertyValue(
+        columnProperties.iconButtonStyle,
+        rowIndex,
+        true,
+      ),
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-      isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
-      isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
-      isCellVisible: this.getPropertyValue(
+      isVisible: this.getBooleanPropertyValue(
+        columnProperties.isVisible,
+        rowIndex,
+      ),
+      isDisabled: this.getBooleanPropertyValue(
+        columnProperties.isDisabled,
+        rowIndex,
+      ),
+      isCellVisible: this.getBooleanPropertyValue(
         columnProperties.isCellVisible,
         rowIndex,
       ),
@@ -243,6 +292,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onClick,
               isSelected,
             );
+          } else if (columnProperties.columnType === "iconButton") {
+            const iconButtonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              columnActions: [
+                {
+                  id: columnProperties.id,
+                  dynamicTrigger: columnProperties.onClick || "",
+                },
+              ],
+              iconName: cellProperties.iconName as IconName,
+              buttonStyle: cellProperties.iconButtonStyle,
+              buttonVariant: cellProperties.buttonVariant,
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
+              isCellVisible: cellProperties.isCellVisible ?? true,
+            };
+            return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
 
@@ -574,6 +643,16 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
+      // Set filter to default
+      const defaultFilter = [
+        {
+          column: "",
+          operator: OperatorTypes.OR,
+          value: "",
+          condition: "",
+        },
+      ];
+      this.applyFilters(defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -590,6 +669,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
+
+    //handle selected pageNo does not exist due to change of totalRecordsCount
+    if (
+      this.props.serverSidePaginationEnabled &&
+      this.props.totalRecordsCount
+    ) {
+      const maxAllowedPageNumber = Math.ceil(
+        this.props.totalRecordsCount / this.props.pageSize,
+      );
+      if (this.props.pageNo > maxAllowedPageNumber) {
+        this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
+      }
+    } else if (
+      this.props.serverSidePaginationEnabled !==
+      prevProps.serverSidePaginationEnabled
+    ) {
+      //reset pageNo when serverSidePaginationEnabled is toggled
+      this.props.updateWidgetMetaProperty("pageNo", 1);
+    }
 
     // If the user has switched the mutiple row selection feature
     if (this.props.multiRowSelection !== prevProps.multiRowSelection) {
@@ -616,6 +714,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (this.props.pageSize !== prevProps.pageSize) {
+      //reset current page number when page size changes
+      this.props.updateWidgetMetaProperty("pageNo", 1);
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -670,10 +770,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
+      totalRecordsCount,
       delimiter,
       pageSize,
       filteredTableData = [],
-      isVisibleCompactMode,
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
@@ -683,7 +783,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isVisibleHeaderOptions =
-      isVisibleCompactMode ||
       isVisibleDownload ||
       isVisibleFilters ||
       isVisiblePagination ||
@@ -704,7 +803,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
-          isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
@@ -730,9 +828,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
           sortTableColumn={this.handleColumnSorting}
           tableData={transformedData}
+          totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
-          updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -742,14 +840,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   }
 
-  handleCompactModeChange = (compactMode: CompactMode) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("compactMode", compactMode);
-    } else {
-      this.props.updateWidgetMetaProperty("compactMode", compactMode);
-    }
-  };
-
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("columnOrder", columnOrder);
@@ -758,14 +848,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleColumnSorting = (column: string, asc: boolean) => {
     this.resetSelectedRowIndex();
-    if (column === "") {
-      this.props.updateWidgetMetaProperty("sortedColumn", undefined);
-    } else {
-      this.props.updateWidgetMetaProperty("sortedColumn", {
-        column: column,
-        asc: asc,
-      });
-    }
+    const sortOrderProps =
+      column === ""
+        ? {
+            column: "",
+            order: null,
+          }
+        : {
+            column: column,
+            order: asc ? SortOrderTypes.asc : SortOrderTypes.desc,
+          };
+    this.props.updateWidgetMetaProperty("sortOrder", sortOrderProps, {
+      triggerPropertyName: "onSort",
+      dynamicString: this.props.onSort,
+      event: {
+        type: EventType.ON_SORT,
+      },
+    });
   };
 
   handleResizeColumn = (columnSizeMap: { [key: string]: number }) => {

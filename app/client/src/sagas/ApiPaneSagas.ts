@@ -52,7 +52,10 @@ import {
   getPlugin,
 } from "selectors/entitiesSelector";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { createActionRequest, setActionProperty } from "actions/actionActions";
+import {
+  createActionRequest,
+  setActionProperty,
+} from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
@@ -185,7 +188,10 @@ function* handleUpdateBodyContentType(
     change(API_EDITOR_FORM_NAME, "actionConfiguration.headers", headers),
   );
 
-  if (displayFormatObject.value === POST_BODY_FORMATS[1]) {
+  if (
+    displayFormatObject.value === POST_BODY_FORMATS[1] ||
+    displayFormatObject.value === POST_BODY_FORMATS[2]
+  ) {
     if (!bodyFormData || bodyFormData.length === 0) {
       yield put(
         change(

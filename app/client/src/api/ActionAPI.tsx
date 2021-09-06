@@ -69,6 +69,7 @@ export interface ActionExecutionResponse {
     statusCode: string;
     isExecutionSuccess: boolean;
     request: ActionApiResponseReq;
+    errorType?: string;
   };
   clientMeta: {
     duration: string;
@@ -91,6 +92,7 @@ export interface ActionResponse {
   isExecutionSuccess?: boolean;
   suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
+  errorType?: string;
 }
 
 export interface MoveActionRequest {
