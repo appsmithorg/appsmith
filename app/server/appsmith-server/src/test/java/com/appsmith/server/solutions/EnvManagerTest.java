@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -129,8 +130,9 @@ public class EnvManagerTest {
                         "APPSMITH_MONGODB_URI", "new first value",
                         "DISALLOWED_NASTY_STUFF", "new second value"
                 )
-        )).isInstanceOf(AppsmithException.class);
-
+        ))
+                .matches(value -> value instanceof AppsmithException
+                        && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) value).getError()));
     }
 
     @Test
