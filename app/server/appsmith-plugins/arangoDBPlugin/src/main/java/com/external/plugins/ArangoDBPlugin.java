@@ -86,6 +86,9 @@ public class ArangoDBPlugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
                 ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                // TODO: remove it.
+                System.out.println("devtest: executed: " + cursor.getStats().getWritesExecuted());
+                System.out.println("devtest: ignored: " + cursor.getStats().getWritesIgnored());
                 List<Map> docList = new ArrayList<>();
                 docList.addAll(cursor.asListRemaining());
                 ActionExecutionResult result = new ActionExecutionResult();
