@@ -255,10 +255,10 @@ public class ArangoDBPluginTest {
                     assertNotNull(result);
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-
-                    // On a successful update the server returns an empty array
-                    assertEquals(0, ((ArrayNode) result.getBody()).size());
-
+                    ArrayNode node = (ArrayNode) result.getBody();
+                    assertEquals(1, node.size());
+                    assertEquals(1, (node.get(0)).get("writesExecuted").asInt());
+                    assertEquals(0, (node.get(0)).get("writesIgnored").asInt());
                 })
                 .verifyComplete();
     }

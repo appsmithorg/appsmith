@@ -52,6 +52,9 @@ import static com.external.utils.StructureUtils.getOneDocumentQuery;
 public class ArangoDBPlugin extends BasePlugin {
 
     private static long DEFAULT_PORT = 8529L;
+    private static String WRITES_EXECUTED_KEY = "writesExecuted";
+    private static String WRITES_IGNORED_KEY = "writesIgnored";
+    private static List<String> UPDATE_OPERATIONS = List.of("INSERT", "UPDATE", "REMOVE", "UPSERT", "REPLACE");
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -85,16 +88,24 @@ public class ArangoDBPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
-                // TODO: remove it.
-                System.out.println("devtest: executed: " + cursor.getStats().getWritesExecuted());
-                System.out.println("devtest: ignored: " + cursor.getStats().getWritesIgnored());
-                List<Map> docList = new ArrayList<>();
-                docList.addAll(cursor.asListRemaining());
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setBody(objectMapper.valueToTree(docList));
-                result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the ArangoDBPlugin, got action execution result");
+                ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setIsExecutionSuccess(true);
+                List<Map> docList = new ArrayList<>();
+
+                if (isUpdateQuery(query)) {
+                    Map<String, Long> updateCount = new HashMap<>();
+                    updateCount.put(WRITES_EXECUTED_KEY, cursor.getStats().getWritesExecuted());
+                    updateCount.put(WRITES_IGNORED_KEY, cursor.getStats().getWritesIgnored());
+                    docList.add(updateCount);
+                }
+                else {
+                    docList.addAll(cursor.asListRemaining());
+                }
+
+                result.setBody(objectMapper.valueToTree(docList));
+
                 return result;
             })
                     .onErrorResume(error -> {
@@ -112,6 +123,11 @@ public class ArangoDBPlugin extends BasePlugin {
                         return Mono.just(actionExecutionResult);
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private boolean isUpdateQuery(String query) {
+            return UPDATE_OPERATIONS.stream()
+                    .anyMatch(key -> query.toLowerCase().contains(key.toLowerCase()));
         }
 
         /**
