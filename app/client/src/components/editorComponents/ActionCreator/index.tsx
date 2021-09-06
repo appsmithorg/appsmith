@@ -215,7 +215,15 @@ function getFieldFromValue(
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
       const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-      if (!!matches) {
+      if (matches.length === 0) {
+        //when format doesn't match but it is function from js object
+        fields.push({
+          field: FieldType.ACTION_SELECTOR_FIELD,
+          getParentValue,
+          value,
+          args: [],
+        });
+      } else if (matches.length) {
         const entityPropertyPath = matches[0][1];
         const { propertyPath } = getEntityNameAndPropertyPath(
           entityPropertyPath,
