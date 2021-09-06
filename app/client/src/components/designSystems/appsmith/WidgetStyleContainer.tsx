@@ -60,7 +60,6 @@ const getBoxShadow = ({
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
-  overflow: hidden;
   border-radius: ${(props) => props.borderRadius}px;
   box-shadow: ${(props) => getBoxShadow(props)} !important;
   & > div {
@@ -68,11 +67,13 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
       props.containerStyle !== "none"
         ? `
     border-width: ${props.borderWidth}px;
+    border-radius: ${props.borderRadius}px;
     border-color: ${props.borderColor || "transparent"};
     border-style: solid;`
         : ""}
     height: 100%;
     width: 100%;
+    overflow: hidden;
   }
 }`;
 

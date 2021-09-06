@@ -44,6 +44,7 @@ import WidgetConfigResponse, {
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { theme } from "../../src/constants/DefaultTheme";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import { migrateContainerAndFormWidgetStyleProperties } from "./migrations/ContainerWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -839,6 +840,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
+    currentDSL.version = 36;
+  }
+
+  if (currentDSL.version === 36) {
+    currentDSL = migrateContainerAndFormWidgetStyleProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

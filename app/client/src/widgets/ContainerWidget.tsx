@@ -50,6 +50,21 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "backgroundColor",
+            label: "Background Colour",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
@@ -79,16 +94,6 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            helpText: "Use a html color name, HEX, RGB or RGBA value",
-            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
-            propertyName: "backgroundColor",
-            label: "Background Colour",
-            controlType: "COLOR_PICKER",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
