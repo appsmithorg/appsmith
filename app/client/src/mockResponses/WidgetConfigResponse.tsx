@@ -69,8 +69,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage:
-        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+      defaultImage: "https://assets.appsmith.com/widgets/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
@@ -953,12 +952,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     type: "IMAGE_WIDGET",
                                     size: {
                                       rows: 2.5 * GRID_DENSITY_MIGRATION_V1,
-                                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                        "https://assets.appsmith.com/widgets/default.png",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
@@ -978,7 +977,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     },
                                     position: {
                                       top: 0,
-                                      left: 6 * GRID_DENSITY_MIGRATION_V1,
+                                      left: 4 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     props: {
                                       text: "{{currentItem.name}}",
@@ -1000,7 +999,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     },
                                     position: {
                                       top: 1 * GRID_DENSITY_MIGRATION_V1,
-                                      left: 6 * GRID_DENSITY_MIGRATION_V1,
+                                      left: 4 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     props: {
                                       text: "{{currentItem.id}}",
