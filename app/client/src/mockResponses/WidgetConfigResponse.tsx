@@ -631,7 +631,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Chart",
       chartType: "LINE_CHART",
-      chartName: "Last week's revenue",
+      chartName: "Sales Report",
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
@@ -657,18 +657,17 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           ],
         },
       },
-      xAxisName: "Last Week",
-      yAxisName: "Total Order Revenue $",
+      xAxisName: "Days",
+      yAxisName: "Revenue($)",
       setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
-          seriesName: "Revenue",
           chart: {
-            caption: "Last week's revenue",
-            xAxisName: "Last Week",
-            yAxisName: "Total Order Revenue $",
+            caption: "Sales Report",
+            xAxisName: "Days",
+            yAxisName: "Revenue($)",
             theme: "fusion",
           },
           data: [
@@ -687,29 +686,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             {
               label: "Thu",
               value: 28000,
-            },
-            {
-              label: "Fri",
-              value: 24000,
-            },
-            {
-              label: "Sat",
-              value: 29000,
-            },
-            {
-              label: "Sun",
-              value: 36000,
-            },
-          ],
-          trendlines: [
-            {
-              line: [
-                {
-                  startvalue: "38000",
-                  valueOnRight: "1",
-                  displayvalue: "Weekly Target",
-                },
-              ],
             },
           ],
         },
