@@ -829,6 +829,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 33) {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL.version = 34;
+  }
+
+  if (currentDSL.version === 34) {
+    currentDSL = migrateButtonWidgetValidation(currentDSL);
+    currentDSL.version = 35;
+  }
+
+  if (currentDSL.version === 35) {
+    currentDSL = migrateInputValidation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
@@ -853,6 +863,28 @@ const addIsDisabledToButtonColumn = (
         }
       }
     }
+  }
+  return currentDSL;
+};
+
+export const migrateInputValidation = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.INPUT_WIDGET) {
+    if (has(currentDSL, "validation")) {
+      // convert boolean to string expression
+      if (typeof currentDSL.validation === "boolean") {
+        currentDSL.validation = String(currentDSL.validation);
+      } else if (typeof currentDSL.validation !== "string") {
+        // for any other type of value set to default undefined
+        currentDSL.validation = undefined;
+      }
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateInputValidation(child),
+    );
   }
   return currentDSL;
 };
@@ -898,6 +930,25 @@ export const migrateToNewMultiSelect = (
   }
   return currentDSL;
 };
+
+const migrateButtonWidgetValidation = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.INPUT_WIDGET) {
+    if (!has(currentDSL, "validation")) {
+      currentDSL.validation = true;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.map(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateButtonWidgetValidation(eachWidgetDSL);
+      },
+    );
+  }
+  return currentDSL;
+};
+
 const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {

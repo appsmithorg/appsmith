@@ -280,6 +280,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText:
+              "Ability to control input validity based on a JS expression",
+            propertyName: "validation",
+            label: "Valid",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter input validation expression",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
               "Displays the error message if the regex validation fails",
             propertyName: "errorMessage",
             label: "Error Message",
@@ -324,16 +336,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             helpText: "Disables input to this widget",
             propertyName: "isDisabled",
             label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Set if input is valid",
-            propertyName: "validation",
-            label: "Valid",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -490,7 +492,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function(){
-          if (!this.validation) {
+          if (typeof this.validation === "boolean" && !this.validation) {
             return false;
           }
           let parsedRegex = null;
