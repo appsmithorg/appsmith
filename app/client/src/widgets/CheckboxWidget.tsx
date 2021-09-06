@@ -20,7 +20,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
-            placeholderText: "Enter label text",
+            placeholderText: "I agree to the T&C",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

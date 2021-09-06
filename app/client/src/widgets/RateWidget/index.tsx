@@ -67,10 +67,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "maxCount",
-            helpText: "Sets the maximum number of stars",
+            helpText: "Sets the maximum allowed rating",
             label: "Max Rating",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter max rating",
+            placeholderText: "5",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -83,7 +83,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             helpText: "Sets the default rating",
             label: "Default Rating",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter default value",
+            placeholderText: "2.5",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -118,7 +118,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             helpText: "Sets the tooltip contents of stars",
             label: "Tooltips",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter tooltips array",
+            placeholderText: '["Bad", "Neutral", "Good"]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {

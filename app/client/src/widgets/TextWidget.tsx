@@ -17,7 +17,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Sets the text of the widget",
             label: "Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter text",
+            placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

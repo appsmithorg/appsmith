@@ -9,9 +9,11 @@ export default [
     sectionName: "Data",
     children: [
       {
-        helpText:
-          "Manually configure a FusionChart, see https://docs.appsmith.com/widget-reference/chart#custom-chart",
-        placeholderText: `Enter {"type": "bar2d","dataSource": {}}`,
+        helpText: "Configure a Custom FusionChart see docs.appsmith.com",
+        placeholderText: `{ 
+          "type": "bar2d",
+          "dataSource": {}
+        }`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
         controlType: "INPUT_TEXT",
@@ -78,7 +80,7 @@ export default [
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
-        placeholderText: 'Enter [{ "x": "val", "y": "val" }]',
+        placeholderText: '[{ "x": "2021", "y": "940000" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
         isBindProperty: false,

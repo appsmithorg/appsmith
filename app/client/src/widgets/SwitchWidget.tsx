@@ -19,7 +19,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
-            placeholderText: "Enter label text",
+            placeholderText: "Enable Option",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

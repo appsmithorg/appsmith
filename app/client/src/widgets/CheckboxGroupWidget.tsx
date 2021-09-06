@@ -114,7 +114,7 @@ class CheckboxGroupWidget extends BaseWidget<
             helpText: "Sets the values of the options checked by default",
             propertyName: "defaultSelectedValues",
             label: "Default Selected Values",
-            placeholderText: "Enter option values",
+            placeholderText: '["apple", "orange"]',
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -124,7 +124,7 @@ class CheckboxGroupWidget extends BaseWidget<
                 fn: defaultSelectedValuesValidation,
                 expected: {
                   type: "String or Array<string>",
-                  example: `value1 | ['value1', 'value2']`,
+                  example: `apple | ["apple", "orange"]`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -134,8 +134,7 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "isInline",
             label: "Inline",
             controlType: "SWITCH",
-            helpText:
-              "Whether the checkbox buttons are to be displayed inline horizontally",
+            helpText: "Displays the checkboxes horizontally",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

@@ -38,7 +38,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "options",
             label: "Options",
             controlType: "INPUT_TEXT",
-            placeholderText: 'Enter [{"label": "label1", "value": "value2"}]',
+            placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -79,7 +79,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "defaultOptionValue",
             label: "Default Option",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter option value",
+            placeholderText: "GREEN",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -88,7 +88,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
                 fn: defaultOptionValueValidation,
                 expected: {
                   type: "value or Array of values",
-                  example: `value1 | ['value1', 'value2']`,
+                  example: `option1 | ['option1', 'option2']`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },

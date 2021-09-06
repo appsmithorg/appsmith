@@ -53,7 +53,7 @@ class FilePickerWidget extends BaseWidget<
             helpText:
               "Sets the maximum number of files that can be uploaded at once",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter no. of files",
+            placeholderText: "1",
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -64,7 +64,7 @@ class FilePickerWidget extends BaseWidget<
             helpText: "Sets the maximum size of each file that can be uploaded",
             label: "Max file size(Mb)",
             controlType: "INPUT_TEXT",
-            placeholderText: "File size in mb",
+            placeholderText: "5",
             inputType: "INTEGER",
             isBindProperty: true,
             isTriggerProperty: false,
