@@ -95,7 +95,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
-      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },

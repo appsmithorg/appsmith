@@ -8,7 +8,7 @@ import { AppState } from "reducers";
 import { showOnboardingLoader } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
-  height: calc(100vh - 48px);
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   width: 100%;
   display: flex;
   justify-content: center;
