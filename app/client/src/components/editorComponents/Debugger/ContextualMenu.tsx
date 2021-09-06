@@ -30,13 +30,13 @@ const getOptions = (type?: string, subType?: string) => {
 
   if (subType) {
     switch (subType) {
-      case "DATASOURCE_CONFIG_ERROR":
+      case "DATASOURCE_CONFIGURATION_ERROR":
         return ["copy", "google", "intercom"];
       case "PLUGIN_ERROR":
         return ["copy", "google", "intercom"];
       case "CONNECTIVITY_ERROR":
         return ["copy", "docs"];
-      case "ACTION_CONFIG_ERROR":
+      case "ACTION_CONFIGURATION_ERROR":
         return ["copy", "docs", "intercom"];
       default:
         return defaultOptions;
