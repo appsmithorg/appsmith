@@ -132,6 +132,7 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import StatboxWidget, { ProfiledStatboxWidget } from "widgets/StatboxWidget";
 import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
@@ -581,6 +582,21 @@ export default class WidgetBuilderRegistry {
       IconButtonWidget.getDefaultPropertiesMap(),
       IconButtonWidget.getMetaPropertiesMap(),
       IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.STATBOX_WIDGET,
+      {
+        buildWidget(
+          widgetProps: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <ProfiledStatboxWidget {...widgetProps} />;
+        },
+      },
+      StatboxWidget.getDerivedPropertiesMap(),
+      StatboxWidget.getDefaultPropertiesMap(),
+      StatboxWidget.getMetaPropertiesMap(),
+      StatboxWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(

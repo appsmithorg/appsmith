@@ -329,11 +329,15 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
+  },
   MAP_CHART_WIDGET: {
     "!doc":
       "Map Chart widget shows the graphical representation of your data on the map.",
     "!url": "https://docs.appsmith.com/widget-reference/map-chart",
-    isVisible: isVisible,
   },
 };
 
