@@ -61,6 +61,7 @@ export interface WidgetConfigProps {
 
 export interface WidgetConfigReducerState {
   config: {
+    AUDIO_WIDGET: Partial<ButtonWidgetProps> & WidgetConfigProps;
     BUTTON_WIDGET: Partial<ButtonWidgetProps> & WidgetConfigProps;
     TEXT_WIDGET: Partial<TextWidgetProps> & WidgetConfigProps;
     IMAGE_WIDGET: Partial<ImageWidgetProps> & WidgetConfigProps;

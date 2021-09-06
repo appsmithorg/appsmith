@@ -1,6 +1,7 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 
 export enum WidgetTypes {
+  AUDIO_WIDGET = "AUDIO_WIDGET",
   BUTTON_WIDGET = "BUTTON_WIDGET",
   TEXT_WIDGET = "TEXT_WIDGET",
   IMAGE_WIDGET = "IMAGE_WIDGET",

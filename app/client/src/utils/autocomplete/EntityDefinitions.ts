@@ -32,6 +32,13 @@ export const entityDefinitions = {
       clear: "fn() -> void",
     };
   },
+  AUDIO_WIDGET: {
+    "!doc":
+      "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
+    "!url": "https://docs.appsmith.com/widget-reference/video",
+    playState: "number",
+    autoPlay: "bool",
+  },
   CONTAINER_WIDGET: {
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",

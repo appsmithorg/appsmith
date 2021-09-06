@@ -36,6 +36,11 @@ import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbo
 export const WidgetIcons: {
   [id: string]: JSXElementConstructor<IconProps>;
 } = {
+  AUDIO_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VideoIcon />
+    </IconWrapper>
+  ),
   SPINNER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <SpinnerIcon />

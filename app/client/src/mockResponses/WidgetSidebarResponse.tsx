@@ -5,6 +5,11 @@ import { keyBy } from "lodash";
 
 const WidgetSidebarResponse: WidgetCardProps[] = [
   {
+    type: "AUDIO_WIDGET",
+    widgetCardName: "Audio",
+    key: generateReactKey(),
+  },
+  {
     type: "BUTTON_WIDGET",
     widgetCardName: "Button",
     key: generateReactKey(),

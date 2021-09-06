@@ -32,6 +32,14 @@ export const GRID_DENSITY_MIGRATION_V1 = 4;
  */
 const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
+    AUDIO_WIDGET: {
+      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Audio",
+      url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      autoPlay: false,
+      version: 1,
+    },
     BUTTON_WIDGET: {
       text: "Submit",
       buttonStyle: "PRIMARY",

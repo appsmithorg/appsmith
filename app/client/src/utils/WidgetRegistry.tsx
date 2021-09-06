@@ -137,9 +137,26 @@ import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
 } from "widgets/CheckboxGroupWidget";
+import AudioWidget, {
+  AudioWidgetProps,
+  ProfiledAudioWidget,
+} from "widgets/AudioWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
+    WidgetFactory.registerWidgetBuilder(
+      "AUDIO_WIDGET",
+      {
+        buildWidget(widgetData: AudioWidgetProps): JSX.Element {
+          return <ProfiledAudioWidget {...widgetData} />;
+        },
+      },
+      AudioWidget.getDerivedPropertiesMap(),
+      AudioWidget.getDefaultPropertiesMap(),
+      AudioWidget.getMetaPropertiesMap(),
+      AudioWidget.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "CONTAINER_WIDGET",
       {
