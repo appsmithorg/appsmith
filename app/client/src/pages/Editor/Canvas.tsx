@@ -17,6 +17,7 @@ import {
   NAMESPACE_COLLAB_PAGE_EDIT,
 } from "constants/AppCollabConstants";
 import { RenderModes } from "constants/WidgetConstants";
+import { RTS_BASE_PATH } from "constants/WebsocketConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 interface CanvasProps {
@@ -25,7 +26,9 @@ interface CanvasProps {
 }
 
 // This auto connects the socket
-const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT);
+const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT, {
+  path: RTS_BASE_PATH,
+});
 
 const shareMousePointer = (e: any, pageId: string) => {
   if (store.getState().ui.appCollab.editors.length < 2) return;

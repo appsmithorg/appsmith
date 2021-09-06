@@ -143,6 +143,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",
   },
+  STATBOX_WIDGET: {
+    path: "/widget-reference/statbox",
+    searchKey: "Stat Box",
+  },
   CHECKBOX_GROUP_WIDGET: {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",

@@ -13,8 +13,9 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      {},
+      { isCellVisible: true },
       930,
+      true,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
@@ -36,8 +37,9 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      {},
+      { isCellVisible: true },
       930,
+      true,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
@@ -61,8 +63,9 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      {},
+      { isCellVisible: true },
       930,
+      true,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
@@ -85,8 +88,9 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      {},
+      { isCellVisible: true },
       930,
+      true,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       return imageDiv.props.children.props.style.backgroundImage
@@ -109,8 +113,9 @@ describe("Test table columnType Image render", () => {
       value,
       ColumnTypes.IMAGE,
       false,
-      {},
+      { isCellVisible: true },
       930,
+      true,
     );
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       // check and get img url if exist
@@ -125,5 +130,35 @@ describe("Test table columnType Image render", () => {
     });
 
     expect(expected).toEqual(result);
+  });
+
+  it("columnType Text accepts undefined value and render empty string ", () => {
+    const value = undefined;
+    const expected = "";
+    const renderedCell = renderCell(
+      value,
+      ColumnTypes.TEXT,
+      false,
+      { isCellVisible: true },
+      930,
+      true,
+    );
+
+    expect(expected).toEqual(renderedCell.props.children);
+  });
+
+  it("columnType Text accepts null value and render empty string ", () => {
+    const value = null;
+    const expected = "";
+    const renderedCell = renderCell(
+      value,
+      ColumnTypes.TEXT,
+      false,
+      { isCellVisible: true },
+      930,
+      true,
+    );
+
+    expect(expected).toEqual(renderedCell.props.children);
   });
 });

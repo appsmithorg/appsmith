@@ -21,6 +21,7 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  renderIconButton,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -42,6 +43,7 @@ import {
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { IconName } from "@blueprintjs/icons";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -135,6 +137,36 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
       buttonLabel: this.getPropertyValue(
         columnProperties.buttonLabel,
+        rowIndex,
+        true,
+      ),
+      iconName: this.getPropertyValue(
+        columnProperties.iconName,
+        rowIndex,
+        true,
+      ),
+      buttonVariant: this.getPropertyValue(
+        columnProperties.buttonVariant,
+        rowIndex,
+        true,
+      ),
+      borderRadius: this.getPropertyValue(
+        columnProperties.borderRadius,
+        rowIndex,
+        true,
+      ),
+      boxShadow: this.getPropertyValue(
+        columnProperties.boxShadow,
+        rowIndex,
+        true,
+      ),
+      boxShadowColor: this.getPropertyValue(
+        columnProperties.boxShadowColor,
+        rowIndex,
+        true,
+      ),
+      iconButtonStyle: this.getPropertyValue(
+        columnProperties.iconButtonStyle,
         rowIndex,
         true,
       ),
@@ -248,6 +280,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onClick,
               isSelected,
             );
+          } else if (columnProperties.columnType === "iconButton") {
+            const iconButtonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              columnActions: [
+                {
+                  id: columnProperties.id,
+                  dynamicTrigger: columnProperties.onClick || "",
+                },
+              ],
+              iconName: cellProperties.iconName as IconName,
+              buttonStyle: cellProperties.iconButtonStyle,
+              buttonVariant: cellProperties.buttonVariant,
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
+              isCellVisible: cellProperties.isCellVisible ?? true,
+            };
+            return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
 

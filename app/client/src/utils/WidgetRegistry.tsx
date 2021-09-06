@@ -84,6 +84,9 @@ import IconButtonWidget, {
 import CheckboxGroupWidget, {
   CONFIG as CHECKBOX_GROUP_WIDGET_CONFIG,
 } from "widgets/CheckboxGroupWidget";
+import StatboxWidget, {
+  CONFIG as STATBOX_WIDGET_CONFIG,
+} from "widgets/StatboxWidget";
 import FilePickerWidgetV2, {
   CONFIG as FILEPICKER_WIDGET_V2_CONFIG,
 } from "widgets/FilePickerWidgetV2Widget";
@@ -126,5 +129,6 @@ export const registerWidgets = () => {
   registerWidget(IconButtonWidget, ICON_BUTTON_WIDGET_CONFIG);
   registerWidget(CheckboxGroupWidget, CHECKBOX_GROUP_WIDGET_CONFIG);
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
+  registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };

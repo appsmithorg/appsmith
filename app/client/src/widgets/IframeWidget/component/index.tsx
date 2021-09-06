@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { hexToRgba } from "widgets/WidgetUtils";
 
@@ -70,6 +70,8 @@ function IframeComponent(props: IframeComponentProps) {
     widgetId,
   } = props;
 
+  const isFirstRender = useRef(true);
+
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -81,6 +83,10 @@ function IframeComponent(props: IframeComponentProps) {
   }, []);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     onURLChanged(source);
     if (!source) {
       setMessage("Valid source url is required");

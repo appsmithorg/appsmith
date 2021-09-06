@@ -146,7 +146,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
-
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.verticalAlignment":
@@ -166,8 +165,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        // "primaryColumns.createdAt.isVisible":
-        //   EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },

@@ -10,7 +10,6 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getIsEditorLoading,
   getIsPublishingApplication,
@@ -35,10 +34,10 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
+import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 type EditorProps = {
   currentApplicationId?: string;
-  currentPageId?: string;
   currentApplicationName?: string;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
@@ -51,6 +50,8 @@ type EditorProps = {
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
+  fetchPage: (pageId: string) => void;
+  updateCurrentPage: (pageId: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -77,7 +78,7 @@ class Editor extends Component<Props> {
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
-      nextProps.currentPageId !== this.props.currentPageId ||
+      nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -89,6 +90,15 @@ class Editor extends Component<Props> {
         this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { pageId } = this.props.match.params || {};
+    const { pageId: prevPageId } = prevProps.match.params || {};
+    if (pageId && pageId !== prevPageId) {
+      this.props.updateCurrentPage(pageId);
+      this.props.fetchPage(pageId);
+    }
   }
 
   componentWillUnmount() {
@@ -146,7 +156,6 @@ const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
-  currentPageId: getCurrentPageId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
@@ -163,6 +172,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
   };
 };
 

@@ -137,7 +137,9 @@ function TableFilterPaneContent(props: TableFilterProps) {
       };
     })
     .filter((column: { label: string; value: string; type: string }) => {
-      return !["video", "button", "image"].includes(column.type as string);
+      return !["video", "button", "image", "iconButton"].includes(
+        column.type as string,
+      );
     });
   const hasAnyFilters = !!(
     filters.length >= 1 &&

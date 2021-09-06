@@ -43,6 +43,45 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the button is clicked",
+            propertyName: "onClick",
+            label: "onClick",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
             propertyName: "buttonStyle",
             label: "Button Style",
             controlType: "DROP_DOWN",
@@ -144,40 +183,6 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
           },
-          {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the button is clicked",
-            propertyName: "onClick",
-            label: "onClick",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
         ],
       },
     ];
@@ -203,6 +208,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         boxShadowColor={boxShadowColor}
         buttonStyle={buttonStyle}
         buttonVariant={buttonVariant}
+        hasOnClickAction={!!this.props.onClick}
         height={
           (this.props.bottomRow - this.props.topRow) * this.props.parentRowSpace
         }

@@ -85,7 +85,6 @@ const MainConfiguration = styled.div`
   padding: ${(props) => props.theme.spaces[4]}px
     ${(props) => props.theme.spaces[10]}px 0px
     ${(props) => props.theme.spaces[10]}px;
-  height: 124px;
 `;
 
 const ActionButtons = styled.div`
@@ -191,7 +190,7 @@ const Link = styled.a`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 126px);
+  height: calc(100% - 118px);
   position: relative;
 `;
 interface APIFormProps {
@@ -544,6 +543,7 @@ function ApiEditorForm(props: Props) {
                           label="Headers"
                           name="actionConfiguration.headers"
                           placeholder="Value"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>
@@ -559,6 +559,7 @@ function ApiEditorForm(props: Props) {
                           dataTreePath={`${actionName}.config.queryParameters`}
                           label="Params"
                           name="actionConfiguration.queryParameters"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>

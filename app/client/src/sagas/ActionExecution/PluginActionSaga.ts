@@ -84,7 +84,7 @@ import {
 import { SAAS_EDITOR_API_ID_URL } from "pages/Editor/SaaSEditor/constants";
 import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
 import { ApiResponse } from "api/ApiResponses";
-import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
+import { PluginTriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
 import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
@@ -152,7 +152,7 @@ function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
   const file = yield fetch(url).then((r) => r.blob());
 
-  const data = yield new Promise((resolve) => {
+  return yield new Promise((resolve) => {
     const reader = new FileReader();
     if (fileType === FileDataTypes.Base64) {
       reader.readAsDataURL(file);
@@ -165,7 +165,6 @@ function* readBlob(blobUrl: string): any {
       resolve(reader.result);
     };
   });
-  return data;
 }
 
 /**
@@ -277,7 +276,6 @@ export default function* executePluginActionTriggerSaga(
 
   let payload = EMPTY_RESPONSE;
   let isError = true;
-  let error = "";
   try {
     const executePluginActionResponse: ExecutePluginActionResponse = yield call(
       executePluginActionSaga,
@@ -291,7 +289,6 @@ export default function* executePluginActionTriggerSaga(
     if (e instanceof UserCancelledActionExecutionError) {
       return;
     }
-    error = e.message;
   }
 
   if (isError) {
@@ -309,17 +306,13 @@ export default function* executePluginActionTriggerSaga(
         {
           message: payload.body as string,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
         },
       ],
     });
-    Toaster.show({
-      text: createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
-      variant: Variant.danger,
-      showDebugButton: true,
-    });
-    throw new TriggerFailureError(
-      "Failed to execute plugin action",
-      new Error(error),
+    throw new PluginTriggerFailureError(
+      createMessage(ERROR_PLUGIN_ACTION_EXECUTE, action.name),
+      [payload.body, params],
     );
   } else {
     AppsmithConsole.info({
@@ -337,6 +330,7 @@ export default function* executePluginActionTriggerSaga(
       },
     });
   }
+  return [payload.body, params];
 }
 
 function* runActionShortcutSaga() {
@@ -452,6 +446,7 @@ function* runActionSaga(
         {
           message: error,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
         },
       ],
       state: payload.request,
@@ -549,7 +544,13 @@ function* executePageLoadAction(pageAction: PageAction) {
         id: pageAction.id,
       },
       state: payload.request,
-      messages: [{ message: error, type: PLATFORM_ERROR.PLUGIN_EXECUTION }],
+      messages: [
+        {
+          message: error,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+          subType: payload.errorType,
+        },
+      ],
     });
 
     yield put(
