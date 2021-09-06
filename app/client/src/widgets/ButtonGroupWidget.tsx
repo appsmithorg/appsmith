@@ -45,6 +45,30 @@ class ButtonGroupWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "buttonVariant",
+            label: "Button Variant",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the variant of the icon button",
+            options: [
+              {
+                label: "Solid",
+                value: "SOLID",
+              },
+              {
+                label: "Outline",
+                value: "OUTLINE",
+              },
+              {
+                label: "Ghost",
+                value: "GHOST",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             helpText: "Controls the visibility of the widget",
             propertyName: "isVisible",
             label: "Visible",
@@ -119,30 +143,6 @@ class ButtonGroupWidget extends BaseWidget<
                         {
                           label: "Menu",
                           value: "MENU",
-                        },
-                      ],
-                      isJSConvertible: true,
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
-                    {
-                      propertyName: "buttonVariant",
-                      label: "Button Variant",
-                      controlType: "DROP_DOWN",
-                      helpText: "Sets the variant of the icon button",
-                      options: [
-                        {
-                          label: "Solid",
-                          value: "SOLID",
-                        },
-                        {
-                          label: "Outline",
-                          value: "OUTLINE",
-                        },
-                        {
-                          label: "Ghost",
-                          value: "GHOST",
                         },
                       ],
                       isJSConvertible: true,
@@ -482,6 +482,7 @@ class ButtonGroupWidget extends BaseWidget<
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
         buttonClickHandler={this.handleClick}
+        buttonVariant={this.props.buttonVariant}
         groupButtons={this.props.groupButtons}
         isDisabled={this.props.isDisabled}
         orientation={this.props.orientation}
@@ -501,6 +502,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  buttonVariant: ButtonVariant;
   groupButtons: Record<
     string,
     {
@@ -512,7 +514,6 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       label?: string;
       buttonType?: string;
       buttonStyle?: ButtonStyle;
-      buttonVariant: ButtonVariant;
       iconName?: IconName;
       iconAlign?: Alignment;
       onClick?: string;

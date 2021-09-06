@@ -117,20 +117,20 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
         buttonStyle === ButtonStyleTypes.WARNING
           ? buttonVariant === ButtonVariantTypes.SOLID
             ? theme.colors.button.warning.solid.bgColor
-            : "none"
+            : Colors.WHITE
           : buttonStyle === ButtonStyleTypes.DANGER
           ? buttonVariant === ButtonVariantTypes.SOLID
             ? theme.colors.button.danger.solid.bgColor
-            : "none"
+            : Colors.WHITE
           : buttonStyle === ButtonStyleTypes.INFO
           ? buttonVariant === ButtonVariantTypes.SOLID
             ? theme.colors.button.info.solid.bgColor
-            : "none"
+            : Colors.WHITE
           : buttonStyle === ButtonStyleTypes.SECONDARY
           ? Colors.WHITE
           : buttonVariant === ButtonVariantTypes.SOLID
           ? theme.colors.button.primary.solid.bgColor
-          : "none"
+          : Colors.WHITE
       } !important;
     }
 
@@ -289,7 +289,6 @@ function PopoverContent(props: PopoverContentProps) {
   let items = Object.keys(menuItems)
     .map((itemKey) => menuItems[itemKey])
     .filter((item) => item.isVisible === true);
-
   // sort btns by index
   items = sortBy(items, ["index"]);
 
@@ -339,43 +338,8 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
     this.props.buttonClickHandler(onClick);
   };
 
-  renderMenuButton = (button: GroupButtonProps, isHorizontal: boolean) => {
-    const { menuItems } = button;
-
-    return (
-      <MenuButtonWrapper>
-        <PopoverStyles />
-        <Popover2
-          content={
-            <PopoverContent
-              menuItems={menuItems || {}}
-              onItemClicked={this.onButtonClick}
-            />
-          }
-          disabled={button.isDisabled}
-          fill
-          minimal
-          placement="bottom-end"
-          popoverClassName="menu-button-popover"
-        >
-          <StyledButton
-            buttonStyle={button.buttonStyle}
-            buttonVariant={button.buttonVariant}
-            iconAlign={button.iconAlign}
-            isDisabled={button.isDisabled}
-            isHorizontal={isHorizontal}
-            style={{ height: "100%", width: "100%" }}
-          >
-            {button.iconName && <Icon icon={button.iconName} />}
-            {!!button.label && <span>{button.label}</span>}
-          </StyledButton>
-        </Popover2>
-      </MenuButtonWrapper>
-    );
-  };
-
   render = () => {
-    const { groupButtons, orientation } = this.props;
+    const { buttonVariant, groupButtons, orientation } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -393,23 +357,53 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
       >
         {items.map((button) => {
           if (button.buttonType === "MENU") {
-            return this.renderMenuButton(button, isHorizontal);
-          } else {
+            const { menuItems } = button;
+
             return (
-              <StyledButton
-                buttonStyle={button.buttonStyle}
-                buttonVariant={button.buttonVariant}
-                iconAlign={button.iconAlign}
-                isDisabled={button.isDisabled}
-                isHorizontal={isHorizontal}
-                key={button.id}
-                onClick={this.onButtonClick(button.onClick)}
-              >
-                {button.iconName && <Icon icon={button.iconName} />}
-                {!!button.label && <span>{button.label}</span>}
-              </StyledButton>
+              <MenuButtonWrapper>
+                <PopoverStyles />
+                <Popover2
+                  content={
+                    <PopoverContent
+                      menuItems={menuItems || {}}
+                      onItemClicked={this.onButtonClick}
+                    />
+                  }
+                  disabled={button.isDisabled}
+                  fill
+                  minimal
+                  placement="bottom-end"
+                  popoverClassName="menu-button-popover"
+                >
+                  <StyledButton
+                    buttonStyle={button.buttonStyle}
+                    buttonVariant={buttonVariant}
+                    iconAlign={button.iconAlign}
+                    isDisabled={button.isDisabled}
+                    isHorizontal={isHorizontal}
+                    style={{ height: "100%", width: "100%" }}
+                  >
+                    {button.iconName && <Icon icon={button.iconName} />}
+                    {!!button.label && <span>{button.label}</span>}
+                  </StyledButton>
+                </Popover2>
+              </MenuButtonWrapper>
             );
           }
+          return (
+            <StyledButton
+              buttonStyle={button.buttonStyle}
+              buttonVariant={buttonVariant}
+              iconAlign={button.iconAlign}
+              isDisabled={button.isDisabled}
+              isHorizontal={isHorizontal}
+              key={button.id}
+              onClick={this.onButtonClick(button.onClick)}
+            >
+              {button.iconName && <Icon icon={button.iconName} />}
+              {!!button.label && <span>{button.label}</span>}
+            </StyledButton>
+          );
         })}
       </ButtonGroupWrapper>
     );
@@ -425,7 +419,6 @@ interface GroupButtonProps {
   label?: string;
   buttonType?: string;
   buttonStyle?: ButtonStyle;
-  buttonVariant: ButtonVariant;
   iconName?: IconName;
   iconAlign?: Alignment;
   onClick?: string;
@@ -454,6 +447,7 @@ export interface ButtonGroupComponentProps extends ComponentProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
+  buttonVariant: ButtonVariant;
   buttonClickHandler: (onClick: string | undefined) => void;
   groupButtons: Record<string, GroupButtonProps>;
 }
