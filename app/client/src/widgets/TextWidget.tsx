@@ -81,7 +81,8 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Enter value for border width",
+            helpText:
+              "Enter value for border width which can also use as margin",
             propertyName: "borderWidth",
             label: "Border Width",
             placeholderText: "Enter value in px",
@@ -89,47 +90,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            helpText: "Enter value for border radius",
-            propertyName: "borderRadius",
-            label: "Border Radius",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box Shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "fontSize",
@@ -226,9 +186,6 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           "containerStyle",
           "borderColor",
           "borderWidth",
-          "borderRadius",
-          "boxShadow",
-          "boxShadowColor",
         ])}
       >
         <TextComponent

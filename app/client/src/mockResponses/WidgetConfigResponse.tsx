@@ -53,8 +53,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       containerStyle: "card",
       borderColor: "transparent",
       borderWidth: 0,
-      borderRadius: 0,
-      boxShadow: ButtonBoxShadowTypes.NONE,
       textColor: Colors.THUNDER,
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
