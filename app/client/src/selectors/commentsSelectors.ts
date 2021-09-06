@@ -167,3 +167,9 @@ export const visibleCommentThreadSelector = (state: AppState) =>
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>
   state.ui.comments.isIntroCarouselVisible && areCommentsEnabledForUserAndApp();
+
+export const getUnpublishedThreadDraftComment = (state: AppState) =>
+  state.ui.comments.unpublishedThreadDraftComment;
+
+export const getDraftComments = (state: AppState) =>
+  state.ui.comments.draftComments;

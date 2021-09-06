@@ -195,13 +195,15 @@ const useUserSuggestions = (
 function AddCommentInput({
   initialEditorState,
   onCancel,
+  onChange,
   onSave,
   removePadding,
 }: {
   removePadding?: boolean;
-  initialEditorState?: EditorState;
+  initialEditorState?: EditorState | null;
   onSave: (state: RawDraftContentState) => void;
   onCancel?: () => void;
+  onChange?: (newEditorState: EditorState) => void;
 }) {
   const proceedToNextTourStep = useProceedToNextTourStep({
     [TourType.COMMENTS_TOUR_EDIT_MODE]:
@@ -222,6 +224,9 @@ function AddCommentInput({
 
   const setEditorState = useCallback((editorState: EditorState) => {
     setEditorStateInState(editorState);
+    if (typeof onChange === "function") {
+      onChange(editorState);
+    }
   }, []);
 
   const [suggestionsQuery, setSuggestionsQuery] = useState("");
