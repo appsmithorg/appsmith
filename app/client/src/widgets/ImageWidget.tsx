@@ -37,14 +37,35 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
+            helpText:
+              "Sets how the Image should be resized to fit its container.",
+            propertyName: "objectFit",
+            label: "Object Fit",
+            controlType: "DROP_DOWN",
+            defaultValue: "contain",
+            options: [
+              {
+                label: "Contain",
+                value: "contain",
+              },
+              {
+                label: "Cover",
+                value: "cover",
+              },
+              {
+                label: "Auto",
+                value: "auto",
+              },
+            ],
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["contain", "cover", "auto"],
+              },
+            },
           },
           {
             helpText: "Controls the max zoom of the widget",
@@ -82,35 +103,14 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             },
           },
           {
-            helpText:
-              "Sets how the Image should be resized to fit its container.",
-            propertyName: "objectFit",
-            label: "Object Fit",
-            controlType: "DROP_DOWN",
-            defaultValue: "contain",
-            options: [
-              {
-                label: "Contain",
-                value: "contain",
-              },
-              {
-                label: "Cover",
-                value: "cover",
-              },
-              {
-                label: "Auto",
-                value: "auto",
-              },
-            ],
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["contain", "cover", "auto"],
-              },
-            },
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls if the image is allowed to rotate",

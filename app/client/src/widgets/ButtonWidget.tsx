@@ -58,6 +58,16 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            propertyName: "googleRecaptchaKey",
+            label: "Google Recaptcha Key",
+            helpText: "Sets Google Recaptcha v3 site key for button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Recaptcha Key",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
             propertyName: "isVisible",
             label: "Visible",
             helpText: "Controls the visibility of the widget",
@@ -76,16 +86,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "googleRecaptchaKey",
-            label: "Google Recaptcha Key",
-            helpText: "Sets Google Recaptcha v3 site key for button",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Recaptcha Key",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "recaptchaV2",
