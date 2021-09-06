@@ -388,7 +388,8 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
                     copyNewFieldValuesIntoOldObject(page, dbPage.getUnpublishedPage());
                     return this.update(id, dbPage);
                 })
-                .flatMap(savedPage -> getPageByViewMode(savedPage, false));
+                .flatMap(savedPage -> applicationService.saveLastEditInformation(savedPage.getApplicationId())
+                        .then(getPageByViewMode(savedPage, false)));
     }
 
     @Override

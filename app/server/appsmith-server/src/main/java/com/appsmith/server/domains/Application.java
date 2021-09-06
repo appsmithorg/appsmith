@@ -70,6 +70,18 @@ public class Application extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant lastDeployedAt; // when this application was last deployed
 
+    /**
+     * This method has been added because the updatedAt property in base domain has @JsonIgnore annotation
+     * @return updated time as a string
+     */
+    @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
+    public String getLastUpdateTime() {
+        if(updatedAt != null) {
+            return ISO_FORMATTER.format(updatedAt);
+        }
+        return null;
+    }
+
     public String getLastDeployedAt() {
         if(lastDeployedAt != null) {
             return ISO_FORMATTER.format(lastDeployedAt);

@@ -33,12 +33,15 @@ import {
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import getFeatureFlags from "utils/featureFlags";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -81,12 +84,17 @@ class GlobalHotKeys extends React.Component<Props> {
     return false;
   }
 
-  public onOnmnibarHotKeyDown(e: KeyboardEvent) {
+  public onOnmnibarHotKeyDown(
+    e: KeyboardEvent,
+    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+  ) {
     e.preventDefault();
-    this.props.toggleShowGlobalSearchModal(
-      filterCategories[SEARCH_CATEGORY_ID.NAVIGATION],
-    );
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
+    const category = filterCategories[categoryId];
+    this.props.toggleShowGlobalSearchModal(category);
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "HOTKEY_COMBO",
+      category: category.title,
+    });
   }
 
   public renderHotkeys() {
@@ -116,10 +124,30 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput={false}
+          combo="mod + j"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
+          combo="mod + l"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
           combo="mod + p"
           global
           label="Show omnibar"
-          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
+          }
         />
         <Hotkey
           combo="mod + d"
@@ -269,6 +297,19 @@ class GlobalHotKeys extends React.Component<Props> {
               this.props.groupSelectedWidget();
             }
           }}
+        />
+        <Hotkey
+          combo="mod + s"
+          global
+          label="Save progress"
+          onKeyDown={() => {
+            Toaster.show({
+              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
+              variant: Variant.info,
+            });
+          }}
+          preventDefault
+          stopPropagation
         />
       </Hotkeys>
     );
