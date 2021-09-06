@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,10 +34,10 @@ public class GitFileUtils {
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<String> saveApplicationToGitRepo(String organizationId,
-                                                 String defaultApplicationId,
-                                                 ApplicationJson applicationJson,
-                                                 String branchName) {
+    public Mono<Path> saveApplicationToGitRepo(String organizationId,
+                                               String defaultApplicationId,
+                                               ApplicationJson applicationJson,
+                                               String branchName) {
 
         /*
             1. Create application reference for appsmith-git module

@@ -52,13 +52,13 @@ public class FileUtilsImpl implements FileInterface {
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<String> saveApplicationToGitRepo(String organizationId,
+    public Mono<Path> saveApplicationToGitRepo(String organizationId,
                                                  String defaultApplicationId,
                                                  ApplicationGitReference applicationGitReference,
                                                  String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
-        String baseRepoPath = gitRootPath + "/" + organizationId + "/" + defaultApplicationId + "/" + branchName;
+        Path baseRepoPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 
@@ -78,33 +78,33 @@ public class FileUtilsImpl implements FileInterface {
          */
 
         // Save application
-        saveFile(applicationGitReference.getApplication(), Paths.get(baseRepoPath, "application.json"), gson);
+        saveFile(applicationGitReference.getApplication(), baseRepoPath.resolve("application.json"), gson);
 
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
-            saveFile(resource.getValue(), Paths.get(baseRepoPath, PAGE_DIRECTORY + resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoPath.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + PAGE_DIRECTORY);
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(PAGE_DIRECTORY));
         validFileNames.clear();
 
         // Save actions
         for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
-            saveFile(resource.getValue(), Paths.get(baseRepoPath, ACTION_DIRECTORY + resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoPath.resolve(ACTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan actions directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + ACTION_DIRECTORY);
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(ACTION_DIRECTORY));
         validFileNames.clear();
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
-            saveFile(resource.getValue(), Paths.get(baseRepoPath, DATASOURCE_DIRECTORY + resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoPath.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath + DATASOURCE_DIRECTORY);
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(DATASOURCE_DIRECTORY));
 
         return Mono.just(baseRepoPath);
     }
@@ -123,7 +123,7 @@ public class FileUtilsImpl implements FileInterface {
                 gson.toJson(sourceEntity, fileWriter);
                 return true;
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             log.debug(e.getMessage());
         }
         return false;
@@ -135,10 +135,10 @@ public class FileUtilsImpl implements FileInterface {
      * @param validResources resources those are still available in DB
      * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
      */
-    private void scanAndDeleteFileForDeletedResources(Set<String> validResources, String resourceDirectory) {
+    private void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted file if present
         // unwanted file : corresponding resource from DB has been deleted
-        try (Stream<Path> paths = Files.walk(Paths.get(resourceDirectory))) {
+        try (Stream<Path> paths = Files.walk(resourceDirectory)) {
             paths
                 .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
                 .forEach(path -> deleteFile(path, false));
@@ -185,7 +185,7 @@ public class FileUtilsImpl implements FileInterface {
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        String baseRepoPath = gitRootPath + "/" + organisationId + "/" + defaultApplicationId + "/" + branchName;
+        Path baseRepoPath = Paths.get(gitRootPath, organisationId, defaultApplicationId, branchName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
 
@@ -197,17 +197,17 @@ public class FileUtilsImpl implements FileInterface {
 
         // Extract application data from the json
         applicationGitReference.setApplication(
-            readFile( Paths.get(baseRepoPath, "/application.json"), gson)
+            readFile( baseRepoPath.resolve("application.json"), gson)
         );
 
         // Extract actions
-        applicationGitReference.setActions(readFiles(Paths.get(baseRepoPath, ACTION_DIRECTORY), gson));
+        applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson));
 
         // Extract pages
-        applicationGitReference.setPages(readFiles(Paths.get(baseRepoPath, PAGE_DIRECTORY), gson));
+        applicationGitReference.setPages(readFiles(baseRepoPath.resolve(PAGE_DIRECTORY), gson));
 
         // Extract datasources
-        applicationGitReference.setDatasources(readFiles(Paths.get(baseRepoPath, DATASOURCE_DIRECTORY), gson));
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson));
 
         return applicationGitReference;
     }
@@ -238,7 +238,7 @@ public class FileUtilsImpl implements FileInterface {
      */
     private Map<String, Object> readFiles(Path directoryPath, Gson gson) {
         Map<String, Object> resource = new HashMap<>();
-        File directory = new File(directoryPath.toUri());
+        File directory = directoryPath.toFile();
         if (directory.isDirectory()) {
             Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
                 try (JsonReader reader = new JsonReader(new FileReader(file))) {

@@ -3,6 +3,8 @@ package com.appsmith.external.git;
 import com.appsmith.external.models.ApplicationGitReference;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
+
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
@@ -26,10 +28,10 @@ public interface FileInterface {
      *       --page1
      *       --page2
      */
-    Mono<String> saveApplicationToGitRepo(String organizationId,
-                                          String defaultApplicationId,
-                                          ApplicationGitReference applicationGitReference,
-                                          String branchName);
+    Mono<Path> saveApplicationToGitRepo(String organizationId,
+                                        String defaultApplicationId,
+                                        ApplicationGitReference applicationGitReference,
+                                        String branchName);
 
     /**
      * This method will reconstruct the application from the repo
