@@ -325,8 +325,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     // `template` property should have an array of values
     // if it is a dynamicbinding
 
-    // eslint-disable-next-line
-
     if (
       Array.isArray(dynamicBindingPathList) &&
       dynamicBindingPathList.length > 0
