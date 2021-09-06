@@ -117,9 +117,9 @@ function WidgetsEditor() {
 
   const onDragStart = useCallback(
     (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
       if (allowDragToSelect) {
-        e.preventDefault();
-        e.stopPropagation();
         const startPoints = {
           x: e.clientX,
           y: e.clientY,
@@ -136,20 +136,12 @@ function WidgetsEditor() {
     <EditorContextProvider>
       <EditorWrapper
         data-testid="widgets-editor"
-        draggable={allowDragToSelect}
+        draggable
         onClick={handleWrapperClick}
         onDragStart={onDragStart}
       >
         <MainContainerLayoutControl />
-        <CanvasContainer
-          className={getCanvasClassName()}
-          draggable={allowDragToSelect}
-          key={currentPageId}
-          onDragStart={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
+        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
         <Debugger />
