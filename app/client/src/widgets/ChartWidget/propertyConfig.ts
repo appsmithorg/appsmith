@@ -214,9 +214,6 @@ export default [
   },
   {
     sectionName: "Axis",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType === "CUSTOM_FUSION_CHART",
-    dependencies: ["chartType"],
     children: [
       {
         helpText: "Specifies the label of the x-axis",
@@ -227,6 +224,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
       {
         helpText: "Specifies the label of the y-axis",
@@ -237,6 +236,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
       {
         helpText: "Enables scrolling inside the chart",
@@ -247,6 +248,15 @@ export default [
         isTriggerProperty: false,
         hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
         dependencies: ["chartType"],
+      },
+      {
+        propertyName: "setAdaptiveYMin",
+        label: "Adaptive Axis",
+        helpText: "Define the minimum scale for X/Y axis",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Changes the x-axis label orientation",
