@@ -30,11 +30,12 @@ import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 
 const EditorWrapper = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  position: relative;
 `;
 
 const CanvasContainer = styled.section`

@@ -18,7 +18,7 @@ const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
   background-color: ${(props) =>
     props.theme.colors.debugger.floatingButton.background};
-  position: fixed;
+  position: absolute;
   right: 20px;
   bottom: 20px;
   cursor: pointer;

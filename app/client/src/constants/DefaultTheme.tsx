@@ -345,6 +345,7 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  bottomBarHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -1197,6 +1198,15 @@ type ColorType = {
     menuBackgroundColor: string;
     separator: string;
   };
+  editorBottomBar: {
+    background: string;
+    buttonBackgroundHover: string;
+  };
+};
+
+const editorBottomBar = {
+  background: Colors.WHITE,
+  buttonBackgroundHover: Colors.Gallery,
 };
 
 const gitSyncModal = {
@@ -1405,6 +1415,7 @@ const numberedStep = {
 };
 
 export const dark: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -1978,6 +1989,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -2823,6 +2835,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
+  bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
