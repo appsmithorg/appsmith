@@ -245,6 +245,7 @@ public class ArangoDBPluginTest {
                 " name: 'John Smith'," +
                 " email: ['john@appsmith.com](mailto:%22john@appsmith.com)']," +
                 " gender: 'M'," +
+                " testKeyWord: ' Return '," +
                 " age: 50" +
                 " } INTO users");
         Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.execute(conn, dsConfig, actionConfiguration));

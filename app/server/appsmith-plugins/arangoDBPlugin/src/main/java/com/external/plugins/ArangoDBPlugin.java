@@ -150,7 +150,7 @@ public class ArangoDBPlugin extends BasePlugin {
          * ref: https://www.arangodb.com/docs/stable/aql/fundamentals-syntax.html
          */
         private boolean isUpdateQuery(String query) {
-            String queryKeyWordsOnly = query.replace(MATCH_QUOTED_WORDS_REGEX, "");
+            String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
             return !Arrays.stream(queryKeyWordsOnly.split("\\s"))
                     .anyMatch(word -> RETURN_KEY.equals(word.trim().toLowerCase()));
         }
