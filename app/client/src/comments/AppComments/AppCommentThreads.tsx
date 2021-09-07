@@ -7,6 +7,7 @@ import {
   appCommentsFilter as appCommentsFilterSelector,
   applicationCommentsSelector,
   getAppCommentThreads,
+  getCommentThreadsFetched,
   getSortedAndFilteredAppCommentThreadIds,
   shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
@@ -68,22 +69,29 @@ function AppCommentThreads() {
 
   const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
 
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
+
+  // TODO (rishabh s) Update this when adding pagination to comments
+  const appCommentThreadsFetched = useSelector(getCommentThreadsFetched);
+
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
     // we'll activate the resolved comments filter
-    if (
-      commentThreadIdFromUrl &&
-      !commentThreadIds.includes(commentThreadIdFromUrl)
-    ) {
-      if (appCommentThreadIds.includes(commentThreadIdFromUrl))
-        dispatch(setShouldShowResolvedComments(true));
-      else
+    if (commentThreadIdFromUrl && appCommentThreadsFetched) {
+      const commentInStore = commentThreadsMap[commentThreadIdFromUrl];
+
+      if (commentInStore) {
+        if (commentInStore.resolvedState?.active) {
+          dispatch(setShouldShowResolvedComments(true));
+        }
+      } else {
         Toaster.show({
           text: createMessage(COMMENT_HAS_BEEN_DELETED),
           variant: Variant.warning,
         });
+      }
     }
-  }, [commentThreadIdFromUrl]);
+  }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
     <Container>

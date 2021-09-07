@@ -717,6 +717,19 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .last()
     .click({ force: true });
 });
+Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
+  cy.get(commonlocators.entityExplorersearch)
+    .clear({ force: true })
+    .type(apiname1, { force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .last()
+    .dblclick({ force: true });
+});
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
   cy.enterDatasource(datasource + path);
@@ -1213,6 +1226,13 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.contains(innercss, text);
 });
 
+Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.contains(innercss, text);
+});
+
 Cypress.Commands.add("editColName", (text) => {
   cy.get(commonlocators.editColTitle)
     .click({ force: true })
@@ -1395,6 +1415,18 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
+});
+
+Cypress.Commands.add("selectColor", (GivenProperty) => {
+  // Property pane of the widget is opened, and click given property.
+  cy.get(
+    ".t--property-control-" + GivenProperty + " .bp3-input-group input",
+  ).click({
+    force: true,
+  });
+  cy.get(widgetsPage.colorsAvailable)
+    .first()
+    .click({ force: true });
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
@@ -2347,18 +2379,22 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
 });
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
-  const selector = `.t--draggable-${widgetType}`;
-  cy.get(selector)
-    .last()
-    .trigger("mouseover", { force: true })
-    .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
-    .first()
-    .click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  if (widgetType === "List1Copy") {
+    cy.SearchEntityandOpen(widgetType);
+  } else {
+    const selector = `.t--draggable-${widgetType}`;
+    cy.get(selector)
+      .last()
+      .trigger("mouseover", { force: true })
+      .wait(500);
+    cy.get(
+      `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+    )
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  }
 });
 
 Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {

@@ -41,6 +41,7 @@ const initialState: CommentsReduxState = {
   unsubscribed: false,
   draggingCommentThreadId: null,
   dragPointerOffset: null,
+  commentThreadsFetched: false,
 };
 
 /**
@@ -286,6 +287,12 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     draggingCommentThreadId: null,
     dragPointerOffset: null,
+  }),
+  [ReduxActionTypes.FETCH_COMMENT_THREADS_INIT]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    commentThreadsFetched: false,
   }),
 });
 
