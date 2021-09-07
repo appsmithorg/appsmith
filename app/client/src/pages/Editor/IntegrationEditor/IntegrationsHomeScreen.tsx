@@ -33,11 +33,13 @@ const HeaderFlex = styled.div`
 `;
 
 const ApiHomePage = styled.div`
+  display: flex;
+  flex-direction: column;
+
   font-size: 20px;
   padding: 20px 20px 0 20px;
   /* margin-left: 10px; */
-  min-height: calc(100vh - 66px);
-  max-height: calc(100vh - 66px);
+  flex: 1;
   overflow: hidden !important;
   .closeBtn {
     position: absolute;
@@ -67,17 +69,16 @@ const SectionGrid = styled.div`
   margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 180px;
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
+  flex: 1;
+  min-height: 0;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
   scrollbar-width: thin;
   overflow: auto;
-  max-height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
-  /* padding-bottom: 300px; */
-  /* margin-top: 16px; */
+  flex: 1;
   & > div {
     margin-bottom: 20px;
   }
