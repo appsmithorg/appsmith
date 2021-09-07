@@ -41,6 +41,13 @@ enum CONTEXT_MENU_ACTIONS {
   INTERCOM = "INTERCOM",
 }
 
+enum PLUGIN_EXECUTION_ERRORS {
+  DATASOURCE_CONFIGURATION_ERROR = "DATASOURCE_CONFIGURATION_ERROR",
+  PLUGIN_ERROR = "PLUGIN_ERROR",
+  CONNECTIVITY_ERROR = "CONNECTIVITY_ERROR",
+  ACTION_CONFIGURATION_ERROR = "ACTION_CONFIGURATION_ERROR",
+}
+
 const getOptions = (type?: string, subType?: string) => {
   const defaultOptions = [
     CONTEXT_MENU_ACTIONS.COPY,
@@ -53,21 +60,21 @@ const getOptions = (type?: string, subType?: string) => {
   if (subType) {
     switch (subType) {
       // These types are sent by the server
-      case "DATASOURCE_CONFIGURATION_ERROR":
+      case PLUGIN_EXECUTION_ERRORS.DATASOURCE_CONFIGURATION_ERROR:
         return [
           CONTEXT_MENU_ACTIONS.COPY,
           CONTEXT_MENU_ACTIONS.GOOGLE,
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
-      case "PLUGIN_ERROR":
+      case PLUGIN_EXECUTION_ERRORS.PLUGIN_ERROR:
         return [
           CONTEXT_MENU_ACTIONS.COPY,
           CONTEXT_MENU_ACTIONS.GOOGLE,
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
-      case "CONNECTIVITY_ERROR":
+      case PLUGIN_EXECUTION_ERRORS.CONNECTIVITY_ERROR:
         return [CONTEXT_MENU_ACTIONS.COPY, CONTEXT_MENU_ACTIONS.DOCS];
-      case "ACTION_CONFIGURATION_ERROR":
+      case PLUGIN_EXECUTION_ERRORS.ACTION_CONFIGURATION_ERROR:
         return [
           CONTEXT_MENU_ACTIONS.COPY,
           CONTEXT_MENU_ACTIONS.DOCS,
@@ -247,6 +254,13 @@ export default function ContextualMenu(props: ContextualMenuProps) {
         const onSelect = () => {
           menuProps.onSelect(props.error, dispatch);
         };
+
+        if (
+          e === CONTEXT_MENU_ACTIONS.INTERCOM &&
+          !(intercomAppID && window.Intercom)
+        ) {
+          return null;
+        }
 
         return (
           <MenuItem

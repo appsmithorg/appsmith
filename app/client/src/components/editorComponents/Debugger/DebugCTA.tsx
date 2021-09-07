@@ -12,6 +12,7 @@ import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { SeverityIconColor } from "./helpers";
+import { Colors } from "constants/Colors";
 
 const EVDebugButton = styled.button`
   ${(props) => getTypographyByKey(props, "btnSmall")};
@@ -62,8 +63,8 @@ export function EvaluatedValueDebugButton(props: { error: Message }) {
         <EVDebugButton>
           DEBUG
           <Icon
-            fillColor={"#F22B2B"}
-            hoverFillColor={"#F22B2B"}
+            fillColor={Colors.POMEGRANATE2}
+            hoverFillColor={Colors.POMEGRANATE2}
             name={"downArrow"}
             size={IconSize.XXS}
           />
