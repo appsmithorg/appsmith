@@ -51,15 +51,6 @@
             <version>5.12.0.202106070339-r</version>
         </dependency>
 
-
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.jcraft/jsch &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.jcraft</groupId>-->
-<!--            <artifactId>jsch</artifactId>-->
-<!--            <version>0.1.55</version>-->
-<!--        </dependency>-->
-
-
         <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
