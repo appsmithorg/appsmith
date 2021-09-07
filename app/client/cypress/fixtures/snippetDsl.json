@@ -1,0 +1,51 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1290,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 34,
+        "minHeight": 320,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "label": "{{\n   function() {\n     for( i = 0; i < userTable.tableData.length; i++) {\n        fetch_user_details.run((response, params) => {\n           storeValue(params.userId, response);\n        }, () => {\n        }, { userId: userTable.tableData[i].id })\n     }\n   }\n}}",
+                "defaultCheckedState": true,
+                "widgetName": "Checkbox1",
+                "version": 1,
+                "alignWidget": "LEFT",
+                "isDisabled": false,
+                "isRequired": false,
+                "type": "CHECKBOX_WIDGET",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 23,
+                "rightColumn": 35,
+                "topRow": 10,
+                "bottomRow": 14,
+                "parentId": "0",
+                "widgetId": "lvrp3hkeio",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "label"
+                    }
+                ],
+                "dynamicTriggerPathList": []
+            }
+        ],
+        "dynamicTriggerPathList": []
+    }
+}
