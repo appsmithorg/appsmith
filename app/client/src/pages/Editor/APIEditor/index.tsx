@@ -186,6 +186,8 @@ class ApiEditor extends React.Component<Props> {
         style={{
           position: "relative",
           height: "100%",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {formUiComponent === "ApiEditorForm" && (

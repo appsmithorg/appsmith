@@ -87,6 +87,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Escape",
   "Comma",
   "Backspace",
+  "Semicolon",
+  "Space",
 ];
 
 interface ReduxStateProps {
@@ -350,7 +352,8 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation = this.getEntityInformation();
     if (
       entityInformation.entityType === ENTITY_TYPE.WIDGET &&
-      this.editor.getValue().length === 0
+      this.editor.getValue().length === 0 &&
+      !this.editor.state.completionActive
     )
       this.handleAutocompleteVisibility(this.editor);
   };
@@ -388,8 +391,7 @@ class CodeEditor extends Component<Props, State> {
     const inputValue = this.props.input.value || "";
     if (
       this.props.input.onChange &&
-      (value !== inputValue ||
-        _.get(this.editor, "state.completionActive.startLen") === 0) &&
+      value !== inputValue &&
       this.state.isFocused
     ) {
       this.props.input.onChange(value);
