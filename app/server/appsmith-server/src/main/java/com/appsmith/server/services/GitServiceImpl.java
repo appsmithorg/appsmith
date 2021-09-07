@@ -1,7 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -13,8 +17,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +29,12 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private final SessionUserService sessionUserService;
 
+    private final ApplicationService applicationService;
+
+    private final EncryptionService encryptionService;
+
+    private final String defaultBranchName = "master";
+
     public GitServiceImpl(Scheduler scheduler,
                           Validator validator,
                           MongoConverter mongoConverter,
@@ -35,11 +43,15 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                           AnalyticsService analyticsService,
                           UserService userService,
                           UserDataService userDataService,
-                          SessionUserService sessionUserService) {
+                          SessionUserService sessionUserService,
+                          ApplicationService applicationService,
+                          EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.userDataService = userDataService;
         this.sessionUserService = sessionUserService;
+        this.applicationService = applicationService;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -72,5 +84,60 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
     public Mono<GitConfig> getGitConfigForUser() {
         return userDataService.getForCurrentUser()
                 .map(userData -> userData.getGitGlobalConfigData());
+    }
+
+    /*
+    *  Connect the application from Appsmith to a git repo
+    *  This is the prerequisite step needed to perform all the git operation for an application
+    *  We are implementing the deployKeys approach and since the deploy-keys are repo level these keys are store under application.
+    *  Each application is equal to a repo in the git
+    *  @param GitAuth - contains the deploy-key(public and private keys generated which then needs to be configured at git repo)
+    *  @param applicationId - this is used to link the git repo to an application
+    *  @param remoteUrl - used for the git push pull branch etc
+    *  @param gitConfig - user can chose to have a different authorName & Email for a specific repo if not set then the default from the userData will be used
+    *  @return Application object
+    * */
+    @Override
+    public Mono<Application> connectApplicationToGit(GitConnectDTO gitConnectDTO) {
+        /*
+        * Two scenarios
+        *  1. Connecting the application for the first time
+        *
+        *  2. Update the deployKey or remoteUrl
+        * */
+
+        Application application = new Application();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+
+        if(gitConnectDTO.getGitAuth() == null
+                || gitConnectDTO.getGitAuth().getPrivateKey() == null
+                || gitConnectDTO.getGitAuth().getPublicKey() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "SSH Key", ""));
+        }
+
+        if(gitConnectDTO.getRemoteUrl() == null ) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url", ""));
+        }
+
+        String encryptedKey = encryptionService.encryptString(gitConnectDTO.getGitAuth().getPrivateKey());
+        gitApplicationMetadata.setGitAuth(gitConnectDTO.getGitAuth());
+        gitApplicationMetadata.getGitAuth().setPrivateKey(encryptedKey);
+
+        gitApplicationMetadata.setIsDefault(Boolean.TRUE);
+        gitApplicationMetadata.setDefaultApplicationId(gitConnectDTO.getApplicationId());
+        gitApplicationMetadata.setBranchName(defaultBranchName);
+        if(!Optional.ofNullable(gitConnectDTO.getAuthorName()).isEmpty()) {
+            gitApplicationMetadata.setAuthorName(gitConnectDTO.getAuthorName());
+        }
+        if(!Optional.ofNullable(gitConnectDTO.getAuthorEmail()).isEmpty()) {
+            gitApplicationMetadata.setAuthorEmail(gitConnectDTO.getAuthorEmail());
+        }
+        application.setGitApplicationMetadata(gitApplicationMetadata);
+
+        return applicationService.update(gitConnectDTO.getApplicationId(), application);
+    }
+
+    public void updateGitApplicationMetadata(GitConnectDTO gitConnectDTO) {
+
     }
 }
