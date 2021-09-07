@@ -25,6 +25,7 @@ import {
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 import handleDragCommentThread from "./handleDragCommentThread";
 import { deleteCommentFromState, deleteCommentThreadFromState } from "./common";
+import { EditorState } from "draft-js";
 
 const initialState: CommentsReduxState = {
   commentThreadsMap: {},
@@ -41,6 +42,8 @@ const initialState: CommentsReduxState = {
   unsubscribed: false,
   draggingCommentThreadId: null,
   dragPointerOffset: null,
+  draftComments: {},
+  unpublishedThreadDraftComment: null,
   commentThreadsFetched: false,
 };
 
@@ -60,9 +63,13 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.REMOVE_UNPUBLISHED_COMMENT_THREAD_REQUEST]: (
     state: CommentsReduxState,
+    action: ReduxAction<{ shouldPersistComment: boolean }>,
   ) => ({
     ...state,
     unpublishedCommentThreads: {},
+    unpublishedThreadDraftComment: action.payload.shouldPersistComment
+      ? state.unpublishedThreadDraftComment
+      : null,
   }),
   [ReduxActionTypes.CREATE_COMMENT_THREAD_SUCCESS]: (
     state: CommentsReduxState,
@@ -171,18 +178,27 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.RESET_VISIBLE_THREAD]: (
     state: CommentsReduxState,
-    action: ReduxAction<string>,
-  ) => ({
-    ...state,
-    /**
-     * To solve race cond, explicitly hide a visible thread using it's id
-     * so that we don't accidently hide another thread
-     */
-    visibleCommentThreadId:
-      action.payload === state.visibleCommentThreadId
-        ? ""
-        : state.visibleCommentThreadId,
-  }),
+    action: ReduxAction<{ threadId: string; shouldPersistThread: string }>,
+  ) => {
+    const draftCommentsClone = { ...state.draftComments };
+    const { shouldPersistThread, threadId } = action.payload;
+    if (!shouldPersistThread) {
+      delete draftCommentsClone[threadId];
+    }
+
+    return {
+      ...state,
+      /**
+       * To solve race cond, explicitly hide a visible thread using it's id
+       * so that we don't accidently hide another thread
+       */
+      visibleCommentThreadId:
+        threadId === state.visibleCommentThreadId
+          ? ""
+          : state.visibleCommentThreadId,
+      draftComments: draftCommentsClone,
+    };
+  },
   [ReduxActionTypes.SET_VISIBLE_THREAD]: (
     state: CommentsReduxState,
     action: ReduxAction<string>,
@@ -287,6 +303,23 @@ const commentsReducer = createReducer(initialState, {
     ...state,
     draggingCommentThreadId: null,
     dragPointerOffset: null,
+  }),
+  [ReduxActionTypes.UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<EditorState>,
+  ) => ({
+    ...state,
+    unpublishedThreadDraftComment: action.payload,
+  }),
+  [ReduxActionTypes.UPDATE_THREAD_DRAFT_COMMENT]: (
+    state: CommentsReduxState,
+    action: ReduxAction<{ threadId: string; editorState: EditorState }>,
+  ) => ({
+    ...state,
+    draftComments: {
+      ...state.draftComments,
+      [action.payload.threadId]: action.payload.editorState,
+    },
   }),
   [ReduxActionTypes.FETCH_COMMENT_THREADS_INIT]: (
     state: CommentsReduxState,
