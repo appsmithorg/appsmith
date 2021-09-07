@@ -97,7 +97,7 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                         // Action doesn't exist. Create now.
                         return layoutActionService
                                 .createSingleAction(action)
-                                // return an empty action so that the filter can remove it from the list
+                                // return an empty action so that this action is disregarded from the list
                                 .onErrorResume(throwable -> {
                                     log.debug("Failed to create action with name {} for collection: {}", action.getName(), collection.getName());
                                     log.error(throwable.getMessage());
@@ -110,9 +110,6 @@ public class LayoutCollectionServiceImpl implements LayoutCollectionService {
                     // We do not expect to have to update the action at actionCollectionService point
                     return Mono.just(action);
                 })
-                // If action creation has failed for some reason, ignore that action
-                // We will expect the user to update actionCollectionService definition after editing the body of the collection
-                .filter(action -> action.getId() != null)
                 .collectList()
                 .zipWith(pageMono)
                 .flatMap(tuple -> {
