@@ -95,20 +95,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
-  const triggers = yield call(
-    evaluateDynamicTrigger,
-    dynamicString,
-    responseData,
-  );
-
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, type),
-      ),
-    );
-  }
+  yield call(evaluateDynamicTrigger, dynamicString, type, responseData);
 }
 
 function* initiateActionTriggerExecution(

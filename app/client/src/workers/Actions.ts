@@ -75,6 +75,16 @@ const overThreadPromise = (event: any) => {
   });
 };
 
+export const completePromise = () => {
+  ctx.postMessage({
+    type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+    responseData: {
+      finished: true,
+    },
+    requestId: self.REQUEST_ID,
+  });
+};
+
 const DATA_TREE_FUNCTIONS: Record<
   string,
   | ActionDispatcher

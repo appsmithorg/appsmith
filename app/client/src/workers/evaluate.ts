@@ -8,7 +8,7 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { enhanceDataTreeWithFunctions } from "./Actions";
+import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
 
 export type EvalResult = {
   result: any;
@@ -158,6 +158,7 @@ export default function evaluateSync(
       // @ts-ignore: No types available
       self[func] = undefined;
     });
+
     try {
       result = eval(script);
     } catch (e) {
@@ -188,7 +189,7 @@ export async function evaluateAsync(
     userScript.replace(beginsWithLineBreakRegex, ""),
   );
   const script = getScriptToEval(unescapedJS, evalArguments, true);
-  return (function() {
+  return (async function() {
     let errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
@@ -211,21 +212,9 @@ export async function evaluateAsync(
     });
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
     try {
-      result = eval(script);
+      result = await eval(script);
+      completePromise();
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;
       debugger;

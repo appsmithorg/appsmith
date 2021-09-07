@@ -150,6 +150,7 @@ export function* evaluateActionBindings(
 
 export function* evaluateDynamicTrigger(
   dynamicTrigger: string,
+  eventType: EventType,
   callbackData?: Array<any>,
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
@@ -165,8 +166,9 @@ export function* evaluateDynamicTrigger(
   let keepAlive = true;
 
   while (keepAlive) {
-    const { finished, requestData } = yield take(requestChannel);
-    if (finished) {
+    const { requestData } = yield take(requestChannel);
+    debugger;
+    if (requestData.finished) {
       keepAlive = false;
       continue;
     }
@@ -176,7 +178,7 @@ export function* evaluateDynamicTrigger(
       const response = yield call(
         executeActionTriggers,
         requestData.trigger,
-        EventType.ON_CLICK,
+        eventType,
       );
       responseChannel.put({
         method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
@@ -184,6 +186,7 @@ export function* evaluateDynamicTrigger(
       });
     }
   }
+  debugger;
 }
 
 export function* clearEvalCache() {

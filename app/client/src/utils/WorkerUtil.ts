@@ -214,10 +214,10 @@ export class GracefulWorkerService {
       let keepAlive = true;
       while (keepAlive) {
         const workerRequest = yield take(mainChannel);
-        const { finished, responseData } = workerRequest;
+        const { responseData } = workerRequest;
         // process request
-        requestChannel.put({ requestData: responseData, finished });
-        if (finished) {
+        requestChannel.put({ requestData: responseData });
+        if (responseData.finished) {
           keepAlive = false;
           continue;
         }
