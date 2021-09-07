@@ -40,6 +40,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
@@ -862,12 +863,9 @@ public class PostgresPlugin extends BasePlugin {
                         preparedStatement.setLong(index, Long.parseLong(value));
                         break;
                     }
-                    case FLOAT: {
-                        preparedStatement.setFloat(index, Float.parseFloat(value));
-                        break;
-                    }
+                    case FLOAT:
                     case DOUBLE: {
-                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
                         break;
                     }
                     case BOOLEAN: {
