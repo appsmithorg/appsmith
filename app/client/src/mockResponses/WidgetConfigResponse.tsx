@@ -175,7 +175,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 7 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
       defaultSelectedRow: "0",
       label: "Data",
       widgetName: "Table",
@@ -630,7 +630,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 8 * GRID_DENSITY_MIGRATION_V1,
       columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Chart",
-      chartType: "LINE_CHART",
+      chartType: "COLUMN_CHART",
       chartName: "Sales Report",
       allowHorizontalScroll: false,
       version: 1,
@@ -639,25 +639,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           seriesName: "Sales",
           data: [
             {
-              x: "Mon",
+              x: "Product1",
               y: 20000,
             },
             {
-              x: "Tue",
+              x: "Product2",
               y: 22000,
             },
             {
-              x: "Wed",
+              x: "Product3",
               y: 32000,
-            },
-            {
-              x: "Thu",
-              y: 28000,
             },
           ],
         },
       },
-      xAxisName: "Days",
+      xAxisName: "Product Line",
       yAxisName: "Revenue($)",
       setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
@@ -666,26 +662,22 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
         dataSource: {
           chart: {
             caption: "Sales Report",
-            xAxisName: "Days",
+            xAxisName: "Product Line",
             yAxisName: "Revenue($)",
             theme: "fusion",
           },
           data: [
             {
-              label: "Mon",
-              value: 20000,
+              x: "Product1",
+              y: 20000,
             },
             {
-              label: "Tue",
-              value: 22000,
+              x: "Product2",
+              y: 22000,
             },
             {
-              label: "Wed",
-              value: 32000,
-            },
-            {
-              label: "Thu",
-              value: 28000,
+              x: "Product3",
+              y: 32000,
             },
           ],
         },
@@ -1165,7 +1157,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       maxCount: 5,
       defaultRate: 3,
       activeColor: Colors.RATE_ACTIVE,
-      inactiveColor: "#D6D6D6",
+      inactiveColor: Colors.RATE_INACTIVE,
       size: "LARGE",
       isRequired: false,
       isAllowHalf: false,

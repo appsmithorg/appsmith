@@ -138,7 +138,7 @@ export default [
       {
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
-        placeholderText: '[{ "x": "2021", "y": "940000" }]',
+        placeholderText: '[{ "x": "2021", "y": "94000" }]',
         label: "Chart Series",
         controlType: "CHART_DATA",
         isBindProperty: false,
