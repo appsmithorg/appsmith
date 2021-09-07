@@ -77,6 +77,7 @@ export type SnippetBody = {
   summary: string;
   template: string;
   snippetMeta?: string;
+  shortTitle?: string;
 };
 
 export type SnippetArgument = {
