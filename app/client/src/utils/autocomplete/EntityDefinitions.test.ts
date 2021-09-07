@@ -44,6 +44,8 @@ describe("EntityDefinitions", () => {
       gridGap: "number",
       items: "?",
       listData: "?",
+      pageNo: "?",
+      pageSize: "?",
     };
 
     expect(listWidgetEntityDefinitions).toStrictEqual(output);
