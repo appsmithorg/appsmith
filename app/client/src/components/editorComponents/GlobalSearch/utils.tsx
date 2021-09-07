@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import getFeatureFlags from "utils/featureFlags";
 import { modText } from "./HelpBar";
+import { WidgetType } from "constants/WidgetConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -78,6 +80,24 @@ export type SnippetBody = {
   template: string;
   snippetMeta?: string;
   shortTitle?: string;
+};
+
+export type FilterEntity = WidgetType | ENTITY_TYPE;
+
+//holds custom labels for snippet filters.
+export const SnippetFilterLabel: Partial<Record<FilterEntity, string>> = {
+  DROP_DOWN_WIDGET: "Dropdown",
+};
+
+export const getSnippetFilterLabel = (label: string) => {
+  return (
+    SnippetFilterLabel[label as FilterEntity] ||
+    label
+      .toLowerCase()
+      .replace("_widget", "")
+      .replace("-plugin", "")
+      .replaceAll(/_|-/g, " ")
+  );
 };
 
 export type SnippetArgument = {
