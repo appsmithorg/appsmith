@@ -1165,7 +1165,7 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        String query = "INSERT INTO users (id, username, password, email, dob) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date)";
+        String query = "INSERT INTO users (id, username, password, email, dob, rating) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date, {{rating}})";
         actionConfiguration.setBody(query);
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -1179,6 +1179,7 @@ public class PostgresPluginTest {
         params.add(new Param("lastName", "LastName"));
         params.add(new Param("email", "email@email.com"));
         params.add(new Param("date", "2018-12-31"));
+        params.add(new Param("rating", String.valueOf(5.1)));
         executeActionDTO.setParams(params);
 
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
@@ -1209,7 +1210,7 @@ public class PostgresPluginTest {
                             case "email@email.com" :
                                 assertEquals(psParameter.getType(), "STRING");
                                 break;
-                            case "2018-12-31" :
+                            case "2018-12-31":
                                 assertEquals(psParameter.getType(), "DATE");
                                 break;
                         }
@@ -1217,6 +1218,15 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" WHERE id=10;");
+        final ActionExecutionResult actionExecutionResult = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
+        // Check that precision for decimal value is maintained
+        assert actionExecutionResult != null;
+        final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+        Assert.assertEquals("5.1", node.get("rating").asText());
 
         // Delete the newly added row to not affect any other test case
         actionConfiguration.setBody("DELETE FROM users WHERE id = 10");
