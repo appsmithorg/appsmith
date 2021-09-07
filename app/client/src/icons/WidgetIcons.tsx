@@ -7,6 +7,7 @@ import { ReactComponent as ContainerIcon } from "assets/icons/widget/container.s
 import { ReactComponent as DatePickerIcon } from "assets/icons/widget/datepicker.svg";
 import { ReactComponent as TableIcon } from "assets/icons/widget/table.svg";
 import { ReactComponent as VideoIcon } from "assets/icons/widget/video.svg";
+import { ReactComponent as AudioIcon } from "assets/icons/widget/audio.svg";
 import { ReactComponent as DropDownIcon } from "assets/icons/widget/dropdown.svg";
 import { ReactComponent as MultiSelectIcon } from "assets/icons/widget/multiselect.svg";
 import { ReactComponent as CheckboxIcon } from "assets/icons/widget/checkbox.svg";
@@ -38,7 +39,7 @@ export const WidgetIcons: {
 } = {
   AUDIO_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
-      <VideoIcon />
+      <AudioIcon />
     </IconWrapper>
   ),
   SPINNER_WIDGET: (props: IconProps) => (
