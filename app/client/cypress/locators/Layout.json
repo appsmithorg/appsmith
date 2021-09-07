@@ -7,5 +7,11 @@
     "tabDelete": ".t--property-control-tabs  .t--delete-tab-btn",
     "tabContainer": "div[type='TABS_WIDGET']",
     "tabEdit": ".t--property-control-tabs .t--edit-column-btn",
-    "tabVisibility": ".t--property-control-visible .bp3-control-indicator"
+    "tabVisibility": ".t--property-control-visible .bp3-control-indicator",
+    "toggleOnTabSelected": ".t--property-control-ontabselected .t--js-toggle",
+    "collapseGeneral":".t--property-pane-section-collapse-general [data-icon='chevron-right']",
+    "collapseAction":".t--property-pane-section-collapse-actions [data-icon='chevron-right']",
+    "tabsInPropertypane":".t--property-control-tabs",
+    "sectionAction":".t--property-pane-section-actions",
+    "showTabsCheckbox": ".t--property-control-showtabs input[type='checkbox']"
 }

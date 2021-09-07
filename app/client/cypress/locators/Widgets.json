@@ -127,5 +127,8 @@
     "tbIndex0": "[class=td][data-colindex='0'][data-rowindex='0']",
     "filterApplyBtn":".t--apply-filter-btn",
     "filterCloseBtn":".t--close-filter-btn",
-    "header":"#header-root"
+    "header":"#header-root",
+    "collapseGeneral":".t--property-pane-section-collapse-general [data-icon='chevron-right']",
+    "collapseAction":".t--property-pane-section-collapse-actions [data-icon='chevron-right']",
+    "sectionAction":".t--property-pane-section-actions"
 }
