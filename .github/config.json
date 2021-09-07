@@ -537,6 +537,21 @@
                 "type": "hasLabel",
                 "label": "New Integration",
                 "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "JSEditor",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "JSSnippets",
+                "value": true
+              },
+              {
+                "type": "hasLabel",
+                "label": "JSLinting&Error",
+                "value": true
               }
             ]
           },
