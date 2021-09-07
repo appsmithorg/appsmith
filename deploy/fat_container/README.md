@@ -1,36 +1,57 @@
 
-# I. Getting started
-You can begin using appsmith via our cloud instance or by deploying appsmith yourself
+# Appsmith Fat Container
 
-* [Using Appsmith Cloud](quick-start.md#appsmith-cloud) **\(recommended\):** Create a new application with just one click
-* [Using Docker](quick-start.md#docker): Deploy anywhere using docker
+The fat container is a Docker image built with all the components required for Appsmith to run, within a single Docker container. Files in this directory make up for the scripts and template files needed for building the image.
+
+You may choose to use the Appsmith cloud instance (at [app.appsmith.com](https://app.appsmith.com)) or start your own using thie fat-container.
 
 ## Appsmith Cloud
 
 The fastest way to get started with appsmith is using our cloud-hosted version. It's as easy as
 
 1. [Create an Account](https://app.appsmith.com/user/signup)
-2. [Start Building](core-concepts/building-the-ui/)
+2. [Docs on Building a UI](https://docs.appsmith.com/core-concepts/dynamic-ui)
 
-# II. Setup Appsmith use fat container
-## 1. Prerequisites
-- Ensure `docker` and `docker-compose` is installed and currently running:
-	- Install Docker: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
-	- Install Docker Compose: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
-## 2. Step to setup
-- 1. Create `docker-compose.yaml` and copy the following content into it
+## Self Host
+
+The following subsections describe how you can get started with _your own_ instance of Appsmith.
+
+### 1. Prerequisites
+
+Ensure `docker` and `docker-compose` are installed and available for starting containers:
+
+- Install Docker: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
+- Install Docker Compose: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
+
+You may verify the installation by running `docker --version` and `docker-compose --version`. The output should roughly be something like below:
+
+```sh
+$ docker --version
+Docker version 20.10.7, build f0df350
+$ docker-compose --version
+docker-compose version 1.29.2, build 5becea4c
 ```
+
+### 2. Docker compose configuration
+
+Create a folder called `appsmith` or some other, which will server as our installation folder. Inside this folder, create a `docker-compose.yml` file and copy the following content into it:
+
+```yaml
 version: "3"
+
 services:
   appsmith:
-    image: appsmith_fat
-    container_name: appsmith_fat
+    image: appsmith/appsmith-fat
+    container_name: appsmith-fat
     ports:
       - "80:80"
       - "443:443"
       - "9001:9001"
     volumes:
       - ./stacks:/appsmith-stacks
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
   auto_update:
     image: containrrr/watchtower
     volumes:
@@ -38,20 +59,32 @@ services:
     # Update check interval in seconds.
     command: --interval 300 --label-enable --cleanup
 ```
-2. Start application
-```
+
+After saving this file, `cd` to the folder that contains this file and run the following command to start Appsmith:
+
+```sh
 docker-compose up -d
 ```
-- It takes several minutes to pull the docker image and initialize the application
-3. Check if application running correctly.
-```
-docker ps
-#Output should look like this
+
+This command may take a few minutes to download the docker image and initialize the application. Appsmith should soon be available at <http://localhost>.
+
+You can check if application is running correctly by running `docker ps` or `docker-compose ps` (running `docker-compose` will require you to be in the directory containing the `docker-compose.yml` file to work).
+
+```sh
+$ docker ps
 CONTAINER ID        IMAGE                             COMMAND                  CREATED             STATUS              PORTS                                      NAMES
 3b8f2c9638d0        appsmith/appsmith          "/opt/appsmith/entrypoint.sh"   17 minutes ago      Up 17 minutes       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   appsmith
 ```
-## 3. Custom Domain & Config application
-To host Appsmith on a custom domain, you can contact your domain registrar and update your DNS records. Most domain registrars have documentation on how you can do this yourself.
+
+You can also use the Supervisord UI to monitor and manage the different processes _inside_ the fat container. This is available at <http://localhost:9001>.
+
+<p>
+  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
+</p>
+
+## Custom Domain
+
+To make Appsmith available on a custom domain, please update your domain's DNS records to point to the instance running Appsmith. Most domain registrars / DNS-providers have documentation on how you can do this yourself.
 
 * [GoDaddy](https://in.godaddy.com/help/create-a-subdomain-4080)
 * [Amazon Route 53](https://aws.amazon.com/premiumsupport/knowledge-center/create-subdomain-route-53/)
@@ -59,46 +92,46 @@ To host Appsmith on a custom domain, you can contact your domain registrar and u
 * [NameCheap](https://www.namecheap.com/support/knowledgebase/article.aspx/9776/2237/how-to-create-a-subdomain-for-my-domain)
 * [Domain.com](https://www.domain.com/help/article/domain-management-how-to-update-subdomains)
 
-Then, you can update your custom domain from the application's configuration UI
-## 4. Instance Management Utilities
-> Fat container provide some utils to support you easy to maintenance application
-### 4.1 Export database
-Our container also supports exporting data from the internal database for backup or reuse purpose
+## Instance Management Utilities
 
-Export the internal database (You can use command `docker ps` to check the name or the ID of container)
-```
-docker exec appsmith_fat appsmith export_db
-```
-The output file will be stored in mounted directory `<mount-point-path>/data/backup/data.archive` 
+The fat container includes an `appsmith` command to help with the management and maintenance of your instance. The following subsections describe what's available.
 
-In case of you have changed the mounted point in the docker-compose file, please change the prefix `./deploy/fat_container/stacks` to the correct one
+### Export database
 
-Now, you can use this output file as a backup or as a migration file 
-### 4.2 Import database
-It is also available to import data from another database into application's internal database
+The following command can be used to take a backup dump of Appsmith's database. This can be restored onto another instance using the import command (discussed below) to restore all data.
 
-First of all, you need to copy or move the gzip file to the container's mounted folder `<mount-point-path>/data/restore/data.archive` 
-(*Note: file name must be `data.archive` to ensure the absolute path works as expected*)
+Before running this, ensure you are in the directory where `docker-compose.yml` is located.
 
-Or you can copy directly to the running container using `docker cp` command
-```
-docker cp <path-to-file/data.archive> appsmith_fat:/appsmith-stacks/data/restore
+```sh
+docker-compose exec appsmith-fat appsmith export_db
 ```
 
-Then, simply run following command to import data to internal database
-```
-docker exec appsmith_fat appsmith import_db
-```
-### 4.3 Supervisord UI
-To manage the application's processes using supervisord, you can use the supervisord UI
+The output file will be stored in the container directory `/appsmith-stacks/data/backup/data.archive`. Thanks to the volume configuration in the `docker-compose.yml` file, it should be available on your host machine at `./stacks/data/backup/data.archive`.
 
-You can use the browser to access port `9001` of the host (`http://localhost:9001` if you run the container on your local machine)
-<p>
-  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
-</p>
+If your volume configuration is different or unavailable, you can use the following command to copy the archive file to your host disk:
 
-In this UI, you can manage your application's process. You should stop application's service (MongoDB, Redis) in case of using external service
+```sh
+docker-compose cp appsmith-fat:/appsmith-stacks/data/backup/data.archive data.archive
+```
+
+Note that you may want to save the `docker.env` file in addition to this archive file, if you intend to be able to reproduce this environment elsewhere, or in case of a disaster.
+
+### Import database
+
+The following command can restore backup archive, that was produced by the export command (discussed above).
+
+First, copy the archive file into the container using the following command:
+
+```sh
+docker-compose cp ./data.archive appsmith-fat:/appsmith-stacks/data/restore/data.archive
+```
+
+Second, run the following command to import data from this file:
+
+```
+docker-compose exec appsmith-fat appsmith import_db
+```
+
 ## Troubleshooting
-If at any time you encounter an error during the installation process, reach out to **support@appsmith.com** or join our [Discord Server](https://discord.com/invite/rBTTVJp)
 
-If you know the error and would like to reinstall Appsmith, simply delete the installation folder and the templates folder and execute the script again
+If you encounter any errors during this process, please reach out to [**support@appsmith.com**](mailto:support@appsmith.com) or join our [Discord Server](https://discord.com/invite/rBTTVJp) and reach out on the #support channel.
