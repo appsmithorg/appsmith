@@ -1412,8 +1412,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     [WidgetTypes.IMAGE_ANNOTATOR_WIDGET]: {
-      rows: 4 * GRID_DENSITY_MIGRATION_V1,
-      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      rows: 11 * GRID_DENSITY_MIGRATION_V1,
+      columns: 12.5 * GRID_DENSITY_MIGRATION_V1,
       imageUrl: "https://placekitten.com/408/287",
       isDisabled: false,
       isVisible: true,

@@ -1,5 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import ReactImageAnnotate from "react-image-annotate";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 
@@ -16,9 +19,26 @@ export interface ImageAnnotatorComponentProps extends ComponentProps {
 function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
   const { imageUrl } = props;
 
+  const images = [
+    {
+      src: imageUrl,
+      regions: [],
+    },
+  ];
+
+  const regionClsList = [""];
+
+  const handleExit = (data: any) => {
+    console.error(data);
+  };
+
   return (
     <ImageAnnotatorContainer>
-      {"Image Annotator Widget"}
+      <ReactImageAnnotate
+        images={images}
+        onExit={handleExit}
+        regionClsList={regionClsList}
+      />
     </ImageAnnotatorContainer>
   );
 }
