@@ -222,10 +222,10 @@ function AddCommentInput({
     initialEditorState || EditorState.createEmpty(),
   );
 
-  const setEditorState = useCallback((editorState: EditorState) => {
-    setEditorStateInState(editorState);
+  const setEditorState = useCallback((updatedEditorState: EditorState) => {
+    setEditorStateInState(updatedEditorState);
     if (typeof onChange === "function") {
-      onChange(editorState);
+      onChange(updatedEditorState);
     }
   }, []);
 
