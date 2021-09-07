@@ -323,3 +323,7 @@ export const updateThreadDraftComment = (
   type: ReduxActionTypes.UPDATE_THREAD_DRAFT_COMMENT,
   payload: { editorState, threadId },
 });
+
+export const fetchCommentThreadsInit = () => ({
+  type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
+});

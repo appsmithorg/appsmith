@@ -166,3 +166,6 @@ export const getUnpublishedThreadDraftComment = (state: AppState) =>
 
 export const getDraftComments = (state: AppState) =>
   state.ui.comments.draftComments;
+
+export const getCommentThreadsFetched = (state: AppState) =>
+  state.ui.comments.commentThreadsFetched;

@@ -44,6 +44,7 @@ const initialState: CommentsReduxState = {
   dragPointerOffset: null,
   draftComments: {},
   unpublishedThreadDraftComment: null,
+  commentThreadsFetched: false,
 };
 
 /**
@@ -319,6 +320,12 @@ const commentsReducer = createReducer(initialState, {
       ...state.draftComments,
       [action.payload.threadId]: action.payload.editorState,
     },
+  }),
+  [ReduxActionTypes.FETCH_COMMENT_THREADS_INIT]: (
+    state: CommentsReduxState,
+  ) => ({
+    ...state,
+    commentThreadsFetched: false,
   }),
 });
 

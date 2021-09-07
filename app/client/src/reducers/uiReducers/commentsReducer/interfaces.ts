@@ -22,4 +22,5 @@ export interface CommentsReduxState {
   } | null;
   unpublishedThreadDraftComment: EditorState | null;
   draftComments: Record<string, EditorState>;
+  commentThreadsFetched: boolean;
 }
