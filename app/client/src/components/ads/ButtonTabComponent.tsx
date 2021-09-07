@@ -13,7 +13,7 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
       ? props.theme.colors.propertyPane.activeButtonText
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
-  &:first-of-type {
+  & {
     margin-right: 4px;
   }
   &&& svg {

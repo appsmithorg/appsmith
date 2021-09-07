@@ -48,6 +48,7 @@ import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
+import { initSocketConnection } from "actions/websocketActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -96,6 +97,7 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      yield put(initSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME

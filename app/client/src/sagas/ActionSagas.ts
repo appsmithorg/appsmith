@@ -50,7 +50,10 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Action, ActionViewMode, PluginType } from "entities/Action";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -108,6 +111,7 @@ import {
   onApiEditor,
   onQueryEditor,
 } from "components/editorComponents/Debugger/helpers";
+import { Plugin } from "api/PluginApi";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -871,6 +875,11 @@ function* executeCommand(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
         ),
       );
+      yield put(
+        setGlobalSearchFilterContext({
+          insertSnippet: true,
+        }),
+      );
       const effectRaceResult = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
@@ -888,8 +897,8 @@ function* executeCommand(
     case "NEW_QUERY":
       const datasource = get(actionPayload, "payload.args.datasource");
       const pluginId = get(datasource, "pluginId");
-      const plugin = yield select(getPlugin, pluginId);
-      const actions = yield select(getActions);
+      const plugin: Plugin = yield select(getPlugin, pluginId);
+      const actions: ActionDataState = yield select(getActions);
       const pageActions = actions.filter(
         (a: ActionData) => a.config.pageId === pageId,
       );

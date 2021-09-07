@@ -3,12 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import {
-  getSortedAndFilteredAppCommentThreadIds,
-  applicationCommentsSelector,
   allCommentThreadsMap,
-  getAppCommentThreads,
-  shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
+  applicationCommentsSelector,
+  getAppCommentThreads,
+  getSortedAndFilteredAppCommentThreadIds,
+  shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -30,6 +30,33 @@ const Container = styled.div`
   overflow: auto;
 `;
 
+export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
+  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
+  const appCommentsFilter = useSelector(appCommentsFilterSelector);
+
+  const currentUser = useSelector(getCurrentUser);
+  const currentUsername = currentUser?.username;
+
+  return useMemo(
+    () =>
+      getSortedAndFilteredAppCommentThreadIds(
+        commentThreadIds,
+        commentThreadsMap,
+        shouldShowResolved,
+        appCommentsFilter,
+        currentUsername,
+      ),
+    [
+      commentThreadIds,
+      commentThreadsMap,
+      shouldShowResolved,
+      appCommentsFilter,
+      currentUsername,
+    ],
+  );
+};
+
 function AppCommentThreads() {
   const dispatch = useDispatch();
   const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
@@ -38,30 +65,8 @@ function AppCommentThreads() {
     applicationCommentsSelector(applicationId),
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
-  const commentThreadsMap = useSelector(allCommentThreadsMap);
-  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
-  const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
-  const currentUser = useSelector(getCurrentUser);
-  const currentUsername = currentUser?.username;
-
-  const commentThreadIds = useMemo(
-    () =>
-      getSortedAndFilteredAppCommentThreadIds(
-        appCommentThreadIds,
-        commentThreadsMap,
-        shouldShowResolved,
-        appCommentsFilter,
-        currentUsername,
-      ),
-    [
-      appCommentThreadIds,
-      commentThreadsMap,
-      shouldShowResolved,
-      appCommentsFilter,
-      currentUsername,
-    ],
-  );
+  const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
 
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
