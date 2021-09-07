@@ -58,6 +58,7 @@ export interface ChartComponentProps {
   chartType: ChartType;
   customFusionChartConfig: CustomFusionChartConfig;
   isVisible?: boolean;
+  setAdaptiveYMin: boolean;
   labelOrientation?: LabelOrientation;
   onDataPointClick: (selectedDataPoint: ChartSelectedDataPoint) => void;
   widgetId: string;
@@ -279,6 +280,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionAlignment: "left",
       captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
+      setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 
     if (isLabelOrientationApplicableFor(this.props.chartType)) {
@@ -326,6 +328,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           chart: {
             ...config.dataSource.chart,
             caption: this.props.chartName || config.dataSource.chart.caption,
+            setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
           },
         },
       };

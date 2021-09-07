@@ -35,6 +35,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 
 
@@ -155,9 +156,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
                     // Error message : E11000 duplicate key error collection: appsmith.application index:
-                    // organization_application_deleted_compound_index dup key:
+                    // organization_application_deleted_gitRepo_gitBranch_compound_index dup key:
                     // { organizationId: "******", name: "AppName", deletedAt: null }
-                    if (error.getCause().getMessage().contains("name:")) {
+                    if (error.getCause().getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
                         return Mono.error(
                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                         );
@@ -301,4 +302,18 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    /**
+     * Sets the updatedAt and modifiedBy fields of the Application
+     * @param applicationId Application ID
+     * @return Application Mono of updated Application
+     */
+    @Override
+    public Mono<Application> saveLastEditInformation(String applicationId) {
+        Application application = new Application();
+        /*
+          We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
+          by the updateById method of the BaseAppsmithRepositoryImpl
+         */
+        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
+    }
 }

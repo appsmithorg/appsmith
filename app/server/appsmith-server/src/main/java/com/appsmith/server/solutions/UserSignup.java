@@ -218,7 +218,7 @@ public class UserSignup {
 
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
-                            configService.save(ConfigNames.COMPANY_NAME, Map.of("value", userFromRequest.getCompanyName())),
+                            configService.save(ConfigNames.USE_CASE, Map.of("value", userFromRequest.getUseCase())),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });
@@ -239,8 +239,8 @@ public class UserSignup {
                     if (formData.containsKey("role")) {
                         user.setRole(formData.getFirst("role"));
                     }
-                    if (formData.containsKey("companyName")) {
-                        user.setCompanyName(formData.getFirst("companyName"));
+                    if (formData.containsKey("useCase")) {
+                        user.setUseCase(formData.getFirst("useCase"));
                     }
                     if (formData.containsKey("allowCollectingAnonymousData")) {
                         user.setAllowCollectingAnonymousData("true".equals(formData.getFirst("allowCollectingAnonymousData")));
