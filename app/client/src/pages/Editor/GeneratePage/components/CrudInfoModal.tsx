@@ -162,12 +162,10 @@ function GenCRUDSuccessModal(props: Props) {
     createMessage(GEN_CRUD_INFO_DIALOG_SUBTITLE);
 
   useEffect(() => {
-    let isMounted = true;
     const timerId = setTimeout(() => {
-      if (isMounted) setStep(STEP.SHOW_INFO);
+      setStep(STEP.SHOW_INFO);
     }, 2000);
     return () => {
-      isMounted = false;
       if (timerId) clearTimeout(timerId);
     };
   }, [setStep]);
