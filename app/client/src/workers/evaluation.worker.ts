@@ -116,7 +116,12 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          fullPropertyPath,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -125,10 +130,12 @@ ctx.addEventListener(
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
         const {
           errors: evalErrors,
+          result,
           triggers,
         }: {
           errors: EvaluationError[];
           triggers: Array<any>;
+          result: any;
         } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
@@ -136,6 +143,7 @@ ctx.addEventListener(
           EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
+          fullPropertyPath,
         );
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
@@ -149,7 +157,7 @@ ctx.addEventListener(
             message: error.errorMessage,
             type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
           }));
-        return { triggers: cleanTriggers, errors };
+        return { triggers: cleanTriggers, errors, result };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -238,7 +246,13 @@ ctx.addEventListener(
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
         const path = collectionName + "." + action.name + "()";
-        const { result } = evaluate(path, evalTree, resolvedFunctions);
+        const { result } = evaluate(
+          path,
+          evalTree,
+          resolvedFunctions,
+          undefined,
+          true,
+        );
         return result;
       }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:

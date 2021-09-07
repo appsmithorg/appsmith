@@ -191,15 +191,18 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
-  const results = yield call(
+  const unEvalTree = yield select(getUnevaluatedDataTree);
+  const dynamicTrigger = collectionName + "." + action.name + "()";
+
+  const workerResponse = yield call(
     worker.request,
-    EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION,
-    {
-      collectionName,
-      action,
-    },
+    EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
+    { dataTree: unEvalTree, dynamicTrigger, fullPropertyPath: dynamicTrigger },
   );
-  return results;
+
+  const { errors, result, triggers } = workerResponse;
+  yield call(evalErrorHandler, errors);
+  return { triggers, result };
 }
 
 /**

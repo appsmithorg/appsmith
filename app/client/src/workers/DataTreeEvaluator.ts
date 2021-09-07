@@ -623,7 +623,15 @@ export default class DataTreeEvaluator {
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
+    let entity;
+    if (fullPropertyPath) {
+      const entityName = fullPropertyPath.split(".")[0];
+      entity = data[entityName];
+    }
+    const { jsSnippets, stringSegments } = getDynamicBindings(
+      dynamicBinding,
+      entity,
+    );
     if (returnTriggers) {
       return this.evaluateDynamicBoundValue(
         jsSnippets[0],
