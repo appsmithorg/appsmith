@@ -81,7 +81,7 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
-          logs = logs.concat(replayDSL?.logs);
+          if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
           replayDSL?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
@@ -212,5 +212,3 @@ ctx.addEventListener(
     }
   }),
 );
-
-export default ctx;

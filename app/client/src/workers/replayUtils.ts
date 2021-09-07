@@ -1,4 +1,4 @@
-import { set, isString, has } from "lodash";
+import { get, set, isString } from "lodash";
 import { Diff } from "deep-diff";
 
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -58,9 +58,8 @@ export function processDiff(
           !isUndo,
         );
         addToArray(replay, TOASTS, toast);
-      } else if (!has(replay, [WIDGETS, widgetId, UPDATES])) {
-        set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
-        set(replay, UPDATES, true);
+      } else {
+        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
       break;
     // element is deleted in dsl
@@ -74,9 +73,8 @@ export function processDiff(
           isUndo,
         );
         addToArray(replay, TOASTS, toast);
-      } else if (!has(replay, [WIDGETS, widgetId, UPDATES])) {
-        set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
-        set(replay, UPDATES, true);
+      } else {
+        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
       break;
     // element is edited
@@ -87,8 +85,7 @@ export function processDiff(
       if (isPositionUpdate(diff.path[diff.path.length - 1])) {
         set(replay, [WIDGETS, widgetId, FOCUSES], true);
       } else {
-        set(replay, [WIDGETS, widgetId, UPDATES], diff.path);
-        set(replay, UPDATES, true);
+        setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
       break;
     default:
@@ -130,6 +127,23 @@ function createToast(
  */
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
+}
+
+/**
+ * checks the existing value and sets he propertyUpdate if required
+ *
+ * @param replay
+ * @param path
+ * @param value
+ * @returns
+ */
+function setPropertyUpdate(replay: any, path: string[], value: string[]) {
+  const existingPathValue = get(replay, path);
+
+  if (!existingPathValue || existingPathValue.length > 2) {
+    set(replay, path, value);
+    set(replay, UPDATES, true);
+  }
 }
 
 /**

@@ -80,6 +80,8 @@ export default class ReplayDSL {
       this.logs.push({
         log: `replay ${replayType}`,
         undoTime: `${stop - start} ms`,
+        replay: replay,
+        diffs: diffs,
       });
 
       return {

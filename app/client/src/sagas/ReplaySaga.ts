@@ -1,7 +1,9 @@
 import { takeEvery, put, select } from "redux-saga/effects";
 
-import { undoRedoSaga } from "./EvaluationsSaga";
+import * as Sentry from "@sentry/react";
+import log from "loglevel";
 
+import { undoRedoSaga } from "./EvaluationsSaga";
 import {
   getIsPropertyPaneVisible,
   getCurrentWidgetId,
@@ -11,7 +13,7 @@ import {
   forceOpenPropertyPane,
 } from "actions/widgetActions";
 import {
-  selectMultipleWidgetsAction,
+  selectMultipleWidgetsInitAction,
   selectWidgetAction,
 } from "actions/widgetSelectionActions";
 import {
@@ -32,50 +34,75 @@ export default function* undoRedoListenerSaga() {
   yield takeEvery(ReduxActionTypes.UNDO_REDO_OPERATION, undoRedoSaga);
 }
 
+/**
+ * This Saga is called if the type of update is a property change
+ * @param replay
+ * @returns
+ */
 export function* openPropertyPaneSaga(replay: any) {
-  const replayWidgetId = Object.keys(replay.widgets)[0];
+  try {
+    const replayWidgetId = Object.keys(replay.widgets)[0];
 
-  if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
-    return;
+    if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
+      return;
 
-  scrollWidgetIntoView(replayWidgetId);
+    scrollWidgetIntoView(replayWidgetId);
 
-  const isPropertyPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
-  const selectedWidgetId: string = yield select(getCurrentWidgetId);
+    const isPropertyPaneVisible: boolean = yield select(
+      getIsPropertyPaneVisible,
+    );
+    const selectedWidgetId: string = yield select(getCurrentWidgetId);
 
-  let flashTimeout = 500;
+    //if property pane is not visible, select the widget and force open property pane
+    if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
+      yield put(selectWidgetAction(replayWidgetId, false));
+      yield put(forceOpenPropertyPane(replayWidgetId));
+    }
 
-  if (selectedWidgetId !== replayWidgetId || !isPropertyPaneVisible) {
-    yield put(selectWidgetAction(replayWidgetId, false));
-    yield put(forceOpenPropertyPane(replayWidgetId));
-    flashTimeout = 1000;
+    flashElementsById(
+      btoa(
+        replay.widgets[replayWidgetId].propertyUpdates.slice(0, 2).join("."),
+      ),
+      0,
+      1000,
+      "#E0DEDE",
+    );
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
   }
-
-  flashElementsById(
-    btoa(replay.widgets[replayWidgetId].propertyUpdates.join(".")),
-    0,
-    flashTimeout,
-    "#E0DEDE",
-  );
 }
 
+/**
+ * This saga is called when type of chenge is not a property Change
+ * @param replay
+ * @returns
+ */
 export function* postUndoRedoSaga(replay: any) {
-  const isPropertyPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
+  try {
+    const isPropertyPaneVisible: boolean = yield select(
+      getIsPropertyPaneVisible,
+    );
 
-  if (isPropertyPaneVisible) yield put(closePropertyPane());
+    if (isPropertyPaneVisible) yield put(closePropertyPane());
 
-  if (replay.toasts && replay.toasts.length > 0) {
-    processUndoRedoToasts(replay.toasts);
+    // display toasts if it is a destructive operation
+    if (replay.toasts && replay.toasts.length > 0) {
+      processUndoRedoToasts(replay.toasts);
+    }
+
+    if (!replay.widgets || Object.keys(replay.widgets).length <= 0) return;
+
+    const widgetIds = Object.keys(replay.widgets);
+
+    if (widgetIds.length > 1) {
+      yield put(selectMultipleWidgetsInitAction(widgetIds));
+    } else {
+      yield put(selectWidgetAction(widgetIds[0], false));
+    }
+    scrollWidgetIntoView(widgetIds[0]);
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
   }
-
-  if (!replay.widgets || Object.keys(replay.widgets).length <= 0) return;
-
-  const widgetIds = Object.keys(replay.widgets);
-
-  if (widgetIds.length > 1) {
-    yield put(selectMultipleWidgetsAction(widgetIds));
-  } else {
-    yield put(selectWidgetAction(widgetIds[0], false));
-  }
-  scrollWidgetIntoView(widgetIds[0]);
 }

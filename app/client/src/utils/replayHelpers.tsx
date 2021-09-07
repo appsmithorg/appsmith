@@ -55,6 +55,8 @@ export const processUndoRedoToasts = (
     flashElementsById(
       undoRedoToasts.map((toast) => toast.widgetId),
       100,
+      1000,
+      "#E0DEDE",
     );
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };

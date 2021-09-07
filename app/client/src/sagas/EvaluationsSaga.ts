@@ -201,39 +201,43 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 
   // if the app is in snipping or comments mode, don't do anything
   if (isCommentMode || isSnipingMode) return;
+  try {
+    const workerResponse: any = yield call(
+      worker.request,
+      action.payload.operation,
+      {},
+    );
 
-  const workerResponse: any = yield call(
-    worker.request,
-    action.payload.operation,
-    {},
-  );
+    // if there is no change, then don't do anything
+    if (!workerResponse) return;
 
-  // if there is no change, then don't do anything
-  if (!workerResponse) return;
+    const {
+      event,
+      logs,
+      paths,
+      replay,
+      replayWidgetDSL,
+      timeTaken,
+    } = workerResponse;
 
-  const {
-    event,
-    logs,
-    paths,
-    replay,
-    replayWidgetDSL,
-    timeTaken,
-  } = workerResponse;
+    logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
-  logs && logs.forEach((evalLog: any) => log.debug(evalLog));
+    const isPropertyUpdate =
+      replay.widgets &&
+      replay.propertyUpdates &&
+      Object.keys(replay.widgets).length <= 1;
 
-  const isPropertyUpdate =
-    replay.widgets &&
-    replay.propertyUpdates &&
-    Object.keys(replay.widgets).length <= 1;
+    AnalyticsUtil.logEvent(event, { paths, timeTaken });
 
-  AnalyticsUtil.logEvent(event, { paths, timeTaken });
+    if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
 
-  if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
+    yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
 
-  yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
-
-  if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+    if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
 }
 
 export function* clearEvalPropertyCache(propertyPath: string) {
