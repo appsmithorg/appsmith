@@ -9,3 +9,5 @@ export const getCurrentGitBranch = () => "master";
 
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
+
+export const currentGitBranch = () => "master";
