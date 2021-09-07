@@ -16,7 +16,6 @@ import {
 } from "actions/commentActions";
 import {
   commentModeSelector,
-  areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -325,7 +324,6 @@ const useShowCommentDiscoveryTooltip = (): [boolean, typeof noop] => {
 
 export const useHideComments = () => {
   const [shouldHide, setShouldHide] = useState(false);
-  const commentsEnabled = useSelector(areCommentsEnabledForUserAndAppSelector);
   const location = useLocation();
   useEffect(() => {
     const pathName = window.location.pathname;
@@ -333,7 +331,7 @@ export const useHideComments = () => {
     setShouldHide(!shouldShow);
   }, [location]);
 
-  return !commentsEnabled || shouldHide;
+  return shouldHide;
 };
 
 type ToggleCommentModeButtonProps = {
