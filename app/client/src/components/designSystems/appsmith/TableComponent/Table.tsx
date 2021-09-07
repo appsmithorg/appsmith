@@ -75,8 +75,6 @@ interface TableProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
@@ -218,7 +216,6 @@ export function Table(props: TableProps) {
     props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
-    props.isVisibleCompactMode ||
     props.isVisiblePagination;
 
   return (
@@ -253,11 +250,9 @@ export function Table(props: TableProps) {
               <TableHeader
                 applyFilter={props.applyFilter}
                 columns={tableHeadercolumns}
-                compactMode={props.compactMode}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
                 filters={props.filters}
-                isVisibleCompactMode={props.isVisibleCompactMode}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
@@ -274,7 +269,6 @@ export function Table(props: TableProps) {
                 tableData={props.data}
                 tableSizes={tableSizes}
                 totalRecordsCount={props.totalRecordsCount}
-                updateCompactMode={props.updateCompactMode}
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}

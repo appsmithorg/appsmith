@@ -122,6 +122,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
         delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
@@ -171,6 +172,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       triggerPaths: {
         onRowSelected: true,
         onPageChange: true,
+        onRowUpdate: true,
         onSearchTextChanged: true,
         onSort: true,
         onPageSizeChange: true,
@@ -247,6 +249,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           key: "chartData.random-id.data",
         },
       ],
+      setAdaptiveYMin: "0",
     };
     const config = chartPorpertyConfig;
 
@@ -259,6 +262,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,
@@ -313,6 +317,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         isVisible: {
+          type: "BOOLEAN",
+        },
+        setAdaptiveYMin: {
           type: "BOOLEAN",
         },
         xAxisName: {
