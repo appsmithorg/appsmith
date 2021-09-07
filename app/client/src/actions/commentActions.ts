@@ -303,3 +303,7 @@ export const setHasDroppedCommentThread = () => ({
   type: ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD,
   payload: {},
 });
+
+export const fetchCommentThreadsInit = () => ({
+  type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
+});
