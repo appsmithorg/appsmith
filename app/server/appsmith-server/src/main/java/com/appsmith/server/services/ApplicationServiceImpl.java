@@ -30,6 +30,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -340,9 +341,21 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         applicationDto.setGitApplicationMetadata(new GitApplicationMetadata());
         applicationDto.getGitApplicationMetadata().setGitAuth(gitAuth);
 
-        return repository
-                .updateById(applicationId, applicationDto, MANAGE_APPLICATIONS)
-                .thenReturn(gitAuth.getPublicKey());
+        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)))
+                .map(application -> {
+                    String targetApplicationId = application.getId(); // by default, we'll update the provided app
+                    if(application.getGitApplicationMetadata() != null
+                            && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+                        // this is a child application, update the master application
+                        targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
+                    }
+                    return targetApplicationId;
+                })
+                .flatMap(targetApplicationId -> repository
+                        .updateById(targetApplicationId, applicationDto, MANAGE_APPLICATIONS)
+                        .thenReturn(gitAuth.getPublicKey())
+                );
     }
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
