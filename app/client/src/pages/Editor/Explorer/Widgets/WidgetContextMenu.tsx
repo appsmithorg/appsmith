@@ -8,9 +8,11 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
-import { updateWidgetPropertyRequest } from "actions/controlActions";
 import { WidgetTypes } from "constants/WidgetConstants";
-import { WidgetReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 
 export function WidgetContextMenu(props: {
   widgetId: string;
@@ -35,14 +37,13 @@ export function WidgetContextMenu(props: {
     // This is similar to deleting a tab from the property pane
     if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
       const tabsObj = { ...parentWidget.tabsObj };
-      delete tabsObj[widget.tabId];
       const filteredTabs = Object.values(tabsObj);
       if (widget.parentId && !!filteredTabs.length) {
-        dispatch(
-          updateWidgetPropertyRequest(widget.parentId, "tabsObj", tabsObj),
-        );
+        dispatch({
+          type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
+          payload: { ...tabsObj[widget.tabId] },
+        });
       }
-
       return;
     }
 
