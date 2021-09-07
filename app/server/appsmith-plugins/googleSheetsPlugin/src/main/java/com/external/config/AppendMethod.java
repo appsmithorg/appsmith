@@ -37,19 +37,19 @@ public class AppendMethod implements Method {
     @Override
     public boolean validateMethodRequest(MethodConfig methodConfig) {
         if (methodConfig.getSpreadsheetId() == null || methodConfig.getSpreadsheetId().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Spreadsheet Url");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Spreadsheet Url");
         }
         if (methodConfig.getSheetName() == null || methodConfig.getSheetName().isBlank()) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Missing required field Sheet name");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Missing required field Sheet name");
         }
         if (methodConfig.getTableHeaderIndex() != null && !methodConfig.getTableHeaderIndex().isBlank()) {
             try {
                 if (Integer.parseInt(methodConfig.getTableHeaderIndex()) <= 0) {
-                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                             "Unexpected value for table header index. Please use a number starting from 1");
                 }
             } catch (NumberFormatException e) {
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR,
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                         "Unexpected format for table header index. Please use a number starting from 1");
             }
         }

@@ -167,7 +167,12 @@ export type EventName =
   | "COMMENTS_ONBOARDING_MODAL_DISMISSED"
   | "COMMENTS_ONBOARDING_MODAL_TRIGGERED"
   | "REPLAY_UNDO"
-  | "REPLAY_REDO";
+  | "REPLAY_REDO"
+  | "SNIPPET_CUSTOMIZE"
+  | "SNIPPET_EXECUTE"
+  | "SNIPPET_FILTER"
+  | "SNIPPET_COPIED"
+  | "SNIPPET_CATEGORY_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
