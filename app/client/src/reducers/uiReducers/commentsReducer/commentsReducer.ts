@@ -179,11 +179,10 @@ const commentsReducer = createReducer(initialState, {
     state: CommentsReduxState,
     action: ReduxAction<{ threadId: string; shouldPersistThread: string }>,
   ) => {
-    let draftComments = state.draftComments;
+    const draftCommentsClone = { ...state.draftComments };
     const { shouldPersistThread, threadId } = action.payload;
     if (!shouldPersistThread) {
-      delete draftComments[threadId];
-      draftComments = { ...draftComments };
+      delete draftCommentsClone[threadId];
     }
 
     return {
@@ -196,7 +195,7 @@ const commentsReducer = createReducer(initialState, {
         threadId === state.visibleCommentThreadId
           ? ""
           : state.visibleCommentThreadId,
-      draftComments,
+      draftComments: draftCommentsClone,
     };
   },
   [ReduxActionTypes.SET_VISIBLE_THREAD]: (
