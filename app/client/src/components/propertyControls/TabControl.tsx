@@ -11,7 +11,7 @@ import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName, noop } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import _, { debounce, orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
 import { useDispatch } from "react-redux";
@@ -195,12 +195,13 @@ class TabControl extends BaseControl<ControlProps> {
     }> = _.isString(this.props.propertyValue)
       ? []
       : Object.values(this.props.propertyValue);
+
     return (
       <TabsWrapper>
         <DroppableComponent
           deleteOption={noop}
           itemHeight={45}
-          items={tabs}
+          items={orderBy(tabs, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
