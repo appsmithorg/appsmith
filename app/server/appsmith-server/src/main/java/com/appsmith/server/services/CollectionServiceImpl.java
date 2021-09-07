@@ -55,7 +55,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collectionId")))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .flatMap(collection1 -> {
                     List<NewAction> actions = collection1.getActions();
                     if (actions == null) {
@@ -87,7 +87,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
 
         return repository
                 .findById(collectionId)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "collectionId")))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.COLLECTION_ID)))
                 .zipWith(actionMono)
                 .flatMap(tuple -> {
                     Collection collection = tuple.getT1();
@@ -99,7 +99,7 @@ public class CollectionServiceImpl extends BaseService<CollectionRepository, Col
 
                     List<NewAction> actions = collection.getActions();
                     if (actions == null || actions.isEmpty()) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "actionId or collectionId"));
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID + " or " + FieldName.COLLECTION_ID));
                     }
                     ListIterator<NewAction> actionIterator = actions.listIterator();
                     while (actionIterator.hasNext()) {
