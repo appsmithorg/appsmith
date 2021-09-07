@@ -130,7 +130,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
               triggerPropertyName: "onEnd",
               dynamicString: onEnd,
               event: {
-                type: EventType.ON_VIDEO_END,
+                type: EventType.ON_AUDIO_END,
               },
             });
           }}
@@ -140,7 +140,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
               triggerPropertyName: "onPause",
               dynamicString: onPause,
               event: {
-                type: EventType.ON_VIDEO_PAUSE,
+                type: EventType.ON_AUDIO_PAUSE,
               },
             });
           }}
@@ -152,7 +152,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
                 triggerPropertyName: "onPlay",
                 dynamicString: onPlay,
                 event: {
-                  type: EventType.ON_VIDEO_PLAY,
+                  type: EventType.ON_AUDIO_PLAY,
                 },
               },
             );
