@@ -106,12 +106,12 @@ Before running this, ensure you are in the directory where `docker-compose.yml` 
 docker-compose exec appsmith-fat appsmith export_db
 ```
 
-The output file will be stored in the container directory `/appsmith-stacks/data/backup/data.archive`. Thanks to the volume configuration in the `docker-compose.yml` file, it should be available on your host machine at `./stacks/data/backup/data.archive`.
+The output file will be stored in the container directory `/appsmith-stacks/data/backup/appsmith-data.archive`. Thanks to the volume configuration in the `docker-compose.yml` file, it should be available on your host machine at `./stacks/data/backup/appsmith-data.archive`.
 
 If your volume configuration is different or unavailable, you can use the following command to copy the archive file to your host disk:
 
 ```sh
-docker-compose cp appsmith-fat:/appsmith-stacks/data/backup/data.archive data.archive
+docker-compose cp appsmith-fat:/appsmith-stacks/data/backup/appsmith-data.archive .
 ```
 
 Note that you may want to save the `docker.env` file in addition to this archive file, if you intend to be able to reproduce this environment elsewhere, or in case of a disaster.
@@ -123,7 +123,7 @@ The following command can restore backup archive, that was produced by the expor
 First, copy the archive file into the container using the following command:
 
 ```sh
-docker-compose cp ./data.archive appsmith-fat:/appsmith-stacks/data/restore/data.archive
+docker-compose cp ./appsmith-data.archive appsmith-fat:/appsmith-stacks/data/restore/
 ```
 
 Second, run the following command to import data from this file:
