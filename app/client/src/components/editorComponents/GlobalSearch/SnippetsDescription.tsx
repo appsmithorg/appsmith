@@ -36,7 +36,6 @@ import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
-import { ReactComponent as PlayIcon } from "assets/icons/menu/play-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -307,7 +306,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 <CopyIcon
                   onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
                 />
-                <PlayIcon onClick={handleRun} />
               </div>
             </div>
             <div className="snippet-group">
