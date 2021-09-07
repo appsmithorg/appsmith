@@ -14,7 +14,7 @@ import {
   DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
-import { RawDraftContentState } from "draft-js";
+import { EditorState, RawDraftContentState } from "draft-js";
 
 export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
@@ -39,9 +39,11 @@ export const createUnpublishedCommentThreadSuccess = (
   payload,
 });
 
-export const removeUnpublishedCommentThreads = () => ({
+export const removeUnpublishedCommentThreads = (
+  shouldPersistComment?: boolean,
+) => ({
   type: ReduxActionTypes.REMOVE_UNPUBLISHED_COMMENT_THREAD_REQUEST,
-  payload: null,
+  payload: { shouldPersistComment },
 });
 
 export const unsubscribeCommentThreadAction = (threadId: string) => ({
@@ -175,9 +177,12 @@ export const setAppCommentsFilter = (
   payload,
 });
 
-export const resetVisibleThread = (threadId?: string) => ({
+export const resetVisibleThread = (
+  threadId?: string,
+  shouldPersistComment?: boolean,
+) => ({
   type: ReduxActionTypes.RESET_VISIBLE_THREAD,
-  payload: threadId,
+  payload: { threadId, shouldPersistComment },
 });
 
 export const setVisibleThread = (threadId: string) => ({
@@ -302,4 +307,23 @@ export const setDraggingCommentThread = (
 export const setHasDroppedCommentThread = () => ({
   type: ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD,
   payload: {},
+});
+
+export const updateUnpublishedThreadDraftComment = (
+  editorState: EditorState,
+) => ({
+  type: ReduxActionTypes.UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT,
+  payload: editorState,
+});
+
+export const updateThreadDraftComment = (
+  editorState: EditorState,
+  threadId: string,
+) => ({
+  type: ReduxActionTypes.UPDATE_THREAD_DRAFT_COMMENT,
+  payload: { editorState, threadId },
+});
+
+export const fetchCommentThreadsInit = () => ({
+  type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
 });
