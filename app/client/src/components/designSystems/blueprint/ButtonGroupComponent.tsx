@@ -399,7 +399,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
             const { menuItems } = button;
 
             return (
-              <MenuButtonWrapper>
+              <MenuButtonWrapper key={button.id}>
                 <PopoverStyles />
                 <Popover2
                   content={
