@@ -1,7 +1,7 @@
 import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
-import { isString, uniqueId } from "lodash";
+import { isString } from "lodash";
 import {
   components,
   MenuListComponentProps,
