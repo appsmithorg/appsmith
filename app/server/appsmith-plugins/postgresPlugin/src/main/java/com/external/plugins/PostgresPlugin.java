@@ -142,7 +142,6 @@ public class PostgresPlugin extends BasePlugin {
                         "  and not a.attisdropped\n" +
                         "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
                         "  and c.relkind in ('r', 'v')\n" +
-                        "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                         "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
