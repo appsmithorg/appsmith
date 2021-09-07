@@ -47,7 +47,7 @@ describe("Table Widget property pane feature validation", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Select show message in the "on selected row" dropdown
-    cy.onTableAction(1, "onpagechange", "Page Changed");
+    cy.onTableAction(2, "onpagechange", "Page Changed");
     cy.PublishtheApp();
     cy.wait(2000);
     // Change the page
@@ -60,7 +60,7 @@ describe("Table Widget property pane feature validation", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
     // Show Message on Search text change Action
-    cy.onTableAction(3, "onsearchtextchanged", "Search Text Changed");
+    cy.onTableAction(4, "onsearchtextchanged", "Search Text Changed");
     cy.PublishtheApp();
     // Change the Search text
     cy.get(widgetsPage.searchField).type("Hello");
