@@ -56,6 +56,16 @@ public class ArangoDBPlugin extends BasePlugin {
     private static String WRITES_EXECUTED_KEY = "writesExecuted";
     private static String WRITES_IGNORED_KEY = "writesIgnored";
     private static String RETURN_KEY = "return";
+
+    /**
+     * - Regex to match everything inside double or single quotes, including the quotes.
+     * - e.g. Earth "revolves'" '"around"' "the" 'sun' will match:
+     * (1) "revolves'"
+     * (2) '"around"'
+     * (3) "the"
+     * (4) 'sun'
+     * - ref: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
+     */
     private static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
