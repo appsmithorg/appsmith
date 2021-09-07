@@ -1,4 +1,3 @@
-import { updateWidget } from "actions/pageActions";
 import {
   MAIN_CONTAINER_WIDGET_ID,
   WidgetTypes,
@@ -10,7 +9,7 @@ import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "store";
-import { WidgetOperations } from "widgets/BaseWidget";
+import { updateWidgetMetaProperty } from "actions/metaActions";
 
 export const useCanvasMinHeightUpdateHook = (
   widgetId: string,
@@ -26,12 +25,7 @@ export const useCanvasMinHeightUpdateHook = (
     widget.type === WidgetTypes.CANVAS_WIDGET;
   useEffect(() => {
     if (canUpdateWidgetMinHeight && widget.minHeight !== minHeight) {
-      dispatch(
-        updateWidget(WidgetOperations.UPDATE_PROPERTY, widgetId, {
-          propertyPath: "minHeight",
-          propertyValue: minHeight,
-        }),
-      );
+      dispatch(updateWidgetMetaProperty(widgetId, "minHeight", minHeight));
     }
   }, [minHeight]);
 };
