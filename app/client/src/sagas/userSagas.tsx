@@ -48,6 +48,7 @@ import { Variant } from "components/ads/common";
 import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
+import { initSocketConnection } from "actions/websocketActions";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -96,6 +97,7 @@ export function* getCurrentUserSaga() {
 
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
+      yield put(initSocketConnection());
       if (
         !response.data.isAnonymous &&
         response.data.username !== ANONYMOUS_USERNAME
@@ -318,9 +320,13 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
+    if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
       });
     }
   } catch (error) {

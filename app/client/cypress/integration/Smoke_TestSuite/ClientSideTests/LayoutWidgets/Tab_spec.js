@@ -24,9 +24,7 @@ describe("Tab widget test", function() {
     cy.tabVerify(0, "Aditya");
     cy.tabVerify(1, "test");
     //Default  tab selection and validation
-    cy.get(Layoutpage.tabDefault)
-      .type(this.data.command)
-      .type("test");
+    cy.testJsontext("defaulttab", "test");
     cy.get(Layoutpage.tabWidget)
       .contains("test")
       .click({ force: true })

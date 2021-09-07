@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 
 @Slf4j
@@ -44,6 +45,8 @@ public class DataTypeStringUtils {
     private static String regexForQuestionMark = "\\?";
 
     private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
+
+    private static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -183,9 +186,9 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
-    public static String jsonSmartReplacementQuestionWithValue(String input,
-                                                               String replacement,
-                                                               List<Map.Entry<String, String>> insertedParams) {
+    public static String jsonSmartReplacementPlaceholderWithValue(String input,
+                                                                  String replacement,
+                                                                  List<Map.Entry<String, String>> insertedParams) {
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
 
@@ -199,12 +202,12 @@ public class DataTypeStringUtils {
             case DOUBLE:
             case NULL:
             case BOOLEAN:
-                input = questionPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(replacement));
                 break;
             case ARRAY:
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                    input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -220,7 +223,7 @@ public class DataTypeStringUtils {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
                     // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
-                    input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
+                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -232,7 +235,7 @@ public class DataTypeStringUtils {
                 }
                 break;
             case BSON:
-                input = questionPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
                 break;
             case DATE:
             case TIME:
@@ -244,7 +247,7 @@ public class DataTypeStringUtils {
                 try {
                     replacement = escapeSpecialCharacters(replacement);
                     String valueAsString = objectMapper.writeValueAsString(replacement);
-                    input = questionPattern.matcher(input).replaceFirst(valueAsString);
+                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(

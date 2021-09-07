@@ -1,8 +1,10 @@
 import { createReducer } from "utils/AppsmithUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
+  filterCategories,
   RecentEntity,
-  SEARCH_CATEGORIES,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
 
 const initialState: GlobalSearchReduxState = {
@@ -11,7 +13,13 @@ const initialState: GlobalSearchReduxState = {
   recentEntities: [],
   recentEntitiesRestored: false,
   filterContext: {
-    category: SEARCH_CATEGORIES.INIT,
+    category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
+    fieldMeta: {},
+    refinements: {},
+    evaluatedSnippet: "",
+    executionInProgress: false,
+    evaluatedArguments: {},
+    insertSnippet: false,
   },
 };
 
@@ -22,13 +30,57 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({ ...state, query: action.payload }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
-  ) => ({ ...state, modalOpen: !state.modalOpen }),
-  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
-    state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<SearchCategory>,
   ) => ({
     ...state,
-    filterContext: action.payload,
+    modalOpen: !state.modalOpen,
+    filterContext: {
+      ...state.filterContext,
+      category: action.payload,
+      insertSnippet: false,
+    },
+  }),
+  [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      ...action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_SNIPPET]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedSnippet: action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {
+        ...state.filterContext.evaluatedArguments,
+        ...action.payload,
+      },
+    },
+  }),
+  [ReduxActionTypes.UNSET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {},
+    },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
     state: GlobalSearchReduxState,
@@ -51,14 +103,24 @@ const globalSearchReducer = createReducer(initialState, {
     recentEntitiesRestored: true,
   }),
 });
-
 export interface GlobalSearchReduxState {
   query: string;
   modalOpen: boolean;
   recentEntities: Array<RecentEntity>;
   recentEntitiesRestored: boolean;
   filterContext: {
-    category: SEARCH_CATEGORIES;
+    category: SearchCategory;
+    refinements: {
+      entities?: [string];
+    };
+    fieldMeta?: {
+      dataType?: string;
+      field?: string;
+    };
+    insertSnippet: boolean;
+    evaluatedSnippet: string;
+    executionInProgress: boolean;
+    evaluatedArguments: any;
   };
 }
 

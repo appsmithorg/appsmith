@@ -28,7 +28,7 @@ const CommentTriggerContainer = styled.div<{
 }>`
   position: absolute;
   ${(props) => getPosition(props)}
-
+  z-index: 1;
   & svg {
     width: 30px;
     height: 30px;

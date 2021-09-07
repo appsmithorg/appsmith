@@ -290,7 +290,7 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   ${(props) =>
     props.hideSearch
       ? `
-    padding: ${props.theme.spaces[2]}px; 
+    padding: ${props.theme.spaces[2]}px;
   `
       : `
     padding-top: 68px;
@@ -333,7 +333,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   },
 ];
 
-if (intercomAppID) {
+if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
     icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
     label: "Chat with us",
@@ -348,17 +348,7 @@ class DocumentationSearch extends React.Component<Props, State> {
       showResults: props.defaultRefinement.length > 0,
     };
   }
-  componentDidMount() {
-    const { user } = this.props;
-    if (intercomAppID && window.Intercom) {
-      window.Intercom("boot", {
-        app_id: intercomAppID,
-        user_id: user?.username,
-        name: user?.name,
-        email: user?.email,
-      });
-    }
-  }
+
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: No types available

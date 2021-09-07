@@ -27,10 +27,17 @@ import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
-import { IconNames } from "@blueprintjs/icons";
+import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
+import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
+import {
+  ButtonStyle,
+  ButtonVariant,
+  StyledButton,
+} from "../IconButtonComponent";
 
 export const renderCell = (
   value: any,
@@ -38,6 +45,7 @@ export const renderCell = (
   isHidden: boolean,
   cellProperties: CellLayoutProperties,
   tableWidth: number,
+  isCellVisible: boolean,
   onClick: () => void = noop,
   isSelected?: boolean,
 ) => {
@@ -45,11 +53,19 @@ export const renderCell = (
     case ColumnTypes.IMAGE:
       if (!value) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          />
         );
       } else if (!isString(value)) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             <div>Invalid Image </div>
           </CellWrapper>
         );
@@ -59,7 +75,11 @@ export const renderCell = (
       const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
-        <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+        <CellWrapper
+          cellProperties={cellProperties}
+          isCellVisible={isCellVisible}
+          isHidden={isHidden}
+        >
           {value
             .toString()
             // imageSplitRegex matched "," and char before it, so add space before ","
@@ -96,13 +116,18 @@ export const renderCell = (
       const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
         return (
           <CellWrapper
             cellProperties={cellProperties}
             className="video-cell"
+            isCellVisible={isCellVisible}
             isHidden={isHidden}
           >
             <PopoverVideo url={value} />
@@ -110,7 +135,11 @@ export const renderCell = (
         );
       } else {
         return (
-          <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+          <CellWrapper
+            cellProperties={cellProperties}
+            isCellVisible={isCellVisible}
+            isHidden={isHidden}
+          >
             Invalid Video Link
           </CellWrapper>
         );
@@ -120,23 +149,117 @@ export const renderCell = (
         <AutoToolTipComponent
           cellProperties={cellProperties}
           columnType={columnType}
+          isCellVisible={isCellVisible}
           isHidden={isHidden}
           tableWidth={tableWidth}
-          title={value.toString()}
+          title={!!value ? value.toString() : ""}
         >
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
-            : value.toString()}
+            : !!value
+            ? value.toString()
+            : ""}
         </AutoToolTipComponent>
       );
   }
 };
+
+interface RenderIconButtonProps {
+  isSelected: boolean;
+  columnActions?: ColumnAction[];
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  buttonStyle: ButtonStyle;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isCellVisible: boolean;
+}
+export const renderIconButton = (
+  props: RenderIconButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  if (!props.columnActions)
+    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+
+  return (
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
+      {props.columnActions.map((action: ColumnAction, index: number) => {
+        return (
+          <IconButton
+            action={action}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            boxShadowColor={props.boxShadowColor}
+            buttonStyle={props.buttonStyle}
+            buttonVariant={props.buttonVariant}
+            iconName={props.iconName}
+            isSelected={props.isSelected}
+            key={index}
+            onCommandClick={props.onCommandClick}
+          />
+        );
+      })}
+    </CellWrapper>
+  );
+};
+function IconButton(props: {
+  iconName?: IconName;
+  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  isSelected: boolean;
+  action: ColumnAction;
+  buttonStyle: ButtonStyle;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+}): JSX.Element {
+  const [loading, setLoading] = useState(false);
+  const onComplete = () => {
+    setLoading(false);
+  };
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (props.isSelected) {
+      e.stopPropagation();
+    }
+  };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
+  return (
+    <div onClick={handlePropagation}>
+      <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
+        buttonStyle={props.buttonStyle}
+        buttonVariant={props.buttonVariant}
+        icon={props.iconName}
+        loading={loading}
+        onClick={handleClick}
+      />
+    </div>
+  );
+}
 
 interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
 
@@ -146,16 +269,28 @@ export const renderActions = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isCellVisible={props.isCellVisible}
+        isHidden={isHidden}
+      />
+    );
 
   return (
-    <CellWrapper cellProperties={cellProperties} isHidden={isHidden}>
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
             buttonLabelColor={props.buttonLabelColor}
+            isCellVisible={props.isCellVisible}
+            isDisabled={props.isDisabled}
             isSelected={props.isSelected}
             key={index}
             onCommandClick={props.onCommandClick}
@@ -171,6 +306,8 @@ function TableAction(props: {
   action: ColumnAction;
   backgroundColor: string;
   buttonLabelColor: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -188,17 +325,20 @@ function TableAction(props: {
         }
       }}
     >
-      <Button
-        filled
-        intent="PRIMARY_BUTTON"
-        loading={loading}
-        onClick={() => {
-          setLoading(true);
-          props.onCommandClick(props.action.dynamicTrigger, onComplete);
-        }}
-        size="small"
-        text={props.action.label}
-      />
+      {props.isCellVisible ? (
+        <Button
+          disabled={props.isDisabled}
+          filled
+          intent="PRIMARY_BUTTON"
+          loading={loading}
+          onClick={() => {
+            setLoading(true);
+            props.onCommandClick(props.action.dynamicTrigger, onComplete);
+          }}
+          size="small"
+          text={props.action.label}
+        />
+      ) : null}
     </ActionWrapper>
   );
 }
@@ -239,6 +379,7 @@ function CheckBoxCheckIcon() {
 export const renderCheckBoxCell = (isChecked: boolean) => (
   <CellCheckboxWrapper
     className="td t--table-multiselect"
+    isCellVisible
     isChecked={isChecked}
   >
     <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
@@ -284,9 +425,12 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection && renderCheckBoxCell(false)}
           {row.cells.map((cell: any, cellIndex: number) => {
-            return (
-              <div {...cell.getCellProps()} className="td" key={cellIndex} />
-            );
+            const cellProps = cell.getCellProps();
+            if (columns[0]?.columnProperties?.cellBackground) {
+              cellProps.style.background =
+                columns[0].columnProperties.cellBackground;
+            }
+            return <div {...cellProps} className="td" key={cellIndex} />;
           })}
         </div>
       );
@@ -433,6 +577,8 @@ export function getDefaultColumnProperties(
     enableFilter: true,
     enableSort: true,
     isVisible: true,
+    isDisabled: false,
+    isCellVisible: true,
     isDerived: !!isDerived,
     label: accessor,
     computedValue: isDerived
@@ -496,6 +642,7 @@ const StyledSingleDropDown = styled(SingleDropDown)`
 
 export const renderDropdown = (props: {
   options: DropdownOption[];
+  isCellVisible: boolean;
   onItemSelect: (onOptionChange: string, item: DropdownOption) => void;
   onOptionChange: string;
   selectedIndex?: number;
@@ -511,6 +658,9 @@ export const renderDropdown = (props: {
     itemProps: IItemRendererProps,
   ) => {
     if (!itemProps.modifiers.matchesPredicate) {
+      return null;
+    }
+    if (!props.isCellVisible) {
       return null;
     }
     const isSelected: boolean = isOptionSelected(option);

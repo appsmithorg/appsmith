@@ -12,128 +12,14 @@ import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/data
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Function } from "assets/icons/menu/function.svg";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import getFeatureFlags from "utils/featureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
 }
-export const generateQuickCommands = (
-  entitiesForSuggestions: any[],
-  currentEntityType: string,
-  searchText: string,
-  {
-    datasources,
-    executeCommand,
-    pluginIdToImageLocation,
-    recentEntities,
-  }: {
-    datasources: Datasource[];
-    executeCommand: (payload: { actionType: string; args?: any }) => void;
-    pluginIdToImageLocation: Record<string, string>;
-    recentEntities: string[];
-  },
-) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
-  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
-  recentEntities.reverse();
-  const newBinding: CommandsCompletion = generateCreateNewCommand({
-    text: "{{}}",
-    displayText: "New Binding",
-    shortcut: Shortcuts.BINDING,
-  });
-  // const insertSnippet: CommandsCompletion = generateCreateNewCommand({
-  //   text: "",
-  //   displayText: "Insert Snippet",
-  //   shortcut: Shortcuts.FUNCTION,
-  //   action: () => executeCommand({ actionType: "NEW_SNIPPET" }),
-  // });
-  const newIntegration: CommandsCompletion = generateCreateNewCommand({
-    text: "",
-    displayText: "New Datasource",
-    action: () =>
-      executeCommand({
-        actionType: "NEW_INTEGRATION",
-      }),
-    shortcut: Shortcuts.PLUS,
-  });
-  const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
-    return {
-      text: currentEntityType === "WIDGET" ? `{{${name}.data}}` : `{{${name}}}`,
-      displayText: `${name}`,
-      className: "CodeMirror-commands",
-      data: suggestion,
-      render: (element: HTMLElement, self: any, data: any) => {
-        const pluginType = data.data.pluginType as PluginType;
-        ReactDOM.render(
-          <Command
-            name={data.displayText}
-            pluginType={pluginType}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const datasourceCommands = datasources.map((action: any) => {
-    return {
-      text: "",
-      displayText: `${action.name}`,
-      className: "CodeMirror-commands",
-      data: action,
-      action: () =>
-        executeCommand({
-          actionType: "NEW_QUERY",
-          args: { datasource: action },
-        }),
-      render: (element: HTMLElement, self: any, data: any) => {
-        ReactDOM.render(
-          <Command
-            imgSrc={pluginIdToImageLocation[data.data.pluginId]}
-            name={data.displayText}
-            shortcut={data.shortcut}
-          />,
-          element,
-        );
-      },
-    };
-  });
-  const suggestionsMatchingSearchText = matchingCommands(
-    suggestions,
-    searchText,
-    recentEntities,
-    5,
-  );
-  suggestionsMatchingSearchText.push(
-    ...matchingCommands([newBinding], searchText, []), //insertSnippet
-  );
-  let createNewCommands: any = [];
-  if (currentEntityType === "WIDGET") {
-    createNewCommands = [...datasourceCommands];
-  }
-  const createNewCommandsMatchingSearchText = matchingCommands(
-    createNewCommands,
-    searchText,
-    [],
-    3,
-  );
-  if (currentEntityType === "WIDGET") {
-    createNewCommandsMatchingSearchText.push(
-      ...matchingCommands([newIntegration], searchText, []),
-    );
-  }
-  let list: CommandsCompletion[] = [];
-  if (suggestionsMatchingSearchText.length) {
-    list = [suggestionsHeader, ...suggestionsMatchingSearchText];
-  }
-
-  if (createNewCommandsMatchingSearchText.length) {
-    list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
-  }
-  return list;
-};
 
 const matchingCommands = (
   list: any,
@@ -148,7 +34,7 @@ const matchingCommands = (
   });
   list = sortBy(list, (a: any) => {
     return (
-      (a.data.ENTITY_TYPE === "WIDGET"
+      (a.data.ENTITY_TYPE === ENTITY_TYPE.WIDGET
         ? recentEntities.indexOf(a.data.widgetId)
         : recentEntities.indexOf(a.data.actionId)) * -1
     );
@@ -225,3 +111,140 @@ function Command(props: {
     </div>
   );
 }
+
+export const generateQuickCommands = (
+  entitiesForSuggestions: any[],
+  currentEntityType: string,
+  searchText: string,
+  {
+    datasources,
+    executeCommand,
+    pluginIdToImageLocation,
+    recentEntities,
+  }: {
+    datasources: Datasource[];
+    executeCommand: (payload: { actionType: string; args?: any }) => void;
+    pluginIdToImageLocation: Record<string, string>;
+    recentEntities: string[];
+  },
+  expectedType: string,
+  entityId: any,
+  propertyPath: any,
+) => {
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
+  const createNewHeader: CommandsCompletion = commandsHeader("Create New");
+  recentEntities.reverse();
+  const newBinding: CommandsCompletion = generateCreateNewCommand({
+    text: "{{}}",
+    displayText: "New Binding",
+    shortcut: Shortcuts.BINDING,
+  });
+  const insertSnippet: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "Insert Snippet",
+    shortcut: Shortcuts.FUNCTION,
+    action: () =>
+      executeCommand({
+        actionType: "NEW_SNIPPET",
+        args: {
+          entityType: currentEntityType,
+          expectedType: expectedType,
+          entityId: entityId,
+          propertyPath: propertyPath,
+        },
+      }),
+  });
+  const newIntegration: CommandsCompletion = generateCreateNewCommand({
+    text: "",
+    displayText: "New Datasource",
+    action: () =>
+      executeCommand({
+        actionType: "NEW_INTEGRATION",
+      }),
+    shortcut: Shortcuts.PLUS,
+  });
+  const suggestions = entitiesForSuggestions.map((suggestion: any) => {
+    const name = suggestion.name || suggestion.widgetName;
+    return {
+      text:
+        currentEntityType === ENTITY_TYPE.WIDGET
+          ? `{{${name}.data}}`
+          : `{{${name}}}`,
+      displayText: `${name}`,
+      className: "CodeMirror-commands",
+      data: suggestion,
+      render: (element: HTMLElement, self: any, data: any) => {
+        const pluginType = data.data.pluginType as PluginType;
+        ReactDOM.render(
+          <Command
+            name={data.displayText}
+            pluginType={pluginType}
+            shortcut={data.shortcut}
+          />,
+          element,
+        );
+      },
+    };
+  });
+  const datasourceCommands = datasources.map((action: any) => {
+    return {
+      text: "",
+      displayText: `${action.name}`,
+      className: "CodeMirror-commands",
+      data: action,
+      action: () =>
+        executeCommand({
+          actionType: "NEW_QUERY",
+          args: { datasource: action },
+        }),
+      render: (element: HTMLElement, self: any, data: any) => {
+        ReactDOM.render(
+          <Command
+            imgSrc={pluginIdToImageLocation[data.data.pluginId]}
+            name={data.displayText}
+            shortcut={data.shortcut}
+          />,
+          element,
+        );
+      },
+    };
+  });
+  const suggestionsMatchingSearchText = matchingCommands(
+    suggestions,
+    searchText,
+    recentEntities,
+    5,
+  );
+  const actionCommands = [newBinding];
+  if (getFeatureFlags().SNIPPET) {
+    actionCommands.push(insertSnippet);
+  }
+
+  suggestionsMatchingSearchText.push(
+    ...matchingCommands(actionCommands, searchText, []),
+  );
+  let createNewCommands: any = [];
+  if (currentEntityType === ENTITY_TYPE.WIDGET) {
+    createNewCommands = [...datasourceCommands];
+  }
+  const createNewCommandsMatchingSearchText = matchingCommands(
+    createNewCommands,
+    searchText,
+    [],
+    3,
+  );
+  if (currentEntityType === ENTITY_TYPE.WIDGET) {
+    createNewCommandsMatchingSearchText.push(
+      ...matchingCommands([newIntegration], searchText, []),
+    );
+  }
+  let list: CommandsCompletion[] = [];
+  if (suggestionsMatchingSearchText.length) {
+    list = [suggestionsHeader, ...suggestionsMatchingSearchText];
+  }
+
+  if (createNewCommandsMatchingSearchText.length) {
+    list = [...list, createNewHeader, ...createNewCommandsMatchingSearchText];
+  }
+  return list;
+};

@@ -1,6 +1,6 @@
 import { FetchPageResponse } from "api/PageApi";
 import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import {
@@ -22,7 +22,7 @@ import defaultTemplate from "templates/default";
 import { generateReactKey } from "./generators";
 import { ChartDataPoint } from "widgets/ChartWidget";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { get, has, isString, omit, set } from "lodash";
+import { has, isString, set, isEmpty, omit, get } from "lodash";
 import log from "loglevel";
 import {
   migrateTablePrimaryColumnsBindings,
@@ -30,17 +30,20 @@ import {
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
+  migrateTableWidgetDelimiterProperties,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
 import WidgetConfigResponse, {
   GRID_DENSITY_MIGRATION_V1,
 } from "mockResponses/WidgetConfigResponse";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { theme } from "../../src/constants/DefaultTheme";
+import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 
 export type WidgetOperationParams = {
   operation: WidgetOperation;
@@ -806,12 +809,110 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 29) {
     currentDSL = migrateToNewMultiSelect(currentDSL);
+    currentDSL.version = 30;
+  }
+
+  if (currentDSL.version === 30) {
+    currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
+    currentDSL.version = 31;
+  }
+
+  if (currentDSL.version === 31) {
+    currentDSL = migrateIsDisabledToButtonColumn(currentDSL);
+    currentDSL.version = 32;
+  }
+
+  if (currentDSL.version === 32) {
+    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL.version = 33;
+  }
+
+  if (currentDSL.version === 33) {
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL.version = 34;
+  }
+
+  if (currentDSL.version === 34) {
+    currentDSL = migrateButtonWidgetValidation(currentDSL);
+    currentDSL.version = 35;
+  }
+
+  if (currentDSL.version === 35) {
+    currentDSL = migrateInputValidation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
   return currentDSL;
 };
 
+const addIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (!isEmpty(currentDSL.primaryColumns)) {
+      for (const key of Object.keys(
+        currentDSL.primaryColumns as Record<string, ColumnProperties>,
+      )) {
+        if (currentDSL.primaryColumns[key].columnType === "button") {
+          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+            currentDSL.primaryColumns[key]["isDisabled"] = false;
+          }
+        }
+        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+          currentDSL.primaryColumns[key]["isCellVisible"] = true;
+        }
+      }
+    }
+  }
+  return currentDSL;
+};
+
+export const migrateInputValidation = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.INPUT_WIDGET) {
+    if (has(currentDSL, "validation")) {
+      // convert boolean to string expression
+      if (typeof currentDSL.validation === "boolean") {
+        currentDSL.validation = String(currentDSL.validation);
+      } else if (typeof currentDSL.validation !== "string") {
+        // for any other type of value set to default undefined
+        currentDSL.validation = undefined;
+      }
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateInputValidation(child),
+    );
+  }
+  return currentDSL;
+};
+
+export const migrateTableDefaultSelectedRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateTableDefaultSelectedRow(child),
+    );
+  }
+  return currentDSL;
+};
+
+const migrateIsDisabledToButtonColumn = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  const newDSL = addIsDisabledToButtonColumn(currentDSL);
+
+  newDSL.children = newDSL.children?.map((children: WidgetProps) => {
+    return migrateIsDisabledToButtonColumn(children);
+  });
+  return currentDSL;
+};
 export const migrateToNewMultiSelect = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -829,6 +930,25 @@ export const migrateToNewMultiSelect = (
   }
   return currentDSL;
 };
+
+const migrateButtonWidgetValidation = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.INPUT_WIDGET) {
+    if (!has(currentDSL, "validation")) {
+      currentDSL.validation = true;
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children.map(
+      (eachWidgetDSL: ContainerWidgetProps<WidgetProps>) => {
+        migrateButtonWidgetValidation(eachWidgetDSL);
+      },
+    );
+  }
+  return currentDSL;
+};
+
 const migrateDatePickerMinMaxDate = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
@@ -1041,8 +1161,8 @@ export const extractCurrentDSL = (
 export const getDropZoneOffsets = (
   colWidth: number,
   rowHeight: number,
-  dragOffset: XYCoord,
-  parentOffset: XYCoord,
+  dragOffset: XYCord,
+  parentOffset: XYCord,
 ) => {
   // Calculate actual drop position by snapping based on x, y and grid cell size
   return snapToGrid(
@@ -1096,34 +1216,31 @@ export const isWidgetOverflowingParentBounds = (
 };
 
 export const noCollision = (
-  clientOffset: XYCoord,
+  clientOffset: XYCord,
   colWidth: number,
   rowHeight: number,
-  widget: WidgetProps & Partial<WidgetConfigProps>,
-  dropTargetOffset: XYCoord,
+  dropTargetOffset: XYCord,
+  widgetWidth: number,
+  widgetHeight: number,
+  widgetId: string,
   occupiedSpaces?: OccupiedSpace[],
   rows?: number,
   cols?: number,
+  detachFromLayout = false,
 ): boolean => {
-  if (clientOffset && dropTargetOffset && widget) {
-    if (widget.detachFromLayout) {
-      return true;
-    }
+  if (detachFromLayout) {
+    return true;
+  }
+  if (clientOffset && dropTargetOffset) {
     const [left, top] = getDropZoneOffsets(
       colWidth,
       rowHeight,
-      clientOffset as XYCoord,
+      clientOffset as XYCord,
       dropTargetOffset,
     );
     if (left < 0 || top < 0) {
       return false;
     }
-    const widgetWidth = widget.columns
-      ? widget.columns
-      : widget.rightColumn - widget.leftColumn;
-    const widgetHeight = widget.rows
-      ? widget.rows
-      : widget.bottomRow - widget.topRow;
     const currentOffset = {
       left,
       right: left + widgetWidth,
@@ -1131,7 +1248,7 @@ export const noCollision = (
       bottom: top + widgetHeight,
     };
     return (
-      !isDropZoneOccupied(currentOffset, widget.widgetId, occupiedSpaces) &&
+      !isDropZoneOccupied(currentOffset, widgetId, occupiedSpaces) &&
       !isWidgetOverflowingParentBounds({ rows, cols }, currentOffset)
     );
   }
@@ -1157,8 +1274,8 @@ export const currentDropRow = (
 
 export const widgetOperationParams = (
   widget: WidgetProps & Partial<WidgetConfigProps>,
-  widgetOffset: XYCoord,
-  parentOffset: XYCoord,
+  widgetOffset: XYCord,
+  parentOffset: XYCord,
   parentColumnSpace: number,
   parentRowSpace: number,
   parentWidgetId: string, // parentWidget

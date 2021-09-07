@@ -9,16 +9,14 @@ import {
   copyWidget,
   cutWidget,
   deleteSelectedWidget,
+  groupWidgets,
   pasteWidget,
 } from "actions/widgetActions";
 import {
+  deselectAllInitAction,
   selectAllWidgetsInCanvasInitAction,
-  selectMultipleWidgetsAction,
 } from "actions/widgetSelectionActions";
-import {
-  setGlobalSearchFilterContext,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
+import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { isMac } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -29,15 +27,28 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
-import { runActionViaShortcut } from "actions/actionActions";
-import { SEARCH_CATEGORIES } from "components/editorComponents/GlobalSearch/utils";
+import { runActionViaShortcut } from "actions/pluginActionActions";
+import {
+  filterCategories,
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
+} from "components/editorComponents/GlobalSearch/utils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
+
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 
 type Props = {
   copySelectedWidget: () => void;
   pasteCopiedWidget: () => void;
   deleteSelectedWidget: () => void;
   cutSelectedWidget: () => void;
-  toggleShowGlobalSearchModal: () => void;
+  groupSelectedWidget: () => void;
+  toggleShowGlobalSearchModal: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
   openDebugger: () => void;
   closeProppane: () => void;
@@ -45,13 +56,12 @@ type Props = {
   executeAction: () => void;
   selectAllWidgetsInit: () => void;
   deselectAllWidgets: () => void;
-  setGlobalSearchFilterContext: (payload: {
-    category: SEARCH_CATEGORIES;
-  }) => void;
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  appMode?: APP_MODE;
+  isCommentMode: boolean;
 };
 
 @HotkeysTarget
@@ -73,13 +83,17 @@ class GlobalHotKeys extends React.Component<Props> {
     return false;
   }
 
-  public onOnmnibarHotKeyDown(e: KeyboardEvent) {
+  public onOnmnibarHotKeyDown(
+    e: KeyboardEvent,
+    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+  ) {
     e.preventDefault();
-    this.props.setGlobalSearchFilterContext({
-      category: SEARCH_CATEGORIES.NAVIGATION,
+    const category = filterCategories[categoryId];
+    this.props.toggleShowGlobalSearchModal(category);
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "HOTKEY_COMBO",
+      category: category.title,
     });
-    this.props.toggleShowGlobalSearchModal();
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "HOTKEY_COMBO" });
   }
 
   public renderHotkeys() {
@@ -109,10 +123,30 @@ class GlobalHotKeys extends React.Component<Props> {
         />
         <Hotkey
           allowInInput={false}
+          combo="mod + j"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
+          combo="mod + l"
+          global
+          label="Show omnibar"
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
+          }
+        />
+        <Hotkey
+          allowInInput={false}
           combo="mod + p"
           global
           label="Show omnibar"
-          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e)}
+          onKeyDown={(e) =>
+            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
+          }
         />
         <Hotkey
           combo="mod + d"
@@ -198,6 +232,13 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
+            if (this.props.isCommentMode) {
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "esc",
+              });
+            }
             setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
@@ -211,6 +252,12 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
+            if (this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: this.props.appMode,
+                source: "HOTKEY",
+                combo: "v",
+              });
             setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
@@ -220,7 +267,15 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="c"
           global
           label="Comment Mode"
-          onKeyDown={() => setCommentModeInUrl(true)}
+          onKeyDown={() => {
+            if (!this.props.isCommentMode)
+              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
+                mode: "COMMENT",
+                source: "HOTKEY",
+                combo: "c",
+              });
+            setCommentModeInUrl(true);
+          }}
         />
         <Hotkey
           allowInInput
@@ -228,6 +283,30 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Execute Action"
           onKeyDown={this.props.executeAction}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + g"
+          global
+          group="Canvas"
+          label="Cut Widgets for grouping"
+          onKeyDown={(e: any) => {
+            if (this.stopPropagationIfWidgetSelected(e)) {
+              this.props.groupSelectedWidget();
+            }
+          }}
+        />
+        <Hotkey
+          combo="mod + s"
+          global
+          label="Save progress"
+          onKeyDown={() => {
+            Toaster.show({
+              text: createMessage(SAVE_HOTKEY_TOASTER_MESSAGE),
+              variant: Variant.info,
+            });
+          }}
           preventDefault
           stopPropagation
         />
@@ -244,6 +323,8 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
+  appMode: getAppMode(state),
+  isCommentMode: commentModeSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {
@@ -252,16 +333,16 @@ const mapDispatchToProps = (dispatch: any) => {
     pasteCopiedWidget: () => dispatch(pasteWidget()),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
-    toggleShowGlobalSearchModal: () => dispatch(toggleShowGlobalSearchModal()),
+    groupSelectedWidget: () => dispatch(groupWidgets()),
+    toggleShowGlobalSearchModal: (category: SearchCategory) =>
+      dispatch(toggleShowGlobalSearchModal(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
     openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
-    deselectAllWidgets: () => dispatch(selectMultipleWidgetsAction([])),
+    deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
-    setGlobalSearchFilterContext: (payload: { category: SEARCH_CATEGORIES }) =>
-      dispatch(setGlobalSearchFilterContext(payload)),
   };
 };
 

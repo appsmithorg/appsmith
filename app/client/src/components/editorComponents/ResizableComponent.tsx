@@ -1,5 +1,5 @@
 import React, { useContext, useRef, memo, useMemo } from "react";
-import { XYCoord } from "react-dnd";
+import { XYCord } from "utils/hooks/useCanvasDragging";
 
 import {
   WidgetOperations,
@@ -38,12 +38,13 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { scrollElementIntoParentCanvasView } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
+import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getParentToOpenIfAny } from "utils/hooks/useClickOpenPropPane";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -55,13 +56,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   const resizableRef = useRef<HTMLDivElement>(null);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
+  const occupiedSpaces = useSelector(getOccupiedSpaces);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const {
-    occupiedSpaces: occupiedSpacesBySiblingWidgets,
-    persistDropTargetRows,
-    updateDropTargetRows,
-  } = useContext(DropTargetContext);
+  const { persistDropTargetRows, updateDropTargetRows } = useContext(
+    DropTargetContext,
+  );
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -90,6 +90,12 @@ export const ResizableComponent = memo(function ResizableComponent(
     props.widgetId,
     canvasWidgets,
   );
+
+  const occupiedSpacesBySiblingWidgets = useMemo(() => {
+    return occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
+      ? occupiedSpaces[props.parentId]
+      : undefined;
+  }, [occupiedSpaces, props.parentId]);
 
   // isFocused (string | boolean) -> isWidgetFocused (boolean)
   const isWidgetFocused =
@@ -126,7 +132,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Checks if the current resize position has any collisions
   // If yes, set isColliding flag to true.
   // If no, set isColliding flag to false.
-  const isColliding = (newDimensions: UIElementSize, position: XYCoord) => {
+  const isColliding = (newDimensions: UIElementSize, position: XYCord) => {
     // Moving the bounding element calculations inside
     // to make this expensive operation only whne
     const boundingElementClientRect = boundingElement
@@ -140,10 +146,20 @@ export const ResizableComponent = memo(function ResizableComponent(
     // Make sure to calculate collision IF we don't update the main container's rows
     let updated = false;
     if (updateDropTargetRows) {
-      updated = updateDropTargetRows(props.widgetId, bottom);
+      updated = !!updateDropTargetRows(props.widgetId, bottom);
       const el = resizableRef.current;
-      const scrollParent = getNearestParentCanvas(resizableRef.current);
-      scrollElementIntoParentCanvasView(el, scrollParent);
+      if (el) {
+        const { height } = el?.getBoundingClientRect();
+        const scrollParent = getNearestParentCanvas(resizableRef.current);
+        scrollElementIntoParentCanvasView(
+          {
+            top: 40,
+            height,
+          },
+          scrollParent,
+          el,
+        );
+      }
     }
 
     const delta: UIElementSize = {
@@ -215,7 +231,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   // 1) There is no collision
   // 2) There is a change in widget size
   // Update widget, if both of the above are true.
-  const updateSize = (newDimensions: UIElementSize, position: XYCoord) => {
+  const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
     const delta: UIElementSize = {
       height: newDimensions.height - dimensions.height,
@@ -259,12 +275,8 @@ export const ResizableComponent = memo(function ResizableComponent(
         selectedWidget !== props.widgetId &&
         selectWidget(props.widgetId);
     }
-
-    // Let the propertypane show.
-    // The propertypane decides whether to show itself, based on
-    // whether it was showing when the widget resize started.
-    showPropertyPane && showPropertyPane(props.widgetId, undefined, true);
-
+    // Property pane closes after a resize/drag
+    showPropertyPane && showPropertyPane();
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
       widgetType: props.type,
@@ -308,9 +320,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isCommentMode &&
     !isSnipingMode;
+  const isMultiSelectedWidget =
+    selectedWidgets &&
+    selectedWidgets.length > 1 &&
+    selectedWidgets.includes(props.widgetId);
 
   return (
     <Resizable
+      allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       enable={isEnabled}
@@ -333,7 +350,4 @@ export const ResizableComponent = memo(function ResizableComponent(
     </Resizable>
   );
 });
-
-ResizableComponent.displayName = "ResizableComponent";
-
 export default ResizableComponent;

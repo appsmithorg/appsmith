@@ -9,6 +9,8 @@ import {
   updateCommentEvent,
   incrementThreadUnreadCount,
   decrementThreadUnreadCount,
+  deleteCommentThreadEvent,
+  deleteCommentEvent,
 } from "actions/commentActions";
 
 import { newNotificationEvent } from "actions/notificationActions";
@@ -30,7 +32,7 @@ export default function* handleSocketEvent(event: any) {
 
       const { thread } = event.payload[0];
       const isForCurrentApplication =
-        thread?.applicationId === currentApplication.id;
+        thread?.applicationId === currentApplication?.id;
 
       const isCreatedByMe = thread?.authorUsername === currentUser.username;
       if (!isCreatedByMe && isForCurrentApplication)
@@ -77,6 +79,14 @@ export default function* handleSocketEvent(event: any) {
     }
     case SOCKET_EVENTS.UPDATE_COMMENT: {
       yield put(updateCommentEvent(event.payload[0].comment));
+      return;
+    }
+    case SOCKET_EVENTS.DELETE_COMMENT_THREAD: {
+      yield put(deleteCommentThreadEvent(event.payload[0].thread));
+      return;
+    }
+    case SOCKET_EVENTS.DELETE_COMMENT: {
+      yield put(deleteCommentEvent(event.payload[0].comment));
       return;
     }
     // notifications

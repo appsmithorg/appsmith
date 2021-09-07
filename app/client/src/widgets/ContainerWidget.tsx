@@ -20,6 +20,8 @@ import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
 import { ListChildComponentProps, FixedSizeList as List } from "react-window";
 import { scrollbarWidth } from "utils/helpers";
 
+import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -131,12 +133,30 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
-        {this.props.widgetId === MAIN_CONTAINER_WIDGET_ID && (
-          <CanvasSelectionArena widgetId={MAIN_CONTAINER_WIDGET_ID} />
+        {props.type === "CANVAS_WIDGET" && (
+          <>
+            <CanvasDraggingArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              dropDisabled={!!props.dropDisabled}
+              noPad={this.props.noPad}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+            <CanvasSelectionArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              parentId={props.parentId}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+          </>
         )}
         <WidgetsMultiSelectBox
+          {...this.getSnapSpaces()}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />
@@ -152,7 +172,7 @@ class ContainerWidget extends BaseWidget<
    * @param props
    */
   renderVirtualizedContainer = () => {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const { componentHeight } = this.getComponentDimensions();
     const snapSpaces = this.getSnapSpaces();
     const sortedChildren = sortBy(
       compact(this.props.children),

@@ -1,4 +1,5 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
+import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
@@ -7,13 +8,58 @@ import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import CanvasMultiPointerArena, {
+  POINTERS_CANVAS_ID,
+} from "../common/CanvasMultiPointerArena";
+import { throttle } from "lodash";
+import { io } from "socket.io-client";
+import {
+  APP_COLLAB_EVENTS,
+  NAMESPACE_COLLAB_PAGE_EDIT,
+} from "constants/AppCollabConstants";
+import { RTS_BASE_PATH } from "constants/WebsocketConstants";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 interface CanvasProps {
   dsl: ContainerWidgetProps<WidgetProps>;
+  pageId: string;
 }
+
+// This auto connects the socket
+const pageEditSocket = io(NAMESPACE_COLLAB_PAGE_EDIT, {
+  path: RTS_BASE_PATH,
+});
+
+const shareMousePointer = (e: any, pageId: string) => {
+  if (store.getState().ui.appCollab.editors.length < 2) return;
+  if (pageEditSocket && pageEditSocket.connected) {
+    const selectionCanvas: any = document.getElementById(POINTERS_CANVAS_ID);
+    const rect = selectionCanvas.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    pageEditSocket.emit(APP_COLLAB_EVENTS.SHARE_USER_POINTER, {
+      data: { x, y },
+      pageId,
+    });
+  } else {
+    pageEditSocket && pageEditSocket.connect();
+  }
+};
 
 // TODO(abhinav): get the render mode from context
 const Canvas = memo((props: CanvasProps) => {
+  const { pageId } = props;
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
+  const delayedShareMousePointer = useCallback(
+    throttle((e) => shareMousePointer(e, pageId), 50, {
+      trailing: false,
+    }),
+    [shareMousePointer, pageId],
+  );
+
   try {
     return (
       <>
@@ -22,10 +68,21 @@ const Canvas = memo((props: CanvasProps) => {
           className="t--canvas-artboard"
           data-testid="t--canvas-artboard"
           id="art-board"
+          onMouseMove={(e) => {
+            e.persist();
+            if (!isMultiplayerEnabledForUser) return;
+            delayedShareMousePointer(e);
+          }}
           width={props.dsl.rightColumn}
         >
           {props.dsl.widgetId &&
             WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+          {isMultiplayerEnabledForUser && (
+            <CanvasMultiPointerArena
+              pageEditSocket={pageEditSocket}
+              pageId={pageId}
+            />
+          )}
         </ArtBoard>
       </>
     );

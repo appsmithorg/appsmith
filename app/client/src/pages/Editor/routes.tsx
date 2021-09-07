@@ -22,9 +22,10 @@ import {
   BuilderRouteParams,
   APIEditorRouteParams,
   getCurlImportPageURL,
+  PAGE_LIST_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
-  getProviderTemplatesURL,
   getGenerateTemplateURL,
+  getProviderTemplatesURL,
   getGenerateTemplateFormURL,
 } from "constants/routes";
 import styled from "styled-components";
@@ -40,13 +41,14 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 
 import { SaaSEditorRoutes } from "./SaaSEditor/routes";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import PagesEditor from "./PagesEditor";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
   width: ${(props) => (!props.isVisible ? "0px" : "100%")};
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: 100%;
   background-color: ${(props) =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
   z-index: ${(props) => (props.isVisible ? 2 : -1)};
@@ -59,6 +61,8 @@ const DrawerWrapper = styled.div<{
   background-color: white;
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 interface RouterState {
@@ -155,6 +159,11 @@ class EditorsRouter extends React.Component<
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
             ))}
+            <SentryRoute
+              component={PagesEditor}
+              exact
+              path={PAGE_LIST_EDITOR_URL()}
+            />
             <SentryRoute
               component={DataSourceEditor}
               exact

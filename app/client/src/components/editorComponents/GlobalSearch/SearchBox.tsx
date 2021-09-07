@@ -13,19 +13,18 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "constants/messages";
-import { SEARCH_CATEGORIES } from "./utils";
+import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 
 const Container = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[7]}px`};
   background: #ffffff;
   & input {
     ${(props) => getTypographyByKey(props, "cardSubheader")}
     background: transparent;
     color: ${(props) => props.theme.colors.globalSearch.searchInputText};
     border: none;
-    padding: ${(props) => `${props.theme.spaces[7]}px 0`};
+    padding: ${(props) => `${props.theme.spaces[6]}px 0`};
     flex: 1;
   }
 `;
@@ -33,9 +32,15 @@ const Container = styled.div`
 const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  background: ${(props) =>
-    props.theme.colors.globalSearch.mainContainerBackground};
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   padding: ${(props) => `0 ${props.theme.spaces[6]}px`};
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.searchInputBorder};
+  .t--global-clear-input:hover {
+    svg > path {
+      fill: #4b4848;
+    }
+  }
 `;
 
 const CategoryDisplay = styled.div`
@@ -45,22 +50,30 @@ const CategoryDisplay = styled.div`
   padding: ${(props) => `${props.theme.spaces[3]}px`};
   display: flex;
   align-items: center;
-  border: 1px solid ${(props) => props.theme.colors.globalSearch.activeCategory};
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
   margin-right: ${(props) => props.theme.spaces[4]}px;
   ${(props) => getTypographyByKey(props, "categoryBtn")}
   svg {
     cursor: pointer;
     margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+    path {
+      fill: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
+    }
+    transition: 0.2s all ease;
+    &:hover {
+      transform: scale(1.2);
+    }
   }
 `;
 
-const getPlaceHolder = (categoryId: SEARCH_CATEGORIES) => {
+const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
   switch (categoryId) {
-    case SEARCH_CATEGORIES.SNIPPETS:
+    case SEARCH_CATEGORY_ID.SNIPPETS:
       return OMNIBAR_PLACEHOLDER_SNIPPETS;
-    case SEARCH_CATEGORIES.DOCUMENTATION:
+    case SEARCH_CATEGORY_ID.DOCUMENTATION:
       return OMNIBAR_PLACEHOLDER_DOC;
-    case SEARCH_CATEGORIES.NAVIGATION:
+    case SEARCH_CATEGORY_ID.NAVIGATION:
       return OMNIBAR_PLACEHOLDER_NAV;
   }
   return OMNIBAR_PLACEHOLDER;
@@ -103,6 +116,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
       // to prevent key combo to open modal from trigging query update
       if (!listenToChange) return;
       setQuery(query);
+      (document.querySelector("#global-search") as HTMLInputElement)?.focus();
     },
     [listenToChange],
   );
@@ -110,11 +124,12 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
   return (
     <Container>
       <InputContainer>
+        {isMenu(category) && <SearchIcon style={{ marginRight: "10px" }} />}
         {category.title && (
           <CategoryDisplay>
             {category.id}
             <CloseIcon
-              onClick={() => setCategory({ id: SEARCH_CATEGORIES.INIT })}
+              onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}
             />
           </CategoryDisplay>
         )}
@@ -127,7 +142,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onKeyDown={(e) => {
             handleKeyDown(e);
             if (e.key === "Backspace" && !query)
-              setCategory({ id: SEARCH_CATEGORIES.INIT });
+              setCategory({ id: SEARCH_CATEGORY_ID.INIT });
           }}
           placeholder={createMessage(getPlaceHolder(category.id))}
           value={query}

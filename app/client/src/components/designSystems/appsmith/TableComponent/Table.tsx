@@ -45,6 +45,7 @@ interface TableProps {
   columnSizeMap?: { [key: string]: number };
   columns: ReactTableColumnProps[];
   data: Array<Record<string, unknown>>;
+  totalRecordsCount?: number;
   editMode: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
@@ -71,12 +72,11 @@ interface TableProps {
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
+  delimiter: string;
 }
 
 const defaultColumn = {
@@ -125,7 +125,10 @@ export function Table(props: TableProps) {
       }),
     [columnString],
   );
-  const pageCount = Math.ceil(props.data.length / props.pageSize);
+  const pageCount =
+    props.serverSidePaginationEnabled && props.totalRecordsCount
+      ? Math.ceil(props.totalRecordsCount / props.pageSize)
+      : Math.ceil(props.data.length / props.pageSize);
   const currentPageIndex = props.pageNo < pageCount ? props.pageNo : 0;
   const {
     getTableBodyProps,
@@ -182,22 +185,22 @@ export function Table(props: TableProps) {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
     const selectedRowCount = reduce(
-      subPage,
+      page,
       (count, row) => {
         return selectedRowIndices.includes(row.index) ? count + 1 : count;
       },
       0,
     );
     const result =
-      selectedRowCount === 0 ? 0 : selectedRowCount === subPage.length ? 1 : 2;
+      selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
     return result;
-  }, [selectedRowIndices, subPage]);
+  }, [selectedRowIndices, page]);
   const handleAllRowSelectClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     // if all / some rows are selected we remove selection on click
     // else select all rows
-    props.toggleAllRowSelect(!Boolean(rowSelectionState), subPage);
+    props.toggleAllRowSelect(!Boolean(rowSelectionState), page);
     // loop over subPage rows and toggleRowSelected if required
     e.stopPropagation();
   };
@@ -205,7 +208,6 @@ export function Table(props: TableProps) {
     props.isVisibleSearch ||
     props.isVisibleFilters ||
     props.isVisibleDownload ||
-    props.isVisibleCompactMode ||
     props.isVisiblePagination;
 
   return (
@@ -240,10 +242,9 @@ export function Table(props: TableProps) {
               <TableHeader
                 applyFilter={props.applyFilter}
                 columns={tableHeadercolumns}
-                compactMode={props.compactMode}
                 currentPageIndex={currentPageIndex}
+                delimiter={props.delimiter}
                 filters={props.filters}
-                isVisibleCompactMode={props.isVisibleCompactMode}
                 isVisibleDownload={props.isVisibleDownload}
                 isVisibleFilters={props.isVisibleFilters}
                 isVisiblePagination={props.isVisiblePagination}
@@ -259,7 +260,7 @@ export function Table(props: TableProps) {
                 tableColumns={columns}
                 tableData={props.data}
                 tableSizes={tableSizes}
-                updateCompactMode={props.updateCompactMode}
+                totalRecordsCount={props.totalRecordsCount}
                 updatePageNo={props.updatePageNo}
                 widgetId={props.widgetId}
                 widgetName={props.widgetName}

@@ -87,8 +87,12 @@ public class WidgetSuggestionHelper {
                             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                         } else {
                             String nestedFieldName = objectFields.get(0);
-                            collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
-                            widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            if(node.get(nestedFieldName).size() == 0) {
+                                widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                            } else {
+                                collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
+                                widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName);
+                            }
                         }
                     }
 
@@ -111,7 +115,7 @@ public class WidgetSuggestionHelper {
     }
 
     /*
-     * We support only TEXT, CHART, DROPDOWN, TABLE, INPUT and LIST widgets as part of the suggestion
+     * We support only TEXT, CHART, DROPDOWN, TABLE, INPUT widgets as part of the suggestion
      * We need string and number type fields to construct the query which will bind data to the above widgets
      */
     private static void collectFieldsFromData(Iterator<Map.Entry<String, JsonNode>> jsonFields) {
@@ -158,7 +162,6 @@ public class WidgetSuggestionHelper {
             }
         }
         widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
-        widgetTypeList.add(getWidget(WidgetType.LIST_WIDGET));
         widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         return widgetTypeList;
     }
@@ -193,7 +196,6 @@ public class WidgetSuggestionHelper {
             }
         }
         widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET, nestedFieldName));
-        widgetTypeList.add(getWidgetNestedData(WidgetType.LIST_WIDGET, nestedFieldName));
         widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
         return widgetTypeList;
     }

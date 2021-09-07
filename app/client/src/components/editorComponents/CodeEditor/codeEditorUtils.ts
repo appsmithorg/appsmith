@@ -1,4 +1,9 @@
 import CodeMirror from "codemirror";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import {
+  DataTreeAction,
+  DataTreeWidget,
+} from "entities/DataTree/dataTreeFactory";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 
 export const removeNewLineChars = (inputValue: any) => {
@@ -52,4 +57,12 @@ export const checkIfCursorInsideBinding = (
     cumulativeCharCount = start + segment.length;
   });
   return cursorBetweenBinding;
+};
+
+export const isActionEntity = (entity: any): entity is DataTreeAction => {
+  return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
+};
+
+export const isWidgetEntity = (entity: any): entity is DataTreeWidget => {
+  return entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 };

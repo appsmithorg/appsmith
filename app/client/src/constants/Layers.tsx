@@ -47,13 +47,15 @@ export const Layers = {
   contextMenu: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
+  bottomBar: Indices.Layer6,
   productUpdates: Indices.Layer7,
-  portals: Indices.Layer8,
+  portals: Indices.Layer9,
   header: Indices.Layer9,
   snipeableZone: Indices.Layer10,
   appComments: Indices.Layer7,
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,
+  evaluationPopper: Indices.Layer9,
 };
 
 export const LayersContext = React.createContext(Layers);
