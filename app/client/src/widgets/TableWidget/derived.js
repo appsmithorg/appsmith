@@ -79,7 +79,7 @@ export default {
     const separatorRegex = /\W+/;
 
     if (props.tableData && Array.isArray(props.tableData)) {
-      return props.tableData.map((entry) => {
+      return props.tableData.map((entry, index) => {
         const sanitizedData = {};
 
         for (const [key, value] of Object.entries(entry)) {
@@ -87,7 +87,17 @@ export default {
             .split(separatorRegex)
             .join("_")
             .slice(0, 200);
-          sanitizedData[sanitizedKey] = value;
+          if (_.has(props.editedColumnData, `${sanitizedKey}.${index}`)) {
+            sanitizedData[sanitizedKey] =
+              props.editedColumnData[sanitizedKey][index];
+          } else if (
+            _.has(props.editedColumnData, `${sanitizedKey}.defaultOptionValue`)
+          ) {
+            sanitizedData[sanitizedKey] =
+              props.editedColumnData[sanitizedKey].defaultOptionValue;
+          } else {
+            sanitizedData[sanitizedKey] = value;
+          }
         }
         return sanitizedData;
       });
@@ -222,6 +232,15 @@ export default {
             ...derivedTableData[index],
             [columnId]: computedValues[index],
           };
+          if (_.has(props.editedColumnData, `${columnId}.${index}`)) {
+            derivedTableData[index][columnId] =
+              props.editedColumnData[columnId][index];
+          } else if (
+            _.has(props.editedColumnData, `${columnId}.defaultOptionValue`)
+          ) {
+            derivedTableData[index][columnId] =
+              props.editedColumnData[columnId].defaultOptionValue;
+          }
         }
       });
     }

@@ -22,6 +22,7 @@ import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "components/designSystems/appsmith/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
+import DropDownComponent from "components/designSystems/blueprint/DropdownComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
@@ -612,3 +613,65 @@ export const renderDropdown = (props: {
     </div>
   );
 };
+
+const StyledDropDownComponent = styled.div`
+  width: 100%;
+`;
+
+export function SelectCell(props: {
+  value: any;
+  action: string;
+  columnId: string;
+  options: DropdownOption[];
+  defaultOptionValue: string | undefined;
+  placeholderText: string | undefined;
+  isDisabled: boolean;
+  serverSideFiltering: boolean;
+  isHidden: boolean;
+  onOptionChange: (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    optionSelected: DropdownOption,
+  ) => void;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  widgetId: string;
+  rowIndex: number;
+}) {
+  const selectedIndex = findIndex(
+    props.options,
+    (option) => option.value === props.value,
+  );
+  return (
+    <CellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+    >
+      <StyledDropDownComponent>
+        <DropDownComponent
+          disabled={Boolean(props.isDisabled)}
+          height={0}
+          isFilterable={false}
+          isLoading={false}
+          onFilterChange={noop}
+          onOptionSelected={(optionSelected) => {
+            props.onOptionChange(
+              props.columnId,
+              props.rowIndex,
+              props.action,
+              optionSelected,
+            );
+          }}
+          options={props.options}
+          placeholder={props.placeholderText}
+          selectedIndex={selectedIndex}
+          serverSideFiltering={props.serverSideFiltering}
+          widgetId={`dropdown-${props.widgetId}`}
+          width={0}
+        />
+      </StyledDropDownComponent>
+    </CellWrapper>
+  );
+}
