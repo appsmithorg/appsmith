@@ -76,12 +76,7 @@ export type SnippetBody = {
   args: [SnippetArgument];
   summary: string;
   template: string;
-  additionalInfo?: [
-    {
-      header: string;
-      content: string;
-    },
-  ];
+  snippetMeta?: string;
 };
 
 export type SnippetArgument = {
