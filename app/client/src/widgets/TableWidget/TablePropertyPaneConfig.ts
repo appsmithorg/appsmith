@@ -1255,6 +1255,8 @@ export default [
         isTriggerProperty: false,
       },
       {
+        helpText:
+          "Adds an action button to each row, Allows end user to edit, save or cancel. On save a query/API can be called using the onRowUpdate event",
         propertyName: "enableInlineEditing",
         label: "Enable inline row editing",
         controlType: "SWITCH",
