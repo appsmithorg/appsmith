@@ -43,14 +43,26 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
-class DropdownComponent extends Component<DropdownComponentProps> {
+const isFormDropdown = (
+  props: DropdownComponentProps | FormDropdownComponentProps,
+): props is FormDropdownComponentProps => {
+  return (props as FormDropdownComponentProps).input !== undefined;
+};
+
+class DropdownComponent extends Component<
+  DropdownComponentProps | FormDropdownComponentProps
+> {
   componentDidMount() {
-    const { input, options } = this.props;
-    // set selected option to first option by default
-    if (input && !input.value) {
-      input.onChange(options[0].value);
+    if (isFormDropdown(this.props)) {
+      const { defaultOption, input, options } = this.props;
+      const defaultValue = defaultOption
+        ? defaultOption.value
+        : options[0].value;
+
+      !input.value && input.onChange(defaultValue);
     }
   }
+
   private newItemTextInput: HTMLInputElement | null = null;
   private setNewItemTextInput = (element: HTMLInputElement | null) => {
     this.newItemTextInput = element;
@@ -113,9 +125,11 @@ class DropdownComponent extends Component<DropdownComponentProps> {
     );
   };
   onItemSelect = (item: DropdownOption): void => {
-    const { input, selectHandler } = this.props;
-    input && input.onChange(item.value);
-    selectHandler && selectHandler(item.value);
+    if (isFormDropdown(this.props)) {
+      this.props.input.onChange(item.value);
+    } else {
+      this.props.selectHandler(item.value);
+    }
   };
 
   renderItem: ItemRenderer<DropdownOption> = (
@@ -142,32 +156,29 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   };
 
   getSelectedDisplayText = () => {
-    const { input, selected } = this.props;
-
-    if (input) {
-      const item = this.getDropdownOption(input.value);
-      return item && item.label;
-    }
-    if (selected) {
-      const item = this.getDropdownOption(selected.value);
-      return item && item.label;
-    }
-    return "";
+    const value = isFormDropdown(this.props)
+      ? this.props.input.value
+      : this.props.selected.value;
+    const item = this.getDropdownOption(value);
+    return item ? item.label : "";
   };
 
   getActiveOption = (): DropdownOption => {
-    const { input, options, selected } = this.props;
-    const defaultActiveOption = options[0];
+    const { options } = this.props;
 
-    if (input) {
-      return this.getDropdownOption(input.value) || defaultActiveOption;
+    if (isFormDropdown(this.props)) {
+      return (
+        this.getDropdownOption(this.props.input.value) ||
+        this.props.defaultOption ||
+        options[0]
+      );
     } else {
-      return selected || defaultActiveOption;
+      return this.props.selected || options[0];
     }
   };
 
   render() {
-    const { autocomplete, color, input, options, width } = this.props;
+    const { autocomplete, color, options, width } = this.props;
 
     return (
       <StyledDropdown
@@ -181,7 +192,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         noResults={<MenuItem disabled text="No results." />}
         onItemSelect={this.onItemSelect}
         popoverProps={{ minimal: true }}
-        {...input}
+        {...(isFormDropdown(this.props) ? this.props.input : {})}
       >
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
@@ -189,6 +200,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
               buttonColor={color}
               buttonStyle={color ? "CUSTOM" : "PRIMARY"}
               buttonVariant="SOLID"
+              fontWeight={400}
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
@@ -199,23 +211,29 @@ class DropdownComponent extends Component<DropdownComponentProps> {
   }
 }
 
-export interface DropdownComponentProps {
-  color?: string;
-  hasLabel?: boolean;
-  options: DropdownOption[];
-  selectHandler?: (selectedValue: string) => void;
-  selected?: DropdownOption;
-  multiselectDisplayType?: "TAGS" | "CHECKBOXES";
-  checked?: boolean;
-  multi?: boolean;
-  autocomplete?: boolean;
+export interface BaseDropdownComponentProps {
   addItem?: {
     displayText: string;
     addItemHandler: (name: string) => void;
   };
+  autocomplete?: boolean;
+  checked?: boolean;
+  color?: string;
+  hasLabel?: boolean;
+  multi?: boolean;
+  multiselectDisplayType?: "TAGS" | "CHECKBOXES";
+  options: DropdownOption[];
   toggle?: ReactNode;
-  input?: WrappedFieldInputProps;
   width?: string;
+}
+export interface DropdownComponentProps extends BaseDropdownComponentProps {
+  selectHandler: (selectedValue: string) => void;
+  selected: DropdownOption;
+}
+
+export interface FormDropdownComponentProps extends BaseDropdownComponentProps {
+  input: WrappedFieldInputProps;
+  defaultOption?: DropdownOption;
 }
 
 export default DropdownComponent;

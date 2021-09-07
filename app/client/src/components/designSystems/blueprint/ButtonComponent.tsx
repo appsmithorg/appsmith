@@ -166,7 +166,7 @@ const ButtonContainer = styled.div`
 const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
   height: 100%;
   background-image: none !important;
-  font-weight: ${(props) => props.theme.fontWeights[2]};
+  font-weight: ${(props) => props.fontWeight || props.theme.fontWeights[2]};
   outline: none;
   padding: 0px 10px;
 
@@ -332,6 +332,7 @@ type ButtonStyleProps = {
   borderRadius?: ButtonBorderRadius;
   iconName?: IconName;
   iconAlign?: Alignment;
+  fontWeight?: number;
 };
 
 // To be used in any other part of the app
@@ -345,6 +346,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
     buttonVariant,
     className,
     disabled,
+    fontWeight,
     icon,
     iconAlign,
     iconName,
@@ -368,6 +370,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
         className={className}
         disabled={disabled}
         fill
+        fontWeight={fontWeight}
         icon={icon}
         loading={loading}
         onClick={onClick}
@@ -390,6 +393,7 @@ export function BaseButton(props: IButtonProps & ButtonStyleProps) {
       className={className}
       disabled={disabled}
       fill
+      fontWeight={fontWeight}
       icon={iconName || icon}
       loading={loading}
       onClick={onClick}
