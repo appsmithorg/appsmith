@@ -34,6 +34,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,7 +55,8 @@ public class ArangoDBPlugin extends BasePlugin {
     private static long DEFAULT_PORT = 8529L;
     private static String WRITES_EXECUTED_KEY = "writesExecuted";
     private static String WRITES_IGNORED_KEY = "writesIgnored";
-    private static List<String> UPDATE_OPERATIONS = List.of("INSERT", "UPDATE", "REMOVE", "UPSERT", "REPLACE");
+    private static String RETURN_KEY = "return";
+    private static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -125,9 +127,22 @@ public class ArangoDBPlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
+        /**
+         * - In ArangoDB query language, any non-update query is indicated by the use of keyword "RETURN".
+         * - This method checks if the query provided by user has the "RETURN" keyword or not. To do so, it first
+         * removes any string present inside double or single quotes. It then matches the remaining words with the
+         * keyword "RETURN".
+         * - Quoting from ArangoDB doc:
+         * ```
+         * An AQL query must either return a result (indicated by usage of the RETURN keyword) or execute a
+         * data-modification operation
+         * ```
+         * ref: https://www.arangodb.com/docs/stable/aql/fundamentals-syntax.html
+         */
         private boolean isUpdateQuery(String query) {
-            return UPDATE_OPERATIONS.stream()
-                    .anyMatch(key -> query.toLowerCase().contains(key.toLowerCase()));
+            String queryKeyWordsOnly = query.replace(MATCH_QUOTED_WORDS_REGEX, "");
+            return !Arrays.stream(queryKeyWordsOnly.split("\\s"))
+                    .anyMatch(word -> RETURN_KEY.equals(word.trim().toLowerCase()));
         }
 
         /**
