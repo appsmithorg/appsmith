@@ -76,11 +76,7 @@ CONTAINER ID        IMAGE                             COMMAND                  C
 3b8f2c9638d0        appsmith/appsmith          "/opt/appsmith/entrypoint.sh"   17 minutes ago      Up 17 minutes       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   appsmith
 ```
 
-You can also use the Supervisord UI to monitor and manage the different processes _inside_ the fat container. This is available at <http://localhost:9001>.
-
-<p>
-  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
-</p>
+You can also use the Supervisord UI to monitor and manage the different processes _inside_ the fat container. This is discussed [further below](#supervisord).
 
 ## Custom Domain
 
@@ -114,7 +110,13 @@ If your volume configuration is different or unavailable, you can use the follow
 docker-compose cp appsmith-fat:/appsmith-stacks/data/backup/appsmith-data.archive .
 ```
 
-Note that you may want to save the `docker.env` file in addition to this archive file, if you intend to be able to reproduce this environment elsewhere, or in case of a disaster.
+Note that you may want to save the `docker.env` file in addition to this archive file, if you intend to be able to reproduce this environment elsewhere, or in case of a disaster. This file can be copied out of the container with the following command:
+
+```sh
+docker-compose cp appsmith-fat:/appsmith-stacks/configuration/docker.env .
+```
+
+**Be sure to keep this file safe**, since it contains information that can be used to decrypt datasource information from the database archive.
 
 ### Import database
 
@@ -128,9 +130,47 @@ docker-compose cp ./appsmith-data.archive appsmith-fat:/appsmith-stacks/data/res
 
 Second, run the following command to import data from this file:
 
-```
+```sh
 docker-compose exec appsmith-fat appsmith import_db
 ```
+
+Note that when you restore, you may also want to copy a `docker.env` from the original instance into this one. You can use the following command to do this (assuming you are in the installation folder and `docker.env` exists in the same folder):
+
+```sh
+docker-compose cp ./docker.env appsmith-fat:/appsmith-stacks/configuration/
+```
+
+This will need a restart of the Appsmith server, which can be done using the following command:
+
+```sh
+docker-compose exec appsmith-fat supervisorctl restart backend
+```
+
+## Supervisor
+
+The fat container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
+
+Supervisord comes with a web interface for managing the various processes, available at <http://localhost:9001>, as well as a command line interface towards the same goal.
+
+Here's a screenshot of the web interface listing all the processes managed:
+
+<p>
+  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
+</p>
+
+The command line interface can also be used to perform operations like restarting the Appsmith server, or restarting Nginx etc. For example, the following command (run in the installation folder) can be used to get a status of all running processes:
+
+```sh
+docker-compose exec appsmith-fat supervisorctl status
+```
+
+Or to view the last few lines of stderr output of one of the processes:
+
+```sh
+docker-compose exec appsmith-fat supervisorctl tail backend stderr
+```
+
+To learn more, please refer to [Supervisor's documentation](http://supervisord.org/running.html#supervisorctl-actions) on what actions are available to be performed by the command line interface.
 
 ## Troubleshooting
 
