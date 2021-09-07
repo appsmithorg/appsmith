@@ -13,9 +13,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +51,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -499,66 +502,116 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Mono<Map> loadEditorPluginResource(String pluginId) {
-        String resourcePath = "editor/root.json";
-        findById(pluginId)
-                .flatMap(plugin -> {
-                    InputStream resourceAsStream = pluginManager
-                            .getPlugin(plugin.getPackageName())
-                            .getPluginClassLoader()
-                            .getResourceAsStream(resourcePath);
+    public Map loadEditorPluginResourceUqi(Plugin plugin) {
+        String baseFolder = "editor";
+        String mainFile = "root.json";
+        String resourcePath = baseFolder + "/" + mainFile;
 
-                    if (resourceAsStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found"));
-                    }
+        InputStream resourceAsStream = pluginManager
+                .getPlugin(plugin.getPackageName())
+                .getPluginClassLoader()
+                .getResourceAsStream(resourcePath);
 
-                    JsonNode rootTree;
+        if (resourceAsStream == null) {
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found");
+        }
+
+        JsonNode rootTree;
+        try {
+            rootTree = objectMapper.readTree(resourceAsStream);
+        } catch (IOException e) {
+            log.error("Error loading resource JSON for pluginId {} and resourcePath {}", plugin.getId(), resourcePath, e);
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage());
+        }
+
+        ObjectNode uiSectionNode = objectMapper.createObjectNode();
+        uiSectionNode.put("controlType", "SECTION");
+        uiSectionNode.put("label", "");
+        uiSectionNode.put("_comment", "This section holds all the templates");
+        ArrayNode commandTemplates = uiSectionNode.putArray("children");
+
+        JsonNode commands = rootTree.get("command");
+        ObjectNode commandWriterNode = objectMapper.createObjectNode();
+        ArrayNode options = commandWriterNode.putArray("options");
+
+        if (commands != null) {
+            for (Iterator<String> it = commands.fieldNames(); it.hasNext(); ) {
+                String fieldName = it.next();
+                JsonNode field = commands.get(fieldName);
+                if (field.isValueNode()) {
+                    commandWriterNode.put(fieldName, field);
+                } else if (field.isArray()) {
                     try {
-                        rootTree = objectMapper.readTree(resourceAsStream);
-                    } catch (IOException e) {
-                        log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
-                    }
+                        ArrayNode commandTemplatesFromFile = (ArrayNode) objectMapper.readTree(String.valueOf(field));
 
-                    JsonNode commands = rootTree.get("commands");
-                    if (commands != null) {
-                        
-                    }
+                        for (JsonNode commandNode : commandTemplatesFromFile) {
+                            ObjectNode commandOption = objectMapper.createObjectNode();
+                            JsonNode fileName = commandNode.get("fileName");
+                            Map commandMap = null;
+                            if (fileName != null) {
+                                commandOption.set("label", commandNode.get("label"));
+                                String path = baseFolder + "/" + fileName.asText();
+                                try {
+                                    commandMap = loadPluginResourceGivenPlugin(plugin, path);
+                                } catch (AppsmithException e) {
+                                    // Either the file doesnt exist or malformed JSON was found. Ignore the command template
+                                    log.error("Error loading resource JSON for pluginId {} and resourcePath {} : ", plugin.getId(), resourcePath, e);
+                                    continue;
+                                }
 
-                    JsonNode editor = rootTree.get("editor");
-                    if (editor != null && editor.isArray()) {
-                        for (JsonNode child : editor) {
-                            JsonNode label = child.get("label");
-                            if (label != null && label.asText().equals("Commands")) {
-                                for (JsonNode command : )
+                                Object identifierObj = commandMap.get("identifier");
+                                if (identifierObj != null) {
+                                    String identifier = (String) identifierObj;
+                                    commandOption.put("value", identifier);
+
+                                    // Only add the command in the final output in case of success
+                                    options.add(commandOption);
+                                    commandTemplates.add(objectMapper.valueToTree(commandMap));
+                                }
                             }
                         }
-
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
                     }
-                });
-        return null;
+                }
+            }
+        }
+
+        ObjectNode topLevel = objectMapper.createObjectNode();
+        ArrayNode editorOutput = topLevel.putArray("editor");
+        editorOutput.add(commandWriterNode);
+        editorOutput.add(uiSectionNode);
+
+        return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {});
+    }
+
+    private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {
+        InputStream resourceAsStream = pluginManager
+                .getPlugin(plugin.getPackageName())
+                .getPluginClassLoader()
+                .getResourceAsStream(resourcePath);
+
+        if (resourceAsStream == null) {
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found");
+        }
+
+        try {
+            Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
+            return resourceMap;
+        } catch (IOException e) {
+            log.error("Error loading resource JSON for pluginId {} and resourcePath {}", plugin.getId(), resourcePath, e);
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage());
+        }
     }
 
     @Override
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
-                .flatMap(plugin -> {
-                    InputStream resourceAsStream = pluginManager
-                            .getPlugin(plugin.getPackageName())
-                            .getPluginClassLoader()
-                            .getResourceAsStream(resourcePath);
-
-                    if (resourceAsStream == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found"));
+                .map(plugin -> {
+                    if (resourcePath.equals("editor.json") && plugin.getUiComponent().equals("UQIDbEditorForm")) {
+                        return loadEditorPluginResourceUqi(plugin);
                     }
-
-                    try {
-                        Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
-                        return Mono.just(resourceMap);
-                    } catch (IOException e) {
-                        log.error("Error loading resource JSON for pluginId {} and resourcePath {}", pluginId, resourcePath, e);
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage()));
-                    }
+                    return loadPluginResourceGivenPlugin(plugin, resourcePath);
                 });
     }
 
