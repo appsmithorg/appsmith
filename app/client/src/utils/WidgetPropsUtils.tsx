@@ -840,7 +840,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
-    currentDSL.version = LATEST_PAGE_VERSION;
+    currentDSL.version = 36;
   }
 
   if (currentDSL.version === 36) {
