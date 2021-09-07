@@ -30,7 +30,11 @@ import DataSourceOption from "../DataSourceOption";
 import { convertToQueryParams } from "constants/routes";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
-import { GENERATE_PAGE_FORM_TITLE } from "constants/messages";
+import {
+  GENERATE_PAGE_FORM_TITLE,
+  createMessage,
+  GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
+} from "constants/messages";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -128,8 +132,6 @@ const GENERATE_PAGE_MODE = {
   REPLACE_EMPTY: "REPLACE_EMPTY", // current page's content (DSL) is updated to template DSL. (same pageId)
 };
 
-//
-
 function GeneratePageSubmitBtn({
   disabled,
   isLoading,
@@ -147,7 +149,7 @@ function GeneratePageSubmitBtn({
       data-cy="t--generate-page-form-submit"
       disabled={disabled}
       isLoading={isLoading}
-      onClick={onSubmit}
+      onClick={() => !disabled && onSubmit()}
       size={Size.large}
       text="Generate Page"
       type="button"
@@ -193,6 +195,10 @@ function GeneratePageForm() {
 
   const [selectedDatasource, selectDataSource] = useState<DropdownOption>(
     DEFAULT_DROPDOWN_OPTION,
+  );
+
+  const [isSelectedTableEmpty, setIsSelectedTableEmpty] = useState<boolean>(
+    false,
   );
 
   const selectedDatasourcePluginId: string = selectedDatasource.data?.pluginId;
@@ -296,24 +302,26 @@ function GeneratePageForm() {
           const { data } = TableObj;
 
           if (Array.isArray(data.columns)) {
-            const newSelectedTableColumnOptions: DropdownOption[] = [];
-            data.columns.map((column) => {
-              if (
-                column.type &&
-                ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
-              ) {
-                newSelectedTableColumnOptions.push({
-                  id: column.name,
-                  label: column.name,
-                  value: column.name,
-                  subText: column.type,
-                  icon: columnIcon,
-                  iconSize: IconSize.LARGE,
-                  iconColor: Colors.GOLD,
-                });
-              }
-            });
-            if (newSelectedTableColumnOptions) {
+            if (data.columns.length === 0) setIsSelectedTableEmpty(true);
+            else {
+              if (isSelectedTableEmpty) setIsSelectedTableEmpty(false);
+              const newSelectedTableColumnOptions: DropdownOption[] = [];
+              data.columns.map((column) => {
+                if (
+                  column.type &&
+                  ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase())
+                ) {
+                  newSelectedTableColumnOptions.push({
+                    id: column.name,
+                    label: column.name,
+                    value: column.name,
+                    subText: column.type,
+                    icon: columnIcon,
+                    iconSize: IconSize.LARGE,
+                    iconColor: Colors.GOLD,
+                  });
+                }
+              });
               setSelectedTableColumnOptions(newSelectedTableColumnOptions);
             }
           } else {
@@ -323,9 +331,11 @@ function GeneratePageForm() {
       }
     },
     [
+      isSelectedTableEmpty,
       selectTable,
       setSelectedTableColumnOptions,
       selectColumn,
+      setIsSelectedTableEmpty,
       isGoogleSheetPlugin,
       isS3Plugin,
     ],
@@ -375,7 +385,7 @@ function GeneratePageForm() {
       selectedDatasource.value &&
       !isFetchingDatasourceStructure
     ) {
-      // On finished fetching datasource structure
+      // when finished fetching datasource structure
       const selectedDatasourceStructure =
         datasourcesStructure[selectedDatasource.id] || {};
 
@@ -513,7 +523,6 @@ function GeneratePageForm() {
     history.push(redirectURL);
   };
 
-  const submitButtonDisable = !selectedTable.value;
   // if the datasource has basic information to connect to db it is considered as a valid structure hence isValid true.
   const isValidDatasourceConfig = selectedDatasource.data?.isValid;
 
@@ -546,6 +555,9 @@ function GeneratePageForm() {
     if (fetchingDatasourceConfigError) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
+    if (isSelectedTableEmpty) {
+      tableDropdownErrorMsg = `Couldn't find any columns, Please select table with columns.`;
+    }
   }
 
   const showEditDatasourceBtn =
@@ -557,10 +569,15 @@ function GeneratePageForm() {
     !!selectedTable.value &&
     PLUGIN_PACKAGE_NAME.S3 !== selectedDatasourcePluginPackageName;
 
-  const showSubmitButton = selectedTable.value && !showEditDatasourceBtn;
-  !fetchingDatasourceConfigs &&
-    fetchingDatasourceConfigError &&
+  const showSubmitButton =
+    selectedTable.value &&
+    !showEditDatasourceBtn &&
+    !fetchingDatasourceConfigs &&
+    !fetchingDatasourceConfigError &&
     !!selectedDatasource.value;
+
+  const submitButtonDisable =
+    !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
 
   return (
     <div>
@@ -571,7 +588,7 @@ function GeneratePageForm() {
       </Wrapper>
       <FormWrapper>
         <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
-          <Label>Select Datasource</Label>
+          <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
@@ -587,6 +604,7 @@ function GeneratePageForm() {
                 key={option.id}
                 option={option}
                 optionClickHandler={optionClickHandler}
+                optionWidth={DROPDOWN_DIMENSION.WIDTH}
               />
             )}
             selected={selectedDatasource}

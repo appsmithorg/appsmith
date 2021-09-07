@@ -22,8 +22,10 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -49,10 +51,11 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
-    private final OrganizationService organizationService;
+    private final OrganizationRepository organizationRepository;
     private final LayoutActionService layoutActionService;
 
     private final AnalyticsService analyticsService;
@@ -61,26 +64,6 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationRepository applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
-
-    public ApplicationPageServiceImpl(ApplicationService applicationService,
-                                      SessionUserService sessionUserService,
-                                      OrganizationService organizationService,
-                                      LayoutActionService layoutActionService,
-                                      AnalyticsService analyticsService,
-                                      PolicyGenerator policyGenerator,
-                                      ApplicationRepository applicationRepository,
-                                      NewPageService newPageService,
-                                      NewActionService newActionService) {
-        this.applicationService = applicationService;
-        this.sessionUserService = sessionUserService;
-        this.organizationService = organizationService;
-        this.layoutActionService = layoutActionService;
-        this.analyticsService = analyticsService;
-        this.policyGenerator = policyGenerator;
-        this.applicationRepository = applicationRepository;
-        this.newPageService = newPageService;
-        this.newActionService = newActionService;
-    }
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -125,6 +108,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     final PageDTO savedPage = tuple.getT1();
                     final Application application = tuple.getT2();
                     return addPageToApplication(application, savedPage, false)
+                            .then(applicationService.saveLastEditInformation(application.getId()))
                             .thenReturn(savedPage);
                 });
     }
@@ -281,7 +265,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     public Mono<Application> setApplicationPolicies(Mono<User> userMono, String orgId, Application application) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Organization> orgMono = organizationService.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
+                    Mono<Organization> orgMono = organizationRepository.findById(orgId, ORGANIZATION_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, orgId)));
 
                     return orgMono.map(org -> {
@@ -326,7 +310,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return newPageService.findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
-                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
+                .flatMap(page ->
+                        applicationService.saveLastEditInformation(page.getApplicationId())
+                        .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"))
+                );
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,

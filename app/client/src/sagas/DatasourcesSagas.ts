@@ -58,7 +58,7 @@ import { AppState } from "reducers";
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { getConfigInitialValues } from "components/formControls/utils";
-import { setActionProperty } from "actions/actionActions";
+import { setActionProperty } from "actions/pluginActionActions";
 import SaasApi from "api/SaasApi";
 import { authorizeSaasWithAppsmithToken } from "api/CloudServicesApi";
 import {
@@ -500,6 +500,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         }
         if (responseData.messages && responseData.messages.length) {
           messages = responseData.messages;
+          if (responseData.success) {
+            Toaster.show({
+              text: createMessage(DATASOURCE_VALID, payload.name),
+              variant: Variant.success,
+            });
+          }
         }
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,

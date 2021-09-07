@@ -5,7 +5,11 @@ import { Server, Socket } from "socket.io"
 import { MongoClient, ObjectId } from "mongodb"
 import type mongodb from "mongodb"
 import axios from "axios"
+import { LogLevelDesc } from "loglevel";
+import log from "loglevel";
 import { AppUser, CurrentEditorsEvent, Policy, Comment, CommentThread, MousePointerEvent } from "./models"
+
+const RTS_BASE_PATH = "/rts"
 
 const APP_ROOM_PREFIX : string = "app:"
 const PAGE_ROOM_PREFIX : string = "page:"
@@ -17,16 +21,19 @@ const START_EDIT_EVENT_NAME : string = "collab:start_edit"
 const LEAVE_EDIT_EVENT_NAME : string = "collab:leave_edit"
 const MOUSE_POINTER_EVENT_NAME : string = "collab:mouse_pointer"
 
+// Setting the logLevel for all log messages
+const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as LogLevelDesc
+log.setLevel(logLevel);
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
 if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
-	console.error("Please provide a valid value for `APPSMITH_MONGODB_URI`.")
+	log.error("Please provide a valid value for `APPSMITH_MONGODB_URI`.")
 	process.exit(1)
 }
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL
 if (API_BASE_URL == null || API_BASE_URL === "") {
-	console.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.")
+	log.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.")
 	process.exit(1)
 }
 
@@ -34,8 +41,11 @@ main()
 
 function main() {
 	const app = express()
+	//Disable x-powered-by header to prevent information disclosure
+	app.disable("x-powered-by");
 	const server = new http.Server(app)
 	const io = new Server(server, {
+		path: RTS_BASE_PATH,
 		// TODO: Remove this CORS configuration.
 		cors: {
 			origin: "*",
@@ -51,45 +61,50 @@ function main() {
 	io.on("connection", (socket: Socket) => {
 		subscribeToEditEvents(socket, APP_ROOM_PREFIX)
 		onAppSocketConnected(socket)
-			.catch((error) => console.error("Error in socket connected handler", error))
+			.catch((error) => log.error("Error in socket connected handler", error))
 	})
 
 	io.of(PAGE_EDIT_NAMESPACE).on("connection", (socket: Socket) => {
 		subscribeToEditEvents(socket, PAGE_ROOM_PREFIX);
 		onPageSocketConnected(socket, io)
-			.catch((error) => console.error("Error in socket connected handler", error))
+			.catch((error) => log.error("Error in socket connected handler", error))
 	});
 
 	io.of(ROOT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`)
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 	
 	io.of(ROOT_NAMESPACE).adapter.on("join-room", (room, id) => {
+		log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`)
 		sendCurrentUsers(io, room, APP_ROOM_PREFIX);
 	});
 
 	io.of(PAGE_EDIT_NAMESPACE).adapter.on("leave-room", (room, id) => {
+		log.debug(`ns:${PAGE_EDIT_NAMESPACE}# socket ${id} left the room ${room}`)
 		if(room.startsWith(PAGE_ROOM_PREFIX)) { // someone left the page edit, notify others
 			io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
 		}
 	});
 
 	watchMongoDB(io)
-		.catch((error) => console.error("Error watching MongoDB", error))
+		.catch((error) => log.error("Error watching MongoDB", error))
 
 	app.use(express.static(path.join(__dirname, "static")))
 	server.listen(port, () => {
-		console.log(`RTS running at http://localhost:${port}`)
+		log.info(`RTS running at http://localhost:${port}`)
 	})
 }
 
 function joinEditRoom(socket:Socket, roomId:string, roomPrefix:string) {
 	// remove this socket from any other app rooms
-	socket.rooms.forEach(roomName => {
-		if(roomName.startsWith(roomPrefix)) {
-			socket.leave(roomName);
-		}
-	});
+	if(socket.rooms) {
+		socket.rooms.forEach(roomName => {
+			if(roomName.startsWith(roomPrefix)) {
+				socket.leave(roomName);
+			}
+		});
+	}
 
 	// add this socket to room with application id
 	let roomName = roomPrefix + roomId;
@@ -131,41 +146,61 @@ async function onPageSocketConnected(socket:Socket, socketIo:Server) {
 }
 
 async function tryAuth(socket:Socket) {
-	const connectionCookie = socket.handshake.headers.cookie
-	if (connectionCookie != null && connectionCookie !== "") {
-		const sessionCookie = connectionCookie.match(/\bSESSION=\S+/)[0]
-		let response
-		try {
-			response = await axios.request({
-				method: "GET",
-				url: API_BASE_URL + "/applications/new",
-				headers: {
-					Cookie: sessionCookie,
-				},
-			})
-		} catch (error) {
-			if (error.response?.status === 401) {
-				console.info("Couldn't authenticate user with cookie:")
-			} else {
-				console.error("Error authenticating", error)
-			}
-			return false
-		}
-	
-		const email = response.data.data.user.email
-		const name = response.data.data.user.name ? response.data.data.user.name : email;
-	
-		socket.data.email = email
-		socket.data.name = name
-		
-		if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
-			joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
-		}
 
-		return true
+	/* ********************************************************* */
+	// TODO: This change is not being used at the moment. Instead of using the environment variable API_BASE_URL
+	// we should be able to derive the API_BASE_URL from the host header. This will make configuration simpler
+	// for the user. The problem with this implementation is that Axios doesn't work for https endpoints currently.
+	// This needs to be debugged.
+	const host = socket.handshake.headers.host
+	const protocol = socket.handshake.headers.referer.startsWith("https") ? "https" : "http"
+	const apiUrl = "http://" + host + "/api/v1/users/me"
+	/* ********************************************************* */
+
+	const connectionCookie = socket.handshake.headers.cookie;
+	if (connectionCookie != null && connectionCookie !== "") {
+		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
+		if(matchedCookie) {
+			const sessionCookie = matchedCookie[0]
+			let response
+			try {
+				response = await axios.request({
+					method: "GET",
+					url: API_BASE_URL + "/users/me",
+					headers: {
+						Cookie: sessionCookie,
+					},
+				})
+			} catch (error) {
+				if (error.response?.status === 401) {
+					console.info("401 received when authenticating user with cookie: " + sessionCookie)
+				} else if(error.response) {
+					log.error("Error response received while authentication: ", error.response)
+				} else {
+					log.error("Error authenticating", error)
+				}
+				return false
+			}
+			
+			const email = response.data.data.email
+			const name = response.data.data.name ? response.data.data.name : email;
+
+			// If the session check API succeeds & the email/name is anonymousUser, then the user is not authenticated
+			// and we should not allow them to join any rooms
+			if (email === "anonymousUser" || name === "anonymousUser") {
+				return false;
+			}
+
+			socket.data.email = email
+			socket.data.name = name
+			
+			if(socket.data.pendingRoomId) {  // an appId or pageId is pending for this socket, join now
+				joinEditRoom(socket, socket.data.pendingRoomId, socket.data.pendingRoomPrefix);
+			}
+			return true
+		}
 	}
 	return false
-	
 }
 
 async function watchMongoDB(io) {
@@ -243,7 +278,7 @@ async function watchMongoDB(io) {
 		
 		if (thread == null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
-			console.error("Null document recieved for comment change event", event)
+			log.error("Null document recieved for comment change event", event)
 			return
 		}
 
@@ -287,7 +322,7 @@ async function watchMongoDB(io) {
 
 		if (notification == null) {
 			// This happens when `event.operationType === "drop"`, when a notification is deleted.
-			console.error("Null document recieved for notification change event", event)
+			log.error("Null document recieved for notification change event", event)
 			return
 		}
 
@@ -299,13 +334,21 @@ async function watchMongoDB(io) {
 		io.to("email:" + notification.forUsername).emit(eventName, { notification })
 	})
 
+	process.on('uncaughtExceptionMonitor', (err, origin) => {
+		log.error(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+	});
+
+	process.on('unhandledRejection', (reason, promise) => {
+		log.debug('Unhandled Rejection at:', promise, 'reason:', reason);
+	});
+
 	process.on("exit", () => {
 		(commentChangeStream != null ? commentChangeStream.close() : Promise.bind(client).resolve())
 			.then(client.close.bind(client))
 			.finally("Fin")
 	})
 
-	console.log("Watching MongoDB")
+	log.debug("Watching MongoDB")
 }
 
 function findPolicyEmails(policies: Policy[], permission: string): string[] {

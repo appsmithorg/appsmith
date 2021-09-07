@@ -16,6 +16,10 @@ const initialState: GlobalSearchReduxState = {
     category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
     fieldMeta: {},
     refinements: {},
+    evaluatedSnippet: "",
+    executionInProgress: false,
+    evaluatedArguments: {},
+    insertSnippet: false,
   },
 };
 
@@ -26,20 +30,56 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({ ...state, query: action.payload }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<SearchCategory>,
   ) => ({
     ...state,
     modalOpen: !state.modalOpen,
-    filterContext: { ...state.filterContext, category: action.payload },
+    filterContext: {
+      ...state.filterContext,
+      category: action.payload,
+      insertSnippet: false,
+    },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
-    action: any,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
   ) => ({
     ...state,
     filterContext: {
       ...state.filterContext,
       ...action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_SNIPPET]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedSnippet: action.payload,
+    },
+  }),
+  [ReduxActionTypes.SET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+    action: ReduxAction<Partial<GlobalSearchReduxState["filterContext"]>>,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {
+        ...state.filterContext.evaluatedArguments,
+        ...action.payload,
+      },
+    },
+  }),
+  [ReduxActionTypes.UNSET_EVALUATED_ARGUMENT]: (
+    state: GlobalSearchReduxState,
+  ) => ({
+    ...state,
+    filterContext: {
+      ...state.filterContext,
+      evaluatedArguments: {},
     },
   }),
   [ReduxActionTypes.SET_RECENT_ENTITIES]: (
@@ -77,6 +117,10 @@ export interface GlobalSearchReduxState {
       dataType?: string;
       field?: string;
     };
+    insertSnippet: boolean;
+    evaluatedSnippet: string;
+    executionInProgress: boolean;
+    evaluatedArguments: any;
   };
 }
 

@@ -50,7 +50,7 @@ type Props = PostDataProps;
 
 const expectedPostBody: CodeEditorExpected = {
   type: FIELD_VALUES.API_ACTION.body,
-  example: "",
+  example: '{\n  "color":"blue",\n  "isVisible": true \n}',
   autocompleteDataType: AutocompleteDataType.OBJECT,
 };
 
@@ -91,6 +91,7 @@ function PostBodyData(props: Props) {
           key={key}
           label=""
           name="actionConfiguration.bodyFormData"
+          pushFields
           theme={theme}
         />
       ),

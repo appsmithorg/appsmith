@@ -32,6 +32,7 @@ export type INJECTED_CONFIGS = {
     apiId: string;
     apiKey: string;
     indexName: string;
+    snippetIndex: string;
   };
   logLevel: "debug" | "error";
   appVersion: {
@@ -44,6 +45,7 @@ export type INJECTED_CONFIGS = {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
+  isAppsmithCloud: boolean;
 };
 declare global {
   interface Window {
@@ -91,6 +93,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
+      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -120,6 +123,7 @@ const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
+    isAppsmithCloud: !!process.env.REACT_APP_IS_APPSMITH_CLOUD,
   };
 };
 
@@ -194,6 +198,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.algolia.indexName,
     APPSMITH_FEATURE_CONFIGS.algolia.indexName,
   );
+  const algoliaSnippetIndex = getConfig(
+    ENV_CONFIG.algolia.indexName,
+    APPSMITH_FEATURE_CONFIGS.algolia.snippetIndex,
+  );
 
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
@@ -248,6 +256,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
       apiKey: algoliaAPIKey.value || "d113611dccb80ac14aaa72a6e3ac6d10",
       indexName: algoliaIndex.value || "test_appsmith",
+      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     google: {
       enabled: google.enabled,
@@ -284,5 +293,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
+    isAppsmithCloud: ENV_CONFIG.isAppsmithCloud,
   };
 };

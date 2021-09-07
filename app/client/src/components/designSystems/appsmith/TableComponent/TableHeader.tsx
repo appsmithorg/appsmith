@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { Icon, NumericInput } from "@blueprintjs/core";
+import { Icon, NumericInput, Keys } from "@blueprintjs/core";
 import {
   RowWrapper,
   PaginationWrapper,
@@ -8,16 +8,13 @@ import {
   CommonFunctionsMenuWrapper,
 } from "./TableStyledWrappers";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
-// import TableColumnsVisibility from "components/designSystems/appsmith/TableColumnsVisibility";
 import TableFilters from "components/designSystems/appsmith/TableComponent/TableFilters";
 import {
   ReactTableColumnProps,
   ReactTableFilter,
-  CompactMode,
   TableSizes,
 } from "components/designSystems/appsmith/TableComponent/Constants";
 import TableDataDownload from "components/designSystems/appsmith/TableComponent/TableDataDownload";
-import TableCompactMode from "components/designSystems/appsmith/TableComponent/TableCompactMode";
 import { Colors } from "constants/Colors";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -52,6 +49,28 @@ function PageNumberInput(props: {
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
   }, [props.pageNo]);
+  const handleUpdatePageNo = useCallback(
+    (e) => {
+      const oldPageNo = Number(props.pageNo || 0);
+      let page = Number(e.target.value);
+      // check page is less then min page count
+      if (isNaN(page) || page < 1) {
+        page = 1;
+      }
+      // check page is greater then max page count
+      if (page > props.pageCount) {
+        page = props.pageCount;
+      }
+      // fire Event based on new page number
+      if (oldPageNo < page) {
+        props.updatePageNo(page, EventType.ON_NEXT_PAGE);
+      } else if (oldPageNo > page) {
+        props.updatePageNo(page, EventType.ON_PREV_PAGE);
+      }
+      setPageNumber(page);
+    },
+    [props.pageNo, props.pageCount],
+  );
   return (
     <PageNumberInputWrapper
       buttonPosition="none"
@@ -60,27 +79,14 @@ function PageNumberInput(props: {
       disabled={props.disabled}
       max={props.pageCount || 1}
       min={1}
-      onBlur={(e: any) => {
-        const oldPageNo = Number(props.pageNo || 0);
-        const value = e.target.value;
-        let page = Number(value);
-        if (isNaN(value) || Number(value) < 1) {
-          page = 1;
-        }
-        if (oldPageNo < page) {
-          props.updatePageNo(page, EventType.ON_NEXT_PAGE);
-        } else if (oldPageNo > page) {
-          props.updatePageNo(page, EventType.ON_PREV_PAGE);
+      onBlur={handleUpdatePageNo}
+      onKeyDown={(e: any) => {
+        if (e.keyCode === Keys.ENTER) {
+          handleUpdatePageNo(e);
         }
       }}
       onValueChange={(value: number) => {
-        if (isNaN(value) || value < 1) {
-          setPageNumber(1);
-        } else if (value > props.pageCount) {
-          setPageNumber(props.pageCount);
-        } else {
-          setPageNumber(value);
-        }
+        setPageNumber(value);
       }}
       value={pageNumber}
     />
@@ -92,6 +98,7 @@ interface TableHeaderProps {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
   pageCount: number;
@@ -106,10 +113,7 @@ interface TableHeaderProps {
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
-  compactMode?: CompactMode;
-  updateCompactMode: (compactMode: CompactMode) => void;
   tableSizes: TableSizes;
-  isVisibleCompactMode?: boolean;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
@@ -127,9 +131,7 @@ function TableHeader(props: TableHeaderProps) {
           value={props.searchKey}
         />
       )}
-      {(props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.isVisibleCompactMode) && (
+      {(props.isVisibleFilters || props.isVisibleDownload) && (
         <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
           {props.isVisibleFilters && (
             <TableFilters
@@ -148,13 +150,6 @@ function TableHeader(props: TableHeaderProps) {
               widgetName={props.widgetName}
             />
           )}
-
-          {props.isVisibleCompactMode && (
-            <TableCompactMode
-              compactMode={props.compactMode}
-              updateCompactMode={props.updateCompactMode}
-            />
-          )}
         </CommonFunctionsMenuWrapper>
       )}
 
@@ -162,7 +157,7 @@ function TableHeader(props: TableHeaderProps) {
         <PaginationWrapper>
           <PaginationItemWrapper
             className="t--table-widget-prev-page"
-            disabled={false}
+            disabled={props.pageNo === 0}
             onClick={() => {
               props.prevPageClick();
             }}
@@ -174,7 +169,9 @@ function TableHeader(props: TableHeaderProps) {
           </PaginationItemWrapper>
           <PaginationItemWrapper
             className="t--table-widget-next-page"
-            disabled={false}
+            disabled={
+              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
+            }
             onClick={() => {
               props.nextPageClick();
             }}

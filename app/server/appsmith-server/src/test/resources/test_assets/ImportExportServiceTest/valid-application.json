@@ -1,5 +1,4 @@
 {
-    "appsmithVersion":"UNKNOWN",
     "exportedApplication": {
       "userPermissions": [
         "canComment:applications",
@@ -24,6 +23,7 @@
         ],
         "name": "db-auth",
         "pluginId": "mongo-plugin",
+        "gitSyncId": "datasource1_git",
         "datasourceConfiguration": {
           "connection": {
             "mode": "READ_WRITE",
@@ -57,6 +57,7 @@
         ],
         "name": "api_ds_wo_auth",
         "pluginId": "restapi-plugin",
+        "gitSyncId": "datasource2_git",
         "datasourceConfiguration": {
           "sshProxyEnabled": false,
           "properties": [
@@ -83,6 +84,7 @@
           "read:pages",
           "manage:pages"
         ],
+        "gitSyncId": "page1_git",
         "applicationId": "valid_application",
         "unpublishedPage": {
           "name": "Page1",
@@ -378,6 +380,7 @@
           "read:pages",
           "manage:pages"
         ],
+        "gitSyncId": "page2_git",
         "applicationId": "valid_application",
         "unpublishedPage": {
           "name": "Page2",
@@ -423,6 +426,7 @@
         "applicationId": "valid_application",
         "pluginType": "DB",
         "pluginId": "mongo-plugin",
+        "gitSyncId": "action1_git",
         "unpublishedAction": {
           "name": "get_users",
           "datasource": {
@@ -468,6 +472,7 @@
         "applicationId": "valid_application",
         "pluginType": "API",
         "pluginId": "restapi-plugin",
+        "gitSyncId": "action2_git",
         "unpublishedAction": {
           "name": "api_wo_auth",
           "datasource": {

@@ -67,6 +67,11 @@ import FilePickerWidget, {
   FilePickerWidgetProps,
   ProfiledFilePickerWidget,
 } from "widgets/FilepickerWidget";
+
+import FilePickerWidgetV2, {
+  FilePickerWidgetV2Props,
+  ProfiledFilePickerWidgetV2,
+} from "widgets/FilepickerWidgetV2";
 import DatePickerWidget, {
   DatePickerWidgetProps,
   ProfiledDatePickerWidget,
@@ -127,6 +132,7 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import StatboxWidget, { ProfiledStatboxWidget } from "widgets/StatboxWidget";
 import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
@@ -290,6 +296,20 @@ export default class WidgetBuilderRegistry {
       FilePickerWidget.getMetaPropertiesMap(),
       FilePickerWidget.getPropertyPaneConfig(),
     );
+
+    WidgetFactory.registerWidgetBuilder(
+      "FILE_PICKER_WIDGET_V2",
+      {
+        buildWidget(widgetData: FilePickerWidgetV2Props): JSX.Element {
+          return <ProfiledFilePickerWidgetV2 {...widgetData} />;
+        },
+      },
+      FilePickerWidgetV2.getDerivedPropertiesMap(),
+      FilePickerWidgetV2.getDefaultPropertiesMap(),
+      FilePickerWidgetV2.getMetaPropertiesMap(),
+      FilePickerWidgetV2.getPropertyPaneConfig(),
+    );
+
     WidgetFactory.registerWidgetBuilder(
       "DATE_PICKER_WIDGET",
       {
@@ -558,6 +578,21 @@ export default class WidgetBuilderRegistry {
       IconButtonWidget.getDefaultPropertiesMap(),
       IconButtonWidget.getMetaPropertiesMap(),
       IconButtonWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.STATBOX_WIDGET,
+      {
+        buildWidget(
+          widgetProps: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <ProfiledStatboxWidget {...widgetProps} />;
+        },
+      },
+      StatboxWidget.getDerivedPropertiesMap(),
+      StatboxWidget.getDefaultPropertiesMap(),
+      StatboxWidget.getMetaPropertiesMap(),
+      StatboxWidget.getPropertyPaneConfig(),
     );
 
     WidgetFactory.registerWidgetBuilder(

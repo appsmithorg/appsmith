@@ -18,7 +18,7 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { Diff } from "deep-diff";
+import evaluate from "./evaluate";
 
 const ctx: Worker = self as any;
 
@@ -51,7 +51,6 @@ ctx.addEventListener(
         let errors: EvalError[] = [];
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
-        let updates: Diff<DataTree, DataTree>[] = [];
         let evaluationOrder: string[] = [];
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
@@ -65,9 +64,9 @@ ctx.addEventListener(
           } else {
             dataTree = {};
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
-            updates = JSON.parse(JSON.stringify(updateResponse.updates));
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
+            dataTree = JSON.parse(JSON.stringify(dataTreeEvaluator.evalTree));
           }
           dependencies = dataTreeEvaluator.inverseDependencyMap;
           errors = dataTreeEvaluator.errors;
@@ -95,7 +94,6 @@ ctx.addEventListener(
           errors,
           evaluationOrder,
           logs,
-          updates,
           unEvalUpdates,
         };
       }
@@ -176,6 +174,13 @@ ctx.addEventListener(
           validateWidgetProperty(validation, value, props),
         );
       }
+      case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
+        const { expression, isTrigger } = requestData;
+        const evalTree = dataTreeEvaluator?.evalTree;
+        if (!evalTree) return {};
+        return isTrigger
+          ? evaluate(expression, evalTree, [], true)
+          : evaluate(expression, evalTree);
       default: {
         console.error("Action not registered on worker", method);
       }

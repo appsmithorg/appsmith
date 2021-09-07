@@ -8,8 +8,6 @@ export function createMessage(
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
-export const ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} action created successfully`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -193,6 +191,9 @@ export const SHOW_REQUEST = () => `Show Request`;
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT = () =>
   `Change column datatype to see filter operators`;
 
+export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
+  "Don't worry about saving, we've got you covered!";
+
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `To add a widget, please drag and drop a widget on the canvas to the right`;
@@ -212,14 +213,12 @@ export const ERROR_DATEPICKER_MIN_DATE = () =>
 export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
-export const ERROR_API_EXECUTE = (actionName: string) =>
-  `${actionName} failed to execute. Please check it's configuration`;
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
+  `${actionName} failed to execute`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
-export const ACTION_DELETE_SUCCESS = (actionName: string) =>
-  `${actionName} action deleted successfully`;
 export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} action moved to page ${pageName} successfully`;
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -308,6 +307,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
 export const DELETE_THREAD = () => "Delete Thread";
 export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
@@ -395,12 +395,19 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
 
-export const GEN_CRUD_INFO_DIALOG_HEADING = () =>
+export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready to use.";
+export const GEN_CRUD_SUCCESS_DESC = () =>
+  "Search through your data in the table and update it using the form";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "Search through your data in the table and update it using the form.";
-
+  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
+export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column Headers Fetched";
+export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
+export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select Datasource";
+export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table Header Index";
+export const GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC = () =>
+  "Row index of the column headers in the sheet table";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
@@ -419,22 +426,27 @@ export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
 // Data Sources pane
 export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
+export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
+
+export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
+
+export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
-export const GIT_CONNECTION = () => "GIT Connection";
+export const GIT_CONNECTION = () => "Git Connections";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
 export const SETTINGS = () => "Settings";
-export const CONNECT_TO_GIT = () => "Connect to Git";
+export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Choose an existing empty repository to host your project and keep it in sync";
+  "Checkout branches, Make commits, add deploy your application";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
 
@@ -450,3 +462,21 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+export const PULL = () => "PULL";
+
+export const SNIPPET_DESCRIPTION = () =>
+  `Search and Insert code snippets to perform complex actions quickly.`;
+export const DOC_DESCRIPTION = () =>
+  `Find answers through appsmith documentation.`;
+export const NAV_DESCRIPTION = () =>
+  `Navigate to any page, widget or file across this project.`;
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+
+// Comment card tooltips
+export const MORE_OPTIONS = () => "More Options";
+export const ADD_REACTION = () => "Add Reaction";
+export const RESOLVE_THREAD = () => "Resolve Thread";
+export const EMOJI = () => "Emoji";

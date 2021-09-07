@@ -18,11 +18,38 @@ ff4j:
           - name: emailDomains
             value: appsmith.com,moolya.com
 
-    - uid: COMMENT
+    - uid: SNIPPET
       enable: true
-      description: Enable collaboration by email domain of the user
+      description: Enable snippets feature by email domain of the user
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emailDomains
-            value: appsmith.com,wazirx.com,pharmeasy.in,allround.club
+            value: appsmith.com,moolya.com
+
+    - uid: LINTING
+      enable: true
+      description: Enable linting feature by email domain of the user
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com,moolya.com
+
+    - uid: MULTIPLAYER
+      enable: true
+      description: Enable collaboration by sharing mouse pointers of concurrent app editors
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: appsmith.com
+
+    - uid: GIT
+      enable: true
+      description: Enable git for apps
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emailDomains
+            value: test.com
