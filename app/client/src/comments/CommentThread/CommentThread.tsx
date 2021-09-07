@@ -10,14 +10,18 @@ import {
   markThreadAsReadRequest,
   resetVisibleThread,
   setCommentResolutionRequest,
+  updateThreadDraftComment,
 } from "actions/commentActions";
 
-import { shouldShowResolved as shouldShowResolvedSelector } from "selectors/commentsSelectors";
+import {
+  getDraftComments,
+  shouldShowResolved as shouldShowResolvedSelector,
+} from "selectors/commentsSelectors";
 
 import useIsScrolledToBottom from "utils/hooks/useIsScrolledToBottom";
 
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { RawDraftContentState } from "draft-js";
+import { EditorState, RawDraftContentState } from "draft-js";
 
 import styled, { withTheme } from "styled-components";
 import { animated } from "react-spring";
@@ -150,6 +154,14 @@ const CommentThreadContainer = withTheme(function CommentThreadContainer({
 
   const maxHeight = inline ? inlineThreadHeightOffset : "unset";
 
+  const draftComment = useSelector(
+    (state: AppState) => getDraftComments(state)[commentThreadId],
+  );
+
+  const handleChange = (editorState: EditorState) => {
+    dispatch(updateThreadDraftComment(editorState, commentThreadId));
+  };
+
   if (!commentThread) return null;
 
   return isThreadVisible ? (
@@ -198,7 +210,12 @@ const CommentThreadContainer = withTheme(function CommentThreadContainer({
         )}
       </div>
       {!hideInput && (
-        <AddCommentInput onCancel={handleCancel} onSave={addComment} />
+        <AddCommentInput
+          initialEditorState={draftComment}
+          onCancel={handleCancel}
+          onChange={handleChange}
+          onSave={addComment}
+        />
       )}
     </ThreadContainer>
   ) : null;

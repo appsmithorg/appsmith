@@ -1,5 +1,6 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
+import { EditorState } from "draft-js";
 
 export interface CommentsReduxState {
   commentThreadsMap: Record<string, CommentThread>;
@@ -19,5 +20,7 @@ export interface CommentsReduxState {
     x: number;
     y: number;
   } | null;
+  unpublishedThreadDraftComment: EditorState | null;
+  draftComments: Record<string, EditorState>;
   commentThreadsFetched: boolean;
 }
