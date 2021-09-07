@@ -69,4 +69,10 @@ APPSMITH_DISABLE_TELEMETRY=$disable_telemetry
 # APPSMITH_RECAPTCHA_ENABLED=
 # ************************************
 
+# ******** INTERCOM *************
+# APPSMITH_DISABLE_INTERCOM=
+# *******************************
+
+# APPSMITH_PLUGIN_MAX_RESPONSE_SIZE_MB=5
+
 EOF

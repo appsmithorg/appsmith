@@ -16,7 +16,6 @@ import * as log from "loglevel";
 import { getCanvasClassName } from "utils/generators";
 import { flashElementsById } from "utils/helpers";
 import { useParams } from "react-router";
-import { fetchPage } from "actions/pageActions";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -28,14 +27,16 @@ import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
+import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 
 const EditorWrapper = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
   overflow: hidden;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  position: relative;
 `;
 
 const CanvasContainer = styled.section`
@@ -69,13 +70,6 @@ function WidgetsEditor() {
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
-
-  // Switch page
-  useEffect(() => {
-    if (currentPageId !== params.pageId && !!params.pageId) {
-      dispatch(fetchPage(params.pageId));
-    }
-  }, [currentPageId, params.pageId, dispatch]);
 
   // log page load
   useEffect(() => {
@@ -120,15 +114,22 @@ function WidgetsEditor() {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
-  const onDragStart = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const startPoints = {
-      x: e.clientX,
-      y: e.clientY,
-    };
-    dispatch(setCanvasSelectionFromEditor(true, startPoints));
-  };
+  const allowDragToSelect = useAllowEditorDragToSelect();
+
+  const onDragStart = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (allowDragToSelect) {
+        const startPoints = {
+          x: e.clientX,
+          y: e.clientY,
+        };
+        dispatch(setCanvasSelectionFromEditor(true, startPoints));
+      }
+    },
+    [allowDragToSelect],
+  );
 
   log.debug("Canvas rendered");
   PerformanceTracker.stopTracking();
@@ -140,10 +141,10 @@ function WidgetsEditor() {
         onClick={handleWrapperClick}
         onDragStart={onDragStart}
       >
-        <MainContainerLayoutControl />
         <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
+        <MainContainerLayoutControl />
         <Debugger />
         <CrudInfoModal />
       </EditorWrapper>

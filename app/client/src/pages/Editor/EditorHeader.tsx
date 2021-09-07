@@ -57,6 +57,7 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -227,6 +228,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     dispatch(setIsGitSyncModalOpen(true));
   }, [dispatch, setIsGitSyncModalOpen]);
 
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -276,7 +281,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          <RealtimeAppEditors applicationId={applicationId} />
+          {isMultiplayerEnabledForUser && (
+            <RealtimeAppEditors applicationId={applicationId} />
+          )}
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -329,7 +336,6 @@ export function EditorHeader(props: EditorHeaderProps) {
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                hideThemeSwitch
                 name={user.name}
                 userName={user?.username || ""}
               />

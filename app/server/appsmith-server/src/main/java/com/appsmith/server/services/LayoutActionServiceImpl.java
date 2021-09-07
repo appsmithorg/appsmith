@@ -26,6 +26,7 @@ import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.solutions.PageLoadActionsUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -56,6 +57,7 @@ import static java.util.stream.Collectors.toSet;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class LayoutActionServiceImpl implements LayoutActionService {
 
     private final ObjectMapper objectMapper;
@@ -64,6 +66,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final NewActionService newActionService;
     private final PageLoadActionsUtil pageLoadActionsUtil;
     private final SessionUserService sessionUserService;
+    private final ApplicationService applicationService;
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
@@ -74,20 +77,6 @@ public class LayoutActionServiceImpl implements LayoutActionService {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
-
-    public LayoutActionServiceImpl(ObjectMapper objectMapper,
-                                   AnalyticsService analyticsService,
-                                   NewPageService newPageService,
-                                   NewActionService newActionService,
-                                   PageLoadActionsUtil pageLoadActionsUtil,
-                                   SessionUserService sessionUserService) {
-        this.objectMapper = objectMapper;
-        this.analyticsService = analyticsService;
-        this.newPageService = newPageService;
-        this.newActionService = newActionService;
-        this.pageLoadActionsUtil = pageLoadActionsUtil;
-        this.sessionUserService = sessionUserService;
-    }
 
     @Override
     public Mono<ActionDTO> moveAction(ActionMoveDTO actionMoveDTO) {
@@ -676,7 +665,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         }
                     }
                     page.setLayouts(layoutList);
-                    return newPageService.saveUnpublishedPage(page);
+                    return applicationService.saveLastEditInformation(page.getApplicationId())
+                            .then(newPageService.saveUnpublishedPage(page));
                 })
                 .flatMap(page -> {
                     List<Layout> layoutList = page.getLayouts();

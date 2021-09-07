@@ -92,6 +92,7 @@ export interface ActionResponse {
   isExecutionSuccess?: boolean;
   suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
+  errorType?: string;
 }
 
 export interface MoveActionRequest {

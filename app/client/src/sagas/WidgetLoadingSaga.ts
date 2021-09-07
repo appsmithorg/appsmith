@@ -67,9 +67,9 @@ const getEntityDependencies = (
 const ACTION_EXECUTION_REDUX_ACTIONS = [
   ReduxActionTypes.RUN_ACTION_REQUEST,
   ReduxActionTypes.RUN_ACTION_SUCCESS,
-  ReduxActionTypes.EXECUTE_API_ACTION_REQUEST,
-  ReduxActionTypes.EXECUTE_API_ACTION_SUCCESS,
-  ReduxActionErrorTypes.EXECUTE_ACTION_ERROR,
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_REQUEST,
+  ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+  ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
 ];
 
 function* setWidgetsLoadingSaga() {

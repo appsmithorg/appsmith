@@ -26,7 +26,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import {
   deleteDatasource,
   redirectAuthorizationCode,
@@ -83,13 +83,10 @@ type Props = DatasourceRestApiEditorProps &
   InjectedFormProps<ApiDatasourceForm, DatasourceRestApiEditorProps>;
 
 const RestApiForm = styled.div`
+  flex: 1;
   padding: 20px;
   margin-left: 10px;
   margin-right: 0px;
-  height: calc(
-    100vh - ${(props) => props.theme.headerHeight} -
-      ${(props) => props.theme.backBanner}
-  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;

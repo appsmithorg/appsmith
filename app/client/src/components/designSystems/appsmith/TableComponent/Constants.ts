@@ -1,6 +1,10 @@
 import { isString } from "lodash";
 import moment from "moment";
 import { TextSize } from "constants/WidgetConstants";
+import { IconName } from "@blueprintjs/icons";
+import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
+import { ButtonStyle, ButtonVariant } from "../IconButtonComponent";
 
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
@@ -62,6 +66,11 @@ export enum OperatorTypes {
   AND = "AND",
 }
 
+export enum SortOrderTypes {
+  asc = "asc",
+  desc = "desc",
+}
+
 export interface TableStyles {
   cellBackground?: string;
   textColor?: string;
@@ -97,6 +106,12 @@ export interface CellLayoutProperties {
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant: ButtonVariant;
+  borderRadius: ButtonBorderRadius;
+  boxShadow: ButtonBoxShadow;
+  boxShadowColor: string;
+  iconButtonStyle: ButtonStyle;
   isCellVisible: boolean;
 }
 
@@ -125,7 +140,7 @@ export interface ReactTableColumnProps extends TableColumnProps {
 
 export interface ColumnProperties {
   id: string;
-  label: string;
+  label?: string;
   columnType: string;
   isVisible: boolean;
   isDisabled?: boolean;
@@ -150,6 +165,12 @@ export interface ColumnProperties {
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
+  iconName?: IconName;
+  buttonVariant?: ButtonVariant;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconButtonStyle?: ButtonStyle;
   isCellVisible?: boolean;
 }
 

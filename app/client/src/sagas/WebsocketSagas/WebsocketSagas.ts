@@ -7,6 +7,7 @@ import {
 } from "constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
+  RTS_BASE_PATH,
   websocketDisconnectedEvent,
   websocketConnectedEvent,
 } from "constants/WebsocketConstants";
@@ -19,7 +20,9 @@ import {
 import handleSocketEvent from "./handleSocketEvent";
 
 function connect() {
-  const socket = io();
+  const socket = io({
+    path: RTS_BASE_PATH,
+  });
 
   return new Promise((resolve) => {
     socket.on("connect", () => {
@@ -85,6 +88,10 @@ function* handleIO(socket: any) {
 
 function* flow() {
   while (true) {
+    yield take([
+      ReduxActionTypes.INIT_SOCKET_CONNECTION,
+      ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
+    ]);
     try {
       /**
        * Incase the socket is disconnected due to network latencies
