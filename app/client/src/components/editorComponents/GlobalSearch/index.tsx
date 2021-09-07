@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history from "utils/history";
 import { AppState } from "reducers";
@@ -59,29 +59,30 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
 import useRecentEntities from "./useRecentEntities";
 import { get, keyBy, noop } from "lodash";
-import Footer from "./Footer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getQueryParams } from "../../../utils/AppsmithUtils";
 import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
+import { lightTheme } from "selectors/themeSelectors";
 
-const StyledContainer = styled.div`
+const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
-  height: 530px;
-  background: ${(props) => props.theme.colors.globalSearch.containerBackground};
-  box-shadow: ${(props) => props.theme.colors.globalSearch.containerShadow};
+  max-height: 530px;
+  height: ${(props) => (isMenu(props.category) ? "auto" : "530px")};
+  background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
   display: flex;
+  padding: ${(props) => props.theme.spaces[5]}px;
   flex-direction: column;
+  position: relative;
   & .main {
     display: flex;
     flex: 1;
+    margin-top: ${(props) => props.theme.spaces[4]}px;
     overflow: hidden;
     background-color: ${(props) =>
-      props.theme.colors.globalSearch.mainContainerBackground};
-    padding: ${(props) => props.theme.spaces[4]}px
-      ${(props) => props.theme.spaces[7]}px;
+      props.theme.colors.globalSearch.primaryBgColor};
   }
   ${algoliaHighlightTag},
   & .ais-Highlight-highlighted,
@@ -159,8 +160,12 @@ function GlobalSearch() {
   const category = useSelector(
     (state: AppState) => state.ui.globalSearch.filterContext.category,
   );
-  const setCategory = (category: SearchCategory) =>
+  const setCategory = (category: SearchCategory) => {
+    if (isSnippet(category)) {
+      AnalyticsUtil.logEvent("SNIPPET_CATEGORY_CLICK");
+    }
     dispatch(setGlobalSearchFilterContext({ category: category }));
+  };
   const setRefinements = (entityMeta: any) =>
     dispatch(setGlobalSearchFilterContext({ refinements: entityMeta }));
   const refinements = useSelector(
@@ -386,7 +391,11 @@ function GlobalSearch() {
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const handleDocumentationItemClick = (item: SearchItem) => {
+  const handleDocumentationItemClick = (
+    item: SearchItem,
+    event?: SelectEvent,
+  ) => {
+    if (event && event.type === "click") return;
     window.open(item.path.replace("master", HelpBaseURL), "_blank");
   };
 
@@ -433,19 +442,14 @@ function GlobalSearch() {
   };
 
   const handleSnippetClick = (event: SelectEvent, item: any) => {
-    if (event.type === "click") {
-      setActiveItemIndex(
-        searchResults.findIndex((snip: any) => snip.objectID === item.objectID),
-      );
-      return;
-    }
+    if (event && event.type === "click") return;
     dispatch(insertSnippet(get(item, "body.snippet", "")));
     toggleShow();
   };
 
   const itemClickHandlerByType = {
     [SEARCH_ITEM_TYPES.document]: (e: SelectEvent, item: any) =>
-      handleDocumentationItemClick(item),
+      handleDocumentationItemClick(item, e),
     [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
       handleWidgetClick(item),
     [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
@@ -508,82 +512,84 @@ function GlobalSearch() {
   }, [activeItem]);
 
   return (
-    <SearchContext.Provider value={searchContext}>
-      <GlobalSearchHotKeys {...hotKeyProps}>
-        <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
-          <AlgoliaSearchWrapper
-            category={category}
-            query={query}
-            refinements={refinements}
-            setRefinement={setRefinements}
-          >
-            <StyledContainer>
-              <SearchBox
-                category={category}
-                query={query}
-                setCategory={setCategory}
-                setQuery={setQuery}
-              />
-              {refinements &&
-                refinements.entities &&
-                refinements.entities.length && <SnippetRefinements />}
-              <div className="main">
-                {(isMenu(category) || isDocumentation(category)) && (
-                  <Index indexName={algolia.indexName}>
-                    <SetSearchResults
-                      category={category}
-                      setSearchResults={setDocumentationSearchResultsInState}
-                    />
-                  </Index>
-                )}
-                {/* Search from default menu should search multiple indexes.
+    <ThemeProvider theme={lightTheme}>
+      <SearchContext.Provider value={searchContext}>
+        <GlobalSearchHotKeys {...hotKeyProps}>
+          <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
+            <AlgoliaSearchWrapper
+              category={category}
+              query={query}
+              refinements={refinements}
+              setRefinement={setRefinements}
+            >
+              <StyledContainer category={category}>
+                <SearchBox
+                  category={category}
+                  query={query}
+                  setCategory={setCategory}
+                  setQuery={setQuery}
+                />
+                {isSnippet(category) &&
+                  refinements &&
+                  refinements.entities &&
+                  refinements.entities.length && <SnippetRefinements />}
+                <div className="main">
+                  {(isMenu(category) || isDocumentation(category)) && (
+                    <Index indexName={algolia.indexName}>
+                      <SetSearchResults
+                        category={category}
+                        setSearchResults={setDocumentationSearchResultsInState}
+                      />
+                    </Index>
+                  )}
+                  {/* Search from default menu should search multiple indexes.
                 Below is the code to search in the index-snippet. Index
                 component requires Hits component as its children to display the
                 results. SetSearchResults is the custom hits component. */}
-                {(isMenu(category) || isSnippet(category)) && (
-                  <Index indexName="snippet">
-                    <Configure
-                      optionalFilters={getOptionalFilters(optionalFilterMeta)}
-                    />
-                    <SetSearchResults
-                      category={category}
-                      setSearchResults={setSnippetsState}
-                    />
-                  </Index>
-                )}
-                {searchResults.length > 0 ? (
-                  <>
-                    <SearchResults
-                      query={query}
-                      refinements={refinements}
-                      searchResults={searchResults}
-                      showFilter={isSnippet(category)}
-                    />
-                    {showDescription && (
-                      <Description
-                        activeItem={activeItem}
-                        activeItemType={activeItemType}
-                        query={query}
-                        scrollPositionRef={scrollPositionRef}
+                  {(isMenu(category) || isSnippet(category)) && (
+                    <Index indexName="snippet">
+                      <Configure
+                        optionalFilters={getOptionalFilters(optionalFilterMeta)}
                       />
-                    )}
-                  </>
-                ) : (
-                  <ResultsNotFound />
-                )}
-                {isSnippet(category) && (
-                  <SnippetsFilter
-                    refinements={refinements}
-                    snippetsEmpty={snippets.length === 0}
-                  />
-                )}
-              </div>
-              <Footer />
-            </StyledContainer>
-          </AlgoliaSearchWrapper>
-        </SearchModal>
-      </GlobalSearchHotKeys>
-    </SearchContext.Provider>
+                      <SetSearchResults
+                        category={category}
+                        setSearchResults={setSnippetsState}
+                      />
+                    </Index>
+                  )}
+                  {searchResults.length > 0 ? (
+                    <>
+                      <SearchResults
+                        category={category}
+                        query={query}
+                        searchResults={searchResults}
+                      />
+                      {showDescription && (
+                        <Description
+                          activeItem={activeItem}
+                          activeItemType={activeItemType}
+                          query={query}
+                          scrollPositionRef={scrollPositionRef}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <ResultsNotFound />
+                  )}
+                  {isSnippet(category) && (
+                    <SnippetsFilter
+                      refinements={refinements}
+                      snippetsEmpty={snippets.length === 0}
+                    />
+                  )}
+                </div>
+                {/* <Footer /> */}
+              </StyledContainer>
+            </AlgoliaSearchWrapper>
+          </SearchModal>
+        </GlobalSearchHotKeys>
+      </SearchContext.Provider>
+    </ThemeProvider>
   );
 }
 
