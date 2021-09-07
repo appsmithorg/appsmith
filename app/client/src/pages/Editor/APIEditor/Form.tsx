@@ -56,13 +56,7 @@ import { isEmpty } from "lodash";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh -
-      (
-        ${(props) => props.theme.smallHeaderHeight} +
-          ${(props) => props.theme.backBanner}
-      )
-  );
+  flex: 1;
   overflow: hidden;
   width: 100%;
   ${FormLabel} {
@@ -543,6 +537,7 @@ function ApiEditorForm(props: Props) {
                           label="Headers"
                           name="actionConfiguration.headers"
                           placeholder="Value"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>
@@ -558,6 +553,7 @@ function ApiEditorForm(props: Props) {
                           dataTreePath={`${actionName}.config.queryParameters`}
                           label="Params"
                           name="actionConfiguration.queryParameters"
+                          pushFields
                           theme={theme}
                         />
                       </TabSection>
