@@ -129,7 +129,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains("Please enter a valid parameter Author Email ."))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email ", "")))
                 .verify();
     }
 
@@ -143,7 +143,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains("Please enter a valid parameter Author Name ."))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name ", "")))
                 .verify();
     }
 
