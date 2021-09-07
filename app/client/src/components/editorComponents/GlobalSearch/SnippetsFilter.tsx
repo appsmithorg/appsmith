@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { WidgetType } from "constants/WidgetConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
@@ -127,6 +129,13 @@ const SnippetsFilterContainer = styled.div<{
   }
 `;
 
+export type FilterEntity = WidgetType | ENTITY_TYPE;
+
+//holds custom labels for snippet filters.
+export const SnippetFilterLabel: Partial<Record<FilterEntity, string>> = {
+  DROP_DOWN_WIDGET: "Dropdown",
+};
+
 function SnippetsFilter({ refinements, snippetsEmpty }: any) {
   const [showSnippetFilter, toggleSnippetFilter] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -172,6 +181,18 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}
+            transformItems={(items: any) =>
+              items.map((item: any) => ({
+                ...item,
+                label:
+                  SnippetFilterLabel[item.label as FilterEntity] ||
+                  item.label
+                    .toLowerCase()
+                    .replace("_widget", "")
+                    .replace("-plugin", "")
+                    .replaceAll(/_|-/g, " "),
+              }))
+            }
           />
         </div>
         {showSnippetFilter && (

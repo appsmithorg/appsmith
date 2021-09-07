@@ -2,6 +2,7 @@ import React from "react";
 import { connectCurrentRefinements } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
+import { FilterEntity, SnippetFilterLabel } from "./SnippetsFilter";
 
 const RefinementListContainer = styled.div`
   background: ${(props) => props.theme.colors.globalSearch.primaryBgColor};
@@ -41,7 +42,14 @@ const RefinementListContainer = styled.div`
 function RefinementPill({ item, refine }: any) {
   return (
     <div className="refinement-pill">
-      <span>{item.label}</span>
+      <span>
+        {SnippetFilterLabel[item.label as FilterEntity] ||
+          item.label
+            .toLowerCase()
+            .replace("_widget", "")
+            .replace("-plugin", "")
+            .replaceAll(/_|-/g, " ")}
+      </span>
       <CloseIcon
         onClick={(event) => {
           event.preventDefault();
