@@ -160,3 +160,6 @@ export const visibleCommentThreadSelector = (state: AppState) =>
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>
   state.ui.comments.isIntroCarouselVisible;
+
+export const getCommentThreadsFetched = (state: AppState) =>
+  state.ui.comments.commentThreadsFetched;

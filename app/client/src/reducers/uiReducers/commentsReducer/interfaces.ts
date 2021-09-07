@@ -19,4 +19,5 @@ export interface CommentsReduxState {
     x: number;
     y: number;
   } | null;
+  commentThreadsFetched: boolean;
 }
