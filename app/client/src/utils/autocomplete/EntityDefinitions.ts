@@ -34,8 +34,8 @@ export const entityDefinitions = {
   },
   AUDIO_WIDGET: {
     "!doc":
-      "Video widget can be used for playing a variety of URLs, including file paths, YouTube, Facebook, Twitch, SoundCloud, Streamable, Vimeo, Wistia, Mixcloud, and DailyMotion.",
-    "!url": "https://docs.appsmith.com/widget-reference/video",
+      "Audio widget can be used for playing a variety of audio formats like MP3, AAC etc.",
+    "!url": "https://docs.appsmith.com/widget-reference/audio",
     playState: "number",
     autoPlay: "bool",
   },
