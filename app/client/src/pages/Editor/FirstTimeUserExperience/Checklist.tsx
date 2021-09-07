@@ -79,8 +79,9 @@ const StyledListItem = styled.li`
   }
 `;
 
-const ChecklistText = styled.div`
+const ChecklistText = styled.div<{ active: boolean }>`
   flex-basis: calc(100% - 268px);
+  color: ${(props) => (props.active ? props.theme.colors.text.normal : "")};
   & span {
     font-weight: 700;
   }
@@ -264,7 +265,7 @@ export default function OnboardingChecklist() {
               />
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
-          <ChecklistText>
+          <ChecklistText active={!!datasources.length || !!actions.length}>
             <span>Connect your data source</span> to start building an
             application.
           </ChecklistText>
@@ -304,7 +305,7 @@ export default function OnboardingChecklist() {
               />
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
-          <ChecklistText>
+          <ChecklistText active={!!actions.length}>
             <span>Create a query</span> of your data source.
           </ChecklistText>
           {!actions.length && (
@@ -351,7 +352,7 @@ export default function OnboardingChecklist() {
               />
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
-          <ChecklistText>
+          <ChecklistText active={Object.keys(widgets).length > 1}>
             <span>Start visualising your application</span> using widgets.
           </ChecklistText>
           {Object.keys(widgets).length == 1 && (
@@ -388,7 +389,7 @@ export default function OnboardingChecklist() {
               />
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
-          <ChecklistText>
+          <ChecklistText active={!!isConnectionPresent}>
             <span>Connect your data to the widgets</span> using JavaScript.
           </ChecklistText>
           {!isConnectionPresent && (
@@ -418,7 +419,7 @@ export default function OnboardingChecklist() {
               />
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
-          <ChecklistText>
+          <ChecklistText active={!!isDeployed}>
             <span>Deploy your application</span>, and see your creation live.
           </ChecklistText>
           {!isDeployed && (
