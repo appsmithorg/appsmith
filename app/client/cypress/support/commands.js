@@ -1195,7 +1195,7 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
 Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
   cy.get(checkboxCss, { timeout: 10000 })
     .last()
-    .should("be.visible")
+    .should("exist")
     .dblclick({ force: true })
     .type(inputJS);
   cy.assertPageSave();
@@ -2420,7 +2420,7 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
+Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -2429,7 +2429,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .first()
     .click({ force: true })
     .selectOnClickOption("Show Message")
-    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
@@ -2445,7 +2445,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show Message")
-    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
     .type(forFailure)

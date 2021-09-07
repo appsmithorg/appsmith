@@ -30,7 +30,8 @@ import { getViewModePageList } from "selectors/editorSelectors";
 import { APP_MODE } from "entities/App";
 
 const ThreadContainer = styled(animated.div).withConfig({
-  shouldForwardProp: (prop) => !["visible", "inline"].includes(prop),
+  shouldForwardProp: (prop) =>
+    !["visible", "inline", "maxHeight"].includes(prop),
 })<{
   visible?: boolean;
   inline?: boolean;

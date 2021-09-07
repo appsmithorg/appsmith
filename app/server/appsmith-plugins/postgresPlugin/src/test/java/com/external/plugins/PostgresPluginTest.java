@@ -157,6 +157,16 @@ public class PostgresPluginTest {
                         "    citextdata citext" +
                         ")");
 
+                statement.execute("CREATE SCHEMA sample_schema " +
+                    " CREATE TABLE sample_table (\n" +
+                    "    id serial PRIMARY KEY,\n" +
+                    "    username VARCHAR (50) UNIQUE,\n" +
+                    "    email VARCHAR (355) UNIQUE ,\n" +
+                    "    numbers INTEGER[3] ,\n" +
+                    "    texts VARCHAR[2] ,\n" +
+                    "    rating FLOAT4 \n" +
+                    ")");
+
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -168,6 +178,14 @@ public class PostgresPluginTest {
                                 " '1.2 years 3 months 2 hours'," +
                                 " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
                                 ")");
+            }
+
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                    "INSERT INTO sample_schema.\"sample_table\" VALUES (" +
+                        "1, 'Jack', 'jack@exemplars.com', " +
+                        " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
+                        ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -377,7 +395,7 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(4, structure.getTables().size());
+                    assertEquals(5, structure.getTables().size());
 
                     final DatasourceStructure.Table campusTable = structure.getTables().get(0);
                     assertEquals("public.campus", campusTable.getName());
@@ -448,7 +466,7 @@ public class PostgresPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(3);
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(4);
                     assertEquals("public.users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
@@ -507,6 +525,48 @@ public class PostgresPluginTest {
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray()
+                    );
+
+                    final DatasourceStructure.Table sampleTable = structure.getTables().get(3);
+                    assertEquals("sample_schema.sample_table", sampleTable.getName());
+                    assertEquals("sample_schema", sampleTable.getSchema());
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                        new DatasourceStructure.Column[]{
+                            new DatasourceStructure.Column("id", "int4", "nextval('sample_schema.sample_table_id_seq'::regclass)",true),
+                            new DatasourceStructure.Column("username", "varchar", null, false),
+                            new DatasourceStructure.Column("email", "varchar", null, false),
+                            new DatasourceStructure.Column("numbers", "_int4", null, false),
+                            new DatasourceStructure.Column("texts", "_varchar", null, false),
+                            new DatasourceStructure.Column("rating", "float4", null, false),
+                        },
+                        sampleTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey = new DatasourceStructure.PrimaryKey("sample_table_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                        new DatasourceStructure.Key[]{samplePrimaryKey},
+                        sampleTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                        new DatasourceStructure.Template[]{
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO sample_schema.\"sample_table\" " +
+                                "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  " +
+                                "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                            new DatasourceStructure.Template("UPDATE", "UPDATE sample_schema.\"sample_table\" SET\n" +
+                                "    \"username\" = '',\n" +
+                                "    \"email\" = '',\n" +
+                                "    \"numbers\" = '{1, 2, 3}',\n" +
+                                "    \"texts\" = '{\"first\", \"second\"}',\n" +
+                                "    \"rating\" = 1.0\n" +
+                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM sample_schema.\"sample_table\"\n" +
+                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                        },
+                        sampleTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();
