@@ -14,6 +14,7 @@ export type MenuItemProps = CommonComponentProps & {
   type?: "warning";
   ellipsize?: number;
   selected?: boolean;
+  containerClassName?: string;
   onSelect?: () => void;
 };
 
@@ -102,6 +103,7 @@ const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     return (
       <ItemRow
+        className={props.className}
         data-cy={props.cypressSelector}
         disabled={props.disabled}
         href={props.href}
@@ -110,7 +112,7 @@ const MenuItemContent = forwardRef(
         selected={props.selected}
         type={props.type}
       >
-        <IconContainer className={props.className}>
+        <IconContainer className={props.containerClassName}>
           {props.icon ? (
             <Icon
               isLoading={props.isLoading}
