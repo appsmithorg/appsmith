@@ -76,7 +76,6 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(formWidgetsPage.multiSelectWidget).should("not.exist");
   });
   it("MultiSelects value with invalid default value", () => {
-    cy.testJsontext("options", JSON.stringify(data.input));
     cy.testJsontext("defaultvalue", "{{ undefined }}");
     cy.get(formWidgetsPage.multiselectWidget)
       .find(".rc-select-selection-search-input")
@@ -104,7 +103,7 @@ describe("MultiSelect Widget Functionality", function() {
   it("MultiSelect Functionality To Validate Options", function() {
     cy.get(formWidgetsPage.mulitiselectInput).click({ force: true });
     cy.get(formWidgetsPage.mulitiselectInput).type("Option");
-    cy.dropdownMultiSelectDynamic("Option 2");
+    cy.dropdownMultiSelectDynamic("Option 3");
     cy.PublishtheApp();
   });
   it("MultiSelect-Disable Validation", function() {

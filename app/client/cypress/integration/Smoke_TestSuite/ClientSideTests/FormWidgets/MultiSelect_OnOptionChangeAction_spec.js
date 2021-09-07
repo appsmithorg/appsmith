@@ -66,7 +66,6 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.SearchEntityandOpen("MultiSelect2");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Adding the api in the onClickAction of the button widget.
     cy.addAPIFromLightningMenu("MultiSelectAPI");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -118,7 +117,6 @@ describe("MultiSelect Widget Functionality", function() {
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
     cy.openPropertyPane("multiselectwidget");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Adding the query in the onClickAction of the button widget.
     cy.addQueryFromLightningMenu("Query1");
     // Filling the messages for success/failure in the onClickAction of the button widget.
@@ -186,13 +184,11 @@ describe("MultiSelect Widget Functionality", function() {
       .children()
       .contains("No Action")
       .click();
-    cy.testJsontext("options", "");
   });
 
   it("Multiselect Widget Functionality to Verify On Option Change Action", function() {
     // Open property pane
     cy.SearchEntityandOpen("MultiSelect2");
-    cy.testJsontext("options", JSON.stringify(data.input));
     // Dropdown On Option Change
     cy.addAction("Option Changed");
     cy.PublishtheApp();
