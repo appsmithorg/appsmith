@@ -16,6 +16,7 @@ export interface UpdateJSObjectNameRequest {
   layoutId: string;
   newName: string;
   oldName: string;
+  actionId?: string;
 }
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
@@ -59,7 +60,7 @@ class JSActionAPI extends API {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
-  static updateJSObjectName(
+  static updateJSCollectionOrActionName(
     updateJSObjectNameRequest: UpdateJSObjectNameRequest,
   ) {
     return API.put(JSActionAPI.url + "/refactor", updateJSObjectNameRequest);

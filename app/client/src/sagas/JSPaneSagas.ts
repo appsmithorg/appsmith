@@ -32,6 +32,7 @@ import {
   addJSObjectAction,
   updateJSObjectAction,
   deleteJSObjectAction,
+  refactorJSCollectionAction,
 } from "../actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -46,8 +47,13 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-
+import PageApi from "api/PageApi";
+import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
+import * as log from "loglevel";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -114,54 +120,68 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
     if (parsedBody.variables) {
       jsActionTobeUpdated.variables = parsedBody.variables;
     }
-    if (data.newActions.length) {
-      for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.push({
-          ...data.newActions[i],
-          organizationId: organizationId,
-        });
-      }
-      yield put(
-        addJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.newActions,
-        }),
-      );
-    }
-    if (data.updateActions.length > 0) {
-      let changedActions = [];
-      for (let i = 0; i < data.updateActions.length; i++) {
-        changedActions = jsActionTobeUpdated.actions.map(
-          (js: JSAction) =>
-            data.updateActions.find(
-              (update: JSAction) => update.id === js.id,
-            ) || js,
+    if (data.nameChangedActions.length) {
+      for (let i = 0; i < data.nameChangedActions.length; i++) {
+        yield put(
+          refactorJSCollectionAction({
+            actionId: data.nameChangedActions[i].id,
+            collectionId: data.nameChangedActions[i].collectionId || "",
+            pageId: data.nameChangedActions[i].pageId,
+            oldName: data.nameChangedActions[i].oldName,
+            newName: data.nameChangedActions[i].newName,
+          }),
         );
       }
-      jsActionTobeUpdated.actions = changedActions;
-      yield put(
-        updateJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.updateActions,
-        }),
-      );
-    }
-    if (data.deletedActions.length > 0) {
-      for (let i = 0; i < data.deletedActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js: JSAction) => {
-          if (js.id !== data.deletedActions[i].id) {
-            return js;
-          }
-        });
+    } else {
+      if (data.newActions.length) {
+        for (let i = 0; i < data.newActions.length; i++) {
+          jsActionTobeUpdated.actions.push({
+            ...data.newActions[i],
+            organizationId: organizationId,
+          });
+        }
+        yield put(
+          addJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.newActions,
+          }),
+        );
       }
-      yield put(
-        deleteJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.deletedActions,
-        }),
-      );
+      if (data.updateActions.length > 0) {
+        let changedActions = [];
+        for (let i = 0; i < data.updateActions.length; i++) {
+          changedActions = jsActionTobeUpdated.actions.map(
+            (js: JSAction) =>
+              data.updateActions.find(
+                (update: JSAction) => update.id === js.id,
+              ) || js,
+          );
+        }
+        jsActionTobeUpdated.actions = changedActions;
+        yield put(
+          updateJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.updateActions,
+          }),
+        );
+      }
+      if (data.deletedActions.length > 0) {
+        for (let i = 0; i < data.deletedActions.length; i++) {
+          jsActionTobeUpdated.actions.map((js: JSAction) => {
+            if (js.id !== data.deletedActions[i].id) {
+              return js;
+            }
+          });
+        }
+        yield put(
+          deleteJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.deletedActions,
+          }),
+        );
+      }
+      return jsActionTobeUpdated;
     }
-    return jsActionTobeUpdated;
   }
 }
 
@@ -232,19 +252,80 @@ function* handleExecuteJSFunctionSaga(
   const { action } = data.payload;
   const collectionId = action.collectionId;
   const actionId = action.id;
-  const results = yield call(
+  const { result, triggers } = yield call(
     executeFunction,
     data.payload.collectionName,
     data.payload.action,
   );
-  yield put({
-    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
-    payload: {
-      results,
-      collectionId,
-      actionId,
-    },
+
+  log.debug({ triggers, result });
+  if (triggers && triggers.length) {
+    yield all(
+      triggers.map((trigger: ActionDescription) =>
+        call(executeActionTriggers, trigger, EventType.ON_CLICK),
+      ),
+    );
+  }
+  if (result) {
+    yield put({
+      type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+      payload: {
+        results: result,
+        collectionId,
+        actionId,
+      },
+    });
+  }
+}
+
+function* handleRefactorJSActionNameSaga(
+  data: ReduxAction<{
+    actionId: string;
+    collectionId: string;
+    pageId: string;
+    oldName: string;
+    newName: string;
+  }>,
+) {
+  const pageResponse = yield call(PageApi.fetchPage, {
+    id: data.payload.pageId,
   });
+  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  if (isPageRequestSuccessful) {
+    // get the layoutId from the page response
+    const layoutId = pageResponse.data.layouts[0].id;
+    // call to refactor action
+    const refactorResponse = yield JSActionAPI.updateJSCollectionOrActionName({
+      layoutId,
+      actionCollectionId: data.payload.collectionId,
+      pageId: data.payload.pageId,
+      oldName: data.payload.oldName,
+      newName: data.payload.newName,
+      actionId: data.payload.actionId,
+    });
+
+    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+
+    const currentPageId = yield select(getCurrentPageId);
+
+    if (isRefactorSuccessful) {
+      yield put({
+        type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+        payload: {
+          actionId: data.payload.actionId,
+          collectionId: data.payload.collectionId,
+          name: data.payload.newName,
+        },
+      });
+      if (currentPageId === data.payload.pageId) {
+        yield updateCanvasWithDSL(
+          refactorResponse.data,
+          data.payload.pageId,
+          layoutId,
+        );
+      }
+    }
+  }
 }
 
 export default function* root() {
@@ -269,6 +350,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
       handleExecuteJSFunctionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFACTOR_JS_ACTION_NAME_INIT,
+      handleRefactorJSActionNameSaga,
     ),
   ]);
 }

@@ -330,7 +330,7 @@ export function* refactorJSObjectName(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse = yield JSActionAPI.updateJSObjectName({
+    const refactorResponse = yield JSActionAPI.updateJSCollectionOrActionName({
       layoutId,
       actionCollectionId: id,
       pageId: pageId,

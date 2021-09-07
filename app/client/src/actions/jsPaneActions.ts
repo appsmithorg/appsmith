@@ -53,6 +53,19 @@ export const deleteJSObjectAction = (payload: {
   };
 };
 
+export const refactorJSCollectionAction = (payload: {
+  actionId: string;
+  collectionId: string;
+  pageId: string;
+  oldName: string;
+  newName: string;
+}) => {
+  return {
+    type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_INIT,
+    payload,
+  };
+};
+
 export const executeJSFunction = (payload: {
   collectionName: string;
   action: JSAction;

@@ -19,6 +19,7 @@ export const getDifferenceInJSCollection = (
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
   const toBeupdatedActions: JSAction[] = [];
+  const nameChangedActions = [];
   const toBeAddedActions: Partial<JSAction>[] = [];
   //check if body is changed and update if exists or
   // add to new array so it can be added to main collection
@@ -66,9 +67,17 @@ export const getDifferenceInJSCollection = (
           const indexOfArchived = toBearchivedActions.findIndex((js) => {
             js.id === updateExisting.id;
           });
-          toBeupdatedActions.push({
-            ...updateExisting,
-            name: newActions[i].name,
+          //will be part of new nameChangedActions for now
+          // toBeupdatedActions.push({
+          //   ...updateExisting,
+          //   name: newActions[i].name,
+          // });
+          nameChangedActions.push({
+            id: updateExisting.id,
+            collectionId: updateExisting.collectionId,
+            oldName: updateExisting.name,
+            newName: newActions[i].name,
+            pageId: updateExisting.pageId,
           });
           newActions.splice(i, 1);
           toBearchivedActions.splice(indexOfArchived, 1);
@@ -109,5 +118,6 @@ export const getDifferenceInJSCollection = (
     newActions: toBeAddedActions,
     updateActions: toBeupdatedActions,
     deletedActions: toBearchivedActions,
+    nameChangedActions: nameChangedActions,
   };
 };
