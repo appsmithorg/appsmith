@@ -1,4 +1,4 @@
-import { cancelled, delay, put, take } from "redux-saga/effects";
+import { cancelled, delay, put, spawn, take } from "redux-saga/effects";
 import { channel, Channel, buffers } from "redux-saga";
 import _ from "lodash";
 import log from "loglevel";
@@ -55,6 +55,10 @@ export class GracefulWorkerService {
     this.start = this.start.bind(this);
     this.request = this.request.bind(this);
     this._broker = this._broker.bind(this);
+    this.startBiDirectionalRequest = this.startBiDirectionalRequest.bind(this);
+    this.biDirectionalRequestHandler = this.biDirectionalRequestHandler.bind(
+      this,
+    );
 
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
@@ -159,7 +163,78 @@ export class GracefulWorkerService {
         log.debug(`Transfer ${method} took ${transferTime.toFixed(2)}ms`);
       }
       // Cleanup
-      yield ch.close();
+      ch.close();
+      this._channels.delete(requestId);
+    }
+  }
+
+  /*
+   * When there needs to be a back and forth between both the threads,
+   * you can use bidirectional request to avoid closing a channel
+   * */
+  *startBiDirectionalRequest(method: string, requestData = {}): any {
+    yield this.ready(false);
+    // Impossible case, but helps avoid `?` later in code and makes it clearer.
+    if (!this._evaluationWorker) return;
+
+    /**
+     * We create a unique channel to wait for a response of this specific request.
+     */
+    const requestId = `${method}__${_.uniqueId()}`;
+    const ch = channel();
+    const requestChannel = channel();
+    const responseChannel = channel();
+    this._channels.set(requestId, ch);
+
+    yield spawn(
+      this.biDirectionalRequestHandler,
+      requestId,
+      requestChannel,
+      responseChannel,
+    );
+
+    this._evaluationWorker.postMessage({
+      method,
+      requestData,
+      requestId,
+    });
+
+    return { responseChannel, requestChannel };
+  }
+
+  *biDirectionalRequestHandler(
+    requestId: string,
+    requestChannel: Channel<any>,
+    responseChannel: Channel<any>,
+  ) {
+    const mainChannel = this._channels.get(requestId);
+    if (!mainChannel) return;
+    if (!this._evaluationWorker) return;
+    try {
+      let keepAlive = true;
+      while (keepAlive) {
+        const workerRequest = yield take(mainChannel);
+        const { finished, responseData } = workerRequest;
+        // process request
+        requestChannel.put({ requestData: responseData, finished });
+        if (finished) {
+          keepAlive = false;
+          continue;
+        }
+        // wait for response
+        const response = yield take(responseChannel);
+        // send response to worker
+        this._evaluationWorker.postMessage({
+          ...response,
+          requestId,
+        });
+      }
+    } catch (e) {
+      // handle
+    } finally {
+      // Cleanup
+      requestChannel.close();
+      mainChannel.close();
       this._channels.delete(requestId);
     }
   }

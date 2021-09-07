@@ -1,4 +1,3 @@
-import { AppsmithPromisePayload } from "workers/Actions";
 import {
   executeActionTriggers,
   executeAppAction,
@@ -9,6 +8,7 @@ import log from "loglevel";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
+import { PromiseActionDescription } from "entities/DataTree/actionTriggers";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -27,7 +27,7 @@ export class PluginTriggerFailureError extends TriggerFailureError {
 }
 
 export default function* executePromiseSaga(
-  trigger: AppsmithPromisePayload,
+  trigger: PromiseActionDescription["payload"],
   eventType: EventType,
 ): any {
   try {

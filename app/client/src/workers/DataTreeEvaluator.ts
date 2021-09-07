@@ -48,7 +48,7 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluate, { EvalResult } from "workers/evaluate";
+import evaluate, { EvalResult, evaluateAsync } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
 
@@ -415,8 +415,6 @@ export default class DataTreeEvaluator {
                 unEvalPropertyValue,
                 currentTree,
                 evaluationSubstitutionType,
-                false,
-                undefined,
                 fullPropertyPath,
               );
             } catch (e) {
@@ -574,29 +572,15 @@ export default class DataTreeEvaluator {
     dynamicBinding: string,
     data: DataTree,
     evaluationSubstitutionType: EvaluationSubstitutionType,
-    returnTriggers: boolean,
-    callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
     const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
-    if (returnTriggers) {
-      return this.evaluateDynamicBoundValue(
-        jsSnippets[0],
-        data,
-        callBackData,
-        returnTriggers,
-      );
-    }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
       const values = jsSnippets.map((jsSnippet, index) => {
         if (jsSnippet) {
-          const result = this.evaluateDynamicBoundValue(
-            jsSnippet,
-            data,
-            callBackData,
-          );
+          const result = this.evaluateDynamicBoundValue(jsSnippet, data);
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
           }
@@ -619,20 +603,23 @@ export default class DataTreeEvaluator {
     return undefined;
   }
 
+  async evaluateTriggers(
+    userScript: string,
+    dataTree: DataTree,
+    requestId: string,
+  ) {
+    const { jsSnippets } = getDynamicBindings(userScript);
+    return evaluateAsync(jsSnippets[0], dataTree, requestId);
+  }
+
   // Paths are expected to have "{name}.{path}" signature
   // Also returns any action triggers found after evaluating value
-  evaluateDynamicBoundValue(
-    js: string,
-    data: DataTree,
-    callbackData?: Array<any>,
-    isTriggerBased = false,
-  ): EvalResult {
+  evaluateDynamicBoundValue(js: string, data: DataTree): EvalResult {
     try {
-      return evaluate(js, data, callbackData, isTriggerBased);
+      return evaluate(js, data);
     } catch (e) {
       return {
         result: undefined,
-        triggers: [],
         errors: [
           {
             errorType: PropertyEvaluationErrorType.PARSE,
@@ -654,23 +641,15 @@ export default class DataTreeEvaluator {
     isDefaultProperty: boolean,
   ): any {
     const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
-    let valueToValidate = evalPropertyValue;
     if (isPathADynamicTrigger(widget, propertyPath)) {
-      const { triggers } = this.getDynamicValue(
-        unEvalPropertyValue,
-        currentTree,
-        EvaluationSubstitutionType.TEMPLATE,
-        true,
-        undefined,
-        fullPropertyPath,
-      );
-      valueToValidate = triggers;
+      // TODO find a way to validate triggers
+      return;
     }
     const validation = widget.validationPaths[propertyPath];
 
     const { isValid, message, parsed, transformed } = validateWidgetProperty(
       validation,
-      valueToValidate,
+      evalPropertyValue,
       widget,
     );
 
@@ -1110,7 +1089,6 @@ export default class DataTreeEvaluator {
         `{{${JSON.stringify(executionParams)}}}`,
         this.evalTree,
         EvaluationSubstitutionType.TEMPLATE,
-        false,
       );
     }
 
@@ -1129,7 +1107,6 @@ export default class DataTreeEvaluator {
         `{{${binding}}}`,
         dataTreeWithExecutionParams,
         EvaluationSubstitutionType.TEMPLATE,
-        false,
       ),
     );
   }

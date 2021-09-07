@@ -18,11 +18,10 @@ import {
   ClearPluginActionDescription,
   RunPluginActionDescription,
 } from "entities/DataTree/actionTriggers";
-import { AppsmithPromise } from "workers/Actions";
 
 export type ActionDispatcher = (
   ...args: any[]
-) => ActionDescription | AppsmithPromise;
+) => ActionDescription | Promise<unknown>;
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

@@ -154,15 +154,36 @@ export function* evaluateDynamicTrigger(
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
 
-  const workerResponse = yield call(
-    worker.request,
+  const {
+    requestChannel,
+    responseChannel,
+  } = yield call(
+    worker.startBiDirectionalRequest,
     EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
     { dataTree: unEvalTree, dynamicTrigger, callbackData },
   );
+  let keepAlive = true;
 
-  const { errors, triggers } = workerResponse;
-  yield call(evalErrorHandler, errors);
-  return triggers;
+  while (keepAlive) {
+    const { finished, requestData } = yield take(requestChannel);
+    if (finished) {
+      keepAlive = false;
+      continue;
+    }
+    yield call(evalErrorHandler, requestData.errors);
+    if (requestData.trigger) {
+      debugger;
+      const response = yield call(
+        executeActionTriggers,
+        requestData.trigger,
+        EventType.ON_CLICK,
+      );
+      responseChannel.put({
+        method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+        data: response,
+      });
+    }
+  }
 }
 
 export function* clearEvalCache() {

@@ -1,14 +1,9 @@
-import {
-  DataTree,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DependencyMap,
   EVAL_WORKER_ACTIONS,
   EvalError,
   EvalErrorTypes,
-  EvaluationError,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -18,7 +13,7 @@ import {
   validateWidgetProperty,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import evaluate from "./evaluate";
+import evaluate, { evaluateAsync } from "./evaluate";
 
 const ctx: Worker = self as any;
 
@@ -26,24 +21,30 @@ let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
-  fn: (message: EVAL_WORKER_ACTIONS, requestData: any) => void,
+  fn: (
+    message: EVAL_WORKER_ACTIONS,
+    requestData: any,
+    requestId: string,
+  ) => any,
 ) {
   return (e: MessageEvent) => {
     const startTime = performance.now();
     const { method, requestData, requestId } = e.data;
-    const responseData = fn(method, requestData);
-    const endTime = performance.now();
-    ctx.postMessage({
-      requestId,
-      responseData,
-      timeTaken: (endTime - startTime).toFixed(2),
-    });
+    const responseData = fn(method, requestData, requestId);
+    if (responseData) {
+      const endTime = performance.now();
+      ctx.postMessage({
+        requestId,
+        responseData,
+        timeTaken: (endTime - startTime).toFixed(2),
+      });
+    }
   };
 }
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method, requestData: any) => {
+  messageEventListener((method, requestData: any, requestId) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { unevalTree, widgetTypeConfigMap } = requestData;
@@ -115,38 +116,16 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const { dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
-        const {
-          errors: evalErrors,
-          triggers,
-        }: {
-          errors: EvaluationError[];
-          triggers: Array<any>;
-        } = dataTreeEvaluator.getDynamicValue(
-          dynamicTrigger,
-          evalTree,
-          EvaluationSubstitutionType.TEMPLATE,
-          true,
-          callbackData,
-        );
-        const cleanTriggers = removeFunctions(triggers);
-        // Transforming eval errors into eval trigger errors. Since trigger
-        // errors occur less, we want to treat it separately
-        const errors = evalErrors
-          .filter(
-            (error) => error.errorType === PropertyEvaluationErrorType.PARSE,
-          )
-          .map((error) => ({
-            ...error,
-            message: error.errorMessage,
-            type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
-          }));
-        return { triggers: cleanTriggers, errors };
+
+        dataTreeEvaluator.evaluateTriggers(dynamicTrigger, evalTree, requestId);
+
+        break;
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -178,9 +157,13 @@ ctx.addEventListener(
         const { expression, isTrigger } = requestData;
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
+        // TODO find a way to do this for snippets
         return isTrigger
-          ? evaluate(expression, evalTree, [], true)
+          ? evaluateAsync(expression, evalTree, "SNIPPET")
           : evaluate(expression, evalTree);
+      case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
+        // This action will not be processed here. This is handled in the eval trigger sub steps
+        break;
       default: {
         console.error("Action not registered on worker", method);
       }

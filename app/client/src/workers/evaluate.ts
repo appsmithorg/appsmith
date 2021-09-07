@@ -8,12 +8,10 @@ import {
 import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
-import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
-import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { enhanceDataTreeWithFunctions } from "./Actions";
 
 export type EvalResult = {
   result: any;
-  triggers?: ActionDescription[];
   errors: EvaluationError[];
 };
 
@@ -43,8 +41,8 @@ const evaluationScripts: Record<
   callback(${script})
   `,
   [EvaluationScriptType.TRIGGERS]: (script) => `
-  function closedFunction () {
-    const result = ${script};
+  async function closedFunction () {
+    const result = await ${script};
   }
   closedFunction();
   `,
@@ -112,39 +110,30 @@ const getLintingErrors = (
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-export default function evaluate(
-  js: string,
-  data: DataTree,
+export default function evaluateSync(
+  userScript: string,
+  dataTree: DataTree,
   evalArguments?: Array<any>,
-  isTriggerBased = false,
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
-  const unescapedJS = unescapeJS(js.replace(beginsWithLineBreakRegex, ""));
-  const script = getScriptToEval(unescapedJS, evalArguments, isTriggerBased);
+  const unescapedJS = unescapeJS(
+    userScript.replace(beginsWithLineBreakRegex, ""),
+  );
+  const script = getScriptToEval(unescapedJS, evalArguments);
   return (function() {
     let errors: EvaluationError[] = [];
     let result;
-    let triggers: any[] = [];
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {};
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
-    GLOBAL_DATA.Promise = AppsmithPromise;
-    if (isTriggerBased) {
-      //// Add internal functions to dataTree;
-      const dataTreeWithFunctions = enhanceDataTreeWithFunctions(data);
-      ///// Adding Data tree with functions
-      Object.keys(dataTreeWithFunctions).forEach((datum) => {
-        GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
-      });
-    } else {
-      ///// Adding Data tree
-      Object.keys(data).forEach((datum) => {
-        GLOBAL_DATA[datum] = data[datum];
-      });
-    }
+
+    ///// Adding Data tree
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
+    });
 
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
@@ -171,10 +160,6 @@ export default function evaluate(
     });
     try {
       result = eval(script);
-      if (isTriggerBased) {
-        triggers = [...self.triggers];
-        self.triggers = [];
-      }
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;
       errors.push({
@@ -182,18 +167,77 @@ export default function evaluate(
         severity: Severity.ERROR,
         raw: script,
         errorType: PropertyEvaluationErrorType.PARSE,
-        originalBinding: js,
+        originalBinding: userScript,
       });
     }
 
-    // Remove it from self
-    // This is needed so that next eval can have a clean sheet
+    return { result, errors };
+  })();
+}
+
+export async function evaluateAsync(
+  userScript: string,
+  dataTree: DataTree,
+  requestId: string,
+  evalArguments?: Array<any>,
+) {
+  // We remove any line breaks from the beginning of the script because that
+  // makes the final function invalid. We also unescape any escaped characters
+  // so that eval can happen
+  const unescapedJS = unescapeJS(
+    userScript.replace(beginsWithLineBreakRegex, ""),
+  );
+  const script = getScriptToEval(unescapedJS, evalArguments, true);
+  return (function() {
+    let errors: EvaluationError[] = [];
+    let result;
+    /**** Setting the eval context ****/
+    const GLOBAL_DATA: Record<string, any> = {
+      REQUEST_ID: requestId,
+    };
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+    // Set it to self so that the eval function can have access to it
+    // as global data. This is what enables access all appsmith
+    // entity properties from the global context
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
-      delete self[key];
+      self[key] = GLOBAL_DATA[key];
+    });
+    errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
+
+    ///// Adding extra libraries separately
+    extraLibraries.forEach((library) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      self[library.accessor] = library.lib;
     });
 
-    return { result, triggers, errors };
+    ///// Remove all unsafe functions
+    unsafeFunctionForEval.forEach((func) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      self[func] = undefined;
+    });
+    try {
+      result = eval(script);
+    } catch (e) {
+      const errorMessage = `${e.name}: ${e.message}`;
+      debugger;
+      errors.push({
+        errorMessage: errorMessage,
+        severity: Severity.ERROR,
+        raw: script,
+        errorType: PropertyEvaluationErrorType.PARSE,
+        originalBinding: userScript,
+      });
+    }
+
+    return { result, errors };
   })();
 }
