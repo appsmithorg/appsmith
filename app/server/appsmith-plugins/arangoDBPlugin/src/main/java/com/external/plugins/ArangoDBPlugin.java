@@ -138,10 +138,10 @@ public class ArangoDBPlugin extends BasePlugin {
         }
 
         /**
-         * - In ArangoDB query language, any non-update query is indicated by the use of keyword "RETURN".
-         * - This method checks if the query provided by user has the "RETURN" keyword or not. To do so, it first
-         * removes any string present inside double or single quotes. It then matches the remaining words with the
-         * keyword "RETURN".
+         * - In ArangoDB query language, any non-update query is indicated by the use of keyword RETURN.
+         * - This method checks if the query provided by user has the RETURN keyword or not. To do so, it first
+         * removes any string present inside double or single quotes (to remove any usage of the keyword as a value).
+         * It then matches the remaining words with the keyword RETURN.
          * - Quoting from ArangoDB doc:
          * ```
          * An AQL query must either return a result (indicated by usage of the RETURN keyword) or execute a
