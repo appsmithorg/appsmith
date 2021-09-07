@@ -480,3 +480,10 @@ export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
 export const EMOJI = () => "Emoji";
+
+// Sniping mode messages
+export const SNIPING_SELECT_WIDGET_AGAIN = () =>
+  "Unable to detect the widget, please select the widget again.";
+
+export const SNIPING_NOT_SUPPORTED = () =>
+  "Binding on selection is not supported for this type of widget!";
