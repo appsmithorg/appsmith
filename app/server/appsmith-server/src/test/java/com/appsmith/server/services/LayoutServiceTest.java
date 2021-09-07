@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
@@ -82,14 +81,11 @@ public class LayoutServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @MockBean
-    PluginExecutor pluginExecutor;
-
-    Mono<Layout> layoutMono;
-
     String orgId;
 
     Datasource datasource;
+
+    Plugin installedJsPlugin;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -102,6 +98,7 @@ public class LayoutServiceTest {
         datasource.setName("Default Database");
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
     }
 
@@ -284,7 +281,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostAction");
@@ -292,7 +289,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostActionWithAutoExec");
@@ -304,7 +301,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostSecondaryAction");
@@ -313,7 +310,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
                     action.setUserSetOnLoad(true);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aPostTertiaryAction");
@@ -322,7 +319,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aDeleteAction");
@@ -330,7 +327,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.DELETE);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aDBAction");
@@ -339,7 +336,7 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("anotherDBAction");
@@ -348,7 +345,7 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("aTableAction");
@@ -357,11 +354,11 @@ public class LayoutServiceTest {
                     action.setExecuteOnLoad(true);
                     action.setDatasource(datasource);
                     action.setPluginType(PluginType.DB);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     Datasource d2 = new Datasource();
                     d2.setOrganizationId(datasource.getOrganizationId());
-                    d2.setPluginId(datasource.getPluginId());
+                    d2.setPluginId(installedJsPlugin.getId());
                     d2.setIsAutoGenerated(true);
                     d2.setName("UNUSED_DATASOURCE");
 
@@ -370,7 +367,7 @@ public class LayoutServiceTest {
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("asyncCollectionAction1");
@@ -384,14 +381,14 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("hiddenAction2");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("syncCollectionAction1");
@@ -405,14 +402,14 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("hiddenAction3");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("asyncCollectionAction2");
@@ -426,14 +423,14 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("hiddenAction4");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     action = new ActionDTO();
                     action.setName("syncCollectionAction2");
@@ -447,7 +444,7 @@ public class LayoutServiceTest {
                     action.setPageId(page1.getId());
                     action.setExecuteOnLoad(false);
                     action.setPluginType(PluginType.JS);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })
@@ -586,7 +583,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })
@@ -661,7 +658,7 @@ public class LayoutServiceTest {
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createAction(action));
+                    monos.add(layoutActionService.createSingleAction(action));
 
                     return Mono.zip(monos, objects -> page1);
                 })

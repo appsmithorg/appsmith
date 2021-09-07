@@ -547,7 +547,7 @@ public class CreateDBTablePageSolution {
                 }
 
                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
-                return layoutActionService.createAction(actionDTO);
+                return layoutActionService.createSingleAction(actionDTO);
             });
     }
 

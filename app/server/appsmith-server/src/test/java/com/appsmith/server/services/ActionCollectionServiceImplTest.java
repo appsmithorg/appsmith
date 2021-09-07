@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 public class ActionCollectionServiceImplTest {
 
     ActionCollectionService actionCollectionService;
+    LayoutCollectionService layoutCollectionService;
     @MockBean
     private Scheduler scheduler;
     @MockBean
@@ -91,11 +92,17 @@ public class ActionCollectionServiceImplTest {
                 reactiveMongoTemplate,
                 actionCollectionRepository,
                 analyticsService,
-                collectionService,
-                layoutActionService,
                 newActionService,
+                policyGenerator
+        );
+
+        layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
-                policyGenerator);
+                layoutActionService,
+                actionCollectionService,
+                newActionService,
+                analyticsService
+        );
 
         Mockito
                 .when(analyticsService.sendCreateEvent(Mockito.any()))
@@ -114,7 +121,7 @@ public class ActionCollectionServiceImplTest {
     public void testCreateCollection_withId_throwsError() {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setId("testId");
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -125,7 +132,7 @@ public class ActionCollectionServiceImplTest {
     @Test
     public void testCreateCollection_withoutOrgPageApplicationPluginIds_throwsError() {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
@@ -162,48 +169,7 @@ public class ActionCollectionServiceImplTest {
                                 Mockito.any()))
                 .thenReturn(Flux.empty());
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
-
-        StepVerifier.create(actionCollectionDTOMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage()
-                                .equals(AppsmithError.DUPLICATE_KEY_USER_ERROR
-                                        .getMessage(actionCollectionDTO.getName(), FieldName.NAME)))
-                .verify();
-    }
-
-    @Test
-    public void testCreateCollection_withRepeatedCollectionName_throwsError() throws IOException {
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection");
-        actionCollectionDTO.setPageId("testPageId");
-        actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setOrganizationId("testOrganizationId");
-        actionCollectionDTO.setPluginId("testPluginId");
-        actionCollectionDTO.setPluginType(PluginType.JS);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
-        final ActionCollection actionCollection = objectMapper.convertValue(jsonNode.get("actionCollectionWithAction"), ActionCollection.class);
-        Mockito
-                .when(newPageService.findById(Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(newPage));
-        Mockito
-                .when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(true));
-
-        Mockito
-                .when(actionCollectionRepository
-                        .findAllActionCollectionsByNameAndPageIdsAndViewMode(
-                                Mockito.any(),
-                                Mockito.any(),
-                                Mockito.anyBoolean(),
-                                Mockito.any(),
-                                Mockito.any()))
-                .thenReturn(Flux.just(actionCollection));
-
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -256,7 +222,7 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
@@ -300,7 +266,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Flux.empty());
 
         Mockito
-                .when(layoutActionService.createAction(Mockito.any()))
+                .when(layoutActionService.createSingleAction(Mockito.any()))
                 .thenAnswer(invocation -> {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[0];
                     argument.setId("testActionId");
@@ -316,13 +282,13 @@ public class ActionCollectionServiceImplTest {
                 });
 
         Mockito
-                .when(layoutActionService.updateAction(Mockito.any(), Mockito.any()))
+                .when(layoutActionService.updateSingleAction(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[1];
                     return Mono.just(argument);
                 });
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.createCollection(actionCollectionDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.createCollection(actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
@@ -340,7 +306,7 @@ public class ActionCollectionServiceImplTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setId("testId");
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                actionCollectionService.updateUnpublishedActionCollection(null, actionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection(null, actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -358,7 +324,7 @@ public class ActionCollectionServiceImplTest {
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                actionCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -381,7 +347,7 @@ public class ActionCollectionServiceImplTest {
 
         Map<String, ActionDTO> updatedActions = new HashMap<>();
         Mockito
-                .when(layoutActionService.updateAction(Mockito.any(), Mockito.any()))
+                .when(layoutActionService.updateSingleAction(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     final ActionDTO argument = (ActionDTO) invocation.getArguments()[1];
                     updatedActions.put(argument.getId(), argument);
@@ -415,7 +381,7 @@ public class ActionCollectionServiceImplTest {
                 });
 
         final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                actionCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO);
+                layoutCollectionService.updateUnpublishedActionCollection("testCollectionId", modifiedActionCollectionDTO);
 
         StepVerifier.create(actionCollectionDTOMono)
                 .assertNext(actionCollectionDTO1 -> {
@@ -613,9 +579,9 @@ public class ActionCollectionServiceImplTest {
 
         Mockito
                 .when(layoutActionService.isNameAllowed(Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(true));
+                .thenReturn(Mono.just(false));
 
-        final Mono<LayoutDTO> layoutDTOMono = actionCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
+        final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
 
         StepVerifier
                 .create(layoutDTOMono)
@@ -671,7 +637,7 @@ public class ActionCollectionServiceImplTest {
                 .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
-        final Mono<LayoutDTO> layoutDTOMono = actionCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
+        final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
 
         StepVerifier
                 .create(layoutDTOMono)
@@ -739,7 +705,7 @@ public class ActionCollectionServiceImplTest {
                 .when(layoutActionService.refactorName(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
-        final Mono<LayoutDTO> layoutDTOMono = actionCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
+        final Mono<LayoutDTO> layoutDTOMono = layoutCollectionService.refactorCollectionName(refactorActionCollectionNameDTO);
 
         StepVerifier
                 .create(layoutDTOMono)
@@ -809,7 +775,7 @@ public class ActionCollectionServiceImplTest {
                 .when(layoutActionService.updateLayout(Mockito.any(), Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono = actionCollectionService.moveCollection(actionCollectionMoveDTO);
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono = layoutCollectionService.moveCollection(actionCollectionMoveDTO);
 
         StepVerifier
                 .create(actionCollectionDTOMono)

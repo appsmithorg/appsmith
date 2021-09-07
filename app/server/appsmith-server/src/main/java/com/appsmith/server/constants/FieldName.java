@@ -10,6 +10,8 @@ public class FieldName {
     public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
     public static final String PLUGIN_TYPE = "pluginType";
+    public static final String COLLECTION_ID = "collectionId";
+    public static final String ACTION_ID = "actionId";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
