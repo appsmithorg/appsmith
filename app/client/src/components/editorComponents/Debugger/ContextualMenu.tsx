@@ -178,7 +178,7 @@ const searchAction: Record<
         searchTerm: error.message,
         errorType: error.type,
       });
-      dispatch(setGlobalSearchQuery(error.message || ""));
+      dispatch(setGlobalSearchQuery(""));
       dispatch(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
