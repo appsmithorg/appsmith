@@ -166,6 +166,17 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
@@ -345,6 +356,7 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  bottomBarHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -1134,6 +1146,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    evalDebugButton: {
+      hover: string;
+      active: string;
+    };
     inspectElement: {
       color: string;
     };
@@ -1197,6 +1213,15 @@ type ColorType = {
     menuBackgroundColor: string;
     separator: string;
   };
+  editorBottomBar: {
+    background: string;
+    buttonBackgroundHover: string;
+  };
+};
+
+const editorBottomBar = {
+  background: Colors.WHITE,
+  buttonBackgroundHover: Colors.Gallery,
 };
 
 const gitSyncModal = {
@@ -1405,6 +1430,7 @@ const numberedStep = {
 };
 
 export const dark: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -1445,7 +1471,7 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -1942,6 +1968,10 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -1978,6 +2008,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -2025,7 +2056,7 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -2523,6 +2554,10 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -2823,6 +2858,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
+  bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,

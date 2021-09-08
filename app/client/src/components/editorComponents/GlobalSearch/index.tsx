@@ -6,7 +6,7 @@ import React, {
   useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history from "utils/history";
 import { AppState } from "reducers";
@@ -65,6 +65,7 @@ import SnippetsFilter from "./SnippetsFilter";
 import SnippetRefinements from "./SnippetRefinements";
 import { Configure, Index } from "react-instantsearch-dom";
 import { getAppsmithConfigs } from "configs";
+import { lightTheme } from "selectors/themeSelectors";
 
 const StyledContainer = styled.div<{ category: SearchCategory }>`
   width: 785px;
@@ -511,82 +512,84 @@ function GlobalSearch() {
   }, [activeItem]);
 
   return (
-    <SearchContext.Provider value={searchContext}>
-      <GlobalSearchHotKeys {...hotKeyProps}>
-        <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
-          <AlgoliaSearchWrapper
-            category={category}
-            query={query}
-            refinements={refinements}
-            setRefinement={setRefinements}
-          >
-            <StyledContainer category={category}>
-              <SearchBox
-                category={category}
-                query={query}
-                setCategory={setCategory}
-                setQuery={setQuery}
-              />
-              {isSnippet(category) &&
-                refinements &&
-                refinements.entities &&
-                refinements.entities.length && <SnippetRefinements />}
-              <div className="main">
-                {(isMenu(category) || isDocumentation(category)) && (
-                  <Index indexName={algolia.indexName}>
-                    <SetSearchResults
-                      category={category}
-                      setSearchResults={setDocumentationSearchResultsInState}
-                    />
-                  </Index>
-                )}
-                {/* Search from default menu should search multiple indexes.
+    <ThemeProvider theme={lightTheme}>
+      <SearchContext.Provider value={searchContext}>
+        <GlobalSearchHotKeys {...hotKeyProps}>
+          <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
+            <AlgoliaSearchWrapper
+              category={category}
+              query={query}
+              refinements={refinements}
+              setRefinement={setRefinements}
+            >
+              <StyledContainer category={category}>
+                <SearchBox
+                  category={category}
+                  query={query}
+                  setCategory={setCategory}
+                  setQuery={setQuery}
+                />
+                {isSnippet(category) &&
+                  refinements &&
+                  refinements.entities &&
+                  refinements.entities.length && <SnippetRefinements />}
+                <div className="main">
+                  {(isMenu(category) || isDocumentation(category)) && (
+                    <Index indexName={algolia.indexName}>
+                      <SetSearchResults
+                        category={category}
+                        setSearchResults={setDocumentationSearchResultsInState}
+                      />
+                    </Index>
+                  )}
+                  {/* Search from default menu should search multiple indexes.
                 Below is the code to search in the index-snippet. Index
                 component requires Hits component as its children to display the
                 results. SetSearchResults is the custom hits component. */}
-                {(isMenu(category) || isSnippet(category)) && (
-                  <Index indexName="snippet">
-                    <Configure
-                      optionalFilters={getOptionalFilters(optionalFilterMeta)}
-                    />
-                    <SetSearchResults
-                      category={category}
-                      setSearchResults={setSnippetsState}
-                    />
-                  </Index>
-                )}
-                {searchResults.length > 0 ? (
-                  <>
-                    <SearchResults
-                      category={category}
-                      query={query}
-                      searchResults={searchResults}
-                    />
-                    {showDescription && (
-                      <Description
-                        activeItem={activeItem}
-                        activeItemType={activeItemType}
-                        query={query}
-                        scrollPositionRef={scrollPositionRef}
+                  {(isMenu(category) || isSnippet(category)) && (
+                    <Index indexName="snippet">
+                      <Configure
+                        optionalFilters={getOptionalFilters(optionalFilterMeta)}
                       />
-                    )}
-                  </>
-                ) : (
-                  <ResultsNotFound />
-                )}
-                {isSnippet(category) && (
-                  <SnippetsFilter
-                    refinements={refinements}
-                    snippetsEmpty={snippets.length === 0}
-                  />
-                )}
-              </div>
-              {/* <Footer /> */}
-            </StyledContainer>
-          </AlgoliaSearchWrapper>
-        </SearchModal>
-      </GlobalSearchHotKeys>
-    </SearchContext.Provider>
+                      <SetSearchResults
+                        category={category}
+                        setSearchResults={setSnippetsState}
+                      />
+                    </Index>
+                  )}
+                  {searchResults.length > 0 ? (
+                    <>
+                      <SearchResults
+                        category={category}
+                        query={query}
+                        searchResults={searchResults}
+                      />
+                      {showDescription && (
+                        <Description
+                          activeItem={activeItem}
+                          activeItemType={activeItemType}
+                          query={query}
+                          scrollPositionRef={scrollPositionRef}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <ResultsNotFound />
+                  )}
+                  {isSnippet(category) && (
+                    <SnippetsFilter
+                      refinements={refinements}
+                      snippetsEmpty={snippets.length === 0}
+                    />
+                  )}
+                </div>
+                {/* <Footer /> */}
+              </StyledContainer>
+            </AlgoliaSearchWrapper>
+          </SearchModal>
+        </GlobalSearchHotKeys>
+      </SearchContext.Provider>
+    </ThemeProvider>
   );
 }
 
