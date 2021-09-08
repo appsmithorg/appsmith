@@ -1272,6 +1272,7 @@ public class ApplicationServiceTest {
         Application unsavedApplication = new Application();
         unsavedApplication.setOrganizationId(orgId);
         unsavedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        unsavedApplication.getGitApplicationMetadata().setRemoteUrl("sample-remote-url");
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
@@ -1287,6 +1288,7 @@ public class ApplicationServiceTest {
                     assertThat(gitAuth.getPublicKey()).isNotNull();
                     assertThat(gitAuth.getPrivateKey()).isNotNull();
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
+                    assertThat(testApplication.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
                 })
                 .verifyComplete();
     }

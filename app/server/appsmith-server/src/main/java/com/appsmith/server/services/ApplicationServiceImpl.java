@@ -7,7 +7,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -36,7 +35,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -335,11 +333,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey(publicKeyOutput.toString());
         gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
-        gitAuth.setGeneratedAt(Instant.now());
-
-        Application applicationDto = new Application();
-        applicationDto.setGitApplicationMetadata(new GitApplicationMetadata());
-        applicationDto.getGitApplicationMetadata().setGitAuth(gitAuth);
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -355,7 +348,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     return targetApplicationId;
                 })
                 .flatMap(targetApplicationId -> repository
-                        .updateById(targetApplicationId, applicationDto, MANAGE_APPLICATIONS)
+                        .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
                         .thenReturn(gitAuth.getPublicKey())
                 );
     }
