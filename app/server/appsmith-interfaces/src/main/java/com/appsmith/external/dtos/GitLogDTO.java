@@ -6,6 +6,8 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class GitLogDTO {
+    String commitId;
+
     String authorName;
 
     String authorEmail;
