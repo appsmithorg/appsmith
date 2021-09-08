@@ -876,11 +876,19 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
 
             const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-            value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
-              return (function(){
+            value = `{{${parentProps.widgetName}.listData.map((currentItem) => {
+              return (function(currentItem){
                 return  ${js};
-              })();
+              })(currentItem);
             })}}`;
+
+            if (isString(value) && value.indexOf("currentIndex") > -1) {
+              value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
+                return (function(currentItem, currentIndex){
+                  return  ${js};
+                })(currentItem, currentIndex);
+              })}}`;
+            }
 
             if (!js) {
               value = propertyValue;
