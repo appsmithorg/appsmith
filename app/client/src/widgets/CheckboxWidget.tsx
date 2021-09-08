@@ -20,34 +20,15 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
-            placeholderText: "Enter label text",
+            placeholderText: "I agree to the T&C",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            propertyName: "alignWidget",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
-            isBindProperty: true,
-            isTriggerProperty: false,
-          },
-          {
             propertyName: "defaultCheckedState",
             label: "Default Selected",
-            helpText:
-              "Checks / un-checks the checkbox by default. Changes to the default selection update the widget state",
+            helpText: "Sets the default checked state of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -83,6 +64,24 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "alignWidget",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
           },
         ],
       },

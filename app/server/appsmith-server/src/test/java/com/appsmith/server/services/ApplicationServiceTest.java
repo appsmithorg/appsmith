@@ -3,10 +3,13 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -23,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -44,10 +48,12 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -107,6 +113,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     LayoutActionService layoutActionService;
+
+    @Autowired
+    private PolicyUtils policyUtils;
 
     @MockBean
     ReleaseNotesService releaseNotesService;
@@ -1255,5 +1264,84 @@ public class ApplicationServiceTest {
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
             assertThat(application.getModifiedBy()).isEqualTo("api_user");
         }).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
+        Application unsavedApplication = new Application();
+        unsavedApplication.setOrganizationId(orgId);
+        unsavedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        unsavedApplication.getGitApplicationMetadata().setRemoteUrl("sample-remote-url");
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
+        unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
+        unsavedApplication.setName("ssh-test-app");
+
+        Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
+                .flatMap(savedApplication -> applicationService.generateSshKeyPair(savedApplication.getId())
+                        .thenReturn(savedApplication.getId())
+                ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
+
+        StepVerifier.create(applicationMono)
+                .assertNext(testApplication -> {
+                    GitAuth gitAuth = testApplication.getGitApplicationMetadata().getGitAuth();
+                    assertThat(gitAuth.getPublicKey()).isNotNull();
+                    assertThat(gitAuth.getPrivateKey()).isNotNull();
+                    assertThat(gitAuth.getGeneratedAt()).isNotNull();
+                    assertThat(testApplication.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
+                })
+                .verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
+        AclPermission perm = MANAGE_APPLICATIONS;
+        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(perm), "api_user");
+        Set<Policy> policies = Set.copyOf(policyMap.values());
+
+        Application unsavedMainApp = new Application();
+        unsavedMainApp.setPolicies(policies);
+        unsavedMainApp.setName("ssh-key-master-app");
+        unsavedMainApp.setOrganizationId(orgId);
+
+        Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
+                .flatMap(savedMainApp -> {
+                    Application unsavedChildApp = new Application();
+                    unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
+                    unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
+                    unsavedChildApp.setPolicies(policies);
+                    unsavedChildApp.setName("ssh-key-child-app");
+                    unsavedChildApp.setOrganizationId(orgId);
+                    return applicationRepository.save(unsavedChildApp);
+                })
+                .flatMap(savedChildApp ->
+                        applicationService.generateSshKeyPair(savedChildApp.getId()).thenReturn(savedChildApp)
+                )
+                .flatMap(savedChildApp -> {
+                    // fetch and return both child and main applications
+                    String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), perm);
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, perm);
+                    return Mono.zip(childAppMono, mainAppMono);
+                });
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(applicationTuple2 -> {
+                    Application childApp = applicationTuple2.getT1();
+                    Application mainApp = applicationTuple2.getT2();
+
+                    // main app should have the generated keys
+                    GitAuth gitAuth = mainApp.getGitApplicationMetadata().getGitAuth();
+                    assertThat(gitAuth.getPublicKey()).isNotNull();
+                    assertThat(gitAuth.getPrivateKey()).isNotNull();
+                    assertThat(gitAuth.getGeneratedAt()).isNotNull();
+
+                    // child app should have null as GitAuth inside the metadata
+                    GitApplicationMetadata metadata = childApp.getGitApplicationMetadata();
+                    assertThat(metadata.getDefaultApplicationId()).isEqualTo(mainApp.getId());
+                    assertThat(metadata.getGitAuth()).isNull();
+                })
+                .verifyComplete();
     }
 }
