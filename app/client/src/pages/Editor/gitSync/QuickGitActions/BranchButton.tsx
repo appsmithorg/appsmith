@@ -34,6 +34,7 @@ function BranchButton() {
           <BranchDropdown />
         </BranchDropdownContainer>
       }
+      isOpen
       minimal
       placement="top-start"
     >
