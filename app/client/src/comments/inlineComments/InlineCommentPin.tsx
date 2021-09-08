@@ -260,11 +260,15 @@ function InlineCommentPin(props: Props) {
         isOpen={!!isCommentThreadVisible && !shouldHideThread}
         minimal
         modifiers={modifiers}
-        onInteraction={(nextOpenState: boolean) => {
+        onInteraction={(
+          nextOpenState: boolean,
+          e?: React.SyntheticEvent<HTMLElement>,
+        ) => {
           if (nextOpenState) {
             dispatch(setVisibleThread(commentThreadId));
           } else {
-            dispatch(resetVisibleThread(commentThreadId));
+            const shouldPersistComment = e?.type === "mousedown";
+            dispatch(resetVisibleThread(commentThreadId, shouldPersistComment));
             resetCommentThreadIdInURL(commentThreadId);
           }
         }}

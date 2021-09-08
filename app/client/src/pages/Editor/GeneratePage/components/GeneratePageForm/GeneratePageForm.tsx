@@ -120,6 +120,7 @@ const Row = styled.p`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  white-space: nowrap;
 `;
 
 // Constants

@@ -150,6 +150,9 @@ public class ImportExportApplicationService {
                 application.setPages(null);
                 application.setPublishedPages(null);
                 application.setModifiedBy(null);
+                application.setUpdatedAt(null);
+                application.setLastDeployedAt(null);
+                application.setGitApplicationMetadata(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)

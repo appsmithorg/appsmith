@@ -10,7 +10,8 @@ export const SelectWrapper = styled.div<{ width: string }>`
 
 export const Label = styled.p`
   flex: 1;
-  ${(props) => `${getTypographyByKey(props, "p1")}`}
+  ${(props) => `${getTypographyByKey(props, "p1")}`};
+  white-space: nowrap;
 `;
 
 export const Bold = styled.span`
