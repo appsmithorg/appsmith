@@ -2692,6 +2692,18 @@ Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
   return bgUrl;
 });
 
+Cypress.Commands.add("getTableCell", (rowNum, colNum, extraPath) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] ${extraPath}`;
+  const cell = cy.get(selector);
+  return cell;
+});
+
+Cypress.Commands.add("readTableSelectPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] .bp3-control-group .bp3-button-text`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
 Cypress.Commands.add("assertEvaluatedValuePopup", (expectedType) => {
   cy.get(commonlocators.evaluatedTypeTitle)
     .first()
