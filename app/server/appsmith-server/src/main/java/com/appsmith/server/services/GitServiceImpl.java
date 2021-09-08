@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitConfig;

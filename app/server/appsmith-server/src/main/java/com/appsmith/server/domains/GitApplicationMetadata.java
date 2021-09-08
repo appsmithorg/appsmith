@@ -2,8 +2,6 @@ package com.appsmith.server.domains;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the
 // git repo.
