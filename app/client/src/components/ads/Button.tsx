@@ -49,7 +49,7 @@ type BtnFontType = {
   height: number;
 };
 
-type ButtonProps = CommonComponentProps & {
+export type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   text?: string;
   category?: Category;
@@ -79,21 +79,38 @@ const getDisabledStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
+  if (props.tag === "a") {
+    return {
+      bgColorPrimary: "transparent",
+      borderColorPrimary: "transparent",
+      txtColorPrimary: props.theme.colors.button.link.disabled,
+      bgColorSecondary: "transparent",
+      borderColorSecondary: "transparent",
+      txtColorSecondary: props.theme.colors.button.link.disabled,
+      bgColorTertiary: "transparent",
+      borderColorTertiary: "transparent",
+      txtColorTertiary: props.theme.colors.button.link.disabled,
+    };
+  }
   const stylesByCategory = {
     [Category.primary]: {
       txtColorPrimary: props.theme.colors.button.disabledText,
-      bgColorPrimary: props.theme.colors[variant].darkest,
-      borderColorPrimary: props.theme.colors[variant].darkest,
+      bgColorPrimary: props.theme.colors[variant].darker,
+      borderColorPrimary: props.theme.colors[variant].darker,
     },
     [Category.secondary]: {
       txtColorSecondary: props.theme.colors.button.disabledText,
-      bgColorSecondary: props.theme.colors[variant].darkest,
-      borderColorSecondary: props.theme.colors[variant].darker,
+      bgColorSecondary: props.theme.colors[variant].darker,
+      borderColorSecondary: props.isLoading
+        ? props.theme.colors[variant].darkest
+        : props.theme.colors.tertiary.darker,
     },
     [Category.tertiary]: {
       txtColorTertiary: props.theme.colors.button.disabledText,
-      bgColorTertiary: props.theme.colors.tertiary.darker,
-      borderColorTertiary: props.theme.colors.tertiary.dark,
+      bgColorTertiary: props.theme.colors.tertiary.dark,
+      borderColorTertiary: props.isLoading
+        ? props.theme.colors.tertiary.darkest
+        : props.theme.colors.tertiary.darker,
     },
   };
 
@@ -104,6 +121,19 @@ const getMainStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
+  if (props.tag === "a") {
+    return {
+      bgColorPrimary: "transparent",
+      borderColorPrimary: "transparent",
+      txtColorPrimary: props.theme.colors.button.link.main,
+      bgColorSecondary: "transparent",
+      borderColorSecondary: "transparent",
+      txtColorSecondary: props.theme.colors.button.link.main,
+      bgColorTertiary: "transparent",
+      borderColorTertiary: "transparent",
+      txtColorTertiary: props.theme.colors.button.link.main,
+    };
+  }
   const stylesByCategory = {
     [Category.primary]: {
       bgColorPrimary: props.theme.colors[variant].main,
@@ -128,6 +158,20 @@ const getMainStateStyles = (props: ThemeProp & ButtonProps) => {
 const getHoverStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
+
+  if (props.tag === "a") {
+    return {
+      bgColorPrimary: "transparent",
+      borderColorPrimary: "transparent",
+      txtColorPrimary: props.theme.colors.button.link.hover,
+      bgColorSecondary: "transparent",
+      borderColorSecondary: "transparent",
+      txtColorSecondary: props.theme.colors.button.link.hover,
+      bgColorTertiary: "transparent",
+      borderColorTertiary: "transparent",
+      txtColorTertiary: props.theme.colors.button.link.hover,
+    };
+  }
 
   const stylesByCategory = {
     [Category.primary]: {
@@ -154,6 +198,19 @@ const getActiveStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
+  if (props.tag === "a") {
+    return {
+      bgColorPrimary: "transparent",
+      borderColorPrimary: "transparent",
+      txtColorPrimary: props.theme.colors.button.link.active,
+      bgColorSecondary: "transparent",
+      borderColorSecondary: "transparent",
+      txtColorSecondary: props.theme.colors.button.link.active,
+      bgColorTertiary: "transparent",
+      borderColorTertiary: "transparent",
+      txtColorTertiary: props.theme.colors.button.link.active,
+    };
+  }
   const stylesByCategory = {
     [Category.primary]: {
       bgColorPrimary: props.theme.colors[variant].dark,
@@ -307,11 +364,25 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
   border-radius: 0;
   ${(props) => btnFontStyles(props).buttonFont};
   padding: ${(props) => btnFontStyles(props).padding};
-  .${Classes.ICON} {
+  .${Classes.ICON}:not([name="no-response"]) {
     margin-right: ${(props) =>
       props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
     path {
       fill: ${(props) => btnColorStyles(props, "main").txtColor};
+      &[stroke-width],
+      &[stroke] {
+        stroke: ${(props) => btnColorStyles(props, "main").txtColor};
+        fill: transparent;
+      }
+    }
+    rect[stroke] {
+      stroke: ${(props) => btnColorStyles(props, "main").txtColor};
+    }
+    &[name="search"] {
+      circle {
+        fill: transparent;
+        stroke: ${(props) => btnColorStyles(props, "main").txtColor};
+      }
     }
   }
   &:hover {
@@ -326,6 +397,20 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
         props.text && props.icon ? `${props.theme.spaces[2] - 1}px` : `0`};
       path {
         fill: ${(props) => btnColorStyles(props, "hover").txtColor};
+        &[stroke-width],
+        &[stroke] {
+          fill: transparent;
+          stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
+        }
+      }
+      rect[stroke] {
+        stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
+      }
+      &[name="search"] {
+        circle {
+          fill: transparent;
+          stroke: ${(props) => btnColorStyles(props, "hover").txtColor};
+        }
       }
     }
   }
@@ -339,6 +424,20 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     .${Classes.ICON} {
       path {
         fill: ${(props) => btnColorStyles(props, "active").txtColor};
+        &[stroke-width],
+        &[stroke] {
+          fill: transparent;
+          stroke: ${(props) => btnColorStyles(props, "active").txtColor};
+        }
+      }
+      rect[stroke] {
+        stroke: ${(props) => btnColorStyles(props, "active").txtColor};
+      }
+      &[name="search"] {
+        circle {
+          fill: transparent;
+          stroke: ${(props) => btnColorStyles(props, "active").txtColor};
+        }
       }
     }
   }
@@ -352,6 +451,9 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     right: 0;
     margin-left: auto;
     margin-right: auto;
+    circle {
+      stroke: ${(props) => props.theme.colors.button.disabledText};
+    }
   }
 `;
 
@@ -361,6 +463,8 @@ const StyledButton = styled("button")`
 
 const StyledLinkButton = styled("a")`
   ${ButtonStyles}
+  background: transparent;
+  border-color: transparent;
 `;
 
 export const VisibilityWrapper = styled.div`
@@ -407,8 +511,11 @@ const getTextContent = (props: ButtonProps) =>
 
 const getButtonContent = (props: ButtonProps) => (
   <>
-    {getIconContent(props)}
-    <span>{getTextContent(props)}</span>
+    {props.tag === "button" && getIconContent(props)}
+    <span style={{ marginRight: props.tag === "a" ? 7.67 : 0 }}>
+      {getTextContent(props)}
+    </span>
+    {props.tag === "a" && getIconContent(props)}
     {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
   </>
 );
