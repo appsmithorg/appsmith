@@ -235,6 +235,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         });
       }
     }
+
+    if (this.props.serverSidePaginationEnabled) {
+      if (
+        this.props.serverSidePaginationEnabled === true &&
+        prevProps.serverSidePaginationEnabled === false
+      ) {
+        super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
+    }
+
     if (
       get(this.props.children, "0.children.0.bottomRow") !==
       get(prevProps.children, "0.children.0.bottomRow")
