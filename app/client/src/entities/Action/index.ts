@@ -67,7 +67,7 @@ export interface StoredDatasource {
   id: string;
 }
 
-interface BaseAction {
+export interface BaseAction {
   id: string;
   name: string;
   organizationId: string;
