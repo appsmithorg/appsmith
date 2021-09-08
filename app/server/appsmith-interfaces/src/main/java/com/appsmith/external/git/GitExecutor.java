@@ -1,10 +1,12 @@
 package com.appsmith.external.git;
 
+import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 @Component
 public interface GitExecutor {
@@ -22,8 +24,10 @@ public interface GitExecutor {
      */
     String commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail) throws IOException, GitAPIException;
 
+    List<GitLogDTO> getCommitHistory(String organizationId, String defaultApplicationId, String branchName) throws IOException, GitAPIException;
+
     /**
-     *
+     * THis method will create a new repository to provided path
      * @param repoPath
      * @return
      */

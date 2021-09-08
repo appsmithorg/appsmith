@@ -1,7 +1,9 @@
 package com.appsmith.server.controllers;
 
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.GitConfig;
+import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -43,9 +47,16 @@ public class GitController {
 
     @PostMapping("/commit/{applicationId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<String>> commit(@RequestBody String commitMessage, @PathVariable String applicationId) {
+    public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO, @PathVariable String applicationId) {
         log.debug("Going to commit application {}", applicationId);
-        return service.commitApplication(commitMessage, applicationId)
+        return service.commitApplication(commitDTO, applicationId)
+            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+    }
+
+    @GetMapping("/commit-history/{applicationId}")
+    public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
+        log.debug("Going to commit application {}", applicationId);
+        return service.getCommitHistory(applicationId)
             .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
     }
 }
