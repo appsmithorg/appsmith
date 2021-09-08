@@ -2486,6 +2486,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2622,7 +2623,7 @@ public class DatabaseChangelog {
                     page.setOrder(i);
                     i++;
                 }
-                if(application.getPublishedPages() != null) {
+                if (application.getPublishedPages() != null) {
                     i = 0;
                     for (ApplicationPage page : application.getPublishedPages()) {
                         page.setOrder(i);
@@ -2893,7 +2894,7 @@ public class DatabaseChangelog {
                 .forEach(path -> encryptPathValueIfExists(document, path, encryptionService));
     }
 
-    @ChangeSet(order = "080", id = "encrypt-certificate", author = "")
+    @ChangeSet(order = "081", id = "encrypt-certificate", author = "")
     public void encryptCertificateAndPassword(MongockTemplate mongoTemplate, EncryptionService encryptionService) {
 
         /**
@@ -2947,7 +2948,7 @@ public class DatabaseChangelog {
         });
     }
 
-    @ChangeSet(order = "081", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
+    @ChangeSet(order = "082", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
     public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongockTemplate mongoTemplate) {
 
         Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
@@ -2961,7 +2962,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "082", id = "application-git-metadata", author = "")
+    @ChangeSet(order = "083", id = "application-git-metadata", author = "")
     public void addApplicationGitMetadataFieldAndIndex(MongockTemplate mongockTemplate) {
         MongoTemplate mongoTemplate = mongockTemplate.getImpl();
         dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
@@ -2971,5 +2972,25 @@ public class DatabaseChangelog {
             makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
                 .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
         );
+    }
+
+    @ChangeSet(order = "084", id = "add-js-plugin", author = "")
+    public void addJSPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("JS Functions");
+        plugin.setType(PluginType.JS);
+        plugin.setPackageName("js-plugin");
+        plugin.setUiComponent("JsEditorForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/JSFile.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/js-reference/using-js");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
 }
