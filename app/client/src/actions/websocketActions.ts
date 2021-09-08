@@ -23,3 +23,7 @@ export const reconnectWebsocket = () =>
 export const retrySocketConnection = () => ({
   type: ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION,
 });
+
+export const initSocketConnection = () => ({
+  type: ReduxActionTypes.INIT_SOCKET_CONNECTION,
+});
