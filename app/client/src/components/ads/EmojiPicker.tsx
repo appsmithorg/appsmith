@@ -3,12 +3,24 @@ import { Picker, BaseEmoji } from "emoji-mart";
 import { Popover2 } from "@blueprintjs/popover2";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 
-import { withTheme } from "styled-components";
+import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import "emoji-mart/css/emoji-mart.css";
 import Tooltip from "components/ads/Tooltip";
 import { ADD_REACTION, createMessage, EMOJI } from "constants/messages";
+import { Colors } from "constants/Colors";
+
+const StyledIcon = styled(Icon)`
+  &:hover circle,
+  &:hover path {
+    stroke: ${Colors.CHARCOAL};
+  }
+  &:hover path.color-fill {
+    fill: ${Colors.CHARCOAL};
+    stroke: unset;
+  }
+`;
 
 const EmojiPicker = withTheme(
   ({
@@ -53,7 +65,7 @@ const EmojiPicker = withTheme(
         portalClassName="emoji-picker-portal"
       >
         <Tooltip content={createMessage(iconName ? ADD_REACTION : EMOJI)}>
-          <Icon
+          <StyledIcon
             fillColor={theme.colors.comments.emojiPicker}
             keepColors
             name={iconName || "emoji"}

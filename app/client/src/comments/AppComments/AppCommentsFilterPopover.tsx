@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -18,6 +18,7 @@ import {
 
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import log from "loglevel";
+import { Colors } from "constants/Colors";
 
 export const options = [
   { label: "Show all comments", value: "show-all" },
@@ -87,27 +88,50 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
   );
 });
 
+const FilterIconContainer = styled.div<{ open?: boolean }>`
+  padding: ${(props) => props.theme.spaces[7]}px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ${(props) =>
+    props.open &&
+    `
+    & svg path {
+      fill: ${Colors.CHARCOAL};
+    }
+    background-color: ${Colors.MERCURY_1};
+  `}
+`;
+
 function AppCommentsFilterPopover() {
   useSetResolvedFilterFromQuery();
+  const [open, setIsOpen] = useState(false);
 
   return (
     <Popover2
       content={<AppCommentsFilter />}
+      isOpen={open}
       modifiers={{
         offset: {
           enabled: true,
           options: {
-            offset: [7, 10],
+            offset: [-7, 18],
           },
         },
         preventOverflow: {
           enabled: true,
         },
       }}
+      onInteraction={(nextState: boolean) => {
+        setIsOpen(nextState);
+      }}
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <Icon name="filter" size={IconSize.LARGE} />
+      <FilterIconContainer open={open}>
+        <Icon name="filter" size={IconSize.LARGE} />
+      </FilterIconContainer>
     </Popover2>
   );
 }

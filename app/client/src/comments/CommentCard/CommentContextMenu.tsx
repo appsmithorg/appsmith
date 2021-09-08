@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import Icon, { IconSize, IconName } from "components/ads/Icon";
+import Icon, { IconSize, IconName, IconWrapper } from "components/ads/Icon";
 import styled from "styled-components";
 import {
   PIN_COMMENT,
@@ -17,6 +17,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Popover2 } from "@blueprintjs/popover2";
 import Tooltip from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
 
 // render over popover portals
 const Container = styled.div``;
@@ -32,7 +33,11 @@ const MenuItem = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-left: ${(props) => props.theme.spaces[2]}px;
+  padding-left: ${(props) => props.theme.spaces[2]}px;
+  &:hover svg ellipse,
+  &:hover svg circle {
+    fill: ${Colors.CHARCOAL};
+  }
 `;
 
 const MenuIcon = styled.div`

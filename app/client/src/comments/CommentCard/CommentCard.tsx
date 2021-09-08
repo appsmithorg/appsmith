@@ -58,6 +58,9 @@ import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps"
 
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 
+import { IconWrapper } from "components/ads/Icon";
+import { Colors } from "constants/Colors";
+
 const StyledContainer = styled.div`
   width: 100%;
   padding: ${(props) =>

@@ -37,6 +37,7 @@ export const Colors = {
   HIT_GRAY: "#A1ACB3",
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
+  MERCURY_1: "#E3E3E3",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
