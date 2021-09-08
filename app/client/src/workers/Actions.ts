@@ -41,7 +41,7 @@ import {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { reject } from "lodash";
 import { isAction, isTrueObject } from "./evaluationUtils";
 import { ActionTriggerType } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
@@ -56,7 +56,7 @@ declare global {
 }
 
 const overThreadPromise = (event: any) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData: {
@@ -66,10 +66,16 @@ const overThreadPromise = (event: any) => {
       requestId: self.REQUEST_ID,
     });
     ctx.addEventListener("message", (data) => {
-      const { method } = data.data;
-      if (method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER) {
-        debugger;
-        resolve.call(self, data.data.data);
+      const { method, requestId, success } = data.data;
+      if (
+        method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
+        requestId === self.REQUEST_ID
+      ) {
+        if (success) {
+          resolve.call(self, data.data.data);
+        } else {
+          reject.call(self, data.data.data);
+        }
       }
     });
   });

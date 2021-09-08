@@ -167,14 +167,13 @@ export function* evaluateDynamicTrigger(
 
   while (keepAlive) {
     const { requestData } = yield take(requestChannel);
-    debugger;
+    log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
       continue;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
-      debugger;
       const response = yield call(
         executeActionTriggers,
         requestData.trigger,

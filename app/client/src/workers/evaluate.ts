@@ -214,10 +214,8 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
-      completePromise();
     } catch (e) {
       const errorMessage = `${e.name}: ${e.message}`;
-      debugger;
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,
@@ -226,6 +224,7 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
     }
+    completePromise();
 
     return { result, errors };
   })();
