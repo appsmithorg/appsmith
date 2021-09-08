@@ -381,7 +381,7 @@ public class CommentServiceTest {
         }).verifyComplete();
     }
 
-    private Mono<CommentThread> createAndFetchTestCommentThreadForBotTest(Set<AclPermission> applicationPermissions) {
+    private Mono<CommentThread> createAndFetchTestCommentThreadForBotTest(Set<AclPermission> applicationPermissions, Comment comment) {
         return userService.findByEmail("api_user")
                 .flatMap(user -> {
                     // create an application
@@ -396,7 +396,7 @@ public class CommentServiceTest {
                     // create a thread
                     CommentThread commentThread = new CommentThread();
                     commentThread.setApplicationId(application.getId());
-                    Comment comment = makePlainTextComment("test comment here");
+
                     commentThread.setComments(List.of(comment));
                     return commentService.createThread(commentThread, null);
                 }).flatMap(thread -> commentThreadRepository.findById(thread.getId())); // fetch the thread to check
@@ -405,8 +405,9 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createThread_WhenFirstCommentFromUser_CreatesBotThreadAndComment() {
+        Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS)
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
@@ -418,8 +419,23 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createThread_WhenFirstCommentFromViewer_BotThreadNotCreated() {
+        Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
-                Set.of(AclPermission.READ_APPLICATIONS)
+                Set.of(AclPermission.READ_APPLICATIONS), comment
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenFirstTaggedCommentFromEditor_BotThreadNotCreated() {
+        Comment comment = makePlainTextComment("test comment here");
+        mentionUser(comment, "sample-user@example.com");
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.READ_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {

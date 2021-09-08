@@ -19,7 +19,7 @@ const PropertyPaneConfig = [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.OBJECT_ARRAY },
+        validation: { type: ValidationTypes.ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {

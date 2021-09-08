@@ -331,6 +331,19 @@ export const entityDefinitions = {
     options: "[dropdownOption]",
     selectedValues: "[string]",
   },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
+  },
+  AUDIO_RECORDER_WIDGET: {
+    "!doc":
+      "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
+    "!url": "https://docs.appsmith.com/widget-reference/recorder",
+    isVisible: isVisible,
+    value: "blob",
+    url: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {
