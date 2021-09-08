@@ -28,6 +28,6 @@ public enum FeatureFlagEnum {
     COMMENT,
     SNIPPET,
     LINTING,
-    MULTIPLAYER;
+    MULTIPLAYER,
+    GIT;
 }
-

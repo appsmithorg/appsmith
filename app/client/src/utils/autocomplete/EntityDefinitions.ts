@@ -75,6 +75,7 @@ export const entityDefinitions = {
     pageSize: "number",
     isVisible: isVisible,
     searchText: "string",
+    totalRecordsCount: "number",
     sortOrder: {
       column: "string",
       order: ["asc", "desc"],
@@ -327,6 +328,11 @@ export const entityDefinitions = {
     isValid: "bool",
     options: "[dropdownOption]",
     selectedValues: "[string]",
+  },
+  STATBOX_WIDGET: {
+    "!doc": "Show and highlight stats from your data sources",
+    "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+    isVisible: isVisible,
   },
 };
 
