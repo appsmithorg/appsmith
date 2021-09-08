@@ -293,27 +293,34 @@ function* handleRefactorJSActionNameSaga(
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse = yield ActionAPI.updateActionName({
-      layoutId,
-      collectionId: data.payload.collectionId,
-      pageId: data.payload.pageId,
-      oldName: data.payload.oldName,
-      newName: data.payload.newName,
-      actionId: data.payload.actionId,
-    });
+    try {
+      const refactorResponse = yield ActionAPI.updateActionName({
+        layoutId,
+        collectionId: data.payload.collectionId,
+        pageId: data.payload.pageId,
+        oldName: data.payload.oldName,
+        newName: data.payload.newName,
+        actionId: data.payload.actionId,
+      });
 
-    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+      const isRefactorSuccessful = yield validateResponse(refactorResponse);
 
-    const currentPageId = yield select(getCurrentPageId);
+      const currentPageId = yield select(getCurrentPageId);
 
-    if (isRefactorSuccessful) {
-      if (currentPageId === data.payload.pageId) {
-        yield updateCanvasWithDSL(
-          refactorResponse.data,
-          data.payload.pageId,
-          layoutId,
-        );
+      if (isRefactorSuccessful) {
+        if (currentPageId === data.payload.pageId) {
+          yield updateCanvasWithDSL(
+            refactorResponse.data,
+            data.payload.pageId,
+            layoutId,
+          );
+        }
       }
+    } catch (error) {
+      yield put({
+        type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
+        payload: { error },
+      });
     }
   }
 }
