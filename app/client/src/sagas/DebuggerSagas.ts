@@ -18,8 +18,13 @@ import {
 } from "redux-saga/effects";
 import { findIndex, get, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getJSCollection,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
+import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
@@ -179,6 +184,15 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
       return;
+    case LOG_TYPE.JS_ACTION_UPDATE:
+      yield put(debuggerLog(payload));
+      return;
+    case LOG_TYPE.JS_PARSE_ERROR:
+      yield put(addErrorLog(payload));
+      break;
+    case LOG_TYPE.JS_PARSE_SUCCESS:
+      AppsmithConsole.deleteError(payload.source?.id ?? "");
+      break;
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
@@ -268,6 +282,21 @@ function* logDebuggerErrorAnalyticsSaga(
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
         errorSubType: payload.errorSubType,
+      });
+    } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
+      const action: JSCollection = yield select(
+        getJSCollection,
+        payload.entityId,
+      );
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      const pluginName = plugin.name.replace(/ /g, "");
+
+      // Sending plugin name for actions
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: pluginName,
+        propertyPath: "",
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
       });
     }
   } catch (e) {
@@ -383,7 +412,7 @@ function* deleteDebuggerErrorLogSaga(
 
   const error = errors[action.payload.id];
 
-  if (!error.source) return;
+  if (!error || !error.source) return;
 
   const analyticsPayload = {
     entityName: error.source.name,
