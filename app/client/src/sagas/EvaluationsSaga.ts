@@ -154,6 +154,7 @@ export function* evaluateDynamicTrigger(
   callbackData?: Array<any>,
 ) {
   const unEvalTree = yield select(getUnevaluatedDataTree);
+  log.debug({ execute: dynamicTrigger });
 
   const {
     requestChannel,
@@ -174,18 +175,30 @@ export function* evaluateDynamicTrigger(
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
-      const response = yield call(
-        executeActionTriggers,
-        requestData.trigger,
-        eventType,
-      );
-      responseChannel.put({
-        method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
-        data: response,
-      });
+      try {
+        const response = yield call(
+          executeActionTriggers,
+          requestData.trigger,
+          eventType,
+        );
+        responseChannel.put({
+          method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+          data: {
+            resolve: response,
+          },
+          success: true,
+        });
+      } catch (e) {
+        responseChannel.put({
+          method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
+          data: {
+            reason: e,
+          },
+          success: false,
+        });
+      }
     }
   }
-  debugger;
 }
 
 export function* clearEvalCache() {

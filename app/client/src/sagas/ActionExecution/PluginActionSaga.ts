@@ -304,7 +304,9 @@ export default function* executePluginActionTriggerSaga(
       state: payload.request,
       messages: [
         {
-          message: payload.body as string,
+          message: !isString(payload.body)
+            ? JSON.stringify(payload.body)
+            : payload.body,
           type: PLATFORM_ERROR.PLUGIN_EXECUTION,
           subType: payload.errorType,
         },

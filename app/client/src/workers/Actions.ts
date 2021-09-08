@@ -41,7 +41,7 @@ import {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeFactory";
-import _, { reject } from "lodash";
+import _ from "lodash";
 import { isAction, isTrueObject } from "./evaluationUtils";
 import { ActionTriggerType } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
@@ -65,16 +65,16 @@ const overThreadPromise = (event: any) => {
       },
       requestId: self.REQUEST_ID,
     });
-    ctx.addEventListener("message", (data) => {
-      const { method, requestId, success } = data.data;
+    ctx.addEventListener("message", (event) => {
+      const { method, requestId, success } = event.data;
       if (
         method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
         requestId === self.REQUEST_ID
       ) {
         if (success) {
-          resolve.call(self, data.data.data);
+          resolve.apply(self, event.data.data.resolve);
         } else {
-          reject.call(self, data.data.data);
+          reject(event.data.data.reason);
         }
       }
     });
