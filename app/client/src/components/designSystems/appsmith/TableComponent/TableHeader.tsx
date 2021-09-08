@@ -184,6 +184,14 @@ interface TableHeaderProps {
 }
 
 function TableHeader(props: TableHeaderProps) {
+  const showServerSidePagination =
+    props.isVisiblePagination &&
+    !props.infiniteScroll &&
+    props.serverSidePaginationEnabled;
+  const showClientSidePagination =
+    props.isVisiblePagination &&
+    !props.infiniteScroll &&
+    !props.serverSidePaginationEnabled;
   return (
     <>
       {props.isVisibleSearch && (
@@ -215,57 +223,52 @@ function TableHeader(props: TableHeaderProps) {
         </CommonFunctionsMenuWrapper>
       )}
 
-      {props.isVisiblePagination &&
-        !props.infiniteScroll &&
-        props.serverSidePaginationEnabled && (
-          <PaginationWrapper>
-            <PrevPageBtn
-              currentPageIndex={props.pageNo}
-              onClick={props.prevPageClick}
-            />
-            <PaginationItemWrapper className="page-item" selected>
-              {props.pageNo + 1}
-            </PaginationItemWrapper>
-            <NextPageBtn
-              currentPageIndex={props.pageNo}
-              disabled={
-                !!props.totalRecordsCount &&
-                props.pageNo === props.pageCount - 1
-              }
-              onClick={props.nextPageClick}
+      {showServerSidePagination && (
+        <PaginationWrapper>
+          <PrevPageBtn
+            currentPageIndex={props.pageNo}
+            onClick={props.prevPageClick}
+          />
+          <PaginationItemWrapper className="page-item" selected>
+            {props.pageNo + 1}
+          </PaginationItemWrapper>
+          <NextPageBtn
+            currentPageIndex={props.pageNo}
+            disabled={
+              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
+            }
+            onClick={props.nextPageClick}
+            pageCount={props.pageCount}
+          />
+        </PaginationWrapper>
+      )}
+      {showClientSidePagination && (
+        <PaginationWrapper>
+          <RowWrapper className="show-page-items">
+            {props.tableData?.length} Records
+          </RowWrapper>
+          <PrevPageBtn
+            currentPageIndex={props.currentPageIndex}
+            updatePageNo={props.updatePageNo}
+          />
+          <RowWrapper>
+            Page{" "}
+            <PageNumberInput
+              disabled={props.pageCount === 1}
               pageCount={props.pageCount}
-            />
-          </PaginationWrapper>
-        )}
-      {props.isVisiblePagination &&
-        !props.infiniteScroll &&
-        !props.serverSidePaginationEnabled && (
-          <PaginationWrapper>
-            <RowWrapper className="show-page-items">
-              {props.tableData?.length} Records
-            </RowWrapper>
-            <PrevPageBtn
-              currentPageIndex={props.currentPageIndex}
+              pageNo={props.pageNo + 1}
               updatePageNo={props.updatePageNo}
-            />
-            <RowWrapper>
-              Page{" "}
-              <PageNumberInput
-                disabled={props.pageCount === 1}
-                pageCount={props.pageCount}
-                pageNo={props.pageNo + 1}
-                updatePageNo={props.updatePageNo}
-              />{" "}
-              of {props.pageCount}
-            </RowWrapper>
-            <NextPageBtn
-              currentPageIndex={props.currentPageIndex}
-              disabled={props.currentPageIndex === props.pageCount - 1}
-              pageCount={props.pageCount}
-              updatePageNo={props.updatePageNo}
-            />
-          </PaginationWrapper>
-        )}
+            />{" "}
+            of {props.pageCount}
+          </RowWrapper>
+          <NextPageBtn
+            currentPageIndex={props.currentPageIndex}
+            disabled={props.currentPageIndex === props.pageCount - 1}
+            pageCount={props.pageCount}
+            updatePageNo={props.updatePageNo}
+          />
+        </PaginationWrapper>
+      )}
     </>
   );
 }
