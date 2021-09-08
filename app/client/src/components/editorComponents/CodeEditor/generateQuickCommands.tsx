@@ -103,6 +103,7 @@ function Command(props: {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
             SAAS: <DataSourcesColoredIcon />,
+            JS: <DataSourcesColoredIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
         {props.shortcut && iconsByType[props.shortcut]}
