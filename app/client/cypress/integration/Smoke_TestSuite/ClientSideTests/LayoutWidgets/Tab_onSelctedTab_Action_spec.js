@@ -54,7 +54,7 @@ describe("Tab widget test", function() {
 
     cy.PublishtheApp();
 
-    // Clicking the button to verify the success message
+    // Clicking the tab to verify the success message
     cy.get(commonlocators.selectTab + ":first-child").click();
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
@@ -100,7 +100,7 @@ describe("Tab widget test", function() {
 
     cy.PublishtheApp();
 
-    // Clicking the button to verify the success message
+    // Clicking the tab to verify the success message
     cy.get(commonlocators.selectTab + ":first-child").click({ force: true });
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
