@@ -16,7 +16,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <plugin.id>js-plugin</plugin.id>
-        <plugin.class>com.external.plugins.jsPlugin</plugin.class>
+        <plugin.class>com.external.plugins.JSPlugin</plugin.class>
         <plugin.version>1.0-SNAPSHOT</plugin.version>
         <plugin.provider>tech@appsmith.com</plugin.provider>
         <plugin.dependencies/>

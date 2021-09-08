@@ -80,6 +80,8 @@ export enum EventType {
   ON_SNIPPET_EXECUTE = "ON_SNIPPET_EXECUTE",
   ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
+  ON_RECORDING_START = "ON_RECORDING_START",
+  ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
 }
 
 export interface PageAction {
@@ -116,7 +118,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
   [PluginType.SAAS]: saasActionSettingsConfig,
-  [PluginType.JS]: {},
+  [PluginType.JS]: [],
 };
 
 export const defaultActionEditorConfigs: Record<PluginType, any> = {

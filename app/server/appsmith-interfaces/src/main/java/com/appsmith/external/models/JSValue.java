@@ -13,4 +13,5 @@ public class JSValue {
     String name;
     String dataType;
     Object value;
+    Boolean isValid;
 }

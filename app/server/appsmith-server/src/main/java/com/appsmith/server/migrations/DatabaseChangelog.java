@@ -2487,6 +2487,7 @@ public class DatabaseChangelog {
         plugin.setResponseType(Plugin.ResponseType.TABLE);
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/Snowflake.png");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-snowflake-db");
+
         plugin.setDefaultInstall(true);
         try {
             mongoTemplate.insert(plugin);
@@ -2622,7 +2623,7 @@ public class DatabaseChangelog {
                     page.setOrder(i);
                     i++;
                 }
-                if(application.getPublishedPages() != null) {
+                if (application.getPublishedPages() != null) {
                     i = 0;
                     for (ApplicationPage page : application.getPublishedPages()) {
                         page.setOrder(i);
@@ -2973,7 +2974,7 @@ public class DatabaseChangelog {
         );
     }
 
-     @ChangeSet(order = "084", id = "add-js-plugin", author = "")
+    @ChangeSet(order = "084", id = "add-js-plugin", author = "")
     public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
@@ -2984,7 +2985,6 @@ public class DatabaseChangelog {
         plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/JSFile.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/v/v1.2.1/js-reference/using-js");
         plugin.setDefaultInstall(true);
-
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
