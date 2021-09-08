@@ -43,7 +43,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
-import { omnibarDocumentationHelper } from "constants/OmnibarDocumentationConstants";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import { isHidden } from "components/formControls/utils";
 import {
@@ -60,22 +59,22 @@ import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import Button, { Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+import ActionRightPane, {
+  useEntityDependencies,
+} from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
-import TooltipComponent from "../../../components/ads/Tooltip";
+import TooltipComponent from "components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px 0px 0px 0px;
   width: 100%;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.backBanner}
-  );
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
@@ -100,7 +99,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
@@ -128,7 +127,6 @@ const TabbedViewContainer = styled.div`
 
 const SettingsWrapper = styled.div`
   padding: 16px 30px;
-  overflow-y: auto;
   height: 100%;
   ${thinScrollbar};
 `;
@@ -226,7 +224,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 20px;
   flex: 0;
 `;
@@ -327,7 +325,7 @@ const TabContainerView = styled.div`
     margin-top: 15px;
   }
   .react-tabs__tab-panel {
-    overflow: scroll;
+    overflow: auto;
   }
   .react-tabs__tab-list {
     margin: 0px;
@@ -386,6 +384,7 @@ type QueryFormProps = {
 type ReduxProps = {
   actionName: string;
   responseType: string | undefined;
+  plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
   formEvaluationState: Record<string, any>;
@@ -409,6 +408,7 @@ export function EditorJSONtoForm(props: Props) {
     isRunning,
     onCreateDatasourceClick,
     onRunClick,
+    plugin,
     responseType,
     runErrorMessage,
     settingConfig,
@@ -495,84 +495,75 @@ export function EditorJSONtoForm(props: Props) {
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (props?.documentationLink) {
-      const query = omnibarDocumentationHelper(props.documentationLink);
-      if (query !== "") {
-        dispatch(setGlobalSearchQuery(query));
-      } else {
-        dispatch(setGlobalSearchQuery("Connect to Databases"));
-      }
-      dispatch(toggleShowGlobalSearchModal());
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DATASOURCE_DOCUMENTATION_CLICK",
-      });
-    }
+    const query = plugin?.name || "Connecting to datasources";
+    dispatch(setGlobalSearchQuery(query));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "DATASOURCE_DOCUMENTATION_CLICK",
+      query,
+    });
   };
 
   // Added function to handle the render of the configs
   const renderConfig = (editorConfig: any) => {
     // Selectively rendering form based on uiComponent prop
     return uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? editorConfig.map(renderEachConfigV2(formName))
+      ? editorConfig.map((config: any, idx: number) => {
+          return renderEachConfigV2(formName, config, idx);
+        })
       : editorConfig.map(renderEachConfig(formName));
   };
 
   // V2 call to make rendering more flexible, used for UQI forms
-  const renderEachConfigV2 = (formName: string) => (section: any): any => {
-    return section.children.map(
-      (formControlOrSection: ControlProps, idx: number) => {
-        if (
-          !!formControlOrSection &&
-          props.hasOwnProperty("formEvaluationState") &&
-          !!props.formEvaluationState
-        ) {
-          let allowToRender = true;
-          if (
-            formControlOrSection.hasOwnProperty("configProperty") &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.configProperty,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.configProperty]
-                .visible;
-          } else if (
-            formControlOrSection.hasOwnProperty("serverLabel") &&
-            !!formControlOrSection.serverLabel &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.serverLabel,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.serverLabel]
-                .visible;
-          }
+  const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+    if (
+      !!section &&
+      props.hasOwnProperty("formEvaluationState") &&
+      !!props.formEvaluationState
+    ) {
+      let allowToRender = true;
+      if (
+        section.hasOwnProperty("configProperty") &&
+        props.formEvaluationState.hasOwnProperty(section.configProperty)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.configProperty].visible;
+      } else if (
+        section.hasOwnProperty("identifier") &&
+        !!section.identifier &&
+        props.formEvaluationState.hasOwnProperty(section.identifier)
+      ) {
+        allowToRender = props?.formEvaluationState[section.identifier].visible;
+      }
 
-          if (!allowToRender) return null;
-        }
-
-        // If component is type section, render it's children
-        if (
-          formControlOrSection.hasOwnProperty("controlType") &&
-          formControlOrSection.controlType === "SECTION" &&
-          formControlOrSection.hasOwnProperty("children")
-        ) {
-          return renderEachConfigV2(formName)(formControlOrSection);
-        }
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={`${configProperty}_${idx}`}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
-        }
-
-        return null;
-      },
-    );
+      if (!allowToRender) return null;
+    }
+    if (section.hasOwnProperty("controlType")) {
+      // If component is type section, render it's children
+      if (
+        section.controlType === "SECTION" &&
+        section.hasOwnProperty("children")
+      ) {
+        return section.children.map((section: any, idx: number) => {
+          return renderEachConfigV2(formName, section, idx);
+        });
+      }
+      try {
+        const { configProperty } = section;
+        return (
+          <FieldWrapper key={`${configProperty}_${idx}`}>
+            <FormControl config={section} formName={formName} />
+          </FieldWrapper>
+        );
+      } catch (e) {
+        log.error(e);
+      }
+    } else {
+      return section.map((section: any, idx: number) => {
+        renderEachConfigV2(formName, section, idx);
+      });
+    }
+    return null;
   };
 
   // Recursive call to render forms pre UQI
@@ -707,6 +698,9 @@ export function EditorJSONtoForm(props: Props) {
 
     setSelectedIndex(index);
   };
+  const { entityDependencies, hasDependencies } = useEntityDependencies(
+    props.actionName,
+  );
 
   return (
     <>
@@ -862,9 +856,11 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper show={!!output}>
+          <SidebarWrapper show={hasDependencies || !!output}>
             <ActionRightPane
               actionName={actionName}
+              entityDependencies={entityDependencies}
+              hasConnections={hasDependencies}
               hasResponse={!!output}
               suggestedWidgets={executedQueryData?.suggestedWidgets}
             />

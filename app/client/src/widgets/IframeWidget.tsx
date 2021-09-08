@@ -17,9 +17,9 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           {
             propertyName: "source",
             helpText: "The URL of the page to embed",
-            label: "Source",
+            label: "URL",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter the URL of the page to embed",
+            placeholderText: "https://docs.appsmith.com",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -34,7 +34,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             helpText: "Label the content of the page to embed",
             label: "Title",
             controlType: "INPUT_TEXT",
-            placeholderText: "Title for iframe element",
+            placeholderText: "Documentation",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },

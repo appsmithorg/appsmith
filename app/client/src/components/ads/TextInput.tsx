@@ -11,6 +11,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
+import _ from "lodash";
 
 export type Validator = (
   value: string,
@@ -88,24 +89,28 @@ const boxStyles = (
 
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable @typescript-eslint/no-unused-vars
   const { dataType, inputRef, ...inputProps } = props;
-  delete inputProps.cypressSelector;
-  delete inputProps.fill;
-  delete inputProps.hasLeftIcon;
-  delete inputProps.inputStyle;
-  delete inputProps.isValid;
-  delete inputProps.rightSideComponentWidth;
-  delete inputProps.theme;
-  delete inputProps.validator;
+
+  const omitProps = [
+    "fill",
+    "hasLeftIcon",
+    "inputStyle",
+    "rightSideComponentWidth",
+    "theme",
+    "validator",
+    "isValid",
+    "cypressSelector",
+  ];
+
   return props.asyncControl ? (
     <AsyncControllableInput
-      {...inputProps}
-      dataType={dataType}
+      {..._.omit(inputProps, omitProps)}
+      datatype={dataType}
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {
@@ -117,7 +122,7 @@ const StyledInput = styled((props) => {
 >`
   width: ${(props) => (props.fill ? "100%" : "260px")};
   border-radius: 0;
-  caret-color: white;
+  caret-color: ${(props) => props.theme.colors.textInput.caretColor};
   outline: 0;
   box-shadow: none;
   border: 1.2px solid ${(props) => props.inputStyle.borderColor};

@@ -47,6 +47,7 @@ export const Layers = {
   contextMenu: Indices.Layer4,
   dynamicAutoComplete: Indices.Layer5,
   debugger: Indices.Layer6,
+  bottomBar: Indices.Layer6,
   productUpdates: Indices.Layer7,
   portals: Indices.Layer9,
   header: Indices.Layer9,

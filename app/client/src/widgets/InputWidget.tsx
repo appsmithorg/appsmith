@@ -205,7 +205,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "maxChars",
             label: "Max Chars",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter max allowed characters",
+            placeholderText: "255",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -220,7 +220,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyName: "defaultText",
             label: "Default Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter default text",
+            placeholderText: "John Doe",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -229,42 +229,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
                 fn: defaultValueValidation,
                 expected: {
                   type: "string or number",
-                  example: `value1 | 123`,
+                  example: `John | 123`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
             },
             dependencies: ["inputType"],
-          },
-          {
-            helpText: "Sets a placeholder text for the input",
-            propertyName: "placeholderText",
-            label: "Placeholder",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter placeholder text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Sets the label text of the widget",
-            propertyName: "label",
-            label: "Label",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            helpText: "Show help text or details about current input",
-            propertyName: "tooltip",
-            label: "Tooltip",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter tooltip text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
           {
             helpText:
@@ -279,26 +249,57 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.REGEX },
           },
           {
+            helpText: "Sets the input validity based on a JS expression",
+            propertyName: "validation",
+            label: "Valid",
+            controlType: "INPUT_TEXT",
+            placeholderText: "{{ Input1.text.length > 0 }}",
+            inputType: "TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText:
-              "Displays the error message if the regex validation fails",
+              "The error message to display if the regex or valid property check fails",
             propertyName: "errorMessage",
             label: "Error Message",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter error message",
+            placeholderText: "Not a valid email!",
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
           {
-            helpText: "Focus input automatically on load",
-            propertyName: "autoFocus",
-            label: "Auto Focus",
-            controlType: "SWITCH",
-            isJSConvertible: true,
+            helpText: "Sets a placeholder text for the input",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Placeholder",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Label",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Passwords must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "isRequired",
@@ -331,16 +332,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            helpText: "Set if input is valid",
-            propertyName: "validation",
-            label: "Valid",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
             helpText: "Clears the input value after submit",
             propertyName: "resetOnSubmit",
             label: "Reset on submit",
@@ -350,14 +341,48 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Text Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -371,7 +396,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Text Size",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -459,30 +484,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
         ],
       },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when the text is changed",
-            propertyName: "onTextChanged",
-            label: "onTextChanged",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText:
-              "Triggers an action on submit (when the enter key is pressed)",
-            propertyName: "onSubmit",
-            label: "onSubmit",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
     ];
   }
 
@@ -490,7 +491,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function(){
-          if (!this.validation) {
+          if (typeof this.validation === "boolean" && !this.validation) {
             return false;
           }
           let parsedRegex = null;
@@ -612,6 +613,18 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   handleFocusChange = (focusState: boolean) => {
+    /**
+     * Reason for disabling drag on focusState: true:
+     * 1. In Firefox, draggable="true" property on the parent element
+     *    or <input /> itself, interferes with some <input /> element's events
+     *    Bug Ref - https://bugzilla.mozilla.org/show_bug.cgi?id=800050
+     *              https://bugzilla.mozilla.org/show_bug.cgi?id=1189486
+     *
+     *  Eg - input with draggable="true", double clicking the text; won't highlight the text
+     *
+     * 2. Dragging across the text (for text selection) in input won't cause the widget to drag.
+     */
+    this.props.updateWidgetMetaProperty("dragDisabled", focusState);
     this.props.updateWidgetMetaProperty("isFocused", focusState);
   };
 

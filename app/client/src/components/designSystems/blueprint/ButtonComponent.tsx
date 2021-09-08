@@ -23,6 +23,7 @@ import {
 import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import ReCAPTCHA from "react-google-recaptcha";
+import _ from "lodash";
 import {
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
@@ -84,14 +85,13 @@ const getCustomHoverColor = (
             .lighten(40)
             .toString()
         : theme.colors.button.primary.outline.hoverColor;
-      break;
+
     case ButtonVariantTypes.GHOST:
       return backgroundColor
         ? tinycolor(backgroundColor)
             .lighten(40)
             .toString()
         : theme.colors.button.primary.ghost.hoverColor;
-      break;
 
     default:
       return backgroundColor
@@ -99,7 +99,6 @@ const getCustomHoverColor = (
             .darken(10)
             .toString()
         : theme.colors.button.primary.solid.hoverColor;
-      break;
   }
 };
 
@@ -165,7 +164,19 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+const StyledButton = styled((props) => (
+  <Button
+    {..._.omit(props, [
+      "prevButtonStyle",
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "buttonColor",
+      "buttonStyle",
+      "buttonVariant",
+    ])}
+  />
+))<ThemeProp & ButtonStyleProps>`
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};
