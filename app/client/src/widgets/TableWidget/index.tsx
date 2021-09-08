@@ -716,24 +716,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
       JSON.stringify(prevProps.sanitizedTableData);
-
+    const editedColumnDataExist = size(this.props.editedColumnData);
     if (tableDataModified) {
-      this.updateSelectedRowIndex();
+      if (!editedColumnDataExist) {
+        this.updateSelectedRowIndex();
+      }
     }
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
-      // Set filter to default
-      const defaultFilter = [
-        {
-          column: "",
-          operator: OperatorTypes.OR,
-          value: "",
-          condition: "",
-        },
-      ];
-      this.applyFilters(defaultFilter);
+      if (!editedColumnDataExist) {
+        // Set filter to default
+        const defaultFilter = [
+          {
+            column: "",
+            operator: OperatorTypes.OR,
+            value: "",
+            condition: "",
+          },
+        ];
+        this.applyFilters(defaultFilter);
+      }
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
