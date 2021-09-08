@@ -154,7 +154,6 @@ const ApplicationImage = styled.div`
         button {
           span {
             font-weight: ${(props) => props.theme.fontWeights[3]};
-            color: white;
           }
         }
       }
@@ -258,7 +257,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
   let initials = initialsAndColorCode[0];
 
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [moreActionItems, setMoreActionItems] = useState<MenuItemProps[]>([]);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -526,7 +525,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       onMouseLeave={() => {
         // If the menu is not open, then setOverlay false
         // Set overlay false on outside click.
-        !isMenuOpen && setShowOverlay(false);
+        !isMenuOpen && setShowOverlay(true);
       }}
       showOverlay={showOverlay}
     >

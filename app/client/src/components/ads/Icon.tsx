@@ -565,6 +565,7 @@ const Icon = forwardRef(
 
       case "gear":
         returnIcon = <GearIcon />;
+        break;
       case "support":
         returnIcon = <SupportIcon />;
         break;
