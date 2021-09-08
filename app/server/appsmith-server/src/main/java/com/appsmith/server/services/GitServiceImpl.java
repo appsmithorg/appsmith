@@ -107,18 +107,9 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
         return applicationService.getById(gitConnectDTO.getApplicationId())
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-
-                    if(Optional.ofNullable(gitApplicationMetadata).isEmpty()) {
-                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
-                                "SSH Key is empty. Please reach out to Appsmith support"));
-                    }
-
-                    if(Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()) {
-                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
-                                "SSH Key is empty. Please reach out to Appsmith support"));
-                    }
-
-                    if(StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                    if(Optional.ofNullable(gitApplicationMetadata).isEmpty()
+                            || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
+                            || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPrivateKey())
                             || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPublicKey())) {
                         return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
                                 "SSH Key is empty. Please reach out to Appsmith support"));
@@ -128,7 +119,6 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                         Application application1 = new Application();
                         application1.setGitApplicationMetadata(gitApplicationMetadata);
-
                         return applicationService.update(gitConnectDTO.getApplicationId(), application1);
                     }
                 });
