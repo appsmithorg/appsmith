@@ -27,13 +27,4 @@ public class GitApplicationMetadata {
 
     // Git credentials used to push changes to remote repo
     GitAuth gitAuth;
-
-    //By default authorName comes from the userData object but the userCan change and set different value for this application only
-    //This value will be empty/null until the user sets the value
-    String authorName;
-
-    //By default authorEmail comes from the userData object but the userCan change and set different value for this application only
-    //This value will be empty/null until the user sets the value
-    String authorEmail;
 }
-

@@ -2,13 +2,11 @@ package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,8 +42,8 @@ public class GitController extends BaseController<GitService, UserData, String> 
     }
 
     @PostMapping("/connect")
-    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@RequestBody GitConnectDTO GitConnectDTO) {
-        return service.connectApplicationToGit(GitConnectDTO)
+    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@RequestBody GitConnectDTO gitConnectDTO) {
+        return service.connectApplicationToGit(gitConnectDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 }

@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.pf4j.util.StringUtils;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -31,9 +32,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private final ApplicationService applicationService;
 
-    private final EncryptionService encryptionService;
-
-    private final String defaultBranchName = "master";
+    private final static String DEFAULT_BRANCH_NAME = "master";
 
     public GitServiceImpl(Scheduler scheduler,
                           Validator validator,
@@ -44,23 +43,21 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                           UserService userService,
                           UserDataService userDataService,
                           SessionUserService sessionUserService,
-                          ApplicationService applicationService,
-                          EncryptionService encryptionService) {
+                          ApplicationService applicationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.userDataService = userDataService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
-        this.encryptionService = encryptionService;
     }
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
         if(gitConfig.getAuthorName() == null || gitConfig.getAuthorName().length() == 0) {
-            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name ", ""));
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
         }
         if(gitConfig.getAuthorEmail() == null || gitConfig.getAuthorEmail().length() == 0) {
-            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email ", ""));
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
@@ -89,55 +86,52 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
     /*
     *  Connect the application from Appsmith to a git repo
     *  This is the prerequisite step needed to perform all the git operation for an application
-    *  We are implementing the deployKeys approach and since the deploy-keys are repo level these keys are store under application.
-    *  Each application is equal to a repo in the git
-    *  @param GitAuth - contains the deploy-key(public and private keys generated which then needs to be configured at git repo)
-    *  @param applicationId - this is used to link the git repo to an application
-    *  @param remoteUrl - used for the git push pull branch etc
-    *  @param gitConfig - user can chose to have a different authorName & Email for a specific repo if not set then the default from the userData will be used
-    *  @return Application object
+    *  We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under application.
+    *  Each application is equal to a repo in the git(and each branch creates a new application with default application as parent)
+    *  @param GitConnectDTO
+    *            applicationId - this is used to link the git repo to an application
+    *            remoteUrl - used for the git push pull branch etc
+    *  @return Application object with the updated data
     * */
     @Override
     public Mono<Application> connectApplicationToGit(GitConnectDTO gitConnectDTO) {
         /*
-        * Two scenarios
-        *  1. Connecting the application for the first time
-        *
-        *  2. Update the deployKey or remoteUrl
+        *  Connecting the application for the first time
+        *  The ssh keys is already present in application object from the generate SSH key step
+        *  We would be updating the remote url and default branchName
         * */
 
-        Application application = new Application();
-        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-
-        if(gitConnectDTO.getGitAuth() == null
-                || gitConnectDTO.getGitAuth().getPrivateKey() == null
-                || gitConnectDTO.getGitAuth().getPublicKey() == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "SSH Key", ""));
+        if(StringUtils.isNullOrEmpty(gitConnectDTO.getRemoteUrl())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        if(gitConnectDTO.getRemoteUrl() == null ) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url", ""));
-        }
+        return applicationService.getById(gitConnectDTO.getApplicationId())
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
 
-        String encryptedKey = encryptionService.encryptString(gitConnectDTO.getGitAuth().getPrivateKey());
-        gitApplicationMetadata.setGitAuth(gitConnectDTO.getGitAuth());
-        gitApplicationMetadata.getGitAuth().setPrivateKey(encryptedKey);
+                    if(Optional.ofNullable(gitApplicationMetadata).isEmpty()) {
+                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
+                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    }
 
-        gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-        gitApplicationMetadata.setDefaultApplicationId(gitConnectDTO.getApplicationId());
-        gitApplicationMetadata.setBranchName(defaultBranchName);
-        if(!Optional.ofNullable(gitConnectDTO.getAuthorName()).isEmpty()) {
-            gitApplicationMetadata.setAuthorName(gitConnectDTO.getAuthorName());
-        }
-        if(!Optional.ofNullable(gitConnectDTO.getAuthorEmail()).isEmpty()) {
-            gitApplicationMetadata.setAuthorEmail(gitConnectDTO.getAuthorEmail());
-        }
-        application.setGitApplicationMetadata(gitApplicationMetadata);
+                    if(Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()) {
+                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
+                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    }
 
-        return applicationService.update(gitConnectDTO.getApplicationId(), application);
-    }
+                    if(StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                            || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPublicKey())) {
+                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
+                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    } else {
+                        gitApplicationMetadata.setIsDefault(Boolean.TRUE);
+                        gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
+                        gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                        Application application1 = new Application();
+                        application1.setGitApplicationMetadata(gitApplicationMetadata);
 
-    public void updateGitApplicationMetadata(GitConnectDTO gitConnectDTO) {
-
+                        return applicationService.update(gitConnectDTO.getApplicationId(), application1);
+                    }
+                });
     }
 }

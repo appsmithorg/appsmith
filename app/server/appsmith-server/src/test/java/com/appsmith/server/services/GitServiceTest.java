@@ -44,6 +44,12 @@ public class GitServiceTest {
     @Autowired
     OrganizationRepository organizationRepository;
 
+    @Autowired
+    ApplicationService applicationService;
+
+    @Autowired
+    ApplicationPageService applicationPageService;
+
     @MockBean
     UserService userService;
 
@@ -66,25 +72,12 @@ public class GitServiceTest {
         return gitConfig;
     }
 
-    private GitAuth getGitAuth() {
-        GitAuth gitAuth = new GitAuth();
-        gitAuth.setPrivateKey("privateKey");
-        gitAuth.setPublicKey("publicKey");
-        return gitAuth;
-    }
-
     private GitConnectDTO getConnectRequest(String remoteUrl,
                                             String applicationId,
-                                            GitAuth gitAuth,
-                                            String authorName,
-                                            String authorEmail,
                                             String organizationId) {
         GitConnectDTO gitConnectDTO = new GitConnectDTO();
         gitConnectDTO.setRemoteUrl(remoteUrl);
         gitConnectDTO.setApplicationId(applicationId);
-        gitConnectDTO.setGitAuth(gitAuth);
-        gitConnectDTO.setAuthorName(authorName);
-        gitConnectDTO.setAuthorEmail(authorEmail);
         gitConnectDTO.setOrganizationId(organizationId);
         return gitConnectDTO;
     }
@@ -129,7 +122,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email ", "")))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email")))
                 .verify();
     }
 
@@ -143,7 +136,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name ", "")))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name")))
                 .verify();
     }
 
@@ -166,16 +159,13 @@ public class GitServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_validGitMetadata_Success() {
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", getGitAuth(),
-                null, null, orgId);
+        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", orgId);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    assertThat(gitApplicationMetadata.getAuthorEmail()).isNull();
-                    assertThat(gitApplicationMetadata.getAuthorName()).isNull();
                     assertThat(gitApplicationMetadata.getBranchName()).isEqualTo("master");
                     assertThat(gitApplicationMetadata.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
                 });
@@ -183,80 +173,77 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithCustomUserConfig_Success() {
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", getGitAuth(),
-                "test", "test@appsmith.com", orgId);
-        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
+    public void connectApplicationToGit_EmptyGitMetadata_ThrowInvalidParameterException() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest TestApp");
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
 
-        StepVerifier
-                .create(applicationMono)
-                .assertNext(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    assertThat(gitApplicationMetadata.getAuthorEmail()).isEqualTo(gitConnectDTO.getAuthorEmail());
-                    assertThat(gitApplicationMetadata.getAuthorName()).isEqualTo(gitConnectDTO.getAuthorName());
-                    assertThat(gitApplicationMetadata.getBranchName()).isEqualTo("master");
-                    assertThat(gitApplicationMetadata.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
-                    assertThat(gitApplicationMetadata.getDefaultApplicationId()).isEqualTo(gitConnectDTO.getApplicationId());
-                });
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyGitAuth_ThrowInvalidParameterException() {
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", new GitAuth(),
-                "test", "test@appsmith.com", orgId);
+        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", application.getId(), orgId);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("SSH Key", "")))
+                        && throwable.getMessage().contains(
+                                AppsmithError.INVALID_PARAMETER.getMessage("SSH Key is empty. Please reach out to Appsmith support")))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyPublicSshKey_ThrowInvalidParameterException() {
-        GitAuth gitAuth = getGitAuth();
-        gitAuth.setPublicKey(null);
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", gitAuth,
-                "test", "test@appsmith.com", orgId);
+    public void connectApplicationToGit_EmptyGitAuth_ThrowInvalidParameterException() {
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTestApp");
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", application.getId(), orgId);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("SSH Key", "")))
+                        && throwable.getMessage().contains(
+                        AppsmithError.INVALID_PARAMETER.getMessage("SSH Key is empty. Please reach out to Appsmith support")))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_EmptyPrivateSshKey_ThrowInvalidParameterException() {
-        GitAuth gitAuth = getGitAuth();
-        gitAuth.setPrivateKey(null);
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", "testID", gitAuth,
-                "test", "test@appsmith.com", orgId);
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationService TestApp");
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+        GitAuth gitAuth = new GitAuth();
+        gitAuth.setPublicKey("testkey");
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
+        Application application = applicationPageService.createApplication(testApplication, orgId).block();
+
+        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", application.getId(), orgId);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("SSH Key", "")))
+                        && throwable.getMessage().contains(
+                        AppsmithError.INVALID_PARAMETER.getMessage("SSH Key is empty. Please reach out to Appsmith support")))
                 .verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
-        GitConnectDTO gitConnectDTO = getConnectRequest(null, "testID", getGitAuth(),
-                "test", "test@appsmith.com", orgId);
+        GitConnectDTO gitConnectDTO = getConnectRequest(null, "testID", orgId);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Remote Url", "")))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Remote Url")))
                 .verify();
     }
 }
