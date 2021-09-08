@@ -66,13 +66,9 @@ export type DetailsFormValues = {
   role_name?: string;
 };
 
-const isValidFullName = (name = "") => {
-  return /^([a-zA-Z\xC0-\uFFFF]{4,60}[ \-\']{0,1}){1,3}$/.test(name);
-};
-
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
-  if (!values.name || !isValidFullName(values.name)) {
+  if (!values.name) {
     errors.name = "Please enter a valid Full Name";
   }
 
