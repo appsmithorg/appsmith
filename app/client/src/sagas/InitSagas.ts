@@ -53,6 +53,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { fetchCommentThreadsInit } from "actions/commentActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -156,6 +157,8 @@ function* initializeEditorSaga(
 
     yield put(restoreRecentEntitiesRequest(applicationId));
 
+    yield put(fetchCommentThreadsInit());
+
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: appId,
       appName: appName,
@@ -252,6 +255,8 @@ export function* initializeAppViewerSaga(
     }
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
+
+    yield put(fetchCommentThreadsInit());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
