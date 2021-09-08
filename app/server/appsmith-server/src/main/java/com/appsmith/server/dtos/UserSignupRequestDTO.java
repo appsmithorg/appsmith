@@ -21,7 +21,7 @@ public class UserSignupRequestDTO {
 
     private String role;
 
-    private String companyName;
+    private String useCase;
 
     private boolean allowCollectingAnonymousData;
 

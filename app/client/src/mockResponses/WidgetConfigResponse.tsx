@@ -89,12 +89,12 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Input",
       version: 1,
+      defaultText: "",
       maxChars: 255,
       iconAlign: "left",
       autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
-      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },
@@ -326,7 +326,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleSearch: true,
       isVisibleFilters: true,
       isVisibleDownload: true,
-      isVisibleCompactMode: true,
       isVisiblePagination: true,
       delimiter: ",",
       version: 1,
@@ -644,11 +643,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               x: "Mon",
-              y: 10000,
+              y: 20000,
             },
             {
               x: "Tue",
-              y: 12000,
+              y: 22000,
             },
             {
               x: "Wed",
@@ -660,11 +659,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               x: "Fri",
-              y: 14000,
+              y: 24000,
             },
             {
               x: "Sat",
-              y: 19000,
+              y: 29000,
             },
             {
               x: "Sun",
@@ -675,6 +674,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
@@ -689,11 +689,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               label: "Mon",
-              value: 10000,
+              value: 20000,
             },
             {
               label: "Tue",
-              value: 12000,
+              value: 22000,
             },
             {
               label: "Wed",
@@ -705,11 +705,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               label: "Fri",
-              value: 14000,
+              value: 24000,
             },
             {
               label: "Sat",
-              value: 19000,
+              value: 29000,
             },
             {
               label: "Sun",
@@ -1305,6 +1305,97 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "IconButton",
       version: 1,
     },
+    [WidgetTypes.STATBOX_WIDGET]: {
+      rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "Statbox",
+      backgroundColor: "white",
+      children: [],
+      blueprint: {
+        view: [
+          {
+            type: "CANVAS_WIDGET",
+            position: { top: 0, left: 0 },
+            props: {
+              containerStyle: "none",
+              canExtend: false,
+              detachFromLayout: true,
+              children: [],
+              version: 1,
+              blueprint: {
+                view: [
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: { top: 0, left: 1 },
+                    props: {
+                      text: "Page Views",
+                      fontSize: "PARAGRAPH2",
+                      textColor: "#999999",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 1 * GRID_DENSITY_MIGRATION_V1,
+                      left: 1,
+                    },
+                    props: {
+                      text: "2.6 M",
+                      fontSize: "HEADING1",
+                      fontStyle: "BOLD",
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "TEXT_WIDGET",
+                    size: {
+                      rows: 1 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 2 * GRID_DENSITY_MIGRATION_V1,
+                      left: 1,
+                    },
+                    props: {
+                      text: "21% more than last month",
+                      fontSize: "PARAGRAPH2",
+                      textColor: Colors.GREEN,
+                      version: 1,
+                    },
+                  },
+                  {
+                    type: "ICON_BUTTON_WIDGET",
+                    size: {
+                      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+                      cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    position: {
+                      top: 2,
+                      left: 11.5 * GRID_DENSITY_MIGRATION_V1,
+                    },
+                    props: {
+                      iconName: "arrow-top-right",
+                      buttonStyle: "PRIMARY",
+                      buttonVariant: "SOLID",
+                      version: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    },
     [WidgetTypes.CHECKBOX_GROUP_WIDGET]: {
       rows: 2 * GRID_DENSITY_MIGRATION_V1,
       columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
@@ -1318,6 +1409,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
       isVisible: true,
       widgetName: "CheckboxGroup",
+      version: 1,
+    },
+    [WidgetTypes.AUDIO_RECORDER_WIDGET]: {
+      backgroundColor: "#F86A2B",
+      iconColor: "white",
+      isDisabled: false,
+      isVisible: true,
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "AudioRecorder",
       version: 1,
     },
   },

@@ -32,10 +32,6 @@ import { InputType, InputTypes } from "widgets/InputWidget";
 import { Colors } from "constants/Colors";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import _ from "lodash";
-import {
-  createMessage,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
   getSelectedCurrency,
@@ -44,6 +40,10 @@ import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
   getSelectedISDCode,
 } from "components/ads/ISDCodeDropdown";
+import {
+  createMessage,
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "constants/messages";
 /**
  * All design system component specific logic goes here.
  * Ex. Blueprint has a separate numeric input and text input so switching between them goes here
@@ -52,7 +52,20 @@ import ISDCodeDropdown, {
  */
 
 const InputComponentWrapper = styled((props) => (
-  <ControlGroup {..._.omit(props, ["hasError", "numeric"])} />
+  <ControlGroup
+    {..._.omit(props, [
+      "hasError",
+      "numeric",
+      "labelTextColor",
+      "allowCurrencyChange",
+      "compactMode",
+      "labelStyle",
+      "labelTextSize",
+      "multiline",
+      "numeric",
+      "inputType",
+    ])}
+  />
 ))<{
   numeric: boolean;
   multiline: string;

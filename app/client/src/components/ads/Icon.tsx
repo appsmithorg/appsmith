@@ -25,6 +25,7 @@ import ShareIcon from "remixicon-react/SendPlaneLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import WorkspaceIcon from "remixicon-react/Building3FillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
+import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
@@ -79,6 +80,7 @@ import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dott
 import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
 import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
 import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
+import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -154,6 +156,7 @@ export const IconCollection = [
   "search",
   "close",
   "share",
+  "share-2",
   "rocket",
   "workspace",
   "plus",
@@ -220,6 +223,7 @@ export const IconCollection = [
   "column",
   "guide",
   "discord",
+  "support",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -338,6 +342,9 @@ const Icon = forwardRef(
         break;
       case "share":
         returnIcon = <ShareIcon />;
+        break;
+      case "share-2":
+        returnIcon = <ShareIcon2 />;
         break;
       case "rocket":
         returnIcon = <RocketIcon />;
@@ -552,6 +559,10 @@ const Icon = forwardRef(
 
       case "discord":
         returnIcon = <DiscordIcon />;
+        break;
+
+      case "support":
+        returnIcon = <SupportIcon />;
         break;
 
       default:
