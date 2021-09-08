@@ -24,6 +24,7 @@ export const withDynamicProps = () => (
       )}
       isLoading={boolean("Loading", false)}
       size={select("size", Object.values(Size), Size.large)}
+      tag={select("tag", ["button", "a"], "button")}
       text={text("text", "Get")}
       variant={select("variant", Object.values(Variant), Variant.info)}
     />
