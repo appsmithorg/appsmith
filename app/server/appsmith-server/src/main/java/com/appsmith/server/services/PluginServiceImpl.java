@@ -73,12 +73,23 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     private static final int CONNECTION_TIMEOUT = 10000;
     private static final int READ_TIMEOUT = 10000;
+
+    private static final String UQI_QUERY_EDITOR_BASE_FOLDER = "editor";
+    private static final String UQI_QUERY_EDITOR_ROOT_FILE = "root.json";
+
     private static final String KEY_EDITOR = "editor";
     private static final String KEY_CONFIG_PROPERTY = "configProperty";
     private static final String KEY_LABEL = "label";
     private static final String KEY_INTERNAL_LABEL = "internalLabel";
     private static final String KEY_CHILDREN = "children";
     private static final String DEFAULT_LABEL = "Query";
+    public static final String KEY_CONTROL_TYPE = "controlType";
+    public static final String KEY_COMMENT = "_comment";
+    public static final String KEY_COMMAND = "command";
+    public static final String KEY_OPTIONS = "options";
+    public static final String KEY_IDENTIFIER = "identifier";
+    public static final String KEY_VALUE = "value";
+    public static final String KEY_FILE_NAME = "fileName";
 
     @Autowired
     public PluginServiceImpl(Scheduler scheduler,
@@ -460,7 +471,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
             );
 
         } catch (IOException e) {
-            log.error("Error loading templates metadata in plugin for id: " + plugin.getId());
+            log.error("Error loading templates metadata in plugin {}", plugin.getPackageName());
             throw Exceptions.propagate(e);
 
         }
@@ -501,11 +512,18 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         return templates;
     }
 
+    /**
+     * This function reads from the folder editor/ starting with file root.json. root.json declares all the commands
+     * that would be present as well as the file from which the content should be loaded for the said command. For each
+     * command, the fileName parameter is then replaced with value parameter which is picked up from the command template
+     * map key IDENTIFIER.
+     * @param plugin
+     * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
+     */
     @Override
     public Map loadEditorPluginResourceUqi(Plugin plugin) {
-        String baseFolder = "editor";
-        String mainFile = "root.json";
-        String resourcePath = baseFolder + "/" + mainFile;
+
+        String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + UQI_QUERY_EDITOR_ROOT_FILE;
 
         InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
@@ -513,65 +531,80 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 .getResourceAsStream(resourcePath);
 
         if (resourceAsStream == null) {
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found");
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
         }
 
+        // Read the root.json content.
         JsonNode rootTree;
         try {
             rootTree = objectMapper.readTree(resourceAsStream);
         } catch (IOException e) {
-            log.error("Error loading resource JSON for pluginId {} and resourcePath {}", plugin.getId(), resourcePath, e);
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage());
+            log.error("Error loading resource JSON for plugin {} and resourcePath {}", plugin.getPackageName(), resourcePath, e);
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
         }
 
+        // Generate the top level section which would hold all the command templates read from files
         ObjectNode uiSectionNode = objectMapper.createObjectNode();
-        uiSectionNode.put("controlType", "SECTION");
-        uiSectionNode.put("label", "");
-        uiSectionNode.put("_comment", "This section holds all the templates");
-        ArrayNode commandTemplates = uiSectionNode.putArray("children");
+        uiSectionNode.put(KEY_CONTROL_TYPE, "SECTION");
+        uiSectionNode.put(KEY_LABEL, "");
+        uiSectionNode.put(KEY_COMMENT, "This section holds all the templates");
+        ArrayNode commandTemplates = uiSectionNode.putArray(KEY_CHILDREN);
 
-        JsonNode commands = rootTree.get("command");
+        // From root tree, fetch the key "command" which contains the declaration for all the command templates
+        JsonNode commandsReadOnly = rootTree.get(KEY_COMMAND);
+
+        // Create an object node which would store the array of commands post manipulation
         ObjectNode commandWriterNode = objectMapper.createObjectNode();
-        ArrayNode options = commandWriterNode.putArray("options");
+        ArrayNode options = commandWriterNode.putArray(KEY_OPTIONS);
 
-        if (commands != null) {
-            for (Iterator<String> it = commands.fieldNames(); it.hasNext(); ) {
+        if (commandsReadOnly != null) {
+            // Copy all fields from commandReadOnly to commandWriterNode
+            // Only options node needs to be manipulated by removing fileName and adding value field. The rest of the
+            // fields should be copied as is.
+            for (Iterator<String> it = commandsReadOnly.fieldNames(); it.hasNext(); ) {
                 String fieldName = it.next();
-                JsonNode field = commands.get(fieldName);
+                JsonNode field = commandsReadOnly.get(fieldName);
+                // If this is a value node, today no manipulations are required. Copy as is to the writer node.
                 if (field.isValueNode()) {
                     commandWriterNode.put(fieldName, field);
                 } else if (field.isArray()) {
+                    // Only array field present is Options which stores all the command labels and fileNames for each label
                     try {
+                        // Read all the command declarations in an array node.
                         ArrayNode commandTemplatesFromFile = (ArrayNode) objectMapper.readTree(String.valueOf(field));
 
                         for (JsonNode commandNode : commandTemplatesFromFile) {
                             ObjectNode commandOption = objectMapper.createObjectNode();
-                            JsonNode fileName = commandNode.get("fileName");
-                            Map commandMap = null;
+                            JsonNode fileName = commandNode.get(KEY_FILE_NAME);
+                            Map individualCommandMapReadOnly;
+
+                            // Only move forward if fileName is present. If not, this command declaration would be ignored
                             if (fileName != null) {
-                                commandOption.set("label", commandNode.get("label"));
-                                String path = baseFolder + "/" + fileName.asText();
+                                commandOption.set(KEY_LABEL, commandNode.get(KEY_LABEL));
+                                String path = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + fileName.asText();
                                 try {
-                                    commandMap = loadPluginResourceGivenPlugin(plugin, path);
+                                    individualCommandMapReadOnly = loadPluginResourceGivenPlugin(plugin, path);
                                 } catch (AppsmithException e) {
                                     // Either the file doesnt exist or malformed JSON was found. Ignore the command template
-                                    log.error("Error loading resource JSON for pluginId {} and resourcePath {} : ", plugin.getId(), resourcePath, e);
+                                    log.error("Error loading resource JSON for plugin {} and resourcePath {} : ", plugin.getPackageName(), resourcePath, e);
                                     continue;
                                 }
 
-                                Object identifierObj = commandMap.get("identifier");
+                                // Read the identified and if not present, again ignore the command template
+                                Object identifierObj = individualCommandMapReadOnly.get(KEY_IDENTIFIER);
                                 if (identifierObj != null) {
                                     String identifier = (String) identifierObj;
-                                    commandOption.put("value", identifier);
+                                    commandOption.put(KEY_VALUE, identifier);
 
                                     // Only add the command in the final output in case of success
                                     options.add(commandOption);
-                                    commandTemplates.add(objectMapper.valueToTree(commandMap));
+                                    commandTemplates.add(objectMapper.valueToTree(individualCommandMapReadOnly));
                                 }
                             }
                         }
                     } catch (JsonProcessingException e) {
-                        e.printStackTrace();
+                        throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(),
+                                "Error loading resource JSON for resourcePath " + resourcePath);
                     }
                 }
             }
@@ -582,7 +615,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         editorOutput.add(commandWriterNode);
         editorOutput.add(uiSectionNode);
 
-        return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {});
+        return objectMapper.convertValue(topLevel, new TypeReference<Map<String, Object>>() {
+        });
     }
 
     private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {
@@ -592,15 +626,15 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 .getResourceAsStream(resourcePath);
 
         if (resourceAsStream == null) {
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, "form resource " + resourcePath + " not found");
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), "form resource " + resourcePath + " not found");
         }
 
         try {
             Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
             return resourceMap;
         } catch (IOException e) {
-            log.error("Error loading resource JSON for pluginId {} and resourcePath {}", plugin.getId(), resourcePath, e);
-            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, e.getMessage());
+            log.error("[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
+            throw new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
         }
     }
 
