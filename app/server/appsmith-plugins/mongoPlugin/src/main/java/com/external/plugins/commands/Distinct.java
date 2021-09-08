@@ -1,18 +1,18 @@
 package com.external.plugins.commands;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Property;
+import com.external.plugins.constants.FieldName;
 import lombok.Getter;
 import lombok.Setter;
 import org.bson.Document;
 import org.pf4j.util.StringUtils;
 
-import java.util.List;
+import java.util.Map;
 
+import static com.external.plugins.MongoPluginUtils.getValueSafely;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_KEY;
-import static com.external.plugins.constants.ConfigurationIndex.DISTINCT_QUERY;
+import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
 
 @Getter
 @Setter
@@ -23,14 +23,14 @@ public class Distinct extends MongoCommand {
     public Distinct(ActionConfiguration actionConfiguration) {
         super(actionConfiguration);
 
-        List<Property> pluginSpecifiedTemplates = actionConfiguration.getPluginSpecifiedTemplates();
+        Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_QUERY)) {
-            this.query = (String) pluginSpecifiedTemplates.get(DISTINCT_QUERY).getValue();
+        if (validConfigurationPresent(formData, DISTINCT_QUERY)) {
+            this.query = (String) getValueSafely(formData, DISTINCT_QUERY);
         }
 
-        if (validConfigurationPresent(pluginSpecifiedTemplates, DISTINCT_KEY)) {
-            this.key = (String) pluginSpecifiedTemplates.get(DISTINCT_KEY).getValue();
+        if (validConfigurationPresent(formData, FieldName.DISTINCT_KEY)) {
+            this.key = (String) getValueSafely(formData, FieldName.DISTINCT_KEY);
         }
     }
 
