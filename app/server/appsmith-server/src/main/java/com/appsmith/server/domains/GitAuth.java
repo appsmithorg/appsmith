@@ -1,14 +1,19 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
-@Getter
-@Setter
+import java.time.Instant;
+
+@Data
 public class GitAuth {
+    @JsonIgnore
     @Encrypted
     String privateKey;
 
     String publicKey;
+
+    @JsonIgnore
+    Instant generatedAt;
 }
