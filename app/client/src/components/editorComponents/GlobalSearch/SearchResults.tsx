@@ -369,10 +369,10 @@ function CategoryItem({
 
 function SnippetItem({
   item: {
-    body: { title },
+    body: { shortTitle, title },
   },
 }: any) {
-  return <span>{title}</span>;
+  return <span>{shortTitle || title}</span>;
 }
 
 const SearchItemByType = {
