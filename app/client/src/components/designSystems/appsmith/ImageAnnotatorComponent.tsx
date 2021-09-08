@@ -14,10 +14,11 @@ const ImageAnnotatorContainer = styled.div`
 
 export interface ImageAnnotatorComponentProps extends ComponentProps {
   imageUrl: string;
+  onSave: (value: any) => void;
 }
 
 function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
-  const { imageUrl } = props;
+  const { imageUrl, onSave } = props;
 
   const images = [
     {
@@ -26,17 +27,13 @@ function ImageAnnotatorComponent(props: ImageAnnotatorComponentProps) {
     },
   ];
 
-  const regionClsList = [""];
-
-  const handleExit = (data: any) => {
-    console.error(data);
-  };
+  const regionClsList = ["A"];
 
   return (
     <ImageAnnotatorContainer>
       <ReactImageAnnotate
         images={images}
-        onExit={handleExit}
+        onExit={onSave}
         regionClsList={regionClsList}
       />
     </ImageAnnotatorContainer>
