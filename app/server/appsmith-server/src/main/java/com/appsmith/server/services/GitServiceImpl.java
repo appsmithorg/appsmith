@@ -79,7 +79,13 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
     @Override
     public Mono<GitConfig> getGitConfigForUser() {
         return userDataService.getForCurrentUser()
-                .map(userData -> userData.getGitGlobalConfigData());
+                .flatMap(userData -> {
+                    if(Optional.ofNullable(userData.getGitGlobalConfigData()).isEmpty()) {
+                        return Mono.empty();
+                    } else {
+                        return Mono.just(userData.getGitGlobalConfigData());
+                    }
+                });
     }
 
     /*
@@ -104,23 +110,24 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        return applicationService.getById(gitConnectDTO.getApplicationId())
-                .flatMap(application -> {
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if(Optional.ofNullable(gitApplicationMetadata).isEmpty()
-                            || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
-                            || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPrivateKey())
-                            || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPublicKey())) {
-                        return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
-                                "SSH Key is empty. Please reach out to Appsmith support"));
-                    } else {
-                        gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-                        gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
-                        gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
-                        Application application1 = new Application();
-                        application1.setGitApplicationMetadata(gitApplicationMetadata);
-                        return applicationService.update(gitConnectDTO.getApplicationId(), application1);
-                    }
-                });
+        return saveGitConfigData(gitConnectDTO.getGitConfig())
+                .flatMap(userData -> applicationService.getById(gitConnectDTO.getApplicationId())
+                        .flatMap(application -> {
+                            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                            if(Optional.ofNullable(gitApplicationMetadata).isEmpty()
+                                || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
+                                || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                                || StringUtils.isNullOrEmpty(gitApplicationMetadata.getGitAuth().getPublicKey())) {
+                            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
+                                    "SSH Key is empty. Please reach out to Appsmith support"));
+                            } else {
+                                gitApplicationMetadata.setIsDefault(Boolean.TRUE);
+                                gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
+                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                                Application application1 = new Application();
+                                application1.setGitApplicationMetadata(gitApplicationMetadata);
+                             return applicationService.update(gitConnectDTO.getApplicationId(), application1);
+                            }
+                }));
     }
 }

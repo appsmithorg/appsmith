@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.server.domains.GitConfig;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,4 +13,6 @@ public class GitConnectDTO {
     String applicationId;
 
     String organizationId;
+
+    GitConfig gitConfig;
 }
