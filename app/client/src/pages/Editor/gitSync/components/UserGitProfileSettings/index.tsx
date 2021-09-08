@@ -7,12 +7,10 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import TextInput from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 
 const LabelContainer = styled.div`
-  ${(props) => getTypographyByKey(props, "h6")};
   display: flex;
   align-items: center;
   margin-bottom: 8px;
@@ -34,6 +32,10 @@ const TitleWrapper = styled.div`
   }
 `;
 
+const MainContainer = styled.div`
+  width: calc(100% - 30px);
+`;
+
 // Component
 type UserGitProfileSettingsProps = {
   authType: string;
@@ -42,7 +44,7 @@ type UserGitProfileSettingsProps = {
 function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
   return (
-    <>
+    <MainContainer>
       <TitleWrapper>
         <span className="label">
           {createMessage(USER_PROFILE_SETTINGS_TITLE)}
@@ -69,7 +71,7 @@ function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
           </InputContainer>
         </>
       ) : null}
-    </>
+    </MainContainer>
   );
 }
 

@@ -445,14 +445,12 @@ export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
-export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+export const REMOTE_URL_VIA = () => "Remote URL via";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
+export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 
-export const AUTHOR_NAME = () => "AUTHOR NAME";
-export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const USER_NAME = () => "USER NAME";
-export const USER_PASSWORD = () => "PASSWORD";
+export const AUTHOR_NAME = () => "Author Name";
+export const AUTHOR_EMAIL = () => "Author Email";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
