@@ -3,12 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import {
-  getSortedAndFilteredAppCommentThreadIds,
-  applicationCommentsSelector,
   allCommentThreadsMap,
-  getAppCommentThreads,
-  shouldShowResolved as shouldShowResolvedSelector,
   appCommentsFilter as appCommentsFilterSelector,
+  applicationCommentsSelector,
+  getAppCommentThreads,
+  getCommentThreadsFetched,
+  getSortedAndFilteredAppCommentThreadIds,
+  shouldShowResolved as shouldShowResolvedSelector,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -30,6 +31,33 @@ const Container = styled.div`
   overflow: auto;
 `;
 
+export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
+  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
+  const appCommentsFilter = useSelector(appCommentsFilterSelector);
+
+  const currentUser = useSelector(getCurrentUser);
+  const currentUsername = currentUser?.username;
+
+  return useMemo(
+    () =>
+      getSortedAndFilteredAppCommentThreadIds(
+        commentThreadIds,
+        commentThreadsMap,
+        shouldShowResolved,
+        appCommentsFilter,
+        currentUsername,
+      ),
+    [
+      commentThreadIds,
+      commentThreadsMap,
+      shouldShowResolved,
+      appCommentsFilter,
+      currentUsername,
+    ],
+  );
+};
+
 function AppCommentThreads() {
   const dispatch = useDispatch();
   const commentThreadIdFromUrl = useSelectCommentThreadUsingQuery();
@@ -38,47 +66,32 @@ function AppCommentThreads() {
     applicationCommentsSelector(applicationId),
   );
   const appCommentThreadIds = getAppCommentThreads(appCommentThreadsByRefMap);
+
+  const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
+
   const commentThreadsMap = useSelector(allCommentThreadsMap);
-  const shouldShowResolved = useSelector(shouldShowResolvedSelector);
-  const appCommentsFilter = useSelector(appCommentsFilterSelector);
 
-  const currentUser = useSelector(getCurrentUser);
-  const currentUsername = currentUser?.username;
-
-  const commentThreadIds = useMemo(
-    () =>
-      getSortedAndFilteredAppCommentThreadIds(
-        appCommentThreadIds,
-        commentThreadsMap,
-        shouldShowResolved,
-        appCommentsFilter,
-        currentUsername,
-      ),
-    [
-      appCommentThreadIds,
-      commentThreadsMap,
-      shouldShowResolved,
-      appCommentsFilter,
-      currentUsername,
-    ],
-  );
+  // TODO (rishabh s) Update this when adding pagination to comments
+  const appCommentThreadsFetched = useSelector(getCommentThreadsFetched);
 
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
     // we'll activate the resolved comments filter
-    if (
-      commentThreadIdFromUrl &&
-      !commentThreadIds.includes(commentThreadIdFromUrl)
-    ) {
-      if (appCommentThreadIds.includes(commentThreadIdFromUrl))
-        dispatch(setShouldShowResolvedComments(true));
-      else
+    if (commentThreadIdFromUrl && appCommentThreadsFetched) {
+      const commentInStore = commentThreadsMap[commentThreadIdFromUrl];
+
+      if (commentInStore) {
+        if (commentInStore.resolvedState?.active) {
+          dispatch(setShouldShowResolvedComments(true));
+        }
+      } else {
         Toaster.show({
           text: createMessage(COMMENT_HAS_BEEN_DELETED),
           variant: Variant.warning,
         });
+      }
     }
-  }, [commentThreadIdFromUrl]);
+  }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
     <Container>

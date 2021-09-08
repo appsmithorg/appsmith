@@ -214,7 +214,7 @@ export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
 export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
-  `${actionName} failed to execute. Please check it's configuration`;
+  `${actionName} failed to execute`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
@@ -360,8 +360,12 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
-
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
+export const DEBUGGER_COPY_MESSAGE = () => "Copy";
+export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
 //action creator menu
 export const NO_ACTION = () => `No Action`;
@@ -465,21 +469,20 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
-export const GIT_CONNECTION = () => "GIT Connection";
+export const GIT_CONNECTION = () => "Git Connections";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
 export const SETTINGS = () => "Settings";
-export const CONNECT_TO_GIT = () => "Connect to Git";
+export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
-  "Choose an existing empty repository to host your project and keep it in sync";
+  "Checkout branches, Make commits, add deploy your application";
 export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
 
 export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
 
 export const AUTHOR_NAME = () => "AUTHOR NAME";
 export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const SELECT_SSH_KEY = () => "SELECT SSH KEY";
 export const USER_NAME = () => "USER NAME";
 export const USER_PASSWORD = () => "PASSWORD";
 
@@ -495,6 +498,7 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+export const PULL = () => "PULL";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
@@ -512,3 +516,10 @@ export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
 export const EMOJI = () => "Emoji";
+
+// Sniping mode messages
+export const SNIPING_SELECT_WIDGET_AGAIN = () =>
+  "Unable to detect the widget, please select the widget again.";
+
+export const SNIPING_NOT_SUPPORTED = () =>
+  "Binding on selection is not supported for this type of widget!";

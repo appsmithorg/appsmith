@@ -6,7 +6,10 @@ import UserApi from "api/UserApi";
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getCommentThreadURL } from "comments/utils";
-import { markNotificationAsReadRequest } from "actions/notificationActions";
+import {
+  markNotificationAsReadRequest,
+  setIsNotificationsListVisible,
+} from "actions/notificationActions";
 
 import history from "utils/history";
 import { useDispatch } from "react-redux";
@@ -142,6 +145,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
       mode,
       pageId,
     });
+    dispatch(setIsNotificationsListVisible(false));
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
     );
@@ -210,6 +214,8 @@ function CommentThreadNotification(props: {
       mode,
       pageId,
     });
+
+    dispatch(setIsNotificationsListVisible(false));
 
     history.push(
       `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,

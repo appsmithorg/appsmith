@@ -1,3 +1,4 @@
+import React from "react";
 import {
   createMessage,
   DOC_DESCRIPTION,
@@ -10,11 +11,15 @@ import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
 import getFeatureFlags from "utils/featureFlags";
+import { modText } from "./HelpBar";
+import { WidgetType } from "constants/WidgetConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export type SelectEvent =
   | React.MouseEvent
   | React.KeyboardEvent
-  | KeyboardEvent;
+  | KeyboardEvent
+  | null;
 
 export type RecentEntity = {
   type: string;
@@ -53,6 +58,13 @@ export type DocSearchItem = {
   path: string;
 };
 
+export const comboHelpText = {
+  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
+};
+
 export type Snippet = {
   entities?: [string];
   fields?: [string];
@@ -68,12 +80,26 @@ export type SnippetBody = {
   args: [SnippetArgument];
   summary: string;
   template: string;
-  additionalInfo?: [
-    {
-      header: string;
-      content: string;
-    },
-  ];
+  snippetMeta?: string;
+  shortTitle?: string;
+};
+
+export type FilterEntity = WidgetType | ENTITY_TYPE;
+
+//holds custom labels for snippet filters.
+export const SnippetFilterLabel: Partial<Record<FilterEntity, string>> = {
+  DROP_DOWN_WIDGET: "Dropdown",
+};
+
+export const getSnippetFilterLabel = (label: string) => {
+  return (
+    SnippetFilterLabel[label as FilterEntity] ||
+    label
+      .toLowerCase()
+      .replace("_widget", "")
+      .replace("-plugin", "")
+      .replaceAll(/_|-/g, " ")
+  );
 };
 
 export type SnippetArgument = {

@@ -2960,7 +2960,20 @@ public class DatabaseChangelog {
             mongoTemplate.save(plugin);
         }
     }
-    @ChangeSet(order = "083", id = "add-js-plugin", author = "")
+
+    @ChangeSet(order = "083", id = "application-git-metadata", author = "")
+    public void addApplicationGitMetadataFieldAndIndex(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+            makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
+                .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
+        );
+    }
+
+     @ChangeSet(order = "084", id = "add-js-plugin", author = "")
     public void addJSPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("JS Functions");
