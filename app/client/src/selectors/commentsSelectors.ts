@@ -26,6 +26,9 @@ export const commentModeSelector = (state: AppState) => {
   const pathName = window.location.pathname;
   const onEditorOrViewerPage =
     matchBuilderPath(pathName) || matchViewerPath(pathName);
+
+  if ((window as any).isCommentModeForced) return true;
+
   return state.ui.comments?.isCommentMode && !!onEditorOrViewerPage;
 };
 
@@ -35,9 +38,6 @@ export const isUnsubscribedSelector = (state: AppState) =>
 export const applicationCommentsSelector = (applicationId: string) => (
   state: AppState,
 ) => state.ui.comments.applicationCommentThreadsByRef[applicationId];
-
-export const areCommentsEnabledForUserAndApp = (state: AppState) =>
-  state.ui.comments?.areCommentsEnabled;
 
 /**
  * Comments are stored as a map of refs (for example widgetIds)
@@ -160,3 +160,12 @@ export const visibleCommentThreadSelector = (state: AppState) =>
 
 export const isIntroCarouselVisibleSelector = (state: AppState) =>
   state.ui.comments.isIntroCarouselVisible;
+
+export const getUnpublishedThreadDraftComment = (state: AppState) =>
+  state.ui.comments.unpublishedThreadDraftComment;
+
+export const getDraftComments = (state: AppState) =>
+  state.ui.comments.draftComments;
+
+export const getCommentThreadsFetched = (state: AppState) =>
+  state.ui.comments.commentThreadsFetched;

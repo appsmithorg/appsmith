@@ -8,8 +8,6 @@ export function createMessage(
 export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
 export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
   `Please select an action type`;
-export const ACTION_CREATED_SUCCESS = (actionName: string) =>
-  `${actionName} action created successfully`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -20,6 +18,8 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
+  `Default Text length must be less than Max Chars allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -32,7 +32,7 @@ export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password with a minimum of 6 characters`;
+  `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
@@ -191,6 +191,9 @@ export const SHOW_REQUEST = () => `Show Request`;
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT = () =>
   `Change column datatype to see filter operators`;
 
+export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
+  "Don't worry about saving, we've got you covered!";
+
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
   `To add a widget, please drag and drop a widget on the canvas to the right`;
@@ -210,14 +213,12 @@ export const ERROR_DATEPICKER_MIN_DATE = () =>
 export const ERROR_DATEPICKER_MAX_DATE = () =>
   `Min date cannot be greater than current widget value`;
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
-export const ERROR_API_EXECUTE = (actionName: string) =>
-  `${actionName} failed to execute. Please check it's configuration`;
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
+  `${actionName} failed to execute`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
   `${actionName} action returned an error response`;
-export const ACTION_DELETE_SUCCESS = (actionName: string) =>
-  `${actionName} action deleted successfully`;
 export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} action moved to page ${pageName} successfully`;
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
@@ -283,7 +284,10 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "Localstorage storage is not supported on your device. Some features including the appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  "Search Widgets, Queries, Documentation";
+  `Search Widgets, Queries, Documentation`;
+export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search Snippets";
+export const OMNIBAR_PLACEHOLDER_NAV = () => "Search Widgets and Queries";
+export const OMNIBAR_PLACEHOLDER_DOC = () => "Search Documentation";
 export const HELPBAR_PLACEHOLDER = () => "Quick search & navigation";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -303,6 +307,7 @@ export const PIN_COMMENT = () => "Pin Comment";
 export const UNPIN_COMMENT = () => "Unpin Comment";
 export const COPY_LINK = () => "Copy Link";
 export const DELETE_COMMENT = () => "Delete Comment";
+export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
 export const DELETE_THREAD = () => "Delete Thread";
 export const EDIT_COMMENT = () => "Edit Comment";
 export const COMMENTS = () => "Comments";
@@ -334,24 +339,33 @@ export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 // Showcase Carousel
 export const NEXT = () => "NEXT";
 export const BACK = () => "BACK";
+export const SKIP = () => "SKIP";
 
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to open the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect Entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
+export const VALUE_IS_INVALID = (propertyPath: string) =>
+  `The value at ${propertyPath} is invalid`;
 export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
-
+export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
+  `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
+export const DEBUGGER_COPY_MESSAGE = () => "Copy";
+export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
@@ -359,6 +373,9 @@ export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+
+//Editor Page
+export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
 // Generate page from DB Messages
 
@@ -381,6 +398,20 @@ export const GENERATE_PAGE_ACTION_SUBTITLE = () =>
   "Start with a simple CRUD UI and customize it";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from Data";
+
+export const GEN_CRUD_SUCCESS_MESSAGE = () =>
+  "Hurray! Your application is ready to use.";
+export const GEN_CRUD_SUCCESS_DESC = () =>
+  "Search through your data in the table and update it using the form";
+export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
+export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
+  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
+export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column Headers Fetched";
+export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
+export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select Datasource";
+export const GEN_CRUD_TABLE_HEADER_LABEL = () => "Table Header Index";
+export const GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC = () =>
+  "Row index of the column headers in the sheet table";
 // Actions Right pane
 export const SEE_CONNECTED_ENTITIES = () => "See all connected entities";
 export const INCOMING_ENTITIES = () => "Incoming entities";
@@ -394,3 +425,69 @@ export const SUGGESTED_WIDGET_DESCRIPTION = () =>
 export const ADD_NEW_WIDGET = () => "Add New Widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
+export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next Mission";
+
+// Data Sources pane
+export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
+
+export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
+
+export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
+
+export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+// Git sync
+export const GIT_CONNECTION = () => "Git Connections";
+export const DEPLOY = () => "Deploy";
+export const MERGE = () => "Merge";
+export const SHARE_APPLICATION = () => "Share Application";
+export const SETTINGS = () => "Settings";
+export const CONNECT_TO_GIT = () => "Connect to Git Repository";
+export const CONNECT_TO_GIT_SUBTITLE = () =>
+  "Checkout branches, Make commits, add deploy your application";
+export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+
+export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
+
+export const AUTHOR_NAME = () => "AUTHOR NAME";
+export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
+export const USER_NAME = () => "USER NAME";
+export const USER_PASSWORD = () => "PASSWORD";
+
+export const DOCUMENTATION = () => "Documentation";
+export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
+export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
+export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
+  "Checkout branches, make commits, add deploy your application";
+export const CONNECT = () => "Connect";
+export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
+export const DEPLOY_WITHOUT_GIT = () =>
+  "Deploy your application without version control";
+export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const COMMIT = () => "COMMIT";
+export const PUSH = () => "PUSH";
+export const PULL = () => "PULL";
+
+export const SNIPPET_DESCRIPTION = () =>
+  `Search and Insert code snippets to perform complex actions quickly.`;
+export const DOC_DESCRIPTION = () =>
+  `Find answers through appsmith documentation.`;
+export const NAV_DESCRIPTION = () =>
+  `Navigate to any page, widget or file across this project.`;
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+
+export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
+
+// Comment card tooltips
+export const MORE_OPTIONS = () => "More Options";
+export const ADD_REACTION = () => "Add Reaction";
+export const RESOLVE_THREAD = () => "Resolve Thread";
+export const EMOJI = () => "Emoji";
+
+// Sniping mode messages
+export const SNIPING_SELECT_WIDGET_AGAIN = () =>
+  "Unable to detect the widget, please select the widget again.";
+
+export const SNIPING_NOT_SUPPORTED = () =>
+  "Binding on selection is not supported for this type of widget!";

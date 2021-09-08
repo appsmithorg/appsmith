@@ -155,7 +155,6 @@ export default function DisplayImageUpload({
         canOutsideClickClose
         className="file-picker-dialog"
         isOpen={isModalOpen}
-        maxHeight={"80vh"}
         trigger={
           <div className="view">
             <div className="image-view">

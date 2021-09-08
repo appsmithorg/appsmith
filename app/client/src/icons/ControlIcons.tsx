@@ -27,6 +27,7 @@ import { ReactComponent as ShowColumnIcon } from "assets/icons/control/hide-colu
 import { ReactComponent as HideColumnIcon } from "assets/icons/control/columns-visibility.svg";
 import { ReactComponent as DeleteColumnIcon } from "assets/icons/control/delete-column.svg";
 import { ReactComponent as BoldFontIcon } from "assets/icons/control/bold.svg";
+import { ReactComponent as UnderlineIcon } from "assets/icons/control/underline.svg";
 import { ReactComponent as ItalicsFontIcon } from "assets/icons/control/italics.svg";
 import { ReactComponent as LeftAlignIcon } from "assets/icons/control/left-align.svg";
 import { ReactComponent as CenterAlignIcon } from "assets/icons/control/center-align.svg";
@@ -50,6 +51,15 @@ import { ReactComponent as DividerCapAllIcon } from "assets/icons/control/divide
 import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
 import { ReactComponent as AlignLeftIcon } from "assets/icons/control/align_left.svg";
 import { ReactComponent as AlignRightIcon } from "assets/icons/control/align_right.svg";
+import { ReactComponent as BorderRadiusSharpIcon } from "assets/icons/control/border-radius-sharp.svg";
+import { ReactComponent as BorderRadiusRoundedIcon } from "assets/icons/control/border-radius-rounded.svg";
+import { ReactComponent as BorderRadiusCircleIcon } from "assets/icons/control/border-radius-circle.svg";
+import { ReactComponent as BoxShadowNoneIcon } from "assets/icons/control/box-shadow-none.svg";
+import { ReactComponent as BoxShadowVariant1Icon } from "assets/icons/control/box-shadow-variant1.svg";
+import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/box-shadow-variant2.svg";
+import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
+import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
+import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -201,6 +211,11 @@ export const ControlIcons: {
       <BoldFontIcon />
     </IconWrapper>
   ),
+  UNDERLINE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <UnderlineIcon />
+    </IconWrapper>
+  ),
   ITALICS_FONT: (props: IconProps) => (
     <IconWrapper {...props}>
       <ItalicsFontIcon />
@@ -314,6 +329,51 @@ export const ControlIcons: {
   ICON_ALIGN_RIGHT: (props: IconProps) => (
     <IconWrapper {...props}>
       <AlignRightIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_SHARP: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusSharpIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_ROUNDED: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusRoundedIcon />
+    </IconWrapper>
+  ),
+  BORDER_RADIUS_CIRCLE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BorderRadiusCircleIcon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_NONE: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowNoneIcon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT1: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant1Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT2: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant2Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT3: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant3Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT4: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant4Icon />
+    </IconWrapper>
+  ),
+  BOX_SHADOW_VARIANT5: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <BoxShadowVariant5Icon />
     </IconWrapper>
   ),
 };

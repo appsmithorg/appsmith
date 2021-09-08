@@ -1,24 +1,19 @@
 import { Collapse, Position } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Message, Severity, SourceEntity } from "entities/AppsmithConsole";
-import React, { useCallback, useState } from "react";
+import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon, SeverityIconColor } from "./helpers";
-import { useDispatch } from "react-redux";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import ContextualMenu from "./ContextualMenu";
 
-const Log = styled.div<{ collapsed: boolean }>`
+const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
   display: flex;
 
@@ -58,7 +53,8 @@ const Log = styled.div<{ collapsed: boolean }>`
   .debugger-description {
     display: inline-block;
     margin-left: 7px;
-
+    overflow-wrap: anywhere;
+    word-break: break-word;
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
     }
@@ -142,7 +138,7 @@ const MessageWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
-export const getLogItemProps = (e: Message) => {
+export const getLogItemProps = (e: Log) => {
   return {
     icon: SeverityIcon[e.severity] as IconName,
     iconColor: SeverityIconColor[e.severity],
@@ -170,7 +166,7 @@ type LogItemProps = {
   id?: string;
   source?: SourceEntity;
   expand?: boolean;
-  messages: Message["messages"];
+  messages?: Message[];
 };
 
 function LogItem(props: LogItemProps) {
@@ -186,26 +182,21 @@ function LogItem(props: LogItemProps) {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.messages;
-  const dispatch = useDispatch();
+  // The error to sent to the contextual menu
+  const errorToSearch =
+    props.messages && props.messages.length
+      ? props.messages[0]
+      : { message: props.text };
 
-  const openHelpModal = useCallback((e, message?: string) => {
-    e.stopPropagation();
-    const text = message || props.text;
-
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "DEBUGGER",
-      searchTerm: text,
-    });
-    dispatch(setGlobalSearchQuery(text || ""));
-    dispatch(toggleShowGlobalSearchModal());
-  }, []);
   const messages = props.messages || [];
 
   return (
-    <Log
+    <Wrapper
       className={props.severity}
       collapsed={!isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => {
+        if (!isOpen) setIsOpen(true);
+      }}
     >
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
@@ -231,23 +222,25 @@ function LogItem(props: LogItemProps) {
           <span className="debugger-timetaken">{props.timeTaken}</span>
         )}
         {props.severity !== Severity.INFO && (
-          <TooltipComponent
-            content={
-              <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                {createMessage(TROUBLESHOOT_ISSUE)}
-              </Text>
-            }
-            minimal
-            position={Position.BOTTOM_LEFT}
-          >
-            <StyledSearchIcon
-              className={Classes.ICON}
-              fillColor={props.iconColor}
-              name={"wand"}
-              onClick={openHelpModal}
-              size={IconSize.MEDIUM}
-            />
-          </TooltipComponent>
+          <ContextualMenu error={errorToSearch}>
+            <TooltipComponent
+              content={
+                <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                  {createMessage(TROUBLESHOOT_ISSUE)}
+                </Text>
+              }
+              hoverOpenDelay={1000}
+              minimal
+              position={Position.BOTTOM_LEFT}
+            >
+              <StyledSearchIcon
+                className={Classes.ICON}
+                fillColor={props.iconColor}
+                name={"wand"}
+                size={IconSize.MEDIUM}
+              />
+            </TooltipComponent>
+          </ContextualMenu>
         )}
 
         {showToggleIcon && (
@@ -255,12 +248,11 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <span
-                    className="debugger-message"
-                    onClick={(event) => openHelpModal(event, e.message)}
-                  >
-                    {e.message}
-                  </span>
+                  <ContextualMenu error={e}>
+                    <span className="debugger-message t--debugger-message">
+                      {e.message}
+                    </span>
+                  </ContextualMenu>
                 </MessageWrapper>
               );
             })}
@@ -283,7 +275,7 @@ function LogItem(props: LogItemProps) {
           uiComponent={DebuggerLinkUI.ENTITY_NAME}
         />
       )}
-    </Log>
+    </Wrapper>
   );
 }
 

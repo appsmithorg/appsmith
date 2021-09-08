@@ -49,6 +49,10 @@ import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
+import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
+import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
+import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
+import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -96,6 +100,9 @@ export interface AppState {
     tour: TourReducerState;
     notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
+    gitSync: GitSyncReducerState;
+    appCollab: AppCollabReducerState;
+    crudInfoModal: CrudInfoModalReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -111,5 +118,6 @@ export interface AppState {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
+    formEvaluation: FormEvaluationState;
   };
 }

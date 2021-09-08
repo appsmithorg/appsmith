@@ -9,6 +9,7 @@ export interface DatasourceAuthentication {
   value?: string;
   addTo?: string;
   bearerToken?: string;
+  authenticationStatus?: string;
 }
 
 export interface DatasourceColumns {
@@ -77,6 +78,7 @@ export interface Datasource extends BaseDatasource {
   invalids?: string[];
   structure?: DatasourceStructure;
   messages?: string[];
+  success?: boolean;
 }
 
 export interface MockDatasource {

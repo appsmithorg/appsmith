@@ -1,7 +1,11 @@
 import { set, cloneDeep } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
 import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+  WidgetReduxActionTypes,
+} from "constants/ReduxActionConstants";
 
 export type MetaState = Record<string, Record<string, unknown>>;
 
@@ -43,7 +47,7 @@ export const metaReducer = createReducer(initialState, {
     next[action.payload.widgetId] = widgetMetaProps;
     return next;
   },
-  [ReduxActionTypes.WIDGET_DELETE]: (
+  [WidgetReduxActionTypes.WIDGET_DELETE]: (
     state: MetaState,
     action: ReduxAction<{ widgetId: string }>,
   ) => {

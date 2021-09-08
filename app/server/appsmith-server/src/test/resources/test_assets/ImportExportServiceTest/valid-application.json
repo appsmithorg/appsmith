@@ -23,6 +23,7 @@
         ],
         "name": "db-auth",
         "pluginId": "mongo-plugin",
+        "gitSyncId": "datasource1_git",
         "datasourceConfiguration": {
           "connection": {
             "mode": "READ_WRITE",
@@ -56,6 +57,7 @@
         ],
         "name": "api_ds_wo_auth",
         "pluginId": "restapi-plugin",
+        "gitSyncId": "datasource2_git",
         "datasourceConfiguration": {
           "sshProxyEnabled": false,
           "properties": [
@@ -82,6 +84,7 @@
           "read:pages",
           "manage:pages"
         ],
+        "gitSyncId": "page1_git",
         "applicationId": "valid_application",
         "unpublishedPage": {
           "name": "Page1",
@@ -371,6 +374,49 @@
           "userPermissions": []
         },
         "new": true
+      },
+      {
+        "userPermissions": [
+          "read:pages",
+          "manage:pages"
+        ],
+        "gitSyncId": "page2_git",
+        "applicationId": "valid_application",
+        "unpublishedPage": {
+          "name": "Page2",
+          "layouts": [
+            {
+              "id": "60aca056136c4b7178f67999",
+              "userPermissions": [],
+              "dsl": {
+                "widgetName": "MainContainer",
+                "backgroundColor": "none",
+                "rightColumn": 1280,
+                "snapColumns": 16,
+                "detachFromLayout": true,
+                "widgetId": "0",
+                "topRow": 0,
+                "bottomRow": 800,
+                "containerStyle": "none",
+                "snapRows": 33,
+                "parentRowSpace": 1,
+                "type": "CANVAS_WIDGET",
+                "canExtend": true,
+                "version": 4,
+                "minHeight": 840,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "dynamicBindingPathList": [],
+                "leftColumn": 0,
+                "children": []
+              },
+              "layoutOnLoadActions": [[]],
+              "new": false
+            }
+          ],
+          "userPermissions": []
+        },
+        "new": true
       }
     ],
     "actionList": [
@@ -380,6 +426,7 @@
         "applicationId": "valid_application",
         "pluginType": "DB",
         "pluginId": "mongo-plugin",
+        "gitSyncId": "action1_git",
         "unpublishedAction": {
           "name": "get_users",
           "datasource": {
@@ -425,6 +472,7 @@
         "applicationId": "valid_application",
         "pluginType": "API",
         "pluginId": "restapi-plugin",
+        "gitSyncId": "action2_git",
         "unpublishedAction": {
           "name": "api_wo_auth",
           "datasource": {

@@ -1,6 +1,7 @@
 import {
   ReduxAction,
   ReduxActionTypes,
+  ReduxActionErrorTypes,
   ReduxActionWithoutPayload,
 } from "constants/ReduxActionConstants";
 import { PluginFormPayload } from "api/PluginApi";
@@ -42,7 +43,7 @@ export const fetchPluginFormConfigSuccess = (
 export const fetchPluginFormConfigError = (
   payload: GetPluginFormConfigRequest,
 ): ReduxAction<GetPluginFormConfigRequest> => ({
-  type: ReduxActionTypes.FETCH_PLUGIN_FORM_ERROR,
+  type: ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
   payload,
 });
 

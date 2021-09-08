@@ -80,13 +80,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
-import OnboardingForm from "./OnboardingForm";
-import { getAppsmithConfigs } from "configs";
 import { SIGNUP_SUCCESS_URL } from "constants/routes";
-import {
-  setOnboardingFormInProgress,
-  getOnboardingFormInProgress,
-} from "utils/storage";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 
@@ -373,7 +367,9 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
 
   return (
     <MenuItem
-      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      containerClassName={
+        isFetchingApplications ? BlueprintClasses.SKELETON : ""
+      }
       ellipsize={20}
       href={`${window.location.pathname}#${org.organization.slug}`}
       icon="workspace"
@@ -448,7 +444,9 @@ function LeftPane() {
             />
           </div>
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
             icon="book"
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
@@ -456,7 +454,7 @@ function LeftPane() {
             text={"Documentation"}
           />
           <MenuItem
-            className={
+            containerClassName={
               isFetchingApplications
                 ? BlueprintClasses.SKELETON
                 : "t--welcome-tour"
@@ -899,7 +897,6 @@ const getIsFromSignup = () => {
   return window.location?.pathname === SIGNUP_SUCCESS_URL;
 };
 
-const { onboardingFormEnabled } = getAppsmithConfigs();
 class Applications extends Component<
   ApplicationProps,
   { selectedOrgId: string; showOnboardingForm: boolean }
@@ -916,29 +913,12 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    this.props.getAllApplication();
-    window.addEventListener("message", this.handleTypeFormMessage, false);
-    this.showOnboardingForm();
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("message", this.handleTypeFormMessage);
-  }
-
-  showOnboardingForm = async () => {
     const isFromSignUp = getIsFromSignup();
-    const isOnboardingFormInProgress = await getOnboardingFormInProgress();
-    const showOnboardingForm =
-      onboardingFormEnabled && (isFromSignUp || isOnboardingFormInProgress);
-    this.setState({
-      showOnboardingForm: !!showOnboardingForm,
-    });
-
-    // Redirect directly in case we're not showing the onboarding form
-    if (isFromSignUp && !onboardingFormEnabled) {
+    if (isFromSignUp) {
       this.redirectUsingQueryParam();
     }
-  };
+    this.props.getAllApplication();
+  }
 
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
@@ -954,32 +934,19 @@ class Applications extends Component<
     }
   };
 
-  handleTypeFormMessage = (event: any) => {
-    if (event?.data?.type === "form-submit" && this.state.showOnboardingForm) {
-      setOnboardingFormInProgress();
-      this.redirectUsingQueryParam();
-    }
-  };
-
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        {this.state.showOnboardingForm ? (
-          <OnboardingForm />
-        ) : (
-          <>
-            <ProductUpdatesModal />
-            <LeftPane />
-            <SubHeader
-              search={{
-                placeholder: "Search for apps...",
-                queryFn: this.props.searchApplications,
-                defaultValue: this.props.searchKeyword,
-              }}
-            />
-            <ApplicationsSection searchKeyword={this.props.searchKeyword} />
-          </>
-        )}
+        <ProductUpdatesModal />
+        <LeftPane />
+        <SubHeader
+          search={{
+            placeholder: "Search for apps...",
+            queryFn: this.props.searchApplications,
+            defaultValue: this.props.searchKeyword,
+          }}
+        />
+        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
       </PageWrapper>
     );
   }

@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
@@ -11,9 +11,10 @@ import {
   AddCommentToCommentThreadRequestPayload,
   NewCommentEventPayload,
   NewCommentThreadPayload,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 
-import { RawDraftContentState } from "draft-js";
+import { EditorState, RawDraftContentState } from "draft-js";
 
 export const setCommentThreadsRequest = () => ({
   type: ReduxActionTypes.SET_COMMENT_THREADS_REQUEST,
@@ -38,9 +39,11 @@ export const createUnpublishedCommentThreadSuccess = (
   payload,
 });
 
-export const removeUnpublishedCommentThreads = () => ({
+export const removeUnpublishedCommentThreads = (
+  shouldPersistComment?: boolean,
+) => ({
   type: ReduxActionTypes.REMOVE_UNPUBLISHED_COMMENT_THREAD_REQUEST,
-  payload: null,
+  payload: { shouldPersistComment },
 });
 
 export const unsubscribeCommentThreadAction = (threadId: string) => ({
@@ -120,6 +123,11 @@ export const updateCommentThreadEvent = (payload: Partial<CommentThread>) => ({
   payload,
 });
 
+export const dragCommentThread = (payload: DraggedCommentThread) => ({
+  type: ReduxActionTypes.DRAG_COMMENT_THREAD,
+  payload,
+});
+
 export const unsubscribedCommentThreadSuccess = () => ({
   type: ReduxActionTypes.UNSUBSCRIBE_COMMENT_THREAD_SUCCESS,
   payload: null,
@@ -169,9 +177,12 @@ export const setAppCommentsFilter = (
   payload,
 });
 
-export const resetVisibleThread = (threadId?: string) => ({
+export const resetVisibleThread = (
+  threadId?: string,
+  shouldPersistComment?: boolean,
+) => ({
   type: ReduxActionTypes.RESET_VISIBLE_THREAD,
-  payload: threadId,
+  payload: { threadId, shouldPersistComment },
 });
 
 export const setVisibleThread = (threadId: string) => ({
@@ -253,11 +264,6 @@ export const hideCommentsIntroCarousel = () => ({
   payload: undefined,
 });
 
-export const setAreCommentsEnabled = (flag: boolean) => ({
-  type: ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-  payload: flag,
-});
-
 export const fetchUnreadCommentThreadsCountSuccess = (count?: number) => ({
   type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
   payload: count,
@@ -269,4 +275,55 @@ export const incrementThreadUnreadCount = () => ({
 
 export const decrementThreadUnreadCount = () => ({
   type: ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
+});
+
+export const deleteCommentThreadEvent = (thread: CommentThread) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_THREAD_EVENT,
+  payload: thread,
+});
+
+export const deleteCommentEvent = (comment: Comment) => ({
+  type: ReduxActionTypes.DELETE_COMMENT_EVENT,
+  payload: comment,
+});
+
+export const setDraggingCommentThread = (
+  threadId: string,
+  offset: {
+    x: number;
+    y: number;
+  } | null,
+): ReduxAction<{
+  threadId: string;
+  offset: {
+    x: number;
+    y: number;
+  } | null;
+}> => ({
+  type: ReduxActionTypes.SET_DRAGGING_COMMENT_THREAD,
+  payload: { threadId, offset },
+});
+
+export const setHasDroppedCommentThread = () => ({
+  type: ReduxActionTypes.SET_HAS_DROPPED_COMMENT_THREAD,
+  payload: {},
+});
+
+export const updateUnpublishedThreadDraftComment = (
+  editorState: EditorState,
+) => ({
+  type: ReduxActionTypes.UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT,
+  payload: editorState,
+});
+
+export const updateThreadDraftComment = (
+  editorState: EditorState,
+  threadId: string,
+) => ({
+  type: ReduxActionTypes.UPDATE_THREAD_DRAFT_COMMENT,
+  payload: { editorState, threadId },
+});
+
+export const fetchCommentThreadsInit = () => ({
+  type: ReduxActionTypes.FETCH_COMMENT_THREADS_INIT,
 });

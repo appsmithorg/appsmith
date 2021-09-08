@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,7 +45,21 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class RestApiPluginTest {
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(() -> 10 * 1024 * 1024);
+
+    public class MockSharedConfig implements SharedConfig {
+
+        @Override
+        public int getCodecSize() {
+            return 10 * 1024 * 1024;
+        }
+
+        @Override
+        public int getMaxResponseSize() {
+            return 10000;
+        }
+    }
+
+    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
 
     @Before
     public void setUp() {
@@ -72,7 +87,7 @@ public class RestApiPluginTest {
                     final ActionExecutionRequest request = result.getRequest();
                     assertEquals("https://postman-echo.com/post", request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    assertEquals(requestBody, request.getBody());
+                    assertEquals(requestBody, request.getBody().toString());
                     final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
                         if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
@@ -100,6 +115,7 @@ public class RestApiPluginTest {
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("form");
                     assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
+                    assertEquals("key=value&key1=value1", result.getRequest().getBody());
                 })
                 .verifyComplete();
     }
@@ -408,8 +424,11 @@ public class RestApiPluginTest {
         actionConfig.setHeaders(List.of(new Property("content-type", "multipart/form-data")));
 
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key\":\"skdjfh&kjsd\"}";
-        List<Property> formData = List.of(new Property("key", "skdjfh&kjsd"));
+        String requestBody = "{\"key1\":\"onlyValue\"}";
+        final Property key1 = new Property("key1", "onlyValue");
+        final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
+        key2.setType("FILE");
+        List<Property> formData = List.of(key1, key2);
         actionConfig.setBodyFormData(formData);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -417,8 +436,14 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals(requestBody, data.toString());
+                    assertEquals(Map.of(
+                            "key1", "onlyValue",
+                            "key2", "<file>"),
+                            result.getRequest().getBody());
+                    JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
+                    assertEquals(requestBody, formDataResponse.toString());
+                    JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
+                    assertEquals("{\"key2\":\"{key=value}\"}", fileDataResponse.toString());
                 })
                 .verifyComplete();
     }
@@ -491,6 +516,55 @@ public class RestApiPluginTest {
                             assertEquals("****", field.getValue().get(0).asText());
                         }
                     });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        String requestBody = "{\n" +
+                "\t\"name\" : {{Input1.text}},\n" +
+                "\t\"email\" : {{Input2.text}},\n" +
+                "}";
+        actionConfig.setBody(requestBody);
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
+        actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("this is a string with a ? ");
+        params.add(param1);
+        Param param2 = new Param();
+        param2.setKey("Input2.text");
+        param2.setValue("email@email.com");
+        params.add(param2);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String resultBody = "{\"name\":\"this is a string with a ? \",\"email\":\"email@email.com\"}";
+                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
+                        Object resultData = resultJson.get("json");
+                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
+                        assertEquals(resultBody, parsedJsonAsString);
+                    } catch (ParseException | JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
                 })
                 .verifyComplete();
     }

@@ -34,7 +34,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             helpText: "Label the content of the page to embed",
             label: "Title",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter the title of the page to embed",
+            placeholderText: "Title for iframe element",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -141,6 +141,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderColor,
       borderOpacity,
       borderWidth,
+      renderMode,
       source,
       title,
       widgetId,
@@ -153,6 +154,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         borderWidth={borderWidth}
         onMessageReceived={this.messageReceivedHandler}
         onURLChanged={this.urlChangedHandler}
+        renderMode={renderMode}
         source={source}
         title={title}
         widgetId={widgetId}

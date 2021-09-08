@@ -10,7 +10,7 @@ import NotFound from "pages/common/NotFound";
 import { AppState } from "reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { SaaSAction } from "entities/Action";
-import { createActionRequest } from "actions/actionActions";
+import { createActionRequest } from "actions/pluginActionActions";
 import { Datasource } from "entities/Datasource";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -29,7 +29,7 @@ const IntegrationHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  flex: 1;
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};

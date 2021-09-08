@@ -10,10 +10,11 @@ import com.appsmith.external.models.Property;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.BsonArray;
 import org.bson.Document;
+import org.bson.json.JsonParseException;
 import org.pf4j.util.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,11 +25,11 @@ import java.util.stream.Collectors;
 import static com.external.plugins.MongoPluginUtils.generateMongoFormConfigTemplates;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
 import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
-import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
 import static com.external.plugins.constants.ConfigurationIndex.COLLECTION;
 import static com.external.plugins.constants.ConfigurationIndex.COMMAND;
 import static com.external.plugins.constants.ConfigurationIndex.INPUT_TYPE;
 import static com.external.plugins.constants.ConfigurationIndex.INSERT_DOCUMENT;
+import static com.external.plugins.constants.ConfigurationIndex.SMART_BSON_SUBSTITUTION;
 
 @Getter
 @Setter
@@ -67,13 +68,13 @@ public class Insert extends MongoCommand {
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
         if (dataType.equals(DataType.ARRAY)) {
             try {
-                List arrayListFromInput = objectMapper.readValue(this.documents, List.class);
+                List arrayListFromInput = BsonArray.parse(this.documents);
                 if (arrayListFromInput.isEmpty()) {
                     commandDocument.put("documents", "[]");
                 } else {
                     commandDocument.put("documents", arrayListFromInput);
                 }
-            } catch (IOException e) {
+            } catch (JsonParseException e) {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Documents" + " could not be parsed into expected JSON Array format.");
             }
         } else {

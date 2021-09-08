@@ -1,20 +1,13 @@
 import { io } from "socket.io-client";
 import { eventChannel } from "redux-saga";
-import {
-  fork,
-  take,
-  call,
-  cancel,
-  put,
-  delay,
-  select,
-} from "redux-saga/effects";
+import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
 } from "constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
+  RTS_BASE_PATH,
   websocketDisconnectedEvent,
   websocketConnectedEvent,
 } from "constants/WebsocketConstants";
@@ -24,12 +17,12 @@ import {
   retrySocketConnection,
 } from "actions/websocketActions";
 
-import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
-
 import handleSocketEvent from "./handleSocketEvent";
 
 function connect() {
-  const socket = io();
+  const socket = io({
+    path: RTS_BASE_PATH,
+  });
 
   return new Promise((resolve) => {
     socket.on("connect", () => {
@@ -83,8 +76,7 @@ function* write(socket: any) {
     if (payload.type === WEBSOCKET_EVENTS.RECONNECT) {
       socket.disconnect().connect();
     } else {
-      // handle other writes here:
-      // socket.emit(payload.type, payload.payload);
+      socket.emit(payload.type, payload.payload);
     }
   }
 }
@@ -97,10 +89,9 @@ function* handleIO(socket: any) {
 function* flow() {
   while (true) {
     yield take([
-      ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
+      ReduxActionTypes.INIT_SOCKET_CONNECTION,
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
-
     try {
       /**
        * Incase the socket is disconnected due to network latencies
@@ -109,20 +100,13 @@ function* flow() {
        * We only need to retry incase the socket connection isn't made
        * in the first attempt itself
        */
-      const commentsEnabled = yield select(areCommentsEnabledForUserAndApp);
-      if (commentsEnabled) {
-        const socket = yield call(connect);
-        const task = yield fork(handleIO, socket);
-        yield put(setIsWebsocketConnected(true));
-        // Disconnect if comments are disabled or user is logged out
-        yield take([
-          ReduxActionTypes.SET_ARE_COMMENTS_ENABLED,
-          ReduxActionTypes.LOGOUT_USER_INIT,
-        ]);
-        yield take();
-        yield cancel(task);
-        socket.disconnect();
-      }
+      const socket = yield call(connect);
+      const task = yield fork(handleIO, socket);
+      yield put(setIsWebsocketConnected(true));
+      yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
+      yield take();
+      yield cancel(task);
+      socket.disconnect();
     } catch (e) {
       // this has to be non blocking
       yield fork(function*() {
