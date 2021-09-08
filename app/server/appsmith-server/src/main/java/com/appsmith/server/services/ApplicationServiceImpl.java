@@ -342,7 +342,9 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         applicationDto.getGitApplicationMetadata().setGitAuth(gitAuth);
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)))
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
+                ))
                 .map(application -> {
                     String targetApplicationId = application.getId(); // by default, we'll update the provided app
                     if(application.getGitApplicationMetadata() != null
