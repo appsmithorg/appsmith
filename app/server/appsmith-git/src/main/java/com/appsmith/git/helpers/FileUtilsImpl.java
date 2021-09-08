@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 
 @Slf4j
+@Getter
 @Component
 public class FileUtilsImpl implements FileInterface {
 

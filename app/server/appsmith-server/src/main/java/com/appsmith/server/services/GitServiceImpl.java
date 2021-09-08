@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
@@ -10,12 +11,14 @@ import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
@@ -25,6 +28,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -40,7 +44,7 @@ public class GitServiceImpl implements GitService {
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
 
-    private final static String COMMIT_MESSAGE = "System generated commit";
+    private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
@@ -84,11 +88,13 @@ public class GitServiceImpl implements GitService {
 
     @Override
     public Mono<String> commitApplication(String applicationId) {
-        return commitApplication(COMMIT_MESSAGE, applicationId);
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
+        return commitApplication(commitDTO, applicationId);
     }
 
     @Override
-    public Mono<String> commitApplication(String commitMessage, String applicationId) {
+    public Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId) {
 
         /*
         1. Check if application exists and user have sufficient permissions
@@ -96,7 +102,7 @@ public class GitServiceImpl implements GitService {
         3. Save application to the existing worktree (Directory for the specific branch)
         4. Commit application : git add, git commit (Also check if git init required)
          */
-
+        String commitMessage = commitDTO.getCommitMessage();
         if (commitMessage == null || commitMessage.isEmpty()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "commit message"));
         }
@@ -146,8 +152,47 @@ public class GitServiceImpl implements GitService {
                 try {
                     return gitExecutor.commitApplication(baseRepo, commitMessage, userGitProfile.getAuthorName(), userGitProfile.getAuthorEmail());
                 } catch (IOException | GitAPIException e) {
+                    if (e instanceof EmptyCommitException) {
+                        throw new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            "commit",
+                            "On branch " + branchName + " nothing to commit, working tree clean"
+                        );
+                    }
                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e.getMessage());
                 }
             });
+    }
+
+    @Override
+    public Mono<List<GitLogDTO>> getCommitHistory(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
+
+        return applicationMono
+            .map(application -> {
+                if (application.getGitApplicationMetadata() == null
+                    || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
+
+                    // TODO : Please throw the error here instead of assigning a defaultBranch
+                    /*
+                    throw new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "branch name is not available. Please reconfigure the application to connect to git repo"
+                    );
+                     */
+                    GitApplicationMetadata gitData = new GitApplicationMetadata();
+                    gitData.setBranchName("master");
+                    gitData.setDefaultApplicationId(applicationId);
+                    application.setGitApplicationMetadata(gitData);
+                }
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                try {
+                    return gitExecutor.getCommitHistory(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getBranchName());
+                } catch (IOException | GitAPIException e) {
+                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage());
+                }
+            });
+
     }
 }
