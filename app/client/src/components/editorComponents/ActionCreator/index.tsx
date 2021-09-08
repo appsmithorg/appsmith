@@ -4,11 +4,7 @@ import { TreeDropdownOption } from "components/ads/TreeDropdown";
 import TreeStructure from "components/utils/TreeStructure";
 import { OnboardingStep } from "constants/OnboardingConstants";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-  JS_COLLECTION_ID_URL,
-} from "constants/routes";
+import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
 import { PluginType } from "entities/Action";
 import { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
@@ -119,7 +115,7 @@ const getBaseOptions = () => {
       (option: any) => option.value === ActionType.jsFunction,
     );
     if (!jsoption) {
-      baseOptions.push({
+      baseOptions.splice(2, 0, {
         label: createMessage(EXECUTE_JS_FUNCTION),
         value: ActionType.jsFunction,
       });
@@ -219,7 +215,15 @@ function getFieldFromValue(
     }
     if (entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION) {
       const matches = [...value.matchAll(ACTION_TRIGGER_REGEX)];
-      if (!!matches) {
+      if (matches.length === 0) {
+        //when format doesn't match but it is function from js object
+        fields.push({
+          field: FieldType.ACTION_SELECTOR_FIELD,
+          getParentValue,
+          value,
+          args: [],
+        });
+      } else if (matches.length) {
         const entityPropertyPath = matches[0][1];
         const { propertyPath } = getEntityNameAndPropertyPath(
           entityPropertyPath,
@@ -467,19 +471,20 @@ function getIntegrationOptionsWithChildren(
         };
         (jsOption.children as TreeDropdownOption[]).push(jsObject);
         if (jsObject) {
-          const createJSFunction: TreeDropdownOption = {
-            label: "Create New JS Function",
-            value: "JSFunction",
-            id: "create",
-            icon: "plus",
-            className: "t--create-js-function-btn",
-            onSelect: () => {
-              history.push(
-                JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
-              );
-            },
-          };
-          jsObject.children = [createJSFunction];
+          //don't remove this will be used soon
+          // const createJSFunction: TreeDropdownOption = {
+          //   label: "Create New JS Function",
+          //   value: "JSFunction",
+          //   id: "create",
+          //   icon: "plus",
+          //   className: "t--create-js-function-btn",
+          //   onSelect: () => {
+          //     history.push(
+          //       JS_COLLECTION_ID_URL(applicationId, pageId, jsAction.config.id),
+          //     );
+          //   },
+          // };
+          jsObject.children = [];
           jsAction.config.actions.forEach((js: JSAction) => {
             const jsArguments = js.actionConfiguration.jsArguments;
             const argValue: Array<any> = [];

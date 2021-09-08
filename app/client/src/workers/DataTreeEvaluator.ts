@@ -198,7 +198,7 @@ export default class DataTreeEvaluator {
       }
       return false;
     });
-    this.resolveJSActions(translatedDiffs, localUnEvalTree);
+    this.resolveJSActions(translatedDiffs, localUnEvalTree, this.oldUnEvalTree);
     this.logs.push({
       sortedDependencies: this.sortedDependencies,
       inverse: this.inverseDependencyMap,
@@ -623,7 +623,15 @@ export default class DataTreeEvaluator {
     fullPropertyPath?: string,
   ) {
     // Get the {{binding}} bound values
-    const { jsSnippets, stringSegments } = getDynamicBindings(dynamicBinding);
+    let entity;
+    if (fullPropertyPath) {
+      const entityName = fullPropertyPath.split(".")[0];
+      entity = data[entityName];
+    }
+    const { jsSnippets, stringSegments } = getDynamicBindings(
+      dynamicBinding,
+      entity,
+    );
     if (returnTriggers) {
       return this.evaluateDynamicBoundValue(
         jsSnippets[0],
@@ -805,12 +813,28 @@ export default class DataTreeEvaluator {
       });
     });
   }
-  resolveJSActions(differences: DataTreeDiff[], unEvalDataTree: DataTree) {
+  resolveJSActions(
+    differences: DataTreeDiff[],
+    unEvalDataTree: DataTree,
+    oldUnEvalTree: DataTree,
+  ) {
     differences.forEach((diff) => {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         diff.payload.propertyPath,
       );
       const entity = unEvalDataTree[entityName];
+      if (diff.event === DataTreeDiffEvent.DELETE) {
+        const deletedEntity = oldUnEvalTree[entityName];
+        if (!isJSAction(deletedEntity)) {
+          return;
+        }
+        if (
+          this.resolvedFunctions &&
+          this.resolvedFunctions[diff.payload.propertyPath]
+        ) {
+          delete this.resolvedFunctions[diff.payload.propertyPath];
+        }
+      }
       if (!isJSAction(entity)) {
         return;
       }
@@ -847,17 +871,12 @@ export default class DataTreeEvaluator {
         }
       }
       if (diff.event === DataTreeDiffEvent.EDIT) {
-        const unEvalValue = _.get(entity, propertyPath);
-        if (typeof unEvalValue === "string") {
-          const { result } = evaluate(unEvalValue, unEvalDataTree, {});
-          _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
-        }
-      }
-
-      if (diff.event === DataTreeDiffEvent.DELETE) {
-        const unEvalValue = _.get(entity, propertyPath);
-        if (this.resolvedFunctions && this.resolvedFunctions[unEvalValue]) {
-          delete this.resolvedFunctions[unEvalValue];
+        if (propertyPath in entity.meta) {
+          const unEvalValue = _.get(entity, propertyPath);
+          if (typeof unEvalValue === "string") {
+            const { result } = evaluate(unEvalValue, unEvalDataTree, {});
+            _.set(this.resolvedFunctions, diff.payload.propertyPath, result);
+          }
         }
       }
     });

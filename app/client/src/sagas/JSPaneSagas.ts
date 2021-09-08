@@ -27,11 +27,13 @@ import { parseJSCollection, executeFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "../pages/Editor/Explorer/helpers";
 import { getDifferenceInJSCollection } from "../utils/JSPaneUtils";
 import JSActionAPI from "../api/JSActionAPI";
+import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
   addJSObjectAction,
   updateJSObjectAction,
   deleteJSObjectAction,
+  refactorJSCollectionAction,
 } from "../actions/jsPaneActions";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -46,8 +48,12 @@ import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-
+import PageApi from "api/PageApi";
+import { updateCanvasWithDSL } from "sagas/PageSagas";
+import { ActionDescription } from "entities/DataTree/actionTriggers";
+import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -113,6 +119,19 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
     jsActionTobeUpdated.body = body;
     if (parsedBody.variables) {
       jsActionTobeUpdated.variables = parsedBody.variables;
+    }
+    if (data.nameChangedActions.length) {
+      for (let i = 0; i < data.nameChangedActions.length; i++) {
+        yield put(
+          refactorJSCollectionAction({
+            actionId: data.nameChangedActions[i].id,
+            collectionId: data.nameChangedActions[i].collectionId || "",
+            pageId: data.nameChangedActions[i].pageId,
+            oldName: data.nameChangedActions[i].oldName,
+            newName: data.nameChangedActions[i].newName,
+          }),
+        );
+      }
     }
     if (data.newActions.length) {
       for (let i = 0; i < data.newActions.length; i++) {
@@ -232,19 +251,78 @@ function* handleExecuteJSFunctionSaga(
   const { action } = data.payload;
   const collectionId = action.collectionId;
   const actionId = action.id;
-  const results = yield call(
+  const { result, triggers } = yield call(
     executeFunction,
     data.payload.collectionName,
     data.payload.action,
   );
-  yield put({
-    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
-    payload: {
-      results,
-      collectionId,
-      actionId,
-    },
+
+  if (triggers && triggers.length) {
+    yield all(
+      triggers.map((trigger: ActionDescription) =>
+        call(executeActionTriggers, trigger, EventType.ON_CLICK),
+      ),
+    );
+  }
+  if (result) {
+    yield put({
+      type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+      payload: {
+        results: result,
+        collectionId,
+        actionId,
+      },
+    });
+  }
+}
+
+function* handleRefactorJSActionNameSaga(
+  data: ReduxAction<{
+    actionId: string;
+    collectionId: string;
+    pageId: string;
+    oldName: string;
+    newName: string;
+  }>,
+) {
+  const pageResponse = yield call(PageApi.fetchPage, {
+    id: data.payload.pageId,
   });
+  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  if (isPageRequestSuccessful) {
+    // get the layoutId from the page response
+    const layoutId = pageResponse.data.layouts[0].id;
+    // call to refactor action
+    try {
+      const refactorResponse = yield ActionAPI.updateActionName({
+        layoutId,
+        collectionId: data.payload.collectionId,
+        pageId: data.payload.pageId,
+        oldName: data.payload.oldName,
+        newName: data.payload.newName,
+        actionId: data.payload.actionId,
+      });
+
+      const isRefactorSuccessful = yield validateResponse(refactorResponse);
+
+      const currentPageId = yield select(getCurrentPageId);
+
+      if (isRefactorSuccessful) {
+        if (currentPageId === data.payload.pageId) {
+          yield updateCanvasWithDSL(
+            refactorResponse.data,
+            data.payload.pageId,
+            layoutId,
+          );
+        }
+      }
+    } catch (error) {
+      yield put({
+        type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
+        payload: { error },
+      });
+    }
+  }
 }
 
 export default function* root() {
@@ -269,6 +347,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
       handleExecuteJSFunctionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
+      handleRefactorJSActionNameSaga,
     ),
   ]);
 }

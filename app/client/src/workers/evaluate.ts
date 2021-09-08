@@ -46,6 +46,7 @@ const evaluationScripts: Record<
   [EvaluationScriptType.TRIGGERS]: (script) => `
   function closedFunction () {
     const result = ${script};
+    return result;
   }
   closedFunction();
   `,

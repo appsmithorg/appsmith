@@ -59,7 +59,7 @@ class JSActionAPI extends API {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
 
-  static updateJSObjectName(
+  static updateJSCollectionOrActionName(
     updateJSObjectNameRequest: UpdateJSObjectNameRequest,
   ) {
     return API.put(JSActionAPI.url + "/refactor", updateJSObjectNameRequest);
