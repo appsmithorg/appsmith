@@ -5,7 +5,7 @@ const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
 module.exports = {
-  setupFiles: ["jest-canvas-mock"],
+  setupFiles: ["jest-canvas-mock", "<rootDir>/test/__mocks__/annotateMock.ts"],
   roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
@@ -15,7 +15,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins)",
+    "<rootDir>/node_modules/(?!codemirror|react-dnd|dnd-core|@babel|(@blueprintjs/core/lib/esnext)|(@blueprintjs/core/lib/esm)|@github|lodash-es|@draft-js-plugins|react-image-annotate)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
