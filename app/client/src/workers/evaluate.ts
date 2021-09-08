@@ -78,18 +78,21 @@ const getLintingErrors = (
   originalBinding: string,
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
-  Object.keys(data).forEach((datum) => (globalData[datum] = false));
+  Object.keys(data).forEach((datum) => (globalData[datum] = true));
+
   globalData.console = true;
+
   const options = {
     indent: 2,
     esversion: 7,
-    eqeqeq: true,
+    eqeqeq: false,
     curly: true,
     freeze: true,
     undef: true,
     unused: true,
     asi: true,
     worker: true,
+    browser: true,
     globals: globalData,
   };
   jshint(script, options);

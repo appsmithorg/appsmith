@@ -59,7 +59,7 @@ export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
 ): Annotation[] => {
-  const annotations: Annotation[] = [];
+  let annotations: Annotation[] = [];
   const lintErrors = errors.filter(
     (error) => error.errorType === PropertyEvaluationErrorType.LINT,
   );
@@ -116,14 +116,15 @@ export const getLintAnnotations = (
         }
       } else {
         const from = bindingLocation;
-        const to = { line: from.line, ch: from.ch + 3 };
+        const to = { line: from.line, ch: originalBinding.length };
         const annotation = {
           from,
           to,
           message: errorMessage,
           severity,
         };
-        annotations.push(annotation);
+        annotations = [annotation];
+        return annotations;
       }
     }
   });
