@@ -319,6 +319,6 @@ describe("Chart Widget Functionality", function() {
   });
 
   afterEach(() => {
-    cy.get(publish.backToEditor).click({ force: true });
+    cy.goToEditFromPublish();
   });
 });

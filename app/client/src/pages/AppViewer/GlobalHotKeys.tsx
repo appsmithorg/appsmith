@@ -12,8 +12,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
 
-import getFeatureFlags from "utils/featureFlags";
-
 type Props = {
   children: React.ReactNode;
   appMode?: APP_MODE;
@@ -31,7 +29,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Reset"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode && getFeatureFlags().COMMENT) {
+            if (this.props.isCommentMode) {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: this.props.appMode,
                 source: "HOTKEY",
@@ -47,7 +45,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="View Mode"
           onKeyDown={() => {
-            if (getFeatureFlags().COMMENT && this.props.isCommentMode)
+            if (this.props.isCommentMode)
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: this.props.appMode,
                 source: "HOTKEY",
@@ -61,7 +59,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Comment Mode"
           onKeyDown={() => {
-            if (getFeatureFlags().COMMENT && !this.props.isCommentMode)
+            if (!this.props.isCommentMode)
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
                 mode: "COMMENT",
                 source: "HOTKEY",

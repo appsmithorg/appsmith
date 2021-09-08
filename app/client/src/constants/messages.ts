@@ -360,8 +360,12 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
-
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
+export const DEBUGGER_COPY_MESSAGE = () => "Copy";
+export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
@@ -480,3 +484,10 @@ export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
 export const EMOJI = () => "Emoji";
+
+// Sniping mode messages
+export const SNIPING_SELECT_WIDGET_AGAIN = () =>
+  "Unable to detect the widget, please select the widget again.";
+
+export const SNIPING_NOT_SUPPORTED = () =>
+  "Binding on selection is not supported for this type of widget!";
