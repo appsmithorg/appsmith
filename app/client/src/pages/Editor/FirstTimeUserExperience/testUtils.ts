@@ -1,10 +1,11 @@
 import configureStore from "redux-mock-store";
 
+const PAGE_ID = 2;
 export const initialState: any = {
   entities: {
     pageList: {
       applicationId: 1,
-      currentPageId: 2,
+      currentPageId: PAGE_ID,
     },
     datasources: {
       list: [],
@@ -52,13 +53,14 @@ export function getStore(step: number) {
       state.entities.datasources.list.push({});
       break;
     case 2:
-      state.entities.actions.push({});
+      state.entities.actions.push({ config: { pageId: PAGE_ID } });
       break;
     case 3:
       state.entities.actions = [
         {
           config: {
             id: Math.random(),
+            pageId: PAGE_ID,
           },
         },
       ];

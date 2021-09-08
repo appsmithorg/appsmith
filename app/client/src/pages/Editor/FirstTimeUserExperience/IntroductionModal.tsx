@@ -141,27 +141,27 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             <ModalImgWrapper>
               <StyledImgWrapper>
                 <StyledImg
-                  src="https://assets.appsmith.com/ConnectData.png"
+                  src="https://assets.appsmith.com/ConnectData.svg"
                   width="135"
                 />
                 <StyledImg
-                  src="https://assets.appsmith.com/Arrow.png"
+                  src="https://assets.appsmith.com/Arrow.svg"
                   width="42"
                 />
               </StyledImgWrapper>
               <StyledImgWrapper>
                 <StyledImg
-                  src="https://assets.appsmith.com/QueryData.png"
+                  src="https://assets.appsmith.com/QueryData.svg"
                   width="330"
                 />
               </StyledImgWrapper>
               <StyledImgWrapper>
                 <StyledImg
-                  src="https://assets.appsmith.com/Arrow.png"
+                  src="https://assets.appsmith.com/Arrow.svg"
                   width="42"
                 />
                 <StyledImg
-                  src="https://assets.appsmith.com/PublishApps.png"
+                  src="https://assets.appsmith.com/PublishApps.svg"
                   width="92"
                 />
               </StyledImgWrapper>

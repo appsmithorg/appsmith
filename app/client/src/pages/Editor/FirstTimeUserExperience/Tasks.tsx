@@ -86,7 +86,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-datasource.png" />
+          <TaskImage src="https://assets.appsmith.com/onboarding-datasource.svg" />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-datasource-text">
           Start by adding your first Data source
@@ -138,7 +138,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-query.png" />
+          <TaskImage src="https://assets.appsmith.com/onboarding-query.svg" />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-action-text">
           Next, create a query
@@ -188,7 +188,7 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-query.png" />
+          <TaskImage src="https://assets.appsmith.com/onboarding-widget.svg" />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-widget-text">
           Next, add a widget to start displaying data
