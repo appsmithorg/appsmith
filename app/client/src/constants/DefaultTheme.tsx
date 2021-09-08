@@ -1890,6 +1890,7 @@ export const dark: ColorType = {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
+    borderColor: darkShades[7],
   },
   auth,
   formMessage,
@@ -2160,7 +2161,7 @@ export const light: ColorType = {
     darker: "#FFF0F0",
     darkest: "#FDE4E4",
   },
-  homepageBackground: "#fafafa",
+  homepageBackground: "#ffffff",
   card: {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
@@ -2480,8 +2481,9 @@ export const light: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
-    backgroundColor: lightShades[3],
+    backgroundColor: lightShades[0],
     iconColor: lightShades[7],
+    borderColor: lightShades[14],
   },
   auth,
   formMessage,
@@ -2706,6 +2708,11 @@ export const theme: Theme = {
       letterSpacing: 0.2,
       fontWeight: 500,
     },
+    sideHeading: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 13,
+    },
   },
   iconSizes: {
     XXS: 8,
@@ -2833,7 +2840,7 @@ export const theme: Theme = {
   ],
   sidebarWidth: "250px",
   homePage: {
-    header: 52,
+    header: 48,
     leftPane: {
       width: 240,
       leftPadding: 16,
@@ -2843,6 +2850,7 @@ export const theme: Theme = {
       height: 68,
       paddingTop: 30,
     },
+    sidebar: 256,
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",

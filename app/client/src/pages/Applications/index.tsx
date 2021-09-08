@@ -42,7 +42,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import Text, { TextType } from "components/ads/Text";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
@@ -98,6 +98,7 @@ const ApplicationCardsWrapper = styled.div`
   flex-wrap: wrap;
   gap: 20px;
   font-size: ${(props) => props.theme.fontSizes[4]}px;
+  padding: 10px;
 `;
 
 const OrgSection = styled.div``;
@@ -191,12 +192,15 @@ const StyledDialog = styled(Dialog)<{ setMaxWidth?: boolean }>`
 const LeftPaneWrapper = styled.div`
   // height: 50vh;
   overflow: auto;
-  width: 256px;
+  width: ${(props) => props.theme.homePage.sidebar}px;
+  height: 100%;
   display: flex;
   padding-left: 16px;
+  padding-top: 16px;
   flex-direction: column;
   position: fixed;
-  top: 77px;
+  top: ${(props) => props.theme.homePage.header}px;
+  box-shadow: 1px 0px 0px #ededed;
 `;
 const ApplicationContainer = styled.div`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
@@ -241,6 +245,24 @@ const UserImageContainer = styled.div`
 const OrgShareUsers = styled.div`
   display: flex;
   align-items: center;
+
+  & .t--options-icon {
+    margin-left: 8px;
+    svg {
+      path {
+        fill: #090707;
+      }
+    }
+  }
+
+  & .t--new-button {
+    margin-left: 8px;
+  }
+
+  & button,
+  & a {
+    padding: 4px 12px;
+  }
 `;
 
 function Item(props: {
@@ -264,35 +286,67 @@ function Item(props: {
     </ItemWrapper>
   );
 }
+
+const LeftPaneDataSection = styled.div`
+  position: relative;
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 24}px);
+`;
+
 function LeftPaneSection(props: {
   heading: string;
   children?: any;
   isFetchingApplications: boolean;
 }) {
   return (
-    <>
+    <LeftPaneDataSection>
       {/* <MenuItem text={props.heading}/> */}
       <Item
         isFetchingApplications={props.isFetchingApplications}
         label={props.heading}
-        textType={TextType.H6}
+        textType={TextType.SIDE_HEAD}
       />
       {props.children}
-    </>
+    </LeftPaneDataSection>
   );
 }
 
 const StyledAnchor = styled.a`
   position: relative;
   top: -24px;
-  // width: 0;
-  // height: 0;
 `;
 
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
-  height: calc(100vh - ${(props) => props.theme.homePage.header + 36 + 25}px);
-  padding-bottom: 88px;
+  height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  /* padding-bottom: 160px; */
+`;
+
+const LeftPaneBottomSection = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding-bottom: 8px;
+  background-color: #fff;
+
+  & .ads-dialog-trigger {
+    margin-top: 4px;
+  }
+
+  & .ads-dialog-trigger > div {
+    position: initial;
+    width: 92%;
+    padding: 0 14px;
+  }
+`;
+
+const LeftPaneVersionData = styled.div`
+  display: flex;
+  justify-content: space-between;
+  color: #121826;
+  font-size: 8px;
+  width: 92%;
+  margin-top: 8px;
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -400,6 +454,15 @@ function LeftPane() {
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
+          {userOrgs &&
+            userOrgs.map((org: any) => (
+              <OrgMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={org.organization.slug}
+                org={org}
+                selected={urlHash === org.organization.slug}
+              />
+            ))}
           {!isFetchingApplications && fetchedUserOrgs && (
             <MenuItem
               cypressSelector="t--org-new-organization-auto-create"
@@ -418,22 +481,16 @@ function LeftPane() {
               text={CREATE_ORGANIZATION_FORM_NAME}
             />
           )}
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
-          <div style={{ marginTop: 12 }}>
-            <Item
-              isFetchingApplications={isFetchingApplications}
-              label={"GETTING STARTED"}
-              textType={TextType.H6}
-            />
-          </div>
+        </WorkpsacesNavigator>
+        <LeftPaneBottomSection>
+          <MenuItem
+            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            icon="discord"
+            onSelect={() => {
+              window.open("https://discord.gg/rBTTVJp", "_blank");
+            }}
+            text={"Join our Discord"}
+          />
           <MenuItem
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
             icon="book"
@@ -448,7 +505,7 @@ function LeftPane() {
                 ? BlueprintClasses.SKELETON
                 : "t--welcome-tour"
             }
-            icon="shine"
+            icon="guide"
             onSelect={() => {
               AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
 
@@ -456,7 +513,12 @@ function LeftPane() {
             }}
             text={"Welcome Tour"}
           />
-        </WorkpsacesNavigator>
+          <ProductUpdatesModal />
+          <LeftPaneVersionData>
+            <span>Appsmith v1.5</span>
+            <span>Released 3 days ago</span>
+          </LeftPaneVersionData>
+        </LeftPaneBottomSection>
       </LeftPaneSection>
     </LeftPaneWrapper>
   );
@@ -477,7 +539,6 @@ const OrgNameHolder = styled(Text)`
 `;
 
 const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-cursor: ${(props) => (!props.disabled ? "pointer" : "inherit")};
 ${(props) => {
   const color = props.disabled
     ? props.theme.colors.applications.orgColor
@@ -564,11 +625,7 @@ function ApplicationsSection(props: any) {
     const { disabled, orgName, orgSlug } = props;
 
     return (
-      <OrgNameWrapper
-        className="t--org-name"
-        disabled={disabled}
-        onClick={() => setOrgToOpenMenu(orgSlug)}
-      >
+      <OrgNameWrapper className="t--org-name" disabled={disabled}>
         <StyledAnchor id={orgSlug} />
         <OrgNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
@@ -580,7 +637,6 @@ function ApplicationsSection(props: any) {
           >
             {orgName}
           </OrgNameElement>
-          <Icon name="downArrow" size={IconSize.XXS} />
         </OrgNameHolder>
       </OrgNameWrapper>
     );
@@ -635,101 +691,11 @@ function ApplicationsSection(props: any) {
         return (
           <OrgSection className="t--org-section" key={index}>
             <OrgDropDown>
-              {(currentUser || isFetchingApplications) && (
-                <Menu
-                  className="t--org-name"
-                  cypressSelector="t--org-name"
-                  disabled={isFetchingApplications}
-                  isOpen={organization.slug === orgToOpenMenu}
-                  onClose={() => {
-                    setOrgToOpenMenu(null);
-                  }}
-                  onClosing={() => {
-                    setWarnLeavingOrganization(false);
-                  }}
-                  position={Position.BOTTOM_RIGHT}
-                  target={OrgMenuTarget({
-                    orgName: organization.name,
-                    orgSlug: organization.slug,
-                  })}
-                >
-                  {hasManageOrgPermissions && (
-                    <>
-                      <OrgRename
-                        cypressSelector="t--org-rename-input"
-                        defaultValue={organization.name}
-                        editInteractionKind={EditInteractionKind.SINGLE}
-                        fill
-                        hideEditIcon={false}
-                        isEditingDefault={false}
-                        isInvalid={(value: string) => {
-                          return notEmptyValidator(value).message;
-                        }}
-                        onBlur={(value: string) => {
-                          OrgNameChange(value, organization.id);
-                        }}
-                        placeholder="Workspace name"
-                        savingState={
-                          isSavingOrgInfo
-                            ? SavingState.STARTED
-                            : SavingState.NOT_STARTED
-                        }
-                        underline
-                      />
-                      <MenuItem
-                        cypressSelector="t--org-setting"
-                        icon="general"
-                        onSelect={() =>
-                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                            path: `/org/${organization.id}/settings/general`,
-                          })
-                        }
-                        text="Organization Settings"
-                      />
-                      {enableImportExport && (
-                        <MenuItem
-                          cypressSelector="t--org-import-app"
-                          icon="upload"
-                          onSelect={() =>
-                            setSelectedOrgIdForImportApplication(
-                              organization.id,
-                            )
-                          }
-                          text="Import Application"
-                        />
-                      )}
-                      <MenuItem
-                        icon="share"
-                        onSelect={() => setSelectedOrgId(organization.id)}
-                        text="Share"
-                      />
-                      <MenuItem
-                        icon="user"
-                        onSelect={() =>
-                          getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-                            path: `/org/${organization.id}/settings/members`,
-                          })
-                        }
-                        text="Members"
-                      />
-                    </>
-                  )}
-                  <MenuItem
-                    icon="logout"
-                    onSelect={() =>
-                      !warnLeavingOrganization
-                        ? setWarnLeavingOrganization(true)
-                        : leaveOrg(organization.id)
-                    }
-                    text={
-                      !warnLeavingOrganization
-                        ? "Leave Organization"
-                        : "Are you sure?"
-                    }
-                    type={!warnLeavingOrganization ? undefined : "warning"}
-                  />
-                </Menu>
-              )}
+              {(currentUser || isFetchingApplications) &&
+                OrgMenuTarget({
+                  orgName: organization.name,
+                  orgSlug: organization.slug,
+                })}
               {selectedOrgIdForImportApplication && (
                 <ImportApplicationModal
                   isModalOpen={
@@ -782,60 +748,157 @@ function ApplicationsSection(props: any) {
                       title={`Invite Users to ${organization.name}`}
                       trigger={
                         <Button
+                          category={Category.tertiary}
                           icon={"share"}
-                          size={Size.small}
+                          size={Size.medium}
                           text={"Share"}
                         />
                       }
                     />
+                    {isPermitted(
+                      organization.userPermissions,
+                      PERMISSION_TYPE.CREATE_APPLICATION,
+                    ) &&
+                      !isFetchingApplications && (
+                        <Button
+                          className="t--new-button"
+                          icon={"plus"}
+                          isLoading={
+                            creatingApplicationMap &&
+                            creatingApplicationMap[organization.id]
+                          }
+                          onClick={() => {
+                            if (
+                              Object.entries(creatingApplicationMap).length ===
+                                0 ||
+                              (creatingApplicationMap &&
+                                !creatingApplicationMap[organization.id])
+                            ) {
+                              createNewApplication(
+                                getNextEntityName(
+                                  "Untitled application ",
+                                  applications.map((el: any) => el.name),
+                                ),
+                                organization.id,
+                              );
+                            }
+                          }}
+                          size={Size.medium}
+                          tag="button"
+                          text={"New"}
+                        />
+                      )}
+                    {(currentUser || isFetchingApplications) && (
+                      <Menu
+                        className="t--org-name"
+                        cypressSelector="t--org-name"
+                        disabled={isFetchingApplications}
+                        isOpen={organization.slug === orgToOpenMenu}
+                        onClose={() => {
+                          setOrgToOpenMenu(null);
+                        }}
+                        onClosing={() => {
+                          setWarnLeavingOrganization(false);
+                        }}
+                        position={Position.BOTTOM_RIGHT}
+                        target={
+                          <Icon
+                            className="t--options-icon"
+                            name="context-menu"
+                            onClick={() => setOrgToOpenMenu(organization.slug)}
+                            size={IconSize.XXXL}
+                          />
+                        }
+                      >
+                        {hasManageOrgPermissions && (
+                          <>
+                            <OrgRename
+                              cypressSelector="t--org-rename-input"
+                              defaultValue={organization.name}
+                              editInteractionKind={EditInteractionKind.SINGLE}
+                              fill
+                              hideEditIcon={false}
+                              isEditingDefault={false}
+                              isInvalid={(value: string) => {
+                                return notEmptyValidator(value).message;
+                              }}
+                              onBlur={(value: string) => {
+                                OrgNameChange(value, organization.id);
+                              }}
+                              placeholder="Workspace name"
+                              savingState={
+                                isSavingOrgInfo
+                                  ? SavingState.STARTED
+                                  : SavingState.NOT_STARTED
+                              }
+                              underline
+                            />
+                            <MenuItem
+                              cypressSelector="t--org-setting"
+                              icon="general"
+                              onSelect={() =>
+                                getOnSelectAction(
+                                  DropdownOnSelectActions.REDIRECT,
+                                  {
+                                    path: `/org/${organization.id}/settings/general`,
+                                  },
+                                )
+                              }
+                              text="Organization Settings"
+                            />
+                            {enableImportExport && (
+                              <MenuItem
+                                cypressSelector="t--org-import-app"
+                                icon="upload"
+                                onSelect={() =>
+                                  setSelectedOrgIdForImportApplication(
+                                    organization.id,
+                                  )
+                                }
+                                text="Import Application"
+                              />
+                            )}
+                            <MenuItem
+                              icon="share"
+                              onSelect={() => setSelectedOrgId(organization.id)}
+                              text="Share"
+                            />
+                            <MenuItem
+                              icon="user"
+                              onSelect={() =>
+                                getOnSelectAction(
+                                  DropdownOnSelectActions.REDIRECT,
+                                  {
+                                    path: `/org/${organization.id}/settings/members`,
+                                  },
+                                )
+                              }
+                              text="Members"
+                            />
+                          </>
+                        )}
+                        <MenuItem
+                          icon="logout"
+                          onSelect={() =>
+                            !warnLeavingOrganization
+                              ? setWarnLeavingOrganization(true)
+                              : leaveOrg(organization.id)
+                          }
+                          text={
+                            !warnLeavingOrganization
+                              ? "Leave Organization"
+                              : "Are you sure?"
+                          }
+                          type={
+                            !warnLeavingOrganization ? undefined : "warning"
+                          }
+                        />
+                      </Menu>
+                    )}
                   </OrgShareUsers>
                 )}
             </OrgDropDown>
             <ApplicationCardsWrapper key={organization.id}>
-              {/* {isPermitted(
-                organization.userPermissions,
-                PERMISSION_TYPE.CREATE_APPLICATION,
-              ) &&
-                !isFetchingApplications && (
-                  <PaddingWrapper>
-                    <ApplicationAddCardWrapper
-                      onClick={() => {
-                        if (
-                          Object.entries(creatingApplicationMap).length === 0 ||
-                          (creatingApplicationMap &&
-                            !creatingApplicationMap[organization.id])
-                        ) {
-                          createNewApplication(
-                            getNextEntityName(
-                              "Untitled application ",
-                              applications.map((el: any) => el.name),
-                            ),
-                            organization.id,
-                          );
-                        }
-                      }}
-                    >
-                      {creatingApplicationMap &&
-                      creatingApplicationMap[organization.id] ? (
-                        <Spinner size={IconSize.XXXL} />
-                      ) : (
-                        <>
-                          <Icon
-                            className="t--create-app-popup"
-                            name={"plus"}
-                            size={IconSize.LARGE}
-                          />
-                          <CreateNewLabel
-                            className="createnew"
-                            type={TextType.H4}
-                          >
-                            Create New
-                          </CreateNewLabel>
-                        </>
-                      )}
-                    </ApplicationAddCardWrapper>
-                  </PaddingWrapper>
-                )} */}
               {applications.map((application: any) => {
                 return (
                   <PaddingWrapper key={application.id}>
@@ -926,7 +989,6 @@ class Applications extends Component<
   public render() {
     return (
       <PageWrapper displayName="Applications">
-        <ProductUpdatesModal />
         <LeftPane />
         <SubHeader
           search={{

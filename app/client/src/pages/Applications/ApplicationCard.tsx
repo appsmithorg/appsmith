@@ -76,6 +76,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
         align-items: center;
 
         .overlay {
+          position: relative;
           ${props.hasReadPermission &&
             `text-decoration: none;
              &:after {
@@ -87,18 +88,49 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 width: 100%;
               }
               & .control {
-                display: block;
+                display: flex;
+                flex-direction: row;
                 z-index: 1;
+
+                & .t--application-view-link {
+                  border: none;
+                  background-color: #000;
+                  color: #fff;
+                }
+
+                & .t--application-edit-link, & .t--application-view-link {
+                  span {
+                    margin-right: 2px;
+
+                    svg {
+                      width: 16px;
+                      height: 16px;
+                      path {
+                        fill: #fff;
+                      }
+                    }
+                  }
+                }
               }`}
 
-          & div.image-container {
-            background: ${
+          & div.overlay-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: ${
               props.hasReadPermission && !props.isMenuOpen
-                ? getColorWithOpacity(
-                    props.theme.colors.card.hoverBG,
-                    props.theme.colors.card.hoverBGOpacity,
-                  )
+                ? `rgba(255, 255, 255, 0.5)`
                 : null
+            };
+            @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+              background-color: transparent;
+              backdrop-filter: ${
+                props.hasReadPermission && !props.isMenuOpen
+                  ? `blur(6px)`
+                  : null
+              };
             }
           }
         }
@@ -168,6 +200,11 @@ const Control = styled.div<{ fixed?: boolean }>`
   outline: none;
   border: none;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
 
   .${Classes.BUTTON} {
     margin-top: 7px;
@@ -228,7 +265,7 @@ type ApplicationCardProps = {
 };
 
 const EditButton = styled(Button)`
-  margin-bottom: 8px;
+  margin-bottom: 0;
 `;
 
 const ContextDropdownWrapper = styled.div`
@@ -579,8 +616,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
             appNameText
           )}
         </AppNameWrapper>
-        {true && (
+        {showOverlay && (
           <div className="overlay">
+            <div className="overlay-blur" />
             <ApplicationImage className="image-container">
               <Control className="control">
                 {hasEditPermission && !isMenuOpen && (
@@ -601,7 +639,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     href={viewApplicationURL}
                     icon={"rocket"}
                     size={Size.medium}
-                    text="LAUNCH"
+                    text="Launch"
                   />
                 )}
               </Control>
