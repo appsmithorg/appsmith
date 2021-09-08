@@ -69,7 +69,8 @@ const SearchInput = forwardRef(
           inputElem[0].value = "";
         }
       }
-    }, []);
+      return props.onChange && props.onChange("");
+    }, [props]);
     return (
       <SearchInputWrapper ref={wrapperRef}>
         <TextInput

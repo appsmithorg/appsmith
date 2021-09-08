@@ -9,6 +9,7 @@ import {
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
+import * as _ from "lodash";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 
@@ -94,24 +95,28 @@ const StyledInput = styled((props) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
   // delete none input dom props
-  delete inputProps.isValid;
-  delete inputProps.fill;
-  delete inputProps.leftIcon;
-  delete inputProps.helperText;
-  delete inputProps.hasLeftIcon;
-  delete inputProps.rightSideComponent;
-  delete inputProps.rightSideComponentWidth;
-  delete inputProps.validator;
-  delete inputProps.noBorder;
-  delete inputProps.isLoading;
+  const omitProps = [
+    "fill",
+    "isValid",
+    "leftIcon",
+    "helperText",
+    "hasLeftIcon",
+    "rightSideComponent",
+    "rightSideComponentWidth",
+    "validator",
+    "noBorder",
+    "isLoading",
+    "cypressSelector",
+  ];
+
   return props.asyncControl ? (
     <AsyncControllableInput
-      {...inputProps}
-      dataType={dataType}
+      {..._.omit(inputProps, omitProps)}
+      datatype={dataType}
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {
@@ -152,7 +157,7 @@ const StyledInput = styled((props) => {
 const InputWrapper = styled.div<{
   value?: string;
   isFocused: boolean;
-  fill?: boolean;
+  fill?: number;
   noBorder?: boolean;
   height?: string;
   width?: string;
