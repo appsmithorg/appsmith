@@ -5,6 +5,7 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { AppsmithPromise } from "./Actions";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
@@ -106,7 +107,23 @@ describe("evaluate", () => {
   it("gets triggers from a function", () => {
     const js = "showAlert('message', 'info')";
     const response = evaluate(js, dataTree, {}, undefined, true);
-    expect(response.result).toBe(undefined);
+    //this will be changed again in new implemenation for promises
+    const data = {
+      action: {
+        payload: {
+          executor: [
+            {
+              payload: { message: "message", style: "info" },
+              type: "SHOW_ALERT",
+            },
+          ],
+          then: [],
+        },
+        type: "PROMISE",
+      },
+      triggerReference: 0,
+    };
+    expect(response.result).toEqual(data);
     expect(response.triggers).toStrictEqual([
       {
         type: "PROMISE",
