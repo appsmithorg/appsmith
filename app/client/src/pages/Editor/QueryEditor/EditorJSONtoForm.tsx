@@ -99,7 +99,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
@@ -224,7 +224,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 20px;
   flex: 0;
 `;

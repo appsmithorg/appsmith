@@ -1,6 +1,7 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { JSCollection } from "entities/JSCollection";
 
 const isVisible = {
   "!type": "bool",
@@ -412,4 +413,24 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
+};
+
+export const getPropsForJSActionEntity = (
+  entity: JSCollection,
+): Record<string, string> => {
+  const properties: Record<string, string> = {};
+  const actions = entity.actions;
+  if (actions && actions.length > 0)
+    for (let i = 0; i < entity.actions.length; i++) {
+      const action = entity.actions[i];
+      properties[action.name + "()"] = "Function";
+    }
+  const variablesProps = entity.variables;
+  if (variablesProps && variablesProps.length > 0) {
+    for (let i = 0; i < variablesProps.length; i++) {
+      const variableProp = variablesProps[i];
+      properties[variableProp.name] = variableProp.value;
+    }
+  }
+  return properties;
 };
