@@ -54,7 +54,6 @@ import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { initSocketConnection } from "actions/websocketActions";
-import { ThemeMode } from "selectors/themeSelectors";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -120,12 +119,6 @@ export function* getCurrentUserSaga() {
         payload: response.data,
       });
       if (response.data.emptyInstance) {
-        // NOTE: Forcing user to be on light since we're deprecating dark mode.
-        // TODO(Balaji): Remove following once we remove dark mode.
-        yield put({
-          type: ReduxActionTypes.SET_THEME,
-          payload: ThemeMode.LIGHT,
-        });
         history.replace(SETUP);
       } else if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
