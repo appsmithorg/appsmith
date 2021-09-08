@@ -16,7 +16,6 @@ export interface UpdateJSObjectNameRequest {
   layoutId: string;
   newName: string;
   oldName: string;
-  actionId?: string;
 }
 class JSActionAPI extends API {
   static url = "v1/collections/actions";

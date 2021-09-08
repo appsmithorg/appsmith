@@ -68,10 +68,10 @@ export const getDifferenceInJSCollection = (
             js.id === updateExisting.id;
           });
           //will be part of new nameChangedActions for now
-          // toBeupdatedActions.push({
-          //   ...updateExisting,
-          //   name: newActions[i].name,
-          // });
+          toBeupdatedActions.push({
+            ...updateExisting,
+            name: newActions[i].name,
+          });
           nameChangedActions.push({
             id: updateExisting.id,
             collectionId: updateExisting.collectionId,

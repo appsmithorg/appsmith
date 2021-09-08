@@ -61,7 +61,7 @@ export const refactorJSCollectionAction = (payload: {
   newName: string;
 }) => {
   return {
-    type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_INIT,
+    type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
     payload,
   };
 };

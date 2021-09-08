@@ -345,25 +345,6 @@ const jsActionsReducer = createReducer(initialState, {
       }
       return a;
     }),
-  [ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<{
-      actionId: string;
-      collectionId: string;
-      name: string;
-    }>,
-  ): JSCollectionDataState =>
-    state.map((a) => {
-      if (a.config.id === action.payload.collectionId) {
-        a.config.actions.map((js) => {
-          if (js.id === action.payload.actionId) {
-            return { ...js, name: action.payload.name };
-          }
-          return js;
-        });
-      }
-      return a;
-    }),
 });
 
 export default jsActionsReducer;
