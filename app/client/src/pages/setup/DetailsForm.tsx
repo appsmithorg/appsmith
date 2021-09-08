@@ -83,7 +83,7 @@ export default function DetailsForm(
         <FormHeaderLabel>Let us get to know you better!</FormHeaderLabel>
       </FormHeaderWrapper>
       <StyledFormBodyWrapper>
-        <StyledFormGroup label={createMessage(() => "FULL NAME")}>
+        <StyledFormGroup label={createMessage(() => "Full Name")}>
           <FormTextField
             autoFocus
             name="name"
@@ -91,28 +91,28 @@ export default function DetailsForm(
             type="text"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "EMAIL ID")}>
+        <StyledFormGroup label={createMessage(() => "Email Id")}>
           <FormTextField
             name="email"
             placeholder="How can we reach you?"
             type="email"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "CREATE PASSWORD")}>
+        <StyledFormGroup label={createMessage(() => "Create Password")}>
           <FormTextField
             name="password"
             placeholder="Make it strong!"
             type="password"
           />
         </StyledFormGroup>
-        <StyledFormGroup label={createMessage(() => "VERIFY PASSWORD")}>
+        <StyledFormGroup label={createMessage(() => "Verify Password")}>
           <FormTextField
             name="verifyPassword"
             placeholder="Type correctly"
             type="password"
           />
         </StyledFormGroup>
-        <DropdownWrapper label={createMessage(() => "WHAT ROLE DO YOU PLAY?")}>
+        <DropdownWrapper label={createMessage(() => "What Role Do You Play?")}>
           <Field
             asyncControl
             component={withDropdown(roleOptions)}
@@ -122,12 +122,12 @@ export default function DetailsForm(
           />
         </DropdownWrapper>
         {props.role == "other" && (
-          <StyledFormGroup label={createMessage(() => "ROLE")}>
+          <StyledFormGroup label={createMessage(() => "Role")}>
             <FormTextField name="role_name" placeholder="" type="text" />
           </StyledFormGroup>
         )}
         <DropdownWrapper
-          label={createMessage(() => "TELL US ABOUT YOUR USE CASE")}
+          label={createMessage(() => "Tell Us About Your Use Case")}
         >
           <Field
             asyncControl
