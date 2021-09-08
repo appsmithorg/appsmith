@@ -831,6 +831,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
+
+  if (currentDSL.version === 32) {
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
   return currentDSL;
 };
 

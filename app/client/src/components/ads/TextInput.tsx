@@ -201,6 +201,7 @@ const TextInput = forwardRef(
       if (props.defaultValue && props.validator) {
         validationObj = props.validator(props.defaultValue);
       }
+      // return { isValid: false, message: "Error Message" };
       return validationObj;
     };
 
