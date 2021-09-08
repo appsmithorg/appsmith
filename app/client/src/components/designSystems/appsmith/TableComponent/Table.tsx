@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import { reduce } from "lodash";
 import {
   useTable,
@@ -85,6 +85,25 @@ interface TableProps {
   delimiter: string;
 }
 
+interface HeaderProps extends TableProps {
+  tableSizes: TableSizes;
+  currentPageIndex: number;
+  pageCount: number;
+  pageOptions: number[];
+  columnString: string;
+}
+
+interface TableHeaderProps extends TableProps {
+  prepareRow: (row: Row<Record<string, unknown>>) => void;
+  subPage: Row<Record<string, unknown>>[];
+  isResizingColumn: boolean;
+  handleAllRowSelectClick: (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => void;
+  headerGroups: HeaderGroup<Record<string, unknown>>[];
+  rowSelectionState: 0 | 1 | 2 | null;
+}
+
 const defaultColumn = {
   minWidth: 30,
   width: 150,
@@ -98,15 +117,8 @@ function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
 }
 
-function Header(
-  props: TableProps & {
-    tableSizes: TableSizes;
-    currentPageIndex: number;
-    pageCount: number;
-    pageOptions: number[];
-    columnString: string;
-  },
-) {
+//renders table widget pagination, search, download and filters
+function Header(props: HeaderProps) {
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();
   const tableHeadercolumns = React.useMemo(
     () =>
@@ -115,6 +127,12 @@ function Header(
       }),
     [props.columnString],
   );
+  const scrollbarStyle = React.useMemo(() => {
+    return {
+      width: props.width,
+      height: 38,
+    };
+  }, [props.width]);
   return (
     <TableHeaderWrapper
       backgroundColor={Colors.WHITE}
@@ -126,7 +144,7 @@ function Header(
       <Scrollbars
         renderThumbHorizontal={ScrollbarHorizontalThumb}
         renderThumbVertical={ScrollbarVerticalThumb}
-        style={{ width: props.width, height: 38 }}
+        style={scrollbarStyle}
       >
         <TableHeaderInnerWrapper
           backgroundColor={Colors.WHITE}
@@ -167,18 +185,8 @@ function Header(
   );
 }
 
-function TableHead(
-  props: TableProps & {
-    prepareRow: (row: Row<Record<string, unknown>>) => void;
-    subPage: Row<Record<string, unknown>>[];
-    isResizingColumn: boolean;
-    handleAllRowSelectClick: (
-      e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    ) => void;
-    headerGroups: HeaderGroup<Record<string, unknown>>[];
-    rowSelectionState: 0 | 1 | 2 | null;
-  },
-) {
+//render table header columns
+function TableHead(props: TableHeaderProps) {
   const {
     handleAllRowSelectClick,
     headerGroups,
@@ -235,6 +243,10 @@ function TableHead(
   );
 }
 
+/**
+ * Create an intersection observer that with a root element and callback function
+ * callback get triggered whenever the observed element intersects with root element
+ **/
 const createIntersectionObserver = (
   elementRef: React.MutableRefObject<HTMLDivElement | null>,
   callback: () => void,
@@ -383,16 +395,20 @@ export function Table(props: TableProps) {
       const isRowSelected =
         row.index === selectedRowIndex ||
         selectedRowIndices.includes(row.index);
+
+      const handleRowClick = (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+      ) => {
+        row.toggleRowSelected();
+        props.selectTableRow(row);
+        e.stopPropagation();
+      };
       return (
         <div
           {...rowProps}
           className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
           key={index}
-          onClick={(e) => {
-            row.toggleRowSelected();
-            props.selectTableRow(row);
-            e.stopPropagation();
-          }}
+          onClick={handleRowClick}
         >
           {props.multiRowSelection && renderCheckBoxCell(isRowSelected)}
           {row.cells.map((cell, cellIndex) => {

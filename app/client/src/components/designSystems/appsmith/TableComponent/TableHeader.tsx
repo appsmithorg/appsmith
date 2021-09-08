@@ -93,6 +93,67 @@ function PageNumberInput(props: {
   );
 }
 
+function NextPageBtn(props: {
+  currentPageIndex: number;
+  pageCount: number;
+  disabled: boolean;
+  onClick?: () => void;
+  updatePageNo?: (pageNo: number, event?: EventType) => void;
+}) {
+  const handleClick = useCallback(() => {
+    if (props.onClick) {
+      props.onClick();
+    } else {
+      const pageNo =
+        props.currentPageIndex < props.pageCount - 1
+          ? props.currentPageIndex + 1
+          : 0;
+      props.updatePageNo &&
+        props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
+    }
+  }, [
+    props.onClick,
+    props.updatePageNo,
+    props.currentPageIndex,
+    props.pageCount,
+  ]);
+  return (
+    <PaginationItemWrapper
+      className="t--table-widget-next-page"
+      disabled={props.disabled}
+      onClick={handleClick}
+    >
+      <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
+    </PaginationItemWrapper>
+  );
+}
+
+function PrevPageBtn(props: {
+  currentPageIndex: number;
+  updatePageNo?: (pageNo: number, event?: EventType) => void;
+  onClick?: () => void;
+}) {
+  const handleClick = useCallback(() => {
+    if (props.onClick) {
+      props.onClick();
+    } else {
+      const pageNo =
+        props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+      props.updatePageNo &&
+        props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
+    }
+  }, [props.onClick, props.updatePageNo, props.currentPageIndex]);
+  return (
+    <PaginationItemWrapper
+      className="t--table-widget-prev-page"
+      disabled={props.currentPageIndex === 0}
+      onClick={handleClick}
+    >
+      <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
+    </PaginationItemWrapper>
+  );
+}
+
 interface TableHeaderProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
@@ -158,34 +219,22 @@ function TableHeader(props: TableHeaderProps) {
         !props.infiniteScroll &&
         props.serverSidePaginationEnabled && (
           <PaginationWrapper>
-            <PaginationItemWrapper
-              className="t--table-widget-prev-page"
-              disabled={props.pageNo === 0}
-              onClick={() => {
-                props.prevPageClick();
-              }}
-            >
-              <Icon color={Colors.HIT_GRAY} icon="chevron-left" iconSize={16} />
-            </PaginationItemWrapper>
+            <PrevPageBtn
+              currentPageIndex={props.pageNo}
+              onClick={props.prevPageClick}
+            />
             <PaginationItemWrapper className="page-item" selected>
               {props.pageNo + 1}
             </PaginationItemWrapper>
-            <PaginationItemWrapper
-              className="t--table-widget-next-page"
+            <NextPageBtn
+              currentPageIndex={props.pageNo}
               disabled={
                 !!props.totalRecordsCount &&
                 props.pageNo === props.pageCount - 1
               }
-              onClick={() => {
-                props.nextPageClick();
-              }}
-            >
-              <Icon
-                color={Colors.HIT_GRAY}
-                icon="chevron-right"
-                iconSize={16}
-              />
-            </PaginationItemWrapper>
+              onClick={props.nextPageClick}
+              pageCount={props.pageCount}
+            />
           </PaginationWrapper>
         )}
       {props.isVisiblePagination &&
@@ -195,17 +244,10 @@ function TableHeader(props: TableHeaderProps) {
             <RowWrapper className="show-page-items">
               {props.tableData?.length} Records
             </RowWrapper>
-            <PaginationItemWrapper
-              className="t--table-widget-prev-page"
-              disabled={props.currentPageIndex === 0}
-              onClick={() => {
-                const pageNo =
-                  props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
-                props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
-              }}
-            >
-              <Icon color={Colors.GRAY} icon="chevron-left" iconSize={16} />
-            </PaginationItemWrapper>
+            <PrevPageBtn
+              currentPageIndex={props.currentPageIndex}
+              updatePageNo={props.updatePageNo}
+            />
             <RowWrapper>
               Page{" "}
               <PageNumberInput
@@ -216,19 +258,12 @@ function TableHeader(props: TableHeaderProps) {
               />{" "}
               of {props.pageCount}
             </RowWrapper>
-            <PaginationItemWrapper
-              className="t--table-widget-next-page"
+            <NextPageBtn
+              currentPageIndex={props.currentPageIndex}
               disabled={props.currentPageIndex === props.pageCount - 1}
-              onClick={() => {
-                const pageNo =
-                  props.currentPageIndex < props.pageCount - 1
-                    ? props.currentPageIndex + 1
-                    : 0;
-                props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
-              }}
-            >
-              <Icon color={Colors.GRAY} icon="chevron-right" iconSize={16} />
-            </PaginationItemWrapper>
+              pageCount={props.pageCount}
+              updatePageNo={props.updatePageNo}
+            />
           </PaginationWrapper>
         )}
     </>

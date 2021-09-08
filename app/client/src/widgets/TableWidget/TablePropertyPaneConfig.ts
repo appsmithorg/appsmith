@@ -1206,7 +1206,7 @@ export default [
       },
       {
         helpText:
-          "Allow table to have infinite scroll, bind the Table.pageNo property in your API and call it onPageChange",
+          "Allow Table to scroll infinitely. Scrolling to a different page will trigger onPageChange and update the pageNo property.",
         propertyName: "infiniteScroll",
         label: "Infinite Scroll",
         controlType: "SWITCH",
