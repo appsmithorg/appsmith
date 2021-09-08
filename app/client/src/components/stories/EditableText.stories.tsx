@@ -1,17 +1,23 @@
-import React, { useState } from "react";
-import { boolean, select, text, withKnobs } from "@storybook/addon-knobs";
+import React from "react";
 import { withDesign } from "storybook-addon-designs";
 import EditableText, {
   EditInteractionKind,
+  EditableTextProps,
   SavingState,
 } from "components/ads/EditableText";
 import { action } from "@storybook/addon-actions";
-import { StoryWrapper } from "components/ads/common";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "EditableText",
+  title: storyName.platform.form.editableText.PATH,
   component: EditableText,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
 const errorFunction = (name: string) => {
@@ -22,35 +28,42 @@ const errorFunction = (name: string) => {
   }
 };
 
-export function EditableTextStory() {
-  const [savingState, SetSavingState] = useState<SavingState>(
-    SavingState.NOT_STARTED,
-  );
-
+export function Primary(args: EditableTextProps) {
   return (
-    <StoryWrapper>
-      <EditableText
-        defaultValue={text("defaultValue", "Product design app")}
-        editInteractionKind={select(
-          "editInteractionKind",
-          Object.values(EditInteractionKind),
-          EditInteractionKind.SINGLE,
-        )}
-        fill={boolean("fill", false)}
-        hideEditIcon={boolean("hideEditIcon", false)}
-        isEditingDefault={boolean("isEditingDefault", false)}
-        isInvalid={(name) => errorFunction(name)}
-        onBlur={() => {
-          SetSavingState(SavingState.STARTED);
-          setTimeout(() => {
-            SetSavingState(SavingState.SUCCESS);
-          }, 2000);
-        }}
-        onTextChanged={action("text-changed")}
-        placeholder={text("placeholder", "Edit input")}
-        savingState={savingState}
-        valueTransform={(value) => value.toUpperCase()}
-      />
-    </StoryWrapper>
+    <EditableText
+      {...args}
+      isInvalid={(name) => errorFunction(name)}
+      onBlur={action("blured-on-text")}
+      onTextChanged={action("text-changed")}
+    />
   );
 }
+
+Primary.args = {
+  defaultValue: "Product design app",
+  editInteractionKind: EditInteractionKind.SINGLE,
+  savingState: SavingState.NOT_STARTED,
+  placeholder: "Edit input",
+  isEditingDefault: false,
+  forceDefault: false,
+  updating: false,
+  hideEditIcon: false,
+  fill: false,
+  underline: false,
+  isError: false,
+  valueTransform: (value: string) => value.toUpperCase(),
+};
+
+Primary.argTypes = {
+  fill: { control: controlType.BOOLEAN },
+  defaultValue: { control: controlType.TEXT },
+  editInteractionKind: {
+    control: controlType.SELECT,
+    options: Object.values(EditInteractionKind),
+  },
+  hideEditIcon: { control: controlType.BOOLEAN },
+  isEditingDefault: { control: controlType.BOOLEAN },
+  placeholder: { control: controlType.TEXT },
+};
+
+Primary.storyName = storyName.platform.form.editableText.NAME;

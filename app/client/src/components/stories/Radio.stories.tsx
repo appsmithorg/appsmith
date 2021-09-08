@@ -1,52 +1,65 @@
 import React from "react";
-import { withKnobs, select, boolean, number } from "@storybook/addon-knobs";
 import { withDesign } from "storybook-addon-designs";
-import { StoryWrapper } from "components/ads/common";
-import RadioComponent from "components/ads/Radio";
+import RadioComponent, { RadioProps } from "components/ads/Radio";
 import { action } from "@storybook/addon-actions";
+import { storyName } from "./config/constants";
+import { controlType, statusType } from "./config/types";
 
 export default {
-  title: "Radio",
+  title: storyName.platform.form.radio.PATH,
   component: RadioComponent,
-  decorators: [withKnobs, withDesign],
+  decorators: [withDesign],
+  parameters: {
+    status: {
+      type: statusType.STABLE,
+    },
+  },
 };
 
-export function Radio() {
+export function Radio(args: RadioProps) {
   return (
-    <StoryWrapper>
-      <div style={{ height: "133px" }}>
-        <RadioComponent
-          columns={number("Column number", 2)}
-          defaultValue={select(
-            "defaultValue",
-            ["React", "Angular", "Vue"],
-            "React",
-          )}
-          disabled={boolean("Radio group disabled", false)}
-          onSelect={action("selected-radio-option")}
-          options={[
-            {
-              label: "React",
-              value: "React",
-              onSelect: action("first-radio-option"),
-              disabled: boolean("Option-1-disabled", false),
-            },
-            {
-              label: "Angular",
-              value: "Angular",
-              onSelect: action("second-radio-option"),
-              disabled: boolean("Option-2-disabled", false),
-            },
-            {
-              label: "Vue",
-              value: "Vue",
-              onSelect: action("third-radio-option"),
-              disabled: boolean("Option-3-disabled", false),
-            },
-          ]}
-          rows={number("Row number", 2)}
-        />
-      </div>
-    </StoryWrapper>
+    <div style={{ height: "133px" }}>
+      <RadioComponent {...args} />
+    </div>
   );
 }
+
+Radio.args = {
+  columns: 3,
+  defaultValue: "React",
+  disabled: false,
+  onSelect: action("selected-radio-option"),
+  options: [
+    {
+      label: "React",
+      value: "React",
+      onSelect: action("first-radio-option"),
+      disabled: false,
+    },
+    {
+      label: "Angular",
+      value: "Angular",
+      onSelect: action("second-radio-option"),
+      disabled: false,
+    },
+    {
+      label: "Vue",
+      value: "Vue",
+      onSelect: action("third-radio-option"),
+      disabled: false,
+    },
+  ],
+  rows: 3,
+};
+
+Radio.argTypes = {
+  columns: { control: controlType.NUMBER },
+  defaultValue: {
+    control: controlType.SELECT,
+    options: ["React", "Angular", "Vue"],
+  },
+  disabled: { control: controlType.BOOLEAN },
+  rows: { control: controlType.NUMBER },
+};
+
+Radio.storyName = storyName.platform.form.radio.NAME;
