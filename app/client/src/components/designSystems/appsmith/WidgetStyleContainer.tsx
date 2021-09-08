@@ -60,6 +60,7 @@ const getBoxShadow = ({
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   height: 100%;
   width: 100%;
+  overflow: hidden;
   border-radius: ${(props) => props.borderRadius}px;
   box-shadow: ${(props) => getBoxShadow(props)} !important;
   & > div {
