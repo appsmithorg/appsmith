@@ -12834,6 +12834,13 @@ matchmediaquery@^0.3.0:
   dependencies:
     css-mediaquery "^0.1.2"
 
+<<<<<<< HEAD
+=======
+material-colors@^1.2.1:
+  version "1.2.6"
+  resolved "https://registry.npmjs.org/material-colors/-/material-colors-1.2.6.tgz"
+
+>>>>>>> 97450a0b84b145ccf38758bc8032909186ea4060
 math-log2@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/math-log2/-/math-log2-1.0.1.tgz"
