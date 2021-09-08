@@ -74,6 +74,7 @@ public class GitExecutorImpl implements GitExecutor {
         gitLogs.forEach(revCommit -> {
             PersonIdent author = revCommit.getAuthorIdent();
             GitLogDTO gitLog = new GitLogDTO(
+                revCommit.getName(),
                 author.getName(),
                 author.getEmailAddress(),
                 revCommit.getFullMessage(),
