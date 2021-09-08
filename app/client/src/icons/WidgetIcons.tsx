@@ -31,6 +31,7 @@ import { ReactComponent as MenuButtonIcon } from "assets/icons/widget/menu-butto
 import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-button.svg";
 import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
+import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
 
 /* eslint-disable react/display-name */
 
@@ -195,6 +196,11 @@ export const WidgetIcons: {
   CHECKBOX_GROUP_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <CheckboxGroupIcon />
+    </IconWrapper>
+  ),
+  AUDIO_RECORDER_WIDGET: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <AudioRecorderIcon />
     </IconWrapper>
   ),
 };

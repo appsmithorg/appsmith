@@ -155,6 +155,10 @@ export const HelpMap = {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",
   },
+  AUDIO_RECORDER_WIDGET: {
+    path: "/widget-reference/audio-recorder",
+    searchKey: "Audio Recorder",
+  },
 };
 
 export const HelpBaseURL = "https://docs.appsmith.com";

@@ -141,6 +141,10 @@ import AudioWidget, {
   AudioWidgetProps,
   ProfiledAudioWidget,
 } from "widgets/AudioWidget";
+import AudioRecorderWidget, {
+  AudioRecorderWidgetProps,
+  ProfiledAudioRecorderWidget,
+} from "widgets/AudioRecorderWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -623,6 +627,19 @@ export default class WidgetBuilderRegistry {
       CheckboxGroupWidget.getDefaultPropertiesMap(),
       CheckboxGroupWidget.getMetaPropertiesMap(),
       CheckboxGroupWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.AUDIO_RECORDER_WIDGET,
+      {
+        buildWidget(widgetData: AudioRecorderWidgetProps): JSX.Element {
+          return <ProfiledAudioRecorderWidget {...widgetData} />;
+        },
+      },
+      AudioRecorderWidget.getDerivedPropertiesMap(),
+      AudioRecorderWidget.getDefaultPropertiesMap(),
+      AudioRecorderWidget.getMetaPropertiesMap(),
+      AudioRecorderWidget.getPropertyPaneConfig(),
     );
   }
 }

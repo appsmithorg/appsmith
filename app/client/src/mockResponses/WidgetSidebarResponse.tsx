@@ -149,6 +149,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     widgetCardName: "Checkbox Group",
     key: generateReactKey(),
   },
+  {
+    type: "AUDIO_RECORDER_WIDGET",
+    widgetCardName: "Audio Recorder",
+    key: generateReactKey(),
+  },
 ];
 
 export default WidgetSidebarResponse;
