@@ -3,29 +3,16 @@ import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon, SeverityIconColor } from "./helpers";
-import { useDispatch } from "react-redux";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "actions/globalSearchActions";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import TooltipComponent from "components/ads/Tooltip";
-import {
-  createMessage,
-  DEBUGGER_INTERCOM_TEXT,
-  TROUBLESHOOT_ISSUE,
-} from "constants/messages";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { getAppsmithConfigs } from "configs";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-const { intercomAppID } = getAppsmithConfigs();
+import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import ContextualMenu from "./ContextualMenu";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -196,56 +183,21 @@ function LogItem(props: LogItemProps) {
     collapsed: 1,
   };
   const showToggleIcon = props.state || props.messages;
-  const dispatch = useDispatch();
+  // The error to sent to the contextual menu
+  const errorToSearch =
+    props.messages && props.messages.length
+      ? props.messages[0]
+      : { message: props.text };
 
-  const onLogClick = useCallback((e, error?: Message) => {
-    e.stopPropagation();
-
-    // If the error message was clicked we use that, else if the wand icon is clicked
-    // we use the first error "Message" in the list
-    // This is of type Message { message: string; type?: ErrorType; }
-    const focusedError =
-      error ||
-      (props.messages && props.messages.length ? props.messages[0] : undefined);
-    const text = focusedError?.message || props.text;
-
-    switch (focusedError?.type) {
-      case PropertyEvaluationErrorType.PARSE:
-      case PropertyEvaluationErrorType.LINT:
-        // Search google for the error message
-        window.open("http://google.com/search?q=" + text);
-        break;
-      case PropertyEvaluationErrorType.VALIDATION:
-        // Search through the omnibar
-        AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-          source: "DEBUGGER",
-          searchTerm: text,
-          errorType: PropertyEvaluationErrorType.VALIDATION,
-        });
-        dispatch(setGlobalSearchQuery(text || ""));
-        dispatch(
-          toggleShowGlobalSearchModal(
-            filterCategories[SEARCH_CATEGORY_ID.INIT],
-          ),
-        );
-        break;
-      default:
-        // Prefill the error in intercom
-        if (intercomAppID && window.Intercom) {
-          window.Intercom(
-            "showNewMessage",
-            createMessage(DEBUGGER_INTERCOM_TEXT, text),
-          );
-        }
-    }
-  }, []);
   const messages = props.messages || [];
 
   return (
     <Wrapper
       className={props.severity}
       collapsed={!isOpen}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => {
+        if (!isOpen) setIsOpen(true);
+      }}
     >
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
@@ -271,23 +223,25 @@ function LogItem(props: LogItemProps) {
           <span className="debugger-timetaken">{props.timeTaken}</span>
         )}
         {props.severity !== Severity.INFO && (
-          <TooltipComponent
-            content={
-              <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                {createMessage(TROUBLESHOOT_ISSUE)}
-              </Text>
-            }
-            minimal
-            position={Position.BOTTOM_LEFT}
-          >
-            <StyledSearchIcon
-              className={Classes.ICON}
-              fillColor={props.iconColor}
-              name={"wand"}
-              onClick={onLogClick}
-              size={IconSize.MEDIUM}
-            />
-          </TooltipComponent>
+          <ContextualMenu error={errorToSearch}>
+            <TooltipComponent
+              content={
+                <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                  {createMessage(TROUBLESHOOT_ISSUE)}
+                </Text>
+              }
+              hoverOpenDelay={1000}
+              minimal
+              position={Position.BOTTOM_LEFT}
+            >
+              <StyledSearchIcon
+                className={Classes.ICON}
+                fillColor={props.iconColor}
+                name={"wand"}
+                size={IconSize.MEDIUM}
+              />
+            </TooltipComponent>
+          </ContextualMenu>
         )}
 
         {showToggleIcon && (
@@ -295,14 +249,13 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <span
-                    className="debugger-message t--debugger-message"
-                    onClick={(event) => onLogClick(event, e)}
-                  >
-                    {isString(e.message)
-                      ? e.message
-                      : JSON.stringify(e.message)}
-                  </span>
+                  <ContextualMenu error={e}>
+                    <span className="debugger-message t--debugger-message">
+                      {isString(e.message)
+                        ? e.message
+                        : JSON.stringify(e.message)}
+                    </span>
+                  </ContextualMenu>
                 </MessageWrapper>
               );
             })}
