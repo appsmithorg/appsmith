@@ -675,7 +675,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
-    if (this.props.maxChars) {
+    if (this.props.inputType === "TEXT" && this.props.maxChars) {
+      // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
         this.props.defaultText &&
