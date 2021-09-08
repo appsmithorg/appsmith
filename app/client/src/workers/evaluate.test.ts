@@ -5,7 +5,6 @@ import {
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
 import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
-import { AppsmithPromise } from "./Actions";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
