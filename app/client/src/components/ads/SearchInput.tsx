@@ -56,10 +56,16 @@ const InputWrapper = styled.div<{
 }>`
   display: flex;
   align-items: center;
+  font-family: "SF Pro Text";
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[4]}px ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[6]}px;
-  width: ${(props) => (props.fill ? "100%" : "210px")};
+  width: ${(props) => (props.fill ? "100%" : "228px")};
+  height: 38px;
+  border: ${(props) =>
+    props.variant === SearchVariant.SEAMLESS
+      ? "0px"
+      : `1.2px solid ${props.theme.colors.searchInput.border}`};
   background-color: ${(props) =>
     props.variant === SearchVariant.SEAMLESS
       ? "transparent"
@@ -67,8 +73,11 @@ const InputWrapper = styled.div<{
   ${(props) =>
     props.variant === SearchVariant.BACKGROUND
       ? props.isFocused || props.value
-        ? `box-shadow: 0px 1px 0px ${props.theme.colors.info.main}`
-        : `box-shadow: 0px 1px 0px ${props.theme.colors.searchInput.border}`
+        ? `
+        box-shadow: 0px 0px 4px 4px rgba(203, 72, 16, 0.18);
+        border: 1px solid ${props.theme.colors.info.main};
+        `
+        : null
       : null}
 `;
 
@@ -86,6 +95,7 @@ const SearchIcon = styled.div<{
           props.isFocused || props.value
             ? props.theme.colors.searchInput.icon.focused
             : props.theme.colors.searchInput.icon.normal};
+        fill: transparent;
       }
     }
   }
@@ -115,10 +125,13 @@ const SearchInput = forwardRef(
       [props],
     );
 
+    const inputProps = { ...props };
+    delete inputProps.fill;
+    delete inputProps.defaultValue;
     return (
       <InputWrapper
         data-cy={props.cypressSelector}
-        fill={props.fill}
+        fill={props.fill ? 1 : 0}
         isFocused={isFocused}
         value={searchValue}
         variant={props.variant}
@@ -127,14 +140,15 @@ const SearchInput = forwardRef(
           <Icon name="search" size={IconSize.SMALL} />
         </SearchIcon>
         <StyledInput
+          {...inputProps}
           isFocused={isFocused}
-          ref={ref}
-          type="text"
-          {...props}
           onBlur={() => setIsFocused(false)}
           onChange={memoizedChangeHandler}
           onFocus={() => setIsFocused(true)}
           placeholder={props.placeholder ? props.placeholder : ""}
+          ref={ref}
+          type="text"
+          value={searchValue}
         />
         {searchValue && props.variant === SearchVariant.BACKGROUND ? (
           <CloseIcon>

@@ -2290,11 +2290,11 @@ export const light: ColorType = {
   searchInput: {
     placeholder: lightShades[6],
     text: lightShades[10],
-    border: lightShades[3],
-    bg: lightShades[1],
+    border: lightShades[13],
+    bg: lightShades[11],
     icon: {
-      focused: lightShades[7],
-      normal: lightShades[5],
+      focused: lightShades[10],
+      normal: lightShades[7],
     },
   },
   spinner: lightShades[6],
