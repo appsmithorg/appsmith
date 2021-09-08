@@ -567,8 +567,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                 // If this is a value node, today no manipulations are required. Copy as is to the writer node.
                 if (field.isValueNode()) {
                     commandWriterNode.put(fieldName, field);
-                } else if (field.isArray()) {
-                    // Only array field present is Options which stores all the command labels and fileNames for each label
+                } else if (field.isArray() && fieldName.equals(KEY_OPTIONS)) {
+                    // Only array field present is options which stores all the command labels and fileNames for each label
                     try {
                         // Read all the command declarations in an array node.
                         ArrayNode commandTemplatesFromFile = (ArrayNode) objectMapper.readTree(String.valueOf(field));
