@@ -34,7 +34,7 @@ describe("Tab widget test", function() {
     );
   });
   it("Tabs-Call-Api Validation", function() {
-    //creating an api and calling it from the onClickAction of the tabs widget.
+    //creating an api and calling it from the onSelectTabsAction of the tabs widget.
     // Creating the api
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("tabApi");
@@ -47,9 +47,9 @@ describe("Tab widget test", function() {
     cy.reload();
     cy.openPropertyPane("tabswidget");
 
-    // Adding the api in the onClickAction of the tabs widget.
+    // Adding the api in the onSelectTabsAction of the tabs widget.
     cy.addAPIFromLightningMenu("tabApi");
-    // Filling the messages for success/failure in the onClickAction of the tabs widget.
+    // Filling the messages for success/failure in the onSelectTabsAction of the tabs widget.
     cy.onClickActions("Success", "Error", "ontabselected");
 
     cy.PublishtheApp();
@@ -59,8 +59,8 @@ describe("Tab widget test", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Button-Call-Query Validation", function() {
-    //creating a query and calling it from the onClickAction of the tabs widget.
+  it("Tabs-Call-Query Validation", function() {
+    //creating a query and calling it from the onSelectTabsAction of the tabs widget.
     // Creating a mock query
     // cy.CreateMockQuery("Query1");
     let postgresDatasourceName;
@@ -93,9 +93,9 @@ describe("Tab widget test", function() {
     cy.reload();
     cy.openPropertyPane("tabswidget");
 
-    // Adding the query in the onClickAction of the tabs widget.
+    // Adding the query in the onSelectTabsAction of the tabs widget.
     cy.addQueryFromLightningMenu("Query1");
-    // Filling the messages for success/failure in the onClickAction of the tabs widget.
+    // Filling the messages for success/failure in the onSelectTabsAction of the tabs widget.
     cy.onClickActions("Success", "Error", "ontabselected");
 
     cy.PublishtheApp();
@@ -105,11 +105,38 @@ describe("Tab widget test", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Button-CallAnApi Validation", function() {
+  it("Toggle JS - Tabs-AlertModal Validation", function() {
     cy.openPropertyPane("tabswidget");
-    //creating an api and calling it from the onClickAction of the tabs widget.
+    //creating an api and calling it from the onSelectTabsAction of the tabs widget.
     // calling the existing api
     cy.get(Layoutpage.toggleOnTabSelected).click({ force: true });
+    cy.testJsontext("ontabselected", "{{showModal('Alert_Modal')}}");
+
+    cy.PublishtheApp();
+    cy.get(commonlocators.selectTab + ":first-child").click();
+    cy.get(modalWidgetPage.modelTextField).should(
+      "have.text",
+      this.data.AlertModalName,
+    );
+  });
+  it("Toggle JS - Tabs-FormModal Validation", function() {
+    cy.openPropertyPane("tabswidget");
+    //creating an api and calling it from the onSelectTabsAction of the tabs widget.
+    // calling the existing api
+    cy.testJsontext("ontabselected", "{{showModal('Form_Modal')}}");
+
+    cy.PublishtheApp();
+    cy.get(commonlocators.selectTab + ":first-child").click();
+    cy.get(modalWidgetPage.modelTextField).should(
+      "have.text",
+      this.data.FormModalName,
+    );
+  });
+
+  it("Toggle JS - Tabs-CallAnApi Validation", function() {
+    cy.openPropertyPane("tabswidget");
+    //creating an api and calling it from the onSelectTabsAction of the tabs widget.
+    // calling the existing api
     cy.testJsontext(
       "ontabselected",
       "{{tabApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
@@ -122,9 +149,9 @@ describe("Tab widget test", function() {
     cy.get(widgetsPage.apiCallToast).should("have.text", "Success");
   });
 
-  it("Toggle JS - Button-Call-Query Validation", function() {
+  it("Toggle JS - Tabs-Call-Query Validation", function() {
     cy.openPropertyPane("tabswidget");
-    //creating a query and calling it from the onClickAction of the tabs widget.
+    //creating a query and calling it from the onSelectTabsAction of the tabs widget.
     // Creating a mock query
     cy.testJsontext(
       "ontabselected",
