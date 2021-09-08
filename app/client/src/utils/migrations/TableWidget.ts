@@ -398,7 +398,7 @@ export const migrateTableSanitizeColumnKeys = (
         },
       );
     } else if (child.children && child.children.length > 0) {
-      child = migrateTablePrimaryColumnsComputedValue(child);
+      child = migrateTableSanitizeColumnKeys(child);
     }
 
     return child;
