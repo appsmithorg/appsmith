@@ -1,7 +1,7 @@
 {
   "identifier": "FIND",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'FIND_ONE'}}"
+    "show": "{{actionConfiguration.formData.command === 'FIND'}}"
   },
   "children": [
     {

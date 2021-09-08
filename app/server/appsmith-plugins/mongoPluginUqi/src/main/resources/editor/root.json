@@ -8,7 +8,7 @@
     "options": [
       {
         "label": "Fetch",
-        "fileName" : "fetch.json"
+        "fileName" : "find.json"
       },
       {
         "label": "Insert",
