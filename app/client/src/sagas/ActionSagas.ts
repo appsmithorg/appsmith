@@ -112,6 +112,7 @@ import {
   onQueryEditor,
 } from "components/editorComponents/Debugger/helpers";
 import { Plugin } from "api/PluginApi";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -785,27 +786,21 @@ function* buildMetaForSnippets(
       .pop();
     fieldMeta.fields = `${relevantField}<score=2>`;
   }
-  let currentEntity, type;
   if (entityType === ENTITY_TYPE.ACTION && entityId) {
-    currentEntity = yield select(getActionById, {
+    const currentEntity: Action = yield select(getActionById, {
       match: { params: { apiId: entityId } },
     });
-    const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "")
-      .toLowerCase()
-      .replace("-plugin", "")
-      .split("-")
-      .join(" ");
-    refinements.entities = [entityType.toLowerCase()].concat(type);
+    const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
+    const type: string = plugin.packageName || "";
+    refinements.entities = [entityType, type];
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
-    currentEntity = yield select(getWidgetById, entityId);
-    type = (currentEntity.type || "")
-      .replace("_WIDGET", "")
-      .toLowerCase()
-      .split("_")
-      .join("");
-    refinements.entities = [type];
+    const currentEntity: FlattenedWidgetProps = yield select(
+      getWidgetById,
+      entityId,
+    );
+    const type: string = currentEntity.type || "";
+    refinements.entities = [entityType, type];
   }
   return { refinements, fieldMeta };
 }
@@ -822,11 +817,11 @@ function* getCurrentEntity(
     onQueryEditor(applicationId, pageId)
   ) {
     const id = params.apiId || params.queryId;
-    const action = yield select(getAction, id);
-    entityId = action.actionId;
+    const action: Action = yield select(getAction, id);
+    entityId = action.id;
     entityType = ENTITY_TYPE.ACTION;
   } else {
-    const widget = yield select(getSelectedWidget);
+    const widget: FlattenedWidgetProps = yield select(getSelectedWidget);
     entityId = widget.widgetId;
     entityType = ENTITY_TYPE.WIDGET;
   }
@@ -840,8 +835,8 @@ function* executeCommand(
     args: any;
   }>,
 ) {
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
@@ -850,11 +845,10 @@ function* executeCommand(
       // Entity is derived using the dataTreePath property.
       // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
       if (!entityId) {
-        const currentEntity = yield getCurrentEntity(
-          applicationId,
-          pageId,
-          params,
-        );
+        const currentEntity: {
+          entityId: string;
+          entityType: string;
+        } = yield getCurrentEntity(applicationId, pageId, params);
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
