@@ -126,6 +126,12 @@
             <version>2.4.7</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>5.12.0.202106070339-r</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
