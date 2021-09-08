@@ -30,4 +30,11 @@ describe("Widget error state", function() {
       .should("be.visible")
       .should("have.length", 2);
   });
+
+  it("Clicking on a message should open the search menu", function() {
+    cy.get(debuggerLocators.errorMessage)
+      .first()
+      .click();
+    cy.get(debuggerLocators.menuItem).should("be.visible");
+  });
 });

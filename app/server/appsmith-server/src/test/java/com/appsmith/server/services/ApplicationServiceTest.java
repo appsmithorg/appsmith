@@ -1238,4 +1238,22 @@ public class ApplicationServiceTest {
                 .verifyComplete();
 
     }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void saveLastEditInformation_WhenUserHasPermission_Updated() {
+        Application testApplication = new Application();
+        testApplication.setName("SaveLastEditInformation TestApp");
+        testApplication.setModifiedBy("test-user");
+
+        Mono<Application> updatedApplication = applicationPageService.createApplication(testApplication, orgId)
+                .flatMap(application ->
+                    applicationService.saveLastEditInformation(application.getId())
+                );
+        StepVerifier.create(updatedApplication).assertNext(application -> {
+            assertThat(application.getLastUpdateTime()).isNotNull();
+            assertThat(application.getPolicies()).isNotNull().isNotEmpty();
+            assertThat(application.getModifiedBy()).isEqualTo("api_user");
+        }).verifyComplete();
+    }
 }

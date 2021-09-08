@@ -72,6 +72,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
     private final SessionUserService sessionUserService;
     private final ActionCollectionService actionCollectionService;
     private final CollectionService collectionService;
+    private final ApplicationService applicationService;
     private JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
@@ -760,7 +761,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                         }
                     }
                     page.setLayouts(layoutList);
-                    return newPageService.saveUnpublishedPage(page);
+                    return applicationService.saveLastEditInformation(page.getApplicationId())
+                            .then(newPageService.saveUnpublishedPage(page));
                 })
                 .flatMap(page -> {
                     List<Layout> layoutList = page.getLayouts();

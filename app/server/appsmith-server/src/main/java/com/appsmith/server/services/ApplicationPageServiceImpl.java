@@ -110,6 +110,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     final PageDTO savedPage = tuple.getT1();
                     final Application application = tuple.getT2();
                     return addPageToApplication(application, savedPage, false)
+                            .then(applicationService.saveLastEditInformation(application.getId()))
                             .thenReturn(savedPage);
                 });
     }
@@ -311,7 +312,10 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
 
         return newPageService.findById(pageId, MANAGE_PAGES)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
-                .flatMap(page -> clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"));
+                .flatMap(page ->
+                        applicationService.saveLastEditInformation(page.getApplicationId())
+                        .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy"))
+                );
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId,

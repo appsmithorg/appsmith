@@ -26,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +124,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
                     // Set policies to null in the update object
                     resource.setPolicies(null);
+                    resource.setUpdatedAt(Instant.now());
+                    resource.setModifiedBy(user.getUsername());
 
                     DBObject update = getDbObject(resource);
                     Update updateObj = new Update();
