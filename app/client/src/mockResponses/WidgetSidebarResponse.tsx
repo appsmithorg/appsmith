@@ -145,6 +145,11 @@ const WidgetSidebarResponse: WidgetCardProps[] = [
     key: generateReactKey(),
   },
   {
+    type: "AUDIO_RECORDER_WIDGET",
+    widgetCardName: "Audio Recorder",
+    key: generateReactKey(),
+  },
+  {
     type: "IMAGE_ANNOTATOR_WIDGET",
     widgetCardName: "Image Annotator",
     key: generateReactKey(),

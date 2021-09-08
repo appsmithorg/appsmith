@@ -334,6 +334,14 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/stat-box",
     isVisible: isVisible,
   },
+  AUDIO_RECORDER_WIDGET: {
+    "!doc":
+      "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
+    "!url": "https://docs.appsmith.com/widget-reference/recorder",
+    isVisible: isVisible,
+    value: "blob",
+    url: "string",
+  },
   IMAGE_ANNOTATOR_WIDGET: (widget: any) => ({
     "!doc":
       "Image annotator widget can be used to label objects inside images.",
