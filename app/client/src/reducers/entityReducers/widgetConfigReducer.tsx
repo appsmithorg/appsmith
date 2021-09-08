@@ -39,6 +39,7 @@ import { MenuButtonWidgetProps } from "widgets/MenuButtonWidget";
 import { IconButtonWidgetProps } from "widgets/IconButtonWidget";
 import { StatboxWidgetProps } from "widgets/StatboxWidget";
 import { CheckboxGroupWidgetProps } from "widgets/CheckboxGroupWidget";
+import { AudioRecorderWidgetProps } from "widgets/AudioRecorderWidget";
 
 const initialState: WidgetConfigReducerState = WidgetConfigResponse;
 
@@ -101,6 +102,8 @@ export interface WidgetConfigReducerState {
     ICON_BUTTON_WIDGET: Partial<IconButtonWidgetProps> & WidgetConfigProps;
     STATBOX_WIDGET: Partial<StatboxWidgetProps> & WidgetConfigProps;
     CHECKBOX_GROUP_WIDGET: Partial<CheckboxGroupWidgetProps> &
+      WidgetConfigProps;
+    AUDIO_RECORDER_WIDGET: Partial<AudioRecorderWidgetProps> &
       WidgetConfigProps;
   };
   configVersion: number;
