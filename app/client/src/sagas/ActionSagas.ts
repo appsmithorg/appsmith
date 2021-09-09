@@ -801,7 +801,6 @@ function* buildMetaForSnippets(
       getWidgetById,
       entityId,
     );
-    //Remove version info here
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
     fieldMeta.entities = type;
