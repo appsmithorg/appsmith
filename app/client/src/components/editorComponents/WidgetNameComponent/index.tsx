@@ -18,6 +18,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
+import { commentModeSelector } from "../../../selectors/commentsSelectors";
 
 const PositionStyle = styled.div<{ topRow: number; isSnipingMode: boolean }>`
   position: absolute;
@@ -54,6 +55,7 @@ type WidgetNameComponentProps = {
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   const dispatch = useDispatch();
+  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const showTableFilterPane = useShowTableFilterPane();
   // Dispatch hook handy to set a widget as focused/selected
@@ -129,6 +131,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     selectedWidgets.includes(props.widgetId);
   const shouldShowWidgetName = () => {
     return (
+      !isCommentMode &&
       !isMultiSelectedWidget &&
       (isSnipingMode
         ? focusedWidget === props.widgetId
