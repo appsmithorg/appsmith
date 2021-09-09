@@ -5,7 +5,7 @@ import Icon, { IconSize } from "./Icon";
 import { Colors } from "constants/Colors";
 import Text, { TextType } from "./Text";
 
-type CalloutProps = CommonComponentProps & {
+export type CalloutProps = CommonComponentProps & {
   variant?: Variant;
   fill?: boolean;
   closeButton?: boolean;

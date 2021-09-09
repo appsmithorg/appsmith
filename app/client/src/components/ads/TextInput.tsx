@@ -93,6 +93,8 @@ const StyledInput = styled((props) => {
   const { dataType, inputRef, ...inputProps } = props;
 
   const omitProps = [
+    "fill",
+    "hasLeftIcon",
     "inputStyle",
     "rightSideComponentWidth",
     "theme",
@@ -212,6 +214,7 @@ const TextInput = forwardRef(
       if (props.defaultValue && props.validator) {
         validationObj = props.validator(props.defaultValue);
       }
+      // return { isValid: false, message: "Error Message" };
       return validationObj;
     };
 

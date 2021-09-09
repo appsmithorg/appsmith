@@ -37,6 +37,7 @@
     "@types/react-instantsearch-dom": "^6.3.0",
     "@types/react-redux": "^7.0.1",
     "@types/react-router-dom": "^5.1.2",
+    "@types/react-syntax-highlighter": "^13.5.2",
     "@types/react-table": "^7.0.13",
     "@types/styled-components": "^5.1.3",
     "@types/tinycolor2": "^1.4.2",
@@ -124,11 +125,13 @@
     "react-player": "^2.3.1",
     "react-rating": "^2.0.5",
     "react-redux": "^7.2.4",
+    "react-responsive": "^9.0.0-beta.3",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "4.0.1",
     "react-select": "^3.0.8",
     "react-spring": "^8.0.27",
+    "react-syntax-highlighter": "^15.4.4",
     "react-table": "^7.0.0",
     "react-tabs": "^3.0.0",
     "react-timer-hook": "^3.0.4",
@@ -163,7 +166,7 @@
   },
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
+    "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com SKIP_PREFLIGHT_CHECK=true craco start",
     "build": "./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
@@ -174,16 +177,26 @@
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
-    "storybook": "start-storybook -p 9009 -s public",
-    "build-storybook": "build-storybook -s public",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "resolution": {
     "jest": "24.8.0"
   },
   "eslintConfig": {
     "extends": "react-app",
-    "parser": "@typescript-eslint/parser"
+    "parser": "@typescript-eslint/parser",
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
+    ]
   },
   "browserslist": [
     ">0.2%",
@@ -193,16 +206,14 @@
   ],
   "devDependencies": {
     "@babel/core": "^7.7.4",
-    "@storybook/addon-actions": "^5.3.19",
-    "@storybook/addon-backgrounds": "^5.3.19",
-    "@storybook/addon-contexts": "^5.3.19",
-    "@storybook/addon-docs": "^5.3.19",
-    "@storybook/addon-knobs": "^5.3.19",
-    "@storybook/addon-links": "^5.3.19",
-    "@storybook/addon-notes": "^5.3.19",
-    "@storybook/addons": "^5.3.19",
-    "@storybook/preset-create-react-app": "^3.1.4",
-    "@storybook/react": "^5.3.19",
+    "@etchteam/storybook-addon-status": "^4.0.0",
+    "@storybook/addon-actions": "^6.3.7",
+    "@storybook/addon-essentials": "^6.3.7",
+    "@storybook/addon-knobs": "^6.3.0",
+    "@storybook/addon-links": "^6.3.7",
+    "@storybook/node-logger": "^6.3.7",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.3.7",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^13.1.1",
@@ -263,7 +274,7 @@
     "redux-devtools": "^3.5.0",
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
-    "storybook-addon-designs": "^5.4.0",
+    "storybook-addon-designs": "^6.0.1",
     "ts-jest": "^26.5.4",
     "webpack-merge": "^4.2.2",
     "workbox-webpack-plugin": "^5.1.2"

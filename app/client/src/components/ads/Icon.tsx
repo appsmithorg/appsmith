@@ -59,6 +59,7 @@ import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
 import ContextMenu from "remixicon-react/MoreFillIcon";
 import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
 import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
@@ -80,6 +81,8 @@ import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dott
 import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
 import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
 import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
+import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
+import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 
 import styled from "styled-components";
@@ -202,6 +205,7 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "context-menu",
   "trash",
+  "trash-outline",
   "link-2",
   "close-x",
   "comment-context-menu",
@@ -223,6 +227,8 @@ export const IconCollection = [
   "column",
   "guide",
   "discord",
+  "gear",
+  "user-2",
   "support",
 ] as const;
 
@@ -485,6 +491,10 @@ const Icon = forwardRef(
         returnIcon = <Trash />;
         break;
 
+      case "trash-outline":
+        returnIcon = <TrashOutline />;
+        break;
+
       case "comment-context-menu":
         returnIcon = <CommentContextMenu />;
         break;
@@ -559,6 +569,14 @@ const Icon = forwardRef(
 
       case "discord":
         returnIcon = <DiscordIcon />;
+        break;
+
+      case "user-2":
+        returnIcon = <UserV2Icon />;
+        break;
+
+      case "gear":
+        returnIcon = <GearIcon />;
         break;
 
       case "support":

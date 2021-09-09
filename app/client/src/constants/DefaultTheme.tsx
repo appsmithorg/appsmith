@@ -569,6 +569,7 @@ const lightShades = [
   "#E0DEDE",
   "#EBEBEB",
   "#858282",
+  "#000000",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -652,6 +653,15 @@ type ColorType = {
           textColor: Color;
         };
       };
+    };
+    /**
+     * LINK button style
+     */
+    link: {
+      main: Color;
+      hover: Color;
+      active: Color;
+      disabled: Color;
     };
   };
   tertiary: buttonVariant;
@@ -816,6 +826,7 @@ type ColorType = {
   };
   tabs: {
     normal: ShadeColor;
+    icon: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
@@ -1575,6 +1586,12 @@ export const dark: ColorType = {
         },
       },
     },
+    link: {
+      main: "#D4D4D4",
+      hover: "#FFFFFF",
+      active: "#2B2B2B",
+      disabled: "#202021",
+    },
   },
   tertiary: {
     main: "#D4D4D4",
@@ -1757,6 +1774,7 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
+    icon: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
@@ -2075,7 +2093,7 @@ export const light: ColorType = {
     activeTabText: "#000",
   },
   button: {
-    disabledText: lightShades[6],
+    disabledText: lightShades[15],
     boxShadow: {
       default: {
         variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
@@ -2174,13 +2192,19 @@ export const light: ColorType = {
         },
       },
     },
+    link: {
+      main: "#716E6E",
+      hover: "#090707",
+      active: "#4B4848",
+      disabled: "#858282",
+    },
   },
   tertiary: {
     main: "#716E6E",
     light: "#090707",
-    dark: "#F7F7F7",
+    dark: "#FAFAFA",
     darker: "#E8E8E8",
-    darkest: "#939090",
+    darkest: "#A9A7A7",
   },
   info: {
     main: "#F86A2B",
@@ -2193,22 +2217,22 @@ export const light: ColorType = {
     main: "#03B365",
     light: "#007340",
     dark: "#00693B",
-    darker: "#DEFFF0",
-    darkest: "#CBF4E2",
+    darker: "#CBF4E2",
+    darkest: "#D9FDED",
   },
   warning: {
-    main: "#FECB11",
-    light: "#D1A606",
-    dark: "#D9AC07",
-    darker: "#FFFBEF",
-    darkest: "#FECB11",
+    main: "#FEB811",
+    light: "#EFA903",
+    dark: "#EFA903",
+    darker: "#FBEED0",
+    darkest: "#FFFAE9",
   },
   danger: {
     main: "#F22B2B",
-    light: "#C60707",
-    dark: "#B90707",
-    darker: "#FFF0F0",
-    darkest: "#FDE4E4",
+    light: "#B90707",
+    dark: "#C60707",
+    darker: "#FDE4E4",
+    darkest: "#FFE9E9",
   },
   homepageBackground: "#ffffff",
   card: {
@@ -2356,13 +2380,14 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[6],
+    normal: lightShades[8],
+    icon: lightShades[15],
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
     selected: Colors.CRUSTA,
   },
-  settingHeading: lightShades[9],
+  settingHeading: lightShades[16],
   table: {
     headerBg: lightShades[1],
     headerText: lightShades[6],

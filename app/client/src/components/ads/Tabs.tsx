@@ -34,10 +34,10 @@ const TabsWrapper = styled.div<{
     display: flex;
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
-    border-bottom: none;
+    border-bottom: 1px solid #dfdfdf;
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
-      fill: ${(props) => props.theme.colors.tabs.normal};
+      fill: ${(props) => props.theme.colors.tabs.icon};
     }
     ${(props) =>
       props.shouldOverflow &&
@@ -54,7 +54,7 @@ const TabsWrapper = styled.div<{
     justify-content: center;
     border-color: transparent;
     position: relative;
-    padding: 0;
+    padding: 0px 3px;
     margin-right: ${(props) =>
       !props.vertical ? `${props.theme.spaces[12] - 3}px` : 0};
   }
@@ -70,10 +70,14 @@ const TabsWrapper = styled.div<{
 
   .react-tabs__tab--selected {
     background-color: transparent;
+    path {
+      fill: ${(props) => props.theme.colors.tabs.hover};
+    }
   }
 `;
 
 export const TabTitle = styled.span`
+  color: ${(props) => props.theme.colors.tabs.normal};
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
@@ -99,7 +103,6 @@ const TabTitleWrapper = styled.div<{
 }>`
   display: flex;
   width: 100%;
-
   padding: ${(props) => props.theme.spaces[3] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
     ${(props) => props.theme.spaces[4] - 1}px
@@ -114,24 +117,35 @@ const TabTitleWrapper = styled.div<{
 
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[2]}px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #dfdfdf;
+    svg {
+      margin: auto;
+    }
   }
 
   ${(props) =>
     props.selected
       ? `
-  color: ${props.theme.colors.tabs.hover};
   background-color: transparent;
-
   path {
     fill: ${props.theme.colors.tabs.hover};
+  }
+
+  .tab-title {
+    font-weight: 700;
   }
 
   &::after {
     content: "";
     position: absolute;
     width: ${props.vertical ? `${props.theme.spaces[1] - 2}px` : "100%"};
-    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[1] - 2}px`};
-    top: ${props.vertical ? `${props.theme.spaces[0] - 1}px` : "unset"};
+    bottom: ${props.vertical ? "0%" : `${props.theme.spaces[0] - 1}px`};
+    top: ${
+      props.vertical ? `${props.theme.spaces[0] - 1}px` : "calc(100% - 2px)"
+    };
     left: ${props.theme.spaces[0]}px;
     height: ${props.vertical ? "100%" : `${props.theme.spaces[1] - 2}px`};
     background-color: ${props.theme.colors.info.main};
@@ -156,13 +170,13 @@ function DefaultTabItem(props: TabItemProps) {
           size={tab.iconSize ? tab.iconSize : IconSize.XXXL}
         />
       ) : null}
-      <TabTitle>{tab.title}</TabTitle>
+      <TabTitle className="tab-title">{tab.title}</TabTitle>
       {tab.count && tab.count > 0 ? <TabCount>{tab.count}</TabCount> : null}
     </TabTitleWrapper>
   );
 }
 
-type TabbedViewComponentType = CommonComponentProps & {
+export type TabbedViewComponentType = CommonComponentProps & {
   tabs: Array<TabProp>;
   selectedIndex?: number;
   onSelect?: (tabIndex: number) => void;
