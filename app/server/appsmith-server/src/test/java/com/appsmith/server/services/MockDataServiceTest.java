@@ -8,8 +8,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -20,8 +18,6 @@ import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.OrganizationRepository;
 import lombok.extern.slf4j.Slf4j;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,17 +33,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -276,7 +267,7 @@ public class MockDataServiceTest {
         action.setName("testActionExecuteDbQuery");
         action.setDatasource(datasourceMono);
 
-        Mono<ActionExecutionResult> resultMono = layoutActionService.createAction(action)
+        Mono<ActionExecutionResult> resultMono = layoutActionService.createSingleAction(action)
                 .flatMap(savedAction -> {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
