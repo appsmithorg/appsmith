@@ -44,7 +44,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import { JSCollection, JSAction } from "entities/JSCollection";
+import { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
@@ -177,6 +177,7 @@ export function* evaluateDynamicTrigger(
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
       try {
+        debugger;
         const response = yield call(
           executeActionTriggers,
           requestData.trigger,
@@ -186,6 +187,7 @@ export function* evaluateDynamicTrigger(
           method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
           data: {
             resolve: response,
+            subRequestId: requestData.subRequestId,
           },
           success: true,
         });
@@ -194,6 +196,7 @@ export function* evaluateDynamicTrigger(
           method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
           data: {
             reason: e,
+            subRequestId: requestData.subRequestId,
           },
           success: false,
         });
@@ -215,7 +218,7 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const parsedObject = yield call(
+  return yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
@@ -223,22 +226,16 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  return parsedObject;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
-  const unEvalTree = yield select(getUnevaluatedDataTree);
   const dynamicTrigger = collectionName + "." + action.name + "()";
 
-  const workerResponse = yield call(
-    worker.request,
-    EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, fullPropertyPath: dynamicTrigger },
-  );
+  yield call(evaluateDynamicTrigger, dynamicTrigger, EventType.ON_CLICK);
 
-  const { errors, result, triggers } = workerResponse;
-  yield call(evalErrorHandler, errors);
-  return { triggers, result };
+  // const { errors, result, triggers } = workerResponse;
+  // yield call(evalErrorHandler, errors);
+  // return { triggers, result };
 }
 
 /**
@@ -316,6 +313,7 @@ function* evaluationChangeListenerSaga() {
   // Explicitly shutdown old worker if present
   yield call(worker.shutdown);
   yield call(worker.start);
+  yield call(worker.request, EVAL_WORKER_ACTIONS.SETUP);
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   const initAction = yield take(FIRST_EVAL_REDUX_ACTIONS);
   yield fork(evaluateTreeSaga, initAction.postEvalActions);

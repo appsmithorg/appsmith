@@ -51,17 +51,25 @@ const ctx: Worker = self as any;
 
 declare global {
   interface Window {
-    REQUEST_ID: string;
+    REQUEST_ID?: string;
+    DRY_RUN?: boolean;
+    IS_ASYNC?: boolean;
   }
 }
 
 const overThreadPromise = (event: any) => {
+  if (self.DRY_RUN) {
+    self.IS_ASYNC = true;
+    return new Promise((resolve) => resolve(true));
+  }
   return new Promise((resolve, reject) => {
+    const subRequestId = _.uniqueId(`${self.REQUEST_ID}_`);
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData: {
         trigger: event,
         errors: [],
+        subRequestId,
       },
       requestId: self.REQUEST_ID,
     });
@@ -69,8 +77,10 @@ const overThreadPromise = (event: any) => {
       const { method, requestId, success } = event.data;
       if (
         method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
-        requestId === self.REQUEST_ID
+        requestId === self.REQUEST_ID &&
+        subRequestId === event.data.data.subRequestId
       ) {
+        debugger;
         if (success) {
           resolve.apply(self, event.data.data.resolve);
         } else {

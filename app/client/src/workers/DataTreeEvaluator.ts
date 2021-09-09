@@ -663,9 +663,15 @@ export default class DataTreeEvaluator {
     userScript: string,
     dataTree: DataTree,
     requestId: string,
+    resolvedFunctions: Record<string, any>,
   ) {
     const { jsSnippets } = getDynamicBindings(userScript);
-    return evaluateAsync(jsSnippets[0], dataTree, requestId);
+    return evaluateAsync(
+      jsSnippets[0] || userScript,
+      dataTree,
+      requestId,
+      resolvedFunctions,
+    );
   }
 
   // Paths are expected to have "{name}.{path}" signature

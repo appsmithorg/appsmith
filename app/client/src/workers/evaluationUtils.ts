@@ -24,6 +24,7 @@ import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { Variable } from "entities/JSCollection";
+import { isFunctionAsync } from "workers/evaluate";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -526,4 +527,51 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return relativePropertyPath in entity.bindingPaths;
+};
+
+class JSCollectionNotExportedError extends Error {
+  constructor() {
+    super("JS Object was not exported");
+  }
+}
+
+export const parseJSCollection = (
+  body: string,
+  dataTree: DataTree,
+): { actions: unknown; variables: unknown } => {
+  const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+  const correctFormat = regex.test(body);
+  if (!correctFormat) {
+    throw new JSCollectionNotExportedError();
+  }
+  const toBeParsedBody = body.replace(/export default/g, "");
+  const parsed = body && eval("(" + toBeParsedBody + ")");
+  const parsedLength = Object.keys(parsed).length;
+  const actions = [];
+  const variables = [];
+  if (parsedLength > 0) {
+    for (const key in parsed) {
+      if (parsed.hasOwnProperty(key)) {
+        if (typeof parsed[key] === "function") {
+          const value = parsed[key];
+          const params = getParams(value);
+          actions.push({
+            name: key,
+            body: parsed[key].toString(),
+            arguments: params,
+            isAsync: isFunctionAsync(parsed[key], dataTree),
+          });
+        } else {
+          variables.push({
+            name: key,
+            value: parsed[key],
+          });
+        }
+      }
+    }
+  }
+  return {
+    actions: actions,
+    variables: variables,
+  };
 };

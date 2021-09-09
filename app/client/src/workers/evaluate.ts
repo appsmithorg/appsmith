@@ -11,6 +11,14 @@ import { Severity } from "entities/AppsmithConsole";
 import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 
+declare global {
+  interface Window {
+    REQUEST_ID?: string;
+    DRY_RUN?: boolean;
+    IS_ASYNC?: boolean;
+  }
+}
+
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
@@ -109,6 +117,22 @@ const getLintingErrors = (
   });
 };
 
+export function setupEvaluationEnvironment() {
+  ///// Adding extra libraries separately
+  extraLibraries.forEach((library) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[library.accessor] = library.lib;
+  });
+
+  ///// Remove all unsafe functions
+  unsafeFunctionForEval.forEach((func) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: No types available
+    self[func] = undefined;
+  });
+}
+
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
 export default function evaluateSync(
@@ -132,9 +156,12 @@ export default function evaluateSync(
     ///// Adding callback data
     GLOBAL_DATA.ARGUMENTS = evalArguments;
 
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+
     ///// Adding Data tree
-    Object.keys(dataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = dataTree[datum];
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
     });
 
     // Set it to self so that the eval function can have access to it
@@ -157,20 +184,6 @@ export default function evaluateSync(
     }
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
 
-    ///// Adding extra libraries separately
-    extraLibraries.forEach((library) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[library.accessor] = library.lib;
-    });
-
-    ///// Remove all unsafe functions
-    unsafeFunctionForEval.forEach((func) => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
-      self[func] = undefined;
-    });
-
     try {
       result = eval(script);
     } catch (e) {
@@ -192,6 +205,7 @@ export async function evaluateAsync(
   userScript: string,
   dataTree: DataTree,
   requestId: string,
+  resolvedFunctions: Record<string, any>,
   evalArguments?: Array<any>,
 ) {
   // We remove any line breaks from the beginning of the script because that
@@ -207,6 +221,7 @@ export async function evaluateAsync(
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
       REQUEST_ID: requestId,
+      DRY_RUN: false,
     };
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
@@ -223,10 +238,19 @@ export async function evaluateAsync(
       self[key] = GLOBAL_DATA[key];
     });
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
+    if (!isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          self[datum][key] = resolvedObject[key];
+        });
+      });
+    }
 
     try {
       result = await eval(script);
     } catch (e) {
+      debugger;
       const errorMessage = `${e.name}: ${e.message}`;
       errors.push({
         errorMessage: errorMessage,
@@ -239,5 +263,37 @@ export async function evaluateAsync(
     completePromise();
 
     return { result, errors };
+  })();
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function isFunctionAsync(userFunction: Function, dataTree: DataTree) {
+  return (function() {
+    /**** Setting the eval context ****/
+    const GLOBAL_DATA: Record<string, any> = {
+      DRY_RUN: true,
+      IS_ASYNC: false,
+    };
+    //// Add internal functions to dataTree;
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
+    ///// Adding Data tree with functions
+    Object.keys(dataTreeWithFunctions).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
+    });
+    // Set it to self so that the eval function can have access to it
+    // as global data. This is what enables access all appsmith
+    // entity properties from the global context
+    Object.keys(GLOBAL_DATA).forEach((key) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: No types available
+      self[key] = GLOBAL_DATA[key];
+    });
+    try {
+      debugger;
+      userFunction();
+    } catch (e) {
+      console.error(e);
+    }
+    return self.IS_ASYNC;
   })();
 }

@@ -9,12 +9,15 @@ import {
   CrashingError,
   DataTreeDiff,
   getSafeToRenderDataTree,
+  parseJSCollection,
   removeFunctions,
   validateWidgetProperty,
-  getParams,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import evaluate, { evaluateAsync } from "./evaluate";
+import evaluate, {
+  evaluateAsync,
+  setupEvaluationEnvironment,
+} from "./evaluate";
 
 const ctx: Worker = self as any;
 
@@ -47,6 +50,10 @@ ctx.addEventListener(
   "message",
   messageEventListener((method, requestData: any, requestId) => {
     switch (method) {
+      case EVAL_WORKER_ACTIONS.SETUP: {
+        setupEvaluationEnvironment();
+        return true;
+      }
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
         const { unevalTree, widgetTypeConfigMap } = requestData;
         let dataTree: DataTree = unevalTree;
@@ -109,6 +116,7 @@ ctx.addEventListener(
           bindings,
           executionParams,
         );
+        debugger;
 
         const cleanValues = removeFunctions(values);
 
@@ -117,7 +125,7 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { dataTree, dynamicTrigger, fullPropertyPath } = requestData;
+        const { dataTree, dynamicTrigger } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
@@ -125,7 +133,12 @@ ctx.addEventListener(
         const evalTree = dataTreeEvaluator.evalTree;
         const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
 
-        dataTreeEvaluator.evaluateTriggers(dynamicTrigger, evalTree, requestId);
+        dataTreeEvaluator.evaluateTriggers(
+          dynamicTrigger,
+          evalTree,
+          requestId,
+          resolvedFunctions,
+        );
 
         break;
       }
@@ -157,46 +170,11 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
-        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
-
         if (!dataTreeEvaluator) {
           return true;
         }
         try {
-          const correctFormat = regex.test(body);
-          if (correctFormat) {
-            const toBeParsedBody = body.replace(/export default/g, "");
-            const parsed = body && eval("(" + toBeParsedBody + ")");
-            const parsedLength = Object.keys(parsed).length;
-            const actions = [];
-            const variables = [];
-            if (parsedLength > 0) {
-              for (const key in parsed) {
-                if (parsed.hasOwnProperty(key)) {
-                  if (typeof parsed[key] === "function") {
-                    const value = parsed[key];
-                    const params = getParams(value);
-                    actions.push({
-                      name: key,
-                      body: parsed[key].toString(),
-                      arguments: params,
-                    });
-                  } else {
-                    variables.push({
-                      name: key,
-                      value: parsed[key],
-                    });
-                  }
-                }
-              }
-            }
-            return {
-              actions: actions,
-              variables: variables,
-            };
-          } else {
-            throw new Error("syntax error");
-          }
+          return parseJSCollection(body, dataTreeEvaluator.evalTree);
         } catch (e) {
           const errors = dataTreeEvaluator.errors;
           errors.push({
@@ -221,7 +199,6 @@ ctx.addEventListener(
           evalTree,
           resolvedFunctions,
           undefined,
-          true,
         );
         return result;
       }
@@ -231,7 +208,7 @@ ctx.addEventListener(
         if (!evalTree) return {};
         // TODO find a way to do this for snippets
         return isTrigger
-          ? evaluateAsync(expression, evalTree, {}, "SNIPPET")
+          ? evaluateAsync(expression, evalTree, "SNIPPET", {})
           : evaluate(expression, evalTree, {});
       case EVAL_WORKER_ACTIONS.PROCESS_TRIGGER:
         // This action will not be processed here. This is handled in the eval trigger sub steps
