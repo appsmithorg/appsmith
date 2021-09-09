@@ -172,8 +172,9 @@ function* getChildWidgetProps(
     parentRowSpace = 1;
     minHeight = rows;
     // if (props) props.children = [];
+
     if (props) {
-      props = produce((draft: WidgetProps) => {
+      props = produce(props, (draft: WidgetProps) => {
         if (!draft.children || !Array.isArray(draft.children)) {
           draft.children = [];
         }
