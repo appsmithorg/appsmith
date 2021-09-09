@@ -513,14 +513,14 @@ export function* createPageSaga(
       });
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        const firstTimeUserExperienceApplicationId = yield select(
+        const firstTimeUserOnboardingApplicationId = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         const isFirstTimeUserOnboardingEnabled = yield select(
           getIsFirstTimeUserOnboardingEnabled,
         );
         if (
-          firstTimeUserExperienceApplicationId ==
+          firstTimeUserOnboardingApplicationId ==
             createPageAction.payload.applicationId &&
           isFirstTimeUserOnboardingEnabled
         ) {

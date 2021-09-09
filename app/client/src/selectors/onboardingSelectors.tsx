@@ -14,11 +14,11 @@ export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
 };
 
 export const getFirstTimeUserOnboardingApplicationId = (state: AppState) => {
-  return state.ui.onBoarding.firstTimeUserExperienceApplicationId;
+  return state.ui.onBoarding.firstTimeUserOnboardingApplicationId;
 };
 
 export const getFirstTimeUserOnboardingComplete = (state: AppState) => {
-  return state.ui.onBoarding.firstTimeUserExperienceComplete;
+  return state.ui.onBoarding.firstTimeUserOnboardingComplete;
 };
 
 export const getFirstTimeUserOnboardingModal = (state: AppState) =>

@@ -28,8 +28,9 @@ export const initialState: any = {
       },
     },
     onBoarding: {
-      firstTimeUserExperienceComplete: false,
+      firstTimeUserOnboardingComplete: false,
       showFirstTimeUserOnboardingModal: true,
+      enableFirstTimeUserOnboarding: true,
     },
     theme: {
       theme: {
@@ -71,7 +72,7 @@ export function getStore(step: number) {
       break;
     case 5:
       state.ui.applications.currentApplication.lastDeployedAt = Math.random();
-      state.ui.onBoarding.firstTimeUserExperienceComplete = true;
+      state.ui.onBoarding.firstTimeUserOnboardingComplete = true;
       break;
   }
   return mockStore(state);

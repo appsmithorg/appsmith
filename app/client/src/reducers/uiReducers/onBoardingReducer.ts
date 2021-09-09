@@ -29,10 +29,9 @@ const initialState: OnboardingState = {
   },
   inOnboardingWidgetSelection: false,
   enableFirstTimeUserOnboarding: false,
-  firstTimeUserExperienceApplicationId: "",
-  firstTimeUserExperienceComplete: false,
-  showFirstTimeUserExperienceModal: false,
   forceOpenWidgetPanel: false,
+  firstTimeUserOnboardingApplicationId: "",
+  firstTimeUserOnboardingComplete: false,
   showFirstTimeUserOnboardingModal: false,
 };
 
@@ -50,10 +49,9 @@ export interface OnboardingState {
   showingIndicator: OnboardingStep;
   inOnboardingWidgetSelection: boolean;
   enableFirstTimeUserOnboarding: boolean;
-  firstTimeUserExperienceApplicationId: string;
-  firstTimeUserExperienceComplete: boolean;
-  showFirstTimeUserExperienceModal: boolean;
   forceOpenWidgetPanel: boolean;
+  firstTimeUserOnboardingApplicationId: string;
+  firstTimeUserOnboardingComplete: boolean;
   showFirstTimeUserOnboardingModal: boolean;
 }
 
@@ -100,8 +98,8 @@ const onboardingReducer = createReducer(initialState, {
       ...initialState,
       inOnboarding: action.payload,
       enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
-      firstTimeUserExperienceApplicationId:
-        state.firstTimeUserExperienceApplicationId,
+      firstTimeUserOnboardingApplicationId:
+        state.firstTimeUserOnboardingApplicationId,
       showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
     };
   },
@@ -161,8 +159,8 @@ const onboardingReducer = createReducer(initialState, {
       ...state,
       ...initialState,
       enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
-      firstTimeUserExperienceApplicationId:
-        state.firstTimeUserExperienceApplicationId,
+      firstTimeUserOnboardingApplicationId:
+        state.firstTimeUserOnboardingApplicationId,
       showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
     };
   },
@@ -190,7 +188,7 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      firstTimeUserExperienceApplicationId: action.payload,
+      firstTimeUserOnboardingApplicationId: action.payload,
     };
   },
   [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE]: (
@@ -199,7 +197,7 @@ const onboardingReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      firstTimeUserExperienceComplete: action.payload,
+      firstTimeUserOnboardingComplete: action.payload,
     };
   },
   [ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL]: (

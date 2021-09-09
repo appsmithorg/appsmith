@@ -4,13 +4,13 @@ import { render, screen } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
 import {
-  ONBOARDING_STEPS_FIRST,
-  ONBOARDING_STEPS_SECOND,
-  ONBOARDING_STEPS_THIRD,
-  ONBOARDING_STEPS_FOURTH,
-  ONBOARDING_STEPS_FIVETH,
-  ONBOARDING_STEPS_SIXTH,
-} from "./constants";
+  ONBOARDING_STATUS_STEPS_FIRST,
+  ONBOARDING_STATUS_STEPS_SECOND,
+  ONBOARDING_STATUS_STEPS_THIRD,
+  ONBOARDING_STATUS_STEPS_FOURTH,
+  ONBOARDING_STATUS_STEPS_FIVETH,
+  ONBOARDING_STATUS_STEPS_SIXTH,
+} from "constants/messages";
 
 let useIsWidgetActionConnectionPresent = false;
 jest.mock("pages/Editor/utils", () => ({
@@ -51,37 +51,37 @@ describe("Statusbar", () => {
   it("is showing first step", async () => {
     renderComponent(getStore(0));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_FIRST);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIRST());
   });
 
   it("is showing second step", async () => {
     renderComponent(getStore(1));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_SECOND);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SECOND());
   });
 
   it("is showing third step", async () => {
     renderComponent(getStore(2));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_THIRD);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_THIRD());
   });
 
   it("is showing fourth step", async () => {
     renderComponent(getStore(3));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_FOURTH);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FOURTH());
   });
 
   it("is showing fifth step", async () => {
     useIsWidgetActionConnectionPresent = true;
     renderComponent(getStore(4));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_FIVETH);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_FIVETH());
   });
 
   it("is showing fifth step", async () => {
     renderComponent(getStore(5));
     const statusbarText = screen.queryAllByTestId("statusbar-text");
-    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STEPS_SIXTH);
+    expect(statusbarText[0].innerHTML).toBe(ONBOARDING_STATUS_STEPS_SIXTH());
   });
 });
