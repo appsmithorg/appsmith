@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,7 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 
 @Slf4j
+@Getter
 @Component
 public class FileUtilsImpl implements FileInterface {
 
@@ -58,7 +60,7 @@ public class FileUtilsImpl implements FileInterface {
                                                  String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
-        Path baseRepoPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
+        Path baseRepoBranchPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 
@@ -78,35 +80,34 @@ public class FileUtilsImpl implements FileInterface {
          */
 
         // Save application
-        saveFile(applicationGitReference.getApplication(), baseRepoPath.resolve("application.json"), gson);
+        saveFile(applicationGitReference.getApplication(), baseRepoBranchPath.resolve("application.json"), gson);
 
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoBranchPath.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(PAGE_DIRECTORY));
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(PAGE_DIRECTORY));
         validFileNames.clear();
 
         // Save actions
         for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath.resolve(ACTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoBranchPath.resolve(ACTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan actions directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(ACTION_DIRECTORY));
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(ACTION_DIRECTORY));
         validFileNames.clear();
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
-            saveFile(resource.getValue(), baseRepoPath.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoPath.resolve(DATASOURCE_DIRECTORY));
-
-        return Mono.just(baseRepoPath);
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY));
+        return Mono.just(baseRepoBranchPath);
     }
 
     /**
