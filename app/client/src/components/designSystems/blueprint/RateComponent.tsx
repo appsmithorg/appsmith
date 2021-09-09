@@ -5,9 +5,10 @@ import styled from "styled-components";
 import Rating from "react-rating";
 import _ from "lodash";
 
+import TooltipComponent from "components/ads/Tooltip";
+import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { RateSize, RATE_SIZES } from "constants/WidgetConstants";
-import TooltipComponent from "components/ads/Tooltip";
 
 /*
   Note:
@@ -18,6 +19,7 @@ import TooltipComponent from "components/ads/Tooltip";
 */
 
 interface RateContainerProps {
+  isDisabled: boolean;
   scrollable: boolean;
 }
 
@@ -32,6 +34,8 @@ export const RateContainer = styled.div<RateContainerProps>`
   > span {
     align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
   }
+
+  ${({ isDisabled }) => isDisabled && disable}
 `;
 
 export const Star = styled(Icon)`
@@ -97,6 +101,7 @@ function RateComponent(props: RateComponentProps) {
     bottomRow,
     inactiveColor,
     isAllowHalf,
+    isDisabled,
     leftColumn,
     maxCount,
     onValueChanged,
@@ -122,7 +127,11 @@ function RateComponent(props: RateComponentProps) {
   }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
 
   return (
-    <RateContainer ref={rateContainerRef} scrollable={scrollable}>
+    <RateContainer
+      isDisabled={Boolean(isDisabled)}
+      ref={rateContainerRef}
+      scrollable={scrollable}
+    >
       <Rating
         emptySymbol={
           <Star

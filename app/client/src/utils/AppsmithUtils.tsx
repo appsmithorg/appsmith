@@ -147,6 +147,16 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
   return getNextEntityName("Api", pageApiNames);
 };
 
+export const createNewJSFunctionName = (
+  jsActions: ActionDataState,
+  pageId: string,
+) => {
+  const pageJsFunctionNames = jsActions
+    .filter((a) => a.config.pageId === pageId)
+    .map((a) => a.config.name);
+  return getNextEntityName("JSObject", pageJsFunctionNames);
+};
+
 export const noop = () => {
   log.debug("noop");
 };
