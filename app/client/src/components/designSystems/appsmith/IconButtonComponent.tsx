@@ -6,6 +6,7 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import _ from "lodash";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -39,7 +40,19 @@ export interface ButtonStyleProps {
   hasOnClickAction?: boolean;
 }
 
-export const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+export const StyledButton = styled((props) => (
+  <Button
+    {..._.omit(props, [
+      "buttonVariant",
+      "buttonStyle",
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "dimension",
+      "hasOnClickAction",
+    ])}
+  />
+))<ThemeProp & ButtonStyleProps>`
 
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};

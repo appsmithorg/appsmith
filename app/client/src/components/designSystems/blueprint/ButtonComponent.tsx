@@ -24,6 +24,7 @@ import { ThemeProp, Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "../../../constants/Colors";
+import _ from "lodash";
 import {
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
@@ -144,7 +145,17 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+const StyledButton = styled((props) => (
+  <Button
+    {..._.omit(props, [
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "buttonColor",
+      "buttonVariant",
+    ])}
+  />
+))<ThemeProp & ButtonStyleProps>`
   height: 100%;
   background-image: none !important;
   font-weight: ${(props) => props.theme.fontWeights[2]};
