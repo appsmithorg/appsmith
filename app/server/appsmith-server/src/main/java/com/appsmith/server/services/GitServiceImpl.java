@@ -1,5 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.git.GitExecutor;
+import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitConfig;
@@ -10,6 +12,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -17,10 +21,13 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@Import({GitExecutorImpl.class})
 public class GitServiceImpl extends BaseService<UserDataRepository, UserData, String> implements GitService {
 
     private final UserService userService;
@@ -31,8 +38,11 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private final ApplicationService applicationService;
 
+    private final GitExecutor gitExecutor;
+
     private final static String DEFAULT_BRANCH_NAME = "master";
 
+    @Autowired
     public GitServiceImpl(Scheduler scheduler,
                           Validator validator,
                           MongoConverter mongoConverter,
@@ -42,12 +52,14 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                           UserService userService,
                           UserDataService userDataService,
                           SessionUserService sessionUserService,
-                          ApplicationService applicationService) {
+                          ApplicationService applicationService,
+                          GitExecutor gitExecutor) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.userDataService = userDataService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
+        this.gitExecutor = gitExecutor;
     }
 
     @Override
@@ -121,6 +133,19 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
                                     "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
+
+                                if(!gitExecutor.cloneApp(
+                                        getrelativePath(gitConnectDTO.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
+                                        gitConnectDTO.getRemoteUrl(),
+                                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                        gitApplicationMetadata.getGitAuth().getPublicKey()
+                                        )) {
+                                    return Mono.error( new AppsmithException(
+                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                            "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                    ));
+                                }
+
                                 gitApplicationMetadata.setIsDefault(Boolean.TRUE);
                                 gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
@@ -129,5 +154,9 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                              return applicationService.update(gitConnectDTO.getApplicationId(), application1);
                             }
                 }));
+    }
+
+    private Path getrelativePath(String orgID, String defaultApplicationId) {
+        return Paths.get(orgID,defaultApplicationId);
     }
 }
