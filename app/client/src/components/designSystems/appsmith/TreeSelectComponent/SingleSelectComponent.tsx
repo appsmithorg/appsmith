@@ -5,6 +5,7 @@ import {
   DropdownStyles,
   inputIcon,
   StyledLabel,
+  TextLabelWrapper,
 } from "./index.styled";
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
@@ -14,6 +15,7 @@ import {
   MODAL_PORTAL_CLASSNAME,
   TextSize,
 } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export interface TreeSelectProps
   extends Required<
@@ -116,16 +118,20 @@ function TreeSingleSelectComponent({
     >
       <DropdownStyles />
       {labelText && (
-        <StyledLabel
-          $compactMode={compactMode}
-          $labelStyle={labelStyle}
-          $labelText={labelText}
-          $labelTextColor={labelTextColor}
-          $labelTextSize={labelTextSize}
-          className="tree-select-label"
-        >
-          {labelText}
-        </StyledLabel>
+        <TextLabelWrapper compactMode={compactMode}>
+          <StyledLabel
+            $compactMode={compactMode}
+            $labelStyle={labelStyle}
+            $labelText={labelText}
+            $labelTextColor={labelTextColor}
+            $labelTextSize={labelTextSize}
+            className={`tree-select-label ${
+              loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
+            }`}
+          >
+            {labelText}
+          </StyledLabel>
+        </TextLabelWrapper>
       )}
       <TreeSelect
         allowClear={allowClear}

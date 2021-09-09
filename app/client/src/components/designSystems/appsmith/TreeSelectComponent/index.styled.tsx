@@ -13,6 +13,14 @@ export const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;
 };
 
+export const TextLabelWrapper = styled.div<{
+  compactMode: boolean;
+}>`
+  ${(props) =>
+    props.compactMode ? "&&& {margin-right: 5px;}" : "width: 100%;"}
+  display: flex;
+`;
+
 export const StyledLabel = styled(Label)<{
   $compactMode: boolean;
   $labelText?: string;
