@@ -39,6 +39,14 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
+            propertyName: "canOutsideClickClose",
+            label: "Quick Dismiss",
+            helpText: "Allows dismissing the modal when user taps outside",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "size",
             label: "Modal Type",
             controlType: "DROP_DOWN",
@@ -58,14 +66,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           {
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
-            controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "canOutsideClickClose",
-            label: "Quick Dismiss",
-            helpText: "Allows dismissing the modal when user taps outside",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,

@@ -71,7 +71,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 iconSize: "large",
               },
             ],
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -81,10 +80,9 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "thickness",
             label: "Thickness (px)",
             controlType: "INPUT_TEXT",
-            placeholderText: "5",
+            placeholderText: "Enter thickness in pixels",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 0, default: 0 },
@@ -96,7 +94,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             label: "Divider Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
-            isJSConvertible: true,
             isTriggerProperty: false,
           },
           {
@@ -104,7 +101,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             propertyName: "capType",
             label: "Cap",
             controlType: "DROP_DOWN",
-            isJSConvertible: true,
             options: [
               {
                 label: "No Cap",
