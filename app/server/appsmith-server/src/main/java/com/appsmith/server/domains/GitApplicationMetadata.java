@@ -24,4 +24,3 @@ public class GitApplicationMetadata {
     // Git credentials used to push changes to remote repo
     GitAuth gitAuth;
 }
-
