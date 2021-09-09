@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
 import DataCollectionForm from "./DataCollectionForm";
@@ -102,10 +102,9 @@ const validate = (values: DetailsFormValues) => {
 function SetupForm(props: InjectedFormProps & DetailsFormValues) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
+  const formRef = useRef<HTMLFormElement>(null);
   const onSubmit = () => {
-    const form: HTMLFormElement = document.querySelector(
-      "#super-user-form",
-    ) as HTMLFormElement;
+    const form: HTMLFormElement = formRef.current as HTMLFormElement;
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
@@ -144,6 +143,7 @@ function SetupForm(props: InjectedFormProps & DetailsFormValues) {
           id="super-user-form"
           method="POST"
           onSubmit={onSubmit}
+          ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
             <DetailsForm {...props} onNext={() => setShowDetailsForm(false)} />
