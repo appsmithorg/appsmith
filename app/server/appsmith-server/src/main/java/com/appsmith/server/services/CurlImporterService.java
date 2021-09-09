@@ -81,7 +81,7 @@ public class CurlImporterService extends BaseApiImporter {
                     datasource.setOrganizationId(orgId);
                     return Mono.just(action1);
                 })
-                .flatMap(layoutActionService::createAction);
+                .flatMap(layoutActionService::createSingleAction);
     }
 
     public ActionDTO curlToAction(String command, String pageId, String name) throws AppsmithException {

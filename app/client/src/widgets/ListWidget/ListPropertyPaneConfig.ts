@@ -15,11 +15,11 @@ const PropertyPaneConfig = [
         propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
-        placeholderText: 'Enter [{ "col1": "val1" }]',
+        placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.OBJECT_ARRAY },
+        validation: { type: ValidationTypes.ARRAY },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {

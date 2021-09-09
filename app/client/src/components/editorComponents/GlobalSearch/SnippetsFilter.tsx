@@ -3,31 +3,54 @@ import { ClearRefinements, RefinementList } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSnippetFilterLabel } from "./utils";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
   snippetsEmpty: boolean;
+  hasRefinements: boolean;
 }>`
   position: absolute;
-  bottom: 50px;
+  bottom: 20px;
   display: flex;
   width: 220px;
   height: 32px;
   justify-content: center;
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   button {
-    background: ${(props) => props.theme.colors.tertiary.light};
+    background: ${(props) =>
+      !props.hasRefinements
+        ? props.theme.colors.globalSearch.snippets.filterBtnBg
+        : !props.showFilter
+        ? "#4b4848"
+        : props.theme.colors.globalSearch.snippets.filterBtnBg};
     border-radius: 20px;
     transition: 0.2s width ease;
     width: ${(props) => (props.showFilter ? "32" : "75")}px;
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
+    color: ${(props) =>
+      !props.hasRefinements
+        ? props.theme.colors.globalSearch.snippets.filterBtnText
+        : !props.showFilter
+        ? "white"
+        : props.theme.colors.globalSearch.snippets.filterBtnText};
     border: none;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     height: 100%;
     cursor: pointer;
     position: relative;
+    svg {
+      path {
+        fill: ${(props) =>
+          !props.hasRefinements
+            ? props.theme.colors.globalSearch.snippets.filterBtnText
+            : props.showFilter
+            ? props.theme.colors.globalSearch.snippets.filterBtnText
+            : "white"};
+      }
+    }
   }
   .filter-list {
     display: block;
@@ -52,7 +75,7 @@ const SnippetsFilterContainer = styled.div<{
         border-radius: none;
         box-shadow: unset;
         cursor: pointer;
-        color: ${(props) => props.theme.colors.globalSearch.activeCategory};
+        color: ${(props) => props.theme.colors.globalSearch.searchInputBorder};
         font-weight: ${(props) => props.theme.fontWeights[2]};
         transition: 0.1s;
         background: ${(props) =>
@@ -122,6 +145,7 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
 
   return (
     <SnippetsFilterContainer
+      hasRefinements={refinements.entities && refinements.entities.length > 0}
       ref={ref}
       showFilter={showSnippetFilter}
       snippetsEmpty={snippetsEmpty}
@@ -137,10 +161,24 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
         {showSnippetFilter && <CloseFilterIcon />}
       </button>
       <div className="filter-list">
-        <div className="container">
+        <div
+          className="container"
+          onClick={(e: React.MouseEvent) => {
+            AnalyticsUtil.logEvent("SNIPPET_FILTER", {
+              filter: (e.target as HTMLSpanElement).textContent,
+            });
+            e.stopPropagation();
+          }}
+        >
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}
+            transformItems={(items: any) =>
+              items.map((item: any) => ({
+                ...item,
+                label: getSnippetFilterLabel(item.label),
+              }))
+            }
           />
         </div>
         {showSnippetFilter && (

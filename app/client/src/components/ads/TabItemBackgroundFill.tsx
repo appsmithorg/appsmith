@@ -29,7 +29,7 @@ const Wrapper = styled.div<WrapperProps>`
   &:hover,
   &:focus {
     color: ${(props) =>
-      props.theme.colors.tabItemBackgroundFill.highlightTextColor};}
+      props.theme.colors.tabItemBackgroundFill.highlightTextColor};
   }
 
   padding: ${(props) =>
