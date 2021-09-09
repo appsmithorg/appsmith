@@ -2264,6 +2264,7 @@ public class DatabaseChangelog {
         mongoOperations.updateMulti(query, update, Datasource.class);
     }
 
+
     @ChangeSet(order = "069", id = "set-mongo-actions-type-to-raw", author = "")
     public void setMongoActionInputToRaw(MongockTemplate mongockTemplate) {
 
@@ -2495,7 +2496,6 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
-
     }
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
@@ -2804,7 +2804,7 @@ public class DatabaseChangelog {
         }
     }
 
-    @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "" )
+    @ChangeSet(order = "079", id = "remove-order-field-from-application- pages", author = "")
     public void removePageOrderFieldFromApplicationPages(MongockTemplate mongoTemplate) {
         Query query = new Query();
         query.addCriteria(Criteria.where("pages").exists(TRUE));
