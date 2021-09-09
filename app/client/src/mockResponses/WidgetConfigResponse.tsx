@@ -639,22 +639,38 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           seriesName: "Sales",
           data: [
             {
-              x: "Product1",
+              x: "Mon",
               y: 20000,
             },
             {
-              x: "Product2",
+              x: "Tue",
               y: 22000,
             },
             {
               x: "Product3",
               y: 32000,
             },
+            {
+              x: "Thu",
+              y: 28000,
+            },
+            {
+              x: "Fri",
+              y: 24000,
+            },
+            {
+              x: "Sat",
+              y: 29000,
+            },
+            {
+              x: "Sun",
+              y: 36000,
+            },
           ],
         },
       },
-      xAxisName: "Product Line",
-      yAxisName: "Revenue($)",
+      xAxisName: "Last Week",
+      yAxisName: "Total Order Revenue $",
       setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
@@ -668,8 +684,28 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           },
           data: [
             {
-              x: "Product1",
-              y: 20000,
+              label: "Mon",
+              value: 20000,
+            },
+            {
+              label: "Tue",
+              value: 22000,
+            },
+            {
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 24000,
+            },
+            {
+              label: "Sat",
+              value: 29000,
             },
             {
               x: "Product2",

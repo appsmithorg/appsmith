@@ -84,7 +84,9 @@ describe("Validate Chart Widget's property config", () => {
       get(config, "[0].children.[3].hidden"),
       get(config, "[1].children.[0].hidden"),
       get(config, "[1].children.[1].hidden"),
-      get(config, "[1].children.[2].hidden"),
+      get(config, "[2].children.[0].hidden"),
+      get(config, "[2].children.[1].hidden"),
+      get(config, "[2].children.[2].hidden"),
     ];
     hiddenFns.forEach((fn: (props: any) => boolean) => {
       const result = fn({ chartType: "CUSTOM_FUSION_CHART" });
