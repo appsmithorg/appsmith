@@ -11,6 +11,7 @@ import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
+import _ from "lodash";
 
 export type Validator = (
   value: string,
@@ -88,16 +89,28 @@ const boxStyles = (
 
 const StyledInput = styled((props) => {
   // we are removing non input related props before passing them in the components
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { dataType, inputRef, inputStyle, theme, ...inputProps } = props;
+  // eslint-disable @typescript-eslint/no-unused-vars
+  const { dataType, inputRef, ...inputProps } = props;
+
+  const omitProps = [
+    "fill",
+    "hasLeftIcon",
+    "inputStyle",
+    "rightSideComponentWidth",
+    "theme",
+    "validator",
+    "isValid",
+    "cypressSelector",
+  ];
+
   return props.asyncControl ? (
     <AsyncControllableInput
-      {...inputProps}
-      dataType={dataType}
+      {..._.omit(inputProps, omitProps)}
+      datatype={dataType}
       inputRef={inputRef}
     />
   ) : (
-    <input ref={inputRef} {...inputProps} />
+    <input ref={inputRef} {..._.omit(inputProps, omitProps)} />
   );
 })<
   TextInputProps & {

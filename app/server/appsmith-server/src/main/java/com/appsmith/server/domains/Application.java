@@ -65,7 +65,7 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
-    Boolean forkingEnabled;
+    GitApplicationMetadata gitApplicationMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant lastDeployedAt; // when this application was last deployed
@@ -88,6 +88,8 @@ public class Application extends BaseDomain {
         }
         return null;
     }
+
+    Boolean forkingEnabled;
 
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.

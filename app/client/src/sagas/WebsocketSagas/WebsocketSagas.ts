@@ -1,14 +1,6 @@
 import { io } from "socket.io-client";
 import { eventChannel } from "redux-saga";
-import {
-  fork,
-  take,
-  call,
-  cancel,
-  put,
-  delay,
-  select,
-} from "redux-saga/effects";
+import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -26,8 +18,6 @@ import {
 } from "actions/websocketActions";
 
 import handleSocketEvent from "./handleSocketEvent";
-import { isMultiplayerEnabledForUser } from "selectors/appCollabSelectors";
-import { areCommentsEnabledForUserAndApp } from "selectors/commentsSelectors";
 
 function connect() {
   const socket = io({
@@ -99,7 +89,7 @@ function* handleIO(socket: any) {
 function* flow() {
   while (true) {
     yield take([
-      ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+      ReduxActionTypes.INIT_SOCKET_CONNECTION,
       ReduxActionTypes.RETRY_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
     try {
@@ -110,17 +100,13 @@ function* flow() {
        * We only need to retry incase the socket connection isn't made
        * in the first attempt itself
        */
-      const commentsEnabled = yield select(areCommentsEnabledForUserAndApp);
-      const multiplayerEnabled = yield select(isMultiplayerEnabledForUser);
-      if (commentsEnabled || multiplayerEnabled) {
-        const socket = yield call(connect);
-        const task = yield fork(handleIO, socket);
-        yield put(setIsWebsocketConnected(true));
-        yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
-        yield take();
-        yield cancel(task);
-        socket.disconnect();
-      }
+      const socket = yield call(connect);
+      const task = yield fork(handleIO, socket);
+      yield put(setIsWebsocketConnected(true));
+      yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
+      yield take();
+      yield cancel(task);
+      socket.disconnect();
     } catch (e) {
       // this has to be non blocking
       yield fork(function*() {
