@@ -328,7 +328,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isVisibleDownload: true,
       isVisiblePagination: true,
       delimiter: ",",
-      version: 1,
+      version: 3,
     },
     DROP_DOWN_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
