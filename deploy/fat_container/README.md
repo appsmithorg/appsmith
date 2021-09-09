@@ -42,7 +42,7 @@ version: "3"
 services:
   appsmith:
     image: appsmith/appsmith-fat
-    container_name: appsmith-fat
+    container_name: appsmith-ce
     ports:
       - "80:80"
       - "443:443"
@@ -99,7 +99,7 @@ The following command can be used to take a backup dump of Appsmith's database. 
 Before running this, ensure you are in the directory where `docker-compose.yml` is located.
 
 ```sh
-docker-compose exec appsmith-fat appsmith export_db
+docker-compose exec appsmith-ce appsmith export_db
 ```
 
 The output file will be stored in the container directory `/appsmith-stacks/data/backup/appsmith-data.archive`. Thanks to the volume configuration in the `docker-compose.yml` file, it should be available on your host machine at `./stacks/data/backup/appsmith-data.archive`.
@@ -107,13 +107,13 @@ The output file will be stored in the container directory `/appsmith-stacks/data
 If your volume configuration is different or unavailable, you can use the following command to copy the archive file to your host disk:
 
 ```sh
-docker-compose cp appsmith-fat:/appsmith-stacks/data/backup/appsmith-data.archive .
+docker-compose cp appsmith-ce:/appsmith-stacks/data/backup/appsmith-data.archive .
 ```
 
 Note that you may want to save the `docker.env` file in addition to this archive file, if you intend to be able to reproduce this environment elsewhere, or in case of a disaster. This file can be copied out of the container with the following command:
 
 ```sh
-docker-compose cp appsmith-fat:/appsmith-stacks/configuration/docker.env .
+docker-compose cp appsmith-ce:/appsmith-stacks/configuration/docker.env .
 ```
 
 **Be sure to keep this file safe**, since it contains information that can be used to decrypt datasource information from the database archive.
@@ -125,25 +125,25 @@ The following command can restore backup archive, that was produced by the expor
 First, copy the archive file into the container using the following command:
 
 ```sh
-docker-compose cp ./appsmith-data.archive appsmith-fat:/appsmith-stacks/data/restore/
+docker-compose cp ./appsmith-data.archive appsmith-ce:/appsmith-stacks/data/restore/
 ```
 
 Second, run the following command to import data from this file:
 
 ```sh
-docker-compose exec appsmith-fat appsmith import_db
+docker-compose exec appsmith-ce appsmith import_db
 ```
 
 Note that when you restore, you may also want to copy a `docker.env` from the original instance into this one. You can use the following command to do this (assuming you are in the installation folder and `docker.env` exists in the same folder):
 
 ```sh
-docker-compose cp ./docker.env appsmith-fat:/appsmith-stacks/configuration/
+docker-compose cp ./docker.env appsmith-ce:/appsmith-stacks/configuration/
 ```
 
 This will need a restart of the Appsmith server, which can be done using the following command:
 
 ```sh
-docker-compose exec appsmith-fat supervisorctl restart backend
+docker-compose exec appsmith-ce supervisorctl restart backend
 ```
 
 ## Supervisor
@@ -161,13 +161,13 @@ Here's a screenshot of the web interface listing all the processes managed:
 The command line interface can also be used to perform operations like restarting the Appsmith server, or restarting Nginx etc. For example, the following command (run in the installation folder) can be used to get a status of all running processes:
 
 ```sh
-docker-compose exec appsmith-fat supervisorctl status
+docker-compose exec appsmith-ce supervisorctl status
 ```
 
 Or to view the last few lines of stderr output of one of the processes:
 
 ```sh
-docker-compose exec appsmith-fat supervisorctl tail backend stderr
+docker-compose exec appsmith-ce supervisorctl tail backend stderr
 ```
 
 To learn more, please refer to [Supervisor's documentation](http://supervisord.org/running.html#supervisorctl-actions) on what actions are available to be performed by the command line interface.
