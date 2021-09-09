@@ -86,7 +86,7 @@ function GitSyncModal() {
           <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
         </MenuContainer>
         <BodyContainer>
-          <BodyComponent />
+          <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
         </BodyContainer>
         <CloseBtnContainer onClick={handleClose}>
           <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

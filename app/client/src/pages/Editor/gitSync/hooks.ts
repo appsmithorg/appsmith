@@ -65,7 +65,11 @@ export const useSSHKeyPair = () => {
   };
 };
 
-export const useGitConnect = () => {
+export const useGitConnect = ({
+  goToDeploySection,
+}: {
+  goToDeploySection: () => void;
+}) => {
   const dispatch = useDispatch();
 
   // const gitMetaData = useSelector(getCurrentAppGitMetaData);
@@ -79,6 +83,7 @@ export const useGitConnect = () => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
+    goToDeploySection();
   }, [setIsConnectingToGit]);
 
   const onGitConnectFailure = useCallback(() => {

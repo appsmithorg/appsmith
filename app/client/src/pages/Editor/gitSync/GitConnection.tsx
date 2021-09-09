@@ -116,7 +116,11 @@ const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 
 const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
 
-function GitConnection() {
+type Props = {
+  setActiveMenuIndex: (menuIndex: number) => void;
+};
+
+function GitConnection(props: Props) {
   const [remoteUrl, setRemoteUrl] = useState<string>(appsmithGitSshURL);
 
   const { applicationId: currentApplicationId } = useParams<
@@ -148,7 +152,7 @@ function GitConnection() {
     connectToGit,
     failedConnectingToGit,
     isConnectingToGit,
-  } = useGitConnect();
+  } = useGitConnect({ goToDeploySection: () => props.setActiveMenuIndex(1) });
 
   const copyToClipboard = () => {
     if (sshKeyPair) {
