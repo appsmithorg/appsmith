@@ -61,6 +61,7 @@ import java.util.stream.Collectors;
 @Service
 public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, String> implements PluginService {
 
+    public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     private final OrganizationService organizationService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
@@ -401,6 +402,12 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
                     }
                     
                     editorMap.stream()
+                            .filter(item -> {
+                                if (((Map) item).get(KEY_CHILDREN) == null) {
+                                    return false;
+                                }
+                                return true;
+                            })
                             .map(item -> ((Map) item).get(KEY_CHILDREN))
                             .forEach(item ->
                                     ((List<Map>) item).stream()
@@ -642,7 +649,7 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .map(plugin -> {
-                    if (resourcePath.equals("editor.json") && plugin.getUiComponent().equals("UQIDbEditorForm")) {
+                    if (resourcePath.equals("editor.json") && plugin.getUiComponent().equals(UQI_DB_EDITOR_FORM)) {
                         return loadEditorPluginResourceUqi(plugin);
                     }
                     return loadPluginResourceGivenPlugin(plugin, resourcePath);

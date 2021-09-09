@@ -1,5 +1,6 @@
 {
   "identifier": "FIND",
+  "controlType" : "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command === 'FIND'}}"
   },
