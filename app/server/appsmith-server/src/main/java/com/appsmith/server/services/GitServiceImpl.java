@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -11,6 +12,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserDataRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -40,6 +44,8 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
 
     private final GitExecutor gitExecutor;
 
+    private final EncryptionService encryptionService;
+
     private final static String DEFAULT_BRANCH_NAME = "master";
 
     @Autowired
@@ -53,13 +59,15 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                           UserDataService userDataService,
                           SessionUserService sessionUserService,
                           ApplicationService applicationService,
-                          GitExecutor gitExecutor) {
+                          GitExecutor gitExecutor,
+                          EncryptionService encryptionService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userService = userService;
         this.userDataService = userDataService;
         this.sessionUserService = sessionUserService;
         this.applicationService = applicationService;
         this.gitExecutor = gitExecutor;
+        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -133,13 +141,34 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
                                     "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
-
-                                if(!gitExecutor.cloneApp(
-                                        getrelativePath(gitConnectDTO.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
-                                        gitConnectDTO.getRemoteUrl(),
-                                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                        gitApplicationMetadata.getGitAuth().getPublicKey()
-                                        )) {
+                                String defaultBranch = "";
+                                try {
+                                    defaultBranch = gitExecutor.cloneApp(
+                                            getRelativePath(gitConnectDTO.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
+                                            getRepoName(gitConnectDTO.getRemoteUrl()),
+                                            gitConnectDTO.getRemoteUrl(),
+                                            encryptionService.decryptString(gitApplicationMetadata.getGitAuth().getPrivateKey()),
+                                            gitApplicationMetadata.getGitAuth().getPublicKey());
+                                } catch (GitAPIException e) {
+                                    if( e instanceof TransportException) {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                        ));
+                                    }
+                                    if(e instanceof InvalidRemoteException) {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.INVALID_PARAMETER,
+                                                "remote url"
+                                        ));
+                                    } else {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                        ));
+                                    }
+                                }
+                                if(defaultBranch.equals("failed")) {
                                     return Mono.error( new AppsmithException(
                                             AppsmithError.AUTHENTICATION_FAILURE,
                                             "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
@@ -147,7 +176,7 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                                 }
 
                                 gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-                                gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
+                                gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 Application application1 = new Application();
                                 application1.setGitApplicationMetadata(gitApplicationMetadata);
@@ -156,7 +185,11 @@ public class GitServiceImpl extends BaseService<UserDataRepository, UserData, St
                 }));
     }
 
-    private Path getrelativePath(String orgID, String defaultApplicationId) {
+    private Path getRelativePath(String orgID, String defaultApplicationId) {
         return Paths.get(orgID,defaultApplicationId);
+    }
+
+    private String getRepoName(String remoteUrl) {
+        return remoteUrl.split("/")[1].replace(".git","");
     }
 }
