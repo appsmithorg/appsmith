@@ -86,13 +86,14 @@ const getLintingErrors = (
     indent: 2,
     esversion: 7,
     eqeqeq: false,
-    curly: true,
+    curly: false,
     freeze: true,
     undef: true,
-    unused: true,
+    unused: false,
     asi: true,
     worker: true,
     browser: true,
+    semi: false,
     globals: globalData,
   };
   jshint(script, options);

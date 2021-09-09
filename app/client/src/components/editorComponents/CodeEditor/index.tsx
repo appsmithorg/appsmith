@@ -268,6 +268,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
+        if (getFeatureFlags().LINTING) {
+          this.lintCode(editor);
+        }
       };
 
       // Finally create the Codemirror editor
@@ -462,7 +465,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  lintCode() {
+  lintCode(editor: CodeMirror.Editor) {
     const { dataTreePath, dynamicData } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback) {
@@ -477,11 +480,11 @@ class CodeEditor extends Component<Props, State> {
 
     let annotations: Annotation[] = [];
 
-    if (this.editor) {
-      annotations = getLintAnnotations(this.editor.getValue(), errors);
+    if (editor) {
+      annotations = getLintAnnotations(editor.getValue(), errors);
     }
 
-    this.updateLintingCallback(this.editor, annotations);
+    this.updateLintingCallback(editor, annotations);
   }
 
   static updateMarkings = (
@@ -583,7 +586,7 @@ class CodeEditor extends Component<Props, State> {
     /*  Evaluation results for snippet snippets */
 
     if (getFeatureFlags().LINTING) {
-      this.lintCode();
+      this.lintCode(this.editor);
     }
 
     const showEvaluatedValue =
