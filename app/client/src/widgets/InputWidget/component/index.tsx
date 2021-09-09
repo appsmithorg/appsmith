@@ -57,7 +57,20 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
  */
 
 const InputComponentWrapper = styled((props) => (
-  <ControlGroup {..._.omit(props, ["hasError", "numeric"])} />
+  <ControlGroup
+    {..._.omit(props, [
+      "hasError",
+      "numeric",
+      "labelTextColor",
+      "allowCurrencyChange",
+      "compactMode",
+      "labelStyle",
+      "labelTextSize",
+      "multiline",
+      "numeric",
+      "inputType",
+    ])}
+  />
 ))<{
   numeric: boolean;
   multiline: string;

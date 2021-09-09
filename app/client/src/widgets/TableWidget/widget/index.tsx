@@ -38,7 +38,6 @@ import {
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
-  CompactMode,
   SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
@@ -92,13 +91,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getPropertyValue = (value: any, index: number, preserveCase = false) => {
+  getBooleanPropertyValue = (value: any, index: number) => {
     if (isBoolean(value)) {
       return value;
     }
     if (Array.isArray(value) && isBoolean(value[index])) {
       return value[index];
     }
+    return value;
+  };
+
+  getPropertyValue = (value: any, index: number, preserveCase = false) => {
     if (value && Array.isArray(value) && value[index]) {
       return preserveCase
         ? value[index].toString()
@@ -173,9 +176,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
       textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-      isVisible: this.getPropertyValue(columnProperties.isVisible, rowIndex),
-      isDisabled: this.getPropertyValue(columnProperties.isDisabled, rowIndex),
-      isCellVisible: this.getPropertyValue(
+      isVisible: this.getBooleanPropertyValue(
+        columnProperties.isVisible,
+        rowIndex,
+      ),
+      isDisabled: this.getBooleanPropertyValue(
+        columnProperties.isDisabled,
+        rowIndex,
+      ),
+      isCellVisible: this.getBooleanPropertyValue(
         columnProperties.isCellVisible,
         rowIndex,
       ),
@@ -763,7 +772,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       delimiter,
       pageSize,
       filteredTableData = [],
-      isVisibleCompactMode,
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
@@ -772,7 +780,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableColumns = this.getTableColumns() || [];
     const transformedData = this.transformData(filteredTableData, tableColumns);
     const isVisibleHeaderOptions =
-      isVisibleCompactMode ||
       isVisibleDownload ||
       isVisibleFilters ||
       isVisiblePagination ||
@@ -795,7 +802,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
           isLoading={this.props.isLoading}
-          isVisibleCompactMode={isVisibleCompactMode}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
           isVisiblePagination={isVisiblePagination}
@@ -824,7 +830,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           totalRecordsCount={totalRecordsCount}
           triggerRowSelection={this.props.triggerRowSelection}
           unSelectAllRow={this.resetSelectedRowIndex}
-          updateCompactMode={this.handleCompactModeChange}
           updatePageNo={this.updatePageNumber}
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
@@ -833,14 +838,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       </Suspense>
     );
   }
-
-  handleCompactModeChange = (compactMode: CompactMode) => {
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("compactMode", compactMode);
-    } else {
-      this.props.updateWidgetMetaProperty("compactMode", compactMode);
-    }
-  };
 
   handleReorderColumn = (columnOrder: string[]) => {
     if (this.props.renderMode === RenderModes.CANVAS) {
@@ -939,7 +936,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleRowClick = (rowData: Record<string, unknown>, index: number) => {
     if (this.props.multiRowSelection) {
-      const selectedRowIndices = this.props.selectedRowIndices
+      const selectedRowIndices = Array.isArray(this.props.selectedRowIndices)
         ? [...this.props.selectedRowIndices]
         : [];
       if (selectedRowIndices.includes(index)) {

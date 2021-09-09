@@ -9,9 +9,8 @@ categories:
       - "Bug"
 
 # Only include the following labels in the release notes. All other labels are ignored.
-include-labels:
-  - "Enhancement"
-  - "Bug"
+exclude-labels:
+  - "skip-changelog"
 
 change-template: "- $TITLE (#$NUMBER)"
 

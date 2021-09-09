@@ -79,9 +79,16 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.italics).click({ force: true });
     // Verify the font style is italic
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
+    // Change the font style to underline
+    cy.editColumn("id");
+    cy.get(widgetsPage.underline).click({ force: true });
+    // Verify the font style is underline
+    cy.readTabledataValidateCSS("1", "0", "text-decoration-line", "underline");
+    cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
 
   it("Test to validate vertical allignment", function() {
+    cy.openPropertyPane("tablewidget");
     // Select the top vertical alignment
     cy.get(widgetsPage.verticalTop).click({ force: true });
     // verify vertical alignment is top
@@ -183,7 +190,18 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".draggable-header:contains('Email Address')").should("be.visible");
     cy.get(commonlocators.editPropCrossButton).click();
   });
-
+  it("Edit Row height and test table for changes", function() {
+    cy.openPropertyPane("tablewidget");
+    cy.get(widgetsPage.rowHeight)
+      .last()
+      .click({ force: true });
+    cy.get(".t--dropdown-option")
+      .contains("Short")
+      .click({ force: true });
+    cy.wait(1000);
+    cy.readTabledataValidateCSS("0", "0", "height", "19px");
+    cy.get(commonlocators.editPropCrossButton).click();
+  });
   it("Test to validate text color and text background", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
@@ -235,5 +253,6 @@ describe("Table Widget property pane feature validation", function() {
       "background",
       "rgb(128, 0, 128) none repeat scroll 0% 0% / auto padding-box border-box",
     );
+    cy.get(commonlocators.editPropCrossButton).click();
   });
 });

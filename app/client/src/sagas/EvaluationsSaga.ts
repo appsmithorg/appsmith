@@ -44,6 +44,7 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
+import { JSCollection, JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
@@ -175,6 +176,33 @@ export function* clearEvalPropertyCache(propertyPath: string) {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
     propertyPath,
   });
+}
+
+export function* parseJSCollection(body: string, jsAction: JSCollection) {
+  const parsedObject = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
+    {
+      body,
+      jsAction,
+    },
+  );
+  return parsedObject;
+}
+
+export function* executeFunction(collectionName: string, action: JSAction) {
+  const unEvalTree = yield select(getUnevaluatedDataTree);
+  const dynamicTrigger = collectionName + "." + action.name + "()";
+
+  const workerResponse = yield call(
+    worker.request,
+    EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
+    { dataTree: unEvalTree, dynamicTrigger, fullPropertyPath: dynamicTrigger },
+  );
+
+  const { errors, result, triggers } = workerResponse;
+  yield call(evalErrorHandler, errors);
+  return { triggers, result };
 }
 
 /**

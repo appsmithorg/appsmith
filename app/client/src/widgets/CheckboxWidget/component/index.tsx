@@ -2,44 +2,63 @@ import React from "react";
 import styled from "styled-components";
 import { ComponentProps } from "widgets/BaseComponent";
 import { Alignment, Checkbox, Classes } from "@blueprintjs/core";
-import { BlueprintControlTransform } from "constants/DefaultTheme";
 import { AlignWidget } from "widgets/constants";
 
-const CheckboxContainer = styled.div<{ isValid: boolean }>`
+type StyledCheckboxProps = {
+  rowSpace: number;
+};
+
+type StyledCheckboxContainerProps = {
+  isValid: boolean;
+};
+
+const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
   && {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: flex-start;
     align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: flex-start;
+    width: 100%;
     &.${Alignment.RIGHT} {
       justify-content: flex-end;
     }
-    .bp3-control-indicator {
-      border: ${(props) =>
-        !props.isValid
-          ? `1px solid ${props.theme.colors.error} !important`
-          : `1px solid transparent`};
-    }
 
-    label {
-      margin: 0;
-      color: ${(props) =>
-        !props.isValid ? `${props.theme.colors.error}` : `inherit`};
+    & .bp3-control-indicator {
+      border: ${(props) =>
+        !props.isValid && `1px solid ${props.theme.colors.error} !important`};
     }
   }
-  ${BlueprintControlTransform}
 `;
+
+export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
+  height: ${({ rowSpace }) => rowSpace}px;
+
+  &.bp3-control input:checked ~ .bp3-control-indicator {
+    background-color: #03b365;
+    background-image: none;
+    box-shadow: none;
+  }
+
+  &.bp3-control input:disabled ~ .bp3-control-indicator {
+    opacity: 0.5;
+  }
+
+  &.bp3-control.bp3-checkbox .bp3-control-indicator {
+    border-radius: 0;
+  }
+`;
+
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
   render() {
     const checkboxAlignClass =
       this.props.alignWidget === "RIGHT" ? Alignment.RIGHT : Alignment.LEFT;
+
     return (
       <CheckboxContainer
         className={checkboxAlignClass}
         isValid={!(this.props.isRequired && !this.props.isChecked)}
       >
-        <Checkbox
+        <StyledCheckbox
           alignIndicator={checkboxAlignClass}
           checked={this.props.isChecked}
           className={
@@ -48,7 +67,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
           disabled={this.props.isDisabled}
           label={this.props.label}
           onChange={this.onCheckChange}
-          style={{ borderRadius: 0 }}
+          rowSpace={this.props.rowSpace}
         />
       </CheckboxContainer>
     );
@@ -60,12 +79,13 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 }
 
 export interface CheckboxComponentProps extends ComponentProps {
-  label: string;
+  alignWidget?: AlignWidget;
   isChecked: boolean;
-  onCheckChange: (isChecked: boolean) => void;
   isLoading: boolean;
   isRequired?: boolean;
-  alignWidget?: AlignWidget;
+  label: string;
+  onCheckChange: (isChecked: boolean) => void;
+  rowSpace: number;
 }
 
 export default CheckboxComponent;

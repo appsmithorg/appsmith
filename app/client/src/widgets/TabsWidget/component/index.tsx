@@ -19,6 +19,12 @@ interface TabsComponentProps extends ComponentProps {
   }>;
 }
 
+type ChildrenWrapperProps = Pick<TabsComponentProps, "shouldShowTabs">;
+
+const TAB_CONTAINER_HEIGHT = "40px";
+const CHILDREN_WRAPPER_HEIGHT_WITH_TABS = `calc(100% - ${TAB_CONTAINER_HEIGHT})`;
+const CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS = "100%";
+
 const scrollContents = css`
   overflow-y: auto;
   position: absolute;
@@ -38,8 +44,11 @@ const TabsContainerWrapper = styled.div<{
   overflow: hidden;
 `;
 
-const ChildrenWrapper = styled.div`
-  height: calc(100% - 40px);
+const ChildrenWrapper = styled.div<ChildrenWrapperProps>`
+  height: ${({ shouldShowTabs }) =>
+    shouldShowTabs
+      ? CHILDREN_WRAPPER_HEIGHT_WITH_TABS
+      : CHILDREN_WRAPPER_HEIGHT_WITHOUT_TABS};
   width: 100%;
   position: relative;
   background: ${(props) => props.theme.colors.builderBodyBG};
@@ -63,7 +72,7 @@ const TabsContainer = styled.div`
   background: ${(props) => props.theme.colors.builderBodyBG};
   overflow: hidden;
   && {
-    height: 40px;
+    height: ${TAB_CONTAINER_HEIGHT};
     width: 100%;
     display: flex;
     justify-content: flex-start;
@@ -120,6 +129,7 @@ function TabsComponent(props: TabsComponentProps) {
       tabContainerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.shouldScrollContents]);
+
   return (
     <TabsContainerWrapper ref={tabContainerRef}>
       {props.shouldShowTabs ? (
@@ -143,7 +153,7 @@ function TabsComponent(props: TabsComponentProps) {
       ) : (
         undefined
       )}
-      <ChildrenWrapper>
+      <ChildrenWrapper shouldShowTabs={props.shouldShowTabs}>
         <ScrollableCanvasWrapper
           {...remainingProps}
           className={`${

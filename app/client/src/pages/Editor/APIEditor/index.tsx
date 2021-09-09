@@ -234,6 +234,8 @@ class ApiEditor extends React.Component<Props> {
 const formStyles: CSSProperties = {
   position: "relative",
   height: "100%",
+  display: "flex",
+  flexDirection: "column",
 };
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {

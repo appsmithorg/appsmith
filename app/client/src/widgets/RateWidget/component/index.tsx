@@ -7,6 +7,8 @@ import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
 import TooltipComponent from "components/ads/Tooltip";
+import { disable } from "constants/DefaultTheme";
+import { ComponentProps } from "widgets/BaseComponent";
 
 /*
   Note:
@@ -17,6 +19,7 @@ import TooltipComponent from "components/ads/Tooltip";
 */
 
 interface RateContainerProps {
+  isDisabled: boolean;
   scrollable: boolean;
 }
 
@@ -31,6 +34,8 @@ export const RateContainer = styled.div<RateContainerProps>`
   > span {
     align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
   }
+
+  ${({ isDisabled }) => isDisabled && disable}
 `;
 
 export const Star = styled(Icon)`
@@ -38,7 +43,7 @@ export const Star = styled(Icon)`
     props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
 `;
 
-export interface RateComponentProps {
+export interface RateComponentProps extends ComponentProps {
   value: number;
   isLoading: boolean;
   maxCount: number;
@@ -96,6 +101,7 @@ function RateComponent(props: RateComponentProps) {
     bottomRow,
     inactiveColor,
     isAllowHalf,
+    isDisabled,
     leftColumn,
     maxCount,
     onValueChanged,
@@ -121,7 +127,11 @@ function RateComponent(props: RateComponentProps) {
   }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
 
   return (
-    <RateContainer ref={rateContainerRef} scrollable={scrollable}>
+    <RateContainer
+      isDisabled={Boolean(isDisabled)}
+      ref={rateContainerRef}
+      scrollable={scrollable}
+    >
       <Rating
         emptySymbol={
           <Star

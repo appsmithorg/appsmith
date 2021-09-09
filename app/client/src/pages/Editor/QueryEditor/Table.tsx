@@ -126,6 +126,7 @@ export const TableWrapper = styled.div`
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
     color: ${Colors.OXFORD_BLUE};
     font-weight: 500;
     padding-left: 10px;
@@ -295,7 +296,9 @@ function Table(props: TableProps) {
                               : "hidden-header"
                           }
                         >
-                          {column.render("Header")}
+                          <AutoToolTipComponent title={column.render("Header")}>
+                            {column.render("Header")}
+                          </AutoToolTipComponent>
                         </div>
                       </div>
                     ),

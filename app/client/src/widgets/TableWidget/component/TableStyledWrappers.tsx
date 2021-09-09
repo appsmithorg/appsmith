@@ -275,6 +275,7 @@ export const ActionWrapper = styled.div<{
     }
     .bp3-button span {
       font-weight: 400;
+      text-decoration: none;
     }
     &&& .bp3-disabled {
       color: ${Colors.SLATE_GRAY};
@@ -313,7 +314,10 @@ const IMAGE_VERTICAL_ALIGN = {
   BOTTOM: "bottom",
 };
 
-export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
+export const TableStyles = css<{
+  cellProperties?: CellLayoutProperties;
+  isTextType?: boolean;
+}>`
   font-weight: ${(props) =>
     props?.cellProperties?.fontStyle?.includes(FontStyleTypes.BOLD)
       ? "bold"
@@ -324,7 +328,8 @@ export const TableStyles = css<{ cellProperties?: CellLayoutProperties }>`
       ? "italic"
       : ""};
   text-decoration: ${(props) =>
-    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.UNDERLINE)
+    props?.cellProperties?.fontStyle?.includes(FontStyleTypes.UNDERLINE) &&
+    props.isTextType
       ? "underline"
       : ""};
   justify-content: ${(props) =>
@@ -352,6 +357,7 @@ export const CellWrapper = styled.div<{
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
+  isTextType?: boolean;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
 

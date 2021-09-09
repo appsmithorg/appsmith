@@ -208,6 +208,7 @@ export const ActionType = {
   download: "download",
   copyToClipboard: "copyToClipboard",
   resetWidget: "resetWidget",
+  jsFunction: "jsFunction",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -234,10 +235,12 @@ type SelectorViewProps = ViewProps & {
     option: TreeDropdownOption,
     displayValue?: string,
   ) => React.ReactNode;
+  index?: number;
 };
 
 type KeyValueViewProps = ViewProps;
 type TextViewProps = ViewProps & {
+  index?: number;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
@@ -294,7 +297,7 @@ const views = {
                 props.set(event);
               }
             }}
-            value={props.get(props.value, false) as string}
+            value={props.get(props.value, props.index, false) as string}
           />
         </ControlWrapper>
       </FieldWrapper>
@@ -304,6 +307,7 @@ const views = {
 
 export const FieldType = {
   ACTION_SELECTOR_FIELD: "ACTION_SELECTOR_FIELD",
+  JS_ACTION_SELECTOR_FIELD: "JS_ACTION_SELECTOR_FIELD",
   ON_SUCCESS_FIELD: "ON_SUCCESS_FIELD",
   ON_ERROR_FIELD: "ON_ERROR_FIELD",
   SHOW_MODAL_FIELD: "SHOW_MODAL_FIELD",
@@ -323,6 +327,7 @@ export const FieldType = {
   NAVIGATION_TARGET_FIELD: "NAVIGATION_TARGET_FIELD",
   WIDGET_NAME_FIELD: "WIDGET_NAME_FIELD",
   RESET_CHILDREN_FIELD: "RESET_CHILDREN_FIELD",
+  ARGUMENT_KEY_VALUE_FIELD: "ARGUMENT_KEY_VALUE_FIELD",
 };
 type FieldType = typeof FieldType[keyof typeof FieldType];
 
@@ -357,6 +362,7 @@ const fieldConfigs: FieldConfigs = {
       const type: ActionType = option.type || option.value;
       let value = option.value;
       let defaultParams = "";
+      let defaultArgs: Array<any> = [];
       switch (type) {
         case ActionType.integration:
           value = `${value}.run`;
@@ -364,10 +370,17 @@ const fieldConfigs: FieldConfigs = {
         case ActionType.navigateTo:
           defaultParams = `'#', {}`;
           break;
+        case ActionType.jsFunction:
+          defaultArgs = option.args ? option.args : [];
+          break;
         default:
           break;
       }
-      return value === "none" ? "" : `{{${value}(${defaultParams})}}`;
+      return value === "none"
+        ? ""
+        : defaultArgs && defaultArgs.length
+        ? `{{${value}(${defaultArgs})}}`
+        : `{{${value}(${defaultParams})}}`;
     },
     view: ViewTypes.SELECTOR_VIEW,
   },
@@ -406,6 +419,18 @@ const fieldConfigs: FieldConfigs = {
       return value;
     },
     view: ViewTypes.KEY_VALUE_VIEW,
+  },
+  [FieldType.ARGUMENT_KEY_VALUE_FIELD]: {
+    getter: (value: any, index: number) => {
+      return textGetter(value, index);
+    },
+    setter: (value: any, currentValue: string, index: number) => {
+      if (value === "") {
+        value = undefined;
+      }
+      return textSetter(value, currentValue, index);
+    },
+    view: ViewTypes.TEXT_VIEW,
   },
   [FieldType.URL_FIELD]: {
     getter: (value: string) => {
@@ -655,6 +680,22 @@ function renderField(props: {
         displayValue: displayValue ? displayValue : "",
       });
       break;
+    case FieldType.ARGUMENT_KEY_VALUE_FIELD:
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        label: props.field.label || "",
+        get: fieldConfig.getter,
+        set: (value: string) => {
+          const finalValueToSet = fieldConfig.setter(
+            value,
+            props.value,
+            props.field.index,
+          );
+          props.onValueChange(finalValueToSet);
+        },
+        index: props.field.index,
+        value: props.value || "",
+      });
+      break;
     case FieldType.KEY_VALUE_FIELD:
       viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
         options: props.integrationOptionTree,
@@ -750,14 +791,17 @@ function Fields(props: {
                     depth={props.depth + 1}
                     fields={field}
                     integrationOptionTree={props.integrationOptionTree}
+                    key={selectorField.label + index}
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
                     onValueChange={(value: any) => {
-                      const parentValue = selectorField.getParentValue(
-                        value.substring(2, value.length - 2),
-                      );
-                      props.onValueChange(parentValue);
+                      const parentValue =
+                        selectorField.getParentValue &&
+                        selectorField.getParentValue(
+                          value.substring(2, value.length - 2),
+                        );
+                      props.onValueChange(parentValue || value);
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
                     value={selectorField.value}
@@ -767,7 +811,7 @@ function Fields(props: {
               );
             } else {
               return (
-                <li key={field.field}>
+                <li key={field.field + index}>
                   {renderField({
                     field: field,
                     ...otherProps,

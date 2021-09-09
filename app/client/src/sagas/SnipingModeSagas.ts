@@ -16,6 +16,12 @@ import { RenderModes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
+
+import {
+  SNIPING_NOT_SUPPORTED,
+  SNIPING_SELECT_WIDGET_AGAIN,
+} from "../constants/messages";
+
 import WidgetFactory from "utils/WidgetFactory";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -39,6 +45,14 @@ export function* bindDataToWidgetSaga(
   const selectedWidget = (yield select(getCanvasWidgets))[
     action.payload.widgetId
   ];
+
+  if (!selectedWidget || !selectedWidget.type) {
+    Toaster.show({
+      text: SNIPING_SELECT_WIDGET_AGAIN(),
+      variant: Variant.warning,
+    });
+    return;
+  }
 
   let propertyPath = "";
   let propertyValue: any = "";
@@ -146,7 +160,7 @@ export function* bindDataToWidgetSaga(
   } else {
     queryId &&
       Toaster.show({
-        text: "Binding on selection is not supported for this type of widget!",
+        text: SNIPING_NOT_SUPPORTED(),
         variant: Variant.warning,
       });
   }
