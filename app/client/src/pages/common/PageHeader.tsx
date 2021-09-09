@@ -67,8 +67,7 @@ export function PageHeader(props: PageHeaderProps) {
     loginUrl += `?redirectUrl
     =${queryParams.get("redirectUrl")}`;
   }
-  // eslint-disable-next-line no-console
-  console.log(props.showSeparator, "--> show separator");
+
   return (
     <StyledPageHeader
       hideShadow={props.hideShadow || false}
