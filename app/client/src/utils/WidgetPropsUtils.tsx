@@ -854,7 +854,8 @@ export const revertTableDefaultSelectedRow = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    currentDSL.defaultSelectedRow = undefined;
+    if (currentDSL.defaultSelectedRow === "0")
+      currentDSL.defaultSelectedRow = undefined;
   }
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
