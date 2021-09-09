@@ -17,7 +17,6 @@ import {
   deleteCommentThreadSuccess,
   fetchUnreadCommentThreadsCountSuccess,
   decrementThreadUnreadCount,
-  fetchCommentThreadsInit,
 } from "actions/commentActions";
 import {
   getNewDragPos,
