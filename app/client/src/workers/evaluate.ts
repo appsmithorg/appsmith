@@ -25,12 +25,6 @@ export enum EvaluationScriptType {
   TRIGGERS = "TRIGGERS",
 }
 
-// Some errors in jshint give the character postion after the error.
-// W116 (using == instead of ===) this returns position after == but we want to highlight the == so -2
-const lintErrorOffsets: Record<string, number> = {
-  W116: -2,
-};
-
 const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.EXPRESSION]: `
   function closedFunction () {
@@ -110,17 +104,13 @@ const getLintingErrors = (
     asi: true,
     worker: true,
     browser: true,
-    semi: false,
     globals: globalData,
   };
 
   jshint(script, options);
 
   return jshint.errors.map((lintError) => {
-    const offset = lintErrorOffsets[lintError.code];
-    const ch = _.isUndefined(offset)
-      ? lintError.character
-      : lintError.character + offset;
+    const ch = lintError.character;
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,

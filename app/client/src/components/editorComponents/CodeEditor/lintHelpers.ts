@@ -66,9 +66,9 @@ export const getLintAnnotations = (
   const lines = value.split("\n");
   lintErrors.forEach((error) => {
     const {
-      ch = 0,
+      ch,
       errorMessage,
-      line = 0,
+      line,
       originalBinding,
       severity,
       variables,
@@ -93,29 +93,47 @@ export const getLintAnnotations = (
 
     const bindingPositions = getKeyPositionInString(value, originalBinding);
 
-    for (const bindingLocation of bindingPositions) {
-      const currentLine = bindingLocation.line + line;
-      const lineContent = lines[currentLine] || "";
-      const currentCh = originalBinding.includes("\n")
-        ? ch
-        : bindingLocation.ch + ch;
-      // Jshint counts \t as two characters and codemirror counts it as 1.
-      // So we need to subtract number of tabs to get accurate position
-      const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
+    if (_.isNumber(line) && _.isNumber(ch)) {
+      for (const bindingLocation of bindingPositions) {
+        const currentLine = bindingLocation.line + line;
+        const lineContent = lines[currentLine] || "";
+        const currentCh = originalBinding.includes("\n")
+          ? ch
+          : bindingLocation.ch + ch;
+        // Jshint counts \t as two characters and codemirror counts it as 1.
+        // So we need to subtract number of tabs to get accurate position
+        const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
 
-      const from = {
-        line: currentLine,
-        ch: currentCh - tabs - 1,
-      };
-      const to = {
-        line: from.line,
-        ch: from.ch + variableLength,
-      };
-      annotations.push({
-        from,
-        to,
-        message: errorMessage,
-        severity,
+        const from = {
+          line: currentLine,
+          ch: currentCh - tabs - 1,
+        };
+        const to = {
+          line: from.line,
+          ch: from.ch + variableLength,
+        };
+        annotations.push({
+          from,
+          to,
+          message: errorMessage,
+          severity,
+        });
+      }
+    } else {
+      return bindingPositions.map((from) => {
+        const originalBindingLines = originalBinding.split("\n");
+        const lastLineLentgth = _.last(originalBindingLines)?.length || 0;
+        const to = {
+          lines: originalBindingLines.length,
+          ch: lastLineLentgth,
+        };
+
+        return {
+          from,
+          to,
+          message: errorMessage,
+          severity,
+        };
       });
     }
   });
