@@ -463,8 +463,11 @@ export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
+export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PULL = () => "PULL";
+export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
+export const COMMIT_AND_PUSH = () => "Commit and push";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
