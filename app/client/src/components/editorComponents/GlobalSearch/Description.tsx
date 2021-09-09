@@ -203,6 +203,7 @@ function LazySnippetDescription(props: any) {
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
+  [SEARCH_ITEM_TYPES.jsAction]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,

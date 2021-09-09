@@ -154,7 +154,6 @@ const ApplicationImage = styled.div`
         button {
           span {
             font-weight: ${(props) => props.theme.fontWeights[3]};
-            color: white;
           }
         }
       }

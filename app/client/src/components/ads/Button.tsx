@@ -72,7 +72,7 @@ const defaultProps = {
   isLoading: false,
   disabled: false,
   fill: undefined,
-  tag: "a",
+  tag: "button",
 };
 
 const getDisabledStyles = (props: ThemeProp & ButtonProps) => {

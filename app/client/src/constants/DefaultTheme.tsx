@@ -166,6 +166,17 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
@@ -556,6 +567,7 @@ const lightShades = [
   "#E0DEDE",
   "#EBEBEB",
   "#858282",
+  "#000000",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -812,6 +824,7 @@ type ColorType = {
   };
   tabs: {
     normal: ShadeColor;
+    icon: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
@@ -1158,6 +1171,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    evalDebugButton: {
+      hover: string;
+      active: string;
+    };
     inspectElement: {
       color: string;
     };
@@ -1479,7 +1496,7 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -1755,6 +1772,7 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
+    icon: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
@@ -1995,6 +2013,10 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -2079,7 +2101,7 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -2355,13 +2377,14 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[6],
+    normal: lightShades[8],
+    icon: lightShades[15],
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
     selected: Colors.CRUSTA,
   },
-  settingHeading: lightShades[9],
+  settingHeading: lightShades[16],
   table: {
     headerBg: lightShades[1],
     headerText: lightShades[6],
@@ -2597,6 +2620,10 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
