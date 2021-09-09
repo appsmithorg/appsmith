@@ -416,7 +416,8 @@ class CodeEditor extends Component<Props, State> {
           const entityType = entity.ENTITY_TYPE;
           if (
             entityType === ENTITY_TYPE.WIDGET ||
-            entityType === ENTITY_TYPE.ACTION
+            entityType === ENTITY_TYPE.ACTION ||
+            entityType === ENTITY_TYPE.JSACTION
           ) {
             entityInformation.entityType = entityType;
           }
@@ -588,9 +589,9 @@ class CodeEditor extends Component<Props, State> {
 
     const showEvaluatedValue =
       this.state.isFocused &&
+      !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
-
     return (
       <DynamicAutocompleteInputWrapper
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}

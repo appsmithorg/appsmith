@@ -69,9 +69,13 @@ public interface NewActionService extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId);
 
+    Mono<NewAction> archive(String id);
+
     List<String> extractMustacheKeysInOrder(String query);
 
     String replaceMustacheWithQuestionMark(String query, List<String> mustacheBindings);
 
     Mono<Boolean> updateActionsExecuteOnLoad(List<ActionDTO> actions, String pageId, List<LayoutActionUpdateDTO> actionUpdates, List<String> messages);
+
+    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 }

@@ -25,13 +25,13 @@ const generateInitialEvalState = (formConfig: any) => {
 
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if (formConfig.hasOwnProperty("conditionals")) {
-    let key = "unkowns";
+    let key = "unknowns";
 
     // A unique key is used to refer the object in the eval state, can be configProperty or serverLabel
     if (formConfig.hasOwnProperty("configProperty")) {
       key = formConfig.configProperty;
-    } else if (formConfig.hasOwnProperty("serverLabel")) {
-      key = formConfig.serverLabel;
+    } else if (formConfig.hasOwnProperty("identifier")) {
+      key = formConfig.identifier;
     }
 
     // Conditionals are stored in the eval state itself for quick access
