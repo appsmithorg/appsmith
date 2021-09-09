@@ -48,7 +48,8 @@ const Container = styled.div<{
 
           if (props.isEditMode)
             return `calc(95% - ${props.theme.sidebarWidth}))`;
-          else return `95%`;
+
+          return `95%`;
         }};
         max-height: 90%;
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
@@ -159,6 +160,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         onStop={onResizeStop}
         ref={resizeRef}
         resizeDualSides
+        showLightBorder
         snapGrid={{ x: 1, y: 1 }}
       >
         {getContent()}

@@ -28,6 +28,7 @@ const getSnappedValues = (
 
 type ResizableHandleProps = {
   allowResize: boolean;
+  showLightBorder?: boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -60,6 +61,7 @@ function ResizableHandle(props: ResizableHandleProps) {
   const propsToPass = {
     ...bind(),
     showAsBorder: !props.allowResize,
+    showLightBorder: props.showLightBorder,
   };
 
   return <props.component {...propsToPass} />;
@@ -93,6 +95,7 @@ type ResizableProps = {
   ) => boolean;
   className?: string;
   resizeDualSides?: boolean;
+  showLightBorder?: boolean;
   zWidgetType?: string;
   zWidgetId?: string;
 };
@@ -290,6 +293,7 @@ export const Resizable = forwardRef(function Resizable(
         props.onStart();
       }}
       onStop={onResizeStop}
+      showLightBorder={props.showLightBorder}
       snapGrid={props.snapGrid}
     />
   ));

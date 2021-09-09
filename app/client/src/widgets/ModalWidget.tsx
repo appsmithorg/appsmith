@@ -143,7 +143,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   componentDidMount() {
     if (!this.props.height && !this.props.width && this.props.size) {
       const dimensions = MODAL_SIZE[this.props.size];
-      this.onModalResize(dimensions);
+      dimensions && this.onModalResize(dimensions);
     }
   }
 
@@ -207,7 +207,12 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getChildren(): ReactNode {
-    if (this.props.children && this.props.children.length > 0) {
+    if (
+      this.props.height &&
+      this.props.width &&
+      this.props.children &&
+      this.props.children.length > 0
+    ) {
       const children = this.props.children.filter(Boolean);
       return children.length > 0 && children.map(this.renderChildWidget);
     }
