@@ -21,6 +21,8 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  renderMenuButton,
+  RenderMenuButtonProps,
   renderIconButton,
 } from "components/designSystems/appsmith/TableComponent/TableUtilities";
 import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
@@ -37,7 +39,6 @@ import derivedProperties from "./parseDerivedProperties";
 
 import {
   ColumnProperties,
-  CellLayoutProperties,
   ReactTableColumnProps,
   ColumnTypes,
   CompactModeTypes,
@@ -47,6 +48,7 @@ import tablePropertyPaneConfig from "./TablePropertyPaneConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { isArray } from "lodash";
+import { getCellProperties } from "./getTableColumns";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() =>
@@ -94,112 +96,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  getBooleanPropertyValue = (value: any, index: number) => {
-    if (isBoolean(value)) {
-      return value;
-    }
-    if (Array.isArray(value) && isBoolean(value[index])) {
-      return value[index];
-    }
-    return value;
-  };
-
-  getPropertyValue = (value: any, index: number, preserveCase = false) => {
-    if (value && Array.isArray(value) && value[index]) {
-      return preserveCase
-        ? value[index].toString()
-        : value[index].toString().toUpperCase();
-    } else if (value) {
-      return preserveCase ? value.toString() : value.toString().toUpperCase();
-    } else {
-      return value;
-    }
-  };
-
-  getCellProperties = (
-    columnProperties: ColumnProperties,
-    rowIndex: number,
-  ) => {
-    const cellProperties: CellLayoutProperties = {
-      horizontalAlignment: this.getPropertyValue(
-        columnProperties.horizontalAlignment,
-        rowIndex,
-      ),
-      verticalAlignment: this.getPropertyValue(
-        columnProperties.verticalAlignment,
-        rowIndex,
-      ),
-      cellBackground: this.getPropertyValue(
-        columnProperties.cellBackground,
-        rowIndex,
-      ),
-      buttonStyle: this.getPropertyValue(
-        columnProperties.buttonStyle,
-        rowIndex,
-      ),
-      buttonLabelColor: this.getPropertyValue(
-        columnProperties.buttonLabelColor,
-        rowIndex,
-      ),
-      buttonLabel: this.getPropertyValue(
-        columnProperties.buttonLabel,
-        rowIndex,
-        true,
-      ),
-      iconName: this.getPropertyValue(
-        columnProperties.iconName,
-        rowIndex,
-        true,
-      ),
-      buttonVariant: this.getPropertyValue(
-        columnProperties.buttonVariant,
-        rowIndex,
-        true,
-      ),
-      borderRadius: this.getPropertyValue(
-        columnProperties.borderRadius,
-        rowIndex,
-        true,
-      ),
-      boxShadow: this.getPropertyValue(
-        columnProperties.boxShadow,
-        rowIndex,
-        true,
-      ),
-      boxShadowColor: this.getPropertyValue(
-        columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
-      iconButtonStyle: this.getPropertyValue(
-        columnProperties.iconButtonStyle,
-        rowIndex,
-        true,
-      ),
-      textSize: this.getPropertyValue(columnProperties.textSize, rowIndex),
-      textColor: this.getPropertyValue(columnProperties.textColor, rowIndex),
-      fontStyle: this.getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
-      isVisible: this.getBooleanPropertyValue(
-        columnProperties.isVisible,
-        rowIndex,
-      ),
-      isDisabled: this.getBooleanPropertyValue(
-        columnProperties.isDisabled,
-        rowIndex,
-      ),
-      isCellVisible: this.getBooleanPropertyValue(
-        columnProperties.isCellVisible,
-        rowIndex,
-      ),
-      displayText: this.getPropertyValue(
-        columnProperties.displayText,
-        rowIndex,
-        true,
-      ),
-    };
-    return cellProperties;
-  };
-
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -239,10 +135,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           const data = this.props.filteredTableData[rowIndex];
           if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
 
-          const cellProperties = this.getCellProperties(
-            columnProperties,
-            rowIndex,
-          );
+          const cellProperties = getCellProperties(columnProperties, rowIndex);
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
@@ -292,6 +185,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               onClick,
               isSelected,
             );
+          } else if (columnProperties.columnType === "menuButton") {
+            const menuButtonProps: RenderMenuButtonProps = {
+              isSelected: !!props.row.isSelected,
+              onCommandClick: (action: string, onComplete?: () => void) =>
+                this.onCommandClick(rowIndex, action, onComplete),
+              isDisabled: cellProperties.isDisabled || false,
+              menuItems: cellProperties.menuItems,
+              isCompact: cellProperties.isCompact || false,
+              menuStyle: cellProperties.menuStyle ?? "PRIMARY",
+              prevMenuStyle: cellProperties.prevMenuStyle,
+              menuVariant: cellProperties.menuVariant ?? "SOLID",
+              menuColor: cellProperties.menuColor,
+              borderRadius: cellProperties.borderRadius,
+              boxShadow: cellProperties.boxShadow,
+              boxShadowColor: cellProperties.boxShadowColor,
+              iconName: cellProperties.iconName,
+              iconAlign: cellProperties.iconAlign,
+              isCellVisible: cellProperties.isCellVisible ?? true,
+              label: cellProperties.buttonLabel ?? "Action",
+            };
+            return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
               isSelected: !!props.row.isSelected,
@@ -306,9 +220,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               iconName: cellProperties.iconName as IconName,
               buttonStyle: cellProperties.iconButtonStyle,
               buttonVariant: cellProperties.buttonVariant,
-              borderRadius: cellProperties.borderRadius,
-              boxShadow: cellProperties.boxShadow,
-              boxShadowColor: cellProperties.boxShadowColor,
+              borderRadius: cellProperties.borderRadius || "SHARP",
+              boxShadow: cellProperties.boxShadow || "NONE",
+              boxShadowColor: cellProperties.boxShadowColor || "",
               isCellVisible: cellProperties.isCellVisible ?? true,
             };
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
@@ -891,7 +805,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   onCommandClick = (
     rowIndex: number,
     action: string,
-    onComplete: () => void,
+    onComplete?: () => void,
   ) => {
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];

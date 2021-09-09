@@ -1,11 +1,15 @@
 import { isString } from "lodash";
 import moment from "moment";
-import { TextSize } from "constants/WidgetConstants";
+import {
+  ButtonStyle,
+  ButtonVariant,
+  TextSize,
+} from "constants/WidgetConstants";
 import { IconName } from "@blueprintjs/icons";
-import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
-import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
-import { ButtonStyle, ButtonVariant } from "../IconButtonComponent";
-
+import { Alignment } from "@blueprintjs/core";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
+import { ButtonStyle as IconButtonStyle } from "../IconButtonComponent";
 export type TableSizes = {
   COLUMN_HEADER_HEIGHT: number;
   TABLE_HEADER_HEIGHT: number;
@@ -106,13 +110,37 @@ export interface CellLayoutProperties {
   isVisible?: boolean;
   isDisabled?: boolean;
   displayText?: string;
-  iconName?: IconName;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
-  iconButtonStyle: ButtonStyle;
+  iconButtonStyle: IconButtonStyle;
   isCellVisible: boolean;
+  isCompact?: boolean;
+  menuItems: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
 }
 
 export interface TableColumnMetaProps {
@@ -165,13 +193,37 @@ export interface ColumnProperties {
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
-  iconName?: IconName;
   buttonVariant?: ButtonVariant;
+  iconButtonStyle?: IconButtonStyle;
+  isCellVisible?: boolean;
+  isCompact?: boolean;
+  menuItems?: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  iconButtonStyle?: ButtonStyle;
-  isCellVisible?: boolean;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  onItemClicked?: (onClick: string | undefined) => void;
 }
 
 export const ConditionFunctions: {

@@ -5,6 +5,8 @@ import { TableWidgetProps } from "./TableWidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonStyleTypes } from "constants/WidgetConstants";
+import { Alignment } from "@blueprintjs/core";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonBorderRadiusTypes } from "components/propertyControls/BorderRadiusOptionsControl";
 
@@ -17,6 +19,7 @@ enum ColumnTypes {
   DATE = "date",
   BUTTON = "button",
   ICON_BUTTON = "iconButton",
+  MENU_BUTTON = "menuButton",
 }
 
 function defaultSelectedRowValidation(
@@ -345,6 +348,10 @@ export default [
                     {
                       label: "Button",
                       value: "button",
+                    },
+                    {
+                      label: "Menu Button",
+                      value: "menuButton",
                     },
                     {
                       label: "Icon Button",
@@ -850,8 +857,16 @@ export default [
             {
               sectionName: "Button Properties",
               hidden: (props: TableWidgetProps, propertyPath: string) => {
-                const columnType = get(props, `${propertyPath}.columnType`, "");
-                return columnType !== "button" && columnType !== "iconButton";
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [
+                    ColumnTypes.BUTTON,
+                    ColumnTypes.MENU_BUTTON,
+                    ColumnTypes.ICON_BUTTON,
+                  ],
+                  true,
+                );
               },
               children: [
                 {
@@ -950,6 +965,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                      ColumnTypes.MENU_BUTTON,
                     ]);
                   },
                   dependencies: [
@@ -959,6 +975,27 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: false,
+                },
+                {
+                  propertyName: "isCompact",
+                  helpText: "Decides if menu items will consume lesser space",
+                  updateHook: updateDerivedColumnsHook,
+                  label: "Compact",
+                  controlType: "SWITCH",
+                  customJSControl: "COMPUTE_VALUE",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
                 },
                 {
                   propertyName: "buttonStyle",
@@ -1124,6 +1161,345 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
+                  propertyName: "menuStyle",
+                  label: "Menu Style",
+                  controlType: "DROP_DOWN",
+                  helpText: "Changes the style of the menu button",
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  options: [
+                    {
+                      label: "Primary",
+                      value: "PRIMARY",
+                    },
+                    {
+                      label: "Warning",
+                      value: "WARNING",
+                    },
+                    {
+                      label: "Danger",
+                      value: "DANGER",
+                    },
+                    {
+                      label: "Info",
+                      value: "INFO",
+                    },
+                    {
+                      label: "Secondary",
+                      value: "SECONDARY",
+                    },
+                    {
+                      label: "Custom",
+                      value: "CUSTOM",
+                    },
+                  ],
+                  // Update Menu color once Custom Style is Selected
+                  updateHook: function updateHook(
+                    props: TableWidgetProps,
+                    propertyPath: string,
+                    propertyValue: string,
+                  ) {
+                    let propertiesToUpdate = [
+                      { propertyPath, propertyValue },
+                      { propertyPath: "prevMenuStyle", propertyValue },
+                    ];
+
+                    if (propertyValue === "CUSTOM") {
+                      propertiesToUpdate = [{ propertyPath, propertyValue }];
+                    }
+
+                    propertiesToUpdate.push({
+                      propertyPath: "menuColor",
+                      propertyValue: "",
+                    });
+
+                    return propertiesToUpdate;
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "PRIMARY",
+                      allowedValues: [
+                        "PRIMARY",
+                        "WARNING",
+                        "DANGER",
+                        "INFO",
+                        "SECONDARY",
+                        "CUSTOM",
+                      ],
+                    },
+                  },
+                },
+                {
+                  propertyName: "menuColor",
+                  helpText:
+                    "Sets the custom color preset based on the menu button variant",
+                  label: "Menu Color",
+                  controlType: "COLOR_PICKER",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+                  validation: { type: ValidationTypes.TEXT },
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    const property = getBasePropertyPath(propertyPath);
+                    const menuStyle = get(props, `${property}.menuStyle`, "");
+                    const columnType = get(props, `${property}.columnType`, "");
+                    return (
+                      menuStyle !== ButtonStyleTypes.CUSTOM ||
+                      columnType !== ColumnTypes.MENU_BUTTON
+                    );
+                  },
+                  dependencies: [
+                    "menuStyle",
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  // Remove menu Style once Custom is Chosen
+                  updateHook: function updateHook(
+                    props: TableWidgetProps,
+                    propertyPath: string,
+                    propertyValue: string,
+                  ) {
+                    const property = getBasePropertyPath(propertyPath);
+                    const prevMenuStyle = get(
+                      props,
+                      `${property}.prevMenuStyle`,
+                      "",
+                    );
+                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
+                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
+                      props,
+                      propertyPath,
+                      propertyValue,
+                    );
+                    if (updateDerivedColumnsHookArr) {
+                      propertiesToUpdate = [
+                        ...updateDerivedColumnsHookArr,
+                        ...propertiesToUpdate,
+                      ];
+                    }
+                    if (prevMenuStyle) {
+                      propertiesToUpdate.push({
+                        propertyPath: "prevMenuStyle",
+                        propertyValue: "",
+                      });
+                    }
+                    return propertiesToUpdate;
+                  },
+                },
+                {
+                  propertyName: "menuVariant",
+                  label: "Menu Variant",
+                  controlType: "DROP_DOWN",
+                  helpText: "Sets the variant of the menu button",
+                  options: [
+                    {
+                      label: "Solid",
+                      value: "SOLID",
+                    },
+                    {
+                      label: "Outline",
+                      value: "OUTLINE",
+                    },
+                    {
+                      label: "Ghost",
+                      value: "GHOST",
+                    },
+                  ],
+                  isJSConvertible: true,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      default: "SOLID",
+                      allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                    },
+                  },
+                },
+                {
+                  propertyName: "borderRadius",
+                  label: "Border Radius",
+                  helpText:
+                    "Rounds the corners of the icon button's outer border edge",
+                  controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
+                    },
+                  },
+                },
+                {
+                  propertyName: "boxShadow",
+                  label: "Box Shadow",
+                  helpText:
+                    "Enables you to cast a drop shadow from the frame of the widget",
+                  controlType: "BOX_SHADOW_OPTIONS",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: [
+                        "NONE",
+                        "VARIANT1",
+                        "VARIANT2",
+                        "VARIANT3",
+                        "VARIANT4",
+                        "VARIANT5",
+                      ],
+                    },
+                  },
+                },
+                {
+                  propertyName: "boxShadowColor",
+                  helpText: "Sets the shadow color of the widget",
+                  label: "Shadow Color",
+                  controlType: "COLOR_PICKER",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
+                },
+                {
+                  propertyName: "iconName",
+                  label: "Icon",
+                  helpText: "Sets the icon to be used for the menu button",
+                  controlType: "ICON_SELECT",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
+                  },
+                  // Select a default Icon Alignment when an icon is chosen
+                  updateHook: function updateHook(
+                    props: TableWidgetProps,
+                    propertyPath: string,
+                    propertyValue: string,
+                  ) {
+                    const property = getBasePropertyPath(propertyPath);
+                    const iconAlign = get(props, `${property}.iconAlign`, "");
+                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
+                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
+                      props,
+                      propertyPath,
+                      propertyValue,
+                    );
+                    if (updateDerivedColumnsHookArr) {
+                      propertiesToUpdate = [
+                        ...updateDerivedColumnsHookArr,
+                        ...propertiesToUpdate,
+                      ];
+                    }
+
+                    if (iconAlign) {
+                      propertiesToUpdate.push({
+                        propertyPath: "iconAlign",
+                        propertyValue: Alignment.LEFT,
+                      });
+                    }
+                    return propertiesToUpdate;
+                  },
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                  },
+                },
+                {
+                  propertyName: "iconAlign",
+                  label: "Icon Alignment",
+                  helpText: "Sets the icon alignment of the menu button",
+                  controlType: "ICON_ALIGN",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["center", "left", "right"],
+                    },
+                  },
+                },
+                {
                   helpText: "Triggers an action when the button is clicked",
                   propertyName: "onClick",
                   label: "onClick",
@@ -1145,6 +1521,208 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: true,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.BUTTON,
+                      ColumnTypes.ICON_BUTTON,
+                    ]);
+                  },
+                },
+              ],
+            },
+            {
+              sectionName: "Menu Items",
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [ColumnTypes.MENU_BUTTON],
+                  true,
+                );
+              },
+              updateHook: updateDerivedColumnsHook,
+              children: [
+                {
+                  helpText: "Menu items",
+                  propertyName: "menuItems",
+                  controlType: "MENU_ITEMS",
+                  label: "",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  dependencies: ["derivedColumns", "columnOrder"],
+                  panelConfig: {
+                    editableTitle: true,
+                    titlePropertyName: "label",
+                    panelIdPropertyName: "id",
+                    updateHook: updateDerivedColumnsHook,
+                    dependencies: [
+                      "primaryColumns",
+                      "derivedColumns",
+                      "columnOrder",
+                    ],
+                    children: [
+                      {
+                        sectionName: "General",
+                        children: [
+                          {
+                            propertyName: "label",
+                            helpText: "Sets the label of a menu item",
+                            label: "Label",
+                            controlType: "INPUT_TEXT",
+                            placeholderText: "Enter label",
+                            isBindProperty: true,
+                            isTriggerProperty: false,
+                            validation: { type: ValidationTypes.TEXT },
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "backgroundColor",
+                            helpText:
+                              "Sets the background color of a menu item",
+                            label: "Background color",
+                            controlType: "COLOR_PICKER",
+                            isBindProperty: false,
+                            isTriggerProperty: false,
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "textColor",
+                            helpText: "Sets the text color of a menu item",
+                            label: "Text color",
+                            controlType: "COLOR_PICKER",
+                            isBindProperty: false,
+                            isTriggerProperty: false,
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "isDisabled",
+                            helpText: "Disables input to the widget",
+                            label: "Disabled",
+                            controlType: "SWITCH",
+                            isJSConvertible: true,
+                            isBindProperty: true,
+                            isTriggerProperty: false,
+                            validation: { type: ValidationTypes.BOOLEAN },
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "isVisible",
+                            helpText: "Controls the visibility of the widget",
+                            label: "Visible",
+                            controlType: "SWITCH",
+                            isJSConvertible: true,
+                            isBindProperty: true,
+                            isTriggerProperty: false,
+                            validation: { type: ValidationTypes.BOOLEAN },
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        sectionName: "Icon Options",
+                        children: [
+                          {
+                            propertyName: "iconName",
+                            label: "Icon",
+                            helpText:
+                              "Sets the icon to be used for a menu item",
+                            controlType: "ICON_SELECT",
+                            isBindProperty: false,
+                            isTriggerProperty: false,
+                            validation: { type: ValidationTypes.TEXT },
+                            updateHook: updateDerivedColumnsHook,
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "iconColor",
+                            helpText: "Sets the icon color of a menu item",
+                            label: "Icon color",
+                            controlType: "COLOR_PICKER",
+                            isBindProperty: false,
+                            isTriggerProperty: false,
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                          {
+                            propertyName: "iconAlign",
+                            label: "Icon alignment",
+                            helpText: "Sets the icon alignment of a menu item",
+                            controlType: "ICON_ALIGN",
+                            isBindProperty: false,
+                            isTriggerProperty: false,
+                            validation: { type: ValidationTypes.TEXT },
+                            updateHook: updateDerivedColumnsHook,
+
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        sectionName: "Actions",
+                        children: [
+                          {
+                            helpText:
+                              "Triggers an action when the menu item is clicked",
+                            propertyName: "onClick",
+                            label: "onItemClick",
+                            controlType: "ACTION_SELECTOR",
+                            isJSConvertible: true,
+                            isBindProperty: true,
+                            isTriggerProperty: true,
+                            updateHook: updateDerivedColumnsHook,
+                            dependencies: [
+                              "primaryColumns",
+                              "derivedColumns",
+                              "columnOrder",
+                            ],
+                          },
+                        ],
+                      },
+                    ],
+                  },
                 },
               ],
             },

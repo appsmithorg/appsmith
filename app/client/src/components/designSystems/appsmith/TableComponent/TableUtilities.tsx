@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Classes,
+  Button as BButton,
+  Alignment,
+} from "@blueprintjs/core";
 import {
   CellWrapper,
   CellCheckboxWrapper,
@@ -29,14 +34,19 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
-import { noop } from "utils/AppsmithUtils";
-import { ButtonBorderRadius } from "../../../propertyControls/ButtonBorderRadiusControl";
-import { ButtonBoxShadow } from "../../../propertyControls/BoxShadowOptionsControl";
 import {
   ButtonStyle,
   ButtonVariant,
+  FontStyleTypes,
+  TextSizes,
+} from "constants/WidgetConstants";
+import { noop } from "utils/AppsmithUtils";
+import { ButtonBorderRadius } from "components/propertyControls/ButtonBorderRadiusControl";
+import { ButtonBoxShadow } from "components/propertyControls/BoxShadowOptionsControl";
+import MenuButtonTableComponent from "./components/menuButtonTableComponent";
+import {
   StyledButton,
+  ButtonStyle as IconButtonStyle,
 } from "../IconButtonComponent";
 
 export const renderCell = (
@@ -169,7 +179,7 @@ interface RenderIconButtonProps {
   columnActions?: ColumnAction[];
   iconName?: IconName;
   buttonVariant: ButtonVariant;
-  buttonStyle: ButtonStyle;
+  buttonStyle: IconButtonStyle;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
   boxShadowColor: string;
@@ -214,7 +224,7 @@ function IconButton(props: {
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isSelected: boolean;
   action: ColumnAction;
-  buttonStyle: ButtonStyle;
+  buttonStyle?: IconButtonStyle;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -262,6 +272,41 @@ interface RenderActionProps {
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }
+export interface RenderMenuButtonProps {
+  isSelected: boolean;
+  // columnActions?: ColumnAction[];
+  label: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
+  onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
+  isCompact?: boolean;
+  menuItems: Record<
+    string,
+    {
+      widgetId: string;
+      id: string;
+      index: number;
+      isVisible?: boolean;
+      isDisabled?: boolean;
+      label?: string;
+      backgroundColor?: string;
+      textColor?: string;
+      iconName?: IconName;
+      iconColor?: string;
+      iconAlign?: Alignment;
+      onClick?: string;
+    }
+  >;
+  menuStyle?: ButtonStyle;
+  prevMenuStyle?: ButtonStyle;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: ButtonBoxShadow;
+  boxShadowColor?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+}
 
 export const renderActions = (
   props: RenderActionProps,
@@ -300,6 +345,77 @@ export const renderActions = (
     </CellWrapper>
   );
 };
+
+export const renderMenuButton = (
+  props: RenderMenuButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  return (
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+    >
+      <MenuButton {...props} />
+    </CellWrapper>
+  );
+};
+
+interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
+  action?: ColumnAction;
+}
+function MenuButton({
+  borderRadius,
+  boxShadow,
+  boxShadowColor,
+  iconAlign,
+  iconName,
+  isCompact,
+  isDisabled,
+  isSelected,
+  label,
+  menuColor,
+  menuItems,
+  menuStyle,
+  menuVariant,
+  onCommandClick,
+  prevMenuStyle,
+}: MenuButtonProps): JSX.Element {
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (isSelected) {
+      e.stopPropagation();
+    }
+  };
+  const onItemClicked = (onClick?: string) => {
+    if (onClick) {
+      onCommandClick(onClick);
+    }
+  };
+
+  return (
+    <div onClick={handlePropagation}>
+      <MenuButtonTableComponent
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        boxShadowColor={boxShadowColor}
+        iconAlign={iconAlign}
+        iconName={iconName}
+        isCompact={isCompact}
+        isDisabled={isDisabled}
+        label={label}
+        menuColor={menuColor}
+        menuItems={{ ...menuItems }}
+        menuStyle={menuStyle}
+        menuVariant={menuVariant}
+        onItemClicked={onItemClicked}
+        prevMenuStyle={prevMenuStyle}
+      />
+    </div>
+  );
+}
 
 function TableAction(props: {
   isSelected: boolean;
