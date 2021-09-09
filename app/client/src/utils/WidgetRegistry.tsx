@@ -132,10 +132,15 @@ import IconButtonWidget, {
   IconButtonWidgetProps,
   ProfiledIconButtonWidget,
 } from "widgets/IconButtonWidget";
+import StatboxWidget, { ProfiledStatboxWidget } from "widgets/StatboxWidget";
 import CheckboxGroupWidget, {
   CheckboxGroupWidgetProps,
   ProfiledCheckboxGroupWidget,
 } from "widgets/CheckboxGroupWidget";
+import AudioRecorderWidget, {
+  AudioRecorderWidgetProps,
+  ProfiledAudioRecorderWidget,
+} from "widgets/AudioRecorderWidget";
 
 export default class WidgetBuilderRegistry {
   static registerWidgetBuilders() {
@@ -580,6 +585,21 @@ export default class WidgetBuilderRegistry {
     );
 
     WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.STATBOX_WIDGET,
+      {
+        buildWidget(
+          widgetProps: ContainerWidgetProps<WidgetProps>,
+        ): JSX.Element {
+          return <ProfiledStatboxWidget {...widgetProps} />;
+        },
+      },
+      StatboxWidget.getDerivedPropertiesMap(),
+      StatboxWidget.getDefaultPropertiesMap(),
+      StatboxWidget.getMetaPropertiesMap(),
+      StatboxWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
       WidgetTypes.CHECKBOX_GROUP_WIDGET,
       {
         buildWidget(widgetData: CheckboxGroupWidgetProps): JSX.Element {
@@ -590,6 +610,19 @@ export default class WidgetBuilderRegistry {
       CheckboxGroupWidget.getDefaultPropertiesMap(),
       CheckboxGroupWidget.getMetaPropertiesMap(),
       CheckboxGroupWidget.getPropertyPaneConfig(),
+    );
+
+    WidgetFactory.registerWidgetBuilder(
+      WidgetTypes.AUDIO_RECORDER_WIDGET,
+      {
+        buildWidget(widgetData: AudioRecorderWidgetProps): JSX.Element {
+          return <ProfiledAudioRecorderWidget {...widgetData} />;
+        },
+      },
+      AudioRecorderWidget.getDerivedPropertiesMap(),
+      AudioRecorderWidget.getDefaultPropertiesMap(),
+      AudioRecorderWidget.getMetaPropertiesMap(),
+      AudioRecorderWidget.getPropertyPaneConfig(),
     );
   }
 }

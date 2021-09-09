@@ -1,5 +1,6 @@
 import initSagas from "../src/sagas/InitSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
+import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "../src/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
 import orgSagas from "../src/sagas/OrgSagas";
@@ -25,6 +26,7 @@ import { watchActionExecutionSagas } from "../src/sagas/ActionExecution/ActionEx
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
+import { watchJSActionSagas } from "../src/sagas/JSActionSagas";
 import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
 import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
@@ -40,6 +42,7 @@ export const sagasToRunForTests = [
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,
@@ -60,6 +63,7 @@ export const sagasToRunForTests = [
   commentSagas,
   websocketSagas,
   debuggerSagas,
+  watchJSActionSagas,
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,

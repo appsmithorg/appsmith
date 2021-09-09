@@ -263,13 +263,6 @@ function ActionSidebar({
           entityDependencies={entityDependencies}
         />
       )}
-      {showSuggestedWidgets && (
-        <SuggestedWidgets
-          actionName={actionName}
-          hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-        />
-      )}
       {hasResponse && Object.keys(widgets).length > 1 && (
         <Collapsible label="Connect Widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
@@ -286,6 +279,13 @@ function ActionSidebar({
             />
           </SnipingWrapper>
         </Collapsible>
+      )}
+      {showSuggestedWidgets && (
+        <SuggestedWidgets
+          actionName={actionName}
+          hasWidgets={hasWidgets}
+          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
+        />
       )}
     </SideBar>
   );

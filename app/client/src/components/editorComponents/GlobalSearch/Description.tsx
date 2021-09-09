@@ -58,6 +58,15 @@ const Container = styled.div`
     color: #484848;
   }
 
+  table {
+    th:nth-child(1) {
+      width: 150px;
+    }
+    th:nth-child(2) {
+      width: 300px;
+    }
+  }
+
   .documentation-cta {
     ${(props) => getTypographyByKey(props, "p3")}
     white-space: nowrap;
@@ -68,6 +77,7 @@ const Container = styled.div`
     margin: 0 ${(props) => props.theme.spaces[2]}px;
     position: relative;
     bottom: 3px;
+    float: right;
   }
 
   & a {
@@ -77,14 +87,15 @@ const Container = styled.div`
   code {
     word-break: break-word;
     font-size: 12px;
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
   }
 
   pre {
     background: ${(props) =>
-      props.theme.colors.globalSearch.codeBackground} !important;
+      props.theme.colors.globalSearch.documentationCodeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
+    border-left: 3px solid #f86a2b;
+    padding: 12px;
   }
   .CodeMirror {
     pre {
@@ -150,7 +161,9 @@ const StyledHitEnterMessageContainer = styled.div`
     props.theme.colors.globalSearch.navigateUsingEnterSection};
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
-  ${(props) => getTypographyByKey(props, "p3")}
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
+  ${(props) => getTypographyByKey(props, "p3")};
 `;
 
 const StyledKey = styled.span`
@@ -190,6 +203,7 @@ function LazySnippetDescription(props: any) {
 const descriptionByType = {
   [SEARCH_ITEM_TYPES.document]: DocumentationDescription,
   [SEARCH_ITEM_TYPES.action]: HitEnterMessage,
+  [SEARCH_ITEM_TYPES.jsAction]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.widget]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.datasource]: HitEnterMessage,
   [SEARCH_ITEM_TYPES.page]: HitEnterMessage,
