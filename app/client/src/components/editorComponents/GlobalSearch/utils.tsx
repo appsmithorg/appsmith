@@ -14,9 +14,9 @@ import getFeatureFlags from "utils/featureFlags";
 import { modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
+import WidgetFactory from "utils/WidgetFactory";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -96,7 +96,7 @@ export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
-    WidgetConfigResponse.config[label as WidgetType]?.widgetName ||
+    WidgetFactory.widgetConfigMap.get(label as WidgetType)?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
     filterEntityTypeLabels[label as ENTITY_TYPE] ||
     label
