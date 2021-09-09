@@ -18,6 +18,8 @@ const Header = styled.div`
   align-items: center;
   border-bottom: 1px solid
     ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
+  border-right: 1px solid
+    ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
 `;
 
 function AppCommentsHeader() {

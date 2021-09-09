@@ -19,6 +19,7 @@ import {
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import log from "loglevel";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
 
 export const options = [
   { label: "Show all comments", value: "show-all" },
@@ -93,6 +94,14 @@ const FilterIconContainer = styled.div<{ open?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${Colors.GALLERY_1};
+    svg path {
+      fill: ${Colors.CHARCOAL};
+    }
+  }
 
   ${(props) =>
     props.open &&
@@ -100,7 +109,7 @@ const FilterIconContainer = styled.div<{ open?: boolean }>`
     & svg path {
       fill: ${Colors.CHARCOAL};
     }
-    background-color: ${Colors.MERCURY_1};
+    background-color: ${Colors.GALLERY_1};
   `}
 `;
 
