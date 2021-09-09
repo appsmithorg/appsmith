@@ -823,21 +823,16 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 32) {
-    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
     currentDSL.version = 33;
   }
 
   if (currentDSL.version === 33) {
-    currentDSL = migrateMenuButtonWidgetButtonProperties(currentDSL);
+    currentDSL = migrateButtonWidgetValidation(currentDSL);
     currentDSL.version = 34;
   }
 
   if (currentDSL.version === 34) {
-    currentDSL = migrateButtonWidgetValidation(currentDSL);
-    currentDSL.version = 35;
-  }
-
-  if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -884,20 +879,6 @@ export const migrateInputValidation = (
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       migrateInputValidation(child),
-    );
-  }
-  return currentDSL;
-};
-
-export const migrateTableDefaultSelectedRow = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateTableDefaultSelectedRow(child),
     );
   }
   return currentDSL;
