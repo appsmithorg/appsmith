@@ -823,7 +823,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 32) {
-    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL = migrateTableVersion(currentDSL);
     currentDSL.version = 33;
   }
 
@@ -839,9 +839,46 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
+    currentDSL.version = 36;
+  }
+
+  if (currentDSL.version === 36) {
+    currentDSL = revertTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+export const revertTableDefaultSelectedRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    if (currentDSL.version === 1 && currentDSL.defaultSelectedRow === "0")
+      currentDSL.defaultSelectedRow = undefined;
+    // update version to 3 for all table dsl
+    currentDSL.version = 3;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      revertTableDefaultSelectedRow(child),
+    );
+  }
+  return currentDSL;
+};
+
+export const migrateTableVersion = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  // this is done to stop reverse migrations for apps that did not use migrateTableDefaultSelectedRow to migrate
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    currentDSL.version = 2;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateTableVersion(child),
+    );
+  }
   return currentDSL;
 };
 
@@ -884,20 +921,6 @@ export const migrateInputValidation = (
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       migrateInputValidation(child),
-    );
-  }
-  return currentDSL;
-};
-
-export const migrateTableDefaultSelectedRow = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateTableDefaultSelectedRow(child),
     );
   }
   return currentDSL;
