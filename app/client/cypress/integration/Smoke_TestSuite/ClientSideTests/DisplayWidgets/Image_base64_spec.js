@@ -1,5 +1,8 @@
+const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/base64imagedsl.json");
+const pages = require("../../../../locators/Pages.json");
 
 describe("Image Widget Functionality with base64", function() {
   before(() => {

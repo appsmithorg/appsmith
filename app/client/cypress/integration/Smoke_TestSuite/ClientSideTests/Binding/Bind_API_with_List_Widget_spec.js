@@ -1,9 +1,11 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/listwidgetdsl.json");
+const pages = require("../../../../locators/Pages.json");
 const apiPage = require("../../../../locators/ApiEditor.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 
 describe("Test Create Api and Bind to Table widget", function() {
+  let apiData;
   let valueToTest;
   before(() => {
     cy.addDsl(dsl);
@@ -22,6 +24,7 @@ describe("Test Create Api and Bind to Table widget", function() {
           .split('"')
           .join("")}`;
         cy.log(valueToTest);
+        apiData = valueToTest;
         cy.log("val1:" + valueToTest);
       });
   });

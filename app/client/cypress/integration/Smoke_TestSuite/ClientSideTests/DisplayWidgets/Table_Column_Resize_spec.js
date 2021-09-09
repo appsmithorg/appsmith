@@ -1,4 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+const widgetsPage = require("../../../../locators/Widgets.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
+const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableResizedColumnsDsl.json");
 
 describe("Table Widget Functionality with Hidden and Resized Columns", function() {

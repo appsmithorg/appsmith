@@ -226,8 +226,6 @@ public class ImportExportApplicationServiceTests {
 
                     NewPage defaultPage = pageList.get(0);
 
-                    assertThat(applicationJson.getAppsmithVersion()).isNotNull();
-
                     assertThat(exportedApp.getId()).isNull();
                     assertThat(exportedApp.getOrganizationId()).isNull();
                     assertThat(exportedApp.getPages()).isNull();
@@ -604,7 +602,7 @@ public class ImportExportApplicationServiceTests {
                 final List<Datasource> datasourceList = tuple.getT2();
                 final List<ActionDTO> actionDTOS = tuple.getT3();
                 final List<PageDTO> pageList = tuple.getT4();
-
+                
                 assertThat(application.getName()).isEqualTo("valid_application");
                 assertThat(application.getOrganizationId()).isNotNull();
                 assertThat(application.getPages()).hasSize(2);
