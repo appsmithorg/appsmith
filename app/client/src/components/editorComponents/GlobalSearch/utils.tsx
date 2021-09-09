@@ -87,10 +87,16 @@ export type SnippetBody = {
 
 export type FilterEntity = WidgetType | ENTITY_TYPE;
 
+export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
+  ACTION: "All Queries",
+  WIDGET: "All Widgets",
+};
+
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
   return (
     WidgetConfigResponse.config[label as WidgetType]?.widgetName ||
     getPluginByPackageName(state, label)?.name ||
+    filterEntityTypeLabels[label as ENTITY_TYPE] ||
     label
   );
 };
