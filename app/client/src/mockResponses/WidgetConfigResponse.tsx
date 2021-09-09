@@ -30,7 +30,7 @@ export const GRID_DENSITY_MIGRATION_V1 = 4;
 /**
  * this config sets the default values of properties being used in the widget
  */
-const WidgetConfigResponse: WidgetConfigReducerState = {
+export const WidgetConfigResponse: WidgetConfigReducerState = {
   config: {
     BUTTON_WIDGET: {
       text: "Submit",

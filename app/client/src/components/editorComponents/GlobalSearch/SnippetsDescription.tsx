@@ -157,11 +157,9 @@ const removeDynamicBinding = (value: string) => {
 };
 
 export const getSnippet = (snippet: string, args: any) => {
-  const regex = /{{(.*?)}}/g;
-  return snippet.replace(regex, function(match, capture) {
-    const substitution = (args[capture] || "")
-      .replaceAll("{{", "")
-      .replaceAll("}}", "");
+  const templateSubstitutionRegex = /%%(.*?)%%/g;
+  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
+    const substitution = removeDynamicBinding(args[capture] || "");
     return substitution || capture;
   });
 };

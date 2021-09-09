@@ -792,15 +792,16 @@ function* buildMetaForSnippets(
     });
     const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
     const type: string = plugin.packageName || "";
-    refinements.entities = [entityType, type];
+    refinements.entities = ["Action", type];
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
       getWidgetById,
       entityId,
     );
+    //Remove version info here
     const type: string = currentEntity.type || "";
-    refinements.entities = [entityType, type];
+    refinements.entities = ["Widget", type];
   }
   return { refinements, fieldMeta };
 }
