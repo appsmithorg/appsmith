@@ -12,6 +12,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import ContextualMenu from "./ContextualMenu";
+import { isString } from "lodash";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -250,7 +251,9 @@ function LogItem(props: LogItemProps) {
                 <MessageWrapper key={e.message}>
                   <ContextualMenu error={e}>
                     <span className="debugger-message t--debugger-message">
-                      {e.message}
+                      {isString(e.message)
+                        ? e.message
+                        : JSON.stringify(e.message)}
                     </span>
                   </ContextualMenu>
                 </MessageWrapper>
