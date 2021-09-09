@@ -46,6 +46,7 @@
   "apiMultipartBodyType": "multi-part",
   "defaultMoustacheData": "{{Input1.text",
   "defaultInputWidget": "{{Table1.selectedRow.id",
+  "sortedColumn": "{{Table1.sortOrder.column",
   "deafultDropDownWidget": [
     {
       "label": "{{Table1.selectedRow.email}}",
@@ -116,6 +117,7 @@
   "dropdownErrorMsg": "This value does not evaluate to type \"Array<{ \"label\": \"string\", \"value\": \"string\" }>\".",
   "tableWidgetErrorMsg": "This value does not evaluate to type \"Array<Object>\".",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
+  "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",
   "appUrl": "https://oauth.mocklab.io/userinfo",
   "clientID": "169444434892406",

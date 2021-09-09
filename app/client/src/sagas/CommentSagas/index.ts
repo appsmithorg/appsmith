@@ -17,8 +17,10 @@ import {
   deleteCommentThreadSuccess,
   fetchUnreadCommentThreadsCountSuccess,
   decrementThreadUnreadCount,
+  fetchCommentThreadsInit,
 } from "actions/commentActions";
 import {
+  getNewDragPos,
   transformPublishedCommentActionPayload,
   transformUnpublishCommentThreadToCreateNew,
 } from "comments/utils";
@@ -37,12 +39,14 @@ import {
   AddCommentToCommentThreadRequestPayload,
   CreateCommentThreadPayload,
   CreateCommentThreadRequest,
+  DraggedCommentThread,
 } from "entities/Comments/CommentsInterfaces";
 import { RawDraftContentState } from "draft-js";
 import { AppState } from "reducers";
 import { TourType } from "entities/Tour";
 import { getActiveTourType } from "selectors/tourSelectors";
 import { resetActiveTour } from "actions/tourActions";
+import store from "store";
 
 function* createUnpublishedCommentThread(
   action: ReduxAction<Partial<CreateCommentThreadRequest>>,
@@ -55,7 +59,6 @@ function* createUnpublishedCommentThread(
 
 function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   try {
-    yield put(removeUnpublishedCommentThreads());
     const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
       action.payload,
     );
@@ -73,10 +76,50 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     if (isValidResponse) {
       yield put(createCommentThreadSuccess(response.data));
       yield put(setVisibleThread(response.data.id));
+      yield put(removeUnpublishedCommentThreads());
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_COMMENT_THREAD_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
+function* updateCommentThreadPosition(
+  action: ReduxAction<DraggedCommentThread>,
+) {
+  try {
+    const {
+      draggingCommentThreadId,
+      dragPointerOffset,
+    } = store.getState().ui.comments;
+
+    if (!draggingCommentThreadId) return;
+    const {
+      containerSizePosition,
+      dragPosition,
+      refId,
+      widgetType,
+    } = action.payload;
+    const position = getNewDragPos(
+      {
+        x: dragPosition.x + (dragPointerOffset ? dragPointerOffset.x : 0),
+        y: dragPosition.y + (dragPointerOffset ? dragPointerOffset.y : 0),
+      },
+      containerSizePosition,
+    );
+    const response = yield CommentsApi.updateCommentThread(
+      { position, refId, widgetType },
+      draggingCommentThreadId,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(updateCommentThreadSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PIN_COMMENT_THREAD_ERROR,
       payload: { error, logToSentry: true },
     });
   }
@@ -117,6 +160,7 @@ function* addCommentToThread(
 function* fetchApplicationComments() {
   try {
     yield call(waitForInit);
+    yield put(fetchCommentThreadsInit());
     const applicationId = yield select(getCurrentApplicationId);
     const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
     const isValidResponse = yield validateResponse(response);
@@ -353,6 +397,10 @@ export default function* commentSagas() {
     takeLatest(
       ReduxActionTypes.SET_COMMENT_THREAD_RESOLUTION_REQUEST,
       setCommentResolution,
+    ),
+    takeLatest(
+      ReduxActionTypes.DRAG_COMMENT_THREAD,
+      updateCommentThreadPosition,
     ),
     takeLatest(ReduxActionTypes.PIN_COMMENT_THREAD_REQUEST, pinCommentThread),
     takeLatest(ReduxActionTypes.DELETE_COMMENT_REQUEST, deleteComment),

@@ -25,6 +25,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       parentRowSpace: 40,
       tableData: "{{getUsers.data}}",
       isVisible: true,
+      isVisibleDownload: true,
       label: "Data",
       searchKey: "",
       type: WidgetTypes.TABLE_WIDGET,
@@ -121,6 +122,8 @@ describe("getAllPathsFromPropertyConfig", () => {
         defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
         defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.computedValue":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
@@ -144,7 +147,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
-
         "primaryColumns.createdAt.horizontalAlignment":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.verticalAlignment":
@@ -164,8 +166,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.buttonLabelColor":
           EvaluationSubstitutionType.TEMPLATE,
-        // "primaryColumns.createdAt.isVisible":
-        //   EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
       },
@@ -173,11 +173,15 @@ describe("getAllPathsFromPropertyConfig", () => {
         onRowSelected: true,
         onPageChange: true,
         onSearchTextChanged: true,
+        onSort: true,
         onPageSizeChange: true,
         "primaryColumns.status.onClick": true,
       },
       validationPaths: {
         defaultSearchText: {
+          type: "TEXT",
+        },
+        delimiter: {
           type: "TEXT",
         },
         defaultSelectedRow: {
@@ -244,6 +248,7 @@ describe("getAllPathsFromPropertyConfig", () => {
           key: "chartData.random-id.data",
         },
       ],
+      setAdaptiveYMin: "0",
     };
     const config = chartPorpertyConfig;
 
@@ -256,6 +261,7 @@ describe("getAllPathsFromPropertyConfig", () => {
         xAxisName: EvaluationSubstitutionType.TEMPLATE,
         yAxisName: EvaluationSubstitutionType.TEMPLATE,
         isVisible: EvaluationSubstitutionType.TEMPLATE,
+        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       },
       triggerPaths: {
         onDataPointClick: true,
@@ -310,6 +316,9 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "TEXT",
         },
         isVisible: {
+          type: "BOOLEAN",
+        },
+        setAdaptiveYMin: {
           type: "BOOLEAN",
         },
         xAxisName: {

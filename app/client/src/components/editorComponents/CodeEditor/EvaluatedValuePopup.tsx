@@ -7,7 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
@@ -22,6 +22,7 @@ import {
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import { Layers } from "constants/Layers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -134,10 +135,6 @@ const StyledTitle = styled.p`
   cursor: pointer;
 `;
 
-const StyledDebugButton = styled(DebugButton)`
-  margin-left: auto;
-`;
-
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
   return (
@@ -159,6 +156,7 @@ interface Props {
   useValidationMessage?: boolean;
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  popperPlacement?: Placement;
 }
 
 interface PopoverContentProps {
@@ -335,7 +333,7 @@ function PopoverContent(props: PopoverContentProps) {
     onMouseLeave,
     theme,
   } = props;
-  let error;
+  let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
   }
@@ -354,9 +352,8 @@ function PopoverContent(props: PopoverContentProps) {
               ? `This value does not evaluate to type "${expected?.type}".`
               : error.errorMessage}
           </span>
-          <StyledDebugButton
-            className="evaluated-value"
-            source={"EVALUATED_VALUE"}
+          <EvaluatedValueDebugButton
+            error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
       )}
@@ -407,6 +404,7 @@ function EvaluatedValuePopup(props: Props) {
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const placement: Placement = useMemo(() => {
+    if (props.popperPlacement) return props.popperPlacement;
     if (wrapperRef.current) {
       const boundingRect = wrapperRef.current.getBoundingClientRect();
       if (boundingRect.left < theme.evaluatedValuePopup.width) {
@@ -423,7 +421,7 @@ function EvaluatedValuePopup(props: Props) {
         modifiers={modifiers}
         placement={placement}
         targetNode={wrapperRef.current || undefined}
-        zIndex={5}
+        zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
           errors={props.errors}

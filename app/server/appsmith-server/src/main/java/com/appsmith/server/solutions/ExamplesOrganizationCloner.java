@@ -271,7 +271,7 @@ public class ExamplesOrganizationCloner {
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
                 .flatMapMany(Flux::fromIterable)
-                .flatMap(appId -> applicationPageService.publish(appId).thenReturn(appId))
+                .flatMap(appId -> applicationPageService.publish(appId, false).thenReturn(appId))
                 .collectList();
     }
 
@@ -447,7 +447,8 @@ public class ExamplesOrganizationCloner {
         return applicationService.createDefault(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            && error.getMessage().contains("organization_application_deleted_compound_index")) {
+                            // organization_application_deleted_gitRepo_gitBranch_compound_index
+                            && error.getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }

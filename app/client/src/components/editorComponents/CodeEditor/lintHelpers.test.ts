@@ -6,17 +6,17 @@ import {
 import {
   getKeyPositionInString,
   getLintAnnotations,
-  getAllWordOccurences,
+  getAllWordOccurrences,
 } from "./lintHelpers";
 
 describe("getAllWordOccurences()", function() {
   it("should get all the indexes", () => {
-    const res = getAllWordOccurences("this is a `this` string", "this");
+    const res = getAllWordOccurrences("this is a `this` string", "this");
     expect(res).toEqual([0, 11]);
   });
 
   it("should return empty array", () => {
-    expect(getAllWordOccurences("this is a string", "number")).toEqual([]);
+    expect(getAllWordOccurrences("this is a string", "number")).toEqual([]);
   });
 });
 

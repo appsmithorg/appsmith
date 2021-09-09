@@ -1,6 +1,24 @@
+import React from "react";
+import {
+  createMessage,
+  DOC_DESCRIPTION,
+  NAV_DESCRIPTION,
+  SNIPPET_DESCRIPTION,
+} from "constants/messages";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
+import getFeatureFlags from "utils/featureFlags";
+import { modText } from "./HelpBar";
+import { WidgetType } from "constants/WidgetConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
+export type SelectEvent =
+  | React.MouseEvent
+  | React.KeyboardEvent
+  | KeyboardEvent
+  | null;
 
 export type RecentEntity = {
   type: string;
@@ -38,38 +56,107 @@ export type DocSearchItem = {
   path: string;
 };
 
+export const comboHelpText = {
+  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
+};
+
+export type Snippet = {
+  entities?: [string];
+  fields?: [string];
+  dataType?: string;
+  language: string;
+  body: SnippetBody;
+};
+
+export type SnippetBody = {
+  title: string;
+  snippet: string;
+  isTrigger?: boolean;
+  args: [SnippetArgument];
+  summary: string;
+  template: string;
+  snippetMeta?: string;
+  shortTitle?: string;
+};
+
+export type FilterEntity = WidgetType | ENTITY_TYPE;
+
+//holds custom labels for snippet filters.
+export const SnippetFilterLabel: Partial<Record<FilterEntity, string>> = {
+  DROP_DOWN_WIDGET: "Dropdown",
+};
+
+export const getSnippetFilterLabel = (label: string) => {
+  return (
+    SnippetFilterLabel[label as FilterEntity] ||
+    label
+      .toLowerCase()
+      .replace("_widget", "")
+      .replace("-plugin", "")
+      .replaceAll(/_|-/g, " ")
+  );
+};
+
+export type SnippetArgument = {
+  name: string;
+  type: ValidationTypes;
+};
+
 export type SearchCategory = {
   id: SEARCH_CATEGORY_ID;
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
+  show?: () => boolean;
 };
+
+export function getOptionalFilters(optionalFilterMeta: any) {
+  return Object.keys(optionalFilterMeta || {}).map(
+    (field) => `${field}:${optionalFilterMeta[field]}`,
+  );
+}
 
 export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
   [SEARCH_CATEGORY_ID.NAVIGATION]: {
     title: "Navigate",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.NAVIGATION,
-    desc: "Navigate to any page, widget or file across this project.",
+    desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: createMessage(SNIPPET_DESCRIPTION),
+    show: () => getFeatureFlags().SNIPPET,
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
-    desc: "Search and Insert code snippets to perform complex actions quickly.",
+    desc: createMessage(DOC_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.INIT]: {
     id: SEARCH_CATEGORY_ID.INIT,
   },
 };
 
-export const getFilterCategoryList = () => Object.values(filterCategories);
+export const isNavigation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
+export const isDocumentation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+export const isSnippet = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
+export const isMenu = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.INIT;
+
+export const getFilterCategoryList = () =>
+  Object.values(filterCategories).filter((cat: SearchCategory) => {
+    return cat.show ? cat.show() : true;
+  });
 
 export type SearchItem = DocSearchItem | Datasource | any;
 

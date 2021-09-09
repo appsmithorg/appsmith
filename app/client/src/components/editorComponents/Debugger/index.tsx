@@ -12,12 +12,13 @@ import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 
 const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
   background-color: ${(props) =>
     props.theme.colors.debugger.floatingButton.background};
-  position: fixed;
+  position: absolute;
   right: 20px;
   bottom: 20px;
   cursor: pointer;
@@ -58,7 +59,7 @@ const Container = styled.div<{ errorCount: number; warningCount: number }>`
 function Debugger() {
   const dispatch = useDispatch();
   const messageCounters = useSelector((state) => {
-    const errorKeys = Object.keys(state.ui.debugger.errors);
+    const errorKeys = Object.keys(getFilteredErrors(state));
     const warnings = errorKeys.filter((key: string) => key.includes("warning"))
       .length;
     const errors = errorKeys.length - warnings;
@@ -66,7 +67,6 @@ function Debugger() {
   });
 
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
-
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
@@ -88,7 +88,11 @@ function Debugger() {
         warningCount={messageCounters.warnings}
       >
         <Icon name="bug" size={IconSize.XL} />
-        <div className="debugger-count">{totalMessageCount}</div>
+        {!!messageCounters.errors && (
+          <div className="debugger-count t--debugger-count">
+            {totalMessageCount}
+          </div>
+        )}
       </Container>
     );
   return <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />;

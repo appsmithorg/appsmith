@@ -50,15 +50,9 @@ export const ActionButton = styled(BaseButton)`
 `;
 
 const DBForm = styled.div`
+  flex: 1;
   padding: 20px;
   margin-right: 0px;
-  height: calc(
-    100vh -
-      (
-        ${(props) => props.theme.smallHeaderHeight} +
-          ${(props) => props.theme.backBanner}
-      )
-  );
   overflow: auto;
   .backBtn {
     padding-bottom: 1px;
@@ -107,7 +101,7 @@ export class JSONtoForm<
       const fieldConfig = this.requiredFields[fieldConfigProperty];
       if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
         const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0]);
+        const arrayValues = _.get(values, configProperty[0], []);
         const keyValueArrayErrors: Record<string, string>[] = [];
 
         arrayValues.forEach((value: any, index: number) => {
@@ -165,7 +159,7 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0]);
+        const values = _.get(formData, properties[0], []);
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
@@ -230,7 +224,7 @@ export class JSONtoForm<
 
   renderForm = (content: any) => {
     return (
-      <div>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <CloseEditor />
         <DBForm>{content}</DBForm>
       </div>

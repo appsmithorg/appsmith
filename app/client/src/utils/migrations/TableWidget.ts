@@ -242,11 +242,26 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
         child.isVisibleSearch = true;
         child.isVisibleFilters = true;
         child.isVisibleDownload = true;
-        child.isVisibleCompactMode = true;
         child.isVisiblePagination = true;
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetHeaderVisibilityProperties(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+export const migrateTableWidgetDelimiterProperties = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      if (!child.delimiter) {
+        child.delimiter = ",";
+      }
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetDelimiterProperties(child);
     }
     return child;
   });

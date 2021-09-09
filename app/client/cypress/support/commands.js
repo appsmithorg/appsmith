@@ -3,6 +3,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cypress-file-upload");
+const dayjs = require("dayjs");
 
 const loginPage = require("../locators/LoginPage.json");
 const homePage = require("../locators/HomePage.json");
@@ -663,8 +664,8 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.xpath(apiwidget.Responsetab)
-      .should("be.visible")
+    cy.get("[data-cy=t--tab-body]")
+      .first()
       .click({ force: true });
   },
 );
@@ -715,6 +716,19 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
   cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
     .last()
     .click({ force: true });
+});
+Cypress.Commands.add("SearchEntityandDblClick", (apiname1) => {
+  cy.get(commonlocators.entityExplorersearch)
+    .clear({ force: true })
+    .type(apiname1, { force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(
+    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
+  ).should("be.visible");
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .last()
+    .dblclick({ force: true });
 });
 
 Cypress.Commands.add("enterDatasourceAndPath", (datasource, path) => {
@@ -936,7 +950,6 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
     .type(apiname, { force: true, delay: 500 })
     .should("have.value", apiname);
   cy.get(".error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
   cy.get(apiwidget.apiTxt).blur();
@@ -1022,14 +1035,12 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
     .type(apiname, { force: true })
     .should("have.value", apiname);
   cy.get(".t--nameOfApi .error-message").should(($x) => {
-    console.log($x);
     expect($x).contain(apiname.concat(" is already being used."));
   });
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
   cy.get(".bp3-popover-content").should(($x) => {
-    console.log($x);
     expect($x).contain(value.concat(" is already being used."));
   });
 });
@@ -1184,7 +1195,7 @@ Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
 Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
   cy.get(checkboxCss, { timeout: 10000 })
     .last()
-    .should("be.visible")
+    .should("exist")
     .dblclick({ force: true })
     .type(inputJS);
   cy.assertPageSave();
@@ -1209,6 +1220,13 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
+  cy.get(inputcss)
+    .first()
+    .trigger("mouseover", { force: true });
+  cy.contains(innercss, text);
+});
+
+Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {
   cy.get(inputcss)
     .first()
     .trigger("mouseover", { force: true });
@@ -1399,6 +1417,18 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("selectColor", (GivenProperty) => {
+  // Property pane of the widget is opened, and click given property.
+  cy.get(
+    ".t--property-control-" + GivenProperty + " .bp3-input-group input",
+  ).click({
+    force: true,
+  });
+  cy.get(widgetsPage.colorsAvailable)
+    .first()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
   cy.get(".CodeMirror textarea")
     .last()
@@ -1474,6 +1504,13 @@ Cypress.Commands.add("showColumn", (colId) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("makeColumnVisible", (colId) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--show-column-btn").click({
+    force: true,
+  });
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.addColumn).scrollIntoView();
   cy.get(widgetsPage.addColumn)
@@ -1531,7 +1568,18 @@ Cypress.Commands.add("addAction", (value) => {
   cy.enterActionValue(value);
 });
 
-Cypress.Commands.add("selectShowMsg", (value) => {
+Cypress.Commands.add("onTableAction", (value, value1, value2) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .eq(value)
+    .click();
+  cy.get(commonlocators.chooseAction)
+    .children()
+    .contains("Show Message")
+    .click();
+  cy.testJsontext(value1, value2);
+});
+
+Cypress.Commands.add("selectShowMsg", () => {
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show Message")
@@ -2037,6 +2085,110 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "fillMySQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-host"] + "  "
+      : datasourceFormData["mysql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mysql-databaseName"] + "  "
+      : datasourceFormData["mysql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mysql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mysql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillMsSQLDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-host"] + "  "
+      : datasourceFormData["mssql-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["mssql-databaseName"] + "  "
+      : datasourceFormData["mssql-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["mssql-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["mssql-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillArangoDBDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-host"] + "  "
+      : datasourceFormData["arango-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["arango-databaseName"] + "  "
+      : datasourceFormData["arango-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["arango-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["arango-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
+  "fillRedshiftDatasourceForm",
+  (shouldAddTrailingSpaces = false) => {
+    const hostAddress = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-host"] + "  "
+      : datasourceFormData["redshift-host"];
+    const databaseName = shouldAddTrailingSpaces
+      ? datasourceFormData["redshift-databaseName"] + "  "
+      : datasourceFormData["redshift-databaseName"];
+
+    cy.get(datasourceEditor.host).type(hostAddress);
+    cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
+    cy.get(datasourceEditor.databaseName)
+      .clear()
+      .type(databaseName);
+
+    cy.get(datasourceEditor.sectionAuthentication).click();
+    cy.get(datasourceEditor.username).type(
+      datasourceFormData["redshift-username"],
+    );
+    cy.get(datasourceEditor.password).type(
+      datasourceFormData["redshift-password"],
+    );
+  },
+);
+
+Cypress.Commands.add(
   "fillUsersMockDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const userMockDatabaseName = shouldAddTrailingSpaces
@@ -2164,6 +2316,21 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 });
 
+Cypress.Commands.add(
+  "dragAndDropToWidget",
+  (widgetType, destinationWidget, { x, y }) => {
+    const selector = `.t--widget-card-draggable-${widgetType}`;
+    cy.get(selector)
+      .trigger("dragstart", { force: true })
+      .trigger("mousemove", x, y, { force: true });
+    const selector2 = `.t--draggable-${destinationWidget}`;
+    cy.get(selector2)
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  },
+);
+
 Cypress.Commands.add("executeDbQuery", (queryName) => {
   cy.get(widgetsPage.buttonOnClick)
     .get(commonlocators.dropdownSelectButton)
@@ -2212,18 +2379,22 @@ Cypress.Commands.add("openPropertyPane", (widgetType) => {
 });
 
 Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
-  const selector = `.t--draggable-${widgetType}`;
-  cy.get(selector)
-    .last()
-    .trigger("mouseover", { force: true })
-    .wait(500);
-  cy.get(
-    `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
-  )
-    .first()
-    .click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  if (widgetType === "List1Copy") {
+    cy.SearchEntityandOpen(widgetType);
+  } else {
+    const selector = `.t--draggable-${widgetType}`;
+    cy.get(selector)
+      .last()
+      .trigger("mouseover", { force: true })
+      .wait(500);
+    cy.get(
+      `${selector}:first-of-type .t--widget-propertypane-toggle > .t--widget-name`,
+    )
+      .first()
+      .click({ force: true });
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+  }
 });
 
 Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
@@ -2249,7 +2420,7 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
+Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -2258,14 +2429,13 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .first()
     .click({ force: true })
     .selectOnClickOption("Show Message")
-    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .click()
     .type(forSuccess)
     .get("button.t--open-dropdown-Select-type")
-    .click()
-    .get("a.single-select div")
-    .contains(forSuccess)
-    .click();
+    .first()
+    .click({ force: true })
+    .selectOnClickOption(forSuccess);
 
   cy.wait(2000);
   // For Failure
@@ -2275,16 +2445,14 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show Message")
-    .get("div.t--property-control-onclick div.CodeMirror-lines")
+    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
     .type(forFailure)
     .get("button.t--open-dropdown-Select-type")
     .last()
-    .click()
-    .get("a.single-select div")
-    .contains(forFailure)
-    .click();
+    .click({ force: true })
+    .selectOnClickOption(forFailure);
 });
 
 Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
@@ -2386,14 +2554,14 @@ Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
 });
 
 Cypress.Commands.add("getDate", (date, dateFormate) => {
-  const eDate = Cypress.moment()
+  const eDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   return eDate;
 });
 
 Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = Cypress.moment()
+  const expDate = dayjs()
     .add(date, "days")
     .format(dateFormate);
   const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
@@ -2463,6 +2631,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("DELETE", "/api/v1/datasources/*").as("deleteDatasource");
   cy.route("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
     "getDatasourceStructure",
+  );
+  cy.route("PUT", "/api/v1/datasources/datasource-query/*").as(
+    "datasourceQuery",
   );
 
   cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
@@ -2682,4 +2853,20 @@ Cypress.Commands.add("renameDatasource", (datasourceName) => {
 
 Cypress.Commands.add("skipGenerateCRUDPage", () => {
   cy.get(generatePage.buildFromScratchActionCard).click();
+});
+
+Cypress.Commands.add("fillAmazonS3DatasourceForm", () => {
+  cy.get(datasourceEditor.projectID).type(Cypress.env("S3_ACCESS_KEY"));
+  cy.get(datasourceEditor.serviceAccCredential)
+    .clear()
+    .type(Cypress.env("S3_SECRET_KEY"));
+});
+
+Cypress.Commands.add("createAmazonS3Datasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.AmazonS3).click();
+
+  cy.fillAmazonS3DatasourceForm();
+
+  cy.testSaveDatasource();
 });

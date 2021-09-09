@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
@@ -54,8 +54,10 @@ import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { useLocation } from "react-router";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
+import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -221,6 +223,15 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
+  // eslint-disable-next-line
+  const showGitSyncModal = useCallback(() => {
+    dispatch(setIsGitSyncModalOpen(true));
+  }, [dispatch, setIsGitSyncModalOpen]);
+
+  const isMultiplayerEnabledForUser = useSelector(
+    isMultiplayerEnabledForUserSelector,
+  );
+
   return (
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
@@ -270,7 +281,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          <RealtimeAppEditors applicationId={applicationId} />
+          {isMultiplayerEnabledForUser && (
+            <RealtimeAppEditors applicationId={applicationId} />
+          )}
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -323,7 +336,6 @@ export function EditorHeader(props: EditorHeaderProps) {
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                hideThemeSwitch
                 name={user.name}
                 userName={user?.username || ""}
               />

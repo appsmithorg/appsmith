@@ -2946,4 +2946,30 @@ public class DatabaseChangelog {
             }
         });
     }
+
+    @ChangeSet(order = "081", id = "create-plugin-reference-for-S3-GSheet-genarate-CRUD-page", author = "")
+    public void createPluginReferenceForS3AndGSheetGenerateCRUDPage(MongockTemplate mongoTemplate) {
+
+        Set<String> validPackageNames = Set.of("amazons3-plugin", "google-sheets-plugin");
+
+        List<Plugin> plugins = mongoTemplate.findAll(Plugin.class);
+        for (Plugin plugin : plugins) {
+            if (validPackageNames.contains(plugin.getPackageName())) {
+                plugin.setGenerateCRUDPageComponent(plugin.getName());
+            }
+            mongoTemplate.save(plugin);
+        }
+    }
+
+    @ChangeSet(order = "082", id = "application-git-metadata", author = "")
+    public void addApplicationGitMetadataFieldAndIndex(MongockTemplate mongockTemplate) {
+        MongoTemplate mongoTemplate = mongockTemplate.getImpl();
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_compound_index");
+        dropIndexIfExists(mongoTemplate, Application.class, "organization_application_deleted_compound_index");
+
+        ensureIndexes(mongoTemplate, Application.class,
+            makeIndex("organizationId", "name", "deletedAt", "gitMetadata.remoteUrl", "gitMetadata.branchName")
+                .unique().named("organization_application_deleted_gitRepo_gitBranch_compound_index")
+        );
+    }
 }

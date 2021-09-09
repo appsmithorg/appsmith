@@ -319,25 +319,20 @@ export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
   extraParams: Record<any, any>;
 }
 
-export const generateTemplateSuccess = ({
-  isNewPage,
-  layoutId,
-  pageId,
-  pageName,
-}: {
-  layoutId: string;
-  pageId: string;
-  pageName: string;
+export type GenerateCRUDSuccess = {
+  page: {
+    layouts: Array<any>;
+    id: string;
+    name: string;
+    isDefault?: boolean;
+  };
   isNewPage: boolean;
-}) => {
+};
+
+export const generateTemplateSuccess = (payload: GenerateCRUDSuccess) => {
   return {
     type: ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS,
-    payload: {
-      layoutId,
-      pageId,
-      pageName,
-      isNewPage,
-    },
+    payload,
   };
 };
 
@@ -353,6 +348,7 @@ export const generateTemplateToUpdatePage = ({
   datasourceId,
   mode,
   pageId,
+  pluginSpecificParams,
   searchColumn,
   tableName,
 }: GenerateTemplatePageRequest): ReduxActionWithExtraParams<GenerateTemplatePageRequest> => {
@@ -365,6 +361,7 @@ export const generateTemplateToUpdatePage = ({
       applicationId,
       columns,
       searchColumn,
+      pluginSpecificParams,
     },
     extraParams: {
       mode,

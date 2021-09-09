@@ -1,7 +1,8 @@
 import { ChartWidgetProps } from "widgets/ChartWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CUSTOM_CHART_TYPES } from "constants/CustomChartConstants";
+import { CUSTOM_CHART_TYPES, LabelOrientation } from "constants/ChartConstants";
+import { isLabelOrientationApplicableFor } from "components/designSystems/appsmith/ChartComponent";
 
 export default [
   {
@@ -213,9 +214,6 @@ export default [
   },
   {
     sectionName: "Axis",
-    hidden: (props: ChartWidgetProps) =>
-      props.chartType === "CUSTOM_FUSION_CHART",
-    dependencies: ["chartType"],
     children: [
       {
         helpText: "Specifies the label of the x-axis",
@@ -226,6 +224,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
       {
         helpText: "Specifies the label of the y-axis",
@@ -236,6 +236,8 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        dependencies: ["chartType"],
       },
       {
         helpText: "Enables scrolling inside the chart",
@@ -244,8 +246,46 @@ export default [
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
         dependencies: ["chartType"],
+      },
+      {
+        propertyName: "setAdaptiveYMin",
+        label: "Adaptive Axis",
+        helpText: "Define the minimum scale for X/Y axis",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        helpText: "Changes the x-axis label orientation",
+        propertyName: "labelOrientation",
+        label: "x-axis Label Orientation",
+        hidden: (x: ChartWidgetProps) =>
+          !isLabelOrientationApplicableFor(x.chartType),
+        isBindProperty: false,
+        isTriggerProperty: false,
+        dependencies: ["chartType"],
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Auto",
+            value: LabelOrientation.AUTO,
+          },
+          {
+            label: "Slant",
+            value: LabelOrientation.SLANT,
+          },
+          {
+            label: "Rotate",
+            value: LabelOrientation.ROTATE,
+          },
+          {
+            label: "Stagger",
+            value: LabelOrientation.STAGGER,
+          },
+        ],
       },
     ],
   },

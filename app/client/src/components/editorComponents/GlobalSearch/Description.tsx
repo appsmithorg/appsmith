@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, lazy, Suspense } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
@@ -6,13 +6,12 @@ import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SearchItem } from "./utils";
 import parseDocumentationContent from "./parseDocumentationContent";
-// import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-// import javascript from "react-syntax-highlighter/dist/esm/languages/hljs/javascript";
-// import pgsql from "react-syntax-highlighter/dist/esm/languages/hljs/pgsql";
-// import xcode from "react-syntax-highlighter/dist/esm/styles/hljs/xcode";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
 
-// SyntaxHighlighter.registerLanguage("javascript", javascript);
-// SyntaxHighlighter.registerLanguage("postgres", pgsql);
+const SnippetDescription = lazy(() =>
+  retryPromise(() => import("./SnippetsDescription")),
+);
 
 type Props = {
   activeItem: SearchItem;
@@ -46,7 +45,8 @@ const Container = styled.div`
     word-break: break-word;
   }
 
-  h2, h3 {
+  h2,
+  h3 {
     ${(props) => getTypographyByKey(props, "h5")}
     font-weight: 600;
   }
@@ -56,6 +56,15 @@ const Container = styled.div`
   h3,
   strong {
     color: #484848;
+  }
+
+  table {
+    th:nth-child(1) {
+      width: 150px;
+    }
+    th:nth-child(2) {
+      width: 300px;
+    }
   }
 
   .documentation-cta {
@@ -68,6 +77,7 @@ const Container = styled.div`
     margin: 0 ${(props) => props.theme.spaces[2]}px;
     position: relative;
     bottom: 3px;
+    float: right;
   }
 
   & a {
@@ -77,16 +87,20 @@ const Container = styled.div`
   code {
     word-break: break-word;
     font-size: 12px;
-    background: ${(props) => props.theme.colors.globalSearch.codeBackground};
-    // padding: ${(props) => props.theme.spaces[2]}px;
   }
 
   pre {
     background: ${(props) =>
-      props.theme.colors.globalSearch.codeBackground} !important;
+      props.theme.colors.globalSearch.documentationCodeBackground} !important;
     white-space: pre-wrap;
     overflow: hidden;
-    padding: ${(props) => props.theme.spaces[6]}px !important;
+    border-left: 3px solid #f86a2b;
+    padding: 12px;
+  }
+  .CodeMirror {
+    pre {
+      background: transparent !important;
+    }
   }
 `;
 
@@ -147,7 +161,9 @@ const StyledHitEnterMessageContainer = styled.div`
     props.theme.colors.globalSearch.navigateUsingEnterSection};
   padding: ${(props) =>
     `${props.theme.spaces[6]}px ${props.theme.spaces[3]}px`};
-  ${(props) => getTypographyByKey(props, "p3")}
+  border: 1px solid
+    ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
+  ${(props) => getTypographyByKey(props, "p3")};
 `;
 
 const StyledKey = styled.span`
@@ -176,84 +192,11 @@ function HitEnterMessage({ item, query }: { item: SearchItem; query: string }) {
   );
 }
 
-const SnippetContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  .snippet-title {
-    color: #090707;
-    font-size: 17px;
-    font-weight: 500;
-    display: flex;
-    justify-content: space-between;
-    .action-msg {
-      color: #a9a7a7;
-      font-size: 11px;
-      font-weight: 400;
-      flex-shrink: 0;
-    }
-  }
-  .snippet-desc {
-    color: #4b4848;
-    font-size: 14px;
-    font-weight: 400;
-    margin-top: 10px;
-  }
-  .snippet-group {
-    margin: 5px 0;
-    .header {
-      font-weight: 500;
-      font-size: 14px;
-    }
-    .content {
-      font-weight: 400;
-      font-size: 14px;
-    }
-  }
-`;
-
-function SnippetDescription(props: any) {
-  const {
-    item: {
-      body: { additionalInfo, examples, snippet, summary, title },
-      // language,
-    },
-  } = props;
+function LazySnippetDescription(props: any) {
   return (
-    <SnippetContainer>
-      <div className="snippet-title">
-        <span>{title}</span>
-        <span className="action-msg">Hit ⏎ to insert</span>
-      </div>
-      <div className="snippet-desc">{summary}</div>
-      {/* <SyntaxHighlighter language={language} style={xcode}> */}
-      <div>{snippet}</div>
-      {/* </SyntaxHighlighter> */}
-      {additionalInfo &&
-        additionalInfo.map(
-          ({ content, header }: { header: string; content: string }) => (
-            <div className="snippet-group" key={header}>
-              <div className="header">{header}</div>
-              <div className="content">{content}</div>
-            </div>
-          ),
-        )}
-      {examples && examples.length && (
-        <div className="snippet-group">
-          <div className="header">Example</div>
-          <div className="content">
-            {examples.map((ex: any) => (
-              <>
-                <p>{ex.title}</p>
-                {/* <SyntaxHighlighter language={language} style={xcode}> */}
-                {ex.code}
-                {/* </SyntaxHighlighter> */}
-                <p>{ex.summary}</p>
-              </>
-            ))}
-          </div>
-        </div>
-      )}
-    </SnippetContainer>
+    <Suspense fallback={<Skeleton />}>
+      <SnippetDescription {...props} />
+    </Suspense>
   );
 }
 
@@ -266,7 +209,7 @@ const descriptionByType = {
   [SEARCH_ITEM_TYPES.sectionTitle]: () => null,
   [SEARCH_ITEM_TYPES.placeholder]: () => null,
   [SEARCH_ITEM_TYPES.category]: () => null,
-  [SEARCH_ITEM_TYPES.snippet]: SnippetDescription,
+  [SEARCH_ITEM_TYPES.snippet]: LazySnippetDescription,
 };
 
 function Description(props: Props) {

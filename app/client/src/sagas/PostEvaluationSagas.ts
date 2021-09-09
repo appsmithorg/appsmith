@@ -39,6 +39,8 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
+import getFeatureFlags from "utils/featureFlags";
+import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -68,11 +70,17 @@ function logLatestEvalPropertyErrors(
       if (propertyPath in entity.logBlackList) {
         continue;
       }
-      const allEvalErrors: EvaluationError[] = get(
+      let allEvalErrors: EvaluationError[] = get(
         entity,
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
+      // If linting flag is not own, filter out all lint errors
+      if (!getFeatureFlags().LINTING) {
+        allEvalErrors = allEvalErrors.filter(
+          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+        );
+      }
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),
@@ -231,16 +239,17 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
-        log.debug(error);
+        log.error(error);
+        const message = createMessage(ERROR_EVAL_TRIGGER, error.message);
         Toaster.show({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
+          text: message,
           variant: Variant.danger,
           showDebugButton: true,
         });
         AppsmithConsole.error({
-          text: createMessage(ERROR_EVAL_TRIGGER, error.message),
+          text: message,
         });
-        break;
+        throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);

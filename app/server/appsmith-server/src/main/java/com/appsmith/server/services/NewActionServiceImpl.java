@@ -198,6 +198,11 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<ActionDTO> validateAndSaveActionToRepository(NewAction newAction) {
+
+        if (newAction.getGitSyncId() == null) {
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + Instant.now().toString());
+        }
+
         ActionDTO action = newAction.getUnpublishedAction();
 
         //Default the validity to true and invalids to be an empty set.
@@ -584,11 +589,13 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                                 if (e instanceof AppsmithPluginException) {
                                     result.setStatusCode(((AppsmithPluginException) e).getAppErrorCode().toString());
                                     result.setTitle(((AppsmithPluginException) e).getTitle());
+                                    result.setErrorType(((AppsmithPluginException) e).getErrorType());
                                 } else {
                                     result.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
 
                                     if (e instanceof AppsmithException) {
                                         result.setTitle(((AppsmithException) e).getTitle());
+                                        result.setErrorType(((AppsmithException) e).getErrorType());
                                     }
                                 }
                                 return Mono.just(result);
@@ -625,6 +632,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     result.setStatusCode(error.getAppErrorCode().toString());
                     result.setBody(error.getMessage());
                     result.setTitle(error.getTitle());
+                    result.setErrorType(error.getErrorType());
                     return Mono.just(result);
                 });
 
@@ -1002,11 +1010,18 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
 
     @Override
     public Mono<NewAction> save(NewAction action) {
+        // gitSyncId will be used to sync resource across instances
+        if (action.getGitSyncId() == null) {
+            action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString());
+        }
         return repository.save(action);
     }
 
     @Override
     public Flux<NewAction> saveAll(List<NewAction> actions) {
+        actions.stream()
+            .filter(action -> action.getGitSyncId() == null)
+            .forEach(action -> action.setGitSyncId(action.getApplicationId() + "_" + Instant.now().toString()));
         return repository.saveAll(actions);
     }
 

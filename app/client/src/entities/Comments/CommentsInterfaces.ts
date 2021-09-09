@@ -63,7 +63,7 @@ export type Comment = CreateCommentRequest & {
   updationTime?: string;
   creationTime?: string;
   reactions?: Array<Reaction>;
-  threadId?: string;
+  threadId: string;
 } & { _id: string };
 
 export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
@@ -75,6 +75,21 @@ export type CommentThread = Omit<CreateCommentThreadRequest, "comments"> & {
   updationTime?: string;
   creationTime?: string;
   viewedByUsers?: Array<string>;
+} & { _id: string };
+
+export type DraggedCommentThread = {
+  dragPosition: {
+    x: number;
+    y: number;
+  };
+  containerSizePosition: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  refId: string;
+  widgetType?: WidgetType;
 };
 
 export type CommentEventPayload = {

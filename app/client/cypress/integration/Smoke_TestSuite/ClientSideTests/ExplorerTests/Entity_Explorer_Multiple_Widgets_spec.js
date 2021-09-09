@@ -2,8 +2,6 @@ const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-const testdata = require("../../../../fixtures/testdata.json");
-const pages = require("../../../../locators/Pages.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
@@ -38,7 +36,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
       .last()
       .click({ force: true });
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(8);
+      expect($lis).to.have.length(10);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1.selectedRows}}");
       expect($lis.eq(2)).to.contain("{{Table1.selectedRowIndex}}");
@@ -47,6 +45,8 @@ describe("Entity explorer tests related to widgets and validation", function() {
       expect($lis.eq(5)).to.contain("{{Table1.pageSize}}");
       expect($lis.eq(6)).to.contain("{{Table1.isVisible}}");
       expect($lis.eq(7)).to.contain("{{Table1.searchText}}");
+      expect($lis.eq(8)).to.contain("{{Table1.totalRecordsCount}}");
+      expect($lis.eq(9)).to.contain("{{Table1.sortOrder}}");
     });
   });
 
