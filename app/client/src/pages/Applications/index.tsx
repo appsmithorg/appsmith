@@ -81,7 +81,8 @@ import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import { SIGNUP_SUCCESS_URL } from "constants/routes";
 
-import { getIsSafeRedirectURL } from "utils/helpers";
+import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
+import { setHeaderMeta } from "actions/themeActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -403,6 +404,11 @@ function LeftPane() {
   const dispatch = useDispatch();
   const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const { releaseItems } = useSelector((state: AppState) => state.ui.releases);
+  const howMuchTimeBefore =
+    releaseItems && releaseItems.length > 0
+      ? howMuchTimeBeforeText(releaseItems[0]["publishedAt"])
+      : "";
   let userOrgs;
   if (!isFetchingApplications) {
     userOrgs = fetchedUserOrgs;
@@ -486,7 +492,9 @@ function LeftPane() {
           <ProductUpdatesModal />
           <LeftPaneVersionData>
             <span>Appsmith v1.5</span>
-            <span>Released 3 days ago</span>
+            {howMuchTimeBefore !== "" && (
+              <span>Released {howMuchTimeBefore} ago</span>
+            )}
           </LeftPaneVersionData>
         </LeftPaneBottomSection>
       </LeftPaneSection>
@@ -913,6 +921,10 @@ type ApplicationProps = {
   userOrgs: any;
   currentUser?: User;
   searchKeyword: string | undefined;
+  setHeaderMetaData: (
+    hideHeaderShadow: boolean,
+    showHeaderSeparator: boolean,
+  ) => void;
 };
 
 const getIsFromSignup = () => {
@@ -940,6 +952,11 @@ class Applications extends Component<
       this.redirectUsingQueryParam();
     }
     this.props.getAllApplication();
+    this.props.setHeaderMetaData(true, true);
+  }
+
+  componentWillUnmount() {
+    this.props.setHeaderMetaData(false, false);
   }
 
   redirectUsingQueryParam = () => {
@@ -1003,6 +1020,12 @@ const mapDispatchToProps = (dispatch: any) => ({
         keyword,
       },
     });
+  },
+  setHeaderMetaData: (
+    hideHeaderShadow: boolean,
+    showHeaderSeparator: boolean,
+  ) => {
+    dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
 });
 
