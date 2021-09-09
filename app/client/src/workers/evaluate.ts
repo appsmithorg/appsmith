@@ -44,6 +44,7 @@ const evaluationScriptsPos: Record<EvaluationScriptType, string> = {
   [EvaluationScriptType.TRIGGERS]: `
   function closedFunction () {
     const result = <<script>>
+    return result
   }
   closedFunction();
   `,
@@ -134,6 +135,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export default function evaluate(
   js: string,
   data: DataTree,
+  resolvedFunctions: Record<string, any>,
   evalArguments?: Array<any>,
   isTriggerBased = false,
 ): EvalResult {
@@ -172,11 +174,21 @@ export default function evaluate(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
+
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+
+    if (!_.isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          self[datum][key] = resolvedObject[key];
+        });
+      });
+    }
     errors = getLintingErrors(
       scriptToLint,
       GLOBAL_DATA,
