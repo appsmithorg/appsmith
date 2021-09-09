@@ -5,6 +5,7 @@ import {
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
+  ModalWidgetResize,
   MultipleWidgetDeletePayload,
   updateAndSaveLayout,
   WidgetAddChild,
@@ -461,6 +462,48 @@ const resizeCanvasToLowestWidget = (
     GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 };
 
+/**
+ * Note: returns bottomRow of the lowest widget on the canvas
+ * @param finalWidgets
+ * @param parentId
+ * @param height
+ */
+const getModalCanvasBottomRow = (
+  finalWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+  height: number,
+): number => {
+  if (
+    !finalWidgets[parentId] ||
+    finalWidgets[parentId].type !== WidgetTypes.CANVAS_WIDGET
+  ) {
+    return height;
+  }
+  const lowestBottomRowHeight =
+    height -
+    GridDefaults.CANVAS_EXTENSION_OFFSET *
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
+  let lowestBottomRow = Math.ceil(
+    lowestBottomRowHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+  );
+  const childIds = finalWidgets[parentId].children || [];
+
+  // find lowest row
+  childIds.forEach((cId) => {
+    const child = finalWidgets[cId];
+
+    if (child.bottomRow > lowestBottomRow) {
+      lowestBottomRow = child.bottomRow;
+    }
+  });
+  return (
+    (lowestBottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+  );
+};
+
 export function* deleteAllSelectedWidgetsSaga(
   deleteAction: ReduxAction<MultipleWidgetDeletePayload>,
 ) {
@@ -874,6 +917,55 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
 
     widget = { ...widget, leftColumn, rightColumn, topRow, bottomRow };
     widgets[widgetId] = widget;
+    log.debug("resize computations took", performance.now() - start, "ms");
+    yield put(updateAndSaveLayout(widgets));
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: WidgetReduxActionTypes.WIDGET_RESIZE,
+        error,
+      },
+    });
+  }
+}
+
+export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
+  try {
+    Toaster.clear();
+    const start = performance.now();
+    const { canvasWidgetId, height, widgetId, width } = resizeAction.payload;
+
+    const stateWidget: FlattenedWidgetProps = yield select(getWidget, widgetId);
+    const stateWidgets = yield select(getWidgets);
+
+    let widget = { ...stateWidget };
+    const widgets = { ...stateWidgets };
+
+    widget = { ...widget, height, width };
+    widgets[widgetId] = widget;
+
+    if (canvasWidgetId) {
+      const bottomRow = getModalCanvasBottomRow(
+        widgets,
+        canvasWidgetId,
+        height,
+      );
+      const stateModalContainerWidget: FlattenedWidgetProps = yield select(
+        getWidget,
+        canvasWidgetId,
+      );
+      let modalContainerWidget = { ...stateModalContainerWidget };
+
+      modalContainerWidget = {
+        ...modalContainerWidget,
+        bottomRow,
+        minHeight: height,
+      };
+
+      widgets[canvasWidgetId] = modalContainerWidget;
+    }
+
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(updateAndSaveLayout(widgets));
   } catch (error) {
@@ -1844,6 +1936,7 @@ export default function* widgetOperationSagas() {
     ),
 
     takeLatest(WidgetReduxActionTypes.WIDGET_RESIZE, resizeSaga),
+    takeLatest(WidgetReduxActionTypes.WIDGET_MODAL_RESIZE, resizeModalSaga),
     takeEvery(
       ReduxActionTypes.UPDATE_WIDGET_PROPERTY_REQUEST,
       updateWidgetPropertySaga,

@@ -92,6 +92,7 @@ type ResizableProps = {
     position: { x: number; y: number },
   ) => boolean;
   className?: string;
+  resizeDualSides?: boolean;
   zWidgetType?: string;
   zWidgetId?: string;
 };
@@ -126,6 +127,9 @@ export const Resizable = forwardRef(function Resizable(
     reset: false,
   });
 
+  const { resizeDualSides } = props;
+  const multiplier = resizeDualSides ? 2 : 1;
+
   const setNewDimensions = (rect: {
     width: number;
     height: number;
@@ -155,9 +159,9 @@ export const Resizable = forwardRef(function Resizable(
     handles.push({
       dragCallback: (x: number) => {
         setNewDimensions({
-          width: props.componentWidth - x,
+          width: props.componentWidth - multiplier * x,
           height: newDimensions.height,
-          x,
+          x: resizeDualSides ? newDimensions.x : x,
           y: newDimensions.y,
         });
       },
@@ -170,8 +174,8 @@ export const Resizable = forwardRef(function Resizable(
       dragCallback: (x: number, y: number) => {
         setNewDimensions({
           width: newDimensions.width,
-          height: props.componentHeight - y,
-          y: y,
+          height: props.componentHeight - multiplier * y,
+          y: resizeDualSides ? newDimensions.y : y,
           x: newDimensions.x,
         });
       },
@@ -183,7 +187,7 @@ export const Resizable = forwardRef(function Resizable(
     handles.push({
       dragCallback: (x: number) => {
         setNewDimensions({
-          width: props.componentWidth + x,
+          width: props.componentWidth + multiplier * x,
           height: newDimensions.height,
           x: newDimensions.x,
           y: newDimensions.y,
@@ -198,7 +202,7 @@ export const Resizable = forwardRef(function Resizable(
       dragCallback: (x: number, y: number) => {
         setNewDimensions({
           width: newDimensions.width,
-          height: props.componentHeight + y,
+          height: props.componentHeight + multiplier * y,
           x: newDimensions.x,
           y: newDimensions.y,
         });

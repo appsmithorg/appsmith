@@ -481,7 +481,10 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     MODAL_WIDGET: {
       rows: 6 * GRID_DENSITY_MIGRATION_V1,
       columns: 6 * GRID_DENSITY_MIGRATION_V1,
+      width: 456,
+      height: 240,
       size: "MODAL_SMALL",
+      isCustomResize: false,
       canEscapeKeyClose: true,
       // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
       // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
