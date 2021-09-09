@@ -267,3 +267,16 @@ export const matchBuilderPath = match(BUILDER_URL);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_URL());
 
 export const matchViewerPath = match(getApplicationViewerPageURL());
+
+export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
+export const extractAppIdAndPageIdFromUrl = (url = "") => {
+  const matched = url.match(BUILDER_URL_REGEX);
+  if (matched) {
+    return {
+      applicationId: matched[1],
+      pageId: matched[2],
+    };
+  }
+
+  return {};
+};

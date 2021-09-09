@@ -29,9 +29,9 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import {
   getOnboardingState,
-  setEnableFirstTimeUserExperience as storeEnableFirstTimerUserExperience,
-  setFirstTimeUserExperienceApplicationId as storeFirstTimeUserExperienceApplicationId,
-  setFirstTimeUserExperienceIntroModalVisibility as storeFirstTimeUserExperienceIntroModalVisibility,
+  setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
+  setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
+  setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
   setOnboardingState,
   setOnboardingWelcomeState,
 } from "utils/storage";
@@ -106,8 +106,8 @@ import {
 } from "utils/DynamicBindingUtils";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
-  getFirstTimeUserExperienceApplicationId,
-  getIsFirstTimeUserExperienceEnabled,
+  getFirstTimeUserOnboardingApplicationId,
+  getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -571,26 +571,21 @@ function* createApplication() {
   const userOrgs = yield select(getUserApplicationsOrgs);
   const currentOrganizationId = currentUser.currentOrganizationId;
   let organization;
-  const isFirstTimeUserExperiencedEnabled = yield select(
-    getIsFirstTimeUserExperienceEnabled,
+  const isFirstTimeUserOnboardingdEnabled = yield select(
+    getIsFirstTimeUserOnboardingEnabled,
   );
-  if (isFirstTimeUserExperiencedEnabled) {
+  if (isFirstTimeUserOnboardingdEnabled) {
     yield put({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: false,
     });
     yield put({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
       payload: "",
     });
   }
-
   if (!currentOrganizationId) {
-    if (userOrgs.length) {
-      organization = userOrgs[0];
-    } else {
-      organization = currentUser.organizationIds[0];
-    }
+    organization = userOrgs[0];
   } else {
     const filteredOrganizations = userOrgs.filter(
       (org: any) => org.organization.id === currentOrganizationId,
@@ -916,30 +911,30 @@ export default function* onboardingSagas() {
   }
 }
 
-function* setEnableFirstTimeUserExperience(action: ReduxAction<boolean>) {
-  yield storeEnableFirstTimerUserExperience(action.payload);
+function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
+  yield storeEnableFirstTimeUserOnboarding(action.payload);
 }
 
-function* setFirstTimeUserExperienceApplicationId(action: ReduxAction<string>) {
-  yield storeFirstTimeUserExperienceApplicationId(action.payload);
+function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
+  yield storeFirstTimeUserOnboardingApplicationId(action.payload);
 }
 
-function* setFirstTimeUserExperienceIntroModalVisibility(
+function* setFirstTimeUserOnboardingIntroModalVisibility(
   action: ReduxAction<boolean>,
 ) {
-  yield storeFirstTimeUserExperienceIntroModalVisibility(action.payload);
+  yield storeFirstTimeUserOnboardingIntroModalVisibility(action.payload);
 }
 
-function* endFirstTimeUserExperienceSaga() {
+function* endFirstTimeUserOnboardingSaga() {
   const firstTimeUserExperienceAppId = yield select(
-    getFirstTimeUserExperienceApplicationId,
+    getFirstTimeUserOnboardingApplicationId,
   );
   yield put({
-    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
     payload: false,
   });
   yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: "",
   });
   Toaster.show({
@@ -947,19 +942,19 @@ function* endFirstTimeUserExperienceSaga() {
     hideProgressBar: false,
     variant: Variant.success,
     dispatchableAction: {
-      type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_EXPERIENCE,
+      type: ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
       payload: firstTimeUserExperienceAppId,
     },
   });
 }
 
-function* undoEndFirstTimeUserExperienceSaga(action: ReduxAction<string>) {
+function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
   yield put({
-    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
     payload: true,
   });
   yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload,
   });
 }
@@ -1010,24 +1005,24 @@ function* onboardingActionSagas() {
       createApplication,
     ),
     takeLatest(
-      ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
-      setEnableFirstTimeUserExperience,
+      ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      setEnableFirstTimeUserOnboarding,
     ),
     takeLatest(
-      ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
-      setFirstTimeUserExperienceApplicationId,
+      ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      setFirstTimeUserOnboardingApplicationId,
     ),
     takeLatest(
-      ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
-      setFirstTimeUserExperienceIntroModalVisibility,
+      ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      setFirstTimeUserOnboardingIntroModalVisibility,
     ),
     takeLatest(
-      ReduxActionTypes.END_FIRST_TIME_USER_EXPERIENCE,
-      endFirstTimeUserExperienceSaga,
+      ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
+      endFirstTimeUserOnboardingSaga,
     ),
     takeLatest(
-      ReduxActionTypes.UNDO_END_FIRST_TIME_USER_EXPERIENCE,
-      undoEndFirstTimeUserExperienceSaga,
+      ReduxActionTypes.UNDO_END_FIRST_TIME_USER_ONBOARDING,
+      undoEndFirstTimeUserOnboardingSaga,
     ),
   ]);
 }

@@ -28,18 +28,39 @@ import history from "utils/history";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
-  getFirstTimeUserExperienceComplete,
-  getEnableFirstTimeUserExperience,
+  getFirstTimeUserOnboardingComplete,
+  getEnableFirstTimeUserOnboarding,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { Redirect } from "react-router";
+import {
+  ONBOARDING_CHECKLIST_ACTIONS,
+  ONBOARDING_CHECKLIST_BANNER_BODY,
+  ONBOARDING_CHECKLIST_BANNER_HEADER,
+  ONBOARDING_CHECKLIST_HEADER,
+  ONBOARDING_CHECKLIST_BODY,
+  ONBOARDING_CHECKLIST_COMPLETE_TEXT,
+  ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE,
+  ONBOARDING_CHECKLIST_CREATE_A_QUERY,
+  ONBOARDING_CHECKLIST_ADD_WIDGETS,
+  ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET,
+  ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS,
+  ONBOARDING_CHECKLIST_FOOTER,
+  ONBOARDING_CHECKLIST_BANNER_BUTTON,
+  createMessage,
+} from "constants/messages";
+import { Datasource } from "entities/Datasource";
+import { ActionDataState } from "reducers/entityReducers/actionsReducer";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { triggerWelcomeTour } from "./Utils";
 
 const Wrapper = styled.div`
-  padding: 15px 55px;
+  padding: ${(props) => props.theme.spaces[7]}px 55px;
   background: #fff;
-  height: calc(100vh - 35px);
+  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
   overflow: auto;
 `;
 
@@ -49,29 +70,31 @@ const Pageheader = styled.h4`
 
 const PageSubHeader = styled.p`
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
 `;
 
 const StatusWrapper = styled.p`
   width: 100%;
-  margin-bottom: 30px;
+  margin-bottom: ${(props) => props.theme.spaces[12]}px;
   & span {
     font-weight: 700;
   }
 `;
 
+const LIST_WIDTH_OFFSET = 160;
+
 const StyledList = styled.ul`
   margin: 0;
   padding: 0;
   list-style-type: none;
-  width: calc(100% - 160px);
+  width: calc(100% - ${LIST_WIDTH_OFFSET}px);
   overflow: auto;
 `;
 
 const StyledListItem = styled.li`
   width: 100%;
   display: flex;
-  padding: 30px 0px;
+  padding: ${(props) => props.theme.spaces[12]}px 0px;
   align-items: center;
   border-bottom: 1px solid ${(props) => props.theme.colors.grid};
   &:first-child {
@@ -79,8 +102,10 @@ const StyledListItem = styled.li`
   }
 `;
 
+const CHECKLIST_WIDTH_OFFSET = 268;
+
 const ChecklistText = styled.div<{ active: boolean }>`
-  flex-basis: calc(100% - 268px);
+  flex-basis: calc(100% - ${CHECKLIST_WIDTH_OFFSET}px);
   color: ${(props) => (props.active ? props.theme.colors.text.normal : "")};
   & span {
     font-weight: 700;
@@ -93,7 +118,7 @@ const CompeleteMarkerIcon = styled.div<{ success: boolean }>`
   border-radius: 30px;
   border: 2px solid;
   border-color: ${(props) =>
-    props.success ? props.theme.colors.success.main : "#A9A7A7"};
+    props.success ? props.theme.colors.success.main : Colors.SILVER_CHALICE};
   padding: 2px 2px;
 `;
 
@@ -114,8 +139,8 @@ const Backbutton = styled.span`
 const Banner = styled.div`
   width: calc(100% - 113px);
   border: 1px solid ${(props) => props.theme.colors.table.border};
-  padding: 16px;
-  margin-top: 16px;
+  padding: ${(props) => props.theme.spaces[7]}px;
+  margin-top: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const BannerHeader = styled.h5`
@@ -124,7 +149,8 @@ const BannerHeader = styled.h5`
 `;
 
 const BannerText = styled.p`
-  margin: 8px 0px 16px;
+  margin: ${(props) => props.theme.spaces[3]}px 0px
+    ${(props) => props.theme.spaces[7]}px;
 `;
 
 const StyledImg = styled.img`
@@ -136,42 +162,37 @@ const StyledImg = styled.img`
 const StyledFooter = styled.div`
   cursor: pointer;
   display: inline-block;
-  margin-top: 20px;
+  margin-top: ${(props) => props.theme.spaces[9]}px;
 `;
 
-export default function OnboardingChecklist() {
-  const dispatch = useDispatch();
-  const datasources = useSelector(getDatasources);
-  const pageId = useSelector(getCurrentPageId);
-  const actions = useSelector(getPageActions(pageId));
-  const widgets = useSelector(getCanvasWidgets);
-  const deps = useSelector(getEvaluationInverseDependencyMap);
-  const isConnectionPresent = useIsWidgetActionConnectionPresent(
-    widgets,
-    actions,
-    deps,
-  );
-  const theme = useSelector(getCurrentThemeDetails);
-  const applicationId = useSelector(getCurrentApplicationId);
-  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
-  const isCompleted = useSelector(getFirstTimeUserExperienceComplete);
-  const isFirstTimeUserExperienceEnabled = useSelector(
-    getEnableFirstTimeUserExperience,
-  );
+function getSuggestedNextActionAndCompletedTasks(
+  datasources: Datasource[],
+  actions: ActionDataState,
+  widgets: CanvasWidgetsReduxState,
+  isConnectionPresent: boolean,
+  isDeployed: boolean,
+) {
   let suggestedNextAction;
-  if (!isFirstTimeUserExperienceEnabled && !isCompleted) {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
-  }
   if (!datasources.length) {
-    suggestedNextAction = "CREATE A DATASOURCE";
+    suggestedNextAction = createMessage(
+      () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
+    );
   } else if (!actions.length) {
-    suggestedNextAction = "CREATE A QUERY";
-  } else if (Object.keys(widgets).length == 1) {
-    suggestedNextAction = "ADD WIDGETS";
+    suggestedNextAction = createMessage(
+      () => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY,
+    );
+  } else if (Object.keys(widgets).length === 1) {
+    suggestedNextAction = createMessage(
+      () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,
+    );
   } else if (!isConnectionPresent) {
-    suggestedNextAction = "CONNECT DATA TO WIDGET";
+    suggestedNextAction = createMessage(
+      () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
+    );
   } else if (!isDeployed) {
-    suggestedNextAction = "DEPLOY APPLICATIONS";
+    suggestedNextAction = createMessage(
+      () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
+    );
   }
   let completedTasks = 0;
 
@@ -190,6 +211,42 @@ export default function OnboardingChecklist() {
   if (isDeployed) {
     completedTasks++;
   }
+
+  return { suggestedNextAction, completedTasks };
+}
+
+export default function OnboardingChecklist() {
+  const dispatch = useDispatch();
+  const datasources = useSelector(getDatasources);
+  const pageId = useSelector(getCurrentPageId);
+  const actions = useSelector(getPageActions(pageId));
+  const widgets = useSelector(getCanvasWidgets);
+  const deps = useSelector(getEvaluationInverseDependencyMap);
+  const isConnectionPresent = useIsWidgetActionConnectionPresent(
+    widgets,
+    actions,
+    deps,
+  );
+  const theme = useSelector(getCurrentThemeDetails);
+  const applicationId = useSelector(getCurrentApplicationId);
+  const isDeployed = !!useSelector(getApplicationLastDeployedAt);
+  const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getEnableFirstTimeUserOnboarding,
+  );
+  if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
+    return <Redirect to={BUILDER_PAGE_URL(applicationId, pageId)} />;
+  }
+  const {
+    completedTasks,
+    suggestedNextAction,
+  } = getSuggestedNextActionAndCompletedTasks(
+    datasources,
+    actions,
+    widgets,
+    isConnectionPresent,
+    isDeployed,
+  );
   const onconnectYourWidget = () => {
     const action = actions[0];
     if (action && applicationId && pageId) {
@@ -218,30 +275,26 @@ export default function OnboardingChecklist() {
       {isCompleted && (
         <Banner data-testid="checklist-completion-banner">
           <BannerHeader>
-            Amazing work! You’ve explored the basics of Appsmith
+            {createMessage(ONBOARDING_CHECKLIST_BANNER_HEADER)}
           </BannerHeader>
           <BannerText>
-            You can carry on here, or explore the homepage to see how your
-            projects are stored.
+            {createMessage(ONBOARDING_CHECKLIST_BANNER_BODY)}
           </BannerText>
           <StyledButton
             category={Category.primary}
             onClick={() => history.push(APPLICATIONS_URL)}
-            text="Explore homepage"
+            text={createMessage(ONBOARDING_CHECKLIST_BANNER_BUTTON)}
             type="button"
           />
         </Banner>
       )}
-      <Pageheader>👋 Welcome to Appsmith!</Pageheader>
-      <PageSubHeader>
-        Let’s get you started on your first application, explore Appsmith
-        yourself or follow our guide below to discover what Appsmith can do.
-      </PageSubHeader>
+      <Pageheader>{createMessage(ONBOARDING_CHECKLIST_HEADER)}</Pageheader>
+      <PageSubHeader>{createMessage(ONBOARDING_CHECKLIST_BODY)}</PageSubHeader>
       <StatusWrapper>
         <span data-testid="checklist-completion-info">
           {completedTasks} of 5
         </span>
-        &nbsp;complete
+        &nbsp;{createMessage(ONBOARDING_CHECKLIST_COMPLETE_TEXT)}
       </StatusWrapper>
       <StyledList>
         <StyledListItem>
@@ -253,7 +306,7 @@ export default function OnboardingChecklist() {
                 color={
                   datasources.length || actions.length
                     ? theme.colors.success.main
-                    : "#A9A7A7"
+                    : Colors.SILVER_CHALICE
                 }
                 data-testid="checklist-datasource-complete-icon"
                 icon={
@@ -266,13 +319,19 @@ export default function OnboardingChecklist() {
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
           <ChecklistText active={!!datasources.length || !!actions.length}>
-            <span>Connect your data source</span> to start building an
-            application.
+            <span>
+              {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
+            </span>
+            &nbsp;
+            {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal)}
           </ChecklistText>
           {!datasources.length && !actions.length && (
             <StyledButton
               category={
-                suggestedNextAction == "CREATE A DATASOURCE"
+                suggestedNextAction ===
+                createMessage(
+                  () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
+                )
                   ? Category.primary
                   : Category.tertiary
               }
@@ -289,7 +348,9 @@ export default function OnboardingChecklist() {
                   ),
                 );
               }}
-              text="CONNECT DATA SOURCE"
+              text={createMessage(
+                () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
+              )}
               type="button"
             />
           )}
@@ -298,7 +359,11 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!actions.length}>
               <Icon
-                color={actions.length ? theme.colors.success.main : "#A9A7A7"}
+                color={
+                  actions.length
+                    ? theme.colors.success.main
+                    : Colors.SILVER_CHALICE
+                }
                 data-testid="checklist-action-complete-icon"
                 icon={actions.length ? "tick-circle" : "small-tick"}
                 iconSize={17}
@@ -306,12 +371,16 @@ export default function OnboardingChecklist() {
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
           <ChecklistText active={!!actions.length}>
-            <span>Create a query</span> of your data source.
+            <span>
+              {createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
+            </span>
+            &nbsp;{createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
           </ChecklistText>
           {!actions.length && (
             <StyledButton
               category={
-                suggestedNextAction == "CREATE A QUERY"
+                suggestedNextAction ===
+                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY)
                   ? Category.primary
                   : Category.tertiary
               }
@@ -330,7 +399,9 @@ export default function OnboardingChecklist() {
                 );
               }}
               tag="button"
-              text="CREATE A QUERY"
+              text={createMessage(
+                () => ONBOARDING_CHECKLIST_ACTIONS.CREATE_A_QUERY,
+              )}
               type="button"
             />
           )}
@@ -342,7 +413,7 @@ export default function OnboardingChecklist() {
                 color={
                   Object.keys(widgets).length > 1
                     ? theme.colors.success.main
-                    : "#A9A7A7"
+                    : Colors.SILVER_CHALICE
                 }
                 data-testid="checklist-widget-complete-icon"
                 icon={
@@ -353,12 +424,14 @@ export default function OnboardingChecklist() {
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
           <ChecklistText active={Object.keys(widgets).length > 1}>
-            <span>Start visualising your application</span> using widgets.
+            <span>{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}</span>
+            &nbsp;{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
           </ChecklistText>
-          {Object.keys(widgets).length == 1 && (
+          {Object.keys(widgets).length === 1 && (
             <StyledButton
               category={
-                suggestedNextAction == "ADD WIDGETS"
+                suggestedNextAction ===
+                createMessage(() => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS)
                   ? Category.primary
                   : Category.tertiary
               }
@@ -371,7 +444,9 @@ export default function OnboardingChecklist() {
                 dispatch(forceOpenWidgetPanel(true));
                 history.push(BUILDER_PAGE_URL(applicationId, pageId));
               }}
-              text="ADD WIDGETS"
+              text={createMessage(
+                () => ONBOARDING_CHECKLIST_ACTIONS.ADD_WIDGETS,
+              )}
               type="button"
             />
           )}
@@ -381,7 +456,9 @@ export default function OnboardingChecklist() {
             <CompeleteMarkerIcon success={!!isConnectionPresent}>
               <Icon
                 color={
-                  isConnectionPresent ? theme.colors.success.main : "#A9A7A7"
+                  isConnectionPresent
+                    ? theme.colors.success.main
+                    : Colors.SILVER_CHALICE
                 }
                 data-testid="checklist-connection-complete-icon"
                 icon={isConnectionPresent ? "tick-circle" : "small-tick"}
@@ -390,20 +467,29 @@ export default function OnboardingChecklist() {
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
           <ChecklistText active={!!isConnectionPresent}>
-            <span>Connect your data to the widgets</span> using JavaScript.
+            <span>
+              {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold)}
+            </span>
+            &nbsp;
+            {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal)}
           </ChecklistText>
           {!isConnectionPresent && (
             <StyledButton
               category={
-                suggestedNextAction == "CONNECT DATA TO WIDGET"
+                suggestedNextAction ===
+                createMessage(
+                  () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
+                )
                   ? Category.primary
                   : Category.tertiary
               }
               data-testid="checklist-connection-button"
-              disabled={Object.keys(widgets).length == 1 || !actions.length}
+              disabled={Object.keys(widgets).length === 1 || !actions.length}
               onClick={onconnectYourWidget}
               tag="button"
-              text="CONNECT DATA TO WIDGETS"
+              text={createMessage(
+                () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_DATA_TO_WIDGET,
+              )}
               type="button"
             />
           )}
@@ -412,7 +498,9 @@ export default function OnboardingChecklist() {
           <StyledCompleteMarker>
             <CompeleteMarkerIcon success={!!isDeployed}>
               <Icon
-                color={isDeployed ? theme.colors.success.main : "#A9A7A7"}
+                color={
+                  isDeployed ? theme.colors.success.main : Colors.SILVER_CHALICE
+                }
                 data-testid="checklist-deploy-complete-icon"
                 icon={isDeployed ? "tick-circle" : "small-tick"}
                 iconSize={17}
@@ -420,12 +508,19 @@ export default function OnboardingChecklist() {
             </CompeleteMarkerIcon>
           </StyledCompleteMarker>
           <ChecklistText active={!!isDeployed}>
-            <span>Deploy your application</span>, and see your creation live.
+            <span>
+              {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold)}
+            </span>
+            &nbsp;
+            {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal)}
           </ChecklistText>
           {!isDeployed && (
             <StyledButton
               category={
-                suggestedNextAction == "DEPLOY APPLICATIONS"
+                suggestedNextAction ===
+                createMessage(
+                  () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
+                )
                   ? Category.primary
                   : Category.tertiary
               }
@@ -441,33 +536,18 @@ export default function OnboardingChecklist() {
                   },
                 });
               }}
-              text="DEPLOY APPLICATION"
+              text={createMessage(
+                () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
+              )}
               type="button"
             />
           )}
         </StyledListItem>
       </StyledList>
-      <StyledFooter
-        onClick={() => {
-          AnalyticsUtil.logEvent("SIGNPOSTING_WELCOME_TOUR_CLICK");
-          history.push(APPLICATIONS_URL);
-          dispatch({
-            type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
-            payload: false,
-          });
-          dispatch({
-            type:
-              ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
-            payload: "",
-          });
-          dispatch({
-            type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
-          });
-        }}
-      >
+      <StyledFooter onClick={() => triggerWelcomeTour(dispatch)}>
         <StyledImg src="https://assets.appsmith.com/Rocket.png" />
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
-          Not sure where to start? Take the welcome tour
+          {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
         </Text>
         <Icon color={Colors.DIESEL} icon="chevron-right" iconSize={16} />
       </StyledFooter>

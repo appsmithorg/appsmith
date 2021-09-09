@@ -1,13 +1,23 @@
 import { Icon, Overlay } from "@blueprintjs/core";
 import Button, { Category } from "components/ads/Button";
+import {
+  ONBOARDING_INTRO_CONNECT_DATA_WIDGET,
+  ONBOARDING_INTRO_CONNECT_YOUR_DATABASE,
+  HOW_APPSMITH_WORKS,
+  ONBOARDING_INTRO_PUBLISH,
+  BUILD_MY_FIRST_APP,
+  ONBOARDING_INTRO_FOOTER,
+  BUILD_APP_TOGETHER,
+  createMessage,
+} from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import history from "utils/history";
+import { triggerWelcomeTour } from "./Utils";
 
 const Wrapper = styled.div`
   display: flex;
@@ -115,6 +125,11 @@ type IntroductionModalProps = {
   close: () => void;
 };
 
+const getConnectDataImg = () => `${ASSETS_CDN_URL}/ConnectData.svg`;
+const getArrowImg = () => `${ASSETS_CDN_URL}/Arrow.svg`;
+const getQueryDataImg = () => `${ASSETS_CDN_URL}/QueryData.svg`;
+const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps.svg`;
+
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const dispatch = useDispatch();
   const onBuildApp = () => {
@@ -136,52 +151,38 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             iconSize={16}
             onClick={onBuildApp}
           />
-          <ModalHeader>Here’s how Appsmith works</ModalHeader>
+          <ModalHeader>{createMessage(HOW_APPSMITH_WORKS)}</ModalHeader>
           <ModalBody>
             <ModalImgWrapper>
               <StyledImgWrapper>
-                <StyledImg
-                  src="https://assets.appsmith.com/ConnectData.svg"
-                  width="135"
-                />
-                <StyledImg
-                  src="https://assets.appsmith.com/Arrow.svg"
-                  width="42"
-                />
+                <StyledImg src={getConnectDataImg()} width="135" />
+                <StyledImg src={getArrowImg()} width="42" />
               </StyledImgWrapper>
               <StyledImgWrapper>
-                <StyledImg
-                  src="https://assets.appsmith.com/QueryData.svg"
-                  width="330"
-                />
+                <StyledImg src={getQueryDataImg()} width="330" />
               </StyledImgWrapper>
               <StyledImgWrapper>
-                <StyledImg
-                  src="https://assets.appsmith.com/Arrow.svg"
-                  width="42"
-                />
-                <StyledImg
-                  src="https://assets.appsmith.com/PublishApps.svg"
-                  width="92"
-                />
+                <StyledImg src={getArrowImg()} width="42" />
+                <StyledImg src={getPublishAppsImg()} width="92" />
               </StyledImgWrapper>
             </ModalImgWrapper>
             <ModalContentWrapper>
               <div>
                 <StyledCount>1.</StyledCount>
-                <ModalContent>Connect your database or API</ModalContent>
+                <ModalContent>
+                  {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
+                </ModalContent>
               </div>
               <div>
                 <StyledCount>2.</StyledCount>
                 <ModalContent>
-                  Connect queried data to pre-built widgets and customise with
-                  Javascript.
+                  {createMessage(ONBOARDING_INTRO_CONNECT_DATA_WIDGET)}
                 </ModalContent>
               </div>
               <div>
                 <StyledCount>3.</StyledCount>
                 <ModalContent>
-                  Instantly publish and share your apps
+                  {createMessage(ONBOARDING_INTRO_PUBLISH)}
                 </ModalContent>
               </div>
             </ModalContentWrapper>
@@ -191,30 +192,12 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
               category={Category.primary}
               onClick={onBuildApp}
               tag="button"
-              text="Build my first app"
+              text={createMessage(BUILD_MY_FIRST_APP)}
             />
             <ModalFooterNote>
-              Want more help getting started, let’s&nbsp;
-              <span
-                onClick={() => {
-                  AnalyticsUtil.logEvent("SIGNPOSTING_WELCOME_TOUR_CLICK");
-                  history.push(APPLICATIONS_URL);
-                  dispatch({
-                    type:
-                      ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
-                    payload: false,
-                  });
-                  dispatch({
-                    type:
-                      ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
-                    payload: "",
-                  });
-                  dispatch({
-                    type: ReduxActionTypes.ONBOARDING_CREATE_APPLICATION,
-                  });
-                }}
-              >
-                build an app together.
+              {createMessage(ONBOARDING_INTRO_FOOTER)}&nbsp;
+              <span onClick={() => triggerWelcomeTour(dispatch)}>
+                {createMessage(BUILD_APP_TOGETHER)}
               </span>
             </ModalFooterNote>
           </ModalFooter>

@@ -28,12 +28,12 @@ import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import OnboardingTasks from "./FirstTimeUserExperience/Tasks";
+import OnboardingTasks from "./FirstTimeUserOnboarding/Tasks";
 import {
   getIsOnboardingTasksView,
   getIsOnboardingWidgetSelection,
 } from "selectors/entitiesSelector";
-import { getIsFirstTimeUserExperienceEnabled } from "selectors/onboardingSelectors";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -74,8 +74,8 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
-  const enableFirstTimeUserExperience = useSelector(
-    getIsFirstTimeUserExperienceEnabled,
+  const enableFirstTimeUserOnboarding = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
   );
   const isOnboardingWidgetSelection = useSelector(
     getIsOnboardingWidgetSelection,
@@ -150,7 +150,7 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      {enableFirstTimeUserExperience &&
+      {enableFirstTimeUserOnboarding &&
       showOnboardingTasks &&
       !isOnboardingWidgetSelection ? (
         <OnboardingTasks />

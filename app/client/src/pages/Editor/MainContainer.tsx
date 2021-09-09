@@ -10,7 +10,7 @@ import BottomBar from "./BottomBar";
 import getFeatureFlags from "utils/featureFlags";
 
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
-import OnboardingChecklist from "./FirstTimeUserExperience/Checklist";
+import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`

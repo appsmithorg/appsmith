@@ -64,8 +64,8 @@ import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocke
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
 import {
-  getEnableFirstTimeUserExperience,
-  getFirstTimeUserExperienceApplicationId,
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
 
 const getDefaultPageId = (
@@ -468,20 +468,20 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserExperienceEnabled = yield select(
-          getEnableFirstTimeUserExperience,
+        const isFirstTimeUserOnboardingEnabled = yield select(
+          getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserExperienceApplicationId = yield select(
-          getFirstTimeUserExperienceApplicationId,
+        const FirstTimeUserOnboardingApplicationId = yield select(
+          getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
         if (
-          isFirstTimeUserExperienceEnabled &&
-          FirstTimeUserExperienceApplicationId == ""
+          isFirstTimeUserOnboardingEnabled &&
+          FirstTimeUserOnboardingApplicationId == ""
         ) {
           yield put({
             type:
-              ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+              ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
           pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);

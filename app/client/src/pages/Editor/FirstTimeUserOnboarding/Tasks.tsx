@@ -1,8 +1,26 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import Button from "components/ads/Button";
+import {
+  ONBOARDING_TASK_DATASOURCE_BODY,
+  ONBOARDING_TASK_DATASOURCE_HEADER,
+  ONBOARDING_TASK_DATASOURCE_BUTTON,
+  ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION,
+  ONBOARDING_TASK_DATASOURCE_FOOTER,
+  ONBOARDING_TASK_QUERY_HEADER,
+  ONBOARDING_TASK_QUERY_BODY,
+  ONBOARDING_TASK_QUERY_BUTTON,
+  ONBOARDING_TASK_QUERY_FOOTER_ACTION,
+  ONBOARDING_TASK_WIDGET_HEADER,
+  ONBOARDING_TASK_WIDGET_BODY,
+  ONBOARDING_TASK_WIDGET_BUTTON,
+  ONBOARDING_TASK_WIDGET_FOOTER_ACTION,
+  ONBOARDING_TASK_FOOTER,
+  createMessage,
+} from "constants/messages";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -14,7 +32,7 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserExperienceModal } from "selectors/onboardingSelectors";
+import { getFirstTimeUserOnboardingModal } from "selectors/onboardingSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -73,6 +91,11 @@ const Taskfootnote = styled.p`
   }
 `;
 
+const getOnboardingDatasourceImg = () =>
+  `${ASSETS_CDN_URL}/onboarding-datasource.svg`;
+const getOnboardingQueryImg = () => `${ASSETS_CDN_URL}/onboarding-query.svg`;
+const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
+
 export default function OnboardingTasks() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
@@ -81,20 +104,18 @@ export default function OnboardingTasks() {
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
-  const showModal = useSelector(getFirstTimeUserExperienceModal);
+  const showModal = useSelector(getFirstTimeUserOnboardingModal);
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-datasource.svg" />
+          <TaskImage src={getOnboardingDatasourceImg()} />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-datasource-text">
-          Start by adding your first Data source
+          {createMessage(ONBOARDING_TASK_DATASOURCE_HEADER)}
         </TaskHeader>
         <TaskSubText>
-          Adding a data source makes creating applications more powerful. Don’t
-          worry if you don’t have any data to hand, we have sample data you can
-          use.
+          {createMessage(ONBOARDING_TASK_DATASOURCE_BODY)}
         </TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
@@ -112,12 +133,12 @@ export default function OnboardingTasks() {
               );
             }}
             tag="button"
-            text="+ Add a data source"
+            text={createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
             type="button"
           />
         </TaskButtonWrapper>
         <Taskfootnote>
-          Alternatively you can also&nbsp;
+          {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
             data-testid="onboarding-tasks-datasource-alt"
             onClick={() => {
@@ -128,9 +149,9 @@ export default function OnboardingTasks() {
               dispatch(forceOpenWidgetPanel(true));
             }}
           >
-            add a widget
+            {createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION)}
           </span>
-          &nbsp;first.
+          &nbsp;{createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER)}
         </Taskfootnote>
       </CenteredContainer>
     );
@@ -138,15 +159,12 @@ export default function OnboardingTasks() {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-query.svg" />
+          <TaskImage src={getOnboardingQueryImg()} />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-action-text">
-          Next, create a query
+          {createMessage(ONBOARDING_TASK_QUERY_HEADER)}
         </TaskHeader>
-        <TaskSubText>
-          Great job adding a data source! The next thing you can do is create a
-          query on your data.
-        </TaskSubText>
+        <TaskSubText>{createMessage(ONBOARDING_TASK_QUERY_BODY)}</TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
             data-testid="onboarding-tasks-action-button"
@@ -163,12 +181,12 @@ export default function OnboardingTasks() {
               );
             }}
             tag="button"
-            text="+ create a query"
+            text={createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
             type="button"
           />
         </TaskButtonWrapper>
         <Taskfootnote>
-          Alternatively you can also&nbsp;
+          {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
             data-testid="onboarding-tasks-action-alt"
             onClick={() => {
@@ -179,24 +197,21 @@ export default function OnboardingTasks() {
               dispatch(forceOpenWidgetPanel(true));
             }}
           >
-            add a widget
+            {createMessage(ONBOARDING_TASK_QUERY_FOOTER_ACTION)}
           </span>
         </Taskfootnote>
       </CenteredContainer>
     );
-  } else if (Object.keys(widgets).length == 1) {
+  } else if (Object.keys(widgets).length === 1) {
     content = (
       <CenteredContainer>
         <TaskImageContainer>
-          <TaskImage src="https://assets.appsmith.com/onboarding-widget.svg" />
+          <TaskImage src={getOnboardingWidgetImg()} />
         </TaskImageContainer>
         <TaskHeader data-testid="onboarding-tasks-widget-text">
-          Next, add a widget to start displaying data
+          {createMessage(ONBOARDING_TASK_WIDGET_HEADER)}
         </TaskHeader>
-        <TaskSubText>
-          Great job adding a data source! The next thing you can do is add
-          widget to start start making your data visual.
-        </TaskSubText>
+        <TaskSubText>{createMessage(ONBOARDING_TASK_WIDGET_BODY)}</TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
             data-testid="onboarding-tasks-widget-button"
@@ -208,12 +223,12 @@ export default function OnboardingTasks() {
               dispatch(forceOpenWidgetPanel(true));
             }}
             tag="button"
-            text="+ Add a Widget"
+            text={createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
             type="button"
           />
         </TaskButtonWrapper>
         <Taskfootnote>
-          Alternatively you can also&nbsp;
+          {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
             data-testid="onboarding-tasks-widget-alt"
             onClick={() => {
@@ -228,7 +243,7 @@ export default function OnboardingTasks() {
               });
             }}
           >
-            deploy your application
+            {createMessage(ONBOARDING_TASK_WIDGET_FOOTER_ACTION)}
           </span>
           .
         </Taskfootnote>
@@ -242,7 +257,7 @@ export default function OnboardingTasks() {
         <IntroductionModal
           close={() => {
             dispatch({
-              type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
+              type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
               payload: false,
             });
           }}

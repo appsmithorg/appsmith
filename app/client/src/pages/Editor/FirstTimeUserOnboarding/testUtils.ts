@@ -1,3 +1,4 @@
+import _ from "lodash";
 import configureStore from "redux-mock-store";
 
 const PAGE_ID = 2;
@@ -28,7 +29,7 @@ export const initialState: any = {
     },
     onBoarding: {
       firstTimeUserExperienceComplete: false,
-      showFirstTimeUserExperienceModal: true,
+      showFirstTimeUserOnboardingModal: true,
     },
     theme: {
       theme: {
@@ -47,7 +48,7 @@ const mockStore = configureStore();
 export function getStore(step: number) {
   switch (step) {
     case 0:
-      state = JSON.parse(JSON.stringify(initialState));
+      state = _.cloneDeep(initialState);
       break;
     case 1:
       state.entities.datasources.list.push({});

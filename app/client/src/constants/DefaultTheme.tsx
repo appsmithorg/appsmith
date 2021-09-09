@@ -2665,6 +2665,12 @@ export const theme: Theme = {
       letterSpacing: -0.221538,
       fontWeight: "normal",
     },
+    p4: {
+      fontSize: 13,
+      lineHeight: 16,
+      letterSpacing: -0.221538,
+      fontWeight: 600,
+    },
     btnLarge: {
       fontSize: 13,
       lineHeight: 15,

@@ -101,8 +101,8 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
 import {
-  getIsFirstTimeUserExperienceEnabled,
-  getFirstTimeUserExperienceApplicationId,
+  getIsFirstTimeUserOnboardingEnabled,
+  getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
 
 import WidgetFactory from "utils/WidgetFactory";
@@ -514,15 +514,15 @@ export function* createPageSaga(
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
         const firstTimeUserExperienceApplicationId = yield select(
-          getFirstTimeUserExperienceApplicationId,
+          getFirstTimeUserOnboardingApplicationId,
         );
-        const isFirstTimeUserExperienceEnabled = yield select(
-          getIsFirstTimeUserExperienceEnabled,
+        const isFirstTimeUserOnboardingEnabled = yield select(
+          getIsFirstTimeUserOnboardingEnabled,
         );
         if (
           firstTimeUserExperienceApplicationId ==
             createPageAction.payload.applicationId &&
-          isFirstTimeUserExperienceEnabled
+          isFirstTimeUserOnboardingEnabled
         ) {
           history.push(
             BUILDER_PAGE_URL(

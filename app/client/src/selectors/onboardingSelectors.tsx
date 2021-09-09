@@ -9,25 +9,25 @@ export const getIsOnboardingHelperVisible = (state: AppState) => {
 
 export const showWelcomeScreen = (state: AppState) =>
   state.ui.onBoarding.showOnboardingLoader;
-export const getEnableFirstTimeUserExperience = (state: AppState) => {
-  return state.ui.onBoarding.enableFirstTimeUserExperience;
+export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
+  return state.ui.onBoarding.enableFirstTimeUserOnboarding;
 };
 
-export const getFirstTimeUserExperienceApplicationId = (state: AppState) => {
+export const getFirstTimeUserOnboardingApplicationId = (state: AppState) => {
   return state.ui.onBoarding.firstTimeUserExperienceApplicationId;
 };
 
-export const getFirstTimeUserExperienceComplete = (state: AppState) => {
+export const getFirstTimeUserOnboardingComplete = (state: AppState) => {
   return state.ui.onBoarding.firstTimeUserExperienceComplete;
 };
 
-export const getFirstTimeUserExperienceModal = (state: AppState) =>
-  state.ui.onBoarding.showFirstTimeUserExperienceModal;
+export const getFirstTimeUserOnboardingModal = (state: AppState) =>
+  state.ui.onBoarding.showFirstTimeUserOnboardingModal;
 
-export const getIsFirstTimeUserExperienceEnabled = createSelector(
+export const getIsFirstTimeUserOnboardingEnabled = createSelector(
   (state: AppState) => state.entities.pageList.applicationId,
-  getEnableFirstTimeUserExperience,
-  getFirstTimeUserExperienceApplicationId,
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
   (currentApplicationId, enabled, applicationId) => {
     return enabled && currentApplicationId === applicationId;
   },

@@ -55,9 +55,9 @@ import log from "loglevel";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { initSocketConnection } from "actions/websocketActions";
 import {
-  getEnableFirstTimeUserExperience,
-  getFirstTimeUserExperienceApplicationId,
-  getFirstTimeUserExperienceIntroModalVisibility,
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
+  getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 
 export function* createUserSaga(
@@ -422,22 +422,22 @@ function* fetchFeatureFlags() {
   }
 }
 
-function* updateFirstTimeUserExperienceSage() {
-  const enable = yield getEnableFirstTimeUserExperience();
+function* updateFirstTimeUserOnboardingSage() {
+  const enable = yield getEnableFirstTimeUserOnboarding();
 
   if (enable) {
-    const applicationId = yield getFirstTimeUserExperienceApplicationId() || "";
-    const introModalVisibility = yield getFirstTimeUserExperienceIntroModalVisibility();
+    const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
+    const introModalVisibility = yield getFirstTimeUserOnboardingIntroModalVisibility();
     yield put({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: true,
     });
     yield put({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
       payload: applicationId,
     });
     yield put({
-      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_EXPERIENCE_MODAL,
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
       payload: introModalVisibility,
     });
   }
@@ -470,7 +470,7 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-      updateFirstTimeUserExperienceSage,
+      updateFirstTimeUserOnboardingSage,
     ),
   ]);
 }

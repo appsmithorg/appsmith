@@ -16,18 +16,22 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserExperienceComplete } from "selectors/onboardingSelectors";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import history from "utils/history";
 import {
-  ONBOARDING_STEPS_FIRST,
-  ONBOARDING_STEPS_FIRST_ALT,
-  ONBOARDING_STEPS_SECOND,
-  ONBOARDING_STEPS_THIRD,
-  ONBOARDING_STEPS_FOURTH,
-  ONBOARDING_STEPS_FIVETH,
-  ONBOARDING_STEPS_SIXTH,
-} from "./constants";
+  ONBOARDING_STATUS_STEPS_FIRST,
+  ONBOARDING_STATUS_STEPS_FIRST_ALT,
+  ONBOARDING_STATUS_STEPS_SECOND,
+  ONBOARDING_STATUS_STEPS_THIRD,
+  ONBOARDING_STATUS_STEPS_FOURTH,
+  ONBOARDING_STATUS_STEPS_FIVETH,
+  ONBOARDING_STATUS_STEPS_SIXTH,
+  ONBOARDING_STATUS_GET_STARTED,
+  createMessage,
+} from "constants/messages";
+import { getTypographyByKey } from "constants/DefaultTheme";
+import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 const Wrapper = styled.div<{ active: boolean }>`
   position: relative;
@@ -46,8 +50,7 @@ const Wrapper = styled.div<{ active: boolean }>`
 
 const TitleWrapper = styled.p`
   color: #fff;
-  font-size: 13px;
-  font-weight: 600;
+  ${(props) => getTypographyByKey(props, "p4")}
 `;
 
 const StatusText = styled.p`
@@ -109,14 +112,14 @@ const useStatus = (): { percentage: number; content: string } => {
     deps,
   );
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
-  const isFirstTimeUserExperienceComplete = useSelector(
-    getFirstTimeUserExperienceComplete,
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
   );
 
-  if (isFirstTimeUserExperienceComplete) {
+  if (isFirstTimeUserOnboardingComplete) {
     return {
       percentage: 100,
-      content: "Completed 🎉",
+      content: createMessage(ONBOARDING_STATUS_STEPS_SIXTH),
     };
   }
 
@@ -124,19 +127,19 @@ const useStatus = (): { percentage: number; content: string } => {
   let percentage = 0;
   if (!datasources.length && !actions.length) {
     content =
-      Object.keys(widgets).length == 1
-        ? ONBOARDING_STEPS_FIRST
-        : ONBOARDING_STEPS_FIRST_ALT;
+      Object.keys(widgets).length === 1
+        ? createMessage(ONBOARDING_STATUS_STEPS_FIRST)
+        : createMessage(ONBOARDING_STATUS_STEPS_FIRST_ALT);
   } else if (!actions.length) {
-    content = ONBOARDING_STEPS_SECOND;
-  } else if (Object.keys(widgets).length == 1) {
-    content = ONBOARDING_STEPS_THIRD;
+    content = createMessage(ONBOARDING_STATUS_STEPS_SECOND);
+  } else if (Object.keys(widgets).length === 1) {
+    content = createMessage(ONBOARDING_STATUS_STEPS_THIRD);
   } else if (!isConnectionPresent) {
-    content = ONBOARDING_STEPS_FOURTH;
+    content = createMessage(ONBOARDING_STATUS_STEPS_FOURTH);
   } else if (!isDeployed) {
-    content = ONBOARDING_STEPS_FIVETH;
+    content = createMessage(ONBOARDING_STATUS_STEPS_FIVETH);
   } else {
-    content = ONBOARDING_STEPS_SIXTH;
+    content = createMessage(ONBOARDING_STATUS_STEPS_SIXTH);
   }
 
   if (datasources.length || actions.length) {
@@ -173,29 +176,31 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
   const isGenerateAppPage =
     props.location.pathname.indexOf("/generate-page/form") > -1;
-  const isFirstTimeUserExperienceComplete = useSelector(
-    getFirstTimeUserExperienceComplete,
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
   );
+  const intiateOnboarding = useIntiateOnboarding();
   if (isGenerateAppPage) {
     return null;
   }
-  const endFirstTimeUserExperience = (event?: SyntheticEvent) => {
+  const endFirstTimeUserOnboarding = (event?: SyntheticEvent) => {
     event?.stopPropagation();
     dispatch({
-      type: ReduxActionTypes.END_FIRST_TIME_USER_EXPERIENCE,
+      type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
     });
+    intiateOnboarding();
   };
-  if (percentage == 100 && !isFirstTimeUserExperienceComplete) {
+  if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_EXPERIENCE,
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       payload: false,
     });
     dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_APPLICATION_ID,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
       payload: "",
     });
     dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_EXPERIENCE_COMPLETE,
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
       payload: true,
     });
   }
@@ -214,9 +219,11 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         data-cy="statusbar-skip"
         icon="cross"
         iconSize={14}
-        onClick={endFirstTimeUserExperience}
+        onClick={endFirstTimeUserOnboarding}
       />
-      <TitleWrapper>GET STARTED</TitleWrapper>
+      <TitleWrapper>
+        {createMessage(ONBOARDING_STATUS_GET_STARTED)}
+      </TitleWrapper>
       <StatusText>
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
