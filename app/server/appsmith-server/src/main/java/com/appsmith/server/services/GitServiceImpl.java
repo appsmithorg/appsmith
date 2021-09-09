@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.GitApplicationDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -9,6 +10,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -96,6 +99,12 @@ public class GitServiceImpl implements GitService {
         return commitApplication(commitDTO, applicationId);
     }
 
+    /**
+     * This method will make a commit to local repo
+     * @param commitDTO information required for making a commit
+     * @param applicationId application branch on which the commit needs to be done
+     * @return success message
+     */
     @Override
     public Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId) {
 
@@ -167,6 +176,11 @@ public class GitServiceImpl implements GitService {
             });
     }
 
+    /**
+     * Method to get commit history for application branch
+     * @param applicationId application for which the commit history is needed
+     * @return list of commits
+     */
     @Override
     public Mono<List<GitLogDTO>> getCommitHistory(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
@@ -191,7 +205,12 @@ public class GitServiceImpl implements GitService {
                 }
                 GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 try {
-                    return gitExecutor.getCommitHistory(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getBranchName());
+                    GitApplicationDTO gitApplicationDTO =
+                        new GitApplicationDTO(application.getOrganizationId(),
+                            gitData.getDefaultApplicationId(),
+                            gitData.getBranchName());
+
+                    return gitExecutor.getCommitHistory(gitApplicationDTO);
                 } catch (IOException | GitAPIException e) {
                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage());
                 }
@@ -240,4 +259,43 @@ public class GitServiceImpl implements GitService {
                             }
                 }));
     }
+
+    @Override
+    public Mono<String> pushApplication(String applicationId) {
+        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
+
+        return applicationMono
+            .map(application -> {
+                if (application.getGitApplicationMetadata() == null
+                    || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())
+                    || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getDefaultApplicationId())) {
+
+                    // TODO : Please throw the error here instead of assigning values in gitMetadata
+                    /*
+                    throw new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Please reconfigure the application to connect to git repo"
+                    );
+                     */
+                    GitApplicationMetadata gitData = new GitApplicationMetadata();
+                    gitData.setBranchName("master");
+                    gitData.setDefaultApplicationId(applicationId);
+                    application.setGitApplicationMetadata(gitData);
+                }
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                try {
+                    GitApplicationDTO gitApplicationDTO =
+                        new GitApplicationDTO(application.getOrganizationId(),
+                            gitData.getDefaultApplicationId(),
+                            gitData.getBranchName());
+
+                    GitAuth gitAuth = gitData.getGitAuth();
+                    return gitExecutor.pushApplication(gitApplicationDTO, gitData.getRemoteUrl(), gitAuth.getPublicKey(), gitAuth.getPrivateKey());
+                } catch (IOException | GitAPIException | URISyntaxException e) {
+                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "log", e.getMessage());
+                }
+            });
+    }
+
 }

@@ -1,12 +1,11 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.external.dtos.GitLogDTO;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
+import com.appsmith.server.dtos.GitConnectDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,4 +23,6 @@ public interface GitService {
     Mono<String> commitApplication(String applicationId);
 
     Mono<List<GitLogDTO>> getCommitHistory(String applicationId);
+
+    Mono<String> pushApplication(String applicationId);
 }
