@@ -1,10 +1,10 @@
 import * as React from "react";
 import styled from "styled-components";
-import { Checkbox } from "@blueprintjs/core";
 
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
-import { ThemeProp } from "components/ads/common";
 import { generateReactKey } from "utils/generators";
+import { StyledCheckbox } from "components/designSystems/blueprint/CheckboxComponent";
+import { ThemeProp } from "components/ads/common";
 
 export interface CheckboxGroupContainerProps {
   inline?: boolean;
@@ -33,25 +33,6 @@ const CheckboxGroupContainer = styled.div<
   padding: 2px 4px;
 `;
 
-export interface StyledCheckboxProps {
-  disabled?: boolean;
-  rowspace: number;
-}
-
-const StyledCheckbox = styled(Checkbox)<ThemeProp & StyledCheckboxProps>`
-  height: ${({ rowspace }) => rowspace}px;
-
-  &.bp3-control input:checked ~ .bp3-control-indicator {
-    box-shadow: none;
-    background-image: none;
-    background-color: #03b365;
-  }
-
-  &.bp3-control.bp3-checkbox .bp3-control-indicator {
-    border-radius: 0;
-  }
-`;
-
 export interface OptionProps {
   /** Label text for this option. If omitted, `value` is used as the label. */
   label?: string;
@@ -70,7 +51,6 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   rowSpace: number;
   selectedValues: string[];
 }
-
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     isDisabled,
@@ -94,7 +74,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
             key={generateReactKey()}
             label={option.label}
             onChange={onChange(option.value)}
-            rowspace={rowSpace}
+            rowSpace={rowSpace}
           />
         ))}
     </CheckboxGroupContainer>

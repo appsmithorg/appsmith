@@ -9,12 +9,16 @@ public class FieldName {
     public static final String DELETED_AT = "deletedAt";
     public static final String UPDATED_AT = "updatedAt";
     public static final String CURL_CODE = "curlCode";
+    public static final String PLUGIN_TYPE = "pluginType";
+    public static final String COLLECTION_ID = "collectionId";
+    public static final String ACTION_ID = "actionId";
     public static String ORGANIZATION = "organization";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
     public static String PLUGIN = "plugin";
@@ -59,6 +63,7 @@ public class FieldName {
     public static String ANONYMOUS_USER = "anonymousUser";
     public static String USERNAMES = "usernames";
     public static String ACTION = "action";
+    public static String ACTION_COLLECTION = "actionCollection";
     public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
@@ -83,4 +88,5 @@ public class FieldName {
     public static final String PLACEHOLDER_TEXT = "placeholderText";
     public static final String IS_DISABLED = "isDisabled";
     public static final String IS_REQUIRED = "isRequired";
+    public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
 }

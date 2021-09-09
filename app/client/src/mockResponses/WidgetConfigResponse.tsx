@@ -95,7 +95,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       autoFocus: false,
       resetOnSubmit: true,
       isRequired: false,
-      validation: true,
       isDisabled: false,
       allowCurrencyChange: false,
     },
@@ -647,11 +646,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               x: "Mon",
-              y: 10000,
+              y: 20000,
             },
             {
               x: "Tue",
-              y: 12000,
+              y: 22000,
             },
             {
               x: "Wed",
@@ -663,11 +662,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               x: "Fri",
-              y: 14000,
+              y: 24000,
             },
             {
               x: "Sat",
-              y: 19000,
+              y: 29000,
             },
             {
               x: "Sun",
@@ -678,6 +677,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
       xAxisName: "Last Week",
       yAxisName: "Total Order Revenue $",
+      setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
@@ -692,11 +692,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           data: [
             {
               label: "Mon",
-              value: 10000,
+              value: 20000,
             },
             {
               label: "Tue",
-              value: 12000,
+              value: 22000,
             },
             {
               label: "Wed",
@@ -708,11 +708,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
             },
             {
               label: "Fri",
-              value: 14000,
+              value: 24000,
             },
             {
               label: "Sat",
-              value: 19000,
+              value: 29000,
             },
             {
               label: "Sun",
@@ -1412,6 +1412,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       isRequired: false,
       isVisible: true,
       widgetName: "CheckboxGroup",
+      version: 1,
+    },
+    [WidgetTypes.AUDIO_RECORDER_WIDGET]: {
+      backgroundColor: "#F86A2B",
+      iconColor: "white",
+      isDisabled: false,
+      isVisible: true,
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "AudioRecorder",
       version: 1,
     },
   },

@@ -360,12 +360,48 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
-
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
+export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
+export const DEBUGGER_COPY_MESSAGE = () => "Copy";
+export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
+//action creator menu
+export const NO_ACTION = () => `No Action`;
+export const EXECUTE_A_QUERY = () => `Execute a Query`;
+export const NAVIGATE_TO = () => `Navigate To`;
+export const SHOW_MESSAGE = () => `Show Message`;
+export const OPEN_MODAL = () => `Open Modal`;
+export const CLOSE_MODAL = () => `Close Modal`;
+export const STORE_VALUE = () => `Store Value`;
+export const DOWNLOAD = () => `Download`;
+export const COPY_TO_CLIPBOARD = () => `Copy to Clipboard`;
+export const RESET_WIDGET = () => `Reset Widget`;
+export const EXECUTE_JS_FUNCTION = () => `Execute a JS Function`;
+//js actions
+export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
+  `${actionName} copied to page ${pageName} successfully`;
+export const ERROR_JS_ACTION_COPY_FAIL = (actionName: string) =>
+  `Error while copying ${actionName}`;
+export const JS_ACTION_DELETE_SUCCESS = (actionName: string) =>
+  `${actionName} deleted successfully`;
+export const JS_ACTION_CREATED_SUCCESS = (actionName: string) =>
+  `${actionName} created successfully`;
+export const JS_ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
+  `${actionName} moved to page ${pageName} successfully`;
+export const ERROR_JS_ACTION_MOVE_FAIL = (actionName: string) =>
+  `Error while moving ${actionName}`;
+export const ERROR_JS_COLLECTION_RENAME_FAIL = (actionName: string) =>
+  `Unable to update js collection name to ${actionName}`;
+export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
+  `Syntax error: ${message}`;
+
+export const EXECUTING_FUNCTION = () => `Executing function`;
+export const EMPTY_JS_OBJECT = () =>
+  `Nothing to show, write some code to get response`;
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
-
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
@@ -462,6 +498,7 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const PUSH = () => "PUSH";
+export const PULL = () => "PULL";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
@@ -479,3 +516,10 @@ export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
 export const EMOJI = () => "Emoji";
+
+// Sniping mode messages
+export const SNIPING_SELECT_WIDGET_AGAIN = () =>
+  "Unable to detect the widget, please select the widget again.";
+
+export const SNIPING_NOT_SUPPORTED = () =>
+  "Binding on selection is not supported for this type of widget!";

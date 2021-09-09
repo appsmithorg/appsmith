@@ -565,23 +565,25 @@ export function* deleteAllSelectedWidgetsSaga(
           },
         },
       });
+
+      // Notify debugger that widgets were deleted
+      falttendedWidgets.map((widget: any) => {
+        AppsmithConsole.info({
+          logType: LOG_TYPE.ENTITY_DELETED,
+          text: "Widget was deleted",
+          source: {
+            name: widget.widgetName,
+            type: ENTITY_TYPE.WIDGET,
+            id: widget.widgetId,
+          },
+          analytics: {
+            widgetType: widget.type,
+          },
+        });
+      });
       setTimeout(() => {
         if (bulkDeleteKey) {
           flushDeletedWidgets(bulkDeleteKey);
-          falttendedWidgets.map((widget: any) => {
-            AppsmithConsole.info({
-              logType: LOG_TYPE.ENTITY_DELETED,
-              text: "Widget was deleted",
-              source: {
-                name: widget.widgetName,
-                type: ENTITY_TYPE.WIDGET,
-                id: widget.widgetId,
-              },
-              analytics: {
-                widgetType: widget.type,
-              },
-            });
-          });
         }
       }, WIDGET_DELETE_UNDO_TIMEOUT);
     }
@@ -689,23 +691,24 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           },
         });
 
+        otherWidgetsToDelete.map((widget) => {
+          AppsmithConsole.info({
+            logType: LOG_TYPE.ENTITY_DELETED,
+            text: "Widget was deleted",
+            source: {
+              name: widget.widgetName,
+              type: ENTITY_TYPE.WIDGET,
+              id: widget.widgetId,
+            },
+            analytics: {
+              widgetType: widget.type,
+            },
+          });
+        });
+
         setTimeout(() => {
           if (widgetId) {
             flushDeletedWidgets(widgetId);
-            otherWidgetsToDelete.map((widget) => {
-              AppsmithConsole.info({
-                logType: LOG_TYPE.ENTITY_DELETED,
-                text: "Widget was deleted",
-                source: {
-                  name: widget.widgetName,
-                  type: ENTITY_TYPE.WIDGET,
-                  id: widget.widgetId,
-                },
-                analytics: {
-                  widgetType: widget.type,
-                },
-              });
-            });
           }
         }, WIDGET_DELETE_UNDO_TIMEOUT);
       }
