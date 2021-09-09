@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.services.EncryptionService;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+
+import static org.codehaus.plexus.util.PathTool.getRelativePath;
 
 @Slf4j
 @Service
@@ -45,6 +50,7 @@ public class GitServiceImpl implements GitService {
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
+    private final EncryptionService encryptionService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
     private final static String DEFAULT_BRANCH_NAME = "master";
@@ -231,13 +237,52 @@ public class GitServiceImpl implements GitService {
                             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER,
                                     "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
+                                String defaultBranch = "";
+                                try {
+                                    defaultBranch = gitExecutor.cloneApp(
+                                            getRelativePath(gitConnectDTO.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
+                                            getRepoName(gitConnectDTO.getRemoteUrl()),
+                                            gitConnectDTO.getRemoteUrl(),
+                                            encryptionService.decryptString(gitApplicationMetadata.getGitAuth().getPrivateKey()),
+                                            gitApplicationMetadata.getGitAuth().getPublicKey());
+                                } catch (GitAPIException e) {
+                                    if( e instanceof TransportException) {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                        ));
+                                    }
+                                    if(e instanceof InvalidRemoteException) {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.INVALID_PARAMETER,
+                                                "remote url"
+                                        ));
+                                    } else {
+                                        return Mono.error( new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                        ));
+                                    }
+                                } catch (IOException e) {
+                                    log.error("Error while accessing the file system", e.getMessage());
+                                    return Mono.error( new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                }
+
                                 gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-                                gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
+                                gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 Application application1 = new Application();
                                 application1.setGitApplicationMetadata(gitApplicationMetadata);
                              return applicationService.update(gitConnectDTO.getApplicationId(), application1);
                             }
                 }));
+    }
+
+    private Path getRelativePath(String orgID, String defaultApplicationId) {
+        return Paths.get(orgID,defaultApplicationId);
+    }
+
+    private String getRepoName(String remoteUrl) {
+        return remoteUrl.split("/")[1].replace(".git","");
     }
 }
