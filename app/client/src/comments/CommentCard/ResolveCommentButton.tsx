@@ -64,7 +64,7 @@ const ResolveCommentButton = withTheme(
 
     return (
       <Container onClick={_handleClick}>
-        <Tooltip content={createMessage(RESOLVE_THREAD)}>
+        <Tooltip content={createMessage(RESOLVE_THREAD)} hoverOpenDelay={1000}>
           <StyledResolveIcon
             fillColor={fillColor}
             keepColors

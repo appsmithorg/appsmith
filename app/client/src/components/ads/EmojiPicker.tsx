@@ -64,7 +64,10 @@ const EmojiPicker = withTheme(
         }}
         portalClassName="emoji-picker-portal"
       >
-        <Tooltip content={createMessage(iconName ? ADD_REACTION : EMOJI)}>
+        <Tooltip
+          content={createMessage(iconName ? ADD_REACTION : EMOJI)}
+          hoverOpenDelay={1000}
+        >
           <StyledIcon
             fillColor={theme.colors.comments.emojiPicker}
             keepColors

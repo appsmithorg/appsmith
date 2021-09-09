@@ -156,7 +156,7 @@ function CommentContextMenu({
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <Tooltip content={createMessage(MORE_OPTIONS)}>
+      <Tooltip content={createMessage(MORE_OPTIONS)} hoverOpenDelay={1000}>
         <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
       </Tooltip>
     </Popover2>
