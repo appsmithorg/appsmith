@@ -777,7 +777,7 @@ function* buildMetaForSnippets(
   propertyPath: string,
 ) {
   const refinements: any = {};
-  const fieldMeta: { dataType: string; fields?: string } = {
+  const fieldMeta: { dataType: string; fields?: string; entities?: string } = {
     dataType: expectedType,
   };
   if (propertyPath) {
@@ -794,6 +794,7 @@ function* buildMetaForSnippets(
     const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
     const type: string = plugin.packageName || "";
     refinements.entities = [type, entityType];
+    fieldMeta.entities = type;
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
@@ -803,6 +804,7 @@ function* buildMetaForSnippets(
     //Remove version info here
     const type: string = currentEntity.type || "";
     refinements.entities = [type, entityType];
+    fieldMeta.entities = type;
   }
   return { refinements, fieldMeta };
 }
