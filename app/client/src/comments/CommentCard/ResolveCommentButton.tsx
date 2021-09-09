@@ -6,7 +6,7 @@ import Tooltip from "components/ads/Tooltip";
 import {
   createMessage,
   RESOLVE_THREAD,
-  UNRESOLVE_THREAD,
+  RESOLVED_THREAD,
 } from "constants/messages";
 
 const Container = styled.div`
@@ -59,7 +59,7 @@ const ResolveCommentButton = withTheme(
     return (
       <Container onClick={_handleClick}>
         <Tooltip
-          content={createMessage(resolved ? UNRESOLVE_THREAD : RESOLVE_THREAD)}
+          content={createMessage(resolved ? RESOLVED_THREAD : RESOLVE_THREAD)}
         >
           <StyledResolveIcon
             fillColor={fillColor}
