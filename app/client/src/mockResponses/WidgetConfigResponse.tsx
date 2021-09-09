@@ -69,7 +69,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       version: 1,
     },
     IMAGE_WIDGET: {
-      defaultImage: "https://assets.appsmith.com/widgets/default.png",
+      defaultImage:
+        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
       imageShape: "RECTANGLE",
       maxZoomLevel: 1,
       enableRotation: false,
@@ -77,7 +78,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       objectFit: "contain",
       image: "",
       rows: 3 * GRID_DENSITY_MIGRATION_V1,
-      columns: 3 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Image",
       version: 1,
     },
@@ -93,8 +94,6 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       iconAlign: "left",
       autoFocus: false,
       resetOnSubmit: true,
-      labelStyle: "BOLD",
-      labelTextSize: "PARAGRAPH",
       isRequired: false,
       isDisabled: false,
       allowCurrencyChange: false,
@@ -118,7 +117,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     CONTAINER_WIDGET: {
       backgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
-      columns: 6 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Container",
       containerStyle: "card",
       children: [],
@@ -158,11 +157,11 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 5 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "DatePicker",
       defaultDate: moment().toISOString(),
-      minDate: "1930-01-01T00:00:00.000Z",
-      maxDate: "2100-01-01T00:00:00.000Z",
+      minDate: "1920-12-31T18:30:00.000Z",
+      maxDate: "2121-12-31T18:29:00.000Z",
       version: 2,
       isRequired: false,
-      closeOnSelection: true,
+      closeOnSelection: false,
       shortcuts: false,
     },
     VIDEO_WIDGET: {
@@ -175,7 +174,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     TABLE_WIDGET: {
       rows: 7 * GRID_DENSITY_MIGRATION_V1,
-      columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
+      columns: 9 * GRID_DENSITY_MIGRATION_V1,
       defaultSelectedRow: "0",
       label: "Data",
       widgetName: "Table",
@@ -354,17 +353,21 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       columns: 4 * GRID_DENSITY_MIGRATION_V1,
       label: "",
       options: [
-        { label: "Blue", value: "BLUE" },
-        { label: "Green", value: "GREEN" },
-        { label: "Red", value: "RED" },
+        { label: "Hashirama Senju", value: "First" },
+        { label: "Tobirama Senju", value: "Second" },
+        { label: "Hiruzen Sarutobi", value: "Third" },
+        { label: "Minato Namikaze", value: "Fourth" },
+        { label: "Tsunade Senju", value: "Fifth" },
+        { label: "Kakashi Hatake", value: "Sixth" },
+        { label: "Naruto Uzumaki", value: "Seventh" },
       ],
       widgetName: "MultiSelect",
       serverSideFiltering: false,
-      defaultOptionValue: ["GREEN", "RED"],
+      defaultOptionValue: ["First", "Seventh"],
       version: 1,
       isRequired: false,
       isDisabled: false,
-      placeholderText: "Select option(s)",
+      placeholderText: "select option(s)",
     },
     CHECKBOX_WIDGET: {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
@@ -630,8 +633,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 8 * GRID_DENSITY_MIGRATION_V1,
       columns: 6 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Chart",
-      chartType: "COLUMN_CHART",
-      chartName: "Sales Report",
+      chartType: "LINE_CHART",
+      chartName: "Last week's revenue",
       allowHorizontalScroll: false,
       version: 1,
       chartData: {
@@ -639,45 +642,89 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
           seriesName: "Sales",
           data: [
             {
-              x: "Product1",
+              x: "Mon",
               y: 20000,
             },
             {
-              x: "Product2",
+              x: "Tue",
               y: 22000,
             },
             {
-              x: "Product3",
+              x: "Wed",
               y: 32000,
+            },
+            {
+              x: "Thu",
+              y: 28000,
+            },
+            {
+              x: "Fri",
+              y: 24000,
+            },
+            {
+              x: "Sat",
+              y: 29000,
+            },
+            {
+              x: "Sun",
+              y: 36000,
             },
           ],
         },
       },
-      xAxisName: "Product Line",
-      yAxisName: "Revenue($)",
+      xAxisName: "Last Week",
+      yAxisName: "Total Order Revenue $",
       setAdaptiveYMin: false,
       labelOrientation: LabelOrientation.AUTO,
       customFusionChartConfig: {
         type: "column2d",
         dataSource: {
+          seriesName: "Revenue",
           chart: {
-            caption: "Sales Report",
-            xAxisName: "Product Line",
-            yAxisName: "Revenue($)",
+            caption: "Last week's revenue",
+            xAxisName: "Last Week",
+            yAxisName: "Total Order Revenue $",
             theme: "fusion",
           },
           data: [
             {
-              x: "Product1",
-              y: 20000,
+              label: "Mon",
+              value: 20000,
             },
             {
-              x: "Product2",
-              y: 22000,
+              label: "Tue",
+              value: 22000,
             },
             {
-              x: "Product3",
-              y: 32000,
+              label: "Wed",
+              value: 32000,
+            },
+            {
+              label: "Thu",
+              value: 28000,
+            },
+            {
+              label: "Fri",
+              value: 24000,
+            },
+            {
+              label: "Sat",
+              value: 29000,
+            },
+            {
+              label: "Sun",
+              value: 36000,
+            },
+          ],
+          trendlines: [
+            {
+              line: [
+                {
+                  startvalue: "38000",
+                  valueOnRight: "1",
+                  displayvalue: "Weekly Target",
+                },
+              ],
             },
           ],
         },
@@ -694,7 +741,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
     },
     FORM_WIDGET: {
       rows: 13 * GRID_DENSITY_MIGRATION_V1,
-      columns: 6 * GRID_DENSITY_MIGRATION_V1,
+      columns: 7 * GRID_DENSITY_MIGRATION_V1,
       widgetName: "Form",
       backgroundColor: "white",
       children: [],
@@ -770,8 +817,8 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       },
     },
     MAP_WIDGET: {
-      rows: 8 * GRID_DENSITY_MIGRATION_V1,
-      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      rows: 12 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       isDisabled: false,
       isVisible: true,
       widgetName: "Map",
@@ -801,7 +848,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       backgroundColor: "transparent",
       itemBackgroundColor: "#FFFFFF",
       rows: 10 * GRID_DENSITY_MIGRATION_V1,
-      columns: 6 * GRID_DENSITY_MIGRATION_V1,
+      columns: 8 * GRID_DENSITY_MIGRATION_V1,
       gridType: "vertical",
       template: {},
       enhancements: {
@@ -855,19 +902,40 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       gridGap: 0,
       listData: [
         {
-          id: "001",
+          id: 1,
+          num: "001",
           name: "Bulbasaur",
           img: "http://www.serebii.net/pokemongo/pokemon/001.png",
         },
         {
-          id: "002",
+          id: 2,
+          num: "002",
           name: "Ivysaur",
           img: "http://www.serebii.net/pokemongo/pokemon/002.png",
         },
         {
-          id: "003",
+          id: 3,
+          num: "003",
           name: "Venusaur",
           img: "http://www.serebii.net/pokemongo/pokemon/003.png",
+        },
+        {
+          id: 4,
+          num: "004",
+          name: "Charmander",
+          img: "http://www.serebii.net/pokemongo/pokemon/004.png",
+        },
+        {
+          id: 5,
+          num: "005",
+          name: "Charmeleon",
+          img: "http://www.serebii.net/pokemongo/pokemon/005.png",
+        },
+        {
+          id: 6,
+          num: "006",
+          name: "Charizard",
+          img: "http://www.serebii.net/pokemongo/pokemon/006.png",
         },
       ],
       widgetName: "List",
@@ -890,7 +958,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                   {
                     type: "CONTAINER_WIDGET",
                     size: {
-                      rows: 3 * GRID_DENSITY_MIGRATION_V1,
+                      rows: 4 * GRID_DENSITY_MIGRATION_V1,
                       cols: 16 * GRID_DENSITY_MIGRATION_V1,
                     },
                     position: { top: 0, left: 0 },
@@ -919,13 +987,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                   {
                                     type: "IMAGE_WIDGET",
                                     size: {
-                                      rows: 2.5 * GRID_DENSITY_MIGRATION_V1,
+                                      rows: 3 * GRID_DENSITY_MIGRATION_V1,
                                       cols: 4 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     position: { top: 0, left: 0 },
                                     props: {
                                       defaultImage:
-                                        "https://assets.appsmith.com/widgets/default.png",
+                                        "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                                       imageShape: "RECTANGLE",
                                       maxZoomLevel: 1,
                                       image: "{{currentItem.img}}",
@@ -941,7 +1009,7 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     type: "TEXT_WIDGET",
                                     size: {
                                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                      cols: 3 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     position: {
                                       top: 0,
@@ -963,14 +1031,14 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
                                     type: "TEXT_WIDGET",
                                     size: {
                                       rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                      cols: 2 * GRID_DENSITY_MIGRATION_V1,
+                                      cols: 6 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     position: {
                                       top: 1 * GRID_DENSITY_MIGRATION_V1,
                                       left: 4 * GRID_DENSITY_MIGRATION_V1,
                                     },
                                     props: {
-                                      text: "{{currentItem.id}}",
+                                      text: "{{currentItem.num}}",
                                       textStyle: "BODY",
                                       textAlign: "LEFT",
                                       dynamicBindingPathList: [
@@ -1155,14 +1223,13 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       rows: 1 * GRID_DENSITY_MIGRATION_V1,
       columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
       maxCount: 5,
-      defaultRate: 3,
+      defaultRate: 5,
       activeColor: Colors.RATE_ACTIVE,
       inactiveColor: Colors.RATE_INACTIVE,
-      size: "LARGE",
+      size: "MEDIUM",
       isRequired: false,
       isAllowHalf: false,
       isDisabled: false,
-      tooltips: ["Terrible", "Bad", "Neutral", "Good", "Great"],
       widgetName: "Rating",
     },
     [WidgetTypes.IFRAME_WIDGET]: {
