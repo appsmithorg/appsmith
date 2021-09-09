@@ -452,6 +452,9 @@ export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 export const AUTHOR_NAME = () => "Author Name";
 export const AUTHOR_EMAIL = () => "Author Email";
 
+export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
+export const SWITCH_BRANCHES = () => "Switch branches";
+
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";

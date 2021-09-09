@@ -50,12 +50,6 @@ const SectionTitle = styled.div`
   }
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-  & {
-    color: red;
-  }
-`;
-
 const Container = styled.div`
   width: 100%;
   && ${LabelContainer} span {
