@@ -39,7 +39,6 @@ const GeneralWrapper = styled.div<{
 const InputLabelWrapper = styled.div`
   display: flex;
   align-items: center;
-  font-family: "SF Pro Text";
   margin-bottom: 8px;
 `;
 
@@ -51,7 +50,6 @@ const SettingWrapper = styled.div`
 
 export const SettingsHeading = styled(Text)`
   color: ${(props) => props.theme.colors.settingHeading};
-  font-family: "SF Pro Text";
   display: inline-block;
   margin-top: 25px;
   margin-bottom: 10px;

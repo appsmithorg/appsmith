@@ -51,7 +51,6 @@ const MembersWrapper = styled.div<{
 `;
 
 const ButtonWrapper = styled.div`
-  font-family: "SF Pro Text";
   margin-top: 10px;
   a {
     padding: 0 8px;
