@@ -367,7 +367,7 @@ const fieldConfigs: FieldConfigs = {
           value = `${value}.run`;
           break;
         case ActionType.navigateTo:
-          defaultParams = `{}`;
+          defaultParams = `'#', {}`;
           break;
         case ActionType.jsFunction:
           defaultArgs = option.args ? option.args : [];
