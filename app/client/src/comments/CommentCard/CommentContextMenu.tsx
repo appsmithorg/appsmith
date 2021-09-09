@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import Icon, { IconSize, IconName, IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize, IconName } from "components/ads/Icon";
 import styled from "styled-components";
 import {
   PIN_COMMENT,
