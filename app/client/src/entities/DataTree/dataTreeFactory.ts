@@ -11,8 +11,11 @@ import { ActionConfig, PluginType } from "entities/Action";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { generateDataTreeAction } from "entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
 import { ValidationConfig } from "constants/PropertyControlConstants";
+import { Variable } from "entities/JSCollection";
 import {
   ActionDescription,
   ClearPluginActionDescription,
@@ -27,6 +30,7 @@ export enum ENTITY_TYPE {
   ACTION = "ACTION",
   WIDGET = "WIDGET",
   APPSMITH = "APPSMITH",
+  JSACTION = "JSACTION",
 }
 
 export enum EvaluationSubstitutionType {
@@ -54,6 +58,22 @@ export interface DataTreeAction
   logBlackList: Record<string, true>;
 }
 
+export interface DataTreeJSAction {
+  data: Record<string, unknown>;
+  pluginType: PluginType.JS;
+  name: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  body: string;
+  [propName: string]: any;
+  meta: Record<string, MetaArgs>;
+  dynamicBindingPathList: DynamicPath[];
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
+  listVariables: Array<string>;
+}
+
+export interface MetaArgs {
+  arguments: Variable[];
+}
 export interface DataTreeWidget extends WidgetProps {
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   triggerPaths: Record<string, boolean>;
@@ -66,9 +86,9 @@ export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
 }
-
 export type DataTreeObjectEntity =
   | DataTreeAction
+  | DataTreeJSAction
   | DataTreeWidget
   | DataTreeAppsmith;
 
@@ -89,6 +109,7 @@ type DataTreeSeed = {
   widgetsMeta: MetaState;
   pageList: PageListPayload;
   appData: AppDataState;
+  jsActions: JSCollectionDataState;
 };
 
 export class DataTreeFactory {
@@ -96,6 +117,7 @@ export class DataTreeFactory {
     actions,
     appData,
     editorConfigs,
+    jsActions,
     pageList,
     pluginDependencyConfig,
     widgets,
@@ -110,6 +132,9 @@ export class DataTreeFactory {
         editorConfig,
         dependencyConfig,
       );
+    });
+    jsActions.forEach((js) => {
+      dataTree[js.config.name] = generateDataTreeJSAction(js);
     });
     Object.values(widgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(

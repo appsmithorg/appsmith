@@ -433,6 +433,7 @@ export function CanvasSelectionArena({
     currentPageId,
     mainContainer,
     isDragging,
+    isResizing,
     snapRows,
     snapColumnSpace,
     snapRowSpace,

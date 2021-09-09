@@ -11,4 +11,5 @@ public class RefactorActionNameDTO {
     String layoutId;
     String oldName;
     String newName;
+    String collectionName;
 }

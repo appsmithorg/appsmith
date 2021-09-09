@@ -792,7 +792,6 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
-  yield put(fetchActionsForPage(pageId));
 }
 
 export function* setDataUrl() {

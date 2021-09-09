@@ -40,6 +40,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
@@ -141,7 +142,6 @@ public class PostgresPlugin extends BasePlugin {
                         "  and not a.attisdropped\n" +
                         "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
                         "  and c.relkind in ('r', 'v')\n" +
-                        "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                         "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
@@ -862,12 +862,9 @@ public class PostgresPlugin extends BasePlugin {
                         preparedStatement.setLong(index, Long.parseLong(value));
                         break;
                     }
-                    case FLOAT: {
-                        preparedStatement.setFloat(index, Float.parseFloat(value));
-                        break;
-                    }
+                    case FLOAT:
                     case DOUBLE: {
-                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
                         break;
                     }
                     case BOOLEAN: {

@@ -9,6 +9,7 @@ import unescapeJS from "unescape-js";
 import { JSHINT as jshint } from "jshint";
 import { Severity } from "entities/AppsmithConsole";
 import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
+import { isEmpty } from "lodash";
 
 export type EvalResult = {
   result: any;
@@ -113,6 +114,7 @@ const beginsWithLineBreakRegex = /^\s+|\s+$/;
 export default function evaluateSync(
   userScript: string,
   dataTree: DataTree,
+  resolvedFunctions: Record<string, any>,
   evalArguments?: Array<any>,
 ): EvalResult {
   // We remove any line breaks from the beginning of the script because that
@@ -138,11 +140,21 @@ export default function evaluateSync(
     // Set it to self so that the eval function can have access to it
     // as global data. This is what enables access all appsmith
     // entity properties from the global context
+
     Object.keys(GLOBAL_DATA).forEach((key) => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: No types available
       self[key] = GLOBAL_DATA[key];
     });
+
+    if (!isEmpty(resolvedFunctions)) {
+      Object.keys(resolvedFunctions).forEach((datum: any) => {
+        const resolvedObject = resolvedFunctions[datum];
+        Object.keys(resolvedObject).forEach((key: any) => {
+          self[datum][key] = resolvedObject[key];
+        });
+      });
+    }
     errors = getLintingErrors(script, GLOBAL_DATA, unescapedJS);
 
     ///// Adding extra libraries separately

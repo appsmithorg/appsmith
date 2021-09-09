@@ -308,7 +308,7 @@ public class PageServiceTest {
 
         final LayoutDTO layoutDTO = layoutActionService.updateLayout(page.getId(), layout.getId(), layout).block();
 
-        layoutActionService.createAction(action).block();
+        layoutActionService.createSingleAction(action).block();
 
         final Mono<PageDTO> pageMono = applicationPageService.clonePage(page.getId()).cache();
 

@@ -36,7 +36,6 @@ import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
-import { ReactComponent as PlayIcon } from "assets/icons/menu/play-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -169,15 +168,7 @@ export const getSnippet = (snippet: string, args: any) => {
 
 export default function SnippetDescription({ item }: { item: Snippet }) {
   const {
-    body: {
-      additionalInfo,
-      args,
-      isTrigger,
-      snippet,
-      summary,
-      template,
-      title,
-    },
+    body: { args, isTrigger, snippet, snippetMeta, summary, template, title },
     dataType,
     language,
   } = item;
@@ -277,16 +268,26 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       key: "Snippet",
       title: "Snippet",
       panelComponent: (
-        <div className="snippet-container">
-          <SyntaxHighlighter language={language} style={prism}>
-            {js_beautify(snippet, { indent_size: 2 })}
-          </SyntaxHighlighter>
-          <div className="action-icons">
-            <CopyIcon
-              onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-            />
+        <>
+          {snippetMeta && (
+            <div className="snippet-group">
+              <div
+                className="content"
+                dangerouslySetInnerHTML={{ __html: snippetMeta }}
+              />
+            </div>
+          )}
+          <div className="snippet-container">
+            <SyntaxHighlighter language={language} style={prism}>
+              {js_beautify(snippet, { indent_size: 2 })}
+            </SyntaxHighlighter>
+            <div className="action-icons">
+              <CopyIcon
+                onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
+              />
+            </div>
           </div>
-        </div>
+        </>
       ),
     },
   ];
@@ -307,7 +308,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 <CopyIcon
                   onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
                 />
-                <PlayIcon onClick={handleRun} />
               </div>
             </div>
             <div className="snippet-group">
@@ -393,13 +393,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           tabs={tabs}
         />
       </TabbedViewContainer>
-      {additionalInfo &&
-        additionalInfo.map(({ content, header }) => (
-          <div className="snippet-group" key={header}>
-            <div className="header">{header}</div>
-            <div className="content">{content}</div>
-          </div>
-        ))}
     </SnippetContainer>
   );
 }
