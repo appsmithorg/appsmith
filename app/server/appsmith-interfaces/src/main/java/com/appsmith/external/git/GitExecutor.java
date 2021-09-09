@@ -33,6 +33,6 @@ public interface GitExecutor {
      */
     boolean createNewRepository(Path repoPath) throws IOException, GitAPIException;
 
-    String cloneApp(String repoPath, String repoName,  String remoteUrl, String privateSshKey, String publicSshKey) throws GitAPIException;
+    String cloneApp(String repoPath, String repoName,  String remoteUrl, String privateSshKey, String publicSshKey) throws GitAPIException, IOException;
 
 }

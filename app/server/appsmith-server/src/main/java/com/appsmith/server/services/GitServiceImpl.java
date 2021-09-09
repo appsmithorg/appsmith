@@ -18,6 +18,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -68,11 +69,11 @@ public class GitServiceImpl implements GitService {
                         .flatMap(userData -> {
 
                             /*
-                             *  The gitConfig will be null if the user has not created profiles.
-                             *  If null then we need to create this field for the currentUser and save the profile data
-                             *  Else, replace the existing config value with the latest information
-                             *  This config is used as the default git metadata in application object
-                             * */
+                            *  The gitConfig will be null if the user has not created profiles.
+                            *  If null then we need to create this field for the currentUser and save the profile data
+                            *  Else, replace the existing config value with the latest information
+                            *  This config is used as the default git metadata in application object
+                            * */
 
                             userData.setGitGlobalConfigData(gitConfig);
                             return userDataService.updateForUser(user, userData);
@@ -85,8 +86,8 @@ public class GitServiceImpl implements GitService {
                 .map(userData -> {
                     if (userData.getGitGlobalConfigData() == null) {
                         throw new AppsmithException(
-                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
-                                " You can set up a git profile from the user profile section."
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."
                         );
                     }
                     return userData.getGitGlobalConfigData();
@@ -261,16 +262,12 @@ public class GitServiceImpl implements GitService {
                                                 "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
                                         ));
                                     }
+                                } catch (IOException e) {
+                                    log.error("Error while accessing the file system", e.getMessage());
+                                    return Mono.error( new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                 }
-                                if(defaultBranch.equals("failed")) {
-                                    return Mono.error( new AppsmithException(
-                                            AppsmithError.AUTHENTICATION_FAILURE,
-                                            "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
-                                    ));
-                                }
-
                                 gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-                                gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
+                                gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 Application application1 = new Application();
                                 application1.setGitApplicationMetadata(gitApplicationMetadata);

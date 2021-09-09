@@ -105,19 +105,15 @@ public class GitExecutorImpl implements GitExecutor {
                            String repoName,
                            String remoteUrl,
                            String privateSshKey,
-                           String publicSshKey) throws GitAPIException {
+                           String publicSshKey) throws GitAPIException, IOException {
         File file = getFilePath(repoPath, repoName);
         final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
-        try(Git result = Git.cloneRepository()
+        Git result = Git.cloneRepository()
                 .setURI(remoteUrl)
                 .setTransportConfigCallback(transportConfigCallback)
                 .setDirectory(file)
-                .call()) {
-            return result.getRepository().getBranch();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return CLONE_FAILURE_API;
+                .call();
+        return result.getRepository().getBranch();
     }
 
     /* There might be a case where the name conflicts can occur while creating the file.
