@@ -441,8 +441,10 @@ export function CanvasSelectionArena({
     snapRowSpace,
   ]);
 
-  return appMode === APP_MODE.EDIT &&
-    !(isDragging || isResizing || isCommentMode) ? (
+  const shouldShow =
+    appMode === APP_MODE.EDIT && !(isDragging || isResizing || isCommentMode);
+
+  return shouldShow ? (
     <StyledSelectionCanvas
       data-testid={`canvas-${widgetId}`}
       id={`canvas-${widgetId}`}
