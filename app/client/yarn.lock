@@ -9793,9 +9793,10 @@ immer@7.0.9:
   version "7.0.9"
   resolved "https://registry.npmjs.org/immer/-/immer-7.0.9.tgz"
 
-immer@^8.0.1:
-  version "8.0.1"
-  resolved "https://registry.npmjs.org/immer/-/immer-8.0.1.tgz"
+immer@^9.0.6:
+  version "9.0.6"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-9.0.6.tgz#7a96bf2674d06c8143e327cbf73539388ddf1a73"
+  integrity sha512-G95ivKpy+EvVAnAab4fVa4YGYn24J1SpEktnJX7JJ45Bd7xqME/SCplFzYFmTbrkwZbQ4xJK1xMTUYBkN6pWsQ==
 
 immutable@~3.7.4:
   version "3.7.6"
@@ -14828,6 +14829,11 @@ react-lifecycles-compat@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/react-lifecycles-compat/-/react-lifecycles-compat-3.0.4.tgz"
 
+react-media-recorder@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-media-recorder/-/react-media-recorder-1.5.0.tgz#8cc86ba61c8bd1a94ff1bc2fdf6a8ad203b9c05e"
+  integrity sha512-Wosm8/Wg/VG3CP56yOOkdFCwcbVPjFLPu+aKkyCzxGCK+ol2QZMemNYLJC5KU5jZ7nHlpHq7YEOiVi17vmqnPQ==
+
 react-mentions@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/react-mentions/-/react-mentions-4.1.1.tgz"
@@ -15092,6 +15098,11 @@ react-textarea-autosize@^7.1.0:
   dependencies:
     "@babel/runtime" "^7.1.2"
     prop-types "^15.6.0"
+
+react-timer-hook@^3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-3.0.4.tgz#13089b62cc81c6dd0d2bd904cd54add668089c4b"
+  integrity sha512-3Ifg00REsB7871rkpiLZEVTsagaOVvcBKF33Qu9eqJ3tWjYxej3hr2Fo8tep9KP0eXBfE5k60C/M+Tv4/I/ZzA==
 
 react-toastify@^5.5.0:
   version "5.5.0"

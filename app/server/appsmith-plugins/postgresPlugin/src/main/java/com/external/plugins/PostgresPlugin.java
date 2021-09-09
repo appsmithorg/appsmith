@@ -22,6 +22,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.SharedConfig;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
@@ -39,6 +40,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
@@ -68,11 +70,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
+import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DATE;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.DECIMAL;
@@ -113,7 +115,7 @@ public class PostgresPlugin extends BasePlugin {
 
     private static final int HEAVY_OP_FREQUENCY = 100;
 
-    private static final int MAX_SIZE_SUPPORTED = 1000000;
+    private static int MAX_SIZE_SUPPORTED;
 
     public PostgresPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -140,7 +142,6 @@ public class PostgresPlugin extends BasePlugin {
                         "  and not a.attisdropped\n" +
                         "  and n.nspname not in ('information_schema', 'pg_catalog')\n" +
                         "  and c.relkind in ('r', 'v')\n" +
-                        "  and pg_catalog.pg_table_is_visible(a.attrelid)\n" +
                         "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
@@ -167,6 +168,14 @@ public class PostgresPlugin extends BasePlugin {
                         "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
+
+        private final SharedConfig sharedConfig;
+
+        public PostgresPluginExecutor(SharedConfig sharedConfig) {
+            this.sharedConfig = sharedConfig;
+            MAX_SIZE_SUPPORTED = sharedConfig.getMaxResponseSize();
+        }
+
 
         /**
          * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
@@ -326,7 +335,6 @@ public class PostgresPlugin extends BasePlugin {
 
                         int iterator = 0;
                         while (resultSet.next()) {
-                            iterator++;
 
                             // Only check the data size at low frequency to ensure the performance is not impacted heavily
                             if (iterator% HEAVY_OP_FREQUENCY == 0) {
@@ -334,8 +342,9 @@ public class PostgresPlugin extends BasePlugin {
 
                                 if (objectSize > MAX_SIZE_SUPPORTED) {
                                     System.out.println(Thread.currentThread().getName() +
-                                            "[PostgresPlugin] Result size exceeded. Current size : " + objectSize);
-                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED));
+                                            "[PostgresPlugin] Result size greater than maximum supported size of "
+                                            + MAX_SIZE_SUPPORTED + "bytes. Current size : " + objectSize);
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_MAX_RESULT_SIZE_EXCEEDED, (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
                                 }
                             }
 
@@ -397,6 +406,8 @@ public class PostgresPlugin extends BasePlugin {
                             }
 
                             rowsList.add(row);
+
+                            iterator++;
                         }
                     }
 
@@ -851,12 +862,9 @@ public class PostgresPlugin extends BasePlugin {
                         preparedStatement.setLong(index, Long.parseLong(value));
                         break;
                     }
-                    case FLOAT: {
-                        preparedStatement.setFloat(index, Float.parseFloat(value));
-                        break;
-                    }
+                    case FLOAT:
                     case DOUBLE: {
-                        preparedStatement.setDouble(index, Double.parseDouble(value));
+                        preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
                         break;
                     }
                     case BOOLEAN: {

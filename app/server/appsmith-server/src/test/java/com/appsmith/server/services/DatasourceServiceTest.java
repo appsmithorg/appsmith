@@ -569,7 +569,7 @@ public class DatasourceServiceTest {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(datasource);
 
-                    return layoutActionService.createAction(action).thenReturn(datasource);
+                    return layoutActionService.createSingleAction(action).thenReturn(datasource);
                 })
                 .flatMap(datasource -> datasourceService.delete(datasource.getId()));
 

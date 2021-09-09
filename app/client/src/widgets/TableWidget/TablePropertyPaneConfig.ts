@@ -281,7 +281,7 @@ export default [
         propertyName: "tableData",
         label: "Table Data",
         controlType: "INPUT_TEXT",
-        placeholderText: 'Enter [{ "col1": "val1" }]',
+        placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -769,6 +769,10 @@ export default [
                       icon: "ITALICS_FONT",
                       value: "ITALIC",
                     },
+                    {
+                      icon: "UNDERLINE",
+                      value: "UNDERLINE",
+                    },
                   ],
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -1151,7 +1155,7 @@ export default [
         propertyName: "defaultSearchText",
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
-        placeholderText: "Enter default search text",
+        placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -1161,7 +1165,7 @@ export default [
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
-        placeholderText: "Enter row index",
+        placeholderText: "0",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -1176,6 +1180,29 @@ export default [
           },
         },
         dependencies: ["multiRowSelection"],
+      },
+      {
+        propertyName: "compactMode",
+        helpText: "Selects row height",
+        label: "Default Row Height",
+        controlType: "DROP_DOWN",
+        defaultValue: "DEFAULT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            label: "Short",
+            value: "SHORT",
+          },
+          {
+            label: "Default",
+            value: "DEFAULT",
+          },
+          {
+            label: "Tall",
+            value: "TALL",
+          },
+        ],
       },
       {
         helpText:
@@ -1301,14 +1328,6 @@ export default [
         helpText: "Toggle visibility of the data download",
         propertyName: "isVisibleDownload",
         label: "Download",
-        controlType: "SWITCH",
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
-      {
-        helpText: "Toggle visibility of the row height",
-        propertyName: "isVisibleCompactMode",
-        label: "Row Height",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

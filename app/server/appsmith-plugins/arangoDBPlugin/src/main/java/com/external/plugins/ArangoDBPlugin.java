@@ -34,6 +34,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +53,20 @@ import static com.external.utils.StructureUtils.getOneDocumentQuery;
 public class ArangoDBPlugin extends BasePlugin {
 
     private static long DEFAULT_PORT = 8529L;
+    private static String WRITES_EXECUTED_KEY = "writesExecuted";
+    private static String WRITES_IGNORED_KEY = "writesIgnored";
+    private static String RETURN_KEY = "return";
+
+    /**
+     * - Regex to match everything inside double or single quotes, including the quotes.
+     * - e.g. Earth "revolves'" '"around"' "the" 'sun' will match:
+     * (1) "revolves'"
+     * (2) '"around"'
+     * (3) "the"
+     * (4) 'sun'
+     * - ref: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
+     */
+    private static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -85,13 +100,24 @@ public class ArangoDBPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
-                List<Map> docList = new ArrayList<>();
-                docList.addAll(cursor.asListRemaining());
-                ActionExecutionResult result = new ActionExecutionResult();
-                result.setBody(objectMapper.valueToTree(docList));
-                result.setIsExecutionSuccess(true);
                 System.out.println(Thread.currentThread().getName() + ": In the ArangoDBPlugin, got action execution result");
+                ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
+                ActionExecutionResult result = new ActionExecutionResult();
+                result.setIsExecutionSuccess(true);
+                List<Map> docList = new ArrayList<>();
+
+                if (isUpdateQuery(query)) {
+                    Map<String, Long> updateCount = new HashMap<>();
+                    updateCount.put(WRITES_EXECUTED_KEY, cursor.getStats().getWritesExecuted());
+                    updateCount.put(WRITES_IGNORED_KEY, cursor.getStats().getWritesIgnored());
+                    docList.add(updateCount);
+                }
+                else {
+                    docList.addAll(cursor.asListRemaining());
+                }
+
+                result.setBody(objectMapper.valueToTree(docList));
+
                 return result;
             })
                     .onErrorResume(error -> {
@@ -109,6 +135,24 @@ public class ArangoDBPlugin extends BasePlugin {
                         return Mono.just(actionExecutionResult);
                     })
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * - In ArangoDB query language, any non-update query is indicated by the use of keyword RETURN.
+         * - This method checks if the query provided by user has the RETURN keyword or not. To do so, it first
+         * removes any string present inside double or single quotes (to remove any usage of the keyword as a value).
+         * It then matches the remaining words with the keyword RETURN.
+         * - Quoting from ArangoDB doc:
+         * ```
+         * An AQL query must either return a result (indicated by usage of the RETURN keyword) or execute a
+         * data-modification operation
+         * ```
+         * ref: https://www.arangodb.com/docs/stable/aql/fundamentals-syntax.html
+         */
+        private boolean isUpdateQuery(String query) {
+            String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
+            return !Arrays.stream(queryKeyWordsOnly.split("\\s"))
+                    .anyMatch(word -> RETURN_KEY.equals(word.trim().toLowerCase()));
         }
 
         /**

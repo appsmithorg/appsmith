@@ -211,7 +211,8 @@ public class CustomNewActionRepositoryImpl extends BaseAppsmithRepositoryImpl<Ne
 
         if (names != null) {
             Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).in(names);
-            criteriaList.add(namesCriteria);
+            Criteria fullyQualifiedNamesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.fullyQualifiedName)).in(names);
+            criteriaList.add(new Criteria().orOperator(namesCriteria, fullyQualifiedNamesCriteria));
         }
         Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).is(pageId);
         criteriaList.add(pageCriteria);
