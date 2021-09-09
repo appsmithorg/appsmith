@@ -91,6 +91,8 @@ const getLintingErrors = (
 ): EvaluationError[] => {
   const globalData: Record<string, boolean> = {};
   Object.keys(data).forEach((datum) => (globalData[datum] = true));
+  // Jshint shouldn't throw errors for additional libraries
+  extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
 
   globalData.console = true;
 
