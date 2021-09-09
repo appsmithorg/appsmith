@@ -298,11 +298,12 @@ class ImageComponent extends React.Component<
   };
 
   handleImageDownload = (e: any) => {
-    const { imageUrl, widgetId } = this.props;
+    const { defaultImageUrl, imageUrl, widgetId } = this.props;
     const fileName = `${widgetId}-download`;
+    const downloadUrl = imageUrl || defaultImageUrl;
 
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", imageUrl, true);
+    xhr.open("GET", downloadUrl, true);
     xhr.responseType = "blob";
 
     xhr.onload = function() {
@@ -319,7 +320,7 @@ class ImageComponent extends React.Component<
     // if download fails open image in new tab
     xhr.onerror = function() {
       const tag = document.createElement("a");
-      tag.href = imageUrl;
+      tag.href = downloadUrl;
       tag.target = "_blank";
       document.body.appendChild(tag);
       tag.click();
