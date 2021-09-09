@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { last, isNumber } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
@@ -44,7 +44,7 @@ export const getKeyPositionInString = (
     for (const index of indices) {
       const substr = str.substr(0, index);
       const substrLines = substr.split("\n");
-      const ch = _.last(substrLines)?.length || 0;
+      const ch = last(substrLines)?.length || 0;
       const line = substrLines.length - 1;
 
       positions.push({ line, ch });
@@ -93,7 +93,7 @@ export const getLintAnnotations = (
 
     const bindingPositions = getKeyPositionInString(value, originalBinding);
 
-    if (_.isNumber(line) && _.isNumber(ch)) {
+    if (isNumber(line) && isNumber(ch)) {
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
@@ -122,7 +122,7 @@ export const getLintAnnotations = (
     } else {
       return bindingPositions.map((from) => {
         const originalBindingLines = originalBinding.split("\n");
-        const lastLineLentgth = _.last(originalBindingLines)?.length || 0;
+        const lastLineLentgth = last(originalBindingLines)?.length || 0;
         const to = {
           lines: originalBindingLines.length,
           ch: lastLineLentgth,

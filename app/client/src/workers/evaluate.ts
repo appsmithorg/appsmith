@@ -11,7 +11,7 @@ import { Severity } from "entities/AppsmithConsole";
 import { Position } from "codemirror";
 import { AppsmithPromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import _ from "lodash";
+import { isEmpty, last } from "lodash";
 
 export type EvalResult = {
   result: any;
@@ -58,7 +58,7 @@ const getPositionInEvaluationScript = (
   const index = script.indexOf("<<script>>");
   const substr = script.substr(0, index);
   const lines = substr.split("\n");
-  const lastLine = _.last(lines) || "";
+  const lastLine = last(lines) || "";
 
   return { line: lines.length, ch: lastLine.length };
 };
@@ -183,7 +183,7 @@ export default function evaluate(
       self[key] = GLOBAL_DATA[key];
     });
 
-    if (!_.isEmpty(resolvedFunctions)) {
+    if (!isEmpty(resolvedFunctions)) {
       Object.keys(resolvedFunctions).forEach((datum: any) => {
         const resolvedObject = resolvedFunctions[datum];
         Object.keys(resolvedObject).forEach((key: any) => {
