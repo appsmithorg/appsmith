@@ -16,3 +16,13 @@ export const commitToRepoInit = (payload: {
 export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
 });
+
+export const switchGitBranchInit = (branchName: string) => ({
+  type: ReduxActionTypes.SWITCH_GIT_BRANCH_INIT,
+  payload: branchName,
+});
+
+export const createNewBranchInit = (branchName: string) => ({
+  type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
+  payload: branchName,
+});

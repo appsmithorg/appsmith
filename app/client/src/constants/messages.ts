@@ -452,6 +452,9 @@ export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 export const AUTHOR_NAME = () => "Author Name";
 export const AUTHOR_EMAIL = () => "Author Email";
 
+export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
+export const SWITCH_BRANCHES = () => "Switch branches";
+
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
 export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
@@ -465,9 +468,12 @@ export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
+export const PUSH_TO = () => "Push to";
+export const PUSH_CHANGES = () => "PUSH CHANGES";
 export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
