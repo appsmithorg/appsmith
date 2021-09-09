@@ -277,7 +277,9 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {js_beautify(snippet, { indent_size: 2 })}
+              {language === "javascript"
+                ? js_beautify(snippet, { indent_size: 2 })
+                : snippet}
             </SyntaxHighlighter>
             <div className="action-icons">
               <CopyIcon
@@ -289,7 +291,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       ),
     },
   ];
-  if (template && language === "javascript") {
+  if (template) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -298,9 +300,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <>
             <div className="snippet-container">
               <SyntaxHighlighter language={language} style={prism}>
-                {js_beautify(getSnippet(template, selectedArgs), {
-                  indent_size: 2,
-                })}
+                {language === "javascript"
+                  ? js_beautify(getSnippet(template, selectedArgs), {
+                      indent_size: 2,
+                    })
+                  : getSnippet(template, selectedArgs)}
               </SyntaxHighlighter>
               <div className="action-icons">
                 <CopyIcon
