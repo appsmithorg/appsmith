@@ -174,4 +174,9 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
+    @PostMapping("/ssh-keypair/{applicationId}")
+    public Mono<ResponseDTO<String>> generateSSHKeyPair(@PathVariable String applicationId) {
+        return service.generateSshKeyPair(applicationId)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
 }

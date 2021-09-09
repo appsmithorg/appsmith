@@ -121,6 +121,7 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
 
   BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
+  BUTTON_DISABLED: "#c2c5c7",
 
   SELECT_DISABLED: "#ced9e080",
   SELECT_PLACEHOLDER: "#bfbfbf",

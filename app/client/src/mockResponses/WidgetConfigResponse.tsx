@@ -1344,6 +1344,16 @@ const WidgetConfigResponse: WidgetConfigReducerState = {
       widgetName: "CheckboxGroup",
       version: 1,
     },
+    [WidgetTypes.AUDIO_RECORDER_WIDGET]: {
+      backgroundColor: "#F86A2B",
+      iconColor: "white",
+      isDisabled: false,
+      isVisible: true,
+      rows: 2 * GRID_DENSITY_MIGRATION_V1,
+      columns: 4 * GRID_DENSITY_MIGRATION_V1,
+      widgetName: "AudioRecorder",
+      version: 1,
+    },
   },
   configVersion: 1,
 };

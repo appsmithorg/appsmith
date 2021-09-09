@@ -132,6 +132,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         key={this.props.widgetId}
         label={this.props.label}
         onCheckChange={this.onCheckChange}
+        rowSpace={this.props.parentRowSpace}
         widgetId={this.props.widgetId}
       />
     );
