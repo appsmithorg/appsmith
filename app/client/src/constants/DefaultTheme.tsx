@@ -515,22 +515,24 @@ export const largeButton = css`
 `;
 
 export const appColors = [
-  "#6C4CF1",
-  "#4F70FD",
-  "#F56AF4",
-  "#B94CF1",
-  "#54A9FB",
-  "#5ED3DA",
-  "#5EDA82",
-  "#A8D76C",
-  "#E9C951",
-  "#FE9F44",
-  "#ED86A1",
-  "#EA6179",
-  "#C03C3C",
-  "#BC6DB2",
-  "#6C9DD0",
-  "#6CD0CF",
+  "#FFEFDB",
+  "#D9E7FF",
+  "#FFDEDE",
+  "#E3DEFF",
+  "#C7F3E3",
+  "#F1DEFF",
+  "#F4FFDE",
+  "#C7F3F0",
+  "#C2DAF0",
+  "#F5D1D1",
+  "#ECECEC",
+  "#CCCCCC",
+  "#F3F1C7",
+  "#E4D8CC",
+  "#EAEDFB",
+  "#D6D1F2",
+  "#FBF4ED",
+  "#FFEBFB",
 ] as const;
 
 export type AppColorCode = typeof appColors[number];
@@ -1950,6 +1952,7 @@ export const dark: ColorType = {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
+    borderColor: darkShades[7],
   },
   auth,
   formMessage,
@@ -2231,7 +2234,7 @@ export const light: ColorType = {
     darker: "#FDE4E4",
     darkest: "#FFE9E9",
   },
-  homepageBackground: "#fafafa",
+  homepageBackground: "#ffffff",
   card: {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
@@ -2554,8 +2557,9 @@ export const light: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
-    backgroundColor: lightShades[3],
+    backgroundColor: lightShades[0],
     iconColor: lightShades[7],
+    borderColor: lightShades[14],
   },
   auth,
   formMessage,
@@ -2784,6 +2788,11 @@ export const theme: Theme = {
       letterSpacing: 0.2,
       fontWeight: 500,
     },
+    sideHeading: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 13,
+    },
   },
   iconSizes: {
     XXS: 8,
@@ -2911,16 +2920,17 @@ export const theme: Theme = {
   ],
   sidebarWidth: "250px",
   homePage: {
-    header: 52,
+    header: 48,
     leftPane: {
       width: 240,
       leftPadding: 16,
-      rightMargin: 113,
+      rightMargin: 12,
     },
     search: {
       height: 68,
       paddingTop: 30,
     },
+    sidebar: 256,
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
@@ -2939,8 +2949,8 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 150,
-    minHeight: 150,
+    minWidth: 228,
+    minHeight: 124,
     titleHeight: 48,
     divider: {
       thickness: 1,

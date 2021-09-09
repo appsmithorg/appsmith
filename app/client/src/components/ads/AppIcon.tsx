@@ -478,7 +478,7 @@ function AppIcon(props: AppIconProps) {
     <IconWrapper
       data-cy={props.cypressSelector}
       {...props}
-      className={Classes.APP_ICON}
+      className={[Classes.APP_ICON, props.className].join(" ")}
       styledProps={styledProps}
     >
       {returnIcon}

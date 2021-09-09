@@ -247,6 +247,15 @@ export default [
         dependencies: ["chartType"],
       },
       {
+        propertyName: "setAdaptiveYMin",
+        label: "Adaptive Axis",
+        helpText: "Define the minimum scale for X/Y axis",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "Changes the x-axis label orientation",
         propertyName: "labelOrientation",
         label: "x-axis Label Orientation",
