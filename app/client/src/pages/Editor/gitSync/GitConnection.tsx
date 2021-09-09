@@ -12,7 +12,12 @@ import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
 import UserGitProfileSettings from "./components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "./constants";
 import { Colors } from "constants/Colors";
-import Button, { Size } from "components/ads/Button";
+import Button, { Category, Size } from "components/ads/Button";
+import { useParams } from "react-router";
+import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
+import { useSSHKeyPair } from "./hooks";
+import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
+import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -35,21 +40,69 @@ const UrlInputContainer = styled.div`
   margin-right: 8px;
 `;
 
-const ButtonContainer = styled.div`
-  margin-top: ${(props) => `${props.theme.spaces[13]}px`};
+const ButtonContainer = styled.div<{ topMargin: number }>`
+  margin-top: ${(props) => `${props.theme.spaces[props.topMargin]}px`};
 `;
 
-const LinkIcon = styled.span<{ size: string }>`
+const Icon = styled.span<{
+  size: string;
+  color: string;
+  marginOffset?: number;
+}>`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: ${(props) => `${props.theme.spaces[props.marginOffset || 0]}px`};
+  cursor: pointer;
   svg {
     width: ${(props) => props.size};
     height: ${(props) => props.size};
     path {
-      fill: ${Colors.DARK_GRAY};
+      fill: ${(props) => props.color};
     }
   }
+`;
+
+const DeployedKeyContainer = styled.div`
+  margin: 8px 0px;
+  height: 50px;
+  width: calc(100% - 30px);
+  background-color: ${Colors.Gallery};
+  padding: ${(props) =>
+    `${props.theme.spaces[3]}px ${props.theme.spaces[4]}px`};
+`;
+
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  margin-left: ${(props) => `${props.theme.spaces[4]}px`};
+`;
+
+const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+`;
+
+const Flex = styled.div`
+  display: flex;
+`;
+
+const LabelText = styled.span`
+  font-size: 14px;
+  color: ${Colors.CODE_GRAY};
+`;
+
+const KeyText = styled.span`
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: ${Colors.CODE_GRAY};
 `;
 
 // v1 only support SSH
@@ -59,6 +112,19 @@ const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
 
 function GitConnection() {
   const [remoteUrl, setRemoteUrl] = useState<string>("");
+
+  const { applicationId: currentApplicationId } = useParams<
+    ExplorerURLParams
+  >();
+
+  const {
+    // failedGeneratingSSHKey,
+    generateSSHKey,
+    generatingSSHKey,
+    sshKeyPair,
+  } = useSSHKeyPair();
+
+  const remoteURL = remoteUrl ? remoteUrl : sshKeyPair ? appsmithGitSshURL : "";
 
   return (
     <>
@@ -73,20 +139,58 @@ function GitConnection() {
           <TextInput
             fill
             onChange={(value) => setRemoteUrl(value)}
-            placeholder={appsmithGitSshURL}
-            value={remoteUrl}
+            placeholder="Paste Your Git SSH URL"
+            value={remoteURL}
+            // appsmithGitSshURL is added Temporary to show prefilled data
           />
         </UrlInputContainer>
-
-        <LinkIcon size="22px">
-          <LinkSvg />
-        </LinkIcon>
+        {remoteURL ? (
+          <Icon color={Colors.DARK_GRAY} size="22px">
+            <LinkSvg />
+          </Icon>
+        ) : null}
       </UrlContainer>
-      <Space size={12} />
-      <UserGitProfileSettings authType={selectedAuthType.label || ""} />
-      <ButtonContainer>
-        <Button size={Size.large} tag="button" text="CONNECT" />
-      </ButtonContainer>
+      {!sshKeyPair ? (
+        <ButtonContainer topMargin={4}>
+          <Button
+            category={Category.secondary}
+            disabled={!remoteURL}
+            isLoading={generatingSSHKey}
+            onClick={() => generateSSHKey(currentApplicationId)}
+            size={Size.medium}
+            tag="button"
+            text="Generate SSH Key"
+          />
+        </ButtonContainer>
+      ) : (
+        <FlexRow>
+          <DeployedKeyContainer>
+            <FlexRow>
+              <Flex>
+                <KeySvg />
+              </Flex>
+
+              <FlexColumn>
+                <LabelText>Deployed Key</LabelText>
+                <KeyText>{sshKeyPair}</KeyText>
+              </FlexColumn>
+            </FlexRow>
+          </DeployedKeyContainer>
+          <Icon color={Colors.DARK_GRAY} marginOffset={4} size="22px">
+            <CopySvg />
+          </Icon>
+        </FlexRow>
+      )}
+
+      {sshKeyPair ? (
+        <>
+          <Space size={12} />
+          <UserGitProfileSettings authType={selectedAuthType.label || ""} />
+          <ButtonContainer topMargin={11}>
+            <Button size={Size.large} tag="button" text="CONNECT" />
+          </ButtonContainer>
+        </>
+      ) : null}
     </>
   );
 }

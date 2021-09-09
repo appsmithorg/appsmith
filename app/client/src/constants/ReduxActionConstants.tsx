@@ -524,6 +524,8 @@ export const ReduxActionTypes = {
   SET_PAGE_ORDER_INIT: "SET_PAGE_ORDER_INIT",
   SET_PAGE_ORDER_SUCCESS: "SET_PAGE_ORDER_SUCCESS",
   GROUP_WIDGETS_INIT: "GROUP_WIDGETS_INIT",
+  GENERATE_SSH_KEY_PAIR_INIT: "GENERATE_SSH_KEY_PAIR_INIT",
+  GENERATE_SSH_KEY_PAIR_SUCCESS: "GENERATE_SSH_KEY_PAIR_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -655,6 +657,7 @@ export const ReduxActionErrorTypes = {
   EXECUTE_DATASOURCE_QUERY_ERROR: "EXECUTE_DATASOURCE_QUERY_ERROR",
   INVITED_USER_SIGNUP_ERROR: "INVITED_USER_SIGNUP_ERROR",
   SET_PAGE_ORDER_ERROR: "SET_PAGE_ORDER_ERROR",
+  GENERATE_SSH_KEY_PAIR_ERROR: "GENERATE_SSH_KEY_PAIR_ERROR",
 };
 
 export const ReduxFormActionTypes = {
@@ -747,6 +750,12 @@ export interface ClonePageSuccessPayload {
 
 export type PageListPayload = Array<Page>;
 
+export type GitApplicationMetadata = {
+  gitAuth?: {
+    publicKey?: string;
+  };
+};
+
 export type ApplicationPayload = {
   id: string;
   name: string;
@@ -759,6 +768,7 @@ export type ApplicationPayload = {
   appIsExample: boolean;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
+  gitApplicationMetadata?: GitApplicationMetadata;
 };
 
 export type OrganizationDetails = {
