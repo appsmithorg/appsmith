@@ -515,6 +515,7 @@ export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
+export const UNRESOLVE_THREAD = () => "Un-resolve Thread";
 export const EMOJI = () => "Emoji";
 
 // Sniping mode messages
