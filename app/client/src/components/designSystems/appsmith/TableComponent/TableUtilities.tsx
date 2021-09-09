@@ -320,9 +320,9 @@ function TableAction(props: {
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
       onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
+        // if (props.isSelected) {
+        e.stopPropagation();
+        // }
       }}
     >
       {props.isCellVisible ? (

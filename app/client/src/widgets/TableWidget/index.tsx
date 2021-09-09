@@ -65,6 +65,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
+      triggeredRow: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
       sortOrder: {
@@ -909,6 +910,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         responseData: rowData,
       });
+      this.props.updateWidgetMetaProperty("triggeredRow", rowData);
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
@@ -963,6 +965,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_ROW_SELECTED,
           },
         });
+      } else {
+        //reset selected row
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
   };
