@@ -5,7 +5,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 export const ImageFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
   defaultImage:
-    "https://assets.appsmith.com/widgets/default.png",
+    "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
   enableDownload: false,
   enableRotation: false,
   imageShape: "RECTANGLE",
