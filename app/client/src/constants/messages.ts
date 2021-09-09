@@ -465,9 +465,12 @@ export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
 export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
+export const PUSH_TO = () => "Push to";
+export const PUSH_CHANGES = () => "PUSH CHANGES";
 export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
