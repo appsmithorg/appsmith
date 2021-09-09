@@ -33,7 +33,7 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       "not.exist",
     );
     cy.GlobalSearchEntity("Table1Copy");
-    cy.get(".t--entity-collapse-toggle")
+    cy.get(".widgets .t--entity-collapse-toggle")
       .last()
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {

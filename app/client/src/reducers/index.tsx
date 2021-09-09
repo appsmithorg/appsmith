@@ -46,9 +46,12 @@ import { WebsocketReduxState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
+import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
+import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
+import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
@@ -98,8 +101,10 @@ export interface AppState {
     websocket: WebsocketReduxState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
+    jsPane: JsPaneReduxState;
     notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
+    jsObjectName: JSObjectNameReduxState;
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
@@ -113,6 +118,7 @@ export interface AppState {
     plugins: PluginDataState;
     meta: MetaState;
     app: AppDataState;
+    jsActions: JSCollectionDataState;
   };
   evaluations: {
     tree: EvaluatedTreeState;

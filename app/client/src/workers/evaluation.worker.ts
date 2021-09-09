@@ -16,10 +16,11 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
+  getParams,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
-import evaluate from "./evaluate";
+import evaluate from "workers/evaluate";
 
 const ctx: Worker = self as any;
 
@@ -126,24 +127,34 @@ ctx.addEventListener(
         return { values: cleanValues, errors };
       }
       case EVAL_WORKER_ACTIONS.EVAL_TRIGGER: {
-        const { callbackData, dataTree, dynamicTrigger } = requestData;
+        const {
+          callbackData,
+          dataTree,
+          dynamicTrigger,
+          fullPropertyPath,
+        } = requestData;
         if (!dataTreeEvaluator) {
           return { triggers: [], errors: [] };
         }
         dataTreeEvaluator.updateDataTree(dataTree);
         const evalTree = dataTreeEvaluator.evalTree;
+        const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
         const {
           errors: evalErrors,
+          result,
           triggers,
         }: {
           errors: EvaluationError[];
           triggers: Array<any>;
+          result: any;
         } = dataTreeEvaluator.getDynamicValue(
           dynamicTrigger,
           evalTree,
+          resolvedFunctions,
           EvaluationSubstitutionType.TEMPLATE,
           true,
           callbackData,
+          fullPropertyPath,
         );
         const cleanTriggers = removeFunctions(triggers);
         // Transforming eval errors into eval trigger errors. Since trigger
@@ -157,7 +168,7 @@ ctx.addEventListener(
             message: error.errorMessage,
             type: EvalErrorTypes.EVAL_TRIGGER_ERROR,
           }));
-        return { triggers: cleanTriggers, errors };
+        return { triggers: cleanTriggers, errors, result };
       }
       case EVAL_WORKER_ACTIONS.CLEAR_CACHE: {
         dataTreeEvaluator = undefined;
@@ -199,13 +210,83 @@ ctx.addEventListener(
         replayDSL.clearLogs();
         return replayResult;
       }
+      case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
+        const { body, jsAction } = requestData;
+        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+
+        if (!dataTreeEvaluator) {
+          return true;
+        }
+        try {
+          const correctFormat = regex.test(body);
+          if (correctFormat) {
+            const toBeParsedBody = body.replace(/export default/g, "");
+            const parsed = body && eval("(" + toBeParsedBody + ")");
+            const parsedLength = Object.keys(parsed).length;
+            const actions = [];
+            const variables = [];
+            if (parsedLength > 0) {
+              for (const key in parsed) {
+                if (parsed.hasOwnProperty(key)) {
+                  if (typeof parsed[key] === "function") {
+                    const value = parsed[key];
+                    const params = getParams(value);
+                    actions.push({
+                      name: key,
+                      body: parsed[key].toString(),
+                      arguments: params,
+                    });
+                  } else {
+                    variables.push({
+                      name: key,
+                      value: parsed[key],
+                    });
+                  }
+                }
+              }
+            }
+            return {
+              actions: actions,
+              variables: variables,
+            };
+          } else {
+            throw new Error("syntax error");
+          }
+        } catch (e) {
+          const errors = dataTreeEvaluator.errors;
+          errors.push({
+            type: EvalErrorTypes.PARSE_JS_ERROR,
+            message: e.message,
+            context: jsAction,
+          });
+          return errors;
+        }
+      }
+      case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
+        const { action, collectionName } = requestData;
+
+        if (!dataTreeEvaluator) {
+          return true;
+        }
+        const evalTree = dataTreeEvaluator.evalTree;
+        const resolvedFunctions = dataTreeEvaluator.resolvedFunctions;
+        const path = collectionName + "." + action.name + "()";
+        const { result } = evaluate(
+          path,
+          evalTree,
+          resolvedFunctions,
+          undefined,
+          true,
+        );
+        return result;
+      }
       case EVAL_WORKER_ACTIONS.EVAL_EXPRESSION:
         const { expression, isTrigger } = requestData;
         const evalTree = dataTreeEvaluator?.evalTree;
         if (!evalTree) return {};
         return isTrigger
-          ? evaluate(expression, evalTree, [], true)
-          : evaluate(expression, evalTree);
+          ? evaluate(expression, evalTree, {}, [], true)
+          : evaluate(expression, evalTree, {});
       default: {
         console.error("Action not registered on worker", method);
       }
