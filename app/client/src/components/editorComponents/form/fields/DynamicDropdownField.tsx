@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, BaseFieldProps } from "redux-form";
 import DropdownComponent from "components/editorComponents/DropdownComponent";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 
 interface DynamicDropdownFieldOptions {
   options: DropdownOption[];
