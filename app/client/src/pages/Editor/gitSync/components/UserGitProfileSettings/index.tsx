@@ -39,9 +39,10 @@ const MainContainer = styled.div`
 // Component
 type UserGitProfileSettingsProps = {
   authType: string;
+  user?: { name: string; email: string };
 };
 
-function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
+function UserGitProfileSettings({ user }: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
   return (
     <MainContainer>
@@ -58,7 +59,7 @@ function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
             <span className="label">{createMessage(AUTHOR_NAME)}</span>
           </LabelContainer>
           <InputContainer>
-            <TextInput fill />
+            <TextInput dataType="text" fill value={user?.name} />
           </InputContainer>
 
           <Space size={7} />
@@ -67,7 +68,7 @@ function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
             <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
           </LabelContainer>
           <InputContainer>
-            <TextInput fill />
+            <TextInput dataType="email" fill value={user?.email} />
           </InputContainer>
         </>
       ) : null}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, MutableRefObject, useRef } from "react";
 import { Subtitle, Title, Space } from "./components/StyledComponents";
 import {
   CONNECT_TO_GIT,
@@ -18,6 +18,11 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useSSHKeyPair } from "./hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
+import useClipboard from "utils/hooks/useClipboard";
+import { Toaster } from "../../../components/ads/Toast";
+import { Variant } from "components/ads/common";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { useSelector } from "../../../store";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -117,6 +122,11 @@ function GitConnection() {
     ExplorerURLParams
   >();
 
+  const currentUser = useSelector(getCurrentUser);
+
+  const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
+  const write = useClipboard(propertyRef);
+
   const {
     // failedGeneratingSSHKey,
     generateSSHKey,
@@ -124,8 +134,21 @@ function GitConnection() {
     sshKeyPair,
   } = useSSHKeyPair();
 
-  const remoteURL = remoteUrl ? remoteUrl : sshKeyPair ? appsmithGitSshURL : "";
+  const copyToClipboard = () => {
+    if (sshKeyPair) {
+      write(sshKeyPair);
+      Toaster.show({
+        text: "Copied SSH Key",
+        variant: Variant.success,
+      });
+    }
+  };
 
+  const placeholderText = sshKeyPair
+    ? appsmithGitSshURL
+    : "Paste Your Git SSH URL";
+
+  const showUnLinkIcon = remoteUrl || sshKeyPair;
   return (
     <>
       <Title>{createMessage(CONNECT_TO_GIT)}</Title>
@@ -137,14 +160,14 @@ function GitConnection() {
       <UrlContainer>
         <UrlInputContainer>
           <TextInput
+            disabled={!!sshKeyPair}
             fill
             onChange={(value) => setRemoteUrl(value)}
-            placeholder="Paste Your Git SSH URL"
-            value={remoteURL}
-            // appsmithGitSshURL is added Temporary to show prefilled data
+            placeholder={placeholderText}
+            value={remoteUrl}
           />
         </UrlInputContainer>
-        {remoteURL ? (
+        {showUnLinkIcon ? (
           <Icon color={Colors.DARK_GRAY} size="22px">
             <LinkSvg />
           </Icon>
@@ -154,7 +177,7 @@ function GitConnection() {
         <ButtonContainer topMargin={4}>
           <Button
             category={Category.secondary}
-            disabled={!remoteURL}
+            disabled={!remoteUrl}
             isLoading={generatingSSHKey}
             onClick={() => generateSSHKey(currentApplicationId)}
             size={Size.medium}
@@ -176,7 +199,12 @@ function GitConnection() {
               </FlexColumn>
             </FlexRow>
           </DeployedKeyContainer>
-          <Icon color={Colors.DARK_GRAY} marginOffset={4} size="22px">
+          <Icon
+            color={Colors.DARK_GRAY}
+            marginOffset={3}
+            onClick={copyToClipboard}
+            size="22px"
+          >
             <CopySvg />
           </Icon>
         </FlexRow>
@@ -185,7 +213,10 @@ function GitConnection() {
       {sshKeyPair ? (
         <>
           <Space size={12} />
-          <UserGitProfileSettings authType={selectedAuthType.label || ""} />
+          <UserGitProfileSettings
+            authType={selectedAuthType.label || ""}
+            user={currentUser}
+          />
           <ButtonContainer topMargin={11}>
             <Button size={Size.large} tag="button" text="CONNECT" />
           </ButtonContainer>
