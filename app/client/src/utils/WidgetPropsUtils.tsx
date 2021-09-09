@@ -31,6 +31,7 @@ import {
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTablePrimaryColumnsComputedValue,
   migrateTableWidgetDelimiterProperties,
+  migrateTableWidgetSelectedRowBindings,
 } from "utils/migrations/TableWidget";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -839,6 +840,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
+    currentDSL.version = LATEST_PAGE_VERSION;
+  }
+
+  if (currentDSL.version === 36) {
+    currentDSL = migrateTableWidgetSelectedRowBindings(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -304,6 +305,58 @@ export const migrateTablePrimaryColumnsComputedValue = (
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateTablePrimaryColumnsComputedValue(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+const getUpdatedColumns = (
+  widgetName: string,
+  columns: Record<string, ColumnProperties>,
+) => {
+  const updatedColumns: Record<string, ColumnProperties> = {};
+  if (columns && Object.keys(columns).length > 0) {
+    for (const [columnId, columnProps] of Object.entries(columns)) {
+      const sanitizedColumnId = removeSpecialChars(columnId, 200);
+      const selectedRowBindingValue = `${widgetName}.selectedRow`;
+      // eslint-disable-next-line no-console
+      console.log({ selectedRowBindingValue });
+      let newOnClickBindingValue = undefined;
+      if (
+        columnProps.onClick &&
+        columnProps.onClick.includes(selectedRowBindingValue)
+      ) {
+        newOnClickBindingValue = columnProps.onClick.replace(
+          selectedRowBindingValue,
+          "currentRow",
+        );
+        console.log({ newOnClickBindingValue });
+      }
+      updatedColumns[sanitizedColumnId] = {
+        ...columnProps,
+        onClick: newOnClickBindingValue,
+      };
+    }
+  }
+  return updatedColumns;
+};
+
+export const migrateTableWidgetSelectedRowBindings = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === WidgetTypes.TABLE_WIDGET) {
+      child.derivedColumns = getUpdatedColumns(
+        child.widgetName,
+        child.derivedColumns as Record<string, ColumnProperties>,
+      );
+      child.primaryColumns = getUpdatedColumns(
+        child.widgetName,
+        child.primaryColumns as Record<string, ColumnProperties>,
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetSelectedRowBindings(child);
     }
     return child;
   });
