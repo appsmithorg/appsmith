@@ -71,7 +71,8 @@ class CheckboxGroupWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Displays a list of unique checkbox options",
+            helpText:
+              "Displays a list of options for a user to select. Values must be unique",
             propertyName: "options",
             label: "Options",
             controlType: "OPTION_INPUT",
@@ -108,10 +109,10 @@ class CheckboxGroupWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Sets the values of the options checked by default",
+            helpText: "Selects values of the options checked by default",
             propertyName: "defaultSelectedValues",
             label: "Default Selected Values",
-            placeholderText: '["apple", "orange"]',
+            placeholderText: "Enter option values",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -120,8 +121,8 @@ class CheckboxGroupWidget extends BaseWidget<
               params: {
                 fn: defaultSelectedValuesValidation,
                 expected: {
-                  type: "String or Array<string>",
-                  example: `apple | ["apple", "orange"]`,
+                  type: "Value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -131,7 +132,8 @@ class CheckboxGroupWidget extends BaseWidget<
             propertyName: "isInline",
             label: "Inline",
             controlType: "SWITCH",
-            helpText: "Displays the checkboxes horizontally",
+            helpText:
+              "Whether the checkbox buttons are to be displayed inline horizontally",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

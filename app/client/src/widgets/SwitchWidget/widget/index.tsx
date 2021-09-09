@@ -20,10 +20,28 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             label: "Label",
             controlType: "INPUT_TEXT",
             helpText: "Displays a label next to the widget",
-            placeholderText: "Enable Option",
+            placeholderText: "Enter label text",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "alignWidget",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: "LEFT",
+              },
+              {
+                label: "Right",
+                value: "RIGHT",
+              },
+            ],
           },
           {
             propertyName: "defaultSwitchState",
@@ -55,24 +73,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "alignWidget",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "Left",
-                value: "LEFT",
-              },
-              {
-                label: "Right",
-                value: "RIGHT",
-              },
-            ],
           },
         ],
       },

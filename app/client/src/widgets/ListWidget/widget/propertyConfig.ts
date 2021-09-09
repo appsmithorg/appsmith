@@ -16,7 +16,7 @@ const PropertyPaneConfig = [
         propertyName: "listData",
         label: "Items",
         controlType: "INPUT_TEXT",
-        placeholderText: '[{ "name": "John" }]',
+        placeholderText: 'Enter [{ "col1": "val1" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,

@@ -85,7 +85,7 @@ class TabsWidget extends BaseWidget<
           {
             propertyName: "defaultTab",
             helpText: "Selects a tab name specified by default",
-            placeholderText: "Tab 1",
+            placeholderText: "Enter tab name",
             label: "Default Tab",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
