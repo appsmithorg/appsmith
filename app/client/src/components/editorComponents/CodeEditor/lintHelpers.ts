@@ -95,7 +95,7 @@ export const getLintAnnotations = (
 
     for (const bindingLocation of bindingPositions) {
       const currentLine = bindingLocation.line + line;
-      const lineContent = lines[currentLine];
+      const lineContent = lines[currentLine] || "";
       const currentCh = originalBinding.includes("\n")
         ? ch
         : bindingLocation.ch + ch;

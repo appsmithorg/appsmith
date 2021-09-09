@@ -468,7 +468,7 @@ class CodeEditor extends Component<Props, State> {
   lintCode(editor: CodeMirror.Editor) {
     const { dataTreePath, dynamicData } = this.props;
 
-    if (!dataTreePath || !this.updateLintingCallback) {
+    if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
 
@@ -480,9 +480,7 @@ class CodeEditor extends Component<Props, State> {
 
     let annotations: Annotation[] = [];
 
-    if (editor) {
-      annotations = getLintAnnotations(editor.getValue(), errors);
-    }
+    annotations = getLintAnnotations(editor.getValue(), errors);
 
     this.updateLintingCallback(editor, annotations);
   }
