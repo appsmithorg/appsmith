@@ -12,7 +12,6 @@ import {
   Position,
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   isPermitted,
   PERMISSION_TYPE,

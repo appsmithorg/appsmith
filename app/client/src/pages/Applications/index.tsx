@@ -9,7 +9,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
-import { Card, Classes as BlueprintClasses, Dialog } from "@blueprintjs/core";
+import { Classes as BlueprintClasses, Dialog } from "@blueprintjs/core";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 import {
   getApplicationList,
@@ -70,7 +70,6 @@ import { leaveOrganization } from "actions/userActions";
 import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "../../assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import Spinner from "components/ads/Spinner";
 import ProfileImage from "pages/common/ProfileImage";
 import { AppIconCollection } from "components/ads/AppIcon";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
@@ -369,39 +368,6 @@ const textIconStyles = (props: { color: string; hover: string }) => {
     }
   `;
 };
-
-const ApplicationAddCardWrapper = styled(Card)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: ${(props) => props.theme.colors.applications.bg};
-  align-items: center;
-  width: ${(props) => props.theme.card.minWidth}px;
-  height: ${(props) => props.theme.card.minHeight}px;
-  position: relative;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 0;
-  margin: ${(props) => props.theme.spaces[5]}px;
-  a {
-    display: block;
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: calc(100% - ${(props) => props.theme.card.titleHeight}px);
-    width: 100%;
-  }
-  cursor: pointer;
-  &:hover {
-    background: ${(props) => props.theme.colors.applications.hover.bg};
-  }
-  ${(props) => {
-    return `${textIconStyles({
-      color: props.theme.colors.applications.textColor,
-      hover: props.theme.colors.applications.hover.textColor,
-    })}`;
-  }}
-`;
 
 function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
   const menuRef = useRef<HTMLAnchorElement>(null);

@@ -16,6 +16,7 @@ import {
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
 import { sha256 } from "js-sha256";
+import moment from "moment";
 
 const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
@@ -442,3 +443,32 @@ export function bootIntercom(user?: User) {
     });
   }
 }
+
+/**
+ *
+ * Get text for how much time before an action happened
+ * Eg: 1 Month, 12 Seconds
+ *
+ * @param date 2021-09-08T14:14:12Z
+ *
+ */
+export const howMuchTimeBeforeText = (date: string) => {
+  if (!date || !moment.isMoment(moment(date))) {
+    return "";
+  }
+
+  const now = moment();
+  const checkDate = moment(date);
+  const years = checkDate.diff(now, "years");
+  const months = checkDate.diff(now, "months");
+  const days = checkDate.diff(now, "days");
+  const hours = checkDate.diff(now, "hours");
+  const minutes = checkDate.diff(now, "minutes");
+  const seconds = checkDate.diff(now, "seconds");
+  if (years > 0) return `${years} year${years > 1 && "s"}`;
+  else if (months > 0) return `${months} month${months > 1 && "s"}`;
+  if (years > 0) return `${years} year${years > 1 && "s"}`;
+  if (years > 0) return `${years} year${years > 1 && "s"}`;
+  if (years > 0) return `${years} year${years > 1 && "s"}`;
+  if (years > 0) return `${years} year${years > 1 && "s"}`;
+};
