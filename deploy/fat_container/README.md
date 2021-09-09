@@ -34,7 +34,7 @@ docker-compose version 1.29.2, build 5becea4c
 
 ### 2. Docker compose configuration
 
-Create a folder called `appsmith` or some other, which will server as our installation folder. Inside this folder, create a `docker-compose.yml` file and copy the following content into it:
+Create a folder called `appsmith` (or some other name that you like), which will serve as our installation folder. Inside this folder, create a `docker-compose.yml` file and copy the following content into it:
 
 ```yaml
 version: "3"
