@@ -9,6 +9,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  CONNECT_TO_GIT_INIT: "CONNECT_TO_GIT_INIT",
+  CONNECT_TO_GIT_SUCCESS: "CONNECT_TO_GIT_SUCCESS",
   CREATE_NEW_BRANCH_INIT: "CREATE_NEW_BRANCH_INIT",
   SWITCH_GIT_BRANCH_INIT: "SWITCH_GIT_BRANCH_INIT",
   COMMIT_TO_GIT_REPO_INIT: "COMMIT_TO_GIT_REPO_INIT",
@@ -533,6 +535,7 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  CONNECT_TO_GIT_ERROR: "CONNECT_TO_GIT_ERROR",
   COMMIT_TO_GIT_REPO_ERROR: "COMMIT_TO_GIT_REPO_ERROR",
   FETCH_FEATURE_FLAGS_ERROR: "FETCH_FEATURE_FLAGS_ERROR",
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",

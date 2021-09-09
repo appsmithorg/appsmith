@@ -6,6 +6,8 @@ import {
 } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { connectToGitInit } from "../../../actions/gitSyncActions";
+import { ConnectToGitPayload } from "../../../api/GitSyncAPI";
 
 export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
@@ -60,5 +62,52 @@ export const useSSHKeyPair = () => {
     failedGeneratingSSHKey,
     generateSSHKey,
     sshKeyPair,
+  };
+};
+
+export const useGitConnect = () => {
+  const dispatch = useDispatch();
+
+  // const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  // const sshKeyPair = gitMetaData?.gitAuth?.publicKey;
+
+  const [isConnectingToGit, setIsConnectingToGit] = useState<boolean>(false);
+
+  const [failedConnectingToGit, setFailedConnectingToGit] = useState<boolean>(
+    false,
+  );
+
+  const onGitConnectSuccess = useCallback(() => {
+    setIsConnectingToGit(false);
+  }, [setIsConnectingToGit]);
+
+  const onGitConnectFailure = useCallback(() => {
+    setIsConnectingToGit(false);
+    setFailedConnectingToGit(true);
+  }, [setIsConnectingToGit]);
+
+  const connectToGit = useCallback(
+    (payload: ConnectToGitPayload) => {
+      if (payload.applicationId) {
+        setIsConnectingToGit(true);
+        setFailedConnectingToGit(false);
+
+        // Here after the ssh key pair generation, we fetch the application data again and on success of it
+        dispatch(
+          connectToGitInit({
+            payload,
+            onSuccessCallback: onGitConnectSuccess,
+            onErrorCallback: onGitConnectFailure,
+          }),
+        );
+      }
+    },
+    [onGitConnectSuccess, onGitConnectFailure, setIsConnectingToGit],
+  );
+
+  return {
+    isConnectingToGit,
+    failedConnectingToGit,
+    connectToGit,
   };
 };

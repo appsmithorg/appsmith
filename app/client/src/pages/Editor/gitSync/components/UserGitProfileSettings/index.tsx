@@ -36,14 +36,45 @@ const MainContainer = styled.div`
   width: calc(100% - 30px);
 `;
 
+type AuthorInfo = { authorName: string; authorEmail: string };
+
+const AUTHOR_INFO_LABEL = {
+  EMAIL: "authorEmail",
+  NAME: "authorName",
+};
+
 // Component
 type UserGitProfileSettingsProps = {
   authType: string;
-  user?: { name: string; email: string };
+  authorInfo: AuthorInfo;
+  setAuthorInfo: (authorInfo: AuthorInfo) => void;
 };
 
-function UserGitProfileSettings({ user }: UserGitProfileSettingsProps) {
+function UserGitProfileSettings({
+  authorInfo,
+  setAuthorInfo,
+}: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
+
+  const setAuthorState = (label: string, value: string) => {
+    switch (label) {
+      case AUTHOR_INFO_LABEL.NAME:
+        setAuthorInfo({
+          authorEmail: authorInfo.authorEmail,
+          authorName: value,
+        });
+        break;
+      case AUTHOR_INFO_LABEL.EMAIL:
+        setAuthorInfo({
+          authorEmail: value,
+          authorName: authorInfo.authorName,
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <MainContainer>
       <TitleWrapper>
@@ -59,7 +90,14 @@ function UserGitProfileSettings({ user }: UserGitProfileSettingsProps) {
             <span className="label">{createMessage(AUTHOR_NAME)}</span>
           </LabelContainer>
           <InputContainer>
-            <TextInput dataType="text" fill value={user?.name} />
+            <TextInput
+              dataType="text"
+              fill
+              onChange={(value) =>
+                setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
+              }
+              value={authorInfo.authorName}
+            />
           </InputContainer>
 
           <Space size={7} />
@@ -68,7 +106,14 @@ function UserGitProfileSettings({ user }: UserGitProfileSettingsProps) {
             <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
           </LabelContainer>
           <InputContainer>
-            <TextInput dataType="email" fill value={user?.email} />
+            <TextInput
+              dataType="email"
+              fill
+              onChange={(value) =>
+                setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)
+              }
+              value={authorInfo.authorEmail}
+            />
           </InputContainer>
         </>
       ) : null}

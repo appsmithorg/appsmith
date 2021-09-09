@@ -1,4 +1,4 @@
-import React, { useState, MutableRefObject, useRef } from "react";
+import React, { useState, MutableRefObject, useRef, useEffect } from "react";
 import { Subtitle, Title, Space } from "./components/StyledComponents";
 import {
   CONNECT_TO_GIT,
@@ -15,14 +15,15 @@ import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { useSSHKeyPair } from "./hooks";
+import { useGitConnect, useSSHKeyPair } from "./hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import useClipboard from "utils/hooks/useClipboard";
-import { Toaster } from "../../../components/ads/Toast";
+import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "../../../store";
+import { useSelector } from "react-redux";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -116,23 +117,38 @@ const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
 
 function GitConnection() {
-  const [remoteUrl, setRemoteUrl] = useState<string>("");
+  const [remoteUrl, setRemoteUrl] = useState<string>(appsmithGitSshURL);
 
   const { applicationId: currentApplicationId } = useParams<
     ExplorerURLParams
   >();
 
   const currentUser = useSelector(getCurrentUser);
+  const orgId = useSelector(getCurrentOrgId);
+
+  const [authorInfo, setAuthorInfo] = useState<{
+    authorName: string;
+    authorEmail: string;
+  }>({
+    authorName: currentUser?.name || "",
+    authorEmail: currentUser?.email || "",
+  });
 
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
 
   const {
-    // failedGeneratingSSHKey,
+    failedGeneratingSSHKey,
     generateSSHKey,
     generatingSSHKey,
     sshKeyPair,
   } = useSSHKeyPair();
+
+  const {
+    connectToGit,
+    failedConnectingToGit,
+    isConnectingToGit,
+  } = useGitConnect();
 
   const copyToClipboard = () => {
     if (sshKeyPair) {
@@ -144,11 +160,28 @@ function GitConnection() {
     }
   };
 
-  const placeholderText = sshKeyPair
-    ? appsmithGitSshURL
-    : "Paste Your Git SSH URL";
+  const placeholderText = "Paste Your Git SSH URL";
 
   const showUnLinkIcon = remoteUrl || sshKeyPair;
+
+  const gitConnectionRequest = () => {
+    connectToGit({
+      applicationId: currentApplicationId,
+      remoteUrl,
+      gitConfig: authorInfo,
+      organizationId: orgId,
+    });
+  };
+
+  useEffect(() => {
+    if (failedConnectingToGit || failedConnectingToGit) {
+      Toaster.show({
+        text: "Something Went Wrong",
+        variant: Variant.danger,
+      });
+    }
+  }, [failedGeneratingSSHKey, failedConnectingToGit]);
+
   return (
     <>
       <Title>{createMessage(CONNECT_TO_GIT)}</Title>
@@ -215,10 +248,17 @@ function GitConnection() {
           <Space size={12} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
-            user={currentUser}
+            authorInfo={authorInfo}
+            setAuthorInfo={setAuthorInfo}
           />
           <ButtonContainer topMargin={11}>
-            <Button size={Size.large} tag="button" text="CONNECT" />
+            <Button
+              isLoading={isConnectingToGit}
+              onClick={gitConnectionRequest}
+              size={Size.large}
+              tag="button"
+              text="CONNECT"
+            />
           </ButtonContainer>
         </>
       ) : null}
