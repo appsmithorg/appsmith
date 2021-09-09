@@ -145,6 +145,8 @@ export const getSortedAndFilteredAppCommentThreadIds = (
 
   return result;
 };
+export const getUnreadCommentsCount = (state: AppState) =>
+  state.ui.comments.unreadCommentThreadsCount;
 
 export const shouldShowResolved = (state: AppState) =>
   state.ui.comments.shouldShowResolvedAppCommentThreads;
