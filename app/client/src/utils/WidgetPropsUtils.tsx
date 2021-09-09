@@ -843,6 +843,11 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 36) {
+    currentDSL = migrateTableVersion(currentDSL);
+    currentDSL.version = 37;
+  }
+
+  if (currentDSL.version === 37) {
     currentDSL = revertTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -854,12 +859,28 @@ export const revertTableDefaultSelectedRow = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    if (currentDSL.defaultSelectedRow === "0")
+    if (currentDSL.version === 1 && currentDSL.defaultSelectedRow === "0")
       currentDSL.defaultSelectedRow = undefined;
+    // update version to 3 for all table dsl
+    currentDSL.version = 3;
   }
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       revertTableDefaultSelectedRow(child),
+    );
+  }
+  return currentDSL;
+};
+
+export const migrateTableVersion = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
+    currentDSL.version = 2;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateTableVersion(child),
     );
   }
   return currentDSL;
