@@ -823,7 +823,7 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 32) {
-    currentDSL = migrateTableDefaultSelectedRow(currentDSL);
+    currentDSL = migrateTableVersion(currentDSL);
     currentDSL.version = 33;
   }
 
@@ -843,11 +843,6 @@ const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 36) {
-    currentDSL = migrateTableVersion(currentDSL);
-    currentDSL.version = 37;
-  }
-
-  if (currentDSL.version === 37) {
     currentDSL = revertTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
@@ -875,26 +870,13 @@ export const revertTableDefaultSelectedRow = (
 export const migrateTableVersion = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
+  // this is done to stop reverse migrations for apps that did not use migrateTableDefaultSelectedRow to migrate
   if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
     currentDSL.version = 2;
   }
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child) =>
       migrateTableVersion(child),
-    );
-  }
-  return currentDSL;
-};
-
-export const migrateTableDefaultSelectedRow = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
-  if (currentDSL.type === WidgetTypes.TABLE_WIDGET) {
-    if (!currentDSL.defaultSelectedRow) currentDSL.defaultSelectedRow = "0";
-  }
-  if (currentDSL.children && currentDSL.children.length) {
-    currentDSL.children = currentDSL.children.map((child) =>
-      migrateTableDefaultSelectedRow(child),
     );
   }
   return currentDSL;
