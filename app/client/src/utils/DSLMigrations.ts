@@ -902,9 +902,31 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 35) {
     currentDSL = migrateInputValidation(currentDSL);
+    currentDSL.version = 36;
+  }
+
+  if (currentDSL.version === 36) {
+    currentDSL = revertTableDefaultSelectedRow(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+export const revertTableDefaultSelectedRow = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (currentDSL.version === 1 && currentDSL.defaultSelectedRow === "0")
+      currentDSL.defaultSelectedRow = undefined;
+    // update version to 3 for all table dsl
+    currentDSL.version = 3;
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      revertTableDefaultSelectedRow(child),
+    );
+  }
   return currentDSL;
 };
 

@@ -865,6 +865,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setName(user.getName());
                     profile.setGender(user.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
+                    profile.setAnonymous(user.isAnonymous());
+                    profile.setEnabled(user.isEnabled());
 
                     return profile;
                 });

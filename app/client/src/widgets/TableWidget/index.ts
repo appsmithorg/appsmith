@@ -166,10 +166,9 @@ export const CONFIG = {
     isVisibleSearch: true,
     isVisibleFilters: true,
     isVisibleDownload: true,
-    isVisibleCompactMode: true,
     isVisiblePagination: true,
     delimiter: ",",
-    version: 1,
+    version: 3,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
