@@ -7,19 +7,19 @@
     "initialValue": "FIND",
     "options": [
       {
-        "label": "Fetch",
+        "label": "Find Document(s)",
         "fileName" : "find.json"
       },
       {
-        "label": "Insert",
+        "label": "Insert Document(s)",
         "fileName" : "insert.json"
       },
       {
-        "label": "Update",
+        "label": "Update Document(s)",
         "fileName" : "update.json"
       },
       {
-        "label": "Delete",
+        "label": "Delete Document(s)",
         "fileName" : "delete.json"
       },
       {
