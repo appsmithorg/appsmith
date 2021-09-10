@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.bp3-panel-stack-view {
+  background: none;
+}

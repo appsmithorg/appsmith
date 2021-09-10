@@ -230,6 +230,7 @@
     "@types/toposort": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
+    "autoprefixer": "^9",
     "babel-plugin-styled-components": "^1.10.7",
     "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
@@ -255,6 +256,7 @@
     "msw": "^0.28.0",
     "patch-package": "^6.4.7",
     "plop": "^2.7.4",
+    "postcss": "^7",
     "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",
     "react-docgen-typescript-loader": "^3.6.0",
@@ -264,6 +266,7 @@
     "redux-devtools-extension": "^2.13.8",
     "redux-mock-store": "^1.5.4",
     "storybook-addon-designs": "^5.4.0",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "ts-jest": "^26.5.4",
     "webpack-merge": "^4.2.2",
     "workbox-webpack-plugin": "^5.1.2"
