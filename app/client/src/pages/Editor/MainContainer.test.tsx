@@ -423,7 +423,7 @@ describe("Drag and Drop widgets into Main container", () => {
         ),
       );
     });
-    let updatedDropTarget: any = component.container.getElementsByClassName(
+    const updatedDropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
     )[0];
     let updatedLength = updatedDropTarget.style.height;

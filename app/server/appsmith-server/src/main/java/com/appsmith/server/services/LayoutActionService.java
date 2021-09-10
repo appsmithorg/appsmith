@@ -19,13 +19,21 @@ public interface LayoutActionService {
 
     Mono<LayoutDTO> refactorActionName(RefactorActionNameDTO refactorActionNameDTO);
 
+    Mono<LayoutDTO> refactorName(String pageId, String layoutId, String oldName, String newName);
+
+    Mono<Boolean> isNameAllowed(String pageId, String layoutId, String newName);
+
     Mono<ActionDTO> updateAction(String id, ActionDTO action);
+
+    Mono<ActionDTO> updateSingleAction(String id, ActionDTO action);
 
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
 
     Mono<ActionDTO> createAction(ActionDTO action);
+
+    Mono<ActionDTO> createSingleAction(ActionDTO action);
 
     Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);
 }
