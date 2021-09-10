@@ -249,7 +249,7 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <ContextualMenu error={e}>
+                  <ContextualMenu entityName={props.source?.name} error={e}>
                     <span className="debugger-message t--debugger-message">
                       {isString(e.message)
                         ? e.message
