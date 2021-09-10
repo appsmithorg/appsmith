@@ -29,6 +29,7 @@ import {
   fetchMockDatasources,
 } from "actions/datasourceActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import { fetchJSCollections } from "actions/jsActionActions";
 import {
   executePageLoadActions,
   fetchActions,
@@ -53,6 +54,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { fetchCommentThreadsInit } from "actions/commentActions";
+import { fetchJSCollectionsForView } from "actions/jsActionActions";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -118,7 +121,13 @@ function* initializeEditorSaga(
       ],
     );
     if (!applicationAndLayoutCalls) return;
+    const jsActionsCall = yield failFastApiCalls(
+      [fetchJSCollections(applicationId)],
+      [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
+    );
 
+    if (!jsActionsCall) return;
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
       [
@@ -155,6 +164,8 @@ function* initializeEditorSaga(
     const appId = currentApplication ? currentApplication.id : "";
 
     yield put(restoreRecentEntitiesRequest(applicationId));
+
+    yield put(fetchCommentThreadsInit());
 
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: appId,
@@ -255,7 +266,17 @@ export function* initializeAppViewerSaga(
       return;
     }
 
+    const jsActionsCall = yield failFastApiCalls(
+      [fetchJSCollectionsForView(applicationId)],
+      [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
+    );
+
+    if (!jsActionsCall) return;
+
     yield put(setAppMode(APP_MODE.PUBLISHED));
+
+    yield put(fetchCommentThreadsInit());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

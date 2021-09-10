@@ -166,6 +166,17 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
@@ -1462,7 +1473,7 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -2047,7 +2058,7 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {

@@ -48,10 +48,14 @@ const Wrapper = styled.div`
   margin-top: 6px;
 `;
 
-export function EvaluatedValueDebugButton(props: { error: Message }) {
+export function EvaluatedValueDebugButton(props: {
+  error: Message;
+  entityName?: string;
+}) {
   return (
     <Wrapper>
       <ContextualMenu
+        entityName={props.entityName}
         error={props.error}
         modifiers={{
           offset: {
