@@ -17,7 +17,6 @@ import {
   deleteCommentThreadSuccess,
   fetchUnreadCommentThreadsCountSuccess,
   decrementThreadUnreadCount,
-  fetchCommentThreadsInit,
 } from "actions/commentActions";
 import {
   getNewDragPos,
@@ -160,7 +159,6 @@ function* addCommentToThread(
 function* fetchApplicationComments() {
   try {
     yield call(waitForInit);
-    yield put(fetchCommentThreadsInit());
     const applicationId = yield select(getCurrentApplicationId);
     const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
     const isValidResponse = yield validateResponse(response);

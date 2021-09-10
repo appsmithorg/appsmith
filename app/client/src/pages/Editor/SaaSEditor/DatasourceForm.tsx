@@ -205,7 +205,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props> {
             <SaveButtonContainer>
               <ActionButton
                 // accent="error"
-                buttonColor={Colors.DANGER_SOLID}
+                buttonStyle="DANGER"
                 buttonVariant="SOLID"
                 className="t--delete-datasource"
                 loading={isDeleting}

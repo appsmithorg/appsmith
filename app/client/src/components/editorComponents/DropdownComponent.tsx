@@ -7,16 +7,15 @@ import {
   InputGroup,
   IMenuProps,
 } from "@blueprintjs/core";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import {
   ItemRenderer,
   Select,
   ItemListRenderer,
   IItemListRendererProps,
 } from "@blueprintjs/select";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { WrappedFieldInputProps } from "redux-form";
-import { Colors } from "constants/Colors";
 
 interface ButtonWrapperProps {
   width?: string;
@@ -85,7 +84,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
 
     const displayMode = (
       <BaseButton
-        buttonColor={Colors.GREEN}
+        buttonStyle="PRIMARY"
         icon-right="plus"
         onClick={this.showTextBox}
         text={addItem?.displayText}
@@ -187,7 +186,7 @@ class DropdownComponent extends Component<DropdownComponentProps> {
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              buttonColor={Colors.GREEN}
+              buttonStyle="PRIMARY"
               buttonVariant="OUTLINE"
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}

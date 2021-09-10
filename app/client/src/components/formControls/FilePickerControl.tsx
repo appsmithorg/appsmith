@@ -7,11 +7,10 @@ import { Field } from "redux-form";
 import styled from "styled-components";
 import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import FormLabel from "components/editorComponents/FormLabel";
-import { Colors } from "constants/Colors";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -102,7 +101,7 @@ class FieldFileInput extends React.Component<Props, FieldFileInputState> {
       <div style={{ flexDirection: "row", display: "flex", width: "50vh" }}>
         <StyledDiv>{value.name}</StyledDiv>
         <SelectButton
-          buttonColor={Colors.GREEN}
+          buttonStyle="PRIMARY"
           buttonVariant="OUTLINE"
           onClick={() => {
             this.openModal();

@@ -1,29 +1,26 @@
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
 import {
-  WidgetTypes,
   FontStyleTypes,
   TextSizes,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { getAllTableColumnKeys } from "components/designSystems/appsmith/TableComponent/TableHelpers";
+import { getAllTableColumnKeys } from "widgets/TableWidget/component/TableHelpers";
 import {
   ColumnProperties,
   CellAlignmentTypes,
   VerticalAlignmentTypes,
   ColumnTypes,
-} from "components/designSystems/appsmith/TableComponent/Constants";
+} from "widgets/TableWidget/component/Constants";
 import { Colors } from "constants/Colors";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
+import { WidgetProps } from "widgets/BaseWidget";
+import { DSLWidget } from "widgets/constants";
 
-export const tableWidgetPropertyPaneMigrations = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
     let child = cloneDeep(_child);
     // If the current child is a TABLE_WIDGET
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
       const columnNameMap = child.columnNameMap;
       const columnSizeMap = child.columnSizeMap;
@@ -176,11 +173,9 @@ const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const migrateTablePrimaryColumnsBindings = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
-) => {
+export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0
@@ -218,10 +213,10 @@ export const migrateTablePrimaryColumnsBindings = (
 };
 
 export const migrateTableWidgetParentRowSpaceProperty = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (child.parentRowSpace === 40) {
         child.parentRowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
       }
@@ -234,10 +229,10 @@ export const migrateTableWidgetParentRowSpaceProperty = (
 };
 
 export const migrateTableWidgetHeaderVisibilityProperties = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (!("isVisibleSearch" in child)) {
         child.isVisibleSearch = true;
         child.isVisibleFilters = true;
@@ -253,10 +248,10 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
 };
 
 export const migrateTableWidgetDelimiterProperties = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (!child.delimiter) {
         child.delimiter = ",";
       }
@@ -269,10 +264,10 @@ export const migrateTableWidgetDelimiterProperties = (
 };
 
 export const migrateTablePrimaryColumnsComputedValue = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.TABLE_WIDGET) {
+    if (child.type === "TABLE_WIDGET") {
       if (
         child.primaryColumns &&
         Object.keys(child.primaryColumns).length > 0
