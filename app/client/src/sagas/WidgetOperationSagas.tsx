@@ -45,9 +45,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WidgetTypes,
 } from "constants/WidgetConstants";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { generateReactKey } from "utils/generators";
 import { flashElementsById } from "utils/helpers";
@@ -65,7 +63,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
@@ -79,6 +77,7 @@ import {
   WIDGET_CUT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
 } from "constants/messages";
+
 import {
   CopiedWidgetGroup,
   doesTriggerPathsContainPropertyPath,
@@ -442,7 +441,6 @@ function* batchUpdateWidgetPropertySaga(
     performance.now() - start,
     "ms",
   );
-
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
@@ -849,7 +847,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           }
 
           // Update the tabs for the tabs widget.
-          if (widget.tabsObj && widget.type === WidgetTypes.TABS_WIDGET) {
+          if (widget.tabsObj && widget.type === "TABS_WIDGET") {
             try {
               const tabs = Object.values(widget.tabsObj);
               if (Array.isArray(tabs)) {
@@ -865,7 +863,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           }
 
           // Update the table widget column properties
-          if (widget.type === WidgetTypes.TABLE_WIDGET) {
+          if (widget.type === "TABLE_WIDGET") {
             try {
               // If the primaryColumns of the table exist
               if (widget.primaryColumns) {
@@ -1042,7 +1040,8 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   if (!widgetConfig.type) return;
 
-  const defaultConfig = WidgetConfigResponse.config[widgetConfig.type];
+  const defaultConfig = WidgetFactory.widgetConfigMap.get(widgetConfig.type);
+
   const evalTree = yield select(getDataTree);
   const widgets = yield select(getWidgets);
 

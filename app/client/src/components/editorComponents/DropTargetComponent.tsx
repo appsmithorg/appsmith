@@ -45,11 +45,22 @@ const StyledDropTarget = styled.div`
   z-index: 1;
 `;
 
+const StyledOnboardingWrapper = styled.div`
+  position: fixed;
+  left: 50%;
+  top: 50vh;
+`;
+const StyledOnboardingMessage = styled.h2`
+  color: #ccc;
+`;
+
 function Onboarding() {
   return (
-    <div style={{ position: "fixed", left: "50%", top: "50vh" }}>
-      <h2 style={{ color: "#ccc" }}>Drag and drop a widget here</h2>
-    </div>
+    <StyledOnboardingWrapper>
+      <StyledOnboardingMessage>
+        Drag and drop a widget here
+      </StyledOnboardingMessage>
+    </StyledOnboardingWrapper>
   );
 }
 
@@ -66,7 +77,6 @@ export const DropTargetContext: Context<{
 
 export function DropTargetComponent(props: DropTargetComponentProps) {
   const canDropTargetExtend = props.canExtend;
-
   const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
 
   const isResizing = useSelector(
@@ -170,7 +180,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className={"t--drop-target"}
+        className="t--drop-target"
         onClick={handleFocus}
         ref={dropTargetRef}
         style={{

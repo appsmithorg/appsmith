@@ -8,11 +8,12 @@ import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { AppState } from "reducers";
-import { WidgetTypes } from "constants/WidgetConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {
   widgetId: string;
@@ -91,5 +92,7 @@ export function WidgetContextMenu(props: {
     />
   );
 }
+
+WidgetContextMenu.displayName = "WidgetContextMenu";
 
 export default WidgetContextMenu;

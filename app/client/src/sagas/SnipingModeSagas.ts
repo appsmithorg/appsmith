@@ -12,14 +12,18 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
-import { WidgetTypes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
+
 import {
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "../constants/messages";
+
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -48,7 +52,7 @@ export function* bindDataToWidgetSaga(
     });
     return;
   }
-
+  const { widgetId } = action.payload;
   let propertyPath = "";
   let propertyValue: any = "";
   let isValidProperty = true;
@@ -61,15 +65,11 @@ export function* bindDataToWidgetSaga(
       break;
     case WidgetTypes.CHECKBOX_WIDGET:
       propertyPath = "defaultCheckedState";
-      propertyValue = !!currentAction.data.body;
+      propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.DATE_PICKER_WIDGET2:
       propertyPath = "defaultDate";
       propertyValue = `{{${currentAction.config.name}.data}}`;
-      // setting default date to `js` mode
-      yield put(
-        setWidgetDynamicProperty(action.payload.widgetId, propertyPath, true),
-      );
       break;
     case WidgetTypes.FILE_PICKER_WIDGET:
       propertyPath = "onFilesSelected";
@@ -109,7 +109,7 @@ export function* bindDataToWidgetSaga(
       break;
     case WidgetTypes.SWITCH_WIDGET:
       propertyPath = "defaultSwitchState";
-      propertyValue = !!currentAction.data.body;
+      propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.TABLE_WIDGET:
       propertyPath = "tableData";
@@ -135,17 +135,15 @@ export function* bindDataToWidgetSaga(
     propertyValue,
   });
   if (queryId && isValidProperty) {
+    // set the property path to dynamic, i.e. enable JS mode
+    yield put(setWidgetDynamicProperty(widgetId, propertyPath, true));
     yield put(
-      updateWidgetPropertyRequest(
-        action.payload.widgetId,
-        propertyPath,
-        propertyValue,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyPath, propertyValue),
     );
     yield put({
       type: ReduxActionTypes.SHOW_PROPERTY_PANE,
       payload: {
-        widgetId: action.payload.widgetId,
+        widgetId: widgetId,
         callForDragOrResize: undefined,
         force: true,
       },

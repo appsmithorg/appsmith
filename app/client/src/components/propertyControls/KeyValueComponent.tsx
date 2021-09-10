@@ -10,7 +10,7 @@ import {
 } from "./StyledControls";
 
 import { DropDownOptionWithKey } from "./OptionControl";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
 import { debounce } from "lodash";

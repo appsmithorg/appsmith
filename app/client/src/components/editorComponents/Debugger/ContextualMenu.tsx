@@ -1,13 +1,20 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import Menu from "components/ads/Menu";
 import styled from "styled-components";
+import {
+  Classes as BPClasses,
+  PopperModifiers,
+  Position,
+} from "@blueprintjs/core";
+import { Dispatch } from "redux";
+import { useDispatch } from "react-redux";
+import Menu from "components/ads/Menu";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { Message } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { Dispatch } from "redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
+  setGlobalSearchFilterContext,
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
@@ -22,15 +29,10 @@ import {
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
 } from "constants/messages";
-import { useDispatch } from "react-redux";
-import {
-  Classes as BPClasses,
-  PopperModifiers,
-  Position,
-} from "@blueprintjs/core";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
+import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
@@ -115,6 +117,7 @@ type ContextualMenuProps = {
   children: JSX.Element;
   position?: Position;
   modifiers?: PopperModifiers;
+  entityName?: string;
 };
 
 const searchAction: Record<
@@ -122,7 +125,7 @@ const searchAction: Record<
   {
     icon: IconName;
     text: string;
-    onSelect: (error: Message, dispatch: Dispatch) => void;
+    onSelect: (error: Message, dispatch: Dispatch, entityType?: string) => void;
   }
 > = {
   [CONTEXT_MENU_ACTIONS.COPY]: {
@@ -171,19 +174,29 @@ const searchAction: Record<
   [CONTEXT_MENU_ACTIONS.SNIPPET]: {
     icon: "play",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
-    onSelect: (error: Message, dispatch: Dispatch) => {
+    onSelect: (error: Message, dispatch: Dispatch, entityType) => {
       /// Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",
         searchTerm: error.message,
         errorType: error.type,
       });
-      dispatch(setGlobalSearchQuery(error.message || ""));
+      dispatch(setGlobalSearchQuery(""));
       dispatch(
         toggleShowGlobalSearchModal(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
         ),
       );
+
+      if (entityType) {
+        dispatch(
+          setGlobalSearchFilterContext({
+            refinements: {
+              entities: [entityType],
+            },
+          }),
+        );
+      }
     },
   },
 };
@@ -234,6 +247,8 @@ const MenuItem = styled.a`
 export default function ContextualMenu(props: ContextualMenuProps) {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
+  const getEntityInfo = useGetEntityInfo(props?.entityName ?? "");
+  const entityInfo = getEntityInfo();
 
   return (
     <Menu
@@ -252,7 +267,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
       {options.map((e) => {
         const menuProps = searchAction[e];
         const onSelect = () => {
-          menuProps.onSelect(props.error, dispatch);
+          menuProps.onSelect(props.error, dispatch, entityInfo?.entityType);
         };
 
         if (

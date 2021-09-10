@@ -219,6 +219,7 @@ class GlobalHotKeys extends React.Component<Props> {
             }
           }}
         />
+
         <Hotkey
           combo="mod + a"
           global

@@ -360,7 +360,7 @@ export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
 export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
-export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Browse Code Snippets";
 export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
 //action creator menu
@@ -521,6 +521,7 @@ export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
+export const RESOLVED_THREAD = () => "Resolved Thread";
 export const EMOJI = () => "Emoji";
 
 // Sniping mode messages
