@@ -1206,7 +1206,7 @@ describe("Table Widget Property Pane Upgrade", () => {
 
 describe("Table Widget selectedRow bindings update", () => {
   it("To test selectedRow bindings are updated for primaryColumns and derivedColumns", () => {
-    const inputDsl: ContainerWidgetProps<WidgetProps> = {
+    const inputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1118,
@@ -1358,7 +1358,7 @@ describe("Table Widget selectedRow bindings update", () => {
       ],
     };
     const newDsl = migrateTableWidgetSelectedRowBindings(inputDsl);
-    const outputDsl: ContainerWidgetProps<WidgetProps> = {
+    const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1118,

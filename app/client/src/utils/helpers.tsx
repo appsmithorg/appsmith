@@ -442,3 +442,9 @@ export function bootIntercom(user?: User) {
     });
   }
 }
+
+export const stopClickEventPropagation = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+) => {
+  e.stopPropagation();
+};
