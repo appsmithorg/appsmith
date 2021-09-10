@@ -10,6 +10,7 @@ import {
   getCommentThreadsFetched,
   getSortedAndFilteredAppCommentThreadIds,
   shouldShowResolved as shouldShowResolvedSelector,
+  getLastUpdatedCommentThreadId,
   getUnreadCommentsCount,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -40,6 +41,7 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
   const unreadCommentsCount = useSelector(getUnreadCommentsCount);
+  const lastUpdatedCommentThreadId = useSelector(getLastUpdatedCommentThreadId);
 
   return useMemo(
     () =>
@@ -56,6 +58,7 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
+      lastUpdatedCommentThreadId,
       unreadCommentsCount,
     ],
   );
