@@ -93,7 +93,7 @@ class TextComponent extends React.Component<TextComponentProps> {
             matchers={
               disableLink
                 ? []
-                : [(new EmailMatcher("email"), new UrlMatcher("url"))]
+                : [new EmailMatcher("email"), new UrlMatcher("url")]
             }
             newWindow
           />
