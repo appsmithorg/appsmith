@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
@@ -64,6 +65,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     private final ApplicationRepository applicationRepository;
     private final NewPageService newPageService;
     private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
 
     public Mono<PageDTO> createPage(PageDTO page) {
         if (page.getId() != null) {
@@ -643,11 +645,27 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     return Mono.just(newAction);
                 })
                 .collectList()
-                .flatMapMany(actions -> newActionService.saveAll(actions));
+                .flatMapMany(newActionService::saveAll);
+
+        Flux<ActionCollection> publishedCollectionsFlux = actionCollectionService
+                .findAllByApplicationIdAndViewMode(applicationId, false, MANAGE_ACTIONS, null)
+                .flatMap(collection -> {
+                    // If the collection was deleted in edit mode, now this can be safely deleted from the repository
+                    if (collection.getUnpublishedCollection().getDeletedAt() != null) {
+                        return actionCollectionService.delete(collection.getId())
+                                .then(Mono.empty());
+                    }
+                    // Publish the collection by copying the unpublished collectionDTO to published collectionDTO
+                    collection.setPublishedCollection(collection.getUnpublishedCollection());
+                    return Mono.just(collection);
+                })
+                .collectList()
+                .flatMapMany(actionCollectionService::saveAll);
 
         return Mono.when(
                 publishApplicationAndPages.collectList(),
-                publishedActionsFlux.collectList()
+                publishedActionsFlux.collectList(),
+                publishedCollectionsFlux
         )
                 .then(applicationMono);
     }

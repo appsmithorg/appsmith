@@ -56,7 +56,11 @@ public class ActionConfiguration implements AppsmithDomain {
     // DB action fields
 
     // JS action fields
-    String jsFunction;
+    // Body, the raw class data, is shared with API type actions
+    // Represents the values that need to be
+    List<JSValue> jsArguments;
+    Boolean isAsync;
+    Boolean isValid;
 
     /*
      * Future plugins could require more fields that are not covered above.

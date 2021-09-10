@@ -19,7 +19,11 @@ import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
 import SearchContext from "./GlobalSearchContext";
 import Description from "./Description";
 import ResultsNotFound from "./ResultsNotFound";
-import { getActions, getAllPageWidgets } from "selectors/entitiesSelector";
+import {
+  getActions,
+  getAllPageWidgets,
+  getJSCollections,
+} from "selectors/entitiesSelector";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import {
   toggleShowGlobalSearchModal,
@@ -53,7 +57,11 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { BUILDER_PAGE_URL, DATA_SOURCES_EDITOR_ID_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  DATA_SOURCES_EDITOR_ID_URL,
+  JS_COLLECTION_ID_URL,
+} from "constants/routes";
 import { getSelectedWidget } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getPageList } from "selectors/editorSelectors";
@@ -222,6 +230,7 @@ function GlobalSearch() {
     [allWidgets],
   );
   const actions = useSelector(getActions);
+  const jsActions = useSelector(getJSCollections);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
 
@@ -294,6 +303,17 @@ function GlobalSearch() {
       return isActionNameMatching || isPageNameMatching;
     });
   }, [actions, query]);
+  const filteredJSCollections = useMemo(() => {
+    if (!query) return jsActions;
+
+    return jsActions.filter((action: any) => {
+      const page = pageMap[action?.config?.pageId];
+      const isPageNameMatching = isMatching(page?.pageName, query);
+      const isActionNameMatching = isMatching(action?.config?.name, query);
+
+      return isActionNameMatching || isPageNameMatching;
+    });
+  }, [jsActions, query]);
   const filteredPages = useMemo(() => {
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
 
@@ -320,6 +340,7 @@ function GlobalSearch() {
     if (isNavigation(category) || isMenu(category)) {
       filteredEntities = [
         ...filteredActions,
+        ...filteredJSCollections,
         ...filteredWidgets,
         ...filteredPages,
         ...filteredDatasources,
@@ -345,6 +366,7 @@ function GlobalSearch() {
   }, [
     filteredWidgets,
     filteredActions,
+    filteredJSCollections,
     documentationSearchResults,
     filteredDatasources,
     query,
@@ -424,6 +446,13 @@ function GlobalSearch() {
     url && history.push(url);
   };
 
+  const handleJSCollectionClick = (item: SearchItem) => {
+    const { config } = item;
+    const { id, pageId } = config;
+    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    toggleShow();
+  };
+
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     history.push(
@@ -458,6 +487,8 @@ function GlobalSearch() {
       handleDatasourceClick(item),
     [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
       handlePageClick(item),
+    [SEARCH_ITEM_TYPES.jsAction]: (e: SelectEvent, item: any) =>
+      handleJSCollectionClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
     [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>

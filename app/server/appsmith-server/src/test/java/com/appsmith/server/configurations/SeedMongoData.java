@@ -142,6 +142,7 @@ public class SeedMongoData {
         Object[][] pluginData = {
                 {"Installed Plugin Name", PluginType.API, "installed-plugin"},
                 {"Installed DB Plugin Name", PluginType.DB, "installed-db-plugin"},
+                {"Installed JS Plugin Name", PluginType.JS, "installed-js-plugin"},
                 {"Not Installed Plugin Name", PluginType.API, "not-installed-plugin"}
         };
 
@@ -174,7 +175,7 @@ public class SeedMongoData {
 
         // Seed the organization data into the DB
         Flux<Organization> organizationFlux = mongoTemplate
-                .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0])), Plugin.class)
+                .find(new Query().addCriteria(where("name").in(pluginData[0][0], pluginData[1][0], pluginData[2][0])), Plugin.class)
                 .map(plugin -> new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.FREE))
                 .collectList()
                 .cache()
