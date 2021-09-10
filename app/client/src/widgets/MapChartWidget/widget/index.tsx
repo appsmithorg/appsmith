@@ -1,12 +1,10 @@
 import React, { lazy, Suspense } from "react";
-import * as Sentry from "@sentry/react";
 
-import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { WidgetType } from "constants/WidgetConstants";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import withMeta, { WithMeta } from "./MetaHOC";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_MAP_TYPES } from "constants/CustomMapConstants ";
@@ -19,25 +17,79 @@ import {
   dataSetForSouthAmerica,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
-  EntityData,
-  MapType,
-  MapTypes,
-} from "components/designSystems/appsmith/MapChartComponent";
-
-export interface MapChartWidgetProps extends WidgetProps, WithMeta {
-  mapTitle?: string;
-  mapType: MapType;
-  onEntityClick?: string;
-  showLabels: boolean;
-}
+} from "../constants";
+import { EntityData, MapType, MapTypes } from "../component";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>
     import(
-      /* webpackPrefetch: true, webpackChunkName: "charts" */ "components/designSystems/appsmith/MapChartComponent"
+      /* webpackPrefetch: true, webpackChunkName: "mapCharts" */ "../component"
     ),
   ),
 );
+
+// A hook to update the corresponding dataset when map type is changed
+const updateDataSet = (
+  props: MapChartWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+) => {
+  const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+  switch (propertyValue) {
+    case MapTypes.WORLD_WITH_ANTARCTICA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForWorldWithAntarctica,
+      });
+      break;
+    case MapTypes.EUROPE:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForEurope,
+      });
+      break;
+    case MapTypes.NORTH_AMERICA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForNorthAmerica,
+      });
+      break;
+    case MapTypes.SOURTH_AMERICA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForSouthAmerica,
+      });
+      break;
+    case MapTypes.ASIA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForAsia,
+      });
+      break;
+    case MapTypes.OCEANIA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForOceania,
+      });
+      break;
+    case MapTypes.AFRICA:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForAfrica,
+      });
+      break;
+
+    default:
+      propertiesToUpdate.push({
+        propertyPath: "data",
+        propertyValue: dataSetForWorld,
+      });
+      break;
+  }
+
+  return propertiesToUpdate;
+};
 
 class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -87,67 +139,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             isJSconvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            updateHook: (
-              props: MapChartWidgetProps,
-              propertyPath: string,
-              propertyValue: any,
-            ) => {
-              const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-              switch (propertyValue) {
-                case MapTypes.WORLD_WITH_ANTARCTICA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForWorldWithAntarctica,
-                  });
-                  break;
-                case MapTypes.EUROPE:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForEurope,
-                  });
-                  break;
-                case MapTypes.NORTH_AMERICA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForNorthAmerica,
-                  });
-                  break;
-                case MapTypes.SOURTH_AMERICA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForSouthAmerica,
-                  });
-                  break;
-                case MapTypes.ASIA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForAsia,
-                  });
-                  break;
-                case MapTypes.OCEANIA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForOceania,
-                  });
-                  break;
-                case MapTypes.AFRICA:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForAfrica,
-                  });
-                  break;
-
-                default:
-                  propertiesToUpdate.push({
-                    propertyPath: "data",
-                    propertyValue: dataSetForWorld,
-                  });
-                  break;
-              }
-
-              return propertiesToUpdate;
-            },
+            updateHook: updateDataSet,
             validation: {
               type: ValidationTypes.TEXT,
               params: {
@@ -279,18 +271,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                       {
                         name: "id",
                         type: ValidationTypes.TEXT,
-                        params: {
-                          // required: true,
-                          // default: "",
-                        },
                       },
                       {
                         name: "value",
                         type: ValidationTypes.TEXT,
-                        params: {
-                          // required: true,
-                          // default: 1,
-                        },
                       },
                     ],
                   },
@@ -315,15 +299,6 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       {
         sectionName: "Actions",
         children: [
-          // {
-          //   helpText: "Triggers an action  the map type is changed to custom",
-          //   propertyName: "onCustomMapSelected",
-          //   label: "onCustomMapSelected",
-          //   controlType: "ACTION_SELECTOR",
-          //   isJSConvertible: true,
-          //   isBindProperty: true,
-          //   isTriggerProperty: true,
-          // },
           {
             helpText: "Triggers an action when the chart data point is clicked",
             propertyName: "onEntityClick",
@@ -342,6 +317,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return {
       entityData: undefined,
     };
+  }
+
+  static getWidgetType(): WidgetType {
+    return "MAP_CHART_WIDGET";
   }
 
   handleEntityClick = (data: EntityData) => {
@@ -388,13 +367,13 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       </Suspense>
     );
   }
+}
 
-  getWidgetType(): WidgetType {
-    return WidgetTypes.MAP_CHART_WIDGET;
-  }
+export interface MapChartWidgetProps extends WidgetProps {
+  mapTitle?: string;
+  mapType: MapType;
+  onEntityClick?: string;
+  showLabels: boolean;
 }
 
 export default MapChartWidget;
-export const ProfiledMapChartWidget = Sentry.withProfiler(
-  withMeta(MapChartWidget),
-);

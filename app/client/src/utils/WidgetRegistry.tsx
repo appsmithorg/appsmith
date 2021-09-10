@@ -95,6 +95,10 @@ import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
 
+import MapChartWidget, {
+  CONFIG as MAP_CHART_WIDGET_CONFIG,
+} from "widgets/MapChartWidget";
+
 import log from "loglevel";
 
 export const registerWidgets = () => {
@@ -135,5 +139,6 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(MapChartWidget, MAP_CHART_WIDGET_CONFIG);
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
