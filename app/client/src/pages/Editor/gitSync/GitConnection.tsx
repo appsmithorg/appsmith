@@ -1,4 +1,4 @@
-import React, { useState, MutableRefObject, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Subtitle, Title, Space } from "./components/StyledComponents";
 import {
   CONNECT_TO_GIT,
@@ -18,12 +18,12 @@ import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useGitConnect, useSSHKeyPair } from "./hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
-import useClipboard from "utils/hooks/useClipboard";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
+import copy from "copy-to-clipboard";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -138,9 +138,6 @@ function GitConnection(props: Props) {
     authorEmail: currentUser?.email || "",
   });
 
-  const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
-  const write = useClipboard(propertyRef);
-
   const {
     failedGeneratingSSHKey,
     generateSSHKey,
@@ -156,7 +153,7 @@ function GitConnection(props: Props) {
 
   const copyToClipboard = () => {
     if (sshKeyPair) {
-      write(sshKeyPair);
+      copy(sshKeyPair);
       Toaster.show({
         text: "Copied SSH Key",
         variant: Variant.success,
