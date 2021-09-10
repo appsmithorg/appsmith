@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
 import tern, { Server, Def } from "tern";
-import ecma from "tern/defs/ecmascript.json";
+// import ecma from "tern/defs/ecmascript.json";
 import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
@@ -23,8 +23,6 @@ import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
-  // @ts-ignore
-  ecma,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
   lodash,

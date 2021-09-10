@@ -11,14 +11,6 @@ import { Severity } from "entities/AppsmithConsole";
 import { completePromise, enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 
-declare global {
-  interface Window {
-    REQUEST_ID?: string;
-    DRY_RUN?: boolean;
-    IS_ASYNC?: boolean;
-  }
-}
-
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
