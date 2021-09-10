@@ -19,7 +19,6 @@ export const Colors = {
   PURE_ORANGE: "#ffb100",
   WHITE_CLOUD: "#D3DEE3",
   GOLD: "#FFD300",
-
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
   CODE_GRAY: "#090707",
@@ -37,6 +36,7 @@ export const Colors = {
   HIT_GRAY: "#A1ACB3",
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
+  MERCURY_1: "#E3E3E3",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
@@ -81,6 +81,7 @@ export const Colors = {
   LIGHT_GREY: "#D4D4D4",
   LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
+  GALLERY_1: "#EBEBEB",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
   ALTO2: "#E0DEDE",
@@ -89,7 +90,7 @@ export const Colors = {
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
-  RATE_INACTIVE: "#D6D6D6",
+  RATE_INACTIVE: "#F2F2F2",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",
   THUNDER_ALT: "#1D1C1D",
@@ -126,5 +127,10 @@ export const Colors = {
   SELECT_DISABLED: "#ced9e080",
   SELECT_PLACEHOLDER: "#bfbfbf",
   SELECT_COLOR: "#182026",
+
+  GREY_2: "#F0F0F0",
+  GREY_3: "#EBEBEB",
+  GREY_8: "#716E6E",
+  GREY_9: "#4B4848",
 };
 export type Color = typeof Colors[keyof typeof Colors];
