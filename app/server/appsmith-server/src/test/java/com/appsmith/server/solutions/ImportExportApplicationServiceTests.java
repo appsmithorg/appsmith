@@ -347,7 +347,7 @@ public class ImportExportApplicationServiceTests {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(ds2);
 
-                    return layoutActionService.createAction(action)
+                    return layoutActionService.createSingleAction(action)
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                             .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId()));

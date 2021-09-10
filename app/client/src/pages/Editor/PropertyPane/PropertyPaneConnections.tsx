@@ -12,10 +12,8 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
 import Text, { TextType } from "components/ads/Text";
 import { Classes } from "components/ads/common";
-import {
-  useEntityLink,
-  useGetEntityInfo,
-} from "components/editorComponents/Debugger/hooks";
+import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
+import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
