@@ -24,6 +24,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import copy from "copy-to-clipboard";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -114,14 +115,17 @@ const KeyText = styled.span`
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
 
-const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
+// const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
 
 type Props = {
   setActiveMenuIndex: (menuIndex: number) => void;
 };
 
 function GitConnection(props: Props) {
-  const [remoteUrl, setRemoteUrl] = useState<string>(appsmithGitSshURL);
+  const { remoteUrl: remoteUrlInStore } =
+    useSelector(getCurrentAppGitMetaData) || ({} as any);
+
+  const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
 
   const { applicationId: currentApplicationId } = useParams<
     ExplorerURLParams
