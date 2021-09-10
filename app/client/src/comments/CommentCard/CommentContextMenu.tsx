@@ -17,6 +17,7 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Popover2 } from "@blueprintjs/popover2";
 import Tooltip from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
 
 // render over popover portals
 const Container = styled.div``;
@@ -32,7 +33,11 @@ const MenuItem = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-left: ${(props) => props.theme.spaces[2]}px;
+  padding-left: ${(props) => props.theme.spaces[2]}px;
+  &:hover svg ellipse,
+  &:hover svg circle {
+    fill: ${Colors.CHARCOAL};
+  }
 `;
 
 const MenuIcon = styled.div`
@@ -151,7 +156,7 @@ function CommentContextMenu({
       placement={"bottom-end"}
       portalClassName="comment-context-menu"
     >
-      <Tooltip content={createMessage(MORE_OPTIONS)}>
+      <Tooltip content={createMessage(MORE_OPTIONS)} hoverOpenDelay={1000}>
         <StyledIcon name="comment-context-menu" size={IconSize.LARGE} />
       </Tooltip>
     </Popover2>

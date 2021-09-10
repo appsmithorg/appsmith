@@ -40,6 +40,12 @@ export type QueryEditorRouteParams = {
   queryId: string;
 };
 
+export type JSEditorRouteParams = {
+  applicationId: string;
+  pageId: string;
+  collectionId?: string;
+};
+
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
   `/applications/${applicationId}`;
 
@@ -87,6 +93,11 @@ export const QUERIES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
+
+export const JS_COLLECTION_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsObjects`;
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
@@ -145,6 +156,19 @@ export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     applicationId,
     pageId,
   )}/api?importTo=${selectedPageId}`;
+};
+
+export const JS_COLLECTION_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  collectionId = ":collectionId",
+  params = {},
+): string => {
+  const queryParams = convertToQueryParams(params);
+  return `${JS_COLLECTION_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${collectionId}${queryParams}`;
 };
 
 export const APP_VIEW_URL = `/applications/:applicationId`;
@@ -233,4 +257,6 @@ export const matchApiPath = match(API_EDITOR_ID_URL());
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
 export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
 export const matchBuilderPath = match(BUILDER_URL);
+export const matchJSObjectPath = match(JS_COLLECTION_ID_URL());
+
 export const matchViewerPath = match(getApplicationViewerPageURL());
