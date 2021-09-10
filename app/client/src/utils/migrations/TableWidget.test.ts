@@ -1,5 +1,4 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DSLWidget } from "widgets/constants";
 import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
@@ -7,7 +6,7 @@ import {
   migrateTableWidgetSelectedRowBindings,
 } from "./TableWidget";
 
-const input1: ContainerWidgetProps<WidgetProps> = {
+const input1: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -54,7 +53,7 @@ const input1: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const input2: ContainerWidgetProps<WidgetProps> = {
+const input2: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -116,7 +115,7 @@ const input2: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const input3: ContainerWidgetProps<WidgetProps> = {
+const input3: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -646,7 +645,7 @@ describe("Table Widget Property Pane Upgrade", () => {
   });
 
   it("To test table parentRowSpace is updated", () => {
-    const inputDsl: ContainerWidgetProps<WidgetProps> = {
+    const inputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -782,7 +781,7 @@ describe("Table Widget Property Pane Upgrade", () => {
         },
       ],
     };
-    const outputDsl: ContainerWidgetProps<WidgetProps> = {
+    const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -923,7 +922,7 @@ describe("Table Widget Property Pane Upgrade", () => {
   });
 
   it("TableWidget : should update header options visibilities", () => {
-    const inputDsl: ContainerWidgetProps<WidgetProps> = {
+    const inputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -1059,7 +1058,7 @@ describe("Table Widget Property Pane Upgrade", () => {
         },
       ],
     };
-    const outputDsl: ContainerWidgetProps<WidgetProps> = {
+    const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
