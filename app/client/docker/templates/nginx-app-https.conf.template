@@ -75,15 +75,5 @@ server {
         proxy_set_header X-Forwarded-Host $host;
         proxy_pass ${APPSMITH_SERVER_PROXY_PASS};
     }
-
-    location /rts/ {
-        proxy_pass http://host.docker.internal:8091;
-
-        # websocket support
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Upgrade $http_upgrade;
-    }
 }
 
