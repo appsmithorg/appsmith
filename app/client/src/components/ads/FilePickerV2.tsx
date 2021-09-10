@@ -237,8 +237,8 @@ function FilePickerComponent(props: FilePickerProps) {
 
   const uploadStatus = (
     <div className="file-spec">
-      <Text type={TextType.H6}>{fileInfo.name}</Text>
-      <Text type={TextType.H6}>{fileInfo.size}KB</Text>
+      <Text type={TextType.P1}>{fileInfo.name}</Text>
+      <Text type={TextType.P1}>{fileInfo.size}KB</Text>
     </div>
   );
 
