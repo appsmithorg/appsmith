@@ -1,6 +1,7 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.DynamicBinding;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -341,20 +342,14 @@ public class MustacheHelper {
         return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
-    public static void extractWordsAndAddToSet(Set<String> bindingNames, String mustacheKey) {
+    public static void extractWordsAndAddToSet(Map<String, DynamicBinding> bindingNames, String mustacheKey) {
         String key = mustacheKey.trim();
 
-        // Extract all the words in the dynamic bindings
+        /* Extract all action names in the dynamic bindings */
         Matcher matcher = pattern.matcher(key);
-
         while (matcher.find()) {
-            String word = matcher.group();
-
-            String[] subStrings = word.split(Pattern.quote("."));
-            if (subStrings.length > 0) {
-                // We are only interested in the top level. e.g. if its Input1.text, we want just Input1
-                bindingNames.add(subStrings[0]);
-            }
+            // Fore each match, check what combination of action bindings could be calculated
+            bindingNames.putAll(DynamicBinding.create(matcher.group()));
         }
     }
 

@@ -12,7 +12,6 @@ import {
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-``;
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -69,7 +68,6 @@ function DraggableComponent(props: DraggableComponentProps) {
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
-
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingCanvas, setDraggingState } = useWidgetDragResize();

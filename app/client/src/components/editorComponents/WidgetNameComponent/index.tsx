@@ -9,12 +9,15 @@ import {
   useShowTableFilterPane,
 } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { WidgetType, WidgetTypes } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { bindDataToWidget } from "../../../actions/propertyPaneActions";
 import { hideErrors } from "selectors/debuggerSelectors";
