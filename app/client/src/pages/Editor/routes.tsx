@@ -10,6 +10,7 @@ import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
+import JSEditor from "./JSEditor";
 
 import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
@@ -24,6 +25,8 @@ import {
   getCurlImportPageURL,
   PAGE_LIST_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
+  JS_COLLECTION_EDITOR_URL,
+  JS_COLLECTION_ID_URL,
   getGenerateTemplateURL,
   getProviderTemplatesURL,
   getGenerateTemplateFormURL,
@@ -149,6 +152,17 @@ class EditorsRouter extends React.Component<
               component={QueryEditor}
               exact
               path={QUERIES_EDITOR_ID_URL()}
+            />
+
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_COLLECTION_EDITOR_URL()}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_COLLECTION_ID_URL()}
             />
 
             <SentryRoute

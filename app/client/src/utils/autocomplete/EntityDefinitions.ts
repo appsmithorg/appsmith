@@ -1,13 +1,14 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { JSCollection } from "entities/JSCollection";
 
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions = {
+export const entityDefinitions: Record<string, unknown> = {
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
@@ -334,6 +335,14 @@ export const entityDefinitions = {
     "!url": "https://docs.appsmith.com/widget-reference/stat-box",
     isVisible: isVisible,
   },
+  AUDIO_RECORDER_WIDGET: {
+    "!doc":
+      "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
+    "!url": "https://docs.appsmith.com/widget-reference/recorder",
+    isVisible: isVisible,
+    value: "blob",
+    url: "string",
+  },
   MAP_CHART_WIDGET: {
     "!doc":
       "Map Chart widget shows the graphical representation of your data on the map.",
@@ -409,4 +418,24 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Reset widget values",
     "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
   },
+};
+
+export const getPropsForJSActionEntity = (
+  entity: JSCollection,
+): Record<string, string> => {
+  const properties: Record<string, string> = {};
+  const actions = entity.actions;
+  if (actions && actions.length > 0)
+    for (let i = 0; i < entity.actions.length; i++) {
+      const action = entity.actions[i];
+      properties[action.name + "()"] = "Function";
+    }
+  const variablesProps = entity.variables;
+  if (variablesProps && variablesProps.length > 0) {
+    for (let i = 0; i < variablesProps.length; i++) {
+      const variableProp = variablesProps[i];
+      properties[variableProp.name] = variableProp.value;
+    }
+  }
+  return properties;
 };

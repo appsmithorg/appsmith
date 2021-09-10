@@ -86,7 +86,7 @@ import { RunPluginActionDescription } from "entities/DataTree/actionTriggers";
 import { ApiResponse } from "api/ApiResponses";
 import { PluginTriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
 import { APP_MODE } from "entities/App";
-import FileDataTypes from "widgets/FileDataTypes";
+import { FileDataTypes } from "widgets/constants";
 import { hideDebuggerErrors } from "actions/debuggerActions";
 
 enum ActionResponseDataTypes {

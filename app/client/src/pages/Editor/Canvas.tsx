@@ -1,13 +1,12 @@
 import React, { memo, useCallback } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
-import { RenderModes } from "constants/WidgetConstants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
-import { WidgetProps } from "widgets/BaseWidget";
 import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import { DSLWidget } from "widgets/constants";
+
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
 } from "../common/CanvasMultiPointerArena";
@@ -17,11 +16,12 @@ import {
   APP_COLLAB_EVENTS,
   NAMESPACE_COLLAB_PAGE_EDIT,
 } from "constants/AppCollabConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { RTS_BASE_PATH } from "constants/WebsocketConstants";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 
 interface CanvasProps {
-  dsl: ContainerWidgetProps<WidgetProps>;
+  dsl: DSLWidget;
   pageId: string;
 }
 
