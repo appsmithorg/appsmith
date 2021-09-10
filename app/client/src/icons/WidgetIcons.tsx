@@ -31,7 +31,6 @@ import { ReactComponent as IconButtonIcon } from "assets/icons/widget/icon-butto
 import { ReactComponent as StatboxIcon } from "assets/icons/widget/statbox.svg";
 import { ReactComponent as CheckboxGroupIcon } from "assets/icons/widget/checkbox-group.svg";
 import { ReactComponent as AudioRecorderIcon } from "assets/icons/widget/audio-recorder.svg";
-import { ReactComponent as JsonEditorIcon } from "assets/icons/widget/json-editor.svg";
 
 /* eslint-disable react/display-name */
 
@@ -196,11 +195,6 @@ export const WidgetIcons: {
   AUDIO_RECORDER_WIDGET: (props: IconProps) => (
     <IconWrapper {...props}>
       <AudioRecorderIcon />
-    </IconWrapper>
-  ),
-  JSON_EDITOR_WIDGET: (props: IconProps) => (
-    <IconWrapper {...props}>
-      <JsonEditorIcon />
     </IconWrapper>
   ),
 };

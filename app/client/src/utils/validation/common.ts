@@ -153,5 +153,17 @@ export function getExpectedValue(
         example: `https://wikipedia.org`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
+    case ValidationTypes.JSON:
+      return {
+        type: "JSON",
+        example: JSON.stringify(
+          {
+            fruits: ["apple", "orange", "lemon"],
+          },
+          null,
+          2,
+        ),
+        autocompleteDataType: AutocompleteDataType.STRING,
+      };
   }
 }
