@@ -405,7 +405,12 @@ class ButtonGroupWidget extends BaseWidget<
             label: "Border Radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
-            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            options: [
+              ButtonBorderRadiusTypes.SHARP,
+              ButtonBorderRadiusTypes.ROUNDED,
+              ButtonBorderRadiusTypes.CIRCLE,
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
