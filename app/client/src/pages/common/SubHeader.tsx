@@ -72,7 +72,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}
-              variant={SearchVariant.SEAMLESS}
+              variant={SearchVariant.BACKGROUND}
             />
           </ControlGroup>
         )}
