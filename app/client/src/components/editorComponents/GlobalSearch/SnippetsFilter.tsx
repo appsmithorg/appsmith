@@ -144,6 +144,15 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
   }, []);
   const store = useStore();
 
+  const transformItems = useCallback(
+    (items: any) =>
+      items.map((item: any) => ({
+        ...item,
+        label: getSnippetFilterLabel(store.getState(), item.label),
+      })),
+    [store, getSnippetFilterLabel],
+  );
+
   return (
     <SnippetsFilterContainer
       hasRefinements={refinements.entities && refinements.entities.length > 0}
@@ -174,12 +183,7 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}
-            transformItems={(items: any) =>
-              items.map((item: any) => ({
-                ...item,
-                label: getSnippetFilterLabel(store.getState(), item.label),
-              }))
-            }
+            transformItems={transformItems}
           />
         </div>
         {showSnippetFilter && (
