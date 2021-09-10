@@ -109,7 +109,7 @@ export function SignUp(props: SignUpFormProps) {
     signupURL += `?appId=${queryParams.get("appId")}`;
   } else {
     const redirectUrl = queryParams.get("redirectUrl");
-    if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
+    if (redirectUrl !== null && getIsSafeRedirectURL(redirectUrl)) {
       signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
     }
   }

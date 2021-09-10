@@ -694,7 +694,7 @@ class TernServer {
         fn = line.search(/\bfunction\b/);
       if (fn < 0) continue;
       const indent = CodeMirror.countColumn(line, null, tabSize);
-      if (minIndent != null && minIndent <= indent) continue;
+      if (minIndent !== null && minIndent <= indent) continue;
       minIndent = indent;
       minLine = p;
     }

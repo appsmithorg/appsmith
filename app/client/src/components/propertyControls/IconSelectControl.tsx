@@ -152,7 +152,7 @@ class IconSelectControl extends BaseControl<
     itemsParentRef,
     renderItem,
   }) => {
-    const renderedItems = items.map(renderItem).filter((item) => item != null);
+    const renderedItems = items.map(renderItem).filter((item) => item !== null);
 
     return <StyledMenu ulRef={itemsParentRef}>{renderedItems}</StyledMenu>;
   };

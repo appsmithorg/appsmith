@@ -50,7 +50,7 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
   const queryParams = new URLSearchParams(location.search);
   let loginUrl = AUTH_LOGIN_URL;
   const redirectUrl = queryParams.get("redirectUrl");
-  if (redirectUrl != null) {
+  if (redirectUrl !== null) {
     loginUrl += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
 

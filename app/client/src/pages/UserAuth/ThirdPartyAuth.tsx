@@ -69,7 +69,7 @@ function SocialLoginButton(props: {
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
   const redirectUrl = queryParams.get("redirectUrl");
-  if (redirectUrl != null) {
+  if (redirectUrl !== null) {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
   return (

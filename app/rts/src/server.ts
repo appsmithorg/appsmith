@@ -26,13 +26,13 @@ const logLevel : LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL || "debug") as L
 log.setLevel(logLevel);
 
 const MONGODB_URI = process.env.APPSMITH_MONGODB_URI
-if (MONGODB_URI == null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
+if (MONGODB_URI === null || MONGODB_URI === "" || !MONGODB_URI.startsWith("mongodb")) {
 	log.error("Please provide a valid value for `APPSMITH_MONGODB_URI`.")
 	process.exit(1)
 }
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL
-if (API_BASE_URL == null || API_BASE_URL === "") {
+if (API_BASE_URL === null || API_BASE_URL === "") {
 	log.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.")
 	process.exit(1)
 }
@@ -158,7 +158,7 @@ async function tryAuth(socket:Socket) {
 	/* ********************************************************* */
 
 	const connectionCookie = socket.handshake.headers.cookie;
-	if (connectionCookie != null && connectionCookie !== "") {
+	if (connectionCookie !== null && connectionCookie !== "") {
 		const matchedCookie = connectionCookie.match(/\bSESSION=\S+/)
 		if(matchedCookie) {
 			const sessionCookie = matchedCookie[0]
@@ -276,7 +276,7 @@ async function watchMongoDB(io) {
 			eventName = 'delete' + ":" + event.ns.coll  // emit delete event if deleted=true
 		}
 		
-		if (thread == null) {
+		if (thread === null) {
 			// This happens when `event.operationType === "drop"`, when a comment is deleted.
 			log.error("Null document recieved for comment change event", event)
 			return
@@ -320,7 +320,7 @@ async function watchMongoDB(io) {
 	notificationsStream.on("change", async (event: mongodb.ChangeEventCR) => {
 		const notification = event.fullDocument
 
-		if (notification == null) {
+		if (notification === null) {
 			// This happens when `event.operationType === "drop"`, when a notification is deleted.
 			log.error("Null document recieved for notification change event", event)
 			return
@@ -343,7 +343,7 @@ async function watchMongoDB(io) {
 	});
 
 	process.on("exit", () => {
-		(commentChangeStream != null ? commentChangeStream.close() : Promise.bind(client).resolve())
+		(commentChangeStream !== null ? commentChangeStream.close() : Promise.bind(client).resolve())
 			.then(client.close.bind(client))
 			.finally("Fin")
 	})
