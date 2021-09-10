@@ -156,11 +156,17 @@ const removeDynamicBinding = (value: string) => {
   });
 };
 
-export const getSnippet = (snippet: string, args: any) => {
+export const getSnippet = (
+  snippet: string,
+  args: any,
+  replaceWithDynamicBinding = false,
+) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
   return snippet.replace(templateSubstitutionRegex, function(match, capture) {
     const substitution = removeDynamicBinding(args[capture] || "");
-    return substitution || capture;
+    return replaceWithDynamicBinding
+      ? `{{${capture}}}`
+      : substitution || capture;
   });
 };
 
@@ -277,14 +283,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {language === "javascript"
-                ? js_beautify(snippet, { indent_size: 2 })
-                : snippet}
+              {js_beautify(getSnippet(snippet, {}, true), { indent_size: 2 })}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon
-                onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-              />
+              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
             </div>
           </div>
         </>
@@ -307,9 +309,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   : getSnippet(template, selectedArgs)}
               </SyntaxHighlighter>
               <div className="action-icons">
-                <CopyIcon
-                  onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-                />
+                <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
               </div>
             </div>
             <div className="snippet-group">

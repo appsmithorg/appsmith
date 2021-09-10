@@ -882,9 +882,7 @@ function* executeCommand(
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });
       if (effectRaceResult.failure) return;
-      actionPayload.payload.callback(
-        `{{ ${effectRaceResult.success.payload} }}`,
-      );
+      actionPayload.payload.callback(effectRaceResult.success.payload);
       break;
     case "NEW_INTEGRATION":
       history.push(
