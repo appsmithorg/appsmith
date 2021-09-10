@@ -31,7 +31,7 @@ const handleFetchApplicationCommentsSuccess = (
     ...applicationCommentsMap,
   };
 
-  return { ...state };
+  return { ...state, commentThreadsFetched: true };
 };
 
 export default handleFetchApplicationCommentsSuccess;

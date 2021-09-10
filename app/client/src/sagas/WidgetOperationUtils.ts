@@ -10,7 +10,6 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WidgetType,
-  WidgetTypes,
 } from "constants/WidgetConstants";
 import { all, call } from "redux-saga/effects";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -28,8 +27,8 @@ import {
   getDynamicBindings,
   combineDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import WidgetConfigResponse from "mockResponses/WidgetConfigResponse";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import WidgetFactory from "utils/WidgetFactory";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -83,7 +82,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
   let root = _.get(widgets, `${widget.parentId}`);
 
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
-    if (root.type === WidgetTypes.LIST_WIDGET) {
+    if (root.type === "LIST_WIDGET") {
       const listWidget = root;
       const currentWidget = _.cloneDeep(widget);
       let template = _.get(listWidget, "template", {});
@@ -154,7 +153,7 @@ export const handleSpecificCasesWhilePasting = (
   newWidgetList: FlattenedWidgetProps[],
 ) => {
   // this is the case when whole list widget is copied and pasted
-  if (widget?.type === WidgetTypes.LIST_WIDGET) {
+  if (widget?.type === "LIST_WIDGET") {
     Object.keys(widget.template).map((widgetName) => {
       const oldWidgetName = widgetName;
       const newWidgetName = widgetNameMap[oldWidgetName];
@@ -195,7 +194,7 @@ export const handleSpecificCasesWhilePasting = (
     });
 
     widgets[widget.widgetId] = widget;
-  } else if (widget?.type === WidgetTypes.MODAL_WIDGET) {
+  } else if (widget?.type === "MODAL_WIDGET") {
     // if Modal is being copied handle all onClose action rename
     const oldWidgetName = Object.keys(widgetNameMap).find(
       (key) => widgetNameMap[key] === widget.widgetName,
@@ -276,10 +275,7 @@ export const getParentWidgetIdForPasting = function*(
       }
     }
     // Select the selected widget if the widget is container like ( excluding list widget )
-    if (
-      selectedWidget.children &&
-      selectedWidget.type !== WidgetTypes.LIST_WIDGET
-    ) {
+    if (selectedWidget.children && selectedWidget.type !== "LIST_WIDGET") {
       parentWidget = widgets[selectedWidget.widgetId];
     }
   }
@@ -288,12 +284,12 @@ export const getParentWidgetIdForPasting = function*(
   // is not the main container and is not a canvas widget
   if (
     parentWidget.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
-    parentWidget.type !== WidgetTypes.CANVAS_WIDGET
+    parentWidget.type !== "CANVAS_WIDGET"
   ) {
     let childWidget;
     // If the widget in which to paste the new widget is NOT
     // a tabs widget
-    if (parentWidget.type !== WidgetTypes.TABS_WIDGET) {
+    if (parentWidget.type !== "TABS_WIDGET") {
       // The child will be a CANVAS_WIDGET, as we've established
       // this parent widget to be a container like widget
       // Which always has its first child as a canvas widget
@@ -309,7 +305,7 @@ export const getParentWidgetIdForPasting = function*(
     }
     // If the finally selected parent in which to paste the widget
     // is a CANVAS_WIDGET, use its widgetId as the new widget's parent Id
-    if (childWidget && childWidget.type === WidgetTypes.CANVAS_WIDGET) {
+    if (childWidget && childWidget.type === "CANVAS_WIDGET") {
       newWidgetParentId = childWidget.widgetId;
     }
   }
@@ -330,7 +326,7 @@ export const checkIfPastingIntoListWidget = function(
   if (
     selectedWidget &&
     selectedWidget.children &&
-    selectedWidget?.type === WidgetTypes.LIST_WIDGET
+    selectedWidget?.type === "LIST_WIDGET"
   ) {
     const childrenIds: string[] = getWidgetChildren(
       canvasWidgets,
@@ -343,7 +339,7 @@ export const checkIfPastingIntoListWidget = function(
       const copiedWidgetId = copiedWidgets[i].widgetId;
       const copiedWidget = canvasWidgets[copiedWidgetId];
 
-      if (copiedWidget?.type === WidgetTypes.LIST_WIDGET) {
+      if (copiedWidget?.type === "LIST_WIDGET") {
         return selectedWidget;
       }
     }
@@ -437,12 +433,12 @@ export const groupWidgetsIntoContainer = function*(
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const newContainerName = getNextWidgetName(
     canvasWidgets,
-    WidgetTypes.CONTAINER_WIDGET,
+    "CONTAINER_WIDGET",
     evalTree,
   );
   const newCanvasName = getNextWidgetName(
     canvasWidgets,
-    WidgetTypes.CANVAS_WIDGET,
+    "CANVAS_WIDGET",
     evalTree,
   );
   const {
@@ -480,13 +476,13 @@ export const groupWidgetsIntoContainer = function*(
   const newCanvasWidget: FlattenedWidgetProps = {
     ..._.omit(
       _.get(
-        WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET],
+        WidgetFactory.widgetConfigMap.get("CONTAINER_WIDGET"),
         "blueprint.view[0]",
       ),
       ["position"],
     ),
     ..._.get(
-      WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET],
+      WidgetFactory.widgetConfigMap.get("CONTAINER_WIDGET"),
       "blueprint.view[0].props",
     ),
     bottomRow: heightOfCanvas,
@@ -505,14 +501,14 @@ export const groupWidgetsIntoContainer = function*(
     widgetName: newCanvasName,
   };
   const newContainerWidget: FlattenedWidgetProps = {
-    ..._.omit(WidgetConfigResponse.config[WidgetTypes.CONTAINER_WIDGET], [
+    ..._.omit(WidgetFactory.widgetConfigMap.get("CONTAINER_WIDGET"), [
       "rows",
       "columns",
       "blueprint",
     ]),
     parentId: pastingIntoWidgetId,
     widgetName: newContainerName,
-    type: WidgetTypes.CONTAINER_WIDGET,
+    type: "CONTAINER_WIDGET",
     widgetId: containerWidgetId,
     leftColumn: boundary.left?.leftColumn || 0,
     topRow: boundary.top?.topRow || 0,
@@ -661,8 +657,7 @@ export const isSelectedWidgetsColliding = function*(
 
   const widgetsArray = Object.values(widgetsWithSameParent).filter(
     (widget) =>
-      widget.parentId === pastingIntoWidgetId &&
-      widget.type !== WidgetTypes.MODAL_WIDGET,
+      widget.parentId === pastingIntoWidgetId && widget.type !== "MODAL_WIDGET",
   );
 
   let isColliding = false;
@@ -704,7 +699,7 @@ export function getNextWidgetName(
   options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
-  const defaultConfig: any = WidgetConfigResponse.config[type];
+  const defaultConfig: any = WidgetFactory.widgetConfigMap.get(type);
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
   let prefix = defaultConfig.widgetName;
@@ -769,7 +764,7 @@ export const getParentBottomRowAfterAddingWidget = (
   const parentRowSpace =
     newWidget.parentRowSpace || GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const updateBottomRow =
-    stateParent.type === WidgetTypes.CANVAS_WIDGET &&
+    stateParent.type === "CANVAS_WIDGET" &&
     newWidget.bottomRow * parentRowSpace > stateParent.bottomRow;
   return updateBottomRow
     ? Math.max(

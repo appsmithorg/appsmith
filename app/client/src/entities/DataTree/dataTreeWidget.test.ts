@@ -5,9 +5,12 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
+
 import { ValidationTypes } from "constants/WidgetValidation";
+
+// const WidgetTypes = WidgetFactory.widgetTypes;
 
 describe("generateDataTreeWidget", () => {
   beforeEach(() => {
@@ -161,7 +164,7 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",
@@ -238,7 +241,7 @@ describe("generateDataTreeWidget", () => {
       renderMode: RenderModes.CANVAS,
       rightColumn: 0,
       topRow: 0,
-      type: WidgetTypes.INPUT_WIDGET,
+      type: "INPUT_WIDGET",
       version: 0,
       widgetId: "123",
       widgetName: "Input1",

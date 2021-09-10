@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
+import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -91,6 +92,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     private final EmailConfig emailConfig;
     private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
+    private final ApplicationPageService applicationPageService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -120,7 +122,9 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                            CommonConfig commonConfig,
                            EmailConfig emailConfig,
                            UserChangedHandler userChangedHandler,
-                           EncryptionService encryptionService) {
+                           EncryptionService encryptionService,
+                           ApplicationPageService applicationPageService
+    ) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.organizationService = organizationService;
         this.sessionUserService = sessionUserService;
@@ -137,6 +141,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
         this.emailConfig = emailConfig;
         this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
+        this.applicationPageService = applicationPageService;
     }
 
     @Override
@@ -429,7 +434,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
     @Override
     public Mono<User> create(User user) {
         // This is the path that is taken when a new user signs up on its own
-        return createUserAndSendEmail(user, null);
+        return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
     }
 
     private Set<Policy> crudUserPolicy(User user) {
@@ -467,7 +472,7 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
      * @return Publishes the user object, after having been saved.
      */
     @Override
-    public Mono<User> createUserAndSendEmail(User user, String originHeader) {
+    public Mono<UserSignupDTO> createUserAndSendEmail(User user, String originHeader) {
 
         if (originHeader == null || originHeader.isBlank()) {
             // Default to the production link
@@ -493,31 +498,40 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
-                        return repository.save(savedUser);
+                        return repository.save(savedUser).map(updatedUser -> {
+                            UserSignupDTO userSignupDTO = new UserSignupDTO();
+                            userSignupDTO.setUser(updatedUser);
+                            return userSignupDTO;
+                        });
                     }
                     return Mono.error(new AppsmithException(AppsmithError.USER_ALREADY_EXISTS_SIGNUP, savedUser.getUsername()));
                 })
                 .switchIfEmpty(Mono.defer(() -> {
                     return signupIfAllowed(user)
-                            .zipWith(configService.getTemplateOrganizationId().defaultIfEmpty(""))
-                            .flatMap(tuple -> {
-                                final User savedUser = tuple.getT1();
-                                final String templateOrganizationId = tuple.getT2();
+                            .flatMap(savedUser -> {
+                                final UserSignupDTO userSignupDTO = new UserSignupDTO();
+                                userSignupDTO.setUser(savedUser);
 
-                                if (!StringUtils.hasText(templateOrganizationId)) {
-                                    // Since template organization is not configured, we create an empty default organization.
-                                    log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
-                                    return organizationService.createDefault(new Organization(), savedUser).thenReturn(savedUser);
-                                }
-
-                                return Mono.just(savedUser);
+                                log.debug("Creating blank default organization for user '{}'.", savedUser.getEmail());
+                                return organizationService.createDefault(new Organization(), savedUser)
+                                        .map(org -> {
+                                            userSignupDTO.setDefaultOrganizationId(org.getId());
+                                            return userSignupDTO;
+                                        });
                             })
-                            .flatMap(savedUser -> findByEmail(savedUser.getEmail()));
+                            .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
+                                userSignupDTO.setUser(user1);
+                                return userSignupDTO;
+                            }));
                 }))
-                .flatMap(savedUser ->
-                        emailConfig.isWelcomeEmailEnabled()
-                                ? sendWelcomeEmail(savedUser, finalOriginHeader)
-                                : Mono.just(savedUser)
+                .flatMap(userSignupDTO -> {
+                            User savedUser = userSignupDTO.getUser();
+                            Mono<User> userMono = emailConfig.isWelcomeEmailEnabled()
+                                    ? sendWelcomeEmail(savedUser, finalOriginHeader)
+                                    : Mono.just(savedUser);
+                            return userMono.thenReturn(userSignupDTO);
+                        }
+
                 );
     }
 
@@ -851,6 +865,8 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setName(user.getName());
                     profile.setGender(user.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
+                    profile.setAnonymous(user.isAnonymous());
+                    profile.setEnabled(user.isEnabled());
 
                     return profile;
                 });
