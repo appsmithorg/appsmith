@@ -116,7 +116,6 @@ ctx.addEventListener(
           bindings,
           executionParams,
         );
-        debugger;
 
         const cleanValues = removeFunctions(values);
 

@@ -177,7 +177,6 @@ export function* evaluateDynamicTrigger(
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
       try {
-        debugger;
         const response = yield call(
           executeActionTriggers,
           requestData.trigger,

@@ -250,7 +250,6 @@ export async function evaluateAsync(
     try {
       result = await eval(script);
     } catch (e) {
-      debugger;
       const errorMessage = `${e.name}: ${e.message}`;
       errors.push({
         errorMessage: errorMessage,
@@ -266,8 +265,7 @@ export async function evaluateAsync(
   })();
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function isFunctionAsync(userFunction: Function, dataTree: DataTree) {
+export function isFunctionAsync(userFunction: unknown, dataTree: DataTree) {
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
@@ -289,8 +287,9 @@ export function isFunctionAsync(userFunction: Function, dataTree: DataTree) {
       self[key] = GLOBAL_DATA[key];
     });
     try {
-      debugger;
-      userFunction();
+      if (typeof userFunction === "function") {
+        userFunction();
+      }
     } catch (e) {
       console.error(e);
     }

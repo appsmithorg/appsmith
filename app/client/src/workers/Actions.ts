@@ -1,41 +1,4 @@
 /* eslint-disable @typescript-eslint/ban-types */
-/*
- * An AppsmithPromise is a mock promise class to replicate promise functionalities
- * in the Appsmith world.
- *
- * To mimic the async nature of promises, we will return back
- * action descriptors that get resolved in the main thread and then go back to action
- * execution flow as the workflow is designed.
- *
- * Whenever an async call needs to run, it is wrapped around this promise descriptor
- * and sent to the main thread to execute.
- *
- * new Promise(() => {
- *  return Api1.run()
- * })
- * .then(() => {
- *  return Api2.run()
- * })
- * .catch(() => {
- *  return showMessage('An Error Occurred', 'error')
- * })
- *
- * {
- *  type: "APPSMITH_PROMISE",
- *  payload: {
- *   executor: [{
- *    type: "EXECUTE_ACTION",
- *    payload: { actionId: "..." }
- *   }]
- *   then: ["() => { return Api2.run() }"],
- *   catch: "() => { return showMessage('An Error Occurred', 'error) }"
- *  }
- * }
- *
- *
- *
- * */
-
 import {
   ActionDispatcher,
   DataTree,
@@ -43,7 +6,10 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { isAction, isTrueObject } from "./evaluationUtils";
-import { ActionTriggerType } from "entities/DataTree/actionTriggers";
+import {
+  ActionDescription,
+  ActionTriggerType,
+} from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { EVAL_WORKER_ACTIONS } from "utils/DynamicBindingUtils";
 
@@ -57,40 +23,55 @@ declare global {
   }
 }
 
-const overThreadPromise = (event: any) => {
+/*
+ * We wrap all actions with a promise. The promise will send a message to the main thread
+ * and wait for a response till it can resolve or reject the promise. This way we can invoke actions
+ * in the main thread while evaluating in the main thread. In principle, all actions now work as promises.
+ *
+ * needs a REQUEST_ID on global scope to know which request is going on right now
+ */
+const promisifyAction = (actionDescription: ActionDescription) => {
   if (self.DRY_RUN) {
+    /**
+     * To figure out if any function (JS action) is async, we do a dry run so that we can know if the function
+     * is using a async action. We set an IS_ASYNC flag to later indicate that a promise was called.
+     * @link isFunctionAsync
+     * */
     self.IS_ASYNC = true;
     return new Promise((resolve) => resolve(true));
   }
   return new Promise((resolve, reject) => {
+    // We create a new sub request id for each request going on so that we can resolve the correct one later on
     const subRequestId = _.uniqueId(`${self.REQUEST_ID}_`);
     ctx.postMessage({
       type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
       responseData: {
-        trigger: event,
+        trigger: actionDescription,
         errors: [],
         subRequestId,
       },
       requestId: self.REQUEST_ID,
     });
     ctx.addEventListener("message", (event) => {
-      const { method, requestId, success } = event.data;
+      const { data, method, requestId, success } = event.data;
       if (
         method === EVAL_WORKER_ACTIONS.PROCESS_TRIGGER &&
         requestId === self.REQUEST_ID &&
         subRequestId === event.data.data.subRequestId
       ) {
-        debugger;
+        // If we get a response for this same promise we will resolve or reject it
         if (success) {
-          resolve.apply(self, event.data.data.resolve);
+          resolve.apply(self, data.resolve);
         } else {
-          reject(event.data.data.reason);
+          reject(data.reason);
         }
       }
     });
   });
 };
 
+// To indicate the main thread that the processing of the trigger is done
+// we send a finished message
 export const completePromise = () => {
   ctx.postMessage({
     type: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
@@ -114,7 +95,7 @@ const DATA_TREE_FUNCTIONS: Record<
     params: Record<string, string>,
     target?: NavigationTargetType,
   ) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.NAVIGATE_TO,
       payload: { pageNameOrUrl, params, target },
     });
@@ -123,19 +104,19 @@ const DATA_TREE_FUNCTIONS: Record<
     message: string,
     style: "info" | "success" | "warning" | "error" | "default",
   ) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.SHOW_ALERT,
       payload: { message, style },
     });
   },
   showModal: function(modalName: string) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.SHOW_MODAL_BY_NAME,
       payload: { modalName },
     });
   },
   closeModal: function(modalName: string) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.CLOSE_MODAL,
       payload: { modalName },
     });
@@ -143,13 +124,13 @@ const DATA_TREE_FUNCTIONS: Record<
   storeValue: function(key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
     _.set(self, `appsmith.store[${key}]`, value);
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.STORE_VALUE,
       payload: { key, value, persist },
     });
   },
   download: function(data: string, name: string, type: string) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.DOWNLOAD,
       payload: { data, name, type },
     });
@@ -158,7 +139,7 @@ const DATA_TREE_FUNCTIONS: Record<
     data: string,
     options?: { debug?: boolean; format?: string },
   ) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.COPY_TO_CLIPBOARD,
       payload: {
         data,
@@ -167,7 +148,7 @@ const DATA_TREE_FUNCTIONS: Record<
     });
   },
   resetWidget: function(widgetName: string, resetChildren = false) {
-    return overThreadPromise({
+    return promisifyAction({
       type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
       payload: { widgetName, resetChildren },
     });
@@ -184,7 +165,7 @@ const DATA_TREE_FUNCTIONS: Record<
       ) {
         const isOldSignature = typeof onSuccessOrParams === "function";
         const isNewSignature = isTrueObject(onSuccessOrParams);
-        const runActionPromise = overThreadPromise({
+        const runActionPromise = promisifyAction({
           type: ActionTriggerType.RUN_PLUGIN_ACTION,
           payload: {
             actionId: isAction(entity) ? entity.actionId : "",
@@ -201,7 +182,7 @@ const DATA_TREE_FUNCTIONS: Record<
   clear: {
     qualifier: (entity) => isAction(entity),
     func: (entity) => () => {
-      return overThreadPromise({
+      return promisifyAction({
         type: ActionTriggerType.CLEAR_PLUGIN_ACTION,
         payload: {
           actionId: isAction(entity) ? entity.actionId : "",
