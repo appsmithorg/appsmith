@@ -26,7 +26,6 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
-import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
@@ -283,7 +282,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {js_beautify(getSnippet(snippet, {}, true), { indent_size: 2 })}
+              {getSnippet(snippet, {}, true)}
             </SyntaxHighlighter>
             <div className="action-icons">
               <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
@@ -302,9 +301,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <>
             <div className="snippet-container">
               <SyntaxHighlighter language={language} style={prism}>
-                {js_beautify(getSnippet(template, selectedArgs), {
-                  indent_size: 2,
-                })}
+                {getSnippet(template, selectedArgs)}
               </SyntaxHighlighter>
               <div className="action-icons">
                 <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
