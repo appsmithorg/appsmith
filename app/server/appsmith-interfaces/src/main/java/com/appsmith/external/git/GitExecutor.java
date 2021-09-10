@@ -1,10 +1,13 @@
 package com.appsmith.external.git;
 
+import com.appsmith.external.dtos.GitApplicationDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -33,7 +36,19 @@ public interface GitExecutor {
      */
     boolean createNewRepository(Path repoPath) throws IOException, GitAPIException;
 
+    /**
+     * Method to push changes to remote repo
+     * @param gitApplicationDTO DTO object used to generate the repo url specific to the application which needs to committed
+     * @param remoteUrl remote repo url
+     * @param publicKey
+     * @param privateKey
+     * @return Success message
+     * @throws IOException exception thrown if git open repo failed
+     * @throws GitAPIException git exceptions
+     * @throws URISyntaxException exception thrown while constructing the remote url
+     */
+    // TODO create a separate applicationGit DTO class in executor instead of passing the different fields
+    String pushApplication(GitApplicationDTO gitApplicationDTO, String remoteUrl, String publicKey, String privateKey) throws IOException, GitAPIException, URISyntaxException;
+
     String cloneApp(String repoPath, String repoName,  String remoteUrl, String privateSshKey, String publicSshKey) throws GitAPIException, IOException;
-
-
 }

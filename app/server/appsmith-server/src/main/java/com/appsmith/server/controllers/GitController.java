@@ -4,9 +4,8 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitConfig;
-import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
+import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +65,14 @@ public class GitController {
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
         log.debug("Going to commit application {}", applicationId);
         return service.getCommitHistory(applicationId)
+            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+    }
+
+    @PostMapping("/push/{applicationId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<String>> push(@PathVariable String applicationId) {
+        log.debug("Going to push application {}", applicationId);
+        return service.pushApplication(applicationId)
             .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
     }
 }
