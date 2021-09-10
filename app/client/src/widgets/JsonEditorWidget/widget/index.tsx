@@ -1,5 +1,4 @@
 import React from "react";
-import * as Sentry from "@sentry/react";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
@@ -57,6 +56,10 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
     };
   }
 
+  static getWidgetType(): WidgetType {
+    return "JSON_EDITOR_WIDGET";
+  }
+
   getPageView() {
     const { defaultText, widgetId } = this.props;
 
@@ -68,10 +71,6 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
         widgetId={widgetId}
       />
     );
-  }
-
-  getWidgetType(): WidgetType {
-    return "JSON_EDITOR_WIDGET";
   }
 
   private handleChangeJSON = (json: any) => {
