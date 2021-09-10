@@ -9,6 +9,12 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  CONNECT_TO_GIT_INIT: "CONNECT_TO_GIT_INIT",
+  CONNECT_TO_GIT_SUCCESS: "CONNECT_TO_GIT_SUCCESS",
+  CREATE_NEW_BRANCH_INIT: "CREATE_NEW_BRANCH_INIT",
+  SWITCH_GIT_BRANCH_INIT: "SWITCH_GIT_BRANCH_INIT",
+  COMMIT_TO_GIT_REPO_INIT: "COMMIT_TO_GIT_REPO_INIT",
+  COMMIT_TO_GIT_REPO_SUCCESS: "COMMIT_TO_GIT_REPO_SUCCESS",
   UPDATE_THREAD_DRAFT_COMMENT: "UPDATE_THREAD_DRAFT_COMMENT",
   UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT:
     "UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT",
@@ -548,11 +554,15 @@ export const ReduxActionTypes = {
   SET_PAGE_ORDER_SUCCESS: "SET_PAGE_ORDER_SUCCESS",
   GROUP_WIDGETS_INIT: "GROUP_WIDGETS_INIT",
   REFACTOR_JS_ACTION_NAME: "REFACTOR_JS_ACTION_NAME",
+  GENERATE_SSH_KEY_PAIR_INIT: "GENERATE_SSH_KEY_PAIR_INIT",
+  GENERATE_SSH_KEY_PAIR_SUCCESS: "GENERATE_SSH_KEY_PAIR_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  CONNECT_TO_GIT_ERROR: "CONNECT_TO_GIT_ERROR",
+  COMMIT_TO_GIT_REPO_ERROR: "COMMIT_TO_GIT_REPO_ERROR",
   FETCH_FEATURE_FLAGS_ERROR: "FETCH_FEATURE_FLAGS_ERROR",
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",
   MARK_ALL_NOTIFICAIONS_AS_READ_ERROR: "MARK_ALL_NOTIFICAIONS_AS_READ_ERROR",
@@ -688,6 +698,7 @@ export const ReduxActionErrorTypes = {
   SET_PAGE_ORDER_ERROR: "SET_PAGE_ORDER_ERROR",
   DELETE_JS_ACTION_ERROR: "DELETE_JS_ACTION_ERROR",
   REFACTOR_JS_ACTION_NAME_ERROR: "REFACTOR_JS_ACTION_NAME_ERROR",
+  GENERATE_SSH_KEY_PAIR_ERROR: "GENERATE_SSH_KEY_PAIR_ERROR",
 };
 
 export const ReduxFormActionTypes = {
@@ -780,6 +791,12 @@ export interface ClonePageSuccessPayload {
 
 export type PageListPayload = Array<Page>;
 
+export type GitApplicationMetadata = {
+  gitAuth?: {
+    publicKey?: string;
+  };
+};
+
 export type ApplicationPayload = {
   id: string;
   name: string;
@@ -792,6 +809,7 @@ export type ApplicationPayload = {
   appIsExample: boolean;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
+  gitApplicationMetadata?: GitApplicationMetadata;
 };
 
 export type OrganizationDetails = {
