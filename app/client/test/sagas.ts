@@ -1,5 +1,6 @@
 import initSagas from "../src/sagas/InitSagas";
 import apiPaneSagas from "../src/sagas/ApiPaneSagas";
+import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "../src/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
 import orgSagas from "../src/sagas/OrgSagas";
@@ -19,12 +20,12 @@ import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import commentSagas from "../src/sagas/CommentSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
-import { fetchWidgetCardsSaga } from "../src/sagas/WidgetSidebarSagas";
 import { watchActionSagas } from "../src/sagas/ActionSagas";
 import { watchActionExecutionSagas } from "../src/sagas/ActionExecution/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import applicationSagas from "../src/sagas/ApplicationSagas";
 import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
+import { watchJSActionSagas } from "../src/sagas/JSActionSagas";
 import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
 import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
@@ -33,13 +34,13 @@ import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [
   initSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
   watchActionExecutionSagas,
   widgetOperationSagas,
   watchDatasourcesSagas,
   applicationSagas,
   apiPaneSagas,
+  jsPaneSagas,
   userSagas,
   pluginSagas,
   orgSagas,
@@ -60,6 +61,7 @@ export const sagasToRunForTests = [
   commentSagas,
   websocketSagas,
   debuggerSagas,
+  watchJSActionSagas,
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,

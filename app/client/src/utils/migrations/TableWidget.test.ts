@@ -1,14 +1,12 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DSLWidget } from "widgets/constants";
 import {
   tableWidgetPropertyPaneMigrations,
   migrateTableWidgetParentRowSpaceProperty,
   migrateTableWidgetHeaderVisibilityProperties,
   migrateTableSanitizeColumnKeys,
-  getSubstringBetweenTwoWords,
 } from "./TableWidget";
 
-const input1: ContainerWidgetProps<WidgetProps> = {
+const input1: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -55,7 +53,7 @@ const input1: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const input2: ContainerWidgetProps<WidgetProps> = {
+const input2: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -117,7 +115,7 @@ const input2: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const input3: ContainerWidgetProps<WidgetProps> = {
+const input3: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -647,7 +645,7 @@ describe("Table Widget Property Pane Upgrade", () => {
   });
 
   it("To test table parentRowSpace is updated", () => {
-    const inputDsl: ContainerWidgetProps<WidgetProps> = {
+    const inputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -783,7 +781,7 @@ describe("Table Widget Property Pane Upgrade", () => {
         },
       ],
     };
-    const outputDsl: ContainerWidgetProps<WidgetProps> = {
+    const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -924,7 +922,7 @@ describe("Table Widget Property Pane Upgrade", () => {
   });
 
   it("TableWidget : should update header options visibilities", () => {
-    const inputDsl: ContainerWidgetProps<WidgetProps> = {
+    const inputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -1060,7 +1058,7 @@ describe("Table Widget Property Pane Upgrade", () => {
         },
       ],
     };
-    const outputDsl: ContainerWidgetProps<WidgetProps> = {
+    const outputDsl: DSLWidget = {
       widgetName: "MainContainer",
       backgroundColor: "none",
       rightColumn: 1224,
@@ -1206,26 +1204,6 @@ describe("Table Widget Property Pane Upgrade", () => {
   });
 });
 
-describe("#getSubstringBetweenTwoWords", () => {
-  it("returns substring between 2 words from a string", () => {
-    const input: [string, string, string][] = [
-      ["aaa.bbb.ccc", "aaa.", ".ccc"],
-      ["aaa.bbb.bbb.ccc", "aaa.", ".ccc"],
-      ["aaa.aaa.aaa.aaa", "aaa", "aaa"],
-      ["aaa...aaa.aaa.aaa", "aaa", "aaa"],
-      ["aaa..bbb", "aaa.", ".bbb"],
-      ["aaa.bbb", "aaa.", ".bbb"],
-      ["aaabbb", "aaab", "abbb"],
-    ];
-
-    const output = ["bbb", "bbb.bbb", ".aaa.aaa.", "...aaa.aaa.", "", "", ""];
-
-    input.forEach((inp, index) => {
-      expect(getSubstringBetweenTwoWords(...inp)).toBe(output[index]);
-    });
-  });
-});
-
 describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
   it("sanitizes primaryColumns, dynamicBindingPathList, columnOrder", () => {
     const inputDsl = ({
@@ -1366,7 +1344,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
           },
         },
       ],
-    } as unknown) as ContainerWidgetProps<WidgetProps>;
+    } as unknown) as DSLWidget;
 
     const outputDsl = {
       widgetName: "MainContainer",

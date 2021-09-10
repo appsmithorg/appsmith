@@ -167,11 +167,14 @@ export const Entity = forwardRef(
       }
     };
 
-    const updateNameCallback = (name: string) => {
-      return (
-        props.updateEntityName && props.updateEntityName(props.entityId, name)
-      );
-    };
+    const updateNameCallback = useCallback(
+      (name: string) => {
+        return (
+          props.updateEntityName && props.updateEntityName(props.entityId, name)
+        );
+      },
+      [props.entityId, props.updateEntityName],
+    );
 
     const handleClick = (e: any) => {
       if (props.action) props.action(e);
