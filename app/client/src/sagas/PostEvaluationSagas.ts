@@ -31,6 +31,7 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
+  PARSE_JS_FUNCTION_ERROR,
   VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
@@ -251,6 +252,19 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
+        break;
+      }
+      case EvalErrorTypes.PARSE_JS_ERROR: {
+        AppsmithConsole.addError({
+          id: error?.context?.id,
+          logType: LOG_TYPE.JS_PARSE_ERROR,
+          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: error?.context?.name,
+            id: error?.context?.id,
+          },
+        });
         break;
       }
       default: {

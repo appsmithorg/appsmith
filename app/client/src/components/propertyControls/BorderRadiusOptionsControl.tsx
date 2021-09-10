@@ -5,13 +5,10 @@ import { Button, ButtonGroup, IButtonProps } from "@blueprintjs/core";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlIcons } from "icons/ControlIcons";
 import { ThemeProp } from "components/ads/common";
-
-export enum ButtonBorderRadiusTypes {
-  SHARP = "SHARP",
-  ROUNDED = "ROUNDED",
-  CIRCLE = "CIRCLE",
-}
-export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
+import {
+  ButtonBorderRadius,
+  ButtonBorderRadiusTypes,
+} from "components/constants";
 
 const StyledButtonGroup = styled(ButtonGroup)`
   height: 33px;
