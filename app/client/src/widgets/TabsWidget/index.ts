@@ -37,14 +37,52 @@ export const CONFIG = {
     shouldShowTabs: true,
     defaultTab: "Tab 1",
     blueprint: {
+      view: [
+        {
+          type: "CANVAS_WIDGET",
+          position: { left: 0, top: 0 },
+          props: {
+            detachFromLayout: true,
+            canExtend: true,
+            isVisible: true,
+            isDisabled: false,
+            shouldScrollContents: false,
+            tabId: "tab1",
+            tabName: "Tab 1",
+            children: [],
+            version: 1,
+          },
+        },
+        {
+          type: "CANVAS_WIDGET",
+          position: { left: 0, top: 0 },
+          props: {
+            detachFromLayout: true,
+            canExtend: true,
+            isVisible: true,
+            isDisabled: false,
+            shouldScrollContents: false,
+            tabId: "tab2",
+            tabName: "Tab 2",
+            children: [],
+            version: 1,
+          },
+        },
+      ],
       operations: [
         {
           type: BlueprintOperationTypes.MODIFY_PROPS,
           fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
             const tabs = Object.values({ ...widget.tabsObj });
+            const tabIds: Record<string, string> = (
+              widget.children || []
+            ).reduce((idsObj, eachChild) => {
+              idsObj = { ...idsObj, [eachChild.tabId]: eachChild.widgetId };
+              return idsObj;
+            }, {});
             const tabsObj = tabs.reduce((obj: any, tab: any) => {
               const newTab = { ...tab };
-              newTab.widgetId = generateReactKey();
+              newTab.widgetId = tabIds[newTab.id];
               obj[newTab.id] = newTab;
               return obj;
             }, {});
