@@ -166,6 +166,17 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
@@ -345,6 +356,7 @@ export type Theme = {
   propertyPane: PropertyPaneTheme;
   headerHeight: string;
   smallHeaderHeight: string;
+  bottomBarHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
   homePage: any;
@@ -503,22 +515,24 @@ export const largeButton = css`
 `;
 
 export const appColors = [
-  "#6C4CF1",
-  "#4F70FD",
-  "#F56AF4",
-  "#B94CF1",
-  "#54A9FB",
-  "#5ED3DA",
-  "#5EDA82",
-  "#A8D76C",
-  "#E9C951",
-  "#FE9F44",
-  "#ED86A1",
-  "#EA6179",
-  "#C03C3C",
-  "#BC6DB2",
-  "#6C9DD0",
-  "#6CD0CF",
+  "#FFEFDB",
+  "#D9E7FF",
+  "#FFDEDE",
+  "#E3DEFF",
+  "#C7F3E3",
+  "#F1DEFF",
+  "#F4FFDE",
+  "#C7F3F0",
+  "#C2DAF0",
+  "#F5D1D1",
+  "#ECECEC",
+  "#CCCCCC",
+  "#F3F1C7",
+  "#E4D8CC",
+  "#EAEDFB",
+  "#D6D1F2",
+  "#FBF4ED",
+  "#FFEBFB",
 ] as const;
 
 export type AppColorCode = typeof appColors[number];
@@ -555,6 +569,7 @@ const lightShades = [
   "#E0DEDE",
   "#EBEBEB",
   "#858282",
+  "#000000",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -638,6 +653,15 @@ type ColorType = {
           textColor: Color;
         };
       };
+    };
+    /**
+     * LINK button style
+     */
+    link: {
+      main: Color;
+      hover: Color;
+      active: Color;
+      disabled: Color;
     };
   };
   tertiary: buttonVariant;
@@ -770,6 +794,7 @@ type ColorType = {
     hover: {
       bg: ShadeColor;
     };
+    caretColor: string;
   };
   menuBorder: ShadeColor;
   editableText: {
@@ -801,9 +826,11 @@ type ColorType = {
   };
   tabs: {
     normal: ShadeColor;
+    icon: ShadeColor;
     hover: ShadeColor;
     border: ShadeColor;
     countBg: ShadeColor;
+    selected: string;
   };
   settingHeading: ShadeColor;
   table: {
@@ -1006,20 +1033,26 @@ type ColorType = {
     emptyStateText: string;
     navigateUsingEnterSection: string;
     codeBackground: string;
+    documentationCodeBackground: string;
     documentLink: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
-    helpBarBorder: string;
     sectionTitle: string;
     navigateToEntityEnterkey: string;
-    mainContainerBackground: string;
+    primaryBgColor: string;
+    primaryTextColor: string;
+    secondaryTextColor: string;
+    primaryBorderColor: string;
+    defaultIconsColor: string;
     snippets: {
       refinementPillsColor: string;
       refinementPillsBg: string;
       filterListBackground: string;
       filterBtnText: string;
+      codeContainerBorder: string;
     };
+    searchInputBorder: string;
   };
   gif: {
     overlay: string;
@@ -1140,6 +1173,10 @@ type ColorType = {
     label: string;
     entity: string;
     entityLink: string;
+    evalDebugButton: {
+      hover: string;
+      active: string;
+    };
     inspectElement: {
       color: string;
     };
@@ -1203,6 +1240,15 @@ type ColorType = {
     menuBackgroundColor: string;
     separator: string;
   };
+  editorBottomBar: {
+    background: string;
+    buttonBackgroundHover: string;
+  };
+};
+
+const editorBottomBar = {
+  background: Colors.WHITE,
+  buttonBackgroundHover: Colors.Gallery,
 };
 
 const gitSyncModal = {
@@ -1340,36 +1386,42 @@ const formMessage = {
 const globalSearch = {
   containerBackground:
     "linear-gradient(0deg, rgba(43, 43, 43, 0.9), rgba(43, 43, 43, 0.9)), linear-gradient(119.61deg, rgba(35, 35, 35, 0.01) 0.43%, rgba(49, 49, 49, 0.01) 100.67%);",
-  activeSearchItemBackground: "#6A86CE",
-  activeCategory: "#6A86CE",
-  searchInputText: "#484848",
+  activeSearchItemBackground: "#EBEBEB",
+  activeCategory: "#090707",
+  searchInputText: "#090707",
+  searchInputBorder: "#F86A2B",
   containerShadow: "0px 0px 32px 8px rgba(0, 0, 0, 0.25)",
   separator: "#424242",
   searchItemHighlight: "#fff",
   searchItemAltText: "#fff",
-  searchItemText: "#484848",
-  searchItemSubText: "#A9A7A7",
+  searchItemText: "#090707",
+  searchItemSubText: "#4B4848;",
   highlightedTextUnderline: "#03B365",
   helpBarText: "#C2C2C2",
   documentationCtaBackground: "rgba(3, 179, 101, 0.1)",
   documentationCtaText: "#03B365",
   emptyStateText: "#A9A7A7",
-  navigateUsingEnterSection: "#154E6B",
-  codeBackground: "#F0F0F0",
-  documentLink: "#69B5FF",
+  navigateUsingEnterSection: "white",
+  codeBackground: "#ffffff",
+  documentationCodeBackground: "#f0f0f0",
+  documentLink: "#F86A2B",
   helpBarBackground: "#000",
   helpButtonBackground: "#000",
   helpIcon: "#D4D4D4",
-  helpBarBorder: "#404040",
-  helpButtonBorder: "#404040",
   sectionTitle: "#716E6E",
-  navigateToEntityEnterkey: "#3DA5D9",
-  mainContainerBackground: "#F0F0F0",
+  navigateToEntityEnterkey: "#090707",
+  primaryBgColor: "#ffffff",
+  primaryTextColor: "#090707",
+  secondaryTextColor: "#4b4848",
+  primaryBorderColor: "#E0DEDE",
+  defaultIconsColor: "#716e6e",
   snippets: {
     refinementPillsColor: "#4b4848",
     refinementPillsBg: "white",
     filterListBackground: lightShades[0],
     filterBtnText: lightShades[8],
+    filterBtnBg: "#FAFAFA",
+    codeContainerBorder: "#E0DEDE",
   },
 };
 
@@ -1405,6 +1457,7 @@ const numberedStep = {
 };
 
 export const dark: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -1445,7 +1498,7 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -1532,6 +1585,12 @@ export const dark: ColorType = {
           textColor: Colors.WHITE,
         },
       },
+    },
+    link: {
+      main: "#D4D4D4",
+      hover: "#FFFFFF",
+      active: "#2B2B2B",
+      disabled: "#202021",
     },
   },
   tertiary: {
@@ -1683,6 +1742,7 @@ export const dark: ColorType = {
     hover: {
       bg: darkShades[0],
     },
+    caretColor: Colors.WHITE,
   },
   menuBorder: darkShades[4],
   editableText: {
@@ -1714,9 +1774,11 @@ export const dark: ColorType = {
   },
   tabs: {
     normal: darkShades[6],
+    icon: darkShades[6],
     hover: darkShades[7],
     border: darkShades[3],
     countBg: darkShades[4],
+    selected: Colors.CRUSTA,
   },
   settingHeading: darkShades[9],
   table: {
@@ -1890,6 +1952,7 @@ export const dark: ColorType = {
     tagBackground: "#e22c2c",
     backgroundColor: darkShades[3],
     iconColor: darkShades[6],
+    borderColor: darkShades[7],
   },
   auth,
   formMessage,
@@ -1953,6 +2016,10 @@ export const dark: ColorType = {
     entityLink: "#D4D4D4",
     jsonIcon: "#9F9F9F",
     message: "#D4D4D4",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -1989,6 +2056,7 @@ export const dark: ColorType = {
 };
 
 export const light: ColorType = {
+  editorBottomBar,
   gitSyncModal,
   numberedStep,
   tabItemBackgroundFill,
@@ -2025,7 +2093,7 @@ export const light: ColorType = {
     activeTabText: "#000",
   },
   button: {
-    disabledText: lightShades[6],
+    disabledText: lightShades[15],
     boxShadow: {
       default: {
         variant1: Colors.BOX_SHADOW_DEFAULT_VARIANT1,
@@ -2036,7 +2104,7 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -2124,13 +2192,19 @@ export const light: ColorType = {
         },
       },
     },
+    link: {
+      main: "#716E6E",
+      hover: "#090707",
+      active: "#4B4848",
+      disabled: "#858282",
+    },
   },
   tertiary: {
     main: "#716E6E",
     light: "#090707",
-    dark: "#F7F7F7",
+    dark: "#FAFAFA",
     darker: "#E8E8E8",
-    darkest: "#939090",
+    darkest: "#A9A7A7",
   },
   info: {
     main: "#F86A2B",
@@ -2143,24 +2217,24 @@ export const light: ColorType = {
     main: "#03B365",
     light: "#007340",
     dark: "#00693B",
-    darker: "#DEFFF0",
-    darkest: "#CBF4E2",
+    darker: "#CBF4E2",
+    darkest: "#D9FDED",
   },
   warning: {
-    main: "#FECB11",
-    light: "#D1A606",
-    dark: "#D9AC07",
-    darker: "#FFFBEF",
-    darkest: "#FECB11",
+    main: "#FEB811",
+    light: "#EFA903",
+    dark: "#EFA903",
+    darker: "#FBEED0",
+    darkest: "#FFFAE9",
   },
   danger: {
     main: "#F22B2B",
-    light: "#C60707",
-    dark: "#B90707",
-    darker: "#FFF0F0",
-    darkest: "#FDE4E4",
+    light: "#B90707",
+    dark: "#C60707",
+    darker: "#FDE4E4",
+    darkest: "#FFE9E9",
   },
-  homepageBackground: "#fafafa",
+  homepageBackground: "#ffffff",
   card: {
     hoverBG: Colors.WHITE,
     hoverBGOpacity: 0.7,
@@ -2275,6 +2349,7 @@ export const light: ColorType = {
     hover: {
       bg: lightShades[0],
     },
+    caretColor: Colors.BLACK,
   },
   menuBorder: lightShades[3],
   editableText: {
@@ -2290,11 +2365,11 @@ export const light: ColorType = {
   searchInput: {
     placeholder: lightShades[6],
     text: lightShades[10],
-    border: lightShades[3],
-    bg: lightShades[1],
+    border: lightShades[13],
+    bg: lightShades[11],
     icon: {
-      focused: lightShades[7],
-      normal: lightShades[5],
+      focused: lightShades[10],
+      normal: lightShades[7],
     },
   },
   spinner: lightShades[6],
@@ -2305,12 +2380,14 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[6],
+    normal: lightShades[8],
+    icon: lightShades[15],
     hover: lightShades[10],
     border: lightShades[3],
     countBg: lightShades[3],
+    selected: Colors.CRUSTA,
   },
-  settingHeading: lightShades[9],
+  settingHeading: lightShades[16],
   table: {
     headerBg: lightShades[1],
     headerText: lightShades[6],
@@ -2480,8 +2557,9 @@ export const light: ColorType = {
   },
   floatingBtn: {
     tagBackground: "#e22c2c",
-    backgroundColor: lightShades[3],
+    backgroundColor: lightShades[0],
     iconColor: lightShades[7],
+    borderColor: lightShades[14],
   },
   auth,
   formMessage,
@@ -2546,6 +2624,10 @@ export const light: ColorType = {
     entityLink: "#6d6d6d",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
+    evalDebugButton: {
+      hover: "#fafafaaa",
+      active: "#fafafaff",
+    },
     floatingButton: {
       background: "#2b2b2b",
       color: "#d4d4d4",
@@ -2706,6 +2788,11 @@ export const theme: Theme = {
       letterSpacing: 0.2,
       fontWeight: 500,
     },
+    sideHeading: {
+      fontStyle: "normal",
+      fontWeight: "bold",
+      fontSize: 13,
+    },
   },
   iconSizes: {
     XXS: 8,
@@ -2833,19 +2920,21 @@ export const theme: Theme = {
   ],
   sidebarWidth: "250px",
   homePage: {
-    header: 52,
+    header: 48,
     leftPane: {
       width: 240,
       leftPadding: 16,
-      rightMargin: 113,
+      rightMargin: 12,
     },
     search: {
       height: 68,
       paddingTop: 30,
     },
+    sidebar: 256,
   },
   headerHeight: "48px",
   smallHeaderHeight: "35px",
+  bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",
   canvasBottomPadding: 200,
@@ -2860,8 +2949,8 @@ export const theme: Theme = {
     navItemHeight: 42,
   },
   card: {
-    minWidth: 150,
-    minHeight: 150,
+    minWidth: 228,
+    minHeight: 124,
     titleHeight: 48,
     divider: {
       thickness: 1,

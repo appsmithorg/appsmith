@@ -292,7 +292,7 @@ public class CreateDBTablePageSolution {
                 }
 
                 // Map table names : public.templateTable => <"templateTable","userTable">
-                mappedColumnsAndTableName.put(templateTableRef, tableRef);
+                mappedColumnsAndTableName.put(templateTableRef, tableName);
 
                 Set<String> deletedWidgets = new HashSet<>();
                 layout.setDsl(
@@ -547,7 +547,7 @@ public class CreateDBTablePageSolution {
                 }
 
                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
-                return layoutActionService.createAction(actionDTO);
+                return layoutActionService.createSingleAction(actionDTO);
             });
     }
 

@@ -1,36 +1,49 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { connect, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo_white.png";
+import AppsmithLogo from "assets/images/appsmith_logo.png";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
 import history from "utils/history";
-import { Colors } from "constants/Colors";
 import ProfileDropdown from "./ProfileDropdown";
 import Bell from "notifications/Bell";
 
-import { areCommentsEnabledForUserAndApp as areCommentsEnabledForUserAndAppSelector } from "selectors/commentsSelectors";
-
-const StyledPageHeader = styled(StyledHeader)`
-  background: ${Colors.BALTIC_SEA};
+const StyledPageHeader = styled(StyledHeader)<{
+  hideShadow?: boolean;
+  showSeparator?: boolean;
+}>`
+  background: white;
   height: 48px;
   color: white;
   flex-direction: row;
   position: fixed;
   top: 0;
   z-index: 10;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: ${(props) =>
+    props.hideShadow ? `none` : `0px 4px 4px rgba(0, 0, 0, 0.05)`};
+  ${(props) => props.showSeparator && sideBorder}
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
+`;
+
+const sideBorder = css`
+  &:after {
+    content: "";
+    position: absolute;
+    left: ${(props) => props.theme.homePage.sidebar}px;
+    width: 1px;
+    height: 100%;
+    background-color: #ededed;
+  }
 `;
 
 const StyledDropDownContainer = styled.div``;
@@ -41,6 +54,8 @@ const AppsmithLogoImg = styled.img`
 
 type PageHeaderProps = {
   user?: User;
+  hideShadow?: boolean;
+  showSeparator?: boolean;
 };
 
 export function PageHeader(props: PageHeaderProps) {
@@ -53,12 +68,11 @@ export function PageHeader(props: PageHeaderProps) {
     =${queryParams.get("redirectUrl")}`;
   }
 
-  const areCommentsEnabledForUserAndApp = useSelector(
-    areCommentsEnabledForUserAndAppSelector,
-  );
-
   return (
-    <StyledPageHeader>
+    <StyledPageHeader
+      hideShadow={props.hideShadow || false}
+      showSeparator={props.showSeparator || false}
+    >
       <HeaderSection>
         <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
           <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
@@ -66,7 +80,7 @@ export function PageHeader(props: PageHeaderProps) {
       </HeaderSection>
       {user && (
         <>
-          {areCommentsEnabledForUserAndApp && <Bell />}
+          <Bell />
           <StyledDropDownContainer>
             {user.username === ANONYMOUS_USERNAME ? (
               <Button
@@ -88,6 +102,8 @@ export function PageHeader(props: PageHeaderProps) {
 
 const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
+  hideShadow: state.ui.theme.hideHeaderShadow,
+  showSeparator: state.ui.theme.showHeaderSeparator,
 });
 
 export default connect(mapStateToProps)(PageHeader);

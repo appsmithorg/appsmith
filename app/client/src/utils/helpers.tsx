@@ -15,8 +15,10 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "configs";
+import { sha256 } from "js-sha256";
+import moment from "moment";
 
-const { intercomAppID } = getAppsmithConfigs();
+const { intercomAppID, isAppsmithCloud } = getAppsmithConfigs();
 
 export const snapToGrid = (
   columnWidth: number,
@@ -423,11 +425,50 @@ export const getIsSafeRedirectURL = (redirectURL: string) => {
 
 export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
+    let { email, username } = user || {};
+    let name;
+    if (!isAppsmithCloud) {
+      username = sha256(username || "");
+      email = sha256(email || "");
+    } else {
+      name = user?.name;
+    }
+
     window.Intercom("boot", {
       app_id: intercomAppID,
-      user_id: user?.username,
-      name: user?.name,
-      email: user?.email,
+      user_id: username,
+      email,
+      // keep name undefined instead of an empty string so that intercom auto assigns a name
+      name,
     });
   }
 }
+
+/**
+ *
+ * Get text for how much time before an action happened
+ * Eg: 1 Month, 12 Seconds
+ *
+ * @param date 2021-09-08T14:14:12Z
+ *
+ */
+export const howMuchTimeBeforeText = (date: string) => {
+  if (!date || !moment.isMoment(moment(date))) {
+    return "";
+  }
+
+  const now = moment();
+  const checkDate = moment(date);
+  const years = now.diff(checkDate, "years");
+  const months = now.diff(checkDate, "months");
+  const days = now.diff(checkDate, "days");
+  const hours = now.diff(checkDate, "hours");
+  const minutes = now.diff(checkDate, "minutes");
+  const seconds = now.diff(checkDate, "seconds");
+  if (years > 0) return `${years} year${years > 1 ? "s" : ""}`;
+  else if (months > 0) return `${months} month${months > 1 ? "s" : ""}`;
+  else if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+  else if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+  else if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""}`;
+  else return `${seconds} second${seconds > 1 ? "s" : ""}`;
+};

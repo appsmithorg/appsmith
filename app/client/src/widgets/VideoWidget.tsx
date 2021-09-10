@@ -33,7 +33,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             propertyName: "url",
             label: "URL",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter url",
+            placeholderText: "Enter URL",
             inputType: "TEXT",
             isBindProperty: true,
             isTriggerProperty: false,

@@ -13,6 +13,7 @@ export enum UIComponentTypes {
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
   RapidApiEditorForm = "RapidApiEditorForm",
+  JsEditorForm = "JsEditorForm",
 }
 
 export enum DatasourceComponentTypes {

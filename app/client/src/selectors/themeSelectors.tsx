@@ -6,7 +6,7 @@ export enum ThemeMode {
   DARK = "DARK",
 }
 
-const lightTheme = { ...theme, colors: { ...theme.colors, ...light } };
+export const lightTheme = { ...theme, colors: { ...theme.colors, ...light } };
 
 const darkTheme = { ...theme, colors: { ...theme.colors, ...dark } };
 

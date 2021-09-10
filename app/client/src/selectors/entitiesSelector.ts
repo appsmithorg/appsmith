@@ -16,6 +16,8 @@ import ImageAlt from "assets/images/placeholder-image.svg";
 import { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AppStoreState } from "reducers/entityReducers/appReducer";
+import { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
+import { JSCollection } from "entities/JSCollection";
 import { GenerateCRUDEnabledPluginMap } from "../api/PluginApi";
 import { APP_MODE } from "entities/App";
 
@@ -136,6 +138,9 @@ export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
 
 export const getActions = (state: AppState): ActionDataState =>
   state.entities.actions;
+
+export const getJSCollections = (state: AppState): JSCollectionDataState =>
+  state.entities.jsActions;
 
 export const getDatasource = (
   state: AppState,
@@ -272,6 +277,15 @@ export const getActionsForCurrentPage = createSelector(
   },
 );
 
+export const getJSCollectionsForCurrentPage = createSelector(
+  getCurrentPageId,
+  getJSCollections,
+  (pageId, actions) => {
+    if (!pageId) return [];
+    return actions.filter((a) => a.config.pageId === pageId);
+  },
+);
+
 export const getQueryActionsForCurrentPage = createSelector(
   getActionsForCurrentPage,
   (actions) => {
@@ -302,11 +316,33 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getJSCollection = (
+  state: AppState,
+  actionId: string,
+): JSCollection | undefined => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.id === actionId,
+  );
+  return jsaction ? jsaction.config : undefined;
+};
+
 export function getCurrentPageNameByActionId(
   state: AppState,
   actionId: string,
 ): string {
   const action = state.entities.actions.find((action) => {
+    return action.config.id === actionId;
+  });
+  const pageId = action ? action.config.pageId : "";
+  return getPageNameByPageId(state, pageId);
+}
+
+export function getCurrentPageNameByJSCollectionId(
+  state: AppState,
+  actionId: string,
+): string {
+  const action = state.entities.jsActions.find((action) => {
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";

@@ -24,8 +24,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { getActions } from "selectors/entitiesSelector";
-
+import { getActions, getJSCollections } from "selectors/entitiesSelector";
 import { getCanvasWidgets } from "./entitiesSelector";
 import {
   MAIN_CONTAINER_WIDGET_ID,
@@ -56,14 +55,22 @@ export const getLoadingError = (state: AppState) =>
 
 export const getIsPageSaving = (state: AppState) => {
   let areApisSaving = false;
+  let areJsObjectsSaving = false;
 
   const savingApis = state.ui.apiPane.isSaving;
+  const savingJSObjects = state.ui.jsPane.isSaving;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
   });
 
-  return state.ui.editor.loadingStates.saving || areApisSaving;
+  Object.keys(savingJSObjects).forEach((collectionId) => {
+    areJsObjectsSaving = savingJSObjects[collectionId] || areJsObjectsSaving;
+  });
+
+  return (
+    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
+  );
 };
 
 export const snipingModeSelector = (state: AppState) =>
@@ -331,3 +338,18 @@ const createLoadingWidget = (
     isLoading: true,
   };
 };
+
+export const getJSCollectionById = createSelector(
+  [
+    getJSCollections,
+    (state: any, props: any) => props.match.params.collectionId,
+  ],
+  (jsActions, id) => {
+    const action = jsActions.find((action) => action.config.id === id);
+    if (action) {
+      return action.config;
+    } else {
+      return undefined;
+    }
+  },
+);

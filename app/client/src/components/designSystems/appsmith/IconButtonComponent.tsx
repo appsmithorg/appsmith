@@ -7,6 +7,7 @@ import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "components/designSystems/appsmith/BaseComponent";
 import { ThemeProp } from "components/ads/common";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import _ from "lodash";
 import {
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
@@ -30,14 +31,28 @@ export interface ButtonStyleProps {
   boxShadowColor?: string;
   buttonStyle?: ButtonStyle;
   buttonVariant?: ButtonVariant;
-  dimension: number;
+  dimension?: number;
+  hasOnClickAction?: boolean;
 }
 
-const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
+export const StyledButton = styled((props) => (
+  <Button
+    {..._.omit(props, [
+      "buttonVariant",
+      "buttonStyle",
+      "borderRadius",
+      "boxShadow",
+      "boxShadowColor",
+      "dimension",
+      "hasOnClickAction",
+    ])}
+  />
+))<ThemeProp & ButtonStyleProps>`
+
   background-image: none !important;
-  height: ${({ dimension }) => `${dimension}px`};
-  width: ${({ dimension }) => `${dimension}px`};
-  ${({ buttonStyle, buttonVariant, theme }) => `
+  height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
+  width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
+  ${({ buttonStyle, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
         buttonStyle === ButtonStyleTypes.WARNING
@@ -62,35 +77,36 @@ const StyledButton = styled(Button)<ThemeProp & ButtonStyleProps>`
       } !important;
     }
 
-    &:hover:enabled, &:active:enabled {
-      background: ${
-        buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.warning.outline.hoverColor
+    ${hasOnClickAction &&
+      `&:hover:enabled, &:active:enabled {
+        background: ${
+          buttonStyle === ButtonStyleTypes.WARNING
+            ? buttonVariant === ButtonVariantTypes.OUTLINE
+              ? theme.colors.button.warning.outline.hoverColor
+              : buttonVariant === ButtonVariantTypes.GHOST
+              ? theme.colors.button.warning.ghost.hoverColor
+              : theme.colors.button.warning.solid.hoverColor
+            : buttonStyle === ButtonStyleTypes.DANGER
+            ? buttonVariant === ButtonVariantTypes.SOLID
+              ? theme.colors.button.danger.solid.hoverColor
+              : theme.colors.button.danger.outline.hoverColor
+            : buttonStyle === ButtonStyleTypes.INFO
+            ? buttonVariant === ButtonVariantTypes.SOLID
+              ? theme.colors.button.info.solid.hoverColor
+              : theme.colors.button.info.outline.hoverColor
+            : buttonStyle === ButtonStyleTypes.SECONDARY
+            ? buttonVariant === ButtonVariantTypes.OUTLINE
+              ? theme.colors.button.secondary.outline.hoverColor
+              : buttonVariant === ButtonVariantTypes.GHOST
+              ? theme.colors.button.secondary.ghost.hoverColor
+              : theme.colors.button.secondary.solid.hoverColor
+            : buttonVariant === ButtonVariantTypes.OUTLINE
+            ? theme.colors.button.primary.outline.hoverColor
             : buttonVariant === ButtonVariantTypes.GHOST
-            ? theme.colors.button.warning.ghost.hoverColor
-            : theme.colors.button.warning.solid.hoverColor
-          : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.danger.solid.hoverColor
-            : theme.colors.button.danger.outline.hoverColor
-          : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.info.solid.hoverColor
-            : theme.colors.button.info.outline.hoverColor
-          : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.OUTLINE
-            ? theme.colors.button.secondary.outline.hoverColor
-            : buttonVariant === ButtonVariantTypes.GHOST
-            ? theme.colors.button.secondary.ghost.hoverColor
-            : theme.colors.button.secondary.solid.hoverColor
-          : buttonVariant === ButtonVariantTypes.OUTLINE
-          ? theme.colors.button.primary.outline.hoverColor
-          : buttonVariant === ButtonVariantTypes.GHOST
-          ? theme.colors.button.primary.ghost.hoverColor
-          : theme.colors.button.primary.solid.hoverColor
-      } !important;
-    }
+            ? theme.colors.button.primary.ghost.hoverColor
+            : theme.colors.button.primary.solid.hoverColor
+        } !important;
+      }`}
 
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
@@ -193,6 +209,7 @@ export interface IconButtonComponentProps extends ComponentProps {
   boxShadowColor: string;
   isDisabled: boolean;
   isVisible: boolean;
+  hasOnClickAction: boolean;
   onClick: () => void;
   height: number;
   width: number;
@@ -205,6 +222,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     boxShadowColor,
     buttonStyle,
     buttonVariant,
+    hasOnClickAction,
     height,
     isDisabled,
     onClick,
@@ -234,6 +252,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         buttonVariant={buttonVariant}
         dimension={dimension}
         disabled={isDisabled}
+        hasOnClickAction={hasOnClickAction}
         icon={props.iconName}
         large
         onClick={onClick}
