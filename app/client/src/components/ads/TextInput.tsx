@@ -9,7 +9,6 @@ import {
 } from "constants/messages";
 import { isEmail } from "utils/formhelpers";
 import Icon, { IconCollection, IconName, IconSize } from "./Icon";
-
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 
@@ -55,6 +54,7 @@ export type TextInputProps = CommonComponentProps & {
   width?: string;
   height?: string;
   noBorder?: boolean;
+  noCaret?: boolean;
 };
 
 type boxReturnType = {
@@ -109,6 +109,7 @@ const StyledInput = styled((props) => {
     "rightSideComponent",
     "noBorder",
     "isLoading",
+    "noCaret",
   ];
 
   return props.asyncControl ? (
@@ -128,7 +129,7 @@ const StyledInput = styled((props) => {
     hasLeftIcon: boolean;
   }
 >`
-  caret-color: white;
+  ${(props) => (props.noCaret ? "caret-color: white;" : null)}
   color: ${(props) => props.inputStyle.color};
   width: ${(props) =>
     props.value && !props.noBorder && props.isFocused
@@ -174,24 +175,19 @@ const InputWrapper = styled.div<{
   width: ${(props) =>
     props.fill ? "100%" : props.width ? props.width : "260px"};
   height: ${(props) => props.height || "36px"};
-  border: ${(props) =>
-    props.noBorder ? "0px" : `1.2px solid ${props.inputStyle.borderColor}`};
+  border: 1.2px solid ${(props) =>
+    props.noBorder ? "transparent" : props.inputStyle.borderColor};
   background-color: ${(props) => props.inputStyle.bgColor};
   color: ${(props) => props.inputStyle.color};
   ${(props) =>
     props.isFocused && !props.noBorder
       ? `
-      border: 1px solid
+      border: 1.2px solid
       ${
         props.isValid
           ? props.theme.colors.info.main
           : props.theme.colors.danger.main
       };
-    box-shadow: ${
-      props.isValid
-        ? "0px 0px 4px 4px rgba(203, 72, 16, 0.18)"
-        : "0px 0px 4px 4px rgba(226, 44, 44, 0.18)"
-    };
       `
       : null}
 
