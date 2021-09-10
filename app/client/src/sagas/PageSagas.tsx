@@ -54,10 +54,8 @@ import {
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
-import {
-  checkIfMigrationIsNeeded,
-  extractCurrentDSL,
-} from "utils/WidgetPropsUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -86,7 +84,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
@@ -103,6 +100,9 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
