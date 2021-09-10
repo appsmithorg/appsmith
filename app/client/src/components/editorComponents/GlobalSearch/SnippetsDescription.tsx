@@ -302,11 +302,9 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <>
             <div className="snippet-container">
               <SyntaxHighlighter language={language} style={prism}>
-                {language === "javascript"
-                  ? js_beautify(getSnippet(template, selectedArgs), {
-                      indent_size: 2,
-                    })
-                  : getSnippet(template, selectedArgs)}
+                {js_beautify(getSnippet(template, selectedArgs), {
+                  indent_size: 2,
+                })}
               </SyntaxHighlighter>
               <div className="action-icons">
                 <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
