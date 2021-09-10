@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
@@ -65,6 +66,9 @@ export function PopperDragHandle() {
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
+  const popperIdRef = useRef(generateReactKey());
+  const popperId = popperIdRef.current;
+
   const {
     isDraggable = false,
     disablePopperEvents = false,
@@ -132,7 +136,7 @@ export default (props: PopperProps) => {
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
-          "popper",
+          `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
           position,
