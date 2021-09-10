@@ -159,16 +159,16 @@ const renderRecorderIcon = (
   switch (recorderStatus) {
     case RecorderStatusTypes.COMPLETE:
       return <RecorderCompleteIcon />;
-      break;
+      
     case RecorderStatusTypes.PAUSE:
       return <RecorderPauseIcon />;
-      break;
+      
     case RecorderStatusTypes.RECORDING:
       return <RecorderRecordingIcon />;
-      break;
+      
     default:
       return <RecorderDefaultIcon />;
-      break;
+      
   }
 };
 
@@ -239,7 +239,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="play"
         />
       );
-      break;
+      
     case PlayerButtonIntentTypes.PAUSE:
       return (
         <Button
@@ -251,7 +251,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="pause"
         />
       );
-      break;
+      
     case PlayerButtonIntentTypes.STOP:
       return (
         <Button
@@ -263,7 +263,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="stop"
         />
       );
-      break;
+      
 
     default:
       return (
@@ -276,7 +276,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="discard"
         />
       );
-      break;
+      
   }
 }
 
@@ -394,7 +394,7 @@ function RecorderRight(props: RecorderRightProps) {
             />
           </>
         );
-        break;
+        
       case RecorderStatusTypes.COMPLETE:
         switch (playerStatus) {
           case PlayerStatusTypes.PLAY:
@@ -410,7 +410,7 @@ function RecorderRight(props: RecorderRightProps) {
                 />
               </>
             );
-            break;
+            
 
           default:
             return (
@@ -425,9 +425,9 @@ function RecorderRight(props: RecorderRightProps) {
                 />
               </>
             );
-            break;
+            
         }
-        break;
+        
       case RecorderStatusTypes.SAVED:
         switch (playerStatus) {
           case PlayerStatusTypes.PLAY:
@@ -437,7 +437,7 @@ function RecorderRight(props: RecorderRightProps) {
                 onClick={onPausePlayer}
               />
             );
-            break;
+            
           case PlayerStatusTypes.PAUSE:
           default:
             return (
@@ -446,13 +446,13 @@ function RecorderRight(props: RecorderRightProps) {
                 onClick={onPlayPlayer}
               />
             );
-            break;
+            
         }
-        break;
+        
 
       default:
         return null;
-        break;
+        
     }
   };
 
