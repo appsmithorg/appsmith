@@ -9,6 +9,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
+import { PluginType } from "entities/Action";
 import getFeatureFlags from "utils/featureFlags";
 import { modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
@@ -41,6 +42,7 @@ export enum SEARCH_ITEM_TYPES {
   page = "page",
   sectionTitle = "sectionTitle",
   placeholder = "placeholder",
+  jsAction = "jsAction",
   category = "category",
   snippet = "snippet",
 }
@@ -173,6 +175,8 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   )
     type = item.kind;
   else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
+  else if (item.config?.pluginType === PluginType.JS)
+    type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else if (item.body?.snippet) type = SEARCH_ITEM_TYPES.snippet;
   else type = SEARCH_ITEM_TYPES.datasource;
@@ -185,6 +189,7 @@ export const getItemTitle = (item: SearchItem): string => {
 
   switch (type) {
     case SEARCH_ITEM_TYPES.action:
+    case SEARCH_ITEM_TYPES.jsAction:
       return item?.config?.name;
     case SEARCH_ITEM_TYPES.widget:
       return item?.widgetName;
@@ -208,6 +213,7 @@ export const getItemPage = (item: SearchItem): string => {
 
   switch (type) {
     case SEARCH_ITEM_TYPES.action:
+    case SEARCH_ITEM_TYPES.jsAction:
       return item?.config?.pageId;
     case SEARCH_ITEM_TYPES.widget:
     case SEARCH_ITEM_TYPES.page:

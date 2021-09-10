@@ -14,6 +14,11 @@ const darkTheme = { ...theme, colors: { ...theme.colors, ...dark } };
 export const getThemeDetails = (state: AppState, themeMode: ThemeMode): Theme =>
   themeMode === ThemeMode.LIGHT ? lightTheme : darkTheme;
 
+export const getTheme = (themeMode: ThemeMode) => {
+  const colors = themeMode === ThemeMode.LIGHT ? light : dark;
+  return { ...theme, colors: { ...theme.colors, ...colors } };
+};
+
 // Use to get the current theme of the app set via the theme switcher
 export const getCurrentThemeDetails = (state: AppState): Theme =>
   state.ui.theme.theme;

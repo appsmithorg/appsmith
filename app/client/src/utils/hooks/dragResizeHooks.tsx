@@ -9,6 +9,7 @@ export const useShowPropertyPane = () => {
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
 
+  // TODO(abhinav/Satish): Performance bottleneck
   return useCallback(
     (widgetId?: string, callForDragOrResize?: boolean, force = false) => {
       // Don't show property pane in comment mode
@@ -96,6 +97,7 @@ export const useCanvasSnapRowsUpdateHook = () => {
 
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
+  // TODO(abhinav/Satish): Performance bottleneck
   return {
     setDraggingNewWidget: useCallback(
       (isDragging: boolean, newWidgetProps: any) => {
