@@ -21,11 +21,12 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { WidgetTypes } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { commentModeSelector } from "selectors/commentsSelectors";
 
+const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
   position: absolute;
   cursor: grab;
