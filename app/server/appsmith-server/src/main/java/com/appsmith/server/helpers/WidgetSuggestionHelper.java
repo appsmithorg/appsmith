@@ -9,9 +9,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 public class WidgetSuggestionHelper {
@@ -21,7 +23,7 @@ public class WidgetSuggestionHelper {
     private static List<String> objectFields;
 
     /**
-     * Suggest the best widget to the query response. We currently planning to support List, Select, Table, Text and Chart widgets
+     * Suggest the best widget to the query response. We currently support Select, Table, Text and Chart widgets
      * @return List of Widgets with binding query
      */
     public static List<WidgetSuggestionDTO> getSuggestedWidgets(Object data) {
@@ -104,6 +106,18 @@ public class WidgetSuggestionHelper {
                 if(((JsonNode) data).isArray() || ((JsonNode) data).isNumber() || ((JsonNode) data).isTextual() ) {
                     widgetTypeList = getWidgetsForTypeString(fields, 0);
                 }
+            }
+            if(data instanceof ArrayList && !((ArrayList) data).isEmpty()) {
+                if(((ArrayList) data).get(0) instanceof Map) {
+                    HashMap map = (HashMap) ((ArrayList) data).get(0);
+                    Set fieldList = map.keySet();
+                    /*for(Object key : fieldList) {
+                        if(map.get(key).getClass().)
+                    }*/
+                } else {
+                    widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+                }
+                return widgetTypeList;
             }
             else {
                 if (data != null ) {
