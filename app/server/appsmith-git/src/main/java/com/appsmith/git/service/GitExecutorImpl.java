@@ -102,9 +102,9 @@ public class GitExecutorImpl implements GitExecutor {
      * @throws GitAPIException
      */
     @Override
-    public List<GitLogDTO> getCommitHistory(String organizationId, String defaultApplicationId, String branchName) throws IOException, GitAPIException {
+    public List<GitLogDTO> getCommitHistory(GitApplicationDTO gitApplicationDTO) throws IOException, GitAPIException {
         List<GitLogDTO> commitLogs = new ArrayList<>();
-        Path repoPath = createRepoPath(organizationId, defaultApplicationId);
+        Path repoPath = createRepoPath(gitApplicationDTO.getOrganizationId(), gitApplicationDTO.getDefaultApplicationId());
         Git git = Git.open(repoPath.toFile());
         Iterable<RevCommit> gitLogs = git.log().call();
         gitLogs.forEach(revCommit -> {
