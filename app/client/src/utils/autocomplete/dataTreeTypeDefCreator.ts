@@ -50,7 +50,7 @@ export const dataTreeTypeDefCreator = (
         });
       }
     } else if (isAction(entity)) {
-      def[entityName] = entityDefinitions.ACTION(entity);
+      def[entityName] = (entityDefinitions.ACTION as any)(entity);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.ACTION,

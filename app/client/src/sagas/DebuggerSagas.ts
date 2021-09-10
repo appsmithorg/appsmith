@@ -42,12 +42,12 @@ import {
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import AppsmithConsole from "utils/AppsmithConsole";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -455,6 +455,7 @@ function* deleteDebuggerErrorLogSaga(
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
+
     takeEvery(
       ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
       logDebuggerErrorAnalyticsSaga,
