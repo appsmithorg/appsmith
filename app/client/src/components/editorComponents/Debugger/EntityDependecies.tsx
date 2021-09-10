@@ -16,12 +16,13 @@ import {
   OUTGOING_ENTITIES,
 } from "constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
-import { useEntityLink, useGetEntityInfo, useSelectedEntity } from "./hooks";
+import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Tooltip from "components/ads/Tooltip";
 import Text, { TextType } from "components/ads/Text";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {

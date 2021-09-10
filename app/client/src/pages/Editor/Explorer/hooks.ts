@@ -87,6 +87,46 @@ export const useFilteredDatasources = (searchKeyword?: string) => {
   }, [searchKeyword, datasources]);
 };
 
+export const useJSCollections = (searchKeyword?: string) => {
+  const reducerActions = useSelector(
+    (state: AppState) => state.entities.jsActions,
+  );
+  const pageIds = usePageIds(searchKeyword);
+
+  const actions = useMemo(() => {
+    return groupBy(reducerActions, "config.pageId");
+  }, [reducerActions]);
+
+  return useMemo(() => {
+    if (searchKeyword) {
+      const start = performance.now();
+      const filteredActions = produce(actions, (draft) => {
+        for (const [key, value] of Object.entries(draft)) {
+          if (pageIds.includes(key)) {
+            draft[key] = value;
+          } else {
+            value.forEach((action, index) => {
+              const searchMatches =
+                action.config.name
+                  .toLowerCase()
+                  .indexOf(searchKeyword.toLowerCase()) > -1;
+              if (searchMatches) {
+                draft[key][index] = action;
+              } else {
+                delete draft[key][index];
+              }
+            });
+          }
+          draft[key] = draft[key].filter(Boolean);
+        }
+      });
+      log.debug("Filtered actions in:", performance.now() - start, "ms");
+      return filteredActions;
+    }
+    return actions;
+  }, [searchKeyword, actions]);
+};
+
 export const useActions = (searchKeyword?: string) => {
   const reducerActions = useSelector(
     (state: AppState) => state.entities.actions,

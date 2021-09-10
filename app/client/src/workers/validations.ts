@@ -313,7 +313,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (config.params?.regex && !config.params?.regex.test(parsed as string)) {
+    if (
+      config.params?.regex &&
+      isString(config.params?.regex) &&
+      !config.params?.regex.test(parsed as string)
+    ) {
       return {
         parsed: config.params?.default || "",
         message: `Value does not match expected regex: ${config.params?.regex.source}`,
@@ -640,7 +644,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, [
+        const { result } = evaluate(config.params.fnString, {}, {}, [
           value,
           props,
           _,

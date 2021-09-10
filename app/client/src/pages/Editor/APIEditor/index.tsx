@@ -24,7 +24,7 @@ import { Plugin } from "api/PluginApi";
 import { Action, PaginationType, RapidApiAction } from "entities/Action";
 import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
-import styled from "styled-components";
+import styled, { CSSProperties } from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
 import PerformanceTracker, {
@@ -182,12 +182,7 @@ class ApiEditor extends React.Component<Props> {
     }
 
     return (
-      <div
-        style={{
-          position: "relative",
-          height: "100%",
-        }}
-      >
+      <div style={formStyles}>
         {formUiComponent === "ApiEditorForm" && (
           <ApiEditorForm
             apiName={this.props.apiName}
@@ -235,6 +230,13 @@ class ApiEditor extends React.Component<Props> {
     );
   }
 }
+
+const formStyles: CSSProperties = {
+  position: "relative",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+};
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionById(state, props);

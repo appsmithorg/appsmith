@@ -39,6 +39,9 @@ public class UserData extends BaseDomain {
     // last event triggered by comment bot for this user
     private CommentBotEvent latestCommentEvent;
 
+    //This is the default config for all the applications and user can edit this at a repo level if there is a need to change the author details
+    private GitConfig gitGlobalConfigData;
+
     public UserData(String userId) {
         this.userId = userId;
     }

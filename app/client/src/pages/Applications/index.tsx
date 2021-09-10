@@ -367,7 +367,9 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
 
   return (
     <MenuItem
-      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      containerClassName={
+        isFetchingApplications ? BlueprintClasses.SKELETON : ""
+      }
       ellipsize={20}
       href={`${window.location.pathname}#${org.organization.slug}`}
       icon="workspace"
@@ -442,7 +444,9 @@ function LeftPane() {
             />
           </div>
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
             icon="book"
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
@@ -450,7 +454,7 @@ function LeftPane() {
             text={"Documentation"}
           />
           <MenuItem
-            className={
+            containerClassName={
               isFetchingApplications
                 ? BlueprintClasses.SKELETON
                 : "t--welcome-tour"

@@ -63,7 +63,10 @@ export const getCopiedWidgets = async () => {
   }
 };
 
-export const saveDeletedWidgets = async (widgets: any, widgetId: string) => {
+export const saveDeletedWidgets = async (
+  widgets: any,
+  widgetId: string,
+): Promise<boolean> => {
   try {
     await store.setItem(
       `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,

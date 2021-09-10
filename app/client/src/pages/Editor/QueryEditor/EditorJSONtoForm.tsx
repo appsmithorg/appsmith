@@ -69,15 +69,12 @@ import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 
 const QueryFormContainer = styled.form`
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px 0px 0px 0px;
   width: 100%;
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.backBanner}
-  );
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
@@ -102,7 +99,7 @@ const ErrorMessage = styled.p`
   margin-right: 10px;
 `;
 
-const TabbedViewContainer = styled.div`
+export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
   height: ${(props) => props.theme.actionsBottomTabInitialHeight};
   // Minimum height of bottom tabs as it can be resized
@@ -227,7 +224,7 @@ const ErrorDescriptionText = styled(Text)`
   letter-spacing: -0.195px;
 `;
 
-const StyledFormRow = styled(FormRow)`
+export const StyledFormRow = styled(FormRow)`
   padding: 0px 20px;
   flex: 0;
 `;
@@ -511,66 +508,62 @@ export function EditorJSONtoForm(props: Props) {
   const renderConfig = (editorConfig: any) => {
     // Selectively rendering form based on uiComponent prop
     return uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? editorConfig.map(renderEachConfigV2(formName))
+      ? editorConfig.map((config: any, idx: number) => {
+          return renderEachConfigV2(formName, config, idx);
+        })
       : editorConfig.map(renderEachConfig(formName));
   };
 
   // V2 call to make rendering more flexible, used for UQI forms
-  const renderEachConfigV2 = (formName: string) => (section: any): any => {
-    return section.children.map(
-      (formControlOrSection: ControlProps, idx: number) => {
-        if (
-          !!formControlOrSection &&
-          props.hasOwnProperty("formEvaluationState") &&
-          !!props.formEvaluationState
-        ) {
-          let allowToRender = true;
-          if (
-            formControlOrSection.hasOwnProperty("configProperty") &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.configProperty,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.configProperty]
-                .visible;
-          } else if (
-            formControlOrSection.hasOwnProperty("serverLabel") &&
-            !!formControlOrSection.serverLabel &&
-            props.formEvaluationState.hasOwnProperty(
-              formControlOrSection.serverLabel,
-            )
-          ) {
-            allowToRender =
-              props?.formEvaluationState[formControlOrSection.serverLabel]
-                .visible;
-          }
+  const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
+    if (
+      !!section &&
+      props.hasOwnProperty("formEvaluationState") &&
+      !!props.formEvaluationState
+    ) {
+      let allowToRender = true;
+      if (
+        section.hasOwnProperty("configProperty") &&
+        props.formEvaluationState.hasOwnProperty(section.configProperty)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.configProperty].visible;
+      } else if (
+        section.hasOwnProperty("identifier") &&
+        !!section.identifier &&
+        props.formEvaluationState.hasOwnProperty(section.identifier)
+      ) {
+        allowToRender = props?.formEvaluationState[section.identifier].visible;
+      }
 
-          if (!allowToRender) return null;
-        }
-
-        // If component is type section, render it's children
-        if (
-          formControlOrSection.hasOwnProperty("controlType") &&
-          formControlOrSection.controlType === "SECTION" &&
-          formControlOrSection.hasOwnProperty("children")
-        ) {
-          return renderEachConfigV2(formName)(formControlOrSection);
-        }
-        try {
-          const { configProperty } = formControlOrSection;
-          return (
-            <FieldWrapper key={`${configProperty}_${idx}`}>
-              <FormControl config={formControlOrSection} formName={formName} />
-            </FieldWrapper>
-          );
-        } catch (e) {
-          log.error(e);
-        }
-
-        return null;
-      },
-    );
+      if (!allowToRender) return null;
+    }
+    if (section.hasOwnProperty("controlType")) {
+      // If component is type section, render it's children
+      if (
+        section.controlType === "SECTION" &&
+        section.hasOwnProperty("children")
+      ) {
+        return section.children.map((section: any, idx: number) => {
+          return renderEachConfigV2(formName, section, idx);
+        });
+      }
+      try {
+        const { configProperty } = section;
+        return (
+          <FieldWrapper key={`${configProperty}_${idx}`}>
+            <FormControl config={section} formName={formName} />
+          </FieldWrapper>
+        );
+      } catch (e) {
+        log.error(e);
+      }
+    } else {
+      return section.map((section: any, idx: number) => {
+        renderEachConfigV2(formName, section, idx);
+      });
+    }
+    return null;
   };
 
   // Recursive call to render forms pre UQI
