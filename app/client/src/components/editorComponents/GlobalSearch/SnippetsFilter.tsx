@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSnippetFilterLabel } from "./utils";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
@@ -172,6 +173,12 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}
+            transformItems={(items: any) =>
+              items.map((item: any) => ({
+                ...item,
+                label: getSnippetFilterLabel(item.label),
+              }))
+            }
           />
         </div>
         {showSnippetFilter && (

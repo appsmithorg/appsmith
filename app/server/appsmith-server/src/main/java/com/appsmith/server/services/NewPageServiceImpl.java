@@ -26,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -114,6 +115,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
         return findById(page.getId(), AclPermission.MANAGE_PAGES)
                 .flatMap(newPage -> {
                     newPage.setUnpublishedPage(page);
+                    // gitSyncId will be used to sync resource across instances
+                    if (newPage.getGitSyncId() == null) {
+                        newPage.setGitSyncId(page.getApplicationId() + "_" + Instant.now().toString());
+                    }
                     return repository.save(newPage);
                 })
                 .flatMap(savedPage -> getPageByViewMode(savedPage, false));
@@ -126,6 +131,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
         newPage.setApplicationId(object.getApplicationId());
         newPage.setPolicies(object.getPolicies());
+        if (newPage.getGitSyncId() == null) {
+            newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString());
+        }
         return super.create(newPage)
                 .flatMap(page -> getPageByViewMode(page, false));
     }
@@ -386,6 +394,10 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Mono<NewPage> save(NewPage page) {
+        // gitSyncId will be used to sync resource across instances
+        if (page.getGitSyncId() == null) {
+            page.setGitSyncId(page.getApplicationId() + "_" + Instant.now().toString());
+        }
         return repository.save(page);
     }
 
@@ -401,6 +413,9 @@ public class NewPageServiceImpl extends BaseService<NewPageRepository, NewPage, 
 
     @Override
     public Flux<NewPage> saveAll(List<NewPage> pages) {
+        pages.stream()
+            .filter(newPage -> newPage.getGitSyncId() == null)
+            .forEach(newPage -> newPage.setGitSyncId(newPage.getApplicationId() + "_" + Instant.now().toString()));
         return repository.saveAll(pages);
     }
 

@@ -108,7 +108,7 @@ const DynamicDropdownFieldWrapper = styled.div`
 
 const expected = {
   type: FIELD_VALUES.API_ACTION.params,
-  example: "",
+  example: "string",
   autocompleteDataType: AutocompleteDataType.STRING,
 };
 

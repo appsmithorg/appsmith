@@ -1,6 +1,6 @@
 import React, { forwardRef, Ref } from "react";
 import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
-import { ReactComponent as BookIcon } from "assets/icons/ads/book.svg";
+import BookIcon from "remixicon-react/BookOpenLineIcon";
 import { ReactComponent as BookLineIcon } from "assets/icons/ads/book-open-line.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
@@ -10,7 +10,9 @@ import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
-import { ReactComponent as EditIcon } from "assets/icons/ads/edit.svg";
+import EditIcon from "remixicon-react/PencilLineIcon";
+import GuideIcon from "remixicon-react/GuideFillIcon";
+import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
 import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
@@ -19,10 +21,11 @@ import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
-import { ReactComponent as ShareIcon } from "assets/icons/ads/share.svg";
-import { ReactComponent as RocketIcon } from "assets/icons/ads/launch.svg";
-import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspace.svg";
-import { ReactComponent as CreateNewIcon } from "assets/icons/ads/create-new.svg";
+import ShareIcon from "remixicon-react/SendPlaneLineIcon";
+import RocketIcon from "remixicon-react/RocketLineIcon";
+import WorkspaceIcon from "remixicon-react/Building3FillIcon";
+import CreateNewIcon from "remixicon-react/AddLineIcon";
+import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
@@ -54,8 +57,9 @@ import { ReactComponent as SendButton } from "assets/icons/comments/send-button.
 import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
-import { ReactComponent as ContextMenu } from "assets/icons/ads/context-menu.svg";
+import ContextMenu from "remixicon-react/MoreFillIcon";
 import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
 import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
@@ -77,6 +81,9 @@ import { ReactComponent as LineDottedIcon } from "assets/icons/control/line_dott
 import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dashed.svg";
 import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
 import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
+import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
+import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
+import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -152,6 +159,7 @@ export const IconCollection = [
   "search",
   "close",
   "share",
+  "share-2",
   "rocket",
   "workspace",
   "plus",
@@ -197,6 +205,7 @@ export const IconCollection = [
   "PARAGRAPH_TWO",
   "context-menu",
   "trash",
+  "trash-outline",
   "link-2",
   "close-x",
   "comment-context-menu",
@@ -216,6 +225,11 @@ export const IconCollection = [
   "line-dashed",
   "tables",
   "column",
+  "guide",
+  "discord",
+  "gear",
+  "user-2",
+  "support",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -334,6 +348,9 @@ const Icon = forwardRef(
         break;
       case "share":
         returnIcon = <ShareIcon />;
+        break;
+      case "share-2":
+        returnIcon = <ShareIcon2 />;
         break;
       case "rocket":
         returnIcon = <RocketIcon />;
@@ -474,6 +491,10 @@ const Icon = forwardRef(
         returnIcon = <Trash />;
         break;
 
+      case "trash-outline":
+        returnIcon = <TrashOutline />;
+        break;
+
       case "comment-context-menu":
         returnIcon = <CommentContextMenu />;
         break;
@@ -540,6 +561,26 @@ const Icon = forwardRef(
 
       case "column":
         returnIcon = <ColumnIcon />;
+        break;
+
+      case "guide":
+        returnIcon = <GuideIcon />;
+        break;
+
+      case "discord":
+        returnIcon = <DiscordIcon />;
+        break;
+
+      case "user-2":
+        returnIcon = <UserV2Icon />;
+        break;
+
+      case "gear":
+        returnIcon = <GearIcon />;
+        break;
+
+      case "support":
+        returnIcon = <SupportIcon />;
         break;
 
       default:
