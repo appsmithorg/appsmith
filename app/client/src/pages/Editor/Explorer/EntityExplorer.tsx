@@ -6,6 +6,7 @@ import {
   useWidgets,
   useActions,
   useFilteredDatasources,
+  useJSCollections,
 } from "./hooks";
 import Search from "./ExplorerSearch";
 import ExplorerPageGroup from "./Pages/PageGroup";
@@ -62,10 +63,15 @@ function EntityExplorer(props: IPanelProps) {
 
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
+  const jsActions = useJSCollections(searchKeyword);
 
   let noResults = false;
   if (searchKeyword) {
     const noWidgets = Object.values(widgets).filter(Boolean).length === 0;
+    const noJSActions =
+      Object.values(jsActions).filter(
+        (jsActions) => jsActions && jsActions.length > 0,
+      ).length === 0;
     const noActions =
       Object.values(actions).filter((actions) => actions && actions.length > 0)
         .length === 0;
@@ -73,7 +79,7 @@ function EntityExplorer(props: IPanelProps) {
       Object.values(datasources).filter(
         (datasources) => datasources && datasources.length > 0,
       ).length === 0;
-    noResults = noWidgets && noActions && noDatasource;
+    noResults = noWidgets && noActions && noDatasource && noJSActions;
   }
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
@@ -90,6 +96,7 @@ function EntityExplorer(props: IPanelProps) {
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
+        jsActions={jsActions}
         plugins={plugins}
         searchKeyword={searchKeyword}
         showWidgetsSidebar={showWidgetsSidebar}
@@ -112,9 +119,5 @@ function EntityExplorer(props: IPanelProps) {
 }
 
 EntityExplorer.displayName = "EntityExplorer";
-
-EntityExplorer.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default EntityExplorer;

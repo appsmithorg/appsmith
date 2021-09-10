@@ -241,8 +241,8 @@ function InlineCommentPin(props: Props) {
       ref={inlineCommentPinRef}
       top={top}
       topPercent={topPercent}
-      xOffset={-1}
-      yOffset={-6}
+      xOffset={2}
+      yOffset={1}
     >
       <Popover2
         autoFocus={false}
@@ -260,11 +260,15 @@ function InlineCommentPin(props: Props) {
         isOpen={!!isCommentThreadVisible && !shouldHideThread}
         minimal
         modifiers={modifiers}
-        onInteraction={(nextOpenState: boolean) => {
+        onInteraction={(
+          nextOpenState: boolean,
+          e?: React.SyntheticEvent<HTMLElement>,
+        ) => {
           if (nextOpenState) {
             dispatch(setVisibleThread(commentThreadId));
           } else {
-            dispatch(resetVisibleThread(commentThreadId));
+            const shouldPersistComment = e?.type === "mousedown";
+            dispatch(resetVisibleThread(commentThreadId, shouldPersistComment));
             resetCommentThreadIdInURL(commentThreadId);
           }
         }}

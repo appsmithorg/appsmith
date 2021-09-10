@@ -35,7 +35,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         entityId: string;
       },
     ): boolean => {
-      const currentEntityType = entityType || ENTITY_TYPE.ACTION;
+      const currentEntityType =
+        entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
         return currentEntityType === ENTITY_TYPE.WIDGET
           ? entity.ENTITY_TYPE !== ENTITY_TYPE.WIDGET

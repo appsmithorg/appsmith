@@ -1,6 +1,8 @@
-import { WidgetTypes } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const migrateContainerAndFormWidgetStyleProperties = (
   currentDSL: ContainerWidgetProps<WidgetProps>,

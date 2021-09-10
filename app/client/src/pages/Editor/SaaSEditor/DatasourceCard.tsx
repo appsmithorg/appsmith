@@ -1,6 +1,5 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
 import React from "react";
 import { isNil } from "lodash";
 import { useSelector } from "react-redux";
@@ -17,6 +16,7 @@ import history from "utils/history";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { SAAS_EDITOR_DATASOURCE_ID_URL } from "./constants";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
