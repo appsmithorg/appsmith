@@ -14,6 +14,7 @@ export enum ValidationTypes {
   IMAGE_URL = "IMAGE_URL",
   FUNCTION = "FUNCTION",
   SAFE_URL = "SAFE_URL",
+  JSON = "JSON",
 }
 
 export type ValidationResponse = {

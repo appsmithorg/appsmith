@@ -3,47 +3,15 @@ import * as Sentry from "@sentry/react";
 
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-// import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import withMeta, { WithMeta } from "./MetaHOC";
 import JsonEditorComponent from "components/designSystems/appsmith/JsonEditorComponent";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-
-function isValidJSON(
-  value: unknown,
-  // props: JsonEditorWidgetProps,
-): ValidationResponse {
-  let isValid = true;
-  let message = "";
-  if (typeof value === "string") {
-    try {
-      JSON.parse(value);
-    } catch (e) {
-      isValid = false;
-      message = "Invalid JSON data";
-    }
-  }
-
-  if (isValid) {
-    return {
-      isValid,
-      parsed: value,
-    };
-  }
-
-  return {
-    isValid,
-    parsed: value,
-    message,
-  };
-}
+import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 export interface JsonEditorWidgetProps extends WidgetProps, WithMeta {
+  defaultText: string;
   isVisible: boolean;
-  json: string;
+  jsonString: string;
 }
 
 class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
@@ -53,27 +21,13 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
-            propertyName: "text",
-            label: "JSON data",
-            helpText: "JSON object which needs to be parsed into the widget",
+            propertyName: "defaultText",
+            label: "Default JSON String",
+            helpText: "JSON string which needs to be parsed into the widget",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: isValidJSON,
-                expected: {
-                  type: "JSON",
-                  example: JSON.stringify(
-                    { fruits: ["apple", "lemon", "orange"] },
-                    null,
-                    2,
-                  ),
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
+            validation: { type: ValidationTypes.JSON },
           },
           {
             propertyName: "isVisible",
@@ -92,20 +46,32 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
     ];
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {
+      jsonString: "defaultText",
+    };
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      json: undefined,
+      jsonString: undefined,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      parsedJSON: `{{ JSON.parse(this.jsonString) }}`,
     };
   }
 
   getPageView() {
-    const { text, widgetId } = this.props;
+    const { defaultText, widgetId } = this.props;
 
     return (
       <JsonEditorComponent
         onChangeJSON={this.handleChangeJSON}
         onChangeText={this.handleChangeText}
-        text={text}
+        text={defaultText}
         widgetId={widgetId}
       />
     );
@@ -116,7 +82,7 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
   }
 
   private handleChangeJSON = (json: any) => {
-    this.props.updateWidgetMetaProperty("json", json);
+    this.props.updateWidgetMetaProperty("jsonString", json);
   };
 
   private handleChangeText = (text: string) => {

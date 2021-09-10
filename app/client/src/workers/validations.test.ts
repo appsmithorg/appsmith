@@ -794,6 +794,44 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected[index]);
     });
   });
+
+  it("correctly validates JSON", () => {
+    const config = {
+      type: ValidationTypes.JSON,
+    };
+
+    const invalidJSON = `{
+        "fruits": [
+          "apple",
+          "orange",
+          "lemon",
+        ]
+      }`;
+    const inputs = [
+      JSON.stringify({
+        fruits: ["apple", "orange", "lemon"],
+      }),
+      invalidJSON,
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: JSON.stringify({
+          fruits: ["apple", "orange", "lemon"],
+        }),
+      },
+      {
+        isValid: false,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: JSON`,
+        parsed: invalidJSON,
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {

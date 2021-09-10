@@ -257,6 +257,8 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
       return `base64 encoded image | data uri | image url`;
     case ValidationTypes.SAFE_URL:
       return "URL";
+    case ValidationTypes.JSON:
+      return "JSON";
   }
 }
 
@@ -706,5 +708,29 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     } else {
       return invalidResponse;
     }
+  },
+  [ValidationTypes.JSON]: (
+    config: ValidationConfig,
+    value: unknown,
+  ): ValidationResponse => {
+    const invalidResponse = {
+      isValid: false,
+      parsed: value,
+      message: `${WIDGET_TYPE_VALIDATION_ERROR}: ${getExpectedType(config)}`,
+    };
+
+    if (typeof value === "string") {
+      try {
+        JSON.parse(value);
+        return {
+          isValid: true,
+          parsed: value,
+        };
+      } catch (e) {
+        return invalidResponse;
+      }
+    }
+
+    return invalidResponse;
   },
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Button } from "@blueprintjs/core";
 import JSONEditor, { JSONEditorMode } from "jsoneditor";
@@ -55,7 +55,8 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const options = Object.assign({}, { modes, onChangeJSON, onChangeText });
+    const options = { modes, onChangeJSON, onChangeText };
+
     if (containerRef.current) {
       editorRef.current = new JSONEditor(containerRef.current, options);
     }
@@ -76,7 +77,7 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
     }
   }, [text]);
 
-  const handleCopyToClipboard = () => {
+  const handleCopyToClipboard = useCallback(() => {
     let json = "";
     if (editorRef.current) {
       json = JSON.stringify(editorRef.current.get(), null, 2);
@@ -87,7 +88,7 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
       text: "JSON has been copied",
       variant: Variant.success,
     });
-  };
+  }, []);
 
   return (
     <Container>
