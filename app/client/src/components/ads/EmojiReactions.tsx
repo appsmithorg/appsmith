@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
@@ -20,6 +21,14 @@ const Bubble = styled.div<{ active?: boolean }>`
     props.active
       ? props.theme.colors.reactionsComponent.reactionBackgroundActive
       : props.theme.colors.reactionsComponent.reactionBackground};
+
+  ${(props) =>
+    !props.active &&
+    `
+    &:hover {
+      background-color: ${Colors.GREY_3};
+    }
+  `}
 
   border: 1px solid
     ${(props) =>
@@ -59,6 +68,13 @@ const Count = styled.div<{ active?: boolean }>`
   overflow: hidden;
   white-space: nowrap;
   margin-left: 2px;
+  ${(props) =>
+    !props.active &&
+    `
+  ${Bubble}: hover & {
+    color: ${Colors.GREY_9};
+  }
+`}
 `;
 
 const ReactionsByContainer = styled.span`
@@ -172,7 +188,7 @@ function EmojiReactions({
             >
               <span className="emoji">{reaction.reactionEmoji}</span>
               {reaction.count > 1 && (
-                <Count active={reaction.active}>{reaction.count}</Count>
+                <Count active={reaction.active}>{12}</Count>
               )}
             </Bubble>
           </TooltipComponent>
@@ -180,7 +196,7 @@ function EmojiReactions({
       {!hideReactions ? (
         <Bubble>
           <EmojiPicker
-            iconName="reaction"
+            iconName="reaction-2"
             iconSize={iconSize}
             onSelectEmoji={(e, emoji) => handleSelectReaction(e, emoji.native)}
           />

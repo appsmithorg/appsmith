@@ -9,7 +9,6 @@ import {
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { Spinner } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import * as log from "loglevel";
@@ -27,6 +26,8 @@ import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -65,6 +66,7 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
+
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -113,17 +115,25 @@ function WidgetsEditor() {
   if (!isFetchingPage && widgets) {
     node = <Canvas dsl={widgets} pageId={params.pageId} />;
   }
-  const onDragStart = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const startPoints = {
-      x: e.clientX,
-      y: e.clientY,
-    };
-    dispatch(setCanvasSelectionFromEditor(true, startPoints));
-  };
+  const allowDragToSelect = useAllowEditorDragToSelect();
+
+  const onDragStart = useCallback(
+    (e: any) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (allowDragToSelect) {
+        const startPoints = {
+          x: e.clientX,
+          y: e.clientY,
+        };
+        dispatch(setCanvasSelectionFromEditor(true, startPoints));
+      }
+    },
+    [allowDragToSelect],
+  );
 
   log.debug("Canvas rendered");
+
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>

@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
 import static com.appsmith.server.constants.Url.APPLICATION_URL;
 import static com.appsmith.server.constants.Url.PAGE_URL;
@@ -143,6 +144,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_COLLECTION_URL + "/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute")

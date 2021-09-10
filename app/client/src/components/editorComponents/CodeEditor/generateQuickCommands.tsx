@@ -8,11 +8,12 @@ import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import { PluginType } from "entities/Action";
 import { ReactComponent as ApisIcon } from "assets/icons/menu/api-colored.svg";
+import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Function } from "assets/icons/menu/function.svg";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import getFeatureFlags from "utils/featureFlags";
 
 enum Shortcuts {
@@ -103,6 +104,7 @@ function Command(props: {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
             SAAS: <DataSourcesColoredIcon />,
+            JS: <JsIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
         {props.shortcut && iconsByType[props.shortcut]}
@@ -167,8 +169,10 @@ export const generateQuickCommands = (
     const name = suggestion.name || suggestion.widgetName;
     return {
       text:
-        currentEntityType === ENTITY_TYPE.WIDGET
+        suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
           ? `{{${name}.data}}`
+          : suggestion.ENTITY_TYPE === ENTITY_TYPE.JSACTION
+          ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands",

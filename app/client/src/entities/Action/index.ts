@@ -6,6 +6,7 @@ export enum PluginType {
   API = "API",
   DB = "DB",
   SAAS = "SAAS",
+  JS = "JS",
 }
 
 export enum PaginationType {
@@ -66,7 +67,7 @@ export interface StoredDatasource {
   id: string;
 }
 
-interface BaseAction {
+export interface BaseAction {
   id: string;
   name: string;
   organizationId: string;
