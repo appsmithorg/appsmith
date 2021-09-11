@@ -17,7 +17,7 @@ const SubHeaderWrapper = styled.div`
   padding-top: 30px;
   background: ${(props) => props.theme.colors.homepageBackground};
   top: ${(props) => props.theme.homePage.header}px;
-  left: 369px;
+  left: ${(props) => props.theme.homePage.sidebar + 24}px;
   z-index: ${Indices.Layer3};
 `;
 const SearchContainer = styled.div`
@@ -72,7 +72,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}
-              variant={SearchVariant.SEAMLESS}
+              variant={SearchVariant.BACKGROUND}
             />
           </ControlGroup>
         )}

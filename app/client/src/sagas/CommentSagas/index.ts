@@ -17,6 +17,7 @@ import {
   deleteCommentThreadSuccess,
   fetchUnreadCommentThreadsCountSuccess,
   decrementThreadUnreadCount,
+  fetchCommentThreadsInit,
 } from "actions/commentActions";
 import {
   getNewDragPos,
@@ -58,7 +59,6 @@ function* createUnpublishedCommentThread(
 
 function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   try {
-    yield put(removeUnpublishedCommentThreads());
     const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
       action.payload,
     );
@@ -76,6 +76,7 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     if (isValidResponse) {
       yield put(createCommentThreadSuccess(response.data));
       yield put(setVisibleThread(response.data.id));
+      yield put(removeUnpublishedCommentThreads());
     }
   } catch (error) {
     yield put({
@@ -159,6 +160,7 @@ function* addCommentToThread(
 function* fetchApplicationComments() {
   try {
     yield call(waitForInit);
+    yield put(fetchCommentThreadsInit());
     const applicationId = yield select(getCurrentApplicationId);
     const response = yield CommentsApi.fetchAppCommentThreads(applicationId);
     const isValidResponse = yield validateResponse(response);

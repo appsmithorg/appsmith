@@ -38,11 +38,11 @@ describe("Test Suite to validate copy/paste table Widget", function() {
       .click({ force: true });
     */
     cy.GlobalSearchEntity("Table1Copy");
-    cy.get(".t--entity-collapse-toggle")
+    cy.get(".widgets .t--entity-collapse-toggle")
       .last()
       .click();
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(9);
+      expect($lis).to.have.length(10);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });

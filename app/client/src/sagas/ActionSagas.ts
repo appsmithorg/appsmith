@@ -50,7 +50,10 @@ import {
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Action, ActionViewMode, PluginType } from "entities/Action";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import {
+  ActionData,
+  ActionDataState,
+} from "reducers/entityReducers/actionsReducer";
 import {
   getAction,
   getCurrentPageNameByActionId,
@@ -76,8 +79,6 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import {
   ACTION_COPY_SUCCESS,
-  ACTION_CREATED_SUCCESS,
-  ACTION_DELETE_SUCCESS,
   ACTION_MOVE_SUCCESS,
   createMessage,
   ERROR_ACTION_COPY_FAIL,
@@ -110,6 +111,8 @@ import {
   onApiEditor,
   onQueryEditor,
 } from "components/editorComponents/Debugger/helpers";
+import { Plugin } from "api/PluginApi";
+import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -145,14 +148,6 @@ export function* createActionSaga(
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
-      const actionName = actionPayload.payload.name
-        ? actionPayload.payload.name
-        : "";
-      Toaster.show({
-        text: createMessage(ACTION_CREATED_SUCCESS, actionName),
-        variant: Variant.success,
-      });
-
       const pageName = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
@@ -379,59 +374,56 @@ export function* deleteActionSaga(
       id,
     );
     const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      Toaster.show({
-        text: createMessage(ACTION_DELETE_SUCCESS, response.data.name),
-        variant: Variant.success,
-      });
-      if (isApi) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_API", {
-          apiName: name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isSaas) {
-        const pageName = yield select(getCurrentPageNameByActionId, id);
-        AnalyticsUtil.logEvent("DELETE_SAAS", {
-          apiName: action.name,
-          pageName,
-          apiID: id,
-        });
-      }
-      if (isQuery) {
-        AnalyticsUtil.logEvent("DELETE_QUERY", {
-          queryName: action.name,
-        });
-      }
-
-      if (!!actionPayload.payload.onSuccess) {
-        actionPayload.payload.onSuccess();
-      } else {
-        const applicationId = yield select(getCurrentApplicationId);
-        const pageId = yield select(getCurrentPageId);
-
-        history.push(
-          INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
-        );
-      }
-
-      AppsmithConsole.info({
-        logType: LOG_TYPE.ENTITY_DELETED,
-        text: "Action was deleted",
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: response.data.name,
-          id: response.data.id,
-        },
-        analytics: {
-          pluginId: action.pluginId,
-        },
-      });
-
-      yield put(deleteActionSuccess({ id }));
+    if (!isValidResponse) {
+      return;
     }
+    if (isApi) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_API", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isSaas) {
+      const pageName = yield select(getCurrentPageNameByActionId, id);
+      AnalyticsUtil.logEvent("DELETE_SAAS", {
+        apiName: name,
+        pageName,
+        apiID: id,
+      });
+    }
+    if (isQuery) {
+      AnalyticsUtil.logEvent("DELETE_QUERY", {
+        queryName: name,
+      });
+    }
+
+    if (!!actionPayload.payload.onSuccess) {
+      actionPayload.payload.onSuccess();
+    } else {
+      const applicationId = yield select(getCurrentApplicationId);
+      const pageId = yield select(getCurrentPageId);
+
+      history.push(
+        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+      );
+    }
+
+    AppsmithConsole.info({
+      logType: LOG_TYPE.ENTITY_DELETED,
+      text: "Action was deleted",
+      source: {
+        type: ENTITY_TYPE.ACTION,
+        name: response.data.name,
+        id: response.data.id,
+      },
+      analytics: {
+        pluginId: action.pluginId,
+      },
+    });
+
+    yield put(deleteActionSuccess({ id }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -589,6 +581,7 @@ export function* refactorActionName(
       });
       if (currentPageId === pageId) {
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
+        yield put(fetchActionsForPage(pageId));
       } else {
         yield put(fetchActionsForPage(pageId));
       }
@@ -794,27 +787,21 @@ function* buildMetaForSnippets(
       .pop();
     fieldMeta.fields = `${relevantField}<score=2>`;
   }
-  let currentEntity, type;
   if (entityType === ENTITY_TYPE.ACTION && entityId) {
-    currentEntity = yield select(getActionById, {
+    const currentEntity: Action = yield select(getActionById, {
       match: { params: { apiId: entityId } },
     });
-    const plugin = yield select(getPlugin, currentEntity.pluginId);
-    type = (plugin.packageName || "")
-      .toLowerCase()
-      .replace("-plugin", "")
-      .split("-")
-      .join(" ");
-    refinements.entities = [entityType.toLowerCase()].concat(type);
+    const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
+    const type: string = plugin.packageName || "";
+    refinements.entities = [entityType, type];
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
-    currentEntity = yield select(getWidgetById, entityId);
-    type = (currentEntity.type || "")
-      .replace("_WIDGET", "")
-      .toLowerCase()
-      .split("_")
-      .join("");
-    refinements.entities = [type];
+    const currentEntity: FlattenedWidgetProps = yield select(
+      getWidgetById,
+      entityId,
+    );
+    const type: string = currentEntity.type || "";
+    refinements.entities = [entityType, type];
   }
   return { refinements, fieldMeta };
 }
@@ -831,11 +818,11 @@ function* getCurrentEntity(
     onQueryEditor(applicationId, pageId)
   ) {
     const id = params.apiId || params.queryId;
-    const action = yield select(getAction, id);
-    entityId = action.actionId;
+    const action: Action = yield select(getAction, id);
+    entityId = action.id;
     entityType = ENTITY_TYPE.ACTION;
   } else {
-    const widget = yield select(getSelectedWidget);
+    const widget: FlattenedWidgetProps = yield select(getSelectedWidget);
     entityId = widget.widgetId;
     entityType = ENTITY_TYPE.WIDGET;
   }
@@ -849,8 +836,8 @@ function* executeCommand(
     args: any;
   }>,
 ) {
-  const pageId = yield select(getCurrentPageId);
-  const applicationId = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const applicationId: string = yield select(getCurrentApplicationId);
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
@@ -859,11 +846,10 @@ function* executeCommand(
       // Entity is derived using the dataTreePath property.
       // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
       if (!entityId) {
-        const currentEntity = yield getCurrentEntity(
-          applicationId,
-          pageId,
-          params,
-        );
+        const currentEntity: {
+          entityId: string;
+          entityType: string;
+        } = yield getCurrentEntity(applicationId, pageId, params);
         entityId = currentEntity.entityId;
         entityType = currentEntity.entityType;
       }
@@ -884,6 +870,11 @@ function* executeCommand(
           filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
         ),
       );
+      yield put(
+        setGlobalSearchFilterContext({
+          insertSnippet: true,
+        }),
+      );
       const effectRaceResult = yield race({
         failure: take(ReduxActionTypes.CANCEL_SNIPPET),
         success: take(ReduxActionTypes.INSERT_SNIPPET),
@@ -901,8 +892,8 @@ function* executeCommand(
     case "NEW_QUERY":
       const datasource = get(actionPayload, "payload.args.datasource");
       const pluginId = get(datasource, "pluginId");
-      const plugin = yield select(getPlugin, pluginId);
-      const actions = yield select(getActions);
+      const plugin: Plugin = yield select(getPlugin, pluginId);
+      const actions: ActionDataState = yield select(getActions);
       const pageActions = actions.filter(
         (a: ActionData) => a.config.pageId === pageId,
       );

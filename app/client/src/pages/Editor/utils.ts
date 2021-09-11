@@ -1,6 +1,7 @@
 import { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
+import getFeatureFlags from "utils/featureFlags";
 
 export const draggableElement = (
   id: string,
@@ -38,6 +39,8 @@ export const draggableElement = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
+    const bottomBarOffset = getFeatureFlags().GIT ? 34 : 0;
+
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
     }
@@ -47,8 +50,12 @@ export const draggableElement = (
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
       calculatedLeft = window.innerWidth - element.clientWidth;
     }
-    if (calculatedTop >= window.innerHeight - element.clientHeight) {
-      calculatedTop = window.innerHeight - element.clientHeight;
+    if (
+      calculatedTop >=
+      window.innerHeight - (element.clientHeight + bottomBarOffset)
+    ) {
+      calculatedTop =
+        window.innerHeight - element.clientHeight - bottomBarOffset;
     }
     return {
       left: calculatedLeft,

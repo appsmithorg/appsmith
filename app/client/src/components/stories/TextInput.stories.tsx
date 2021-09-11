@@ -38,10 +38,14 @@ export function Primary(args: TextInputProps) {
 Primary.args = {
   placeholder: "Placeholder",
   fill: false,
+  width: "260px",
+  height: "36px",
   defaultValue: "",
   readOnly: false,
   dataType: "text",
   leftIcon: "Select icon" as IconName,
+  noBorder: false,
+  noCaret: false,
   helperText: "",
   disabled: false,
   validator: true,
@@ -53,6 +57,14 @@ Primary.argTypes = {
     description: "string",
   },
   placeholder: {
+    control: controlType.TEXT,
+    description: "string",
+  },
+  width: {
+    control: controlType.TEXT,
+    description: "string",
+  },
+  height: {
     control: controlType.TEXT,
     description: "string",
   },
@@ -89,6 +101,14 @@ Primary.argTypes = {
   rightSideComponent: {
     control: controlType.OBJECT,
     description: "React.ReactNode",
+  },
+  noBorder: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+  },
+  noCaret: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
   },
 };
 

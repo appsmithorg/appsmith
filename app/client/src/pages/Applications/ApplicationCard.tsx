@@ -12,7 +12,6 @@ import {
   Position,
 } from "@blueprintjs/core";
 import { ApplicationPayload } from "constants/ReduxActionConstants";
-import { getColorWithOpacity } from "constants/DefaultTheme";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -63,16 +62,20 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
   .bp3-card {
     border-radius: 0;
     box-shadow: none;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   ${(props) =>
     props.showOverlay &&
     `
       {
-        background-color: ${props.theme.colors.card.hoverBorder}};
         justify-content: center;
         align-items: center;
 
         .overlay {
+          position: relative;
           ${props.hasReadPermission &&
             `text-decoration: none;
              &:after {
@@ -84,18 +87,49 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 width: 100%;
               }
               & .control {
-                display: block;
+                display: flex;
+                flex-direction: row;
                 z-index: 1;
+
+                & .t--application-view-link {
+                  border: none;
+                  background-color: #000;
+                  color: #fff;
+                }
+
+                & .t--application-edit-link, & .t--application-view-link {
+                  span {
+                    margin-right: 2px;
+
+                    svg {
+                      width: 16px;
+                      height: 16px;
+                      path {
+                        fill: #fff;
+                      }
+                    }
+                  }
+                }
               }`}
 
-          & div.image-container {
-            background: ${
+          & div.overlay-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: ${
               props.hasReadPermission && !props.isMenuOpen
-                ? getColorWithOpacity(
-                    props.theme.colors.card.hoverBG,
-                    props.theme.colors.card.hoverBGOpacity,
-                  )
+                ? `rgba(255, 255, 255, 0.5)`
                 : null
+            };
+            @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+              background-color: transparent;
+              backdrop-filter: ${
+                props.hasReadPermission && !props.isMenuOpen
+                  ? `blur(6px)`
+                  : null
+              };
             }
           }
         }
@@ -113,13 +147,12 @@ const Wrapper = styled(
   ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
 )`
   display: flex;
-  flex-direction: column;
+  flex-direction: row-reverse;
   justify-content: center;
   width: ${(props) => props.theme.card.minWidth}px;
   height: ${(props) => props.theme.card.minHeight}px;
   position: relative;
   background-color: ${(props) => props.backgroundColor};
-  margin: ${(props) => props.theme.spaces[5]}px;
   .overlay {
     display: block;
     position: absolute;
@@ -154,7 +187,6 @@ const ApplicationImage = styled.div`
         button {
           span {
             font-weight: ${(props) => props.theme.fontWeights[3]};
-            color: white;
           }
         }
       }
@@ -166,6 +198,11 @@ const Control = styled.div<{ fixed?: boolean }>`
   outline: none;
   border: none;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
 
   .${Classes.BUTTON} {
     margin-top: 7px;
@@ -191,17 +228,14 @@ const Control = styled.div<{ fixed?: boolean }>`
 const MoreOptionsContainer = styled.div`
   width: 22px;
   height: 22px;
-  background-color: rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
 `;
 
 const AppNameWrapper = styled.div<{ isFetching: boolean }>`
-  padding: 12px;
-  padding-top: 0;
-  padding-bottom: 0;
-  margin-bottom: 12px;
+  padding: 0;
+  padding-right: 12px;
   ${(props) =>
     props.isFetching
       ? `
@@ -218,6 +252,7 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   word-break: break-word;
   color: ${(props) => props.theme.colors.text.heading};
 `;
+
 type ApplicationCardProps = {
   application: ApplicationPayload;
   duplicate?: (applicationId: string) => void;
@@ -228,23 +263,47 @@ type ApplicationCardProps = {
 };
 
 const EditButton = styled(Button)`
-  margin-bottom: 8px;
+  margin-bottom: 0;
 `;
 
 const ContextDropdownWrapper = styled.div`
-  position: absolute;
-  top: -6px;
-  right: -3px;
-
   .${Classes.POPOVER_TARGET} {
     span {
       svg {
         path {
-          fill: ${(props) => props.theme.colors.card.iconColor};
+          fill: #000;
         }
       }
     }
   }
+`;
+
+const CircleAppIcon = styled(AppIcon)`
+  padding: 12px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
+  border-radius: 50%;
+
+  svg {
+    path {
+      fill: #000 !important;
+    }
+  }
+`;
+
+const ModifiedDataComponent = styled.div`
+  font-size: 13px;
+  color: #8a8a8a;
+`;
+
+const CardFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
 `;
 
 export function ApplicationCard(props: ApplicationCardProps) {
@@ -277,6 +336,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     }
     setSelectedColor(colorCode);
   }, [props.application.color]);
+
   useEffect(() => {
     if (props.share) {
       moreActionItems.push({
@@ -530,64 +590,17 @@ export function ApplicationCard(props: ApplicationCardProps) {
       }}
       showOverlay={showOverlay}
     >
-      <>
-        <Wrapper
-          backgroundColor={selectedColor}
-          className={
-            isFetchingApplications
-              ? Classes.SKELETON
-              : "t--application-card-background"
-          }
-          hasReadPermission={hasReadPermission}
-          key={props.application.id}
-        >
-          <AppIcon name={appIcon} size={Size.large} />
-          {/* <Initials>{initials}</Initials> */}
-          {showOverlay && (
-            <div className="overlay">
-              <ApplicationImage className="image-container">
-                <Control className="control">
-                  {!!moreActionItems.length && ContextMenu}
-
-                  {/* {!!moreActionItems.length && (
-                  <ContextDropdown
-                    options={moreActionItems}
-                    toggle={{
-                      type: "icon",
-                      icon: "MORE_HORIZONTAL_CONTROL",
-                      iconSize:
-                        theme.fontSizes[APPLICATION_CONTROL_FONTSIZE_INDEX],
-                    }}
-                    className="more"
-                  />
-                )} */}
-
-                  {hasEditPermission && !isMenuOpen && (
-                    <EditButton
-                      className="t--application-edit-link"
-                      fill
-                      href={editApplicationURL}
-                      icon={"edit"}
-                      size={Size.medium}
-                      text="Edit"
-                    />
-                  )}
-                  {!isMenuOpen && (
-                    <Button
-                      category={Category.tertiary}
-                      className="t--application-view-link"
-                      fill
-                      href={viewApplicationURL}
-                      icon={"rocket"}
-                      size={Size.medium}
-                      text="LAUNCH"
-                    />
-                  )}
-                </Control>
-              </ApplicationImage>
-            </div>
-          )}
-        </Wrapper>
+      <Wrapper
+        backgroundColor={selectedColor}
+        className={
+          isFetchingApplications
+            ? Classes.SKELETON
+            : "t--application-card-background"
+        }
+        hasReadPermission={hasReadPermission}
+        key={props.application.id}
+      >
+        <CircleAppIcon name={appIcon} size={Size.large} />
         <AppNameWrapper
           className={isFetchingApplications ? Classes.SKELETON : ""}
           isFetching={isFetchingApplications}
@@ -601,7 +614,43 @@ export function ApplicationCard(props: ApplicationCardProps) {
             appNameText
           )}
         </AppNameWrapper>
-      </>
+        {showOverlay && (
+          <div className="overlay">
+            <div className="overlay-blur" />
+            <ApplicationImage className="image-container">
+              <Control className="control">
+                {hasEditPermission && !isMenuOpen && (
+                  <EditButton
+                    className="t--application-edit-link"
+                    fill
+                    href={editApplicationURL}
+                    icon={"edit"}
+                    size={Size.medium}
+                    text="Edit"
+                  />
+                )}
+                {!isMenuOpen && (
+                  <Button
+                    category={Category.tertiary}
+                    className="t--application-view-link"
+                    fill
+                    href={viewApplicationURL}
+                    icon={"rocket"}
+                    size={Size.medium}
+                    text="Launch"
+                  />
+                )}
+              </Control>
+            </ApplicationImage>
+          </div>
+        )}
+      </Wrapper>
+      <CardFooter>
+        <ModifiedDataComponent>
+          Last edit by Mark at 7:40 PM
+        </ModifiedDataComponent>
+        {!!moreActionItems.length && ContextMenu}
+      </CardFooter>
     </NameWrapper>
   );
 }
