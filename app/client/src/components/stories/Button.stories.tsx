@@ -31,6 +31,7 @@ Primary.args = {
   text: "Get",
   variant: Variant.info,
   tag: "button",
+  isLink: false,
 };
 
 Primary.argTypes = {
@@ -40,6 +41,7 @@ Primary.argTypes = {
   },
   disabled: { control: controlType.BOOLEAN },
   fill: { control: controlType.BOOLEAN },
+  isLink: { control: controlType.BOOLEAN },
   icon: {
     control: controlType.SELECT,
     options: ["Select icon" as IconName, ...IconCollection],
