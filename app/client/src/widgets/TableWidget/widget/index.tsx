@@ -26,6 +26,7 @@ import {
   renderActions,
   SelectCell,
   renderIconButton,
+  SwitchCell,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -229,6 +230,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
   };
 
+  handleSwitchChange = (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    isSwitchedOn: boolean,
+  ) => {
+    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
+      triggerPropertyName: "onChange",
+      dynamicString: action,
+      event: {
+        type: EventType.ON_SWITCH_CHANGE,
+      },
+    });
+
+    this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+  };
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -345,6 +366,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 placeholderText={columnProperties.placeholderText}
                 rowIndex={rowIndex}
                 serverSideFiltering={columnProperties.serverSideFiltering}
+                value={props.cell.value}
+                widgetId={this.props.widgetId}
+              />
+            );
+          } else if (columnProperties.columnType === "switch") {
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+            return (
+              <SwitchCell
+                action={columnProperties.onChange}
+                alignWidget={columnProperties.alignWidget}
+                cellProperties={cellProperties}
+                columnId={accessor}
+                defaultSwitchState={columnProperties.defaultSwitchState}
+                isCellVisible={isCellVisible}
+                isDisabled={columnProperties.isDisabled}
+                isHidden={isHidden}
+                label={columnProperties.switchLabel}
+                onChange={this.handleSwitchChange}
+                rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
               />
@@ -695,6 +735,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             Object,
           );
         }
+      } else if (column.columnType === "switch") {
+        setWith(
+          editedColumnData,
+          [column.id, "defaultOptionValue"],
+          !!column?.defaultSwitchState,
+          Object,
+        );
       }
     }
 
@@ -826,6 +873,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               Object,
             );
           }
+        } else if (column.columnType === "switch") {
+          setWith(
+            editedColumnData,
+            [column.id, "defaultOptionValue"],
+            !!column?.defaultSwitchState,
+            Object,
+          );
         } else {
           // clean column data if column type change
           delete editedColumnData[column.id];
@@ -843,7 +897,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // if column edited by "select", do not reset selectedRowIndex
       // keep selectedRowIndex as last selected edited row
       if (size(editedColumnData)) {
-        if (this.props.editedRowIndex !== this.props.selectedRowIndex) {
+        if (
+          this.props.editedRowIndex !== -1 &&
+          this.props.editedRowIndex !== this.props.selectedRowIndex
+        ) {
           this.props.updateWidgetMetaProperty(
             "selectedRowIndex",
             this.props.editedRowIndex,

@@ -7,6 +7,7 @@ import {
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
+  SwitchCellWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -22,6 +23,8 @@ import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+import { SwitchComponent } from "widgets/SwitchWidget/component";
+import { AlignWidget } from "widgets/constants";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
 import styled from "constants/DefaultTheme";
@@ -772,5 +775,58 @@ export function SelectCell(props: {
         />
       </StyledDropDownComponent>
     </CellWrapper>
+  );
+}
+
+export function SwitchCell(props: {
+  value: any;
+  defaultSwitchState: boolean;
+  label: string;
+  action: string;
+  columnId: string;
+  isDisabled: boolean;
+  alignWidget: AlignWidget;
+  isHidden: boolean;
+  onChange: (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    isSwitchedOn: boolean,
+  ) => void;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  widgetId: string;
+  rowIndex: number;
+}) {
+  let isSwitchOn;
+  try {
+    isSwitchOn = JSON.parse(props.value);
+  } catch (error) {
+    isSwitchOn = props.defaultSwitchState;
+  }
+  return (
+    <SwitchCellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+    >
+      <SwitchComponent
+        alignWidget={props.alignWidget || "LEFT"}
+        isDisabled={props.isDisabled}
+        isLoading={false}
+        isSwitchedOn={isSwitchOn}
+        key={props.widgetId}
+        label={props.label || "Label"}
+        onChange={(isSwitchedOn: boolean) => {
+          props.onChange(
+            props.columnId,
+            props.rowIndex,
+            props.action,
+            isSwitchedOn,
+          );
+        }}
+        widgetId={props.widgetId}
+      />
+    </SwitchCellWrapper>
   );
 }
