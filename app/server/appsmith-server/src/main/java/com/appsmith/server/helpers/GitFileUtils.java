@@ -34,10 +34,10 @@ public class GitFileUtils {
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<Path> saveApplicationToGitRepo(String organizationId,
-                                               String defaultApplicationId,
-                                               ApplicationJson applicationJson,
-                                               String branchName) {
+    public Mono<Path> saveApplicationToLocalRepo(String organizationId,
+                                                 String defaultApplicationId,
+                                                 ApplicationJson applicationJson,
+                                                 String branchName) {
 
         /*
             1. Create application reference for appsmith-git module

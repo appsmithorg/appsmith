@@ -60,6 +60,10 @@ public class FileUtilsImpl implements FileInterface {
                                                  String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
+        // Branch name will be null for default branch
+        // So path will be like:
+        // Children branches : baseRepo/orgId/defaultAppId/repoName/branchName/applicationData
+        // Default branch : baseRepo/orgId/defaultAppId/repoName/applicationData
         Path baseRepoBranchPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();

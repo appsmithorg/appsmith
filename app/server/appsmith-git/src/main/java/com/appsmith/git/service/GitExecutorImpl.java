@@ -1,6 +1,5 @@
 package com.appsmith.git.service;
 
-import com.appsmith.external.dtos.GitApplicationDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.helpers.FileUtilsImpl;
@@ -9,12 +8,10 @@ import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.RemoteAddCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.URIish;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -92,15 +89,15 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to get the commit history
-     * @param gitApplicationDTO DTO object used to generate the repo url specific to the application which needs to committed
+     * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
      * @return list of git commits
      * @throws IOException
      * @throws GitAPIException
      */
     @Override
-    public List<GitLogDTO> getCommitHistory(GitApplicationDTO gitApplicationDTO) throws IOException, GitAPIException {
+    public List<GitLogDTO> getCommitHistory(Path repoSuffix) throws IOException, GitAPIException {
         List<GitLogDTO> commitLogs = new ArrayList<>();
-        Path repoPath = createRepoPath(gitApplicationDTO.getOrganizationId(), gitApplicationDTO.getDefaultApplicationId());
+        Path repoPath = createRepoPath(repoSuffix);
         Git git = Git.open(repoPath.toFile());
         Iterable<RevCommit> gitLogs = git.log().call();
         gitLogs.forEach(revCommit -> {
@@ -120,7 +117,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to push changes to remote repo
-     * @param gitApplicationDTO DTO object used to generate the repo url specific to the application which needs to committed
+     * @param branchSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
      * @param remoteUrl remote repo url
      * @param publicKey
      * @param privateKey
@@ -130,38 +127,33 @@ public class GitExecutorImpl implements GitExecutor {
      * @throws URISyntaxException exception thrown while constructing the remote url
      */
     @Override
-    public String pushApplication(GitApplicationDTO gitApplicationDTO,
+    public String pushApplication(Path branchSuffix,
                            String remoteUrl,
                            String publicKey,
                            String privateKey) throws IOException, GitAPIException, URISyntaxException {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        Path baseRepoPath = createRepoPath(gitApplicationDTO.getOrganizationId(), gitApplicationDTO.getDefaultApplicationId());
+        Path baseRepoPath = createRepoPath(branchSuffix);
         Git git = Git.open(baseRepoPath.toFile());
-        // Set remote
-        RemoteAddCommand remoteAddCommand = git.remoteAdd();
-        remoteAddCommand
-            .setName(DEFAULT_REMOTE)
-            .setUri(new URIish(remoteUrl));
-        // you can add more settings here if needed
-        remoteAddCommand.call();
+
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
         StringBuilder result = new StringBuilder();
         git.push()
             .setTransportConfigCallback(transportConfigCallback)
+            .setRemote(remoteUrl)
             .call()
             .forEach(pushResult ->
                 pushResult.getRemoteUpdates().forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getMessage()))
             );
-        // We can support username and password if needed
+        // We can support username and password in future if needed
         // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
         git.close();
         return result.toString();
     }
 
-    private Path createRepoPath(String organizationId, String defaultApplicationId) {
-        return Paths.get(fileUtils.getGitRootPath(), organizationId, defaultApplicationId);
+    private Path createRepoPath(Path suffix) {
+        return Paths.get(fileUtils.getGitRootPath()).resolve(suffix).resolve("deploy-key-test");
     }
 
 }
