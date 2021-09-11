@@ -45,6 +45,7 @@ Primary.args = {
   dataType: "text",
   leftIcon: "Select icon" as IconName,
   noBorder: false,
+  noCaret: false,
   helperText: "",
   disabled: false,
   validator: true,
@@ -102,6 +103,10 @@ Primary.argTypes = {
     description: "React.ReactNode",
   },
   noBorder: {
+    control: controlType.BOOLEAN,
+    description: "boolean",
+  },
+  noCaret: {
     control: controlType.BOOLEAN,
     description: "boolean",
   },

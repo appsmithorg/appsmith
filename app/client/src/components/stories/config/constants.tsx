@@ -25,6 +25,10 @@ export const storyName = {
         PATH: "Platform/Form/FilePicker",
         NAME: "FilePicker",
       },
+      filePickerV2: {
+        PATH: "Platform/Form/FilePickerV2",
+        NAME: "FilePickerV2",
+      },
       radio: {
         PATH: "Platform/Form/Radio",
         NAME: "Radio",

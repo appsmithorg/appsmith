@@ -63,6 +63,7 @@ export type ButtonProps = CommonComponentProps & {
   type?: "submit" | "reset" | "button";
   target?: string;
   width?: string;
+  isLink?: boolean;
 };
 
 const defaultProps = {
@@ -72,14 +73,14 @@ const defaultProps = {
   isLoading: false,
   disabled: false,
   fill: undefined,
-  tag: "button",
+  tag: "a",
 };
 
 const getDisabledStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
-  if (props.tag === "a") {
+  if (props.isLink) {
     return {
       bgColorPrimary: "transparent",
       borderColorPrimary: "transparent",
@@ -121,7 +122,7 @@ const getMainStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
-  if (props.tag === "a") {
+  if (props.isLink) {
     return {
       bgColorPrimary: "transparent",
       borderColorPrimary: "transparent",
@@ -159,7 +160,7 @@ const getHoverStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
-  if (props.tag === "a") {
+  if (props.isLink) {
     return {
       bgColorPrimary: "transparent",
       borderColorPrimary: "transparent",
@@ -198,7 +199,7 @@ const getActiveStateStyles = (props: ThemeProp & ButtonProps) => {
   const variant = props.variant || defaultProps.variant;
   const category = props.category || defaultProps.category;
 
-  if (props.tag === "a") {
+  if (props.isLink) {
     return {
       bgColorPrimary: "transparent",
       borderColorPrimary: "transparent",
@@ -463,8 +464,6 @@ const StyledButton = styled("button")`
 
 const StyledLinkButton = styled("a")`
   ${ButtonStyles}
-  background: transparent;
-  border-color: transparent;
 `;
 
 export const VisibilityWrapper = styled.div`
