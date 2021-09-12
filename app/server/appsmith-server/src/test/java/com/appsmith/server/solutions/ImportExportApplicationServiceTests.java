@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -60,6 +61,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -149,6 +151,11 @@ public class ImportExportApplicationServiceTests {
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");
         testApplication.setOrganizationId(orgId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        testApplication.setModifiedBy("some-user");
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+
         Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
         testAppId = savedApplication.getId();
 
@@ -185,6 +192,23 @@ public class ImportExportApplicationServiceTests {
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
+        Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId);
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication.getModifiedBy()).isNull();
+                    assertThat(exportedApplication.getLastUpdateTime()).isNull();
+                    assertThat(exportedApplication.getLastDeployedAt()).isNull();
+                    assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -323,7 +347,7 @@ public class ImportExportApplicationServiceTests {
                     action.setActionConfiguration(actionConfiguration);
                     action.setDatasource(ds2);
 
-                    return layoutActionService.createAction(action)
+                    return layoutActionService.createSingleAction(action)
                             .flatMap(createdAction -> newActionService.findById(createdAction.getId(), READ_ACTIONS))
                             .flatMap(newAction -> newActionService.generateActionByViewMode(newAction, false))
                             .then(importExportApplicationService.exportApplicationById(testApp.getId()));
