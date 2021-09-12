@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../BaseWidget";
+import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray, findIndex } from "lodash";
@@ -7,28 +7,40 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import * as Sentry from "@sentry/react";
-import withMeta, { WithMeta } from "../MetaHOC";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import TreeSingleSelectComponent from "components/designSystems/appsmith/TreeSelectComponent/SingleSelectComponent";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
-import { isString } from "../../utils/helpers";
-import { GRID_DENSITY_MIGRATION_V1 } from "mockResponses/WidgetConfigResponse";
+import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import MultiTreeSelectComponent from "../component";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
-  if (typeof value === "string") return { isValid: true, parsed: value.trim() };
-  if (value === undefined || value === null)
-    return {
-      isValid: false,
-      parsed: "",
-      message: "This value does not evaluate to type: string",
-    };
-  return { isValid: true, parsed: value };
+  let values: string[] = [];
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  return {
+    isValid: true,
+    parsed: values,
+  };
 }
-class TreeSingleSelectWidget extends BaseWidget<
-  TreeSingleSelectWidgetProps,
+class MultiSelectTreeWidget extends BaseWidget<
+  MultiSelectTreeWidgetProps,
   WidgetState
 > {
   static getPropertyPaneConfig() {
@@ -36,6 +48,28 @@ class TreeSingleSelectWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Mode to Display options",
+            propertyName: "mode",
+            label: "Mode",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Display only parent items",
+                value: "SHOW_PARENT",
+              },
+              {
+                label: "Display only child items",
+                value: "SHOW_CHILD",
+              },
+              {
+                label: "Display all items",
+                value: "SHOW_ALL",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
           {
             helpText:
               "Allows users to select multiple options. Values must be unique",
@@ -122,9 +156,9 @@ class TreeSingleSelectWidget extends BaseWidget<
               params: {
                 fn: defaultOptionValueValidation,
                 expected: {
-                  type: "value",
-                  example: `value1`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                  type: "Array of values",
+                  example: `['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.ARRAY,
                 },
               },
             },
@@ -292,42 +326,41 @@ class TreeSingleSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
-      selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":"${this.selectedOption}"`), "g") ? this.selectedOption : undefined  }}',
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue?.length : true}}`,
+      selectedOptionLabels: `{{ this.selectedLabel }}`,
+      selectedOptionValues:
+        '{{ this.selectedOptionValueArr.filter((o) => JSON.stringify(this.options).match(new RegExp(`"value":"${o}"`, "g")) )}}',
+      isValid: `{{ this.isRequired  ? this.selectedOptionValues?.length > 0 : true}}`,
     };
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOption: "defaultOptionValue",
+      selectedOptionValueArr: "defaultOptionValue",
       selectedLabel: "defaultOptionValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      selectedOption: undefined,
       selectedOptionValueArr: undefined,
       selectedLabel: [],
     };
   }
-
   getPageView() {
     const options =
       isArray(this.props.options) &&
       !this.props.__evaluation__?.errors.options.length
         ? this.props.options
         : [];
-    const values: string | undefined = isString(this.props.selectedOption)
-      ? this.props.selectedOption
-      : undefined;
+
+    const values = isArray(this.props.selectedOptionValueArr)
+      ? this.props.selectedOptionValueArr
+      : [];
 
     const filteredValue = this.filterValues(values);
 
     return (
-      <TreeSingleSelectComponent
+      <MultiTreeSelectComponent
         allowClear={this.props.allowClear}
         compactMode={
           !(
@@ -346,6 +379,7 @@ class TreeSingleSelectWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         loading={this.props.isLoading}
+        mode={this.props.mode}
         onChange={this.onOptionChange}
         options={options}
         placeholder={this.props.placeholderText as string}
@@ -363,14 +397,13 @@ class TreeSingleSelectWidget extends BaseWidget<
       },
     });
 
-    this.props.updateWidgetMetaProperty("selectedOption", value, {
+    this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-    return;
   };
 
   flat(array: DropdownOption[]) {
@@ -384,19 +417,20 @@ class TreeSingleSelectWidget extends BaseWidget<
     return result;
   }
 
-  filterValues(values: string | undefined) {
+  filterValues(values: string[] | undefined) {
     const options = this.props.options
       ? this.flat(this.props.options as DropdownOption[])
       : [];
-
-    if (isString(values)) {
-      const index = findIndex(options, { value: values as string });
-      return index > -1 ? values : undefined;
+    if (isArray(values)) {
+      return values.filter((o) => {
+        const index = findIndex(options, { value: o });
+        return index > -1;
+      });
     }
   }
 
-  getWidgetType(): WidgetType {
-    return "TREE_SINGLE_SELECT_WIDGET";
+  static getWidgetType(): WidgetType {
+    return "MULTI_SELECT_TREE_WIDGET";
   }
 }
 
@@ -407,27 +441,25 @@ export interface DropdownOption {
   children?: DropdownOption[];
 }
 
-export interface TreeSingleSelectWidgetProps extends WidgetProps, WithMeta {
+export interface MultiSelectTreeWidgetProps extends WidgetProps {
   placeholderText?: string;
-  selectedIndex?: number;
+  selectedIndexArr?: number[];
   options?: DropdownOption[];
   onOptionChange: string;
-  defaultOptionValue: string;
+  defaultOptionValue: string[];
   isRequired: boolean;
   isLoading: boolean;
   allowClear: boolean;
   labelText?: string;
   selectedLabel: string[];
-  selectedOption: string;
-  selectedOptionValue: string;
-  selectedOptionLabel: string;
+  selectedOptionValueArr: string[];
+  selectedOptionValues: string[];
+  selectedOptionLabels: string[];
   expandAll: boolean;
+  mode: CheckedStrategy;
   labelTextColor?: string;
   labelTextSize?: TextSize;
   labelStyle?: string;
 }
 
-export default TreeSingleSelectWidget;
-export const ProfiledTreeSingleSelectWidget = Sentry.withProfiler(
-  withMeta(TreeSingleSelectWidget),
-);
+export default MultiSelectTreeWidget;

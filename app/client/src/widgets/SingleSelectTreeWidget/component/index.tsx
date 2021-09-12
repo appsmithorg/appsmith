@@ -82,7 +82,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
   return getSvg({ transform: `rotate(${treeNode.expanded ? 90 : 0}deg)` });
 };
 
-function TreeSingleSelectComponent({
+function SingleSelectTreeComponent({
   allowClear,
   compactMode,
   disabled,
@@ -165,4 +165,4 @@ function TreeSingleSelectComponent({
   );
 }
 
-export default TreeSingleSelectComponent;
+export default SingleSelectTreeComponent;
