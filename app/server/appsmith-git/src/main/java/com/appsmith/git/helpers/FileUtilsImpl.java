@@ -3,10 +3,12 @@ package com.appsmith.git.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,11 +38,11 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 @Slf4j
 @Getter
+@RequiredArgsConstructor
 @Component
 public class FileUtilsImpl implements FileInterface {
 
-    @Value("${appsmith.git.root:./container-volumes/git-storage}")
-    public String gitRootPath;
+    private final GitServiceConfig gitServiceConfig;
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -60,7 +62,7 @@ public class FileUtilsImpl implements FileInterface {
                                                  String branchName) {
 
         // The repoPath will contain the actual path of branch as we will be using worktree.
-        Path baseRepoBranchPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
+        Path baseRepoBranchPath = Paths.get(gitServiceConfig.getGitRootPath(), organizationId, defaultApplicationId, branchName);
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 
@@ -186,7 +188,7 @@ public class FileUtilsImpl implements FileInterface {
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        Path baseRepoPath = Paths.get(gitRootPath, organisationId, defaultApplicationId, branchName);
+        Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath(), organisationId, defaultApplicationId, branchName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
 

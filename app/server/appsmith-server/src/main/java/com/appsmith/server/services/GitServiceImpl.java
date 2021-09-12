@@ -47,15 +47,21 @@ import static org.codehaus.plexus.util.PathTool.getRelativePath;
 public class GitServiceImpl implements GitService {
 
     private final UserService userService;
+
     private final UserDataService userDataService;
+
     private final SessionUserService sessionUserService;
+
     private final ApplicationService applicationService;
+
     private final GitFileUtils fileUtils;
+
     private final ImportExportApplicationService importExportApplicationService;
+
     private final GitExecutor gitExecutor;
-    private final EncryptionService encryptionService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
+
     private static String DEFAULT_BRANCH_NAME = "master";
 
     @Override

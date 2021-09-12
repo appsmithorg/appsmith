@@ -3,6 +3,7 @@ package com.appsmith.git.service;
 import com.appsmith.external.dtos.GitApplicationDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
@@ -15,14 +16,12 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.URIish;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
@@ -37,11 +36,9 @@ import java.util.List;
 @Slf4j
 public class GitExecutorImpl implements GitExecutor {
 
-    @Value("${appsmith.git.root:./container-volumes/git-storage}")
-    private String gitRootPath;
-
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
-    private final FileUtilsImpl fileUtils;
+
+    private final GitServiceConfig gitServiceConfig;
 
     public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
@@ -125,7 +122,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     private Path createRepoPath(String organizationId, String defaultApplicationId) {
-        return Paths.get(fileUtils.getGitRootPath(), organizationId, defaultApplicationId);
+        return Paths.get(gitServiceConfig.getGitRootPath(), organizationId, defaultApplicationId);
     }
 
     /**
@@ -193,7 +190,7 @@ public class GitExecutorImpl implements GitExecutor {
      *  @return file reference. Folder created Ex - gitRootPath/orgId/defaultApplicationId/repoName
      * */
     private File getFilePath(String repoPath, String repoName) throws IOException {
-        Path filePath = Paths.get(gitRootPath, repoPath, repoName);
+        Path filePath = Paths.get(gitServiceConfig.getGitRootPath(), repoPath, repoName);
         File file = new File(String.valueOf(filePath));
         while(file.exists()) {
             FileSystemUtils.deleteRecursively(file);
