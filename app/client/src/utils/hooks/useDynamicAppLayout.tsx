@@ -5,6 +5,7 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
 import { debounce } from "lodash";
 import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
 import { useCallback, useEffect } from "react";
@@ -16,7 +17,7 @@ import {
   getCurrentApplicationLayout,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { calculateDynamicHeight } from "utils/WidgetPropsUtils";
+import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
@@ -36,7 +37,7 @@ export const useDynamicAppLayout = () => {
   ) => {
     const screenWidthWithBuffer = 0.95 * screenWidth;
     const widthToFill =
-      appMode === "EDIT"
+      appMode === APP_MODE.EDIT
         ? screenWidthWithBuffer - parseInt(theme.sidebarWidth)
         : screenWidth;
     if (layoutMaxWidth < 0) {
@@ -54,7 +55,9 @@ export const useDynamicAppLayout = () => {
     const { minWidth = -1, maxWidth = -1 } =
       layoutConfigurations[type] || layoutConfigurations[DefaultLayoutType];
     const calculatedMinWidth =
-      appMode === "EDIT" ? minWidth - parseInt(theme.sidebarWidth) : minWidth;
+      appMode === APP_MODE.EDIT
+        ? minWidth - parseInt(theme.sidebarWidth)
+        : minWidth;
     const layoutWidth = calculateFluidMaxWidth(screenWidth, maxWidth);
     const { rightColumn } = mainContainer;
     if (

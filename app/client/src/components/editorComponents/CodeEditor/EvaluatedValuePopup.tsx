@@ -157,10 +157,12 @@ interface Props {
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  entityName?: string;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
+  entityName?: string;
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
@@ -353,6 +355,7 @@ function PopoverContent(props: PopoverContentProps) {
               : error.errorMessage}
           </span>
           <EvaluatedValueDebugButton
+            entityName={props.entityName}
             error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
@@ -424,6 +427,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
+          entityName={props.entityName}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}
