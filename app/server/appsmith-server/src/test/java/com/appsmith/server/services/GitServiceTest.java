@@ -76,7 +76,6 @@ public class GitServiceTest {
         GitConnectDTO gitConnectDTO = new GitConnectDTO();
         gitConnectDTO.setRemoteUrl(remoteUrl);
         gitConnectDTO.setApplicationId(applicationId);
-        gitConnectDTO.setOrganizationId(organizationId);
         gitConnectDTO.setGitConfig(gitConfig);
         return gitConnectDTO;
     }

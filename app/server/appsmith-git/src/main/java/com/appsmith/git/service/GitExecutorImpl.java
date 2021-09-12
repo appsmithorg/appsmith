@@ -17,10 +17,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.URIish;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
@@ -190,11 +192,11 @@ public class GitExecutorImpl implements GitExecutor {
      *  @param repoName - the git repo name
      *  @return file reference. Folder created Ex - gitRootPath/orgId/defaultApplicationId/repoName
      * */
-    private File getFilePath(String repoPath, String repoName) {
+    private File getFilePath(String repoPath, String repoName) throws IOException {
         Path filePath = Paths.get(gitRootPath, repoPath, repoName);
         File file = new File(String.valueOf(filePath));
-        if (file.exists()) {
-            file.delete();
+        while(file.exists()) {
+            FileSystemUtils.deleteRecursively(file);
         }
         file.mkdir();
         return file;

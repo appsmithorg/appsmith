@@ -56,7 +56,7 @@ public class GitServiceImpl implements GitService {
     private final EncryptionService encryptionService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
-    private final static String DEFAULT_BRANCH_NAME = "master";
+    private static String DEFAULT_BRANCH_NAME = "master";
 
     @Override
     public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
@@ -257,21 +257,14 @@ public class GitServiceImpl implements GitService {
                                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                                             "SSH Key is empty. Please reach out to Appsmith support"));
                                 } else {
-                                    String defaultBranch = "";
                                     try {
-                                        defaultBranch = gitExecutor.cloneApp(
-                                                getRelativePath(gitConnectDTO.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
+                                        DEFAULT_BRANCH_NAME = gitExecutor.cloneApp(
+                                                getRelativePath(application.getOrganizationId(), gitConnectDTO.getApplicationId()).toString(),
                                                 getRepoName(gitConnectDTO.getRemoteUrl()),
                                                 gitConnectDTO.getRemoteUrl(),
-                                                encryptionService.decryptString(gitApplicationMetadata.getGitAuth().getPrivateKey()),
+                                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                                 gitApplicationMetadata.getGitAuth().getPublicKey());
                                     } catch (GitAPIException e) {
-                                        if (e instanceof TransportException) {
-                                            return Mono.error(new AppsmithException(
-                                                    AppsmithError.AUTHENTICATION_FAILURE,
-                                                    "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
-                                            ));
-                                        }
                                         if (e instanceof InvalidRemoteException) {
                                             return Mono.error(new AppsmithException(
                                                     AppsmithError.INVALID_PARAMETER,
@@ -279,16 +272,20 @@ public class GitServiceImpl implements GitService {
                                             ));
                                         }
                                         log.error("Error while cloning the remote repo", e.getMessage());
-                                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                        ));
                                     } catch (IOException e) {
                                         log.error("Error while accessing the file system", e.getMessage());
                                         return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                     }
 
                                     gitApplicationMetadata.setIsDefault(Boolean.TRUE);
-                                    gitApplicationMetadata.setBranchName(defaultBranch);
+                                    gitApplicationMetadata.setBranchName(DEFAULT_BRANCH_NAME);
                                     gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                     gitApplicationMetadata.setRepoName(getRepoName(gitApplicationMetadata.getRemoteUrl()));
+                                    gitApplicationMetadata.setDefaultApplicationId(gitConnectDTO.getApplicationId());
                                     Application application1 = new Application();
                                     application1.setGitApplicationMetadata(gitApplicationMetadata);
                                     return applicationService.update(gitConnectDTO.getApplicationId(), application1);
