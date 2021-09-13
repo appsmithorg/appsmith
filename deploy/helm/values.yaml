@@ -10,8 +10,6 @@
 ## @param global.namespaceOverride Override the namespace for resource deployed by the chart, but can itself be overridden by the local namespaceOverride
 ##
 global:
-  imagePullSecrets:
-    - name: gitlab
   storageClass: ""
   namespaceOverride: "appsmith"
 ## @param fullnameOverride String to fully override appsmith.fullname template
@@ -42,7 +40,7 @@ strategyType: RollingUpdate
 image:
   registry: index.docker.io
   repository: appsmith/appsmith-editor
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 ## ServiceAccount
@@ -109,11 +107,11 @@ ingress:
   ##
   annotations: {}
     # kubernetes.io/ingress.class: nginx
-    # cert-manager.io/issuer: "letsencrypt-prod"
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
   hosts: []
-    # - host: lego-helm6.geekup.io
+    # - host: appsmith-domain.me
     #   paths:
     #     - path: /
     #       pathType: ImplementationSpecific
@@ -252,3 +250,11 @@ storageClass:
   ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
   ##
   parameters: {}
+
+autoupdate:
+  ## @param autoupdate.enabled - Enable config autoupdate 
+  ##
+  enabled: true
+  ## @param autoupdate.scheduler - Schedule cron job to check & update Helm image
+  ##
+  scheduler: "0 * * * *"

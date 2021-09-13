@@ -29,13 +29,16 @@ This chart bootstrap an [Appsmith](https://github.com/appsmithorg/appsmith) depl
     * Aws EKS: [Create a kubeconfig for Amazon EKS](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)
     
     * Microk8s: [Working with kubectl](https://microk8s.io/docs/working-with-kubectl)
-* Kubernetes NGINX Ingress Controller must be enable on your cluster by default. Please make sure that you install the right version for your cluster
+* Ensure you have a default storage class running on your cluster. Please follow one of below guideline to enable your default storage class in case of no existing one
+	* Minikube: [Enable addon default-storageclass](https://kubernetes.io/docs/tutorials/hello-minikube/#enable-addons)
+	* Google Cloud Kubernetes: [Setting up default storage class on GKE](https://cloud.google.com/anthos/clusters/docs/on-prem/1.3/how-to/default-storage-class)
+	* AWS EKS: [Create default storage class](https://docs.aws.amazon.com/eks/latest/userguide/storage-classes.html)
+	* Microk8s: [Enable storage](https://microk8s.io/docs/command-reference#heading--microk8s-enable)
+* Kubernetes NGINX Ingress Controller should be enable on your cluster by default. Please make sure that you install the right version for your cluster
     * Minikube: [Set up Ingress on Minikube with the NGINX Ingress Controller](https://kubernetes.io/docs/tasks/access-application-cluster/ingress-minikube/)
     * Google Cloud Kubernetes: [Ingress with NGINX controller on Google Kubernetes Engine](https://kubernetes.github.io/ingress-nginx/deploy/)
     * AWS EKS: [Install NGINX Controller for AWS EKS](https://kubernetes.github.io/ingress-nginx/deploy/#network-load-balancer-nlb)
     * Microk8s: [Add on: Ingress](https://microk8s.io/docs/addon-ingress)
-* Script tested on Minikube with Kubernetes v1.18.0
-* PV provisioner support in the underlying infrastructure
 ## Installing the Chart
 ---
 To install the chart with the release `appsmith`
@@ -137,20 +140,26 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `storageClass.mountOptions`					| Mount options used by Persistent Volumes															| `{}`								|
 | `storageClass.parameters`						| Storage Class parameters																							| `{}`								|
 
+### Auto update chart's image
+| Name										| Description																		|	Value					|
+| -----------------------	|	--------------------------------------------- | -------------	|
+| `autoupdate.enabled`		| Enable auto update Helm chart's image					| `true`				|
+| `autoupdate.scheduler`	| Schedule time to run cron job to update image	| `"0 * * * *"`	|
+
 Specify each parameter using `--set key=value[,key=value]` argument to helm install. For example:
 ```
 helm install appsmith \
---set ingress.enabled=true,persistence.storageClass=appsmith-pv \
+--set persistence.storageClass=appsmith-pv \
 	deploy/helm
 ```
-The above command enable the ingress service and specify the storage class name
+The above command deploys Appsmith application and configure application to use storage class name `appsmith-pv`
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 ```
 helm install -f values.yaml appsmith/appsmith --generate-name
 ```
 
-*Tip: You can use the default [values.yaml](https://gitlab.geekup.io/gu_lego_3/appsmith_v2/-/blob/feature/fat-container-helm-chart/deploy/helm/values.yaml)*
+*Tip: You can use the default [values.yaml](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/values.yaml)*
 
 ## Troubleshooting
 If at any time you encounter an error during the installation process, reach out to support@appsmith.com or join our Discord Server

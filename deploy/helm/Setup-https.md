@@ -24,7 +24,7 @@ helm install ingress-nginx ingress-nginx/ingress-nginx
 ```
 - Obtain the LoadBalancer IP address using the command below. Note this IP address as you will use it to configure DNS in a later step.
 ```
-kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"
+kubectl get svc ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].hostname}"
 ```
 *Tip: It may take some time for the load balancer IP address to be assigned, so you may need to wait a few minutes before the command above returns any output.*
 - Browse to the IP address and confirm that you see the default NGINX welcome page. This indicates that the NGINX Ingress controller is working.
@@ -36,23 +36,21 @@ kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath="{.status.
 helm repo add jetstack https://charts.jetstack.io
 
 kubectl create namespace cert-manager
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.14.1/cert-manager.crds.yaml
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.5.3/cert-manager.crds.yaml
 ```
 *Tip: When executing these commands on Google Kubernetes Engine (GKE), you may encounter permission errors. [Refer to the official cert-manager documentation for notes on how to elevate your permissions](https://docs.cert-manager.io/en/latest/getting-started/install/kubernetes.html).*
 - Create a ClusterIssuer resource for Let's Encrypt certificates. Create a file named letsencrypt-prod.yaml with the following content. Replace the EMAIL-ADDRESS placeholder with a valid email address.
 ```yaml
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
   name: letsencrypt-prod
-  labels:
-    name: letsencrypt-prod
 spec:
   acme:
     email: EMAIL-ADDRESS
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt-prod
-    server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
     - http01:
         ingress:
@@ -64,21 +62,22 @@ kubectl apply -f letsencrypt-prod.yaml
 ```
 - Install cert-manager with Helm and configure Let's Encrypt as the default Certificate Authority (CA):
 ```
-helm install cert-manager --namespace cert-manager jetstack/cert-manager --version v0.14.1
+helm install cert-manager --namespace cert-manager jetstack/cert-manager --version v1.5.3
 ```
 - Install Appsmith using Helm chart with additional parameters to integrate with Ingress and cert-manager. Replace the DOMAIN placeholder with your domain name:
 ```
-helm install appsmith/appsmith --generate-name     
-  --set service.type=ClusterIP     
-  --set ingress.enabled=true     
-  --set ingress.certManager=true         
-  --set ingress.annotations."kubernetes\.io/ingress\.class"=nginx     
-  --set ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt-prod   
-  --set ingress.hosts[0].host=DOMAIN
-  --set ingress.hosts[0].paths[0].path=/
-  --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific
-  --set ingress.certManagerTls[0].hosts[0]=DOMAIN 
-  --set ingress.certManagerTls[0].secretName=letsencrypt-prod
+helm install appsmith/appsmith --generate-name \
+--set service.type=ClusterIP \
+--set ingress.enabled=true \
+--set ingress.tls=true \
+--set ingress.certManager=true \
+--set ingress.annotations."kubernetes\.io/ingress\.class"=nginx \
+--set ingress.annotations."cert-manager\.io/cluster-issuer"=letsencrypt-prod \
+--set ingress.hosts[0].host=DOMAIN \
+--set ingress.hosts[0].paths[0].path=/ \
+--set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+--set ingress.certManagerTls[0].hosts[0]=DOMAIN \
+--set ingress.certManagerTls[0].secretName=letsencrypt-prod
 ```
 After the deployment completes, visit the domain in your browser and you should see the Appsmith site over a secure TLS connection with a valid Let's Encrypt certificate.
 <p>
@@ -88,7 +87,7 @@ After the deployment completes, visit the domain in your browser and you should 
 ## Useful links
 
 To learn more about the topics discussed in this guide, use the links below:
-- [Appsmith Helm chart](https://gitlab.geekup.io/gu_lego_3/appsmith_v2/-/blob/feature/fat-container-helm-chart/deploy/helm/README.md)
+- [Appsmith Helm chart](https://github.com/appsmithorg/appsmith/blob/release/deploy/helm/README.md)
 - [Get Started with Kubernetes](https://kubernetes.io/docs/setup/)
 - [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)
 - [NGINX Ingress Controller documentation](https://github.com/kubernetes/ingress/tree/master/controllers/nginx)
