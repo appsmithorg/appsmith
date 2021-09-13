@@ -146,7 +146,7 @@ function WidgetsEditor() {
         <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
           {node}
         </CanvasContainer>
-        {/* <MainContainerLayoutControl /> */}
+        <MainContainerLayoutControl />
         <Debugger />
         <CrudInfoModal />
       </EditorWrapper>
