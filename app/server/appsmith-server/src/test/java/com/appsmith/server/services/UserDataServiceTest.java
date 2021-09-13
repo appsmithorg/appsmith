@@ -21,6 +21,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -33,6 +34,8 @@ import java.time.Duration;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,6 +56,9 @@ public class UserDataServiceTest {
 
     @MockBean
     private UserChangedHandler userChangedHandler;
+
+    @MockBean
+    private AssetService assetService;
 
     private Mono<User> userMono;
 
@@ -236,5 +242,23 @@ public class UserDataServiceTest {
                     );
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveProfilePhoto_WhenPhotoUploaded_PhotoChangedEventTriggered() {
+        Asset sampleAsset = new Asset();
+        sampleAsset.setId("my-test-asset-id");
+        // mock assetService to return sampleAsset when upload is called
+        Mockito.when(assetService.upload(any(Part.class), any(Integer.class))).thenReturn(Mono.just(sampleAsset));
+        // mock assetService to return successfully when asset is deleted
+        Mockito.when(assetService.remove(anyString())).thenReturn(Mono.empty());
+
+        Part mock = Mockito.mock(Part.class);
+        Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mock);
+        StepVerifier.create(userDataMono).assertNext(userData -> {
+            assertThat(userData.getProfilePhotoAssetId()).isEqualTo("my-test-asset-id");
+            Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
+        }).verifyComplete();
     }
 }
