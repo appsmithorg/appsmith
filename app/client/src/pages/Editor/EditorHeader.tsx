@@ -61,9 +61,8 @@ import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } fr
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
-  padding-right: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -115,9 +114,18 @@ const HeaderSection = styled.div`
   }
 `;
 
-const AppsmithLogoImg = styled.img`
-  margin-right: ${(props) => props.theme.spaces[6]}px;
-  height: 24px;
+const AppsmithLink = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable @typescript-eslint/no-unused-vars
+  return <Link {...props} />;
+})`
+  margin-right: ${(props) => props.theme.spaces[4]}px;
+  height: 20px;
+  width: 20px;
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const DeploySection = styled.div`
@@ -236,13 +244,13 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={props.darkTheme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
-            <AppsmithLogoImg
+          <AppsmithLink to={APPLICATIONS_URL}>
+            <img
               alt="Appsmith logo"
               className="t--appsmith-logo"
               src={AppsmithLogo}
             />
-          </Link>
+          </AppsmithLink>
           <Boxed step={OnboardingStep.FINISH}>
             <EditorAppName
               applicationId={applicationId}
@@ -361,7 +369,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.DARK),
+  darkTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
