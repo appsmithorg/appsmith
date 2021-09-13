@@ -55,12 +55,6 @@ export default function* executePromiseSaga(
     }
   } catch (e) {
     log.error(e);
-    if (!trigger.catch) {
-      Toaster.show({
-        text: e.message || "There was an error while executing",
-        variant: Variant.danger,
-      });
-    }
     if (trigger.catch) {
       let responseData = [e.message];
       if (e instanceof PluginTriggerFailureError) {
