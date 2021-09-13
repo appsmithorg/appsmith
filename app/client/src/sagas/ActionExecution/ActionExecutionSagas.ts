@@ -139,25 +139,26 @@ function* initiateActionTriggerExecution(
     }
     log.error(e);
 
-    if (e instanceof TriggerEvaluationError) {
-      AppsmithConsole.addError({
-        id: `${source?.id}-${triggerPropertyName}`,
-        logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-        text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: source?.id ?? "",
-          name: source?.name ?? "",
-          propertyPath: triggerPropertyName,
+    AppsmithConsole.addError({
+      id: `${source?.id}-${triggerPropertyName}`,
+      logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: source?.id ?? "",
+        name: source?.name ?? "",
+        propertyPath: triggerPropertyName,
+      },
+      messages: [
+        {
+          type:
+            e instanceof TriggerEvaluationError
+              ? PropertyEvaluationErrorType.PARSE
+              : undefined,
+          message: e.message,
         },
-        messages: [
-          {
-            type: PropertyEvaluationErrorType.PARSE,
-            message: e.message,
-          },
-        ],
-      });
-    }
+      ],
+    });
   }
 }
 

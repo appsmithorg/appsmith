@@ -2,11 +2,14 @@ import { AppsmithPromisePayload } from "workers/Actions";
 import {
   executeActionTriggers,
   executeAppAction,
+  TriggerEvaluationError,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
 import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -53,6 +56,15 @@ export default function* executePromiseSaga(
     }
   } catch (e) {
     log.error(e);
+    // TriggerEvaluationError toasts are already shown in
+    // evalErrorHandler saga
+    if (!trigger.catch && !(e instanceof TriggerEvaluationError)) {
+      Toaster.show({
+        text: e.message || "There was an error while executing",
+        variant: Variant.danger,
+        showDebugButton: true,
+      });
+    }
     if (trigger.catch) {
       let responseData = [e.message];
       if (e instanceof PluginTriggerFailureError) {
@@ -70,11 +82,10 @@ export default function* executePromiseSaga(
         },
         responseData: catchArguments,
       });
-
-      throw e;
-    } else {
-      throw new TriggerFailureError(e.message || "Uncaught promise rejection");
     }
+    // This error could be a TriggerEvaluationError as well so
+    // throwing these errors as it is
+    throw e;
   }
 
   if (trigger.finally) {
