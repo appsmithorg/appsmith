@@ -15,6 +15,7 @@ export const draggableElement = (
     position?: string;
   },
   dragHandle?: () => JSX.Element,
+  cypressSelectorDragHandle?: string,
 ) => {
   let newXPos = 0,
     newYPos = 0,
@@ -131,6 +132,7 @@ export const draggableElement = (
         element,
         dragHandle,
         renderDragBlockPositions,
+        cypressSelectorDragHandle,
       );
     }
     if (initPostion) {
@@ -154,6 +156,7 @@ const createDragHandler = (
     zIndex?: string;
     position?: string;
   },
+  cypressSelectorDragHandle?: string,
 ) => {
   const oldDragHandler = document.getElementById(`${id}-draghandler`);
   const dragElement = document.createElement("div");
@@ -162,6 +165,11 @@ const createDragHandler = (
   dragElement.style.left = renderDragBlockPositions?.left ?? "135px";
   dragElement.style.top = renderDragBlockPositions?.top ?? "0px";
   dragElement.style.zIndex = renderDragBlockPositions?.zIndex ?? "3";
+
+  if (cypressSelectorDragHandle) {
+    dragElement.setAttribute("data-cy", cypressSelectorDragHandle);
+  }
+
   oldDragHandler
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);

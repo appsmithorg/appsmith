@@ -27,6 +27,7 @@ export type PopperProps = {
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
+  cypressSelectorDragHandle?: string;
   position?: {
     top: number;
     left: number;
@@ -77,6 +78,7 @@ export default (props: PopperProps) => {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
+    cypressSelectorDragHandle,
   } = props;
   // Meomoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
@@ -149,6 +151,7 @@ export default (props: PopperProps) => {
                 <PopperDragHandle />
               </ThemeProvider>
             ),
+          cypressSelectorDragHandle,
         );
       }
 
