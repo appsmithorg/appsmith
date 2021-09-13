@@ -1,8 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
-import { WidgetCardProps } from "widgets/BaseWidget";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -25,6 +24,7 @@ import {
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const MainWrapper = styled.div`
   text-transform: capitalize;
@@ -100,7 +100,7 @@ function WidgetSidebar(props: IPanelProps) {
     if (keyword.trim().length > 0) {
       filteredCards = produce(cards, (draft) => {
         cards.forEach((card, index) => {
-          if (card.widgetCardName.toLowerCase().indexOf(keyword) === -1) {
+          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
             delete draft[index];
           }
         });
@@ -148,6 +148,11 @@ function WidgetSidebar(props: IPanelProps) {
 
   const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
   const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
+  const dispatch = useDispatch();
+  const closeWidgetPanel = () => {
+    dispatch(forceOpenWidgetPanel(false));
+    props.closePanel();
+  };
 
   return (
     <>
@@ -170,11 +175,11 @@ function WidgetSidebar(props: IPanelProps) {
             color={Colors.WHITE}
             icon="cross"
             iconSize={16}
-            onClick={props.closePanel}
+            onClick={closeWidgetPanel}
           />
         </Header>
         <CardsWrapper>
-          {filteredCards.map((card: WidgetCardProps) => (
+          {filteredCards.map((card) => (
             <Boxed
               key={card.key}
               show={

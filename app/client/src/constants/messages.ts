@@ -364,7 +364,7 @@ export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
 export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open Documentation";
-export const DEBUGGER_SEARCH_SNIPPET = () => "Trigger Snippet";
+export const DEBUGGER_SEARCH_SNIPPET = () => "Browse Code Snippets";
 export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith Support";
 
 //action creator menu
@@ -515,6 +515,7 @@ export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 export const MORE_OPTIONS = () => "More Options";
 export const ADD_REACTION = () => "Add Reaction";
 export const RESOLVE_THREAD = () => "Resolve Thread";
+export const RESOLVED_THREAD = () => "Resolved Thread";
 export const EMOJI = () => "Emoji";
 
 // Sniping mode messages
@@ -523,3 +524,103 @@ export const SNIPING_SELECT_WIDGET_AGAIN = () =>
 
 export const SNIPING_NOT_SUPPORTED = () =>
   "Binding on selection is not supported for this type of widget!";
+
+//First Time User Onboarding
+//Checklist page
+export enum ONBOARDING_CHECKLIST_ACTIONS {
+  CONNECT_A_DATASOURCE = "CONNECT DATA SOURCE",
+  CREATE_A_QUERY = "CREATE A QUERY",
+  ADD_WIDGETS = "ADD WIDGETS",
+  CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
+  DEPLOY_APPLICATIONS = "DEPLOY APPLICATION",
+}
+
+export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
+  "Amazing work! You’ve explored the basics of Appsmith";
+export const ONBOARDING_CHECKLIST_BANNER_BODY = () =>
+  "You can carry on here, or explore the homepage to see how your projects are stored.";
+export const ONBOARDING_CHECKLIST_BANNER_BUTTON = () => "Explore homepage";
+
+export const ONBOARDING_CHECKLIST_HEADER = () => "👋 Welcome to Appsmith!";
+export const ONBOARDING_CHECKLIST_BODY = () =>
+  "Let’s get you started on your first application, explore Appsmith yourself or follow our guide below to discover what Appsmith can do.";
+export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
+
+export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
+  bold: () => "Connect your data source",
+  normal: () => "to start building an application.",
+};
+
+export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
+  bold: () => "Create a query",
+  normal: () => "of your data source.",
+};
+
+export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
+  bold: () => "Start visualising your application",
+  normal: () => "using widgets.",
+};
+
+export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
+  bold: () => "Connect your data to the widgets",
+  normal: () => "using JavaScript.",
+};
+
+export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
+  bold: () => "Deploy your application",
+  normal: () => ", and see your creation live.",
+};
+
+export const ONBOARDING_CHECKLIST_FOOTER = () =>
+  "Not sure where to start? Take the welcome tour";
+
+//Introduction modal
+export const HOW_APPSMITH_WORKS = () => "Here’s how Appsmith works";
+export const ONBOARDING_INTRO_CONNECT_YOUR_DATABASE = () =>
+  "Connect your database or API";
+export const ONBOARDING_INTRO_CONNECT_DATA_WIDGET = () =>
+  "Connect queried data to pre-built widgets and customise with Javascript.";
+export const ONBOARDING_INTRO_PUBLISH = () =>
+  "Instantly publish and share your apps";
+export const BUILD_MY_FIRST_APP = () => "Build my first app";
+export const ONBOARDING_INTRO_FOOTER = () =>
+  "Want more help getting started, let’s";
+export const BUILD_APP_TOGETHER = () => "build an app together.";
+
+//Statusbar
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
+  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
+export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
+  "Next: Connect data to Widget";
+export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
+  "Next: Deploy your application";
+export const ONBOARDING_STATUS_STEPS_SIXTH = () => "Completed 🎉";
+export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
+
+//Tasks
+//1. datasource
+export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
+  "Start by adding your first Data source";
+export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
+  "Adding a data source makes creating applications more powerful. Don’t worry if you don’t have any data to hand, we have sample data you can use.";
+export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a data source";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
+//2. query
+export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
+export const ONBOARDING_TASK_QUERY_BODY = () =>
+  "Great job adding a data source! The next thing you can do is create a query on your data.";
+export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ create a query";
+export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
+//2. widget
+export const ONBOARDING_TASK_WIDGET_HEADER = () =>
+  "Next, add a widget to start displaying data";
+export const ONBOARDING_TASK_WIDGET_BODY = () =>
+  "Great job adding a data source! The next thing you can do is add widget to start start making your data visual.";
+export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
+export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
+  "deploy your application";
+export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";

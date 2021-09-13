@@ -1,8 +1,5 @@
 import { updateWidget } from "actions/pageActions";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AppState } from "reducers";
@@ -10,7 +7,10 @@ import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "store";
+import WidgetFactory from "utils/WidgetFactory";
 import { WidgetOperations } from "widgets/BaseWidget";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useCanvasMinHeightUpdateHook = (
   widgetId: string,

@@ -20,7 +20,6 @@ import recentEntitiesSagas from "../src/sagas/RecentEntitiesSagas";
 import commentSagas from "../src/sagas/CommentSagas";
 import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
-import { fetchWidgetCardsSaga } from "../src/sagas/WidgetSidebarSagas";
 import { watchActionSagas } from "../src/sagas/ActionSagas";
 import { watchActionExecutionSagas } from "../src/sagas/ActionExecution/ActionExecutionSagas";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
@@ -35,7 +34,6 @@ import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [
   initSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
   watchActionExecutionSagas,
   widgetOperationSagas,
