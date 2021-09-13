@@ -15,7 +15,12 @@ import UserApi, {
   UpdateUserRequest,
   LeaveOrgRequest,
 } from "api/UserApi";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
+import {
+  APPLICATIONS_URL,
+  AUTH_LOGIN_URL,
+  BASE_URL,
+  SETUP,
+} from "constants/routes";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
 import {
@@ -109,17 +114,19 @@ export function* getCurrentUserSaga() {
         // reset the flagsFetched flag
         yield put(fetchFeatureFlagsSuccess());
       }
-      if (window.location.pathname === BASE_URL) {
+      yield put({
+        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+        payload: response.data,
+      });
+      if (response.data.emptyInstance) {
+        history.replace(SETUP);
+      } else if (window.location.pathname === BASE_URL) {
         if (response.data.isAnonymous) {
           history.replace(AUTH_LOGIN_URL);
         } else {
           history.replace(APPLICATIONS_URL);
         }
       }
-      yield put({
-        type: ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-        payload: response.data,
-      });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.USER_ME_API,
       );
@@ -358,7 +365,8 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
       AnalyticsUtil.reset();
-      yield put(logoutUserSuccess());
+      const currentUser = yield select(getCurrentUser);
+      yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
     }

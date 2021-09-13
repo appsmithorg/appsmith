@@ -648,8 +648,9 @@ function GeneratePageForm() {
             {showSearchableColumn && (
               <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
                 <Row>
-                  Select a searchable {pluginField.COLUMN} from
-                  <Bold> &nbsp;{selectedTable.label} </Bold>
+                  Select a searchable {pluginField.COLUMN} from the
+                  selected&nbsp;
+                  {pluginField.TABLE}
                   <TooltipWrapper>
                     <Tooltip
                       content="Only string values are allowed for searchable column"
