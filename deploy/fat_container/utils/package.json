@@ -19,6 +19,6 @@
     "yargs": "^17.1.1"
   },
   "bin": {
-    "appsmith": "./bin/index.js"
+    "appsmithctl": "./bin/index.js"
   }
 }

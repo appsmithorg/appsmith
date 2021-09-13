@@ -1,9 +1,8 @@
+# Appsmith Docker Image
 
-# Appsmith Fat Container
+The Appsmith Docker image is built with all the components required for it to run, within a single Docker container. Files in this directory make up for the scripts and template files needed for building the image.
 
-The fat container is a Docker image built with all the components required for Appsmith to run, within a single Docker container. Files in this directory make up for the scripts and template files needed for building the image.
-
-You may choose to use the Appsmith cloud instance (at [app.appsmith.com](https://app.appsmith.com)) or start your own using thie fat-container.
+You may choose to use the Appsmith cloud instance (at [app.appsmith.com](https://app.appsmith.com)) or start your own using this image.
 
 ## Appsmith Cloud
 
@@ -41,7 +40,7 @@ version: "3"
 
 services:
   appsmith:
-    image: appsmith/appsmith-fat
+    image: appsmith/appsmith-ce
     container_name: appsmith-ce
     ports:
       - "80:80"
@@ -76,7 +75,7 @@ CONTAINER ID        IMAGE                             COMMAND                  C
 3b8f2c9638d0        appsmith/appsmith          "/opt/appsmith/entrypoint.sh"   17 minutes ago      Up 17 minutes       0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp   appsmith
 ```
 
-You can also use the Supervisord UI to monitor and manage the different processes _inside_ the fat container. This is discussed [further below](#supervisord).
+You can also use the Supervisord UI to monitor and manage the different processes _inside_ the container. This is discussed [further below](#supervisord).
 
 ## Custom Domain
 
@@ -90,7 +89,7 @@ To make Appsmith available on a custom domain, please update your domain's DNS r
 
 ## Instance Management Utilities
 
-The fat container includes an `appsmith` command to help with the management and maintenance of your instance. The following subsections describe what's available.
+The image includes an `appsmithctl` command to help with the management and maintenance of your instance. The following subsections describe what's available.
 
 ### Export database
 
@@ -99,7 +98,7 @@ The following command can be used to take a backup dump of Appsmith's database. 
 Before running this, ensure you are in the directory where `docker-compose.yml` is located.
 
 ```sh
-docker-compose exec appsmith-ce appsmith export_db
+docker-compose exec appsmith-ce appsmithctl export_db
 ```
 
 The output file will be stored in the container directory `/appsmith-stacks/data/backup/appsmith-data.archive`. Thanks to the volume configuration in the `docker-compose.yml` file, it should be available on your host machine at `./stacks/data/backup/appsmith-data.archive`.
@@ -131,7 +130,7 @@ docker-compose cp ./appsmith-data.archive appsmith-ce:/appsmith-stacks/data/rest
 Second, run the following command to import data from this file:
 
 ```sh
-docker-compose exec appsmith-ce appsmith import_db
+docker-compose exec appsmith-ce appsmithctl import_db
 ```
 
 Note that when you restore, you may also want to copy a `docker.env` from the original instance into this one. You can use the following command to do this (assuming you are in the installation folder and `docker.env` exists in the same folder):
@@ -148,7 +147,7 @@ docker-compose exec appsmith-ce supervisorctl restart backend
 
 ## Supervisor
 
-The fat container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
+The container runs multiple processes, including the Appsmith server, Nginx, MongoDB etc., inside a single Docker container. These processes are started and managed by [supervisord](http://supervisord.org/).
 
 Supervisord comes with a web interface for managing the various processes, available at <http://localhost:9001>, as well as a command line interface towards the same goal.
 
