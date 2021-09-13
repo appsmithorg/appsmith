@@ -115,7 +115,12 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
             } else {
                 return Mono.just(user);
             }
-        });
+        }).flatMap(user ->
+                userDataRepository.findByUserId(user.getId()).map(userData -> {
+                    comment.setAuthorPhotoId(userData.getProfilePhotoAssetId());
+                    return user;
+                })
+        );
 
         return userMono.flatMap(user ->
             threadRepository
@@ -183,6 +188,9 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setPageId(commentThread.getPageId());
         comment.setOrgId(commentThread.getOrgId());
+        comment.setAuthorUsername(user.getUsername());
+        String authorName = user.getName() != null ? user.getName() : user.getUsername();
+        comment.setAuthorName(authorName);
         comment.setMode(commentThread.getMode());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
@@ -195,10 +203,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 user
         ).get(AclPermission.MANAGE_COMMENT.getValue()));
         comment.setPolicies(policies);
-
-        String authorName = user.getName() != null ? user.getName() : user.getUsername();
-        comment.setAuthorUsername(user.getUsername());
-        comment.setAuthorName(authorName);
 
         Mono<Comment> commentMono;
         if (!TRUE.equals(commentThread.getIsPrivate())) {
@@ -253,65 +257,67 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 return Mono.just(user);
             }
         });
-        return userMono.flatMap(user -> {
-            return userDataRepository.findByUserId(user.getId())
-                    .defaultIfEmpty(new UserData(user.getId()))
-                    .zipWith(applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS))
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
-                    ))
-                    .flatMap(tuple -> {
-                        final UserData userData = tuple.getT1();
-                        final Application application = tuple.getT2();
-                        boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
-                                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
-                        ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
+        return userMono.flatMap(user ->
+                userDataRepository.findByUserId(user.getId())
+                .defaultIfEmpty(new UserData(user.getId()))
+                .zipWith(applicationService.findById(applicationId, AclPermission.COMMENT_ON_APPLICATIONS))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)
+                ))
+                .flatMap(tuple -> {
+                    final UserData userData = tuple.getT1();
+                    final Application application = tuple.getT2();
+                    commentThread.setAuthorPhotoId(userData.getProfilePhotoAssetId());
 
-                        // check whether this thread should be converted to bot thread
-                        if (userData.getLatestCommentEvent() == null) {
-                            commentThread.setIsPrivate(shouldCreateBotThread);
-                            userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
-                            return userDataRepository.save(userData).then(
-                                    saveCommentThread(commentThread, application, user)
-                            );
-                        }
-                        return saveCommentThread(commentThread, application, user);
-                    })
-                    .flatMap(thread -> {
-                        if(thread.getWidgetType() != null) {
-                            return analyticsService.sendCreateEvent(
-                                    thread, Map.of("widgetType", thread.getWidgetType())
-                            );
-                        } else {
-                            return analyticsService.sendCreateEvent(thread);
-                        }
-                    })
-                    .flatMapMany(thread -> {
-                        List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
+                    boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
+                            application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
+                    ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
 
-                        if (!CollectionUtils.isEmpty(thread.getComments())) {
-                            thread.getComments().get(0).setLeading(true);
-                            for (final Comment comment : thread.getComments()) {
-                                comment.setId(null);
-                                commentSaverMonos.add(create(thread, user, comment, originHeader));
-                            }
-                        }
+                    // check whether this thread should be converted to bot thread
+                    if (userData.getLatestCommentEvent() == null) {
+                        commentThread.setIsPrivate(shouldCreateBotThread);
+                        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+                        return userDataRepository.save(userData).then(
+                                saveCommentThread(commentThread, application, user)
+                        );
+                    }
+                    return saveCommentThread(commentThread, application, user);
+                })
+                .flatMap(thread -> {
+                    if(thread.getWidgetType() != null) {
+                        return analyticsService.sendCreateEvent(
+                                thread, Map.of("widgetType", thread.getWidgetType())
+                        );
+                    } else {
+                        return analyticsService.sendCreateEvent(thread);
+                    }
+                })
+                .flatMapMany(thread -> {
+                    List<Mono<Comment>> commentSaverMonos = new ArrayList<>();
 
-                        if (TRUE.equals(thread.getIsPrivate())) {
-                            // this is the first thread by this user, add a bot comment also
-                            commentSaverMonos.add(createBotComment(thread, user, CommentBotEvent.COMMENTED));
+                    if (!CollectionUtils.isEmpty(thread.getComments())) {
+                        thread.getComments().get(0).setLeading(true);
+                        for (final Comment comment : thread.getComments()) {
+                            comment.setId(null);
+                            comment.setAuthorPhotoId(thread.getAuthorPhotoId());
+                            commentSaverMonos.add(create(thread, user, comment, originHeader));
                         }
-                        // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
-                        // value is meaningful.
-                        return Flux.concat(commentSaverMonos);
-                    })
-                    .collectList()
-                    .map(commentList -> {
-                        commentThread.setComments(commentList);
-                        commentThread.setIsViewed(true);
-                        return commentThread;
-                    });
-        });
+                    }
+
+                    if (TRUE.equals(thread.getIsPrivate())) {
+                        // this is the first thread by this user, add a bot comment also
+                        commentSaverMonos.add(createBotComment(thread, user, CommentBotEvent.COMMENTED));
+                    }
+                    // Using `concat` here so that the comments are saved one after the other, so that their `createdAt`
+                    // value is meaningful.
+                    return Flux.concat(commentSaverMonos);
+                })
+                .collectList()
+                .map(commentList -> {
+                    commentThread.setComments(commentList);
+                    commentThread.setIsViewed(true);
+                    return commentThread;
+                }));
     }
 
     @Override
