@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { ReactComponent as GitMerge } from "assets/icons/ads/git-merge.svg";
 import styled from "styled-components";
 import { Space } from "../components/StyledComponents";
-import { currentGitBranch } from "selectors/gitSyncSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { useSelector } from "react-redux";
 
 import { Popover2 } from "@blueprintjs/popover2";
@@ -59,7 +59,7 @@ const CloseBtnContainer = styled.div`
 `;
 
 function BranchButton() {
-  const currentBranch = useSelector(currentGitBranch);
+  const currentBranch = useSelector(getCurrentGitBranch);
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateBranchForm, setShowCreateNewBranchForm] = useState(false);
   const title = showCreateBranchForm
