@@ -21,6 +21,7 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTablePrimaryColumnsComputedValue,
   migrateTableWidgetDelimiterProperties,
+  migrateTableSanitizeColumnKeys,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -913,6 +914,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 37) {
+    currentDSL = migrateTableSanitizeColumnKeys(currentDSL);
+    currentDSL.version = 38;
+  }
+
+  if (currentDSL.version === 38) {
     currentDSL = revertButtonStyleToButtonColor(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
