@@ -1,5 +1,16 @@
 // This file contains common constants which can be used across the widget configuration file (index.ts), widget and component folders.
-export const MAPCHART_WIDGET_CONSTANT = "";
+
+export enum MapTypes {
+  WORLD = "WORLD",
+  WORLD_WITH_ANTARCTICA = "WORLD_WITH_ANTARCTICA",
+  EUROPE = "EUROPE",
+  NORTH_AMERICA = "NORTH_AMERICA",
+  SOURTH_AMERICA = "SOURTH_AMERICA",
+  ASIA = "ASIA",
+  OCEANIA = "OCEANIA",
+  AFRICA = "AFRICA",
+  CUSTOM = "CUSTOM",
+}
 
 // Define the dataset and the colorRange of the map
 export const dataSetForWorld = [

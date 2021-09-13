@@ -7,7 +7,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { CUSTOM_MAP_TYPES } from "constants/CustomMapConstants ";
+import { CUSTOM_MAP_TYPES } from "../CustomMapConstants";
 import {
   dataSetForAfrica,
   dataSetForAsia,
@@ -17,8 +17,9 @@ import {
   dataSetForSouthAmerica,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
+  MapTypes,
 } from "../constants";
-import { EntityData, MapType, MapTypes } from "../component";
+import { EntityData, MapType } from "../component";
 
 const MapChartComponent = lazy(() =>
   retryPromise(() =>

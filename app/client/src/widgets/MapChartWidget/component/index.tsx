@@ -22,7 +22,7 @@ import FusionTheme from "fusioncharts/themes/fusioncharts.theme.fusion";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 // Import the dataset and the colorRange of the map
-import { colorRange, dataSetForWorld } from "../constants";
+import { colorRange, dataSetForWorld, MapTypes } from "../constants";
 
 // Adding the chart and theme as dependency to the core fusioncharts
 ReactFC.fcRoot(FusionCharts, FusionMaps, World, FusionTheme);
@@ -81,18 +81,6 @@ export interface MapData {
   labelConnectorColor?: string;
   labelConnectorAlpha?: number;
   useHoverColor?: boolean;
-}
-
-export enum MapTypes {
-  WORLD = "WORLD",
-  WORLD_WITH_ANTARCTICA = "WORLD_WITH_ANTARCTICA",
-  EUROPE = "EUROPE",
-  NORTH_AMERICA = "NORTH_AMERICA",
-  SOURTH_AMERICA = "SOURTH_AMERICA",
-  ASIA = "ASIA",
-  OCEANIA = "OCEANIA",
-  AFRICA = "AFRICA",
-  CUSTOM = "CUSTOM",
 }
 
 export type MapType = keyof typeof MapTypes;
