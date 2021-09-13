@@ -2,7 +2,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Colors } from "constants/Colors";
-import { WidgetTypes } from "constants/WidgetConstants";
+
 import React, {
   forwardRef,
   useCallback,
@@ -19,6 +19,9 @@ import {
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
+
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -88,6 +91,7 @@ export const EntityName = forwardRef(
           state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
         ) {
           const parent = state.entities.canvasWidgets[widget.parentId];
+          // Todo(abhinav): abstraction leak
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             return Object.values(parent.tabsObj);
           }

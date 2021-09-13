@@ -33,4 +33,6 @@ public interface PluginService extends CrudService<Plugin, String> {
     Mono<Map> loadPluginResource(String pluginId, String resourcePath);
 
     Mono<Map> getEditorConfigLabelMap(String pluginId);
+
+    Map loadEditorPluginResourceUqi(Plugin plugin);
 }
