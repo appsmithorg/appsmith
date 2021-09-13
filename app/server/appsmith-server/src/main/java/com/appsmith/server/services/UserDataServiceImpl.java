@@ -201,7 +201,11 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<Void> deleteProfilePhoto() {
         return getForCurrentUser()
-                .flatMap(userData -> Mono.justOrEmpty(userData.getProfilePhotoAssetId()))
+                .flatMap(userData -> {
+                    String profilePhotoAssetId = userData.getProfilePhotoAssetId();
+                    userData.setProfilePhotoAssetId(null);
+                    return repository.save(userData).thenReturn(profilePhotoAssetId);
+                })
                 .flatMap(assetService::remove);
     }
 
