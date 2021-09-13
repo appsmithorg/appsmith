@@ -1,7 +1,16 @@
 {
-    "runButton": ".sc-kVKVYG",
+    "runButton": ".run-button",
     "editNameField": ".bp3-editable-text-input",
     "outputConsole": ".CodeEditorTarget",
-    "jsObjectName": ".sc-jfkKcj",
-    "jsPage": ".sc-lgOkDz"
+    "jsObjectName": ".t--action-name-edit-field",
+    "jsPage": ".form-row-header",
+    "jsPageProperty": ".entity-context-menu",
+    "propertyList": ".t--entity-property",
+    "delete": ".single-select >div:contains('Delete')",
+    "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
+    "copyToPageMenu": ":nth-child(1) > .bp3-popover-wrapper > .bp3-popover-target > .bp3-menu-item > .bp3-text-overflow-ellipsis",
+    "copyToPage1": ".bp3-popover-wrapper > .bp3-overlay > .bp3-transition-container > .bp3-popover > .bp3-popover-content > .bp3-menu > li > .bp3-menu-item"
 }
+
+
+

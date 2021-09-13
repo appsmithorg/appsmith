@@ -2266,6 +2266,16 @@ Cypress.Commands.add("deleteQuery", () => {
   );
 });
 
+Cypress.Commands.add("deleteJSObject", () => {
+  cy.hoverAndClick();
+  cy.get(jsEditorLocators.delete).click({ force: true });
+  cy.wait("@deleteJSCollection").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
 Cypress.Commands.add("deleteDataSource", () => {
   cy.hoverAndClick();
   cy.get(apiwidget.delete).click({ force: true });
@@ -2674,6 +2684,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
+  cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
+  cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
 });
 
 Cypress.Commands.add("alertValidate", (text) => {
@@ -2860,7 +2872,7 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
-    .type("{downarrow}{downarrow}{downarrow}")
+    .type("{downarrow}{downarrow}{downarrow}  ")
     .type(JSCode);
   cy.wait(1500);
   cy.get(jsEditorLocators.runButton).click();
