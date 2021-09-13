@@ -83,7 +83,7 @@ import static com.external.plugins.constants.FieldName.FIND_SORT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
+import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static java.lang.Boolean.TRUE;
 
 public class MongoPlugin extends BasePlugin {
@@ -153,7 +153,7 @@ public class MongoPlugin extends BasePlugin {
             FIND_PROJECTION,
             INSERT_DOCUMENT,
             UPDATE_QUERY,
-            UPDATE_UPDATE
+            UPDATE_OPERATION
     ));
 
     public MongoPlugin(PluginWrapper wrapper) {
@@ -185,17 +185,24 @@ public class MongoPlugin extends BasePlugin {
                                                                 ActionConfiguration actionConfiguration) {
 
 
-            final Map<String, Object> properties = actionConfiguration.getFormData();
+            final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            Boolean smartBsonSubstitution = (Boolean) properties.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            Boolean smartBsonSubstitution = TRUE;
+
+            Object smartSubstitutionObject = formData.getOrDefault(SMART_SUBSTITUTION, TRUE);
+            if (smartSubstitutionObject instanceof Boolean) {
+                smartBsonSubstitution = (Boolean) smartSubstitutionObject;
+            } else if (smartSubstitutionObject instanceof String) {
+                smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
+            }
 
             // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
             if (TRUE.equals(smartBsonSubstitution)) {
 
                 // If not raw, then it must be form input.
-                if (!isRawCommand(actionConfiguration.getFormData())) {
-                    smartSubstituteFormCommand(actionConfiguration.getFormData(),
+                if (!isRawCommand(formData)) {
+                    smartSubstituteFormCommand(formData,
                             executeActionDTO.getParams(), parameters);
                 } else {
                     // For raw queries do smart replacements in BSON body
@@ -410,6 +417,15 @@ public class MongoPlugin extends BasePlugin {
             return updatedQuery;
         }
 
+        /**
+         * !!!WARNING!!! : formData gets updated as part of this flow (and hence is not being returned)
+         * This function replaces the mustache variables using smart substitution and updates the existing formData
+         * with the values post substitution
+         * @param formData
+         * @param params
+         * @param parameters
+         * @throws AppsmithPluginException
+         */
         private void smartSubstituteFormCommand(Map<String, Object> formData,
                                                 List<Param> params,
                                                 List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {

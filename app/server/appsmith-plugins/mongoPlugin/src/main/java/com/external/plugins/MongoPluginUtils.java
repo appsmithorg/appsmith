@@ -37,37 +37,41 @@ import static com.external.plugins.constants.FieldName.RAW;
 public class MongoPluginUtils {
 
     public static Boolean validConfigurationPresent(Map<String, Object> formData, String field) {
-        if (formData != null && !formData.isEmpty()) {
-            return getValueSafely(formData, field) != null;
-        }
-
-        return Boolean.FALSE;
+        return getValueSafely(formData, field) != null;
     }
 
     public static Object getValueSafely(Map<String, Object> formData, String field) {
-        if (formData != null && !formData.isEmpty()) {
-            // This field value contains nesting
-            if (field.contains(".")) {
-
-                String[] fieldNames = field.split("\\.");
-
-                Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
-
-                String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-                String nestedFieldName = String.join(".", trimmedFieldNames);
-
-                // Now get the value from the new nested map using trimmed field name (without the parent key)
-                return getValueSafely(nestedMap, nestedFieldName);
-            } else {
-                // This is a top level field. Return the value
-                return formData.getOrDefault(field, null);
-            }
+        if (formData == null || formData.isEmpty()) {
+            return null;
         }
 
-        return null;
+        // formData exists and is not empty. Continue with fetching the value for the field
+
+        // This field value contains nesting
+        if (field.contains(".")) {
+
+            String[] fieldNames = field.split("\\.");
+
+            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+            String nestedFieldName = String.join(".", trimmedFieldNames);
+
+            // Now get the value from the new nested map using trimmed field name (without the parent key)
+            return getValueSafely(nestedMap, nestedFieldName);
+        } else {
+            // This is a top level field. Return the value
+            return formData.getOrDefault(field, null);
+        }
+
     }
 
     public static void setValueSafely(Map<String, Object> formData, String field, Object value) {
+
+        // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
+        if (formData == null) {
+            formData = new HashMap<>();
+        }
 
         // This field value contains nesting
         if (field.contains(".")) {
@@ -163,9 +167,9 @@ public class MongoPluginUtils {
     }
 
     public static void generateTemplatesAndStructureForACollection(String collectionName,
-                                                                    Document document,
-                                                                    ArrayList<DatasourceStructure.Column> columns,
-                                                                    ArrayList<DatasourceStructure.Template> templates) {
+                                                                   Document document,
+                                                                   ArrayList<DatasourceStructure.Column> columns,
+                                                                   ArrayList<DatasourceStructure.Template> templates) {
         String filterFieldName = null;
         String filterFieldValue = null;
         Map<String, String> sampleInsertValues = new LinkedHashMap<>();

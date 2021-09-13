@@ -65,7 +65,7 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
+import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -553,7 +553,7 @@ public class MongoPluginTest {
                     assertEquals(((Map<String, Object>) updateTemplate.getConfiguration()).get(COMMAND), "UPDATE");
                     assertEquals(getValueSafely((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_QUERY),
                             "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-                    assertEquals(getValueSafely((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_UPDATE),
+                    assertEquals(getValueSafely((Map<String, Object>) updateTemplate.getConfiguration(), UPDATE_OPERATION),
                             "{ \"$set\": { \"gender\": \"new value\" } }");
 
                     // Assert Delete Command
@@ -1200,7 +1200,7 @@ public class MongoPluginTest {
         setValueSafely(configMap, COMMAND, "UPDATE");
         setValueSafely(configMap, COLLECTION, "users");
         setValueSafely(configMap, UPDATE_QUERY, "{ name: \"Alden Cantrell\" }");
-        setValueSafely(configMap, UPDATE_UPDATE, "{ $set: { age: 31 }}}");
+        setValueSafely(configMap, UPDATE_OPERATION, "{ $set: { age: 31 }}}");
         setValueSafely(configMap, UPDATE_LIMIT, "SINGLE");
 
         actionConfiguration.setFormData(configMap);
@@ -1234,7 +1234,7 @@ public class MongoPluginTest {
         setValueSafely(configMap, COLLECTION, "users");
         // Query for all the documents in the collection
         setValueSafely(configMap, UPDATE_QUERY, "{}");
-        setValueSafely(configMap, UPDATE_UPDATE, "{ $set: { updatedByCommand: true }}}");
+        setValueSafely(configMap, UPDATE_OPERATION, "{ $set: { updatedByCommand: true }}}");
         setValueSafely(configMap, UPDATE_LIMIT, "ALL");
 
         actionConfiguration.setFormData(configMap);

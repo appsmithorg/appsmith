@@ -23,7 +23,7 @@ import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.UPDATE_LIMIT;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
-import static com.external.plugins.constants.FieldName.UPDATE_UPDATE;
+import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 
 @Getter
 @Setter
@@ -42,8 +42,8 @@ public class UpdateMany extends MongoCommand {
             this.query = (String) getValueSafely(formData, UPDATE_QUERY);
         }
 
-        if (validConfigurationPresent(formData, UPDATE_UPDATE)) {
-            this.update = (String) getValueSafely(formData, UPDATE_UPDATE);
+        if (validConfigurationPresent(formData, UPDATE_OPERATION)) {
+            this.update = (String) getValueSafely(formData, UPDATE_OPERATION);
         }
 
         // Default for this is 1 to indicate updating only one document at a time.
@@ -108,7 +108,7 @@ public class UpdateMany extends MongoCommand {
         setValueSafely(configMap, COMMAND, "UPDATE");
         setValueSafely(configMap, COLLECTION, collectionName);
         setValueSafely(configMap, UPDATE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_update\") }");
-        setValueSafely(configMap, UPDATE_UPDATE, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
+        setValueSafely(configMap, UPDATE_OPERATION, "{ \"$set\": { \"" + filterFieldName + "\": \"new value\" } }");
         setValueSafely(configMap, UPDATE_LIMIT, "ALL");
 
         String rawQuery = "{\n" +
