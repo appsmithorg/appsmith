@@ -10,7 +10,7 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "JsonEditor",
-    rows: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 8.5 * GRID_DENSITY_MIGRATION_V1,
     columns: 8 * GRID_DENSITY_MIGRATION_V1,
     version: 1,
 

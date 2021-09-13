@@ -4,6 +4,8 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+
 import JsonEditorComponent from "../component";
 
 class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
@@ -33,6 +35,41 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
               type: ValidationTypes.BOOLEAN,
             },
           },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isCopyable",
+            helpText:
+              "Toggle the ability to copy the current json value into the clipboard",
+            label: "Allow Copy",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Actions",
+        children: [
+          {
+            helpText: "Triggers an action when clicking on save button",
+            propertyName: "onSave",
+            label: "onSave",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
         ],
       },
     ];
@@ -61,12 +98,15 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
   }
 
   getPageView() {
-    const { defaultText, widgetId } = this.props;
+    const { defaultText, isCopyable, isDisabled, widgetId } = this.props;
 
     return (
       <JsonEditorComponent
+        copyable={isCopyable}
+        disabled={isDisabled}
         onChangeJSON={this.handleChangeJSON}
         onChangeText={this.handleChangeText}
+        onSave={this.handleSaveButtonClick}
         text={defaultText}
         widgetId={widgetId}
       />
@@ -79,6 +119,19 @@ class JsonEditorWidget extends BaseWidget<JsonEditorWidgetProps, WidgetState> {
 
   private handleChangeText = (text: string) => {
     this.props.updateWidgetMetaProperty("jsonString", text);
+  };
+
+  private handleSaveButtonClick = () => {
+    const { onSave } = this.props;
+    if (onSave) {
+      super.executeAction({
+        triggerPropertyName: "onSave",
+        dynamicString: onSave,
+        event: {
+          type: EventType.ON_JSON_EDITOR_SAVE,
+        },
+      });
+    }
   };
 }
 

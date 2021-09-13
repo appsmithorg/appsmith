@@ -23,12 +23,31 @@ const Container = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  overflow: auto;
 `;
 
 const JsonEditorContainer = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
+  .ace_gutter-cell.ace_error {
+    background: none;
+  }
+
+  .ace_tooltip {
+    display: none !important;
+  }
+`;
+
+const OverlaidDiv = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: 0.3;
+  cursor: not-allowed;
 `;
 
 const MenuBarContainer = styled.div``;
@@ -43,7 +62,14 @@ const modes: JSONEditorMode[] = [
 ];
 
 function JsonEditorComponent(props: JsonEditorComponentProps) {
-  const { onChangeJSON, onChangeText, text } = props;
+  const {
+    copyable,
+    disabled,
+    onChangeJSON,
+    onChangeText,
+    onSave,
+    text,
+  } = props;
 
   const editorRef = useRef<JSONEditor>();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,15 +110,23 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
     });
   }, []);
 
+  const handleSave = useCallback(() => {
+    onSave();
+  }, []);
+
   return (
     <Container>
+      {disabled && <OverlaidDiv />}
       <MenuBarContainer>
-        <Button
-          icon="clipboard"
-          onClick={handleCopyToClipboard}
-          outlined
-          text="Copy to clipboard"
-        />
+        {copyable && (
+          <Button
+            icon="clipboard"
+            onClick={handleCopyToClipboard}
+            outlined
+            text="Copy to clipboard"
+          />
+        )}
+        <Button icon="floppy-disk" onClick={handleSave} outlined text="Save" />
       </MenuBarContainer>
       <JsonEditorContainer ref={containerRef} />
     </Container>
@@ -100,9 +134,12 @@ function JsonEditorComponent(props: JsonEditorComponentProps) {
 }
 
 export interface JsonEditorComponentProps extends ComponentProps {
+  disabled?: boolean;
+  copyable?: boolean;
   text: string;
   onChangeJSON: (json: any) => void;
   onChangeText: (text: string) => void;
+  onSave: () => void;
 }
 
 export default JsonEditorComponent;
