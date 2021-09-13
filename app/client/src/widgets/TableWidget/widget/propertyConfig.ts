@@ -186,6 +186,35 @@ const updateColumnStyles = (
   }
   return;
 };
+// Select a default Icon Alignment when an icon is chosen
+function updateIconAlignment(
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) {
+  const property = getBasePropertyPath(propertyPath);
+  const iconAlign = get(props, `${property}.iconAlign`, "");
+  let propertiesToUpdate = [{ propertyPath, propertyValue }];
+  const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
+    props,
+    propertyPath,
+    propertyValue,
+  );
+  if (updateDerivedColumnsHookArr) {
+    propertiesToUpdate = [
+      ...updateDerivedColumnsHookArr,
+      ...propertiesToUpdate,
+    ];
+  }
+
+  if (iconAlign) {
+    propertiesToUpdate.push({
+      propertyPath: "iconAlign",
+      propertyValue: Alignment.LEFT,
+    });
+  }
+  return propertiesToUpdate;
+}
 
 // A hook for handling property updates when the primaryColumns
 // has changed and it is supposed to update the derivedColumns
@@ -1443,35 +1472,7 @@ export default [
                       ColumnTypes.ICON_BUTTON,
                     ]);
                   },
-                  // Select a default Icon Alignment when an icon is chosen
-                  updateHook: function updateHook(
-                    props: TableWidgetProps,
-                    propertyPath: string,
-                    propertyValue: string,
-                  ) {
-                    const property = getBasePropertyPath(propertyPath);
-                    const iconAlign = get(props, `${property}.iconAlign`, "");
-                    let propertiesToUpdate = [{ propertyPath, propertyValue }];
-                    const updateDerivedColumnsHookArr = updateDerivedColumnsHook(
-                      props,
-                      propertyPath,
-                      propertyValue,
-                    );
-                    if (updateDerivedColumnsHookArr) {
-                      propertiesToUpdate = [
-                        ...updateDerivedColumnsHookArr,
-                        ...propertiesToUpdate,
-                      ];
-                    }
-
-                    if (iconAlign) {
-                      propertiesToUpdate.push({
-                        propertyPath: "iconAlign",
-                        propertyValue: Alignment.LEFT,
-                      });
-                    }
-                    return propertiesToUpdate;
-                  },
+                  updateHook: updateIconAlignment,
                   validation: {
                     type: ValidationTypes.TEXT,
                   },
