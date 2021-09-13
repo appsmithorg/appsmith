@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,16 +29,15 @@ public class GitFileUtils {
     /**
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param defaultApplicationId this is equivalent to default branch in git and will be used for creating the path
-     * @param organizationId organization from which application needs to dehydrated from the DB
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @param applicationJson application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<Path> saveApplicationToLocalRepo(String organizationId,
-                                                 String defaultApplicationId,
+    public Mono<Path> saveApplicationToLocalRepo(Path baseRepoSuffix,
                                                  ApplicationJson applicationJson,
-                                                 String branchName) {
+                                                 String branchName,
+                                                 boolean isDefault) throws IOException {
 
         /*
             1. Create application reference for appsmith-git module
@@ -80,8 +80,9 @@ public class GitFileUtils {
         applicationReference.setDatasources(new HashMap<>(resourceMap));
         resourceMap.clear();
 
+
         // Save application to git repo
-        return fileUtils.saveApplicationToGitRepo(organizationId, defaultApplicationId, applicationReference, branchName);
+        return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName, isDefault);
     }
 
     /**

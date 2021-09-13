@@ -3,14 +3,14 @@ package com.appsmith.external.git;
 import com.appsmith.external.models.ApplicationGitReference;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
      * ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param organizationId from which organization application is serialised and will be use for directory path to store the application
-     * @param defaultApplicationId this is equivalent to default branch in git and will be used for creating the path
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @param branchName git branch for current application in context, we will be mapping each branch with separate application in DB
      * @return Path to where the application is stored
@@ -28,10 +28,10 @@ public interface FileInterface {
      *       --page1
      *       --page2
      */
-    Mono<Path> saveApplicationToGitRepo(String organizationId,
-                                        String defaultApplicationId,
+    Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
                                         ApplicationGitReference applicationGitReference,
-                                        String branchName);
+                                        String branchName,
+                                        boolean isDefault) throws IOException;
 
     /**
      * This method will reconstruct the application from the repo

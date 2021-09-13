@@ -13,6 +13,9 @@ public class GitApplicationMetadata {
     // Git remote url will be used while pushing and pulling changes
     String remoteUrl;
 
+    // The name of git repo
+    String repoName;
+
     // Default application id used for storing the application files in local volume :
     // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
     @JsonIgnore

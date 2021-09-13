@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -47,24 +48,28 @@ public class FileUtilsImpl implements FileInterface {
      * implementation for branching. This decision has been taken considering the case multiple users can checkout
      * different branches at same time API reference for worktree => https://git-scm.com/docs/git-worktree
      * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
-     * @param defaultApplicationId default application equivalent to default branch in git, this will be used for creating
-     *                             the path and will be unique for each instance
-     * @param organizationId organization from which application needs to dehydrated from the DB
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
-    public Mono<Path> saveApplicationToGitRepo(String organizationId,
-                                                 String defaultApplicationId,
-                                                 ApplicationGitReference applicationGitReference,
-                                                 String branchName) {
+    public Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
+                                               ApplicationGitReference applicationGitReference,
+                                               String branchName,
+                                               boolean isDefault) throws IOException {
 
-        // The repoPath will contain the actual path of branch as we will be using worktree.
-        // Branch name will be null for default branch
-        // So path will be like:
-        // Children branches : baseRepo/orgId/defaultAppId/repoName/branchName/applicationData
-        // Default branch : baseRepo/orgId/defaultAppId/repoName/applicationData
-        Path baseRepoBranchPath = Paths.get(gitRootPath, organizationId, defaultApplicationId, branchName);
+        Path baseRepo = Paths.get(gitRootPath).resolve(baseRepoSuffix);
+
+        // As we are using the worktree path for branches will be like:
+        // Children branches : baseRepo/branchName/applicationData
+        // Default branch : baseRepo/applicationData
+        // baseRepo : root/orgId/defaultAppId/repoName
+        Path baseRepoBranchPath = isDefault ? baseRepo : baseRepo.resolve(branchName);
+
+        // Check if this is a valid repo and only then proceed to update the files. We are using the worktrees for each
+        // branch present in the local repo so each branch directory will have .git
+        Git git = Git.open(baseRepo.toFile());
+
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 

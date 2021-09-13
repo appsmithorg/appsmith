@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.OrganizationRepository;
-import io.sentry.protocol.App;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -168,7 +167,6 @@ public class GitServiceTest {
         testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("ValidTest TestApp");
         Application application1 = applicationService.createDefault(testApplication).block();
-        //Mockito.when(applicationService.getById(Mockito.anyString())).thenReturn(Mono.just(testApplication));
 
         GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", application1.getId(), orgId, gitConfig);
         Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);

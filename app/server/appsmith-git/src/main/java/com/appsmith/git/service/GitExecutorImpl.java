@@ -13,7 +13,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -33,8 +35,7 @@ public class GitExecutorImpl implements GitExecutor {
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
     private final FileUtilsImpl fileUtils;
 
-    public static final DateTimeFormatter ISO_FORMATTER =
-        DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
+    public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
     private final static String DEFAULT_REMOTE = "origin";
 
@@ -138,22 +139,46 @@ public class GitExecutorImpl implements GitExecutor {
 
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder("Pushed successfully with status : ");
         git.push()
             .setTransportConfigCallback(transportConfigCallback)
             .setRemote(remoteUrl)
             .call()
             .forEach(pushResult ->
-                pushResult.getRemoteUpdates().forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getMessage()))
+                pushResult.getRemoteUpdates()
+                    .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
             );
         // We can support username and password in future if needed
         // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
         git.close();
-        return result.toString();
+        return result.substring(0, result.length() - 1);
     }
 
     private Path createRepoPath(Path suffix) {
-        return Paths.get(fileUtils.getGitRootPath()).resolve(suffix).resolve("deploy-key-test");
+        return Paths.get(fileUtils.getGitRootPath()).resolve(suffix);
+    }
+
+    @Override
+    public String cloneApp(Path repoPath,
+                           String remoteUrl,
+                           String privateSshKey,
+                           String publicSshKey) throws GitAPIException, IOException {
+
+        final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
+
+        File file = Paths.get(fileUtils.getGitRootPath()).resolve(repoPath).toFile();
+        while(file.exists()) {
+            FileSystemUtils.deleteRecursively(file);
+        }
+
+        Git result = Git.cloneRepository()
+            .setURI(remoteUrl)
+            .setTransportConfigCallback(transportConfigCallback)
+            .setDirectory(file)
+            .call();
+        String branchName = result.getRepository().getBranch();
+        result.close();
+        return branchName;
     }
 
 }

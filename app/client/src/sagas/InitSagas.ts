@@ -106,7 +106,7 @@ function* initializeEditorSaga(
       [
         fetchPageList(applicationId, APP_MODE.EDIT),
         fetchPage(pageId, true),
-        fetchApplication(applicationId, APP_MODE.EDIT),
+        fetchApplication({ payload: { applicationId, mode: APP_MODE.EDIT } }),
       ],
       [
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
@@ -204,7 +204,11 @@ export function* initializeAppViewerSaga(
     // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
     put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
-    put(fetchApplication(applicationId, APP_MODE.PUBLISHED)),
+    put(
+      fetchApplication({
+        payload: { applicationId, mode: APP_MODE.PUBLISHED },
+      }),
+    ),
   ]);
 
   const resultOfPrimaryCalls = yield race({
