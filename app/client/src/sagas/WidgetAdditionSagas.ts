@@ -10,11 +10,8 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import WidgetConfigResponse, {
-  GRID_DENSITY_MIGRATION_V1,
-} from "mockResponses/WidgetConfigResponse";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -35,6 +32,11 @@ import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
 import { WidgetProps } from "widgets/BaseWidget";
+import WidgetFactory from "utils/WidgetFactory";
+import { omit } from "lodash";
+import produce from "immer";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 type GeneratedWidgetPayload = {
   widgetId: string;
@@ -56,30 +58,44 @@ function* getChildWidgetProps(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
 ) {
-  const { leftColumn, newWidgetId, props, topRow, type } = params;
-  let { columns, parentColumnSpace, parentRowSpace, rows, widgetName } = params;
+  const { leftColumn, newWidgetId, topRow, type } = params;
+  let {
+    columns,
+    parentColumnSpace,
+    parentRowSpace,
+    props,
+    rows,
+    widgetName,
+  } = params;
   let minHeight = undefined;
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const { blueprint = undefined, ...restDefaultConfig } = {
-    ...(WidgetConfigResponse as any).config[type],
-  };
+  const restDefaultConfig = omit(WidgetFactory.widgetConfigMap.get(type), [
+    "blueprint",
+  ]);
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
-    const entityNames = yield call(getEntityNames);
+    const entityNames: string[] = yield call(getEntityNames);
 
     widgetName = getNextEntityName(restDefaultConfig.widgetName, [
       ...widgetNames,
       ...entityNames,
     ]);
   }
-  if (type === WidgetTypes.CANVAS_WIDGET) {
+  if (type === "CANVAS_WIDGET") {
     columns =
       (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
     parentColumnSpace = 1;
     rows = (parent.bottomRow - parent.topRow) * parent.parentRowSpace;
     parentRowSpace = 1;
     minHeight = rows;
-    if (props) props.children = [];
+    // if (props) props.children = [];
+
+    if (props) {
+      props = produce(props, (draft: WidgetProps) => {
+        if (!draft.children || !Array.isArray(draft.children)) {
+          draft.children = [];
+        }
+      });
+    }
   }
 
   const widgetProps = {
@@ -88,6 +104,8 @@ function* getChildWidgetProps(
     columns,
     rows,
     minHeight,
+    widgetId: newWidgetId,
+    renderMode: RenderModes.CANVAS,
   };
   const widget = generateWidgetProps(
     parent,
@@ -118,15 +136,13 @@ function* generateChildWidgets(
   widgets[widget.widgetId] = widget;
 
   // Get the default config for the widget from WidgetConfigResponse
-  const defaultConfig = {
-    ...(WidgetConfigResponse as any).config[widget.type],
-  };
+  const defaultConfig = { ...WidgetFactory.widgetConfigMap.get(widget.type) };
 
   // If blueprint is provided in the params, use that
   // else use the blueprint available in WidgetConfigResponse
   // else there is no blueprint for this widget
   const blueprint =
-    propsBlueprint || { ...defaultConfig.blueprint } || undefined;
+    propsBlueprint || { ...defaultConfig?.blueprint } || undefined;
 
   // If there is a blueprint.view
   // We need to generate the children based on the view
@@ -300,7 +316,9 @@ export function* addChildrenSaga(
     children.forEach((child) => {
       // Create only if it doesn't already exist
       if (!widgets[child.widgetId]) {
-        const defaultConfig: any = WidgetConfigResponse.config[child.type];
+        const defaultConfig: any = WidgetFactory.widgetConfigMap.get(
+          child.type,
+        );
         const newWidgetName = getNextEntityName(defaultConfig.widgetName, [
           ...widgetNames,
           ...entityNames,

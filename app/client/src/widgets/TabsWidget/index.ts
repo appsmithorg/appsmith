@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { WidgetProps } from "widgets/BaseWidget";
-import { generateReactKey } from "utils/generators";
 import {
   BlueprintOperationTypes,
   GRID_DENSITY_MIGRATION_V1,

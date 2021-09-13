@@ -11,7 +11,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { GridDefaults, WidgetTypes } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, remove } from "lodash";
@@ -29,6 +29,8 @@ import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import { getAllWidgetsInTree } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
   id: string;
