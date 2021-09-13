@@ -94,6 +94,9 @@ import FilePickerWidgetV2, {
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
+import DocumentViewerWidget, {
+  CONFIG as DOCUMENT_VIEWER_WIDGET_CONFIG,
+} from "widgets/DocumentViewerWidget";
 
 import log from "loglevel";
 
@@ -135,5 +138,6 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(DocumentViewerWidget, DOCUMENT_VIEWER_WIDGET_CONFIG);
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
