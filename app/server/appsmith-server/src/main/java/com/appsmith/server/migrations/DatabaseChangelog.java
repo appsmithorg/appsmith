@@ -2848,7 +2848,7 @@ public class DatabaseChangelog {
          * - Forced to traverse document one key at a time for the lack of a better API that allows traversal for
          * chained keys or key list.
          */
-        for (int i=0; i<pathKeys.length; i++) {
+        for (int i = 0; i < pathKeys.length; i++) {
             if (documentPtr.containsKey(pathKeys[i])) {
                 try {
                     documentPtr = documentPtr.get(pathKeys[i], Document.class);
@@ -2857,8 +2857,7 @@ public class DatabaseChangelog {
                     e.printStackTrace();
                     return null;
                 }
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -2992,5 +2991,162 @@ public class DatabaseChangelog {
         }
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "085", id = "uninstall-mongo-uqi-plugin", author = "")
+    public void uninstallMongoUqiPluginAndRemoveAllActions(MongockTemplate mongoTemplate) {
+
+        Plugin mongoUqiPlugin = mongoTemplate.findAndRemove(
+                query(where("packageName").is("mongo-uqi-plugin")),
+                Plugin.class
+        );
+
+        // Uninstall the plugin from all organizations
+        for (Organization organization : mongoTemplate.findAll(Organization.class)) {
+            if (CollectionUtils.isEmpty(organization.getPlugins())) {
+                // do nothing
+            }
+
+            final Set<String> installedPlugins = organization.getPlugins()
+                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+
+            if (installedPlugins.contains(mongoUqiPlugin.getId())) {
+                OrganizationPlugin mongoUqiOrganizationPlugin = organization.getPlugins()
+                        .stream()
+                        .filter(organizationPlugin -> organizationPlugin.getPluginId().equals(mongoUqiPlugin.getId()))
+                        .findFirst()
+                        .get();
+
+                installedPlugins.remove(mongoUqiOrganizationPlugin);
+                mongoTemplate.save(organization);
+            }
+        }
+
+        // Delete all mongo uqi datasources
+        List<Datasource> removedDatasources = mongoTemplate.findAllAndRemove(
+                query(where("pluginId").is(mongoUqiPlugin.getId())),
+                Datasource.class
+        );
+
+        // Now delete all the actions created on top of mongo uqi datasources
+        for (Datasource deletedDatasource : removedDatasources) {
+            mongoTemplate.findAllAndRemove(
+                    query(where("unpublishedAction.datasource.id").is(deletedDatasource.getId())),
+                    NewAction.class
+            );
+        }
+    }
+
+    private final static Map<Integer, String> mongoMigrationMap = Map.ofEntries(
+            Map.entry(0, "smartSubstitution"), //SMART_BSON_SUBSTITUTION
+            Map.entry(2, "command"), // COMMAND
+            Map.entry(19, "collection"), // COLLECTION
+            Map.entry(3, "find.query"), // FIND_QUERY
+            Map.entry(4, "find.sort"), // FIND_SORT
+            Map.entry(5, "find.projection"), // FIND_PROJECTION
+            Map.entry(6, "find.limit"), // FIND_LIMIT
+            Map.entry(7, "find.skip"), // FIND_SKIP
+            Map.entry(11, "updateMany.query"), // UPDATE_QUERY
+            Map.entry(12, "updateMany.update"), // UPDATE_UPDATE
+            Map.entry(21, "updateMany.limit"), // UPDATE_LIMIT
+            Map.entry(13, "delete.query"), // DELETE_QUERY
+            Map.entry(20, "delete.limit"), // DELETE_LIMIT
+            Map.entry(14, "count.query"), // COUNT_QUERY
+            Map.entry(15, "distinct.query"), // DISTINCT_QUERY
+            Map.entry(16, "distinct.key"), // DISTINCT_KEY
+            Map.entry(17, "aggregate.arrayPipelines"), // AGGREGATE_PIPELINE
+            Map.entry(18, "insert.documents") // INSERT_DOCUMENT
+    );
+
+    public static void setValueSafelyFormDataUqi(Map<String, Object> formData, String field, Object value) {
+
+        // This field value contains nesting
+        if (field.contains(".")) {
+
+            String[] fieldNames = field.split("\\.");
+
+            // In case the parent key does not exist in the map, create one
+            formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
+
+            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
+
+            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
+            String nestedFieldName = String.join(".", trimmedFieldNames);
+
+            // Now set the value from the new nested map using trimmed field name (without the parent key)
+            setValueSafelyFormDataUqi(nestedMap, nestedFieldName, value);
+        } else {
+            // This is a top level field. Set the value
+            formData.put(field, value);
+        }
+    }
+
+    private void updateFormData(int index, Object value, Map formData) {
+        if (mongoMigrationMap.containsKey(index)) {
+            String path = mongoMigrationMap.get(index);
+            setValueSafelyFormDataUqi(formData, path, value);
+        }
+    }
+
+    private Map iteratePluginSpecifiedTemplatesAndCreateFormData(List<Property> pluginSpecifiedTemplates) {
+
+        if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
+            Map<String, Object> formData = new HashMap<>();
+            for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
+                Property template = pluginSpecifiedTemplates.get(i);
+                if (template != null) {
+                    updateFormData(i, template.getValue(), formData);
+                }
+            }
+            return formData;
+        }
+
+        return new HashMap<>();
+    }
+
+    @ChangeSet(order = "086", id = "migrate-mongo-to-uqi", author = "")
+    public void migrateMongoPluginToUqi(MongoTemplate mongoTemplate) {
+
+        // First update the UI component for the mongo plugin to UQI
+        Plugin mongoPlugin = mongoTemplate.findOne(
+                query(where("packageName").is("mongo-plugin")),
+                Plugin.class
+        );
+        mongoPlugin.setUiComponent("UQIDbEditorForm");
+        mongoTemplate.save(mongoPlugin);
+
+        // Now migrate all the existing actions to the new UQI structure.
+
+        List<NewAction> mongoActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(mongoPlugin.getId()))),
+                NewAction.class
+        );
+
+        for (NewAction mongoAction : mongoActions) {
+            if (mongoAction.getUnpublishedAction() == null && mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+                // No migrations required
+                continue;
+            }
+
+            List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
+
+            mongoAction.getUnpublishedAction().getActionConfiguration().setFormData(
+                    iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates)
+            );
+            mongoAction.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(null);
+
+            ActionDTO publishedAction = mongoAction.getPublishedAction();
+            if (publishedAction.getActionConfiguration() != null &&
+                    publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
+                pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
+                publishedAction.getActionConfiguration().setFormData(
+                        iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates)
+                );
+                publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
+            }
+
+            mongoTemplate.save(mongoAction);
+        }
     }
 }
