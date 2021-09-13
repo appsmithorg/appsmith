@@ -2,7 +2,7 @@ package com.appsmith.git.service;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,8 @@ import java.util.List;
 public class GitExecutorImpl implements GitExecutor {
 
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
-    private final FileUtilsImpl fileUtils;
+
+    private final GitServiceConfig gitServiceConfig;
 
     public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
@@ -116,6 +117,10 @@ public class GitExecutorImpl implements GitExecutor {
         return commitLogs;
     }
 
+    private Path createRepoPath(Path suffix) {
+        return Paths.get(gitServiceConfig.getGitRootPath()).resolve(suffix);
+    }
+
     /**
      * Method to push changes to remote repo
      * @param branchSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
@@ -154,10 +159,6 @@ public class GitExecutorImpl implements GitExecutor {
         return result.substring(0, result.length() - 1);
     }
 
-    private Path createRepoPath(Path suffix) {
-        return Paths.get(fileUtils.getGitRootPath()).resolve(suffix);
-    }
-
     @Override
     public String cloneApp(Path repoPath,
                            String remoteUrl,
@@ -166,8 +167,8 @@ public class GitExecutorImpl implements GitExecutor {
 
         final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
 
-        File file = Paths.get(fileUtils.getGitRootPath()).resolve(repoPath).toFile();
-        while(file.exists()) {
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile();
+        while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
         }
 

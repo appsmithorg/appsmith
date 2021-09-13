@@ -3,13 +3,15 @@ package com.appsmith.git.helpers;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.git.configurations.GitServiceConfig;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -37,11 +39,12 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 @Slf4j
 @Getter
+@RequiredArgsConstructor
 @Component
+@Import({GitServiceConfig.class})
 public class FileUtilsImpl implements FileInterface {
 
-    @Value("${appsmith.git.root:./container-volumes/git-storage}")
-    public String gitRootPath;
+    private final GitServiceConfig gitServiceConfig;
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -58,7 +61,7 @@ public class FileUtilsImpl implements FileInterface {
                                                String branchName,
                                                boolean isDefault) throws IOException {
 
-        Path baseRepo = Paths.get(gitRootPath).resolve(baseRepoSuffix);
+        Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
         // As we are using the worktree path for branches will be like:
         // Children branches : baseRepo/branchName/applicationData
@@ -195,7 +198,7 @@ public class FileUtilsImpl implements FileInterface {
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        Path baseRepoPath = Paths.get(gitRootPath, organisationId, defaultApplicationId, branchName);
+        Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath(), organisationId, defaultApplicationId, branchName);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
 

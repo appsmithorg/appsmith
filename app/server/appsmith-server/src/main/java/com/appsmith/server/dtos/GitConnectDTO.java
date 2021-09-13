@@ -12,7 +12,5 @@ public class GitConnectDTO {
 
     String applicationId;
 
-    String organizationId;
-
     GitConfig gitConfig;
 }
