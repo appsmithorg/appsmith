@@ -95,29 +95,29 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     dynamicString,
     event: { type },
     responseData,
-    source,
-    triggerPropertyName,
   } = payload;
   log.debug({ dynamicString, responseData });
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
 
-  const triggers = yield call(
-    evaluateDynamicTrigger,
-    dynamicString,
-    responseData,
-  );
-
-  AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
-
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, type),
-      ),
+  try {
+    const triggers = yield call(
+      evaluateDynamicTrigger,
+      dynamicString,
+      responseData,
     );
+
+    log.debug({ triggers });
+    if (triggers && triggers.length) {
+      yield all(
+        triggers.map((trigger: ActionDescription) =>
+          call(executeActionTriggers, trigger, type),
+        ),
+      );
+    }
+  } catch (e) {
+    throw e;
   }
 }
 
@@ -131,6 +131,7 @@ function* initiateActionTriggerExecution(
     if (event.callback) {
       event.callback({ success: true });
     }
+    AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   } catch (e) {
     // handle errors here
     if (event.callback) {

@@ -78,8 +78,10 @@ export default function* executePromiseSaga(
         },
         responseData: catchArguments,
       });
+
+      throw e;
     } else {
-      throw new TriggerFailureError("Uncaught promise rejection", e);
+      throw new TriggerFailureError(e.message || "Uncaught promise rejection");
     }
   }
 

@@ -13,7 +13,6 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { isString } from "lodash";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
