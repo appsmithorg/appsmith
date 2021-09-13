@@ -106,22 +106,37 @@ public class WidgetSuggestionHelper {
                 if(((JsonNode) data).isArray() || ((JsonNode) data).isNumber() || ((JsonNode) data).isTextual() ) {
                     widgetTypeList = getWidgetsForTypeString(fields, 0);
                 }
-            }
-            if(data instanceof ArrayList && !((ArrayList) data).isEmpty()) {
-                if(((ArrayList) data).get(0) instanceof Map) {
-                    HashMap map = (HashMap) ((ArrayList) data).get(0);
-                    Set fieldList = map.keySet();
-                    /*for(Object key : fieldList) {
-                        if(map.get(key).getClass().)
-                    }*/
+            } else {
+                if(data instanceof ArrayList && !((ArrayList) data).isEmpty()) {
+                    if(((ArrayList) data).get(0) instanceof Map) {
+                        try{
+                            HashMap map = (HashMap) ((ArrayList) data).get(0);
+                            Set fieldList = map.keySet();
+                            fields = new ArrayList<>();
+                            numericFields = new ArrayList<>();
+
+                            //Get all the fields from the object and check for the possible widget match
+                            for(Object key : fieldList) {
+                                if(map.get(key) instanceof String) {
+                                    fields.add(((String) key));
+                                }
+                                if(map.get(key) instanceof Number) {
+                                    numericFields.add(((String) key));
+                                }
+                            }
+                            widgetTypeList = getWidgetsForTypeArray(fields, numericFields);
+                        } catch (ClassCastException e) {
+                            log.warn("Error while casting data to suggest widget.", e);
+                            widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                        }
+                    } else {
+                        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+                        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                    }
                 } else {
-                    widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
-                }
-                return widgetTypeList;
-            }
-            else {
-                if (data != null ) {
-                    widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                    if (data != null ) {
+                        widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
+                    }
                 }
             }
         }
