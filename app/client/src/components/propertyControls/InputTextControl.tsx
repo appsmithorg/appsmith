@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import { InputType } from "widgets/InputWidget";
+import { InputType } from "components/constants";
 import CodeEditor, {
   CodeEditorExpected,
 } from "components/editorComponents/CodeEditor";

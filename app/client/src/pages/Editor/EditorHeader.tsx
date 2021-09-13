@@ -48,7 +48,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
@@ -176,7 +176,6 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  darkTheme: any;
   lastUpdatedTime?: number;
 };
 
@@ -241,7 +240,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   return (
-    <ThemeProvider theme={props.darkTheme}>
+    <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
           <AppsmithLink to={APPLICATIONS_URL}>
@@ -362,6 +361,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
+const theme = getTheme(ThemeMode.DARK);
+
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   orgId: getCurrentOrgId(state),
@@ -369,7 +370,6 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.LIGHT),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -382,5 +382,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     });
   },
 });
+
+EditorHeader.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);

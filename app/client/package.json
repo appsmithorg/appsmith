@@ -177,9 +177,10 @@
     "cytest": "REACT_APP_TESTING=TESTING REACT_APP_ENVIRONMENT=DEVELOPMENT craco start & ./node_modules/.bin/cypress open",
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
-    "postinstall": "patch-package",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "generate:widget": "plop --plopfile generators/index.js",
+    "postinstall": "patch-package"
   },
   "resolution": {
     "jest": "24.8.0"
@@ -241,7 +242,6 @@
     "@types/toposort": "^2.0.3",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
-    "babel-loader": "^8.1.0",
     "babel-plugin-styled-components": "^1.10.7",
     "cra-bundle-analyzer": "^0.1.0",
     "craco-babel-loader": "^0.1.4",
@@ -266,6 +266,7 @@
     "mochawesome-report-generator": "^4.1.0",
     "msw": "^0.28.0",
     "patch-package": "^6.4.7",
+    "plop": "^2.7.4",
     "postinstall-postinstall": "^2.1.0",
     "raw-loader": "^4.0.2",
     "react-docgen-typescript-loader": "^3.6.0",
