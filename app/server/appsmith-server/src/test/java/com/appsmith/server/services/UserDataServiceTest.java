@@ -5,6 +5,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
+import com.appsmith.server.repositories.UserDataRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,9 @@ public class UserDataServiceTest {
 
     @Autowired
     private UserDataService userDataService;
+
+    @Autowired
+    private UserDataRepository userDataRepository;
 
     @Autowired
     private AssetRepository assetRepository;
@@ -183,16 +187,15 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
-        // Set an initial list of org ids to the current user.
-        UserData changes = new UserData();
-        changes.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
-
-        final Mono<UserData> resultMono = userDataService.updateForCurrentUser(changes)
-                .flatMap(userData -> {
-                    // Now check whether a new org id is put at first.
-                    String sampleOrgId = "sample-org-id";
-                    return userDataService.updateLastUsedOrgList(sampleOrgId);
-                });
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of org ids to the current user.
+            userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new org id is put at first.
+            String sampleOrgId = "sample-org-id";
+            return userDataService.updateLastUsedOrgList(sampleOrgId);
+        });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());

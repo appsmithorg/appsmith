@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.server.solutions.UserChangedHandler;
 import com.mongodb.DBObject;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,8 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
 
     private final FeatureFlagService featureFlagService;
 
+    private final UserChangedHandler userChangedHandler;
+
     private static final int MAX_PROFILE_PHOTO_SIZE_KB = 1024;
 
     @Autowired
@@ -58,13 +61,15 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                                SessionUserService sessionUserService,
                                AssetService assetService,
                                ReleaseNotesService releaseNotesService,
-                               FeatureFlagService featureFlagService) {
+                               FeatureFlagService featureFlagService,
+                               UserChangedHandler userChangedHandler) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
+        this.userChangedHandler = userChangedHandler;
     }
 
     @Override
@@ -94,8 +99,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(this::getForUser);
     }
 
-    @Override
-    public Mono<UserData> updateForCurrentUser(UserData updates) {
+    private Mono<UserData> updateForCurrentUser(UserData updates) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userRepository.findByEmail(user.getEmail()))
                 .flatMap(user -> {
@@ -189,7 +193,10 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                     final Asset uploadedAsset = tuple.getT2();
                     final UserData updates = new UserData();
                     updates.setProfilePhotoAssetId(uploadedAsset.getId());
-                    final Mono<UserData> updateMono = updateForCurrentUser(updates);
+                    final Mono<UserData> updateMono = updateForCurrentUser(updates).map(userData -> {
+                        userChangedHandler.publish(userData.getUserId(), uploadedAsset.getId());
+                        return userData;
+                    });
                     if (StringUtils.isEmpty(oldAssetId)) {
                         return updateMono;
                     } else {
@@ -204,6 +211,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
                 .flatMap(userData -> {
                     String profilePhotoAssetId = userData.getProfilePhotoAssetId();
                     userData.setProfilePhotoAssetId(null);
+                    userChangedHandler.publish(userData.getUserId(), null);
                     return repository.save(userData).thenReturn(profilePhotoAssetId);
                 })
                 .flatMap(assetService::remove);
