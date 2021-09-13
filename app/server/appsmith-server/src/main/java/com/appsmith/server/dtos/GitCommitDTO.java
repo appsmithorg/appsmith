@@ -8,4 +8,6 @@ public class GitCommitDTO {
     private String commitMessage;
 
     private String commitHeader;
+
+    private Boolean doPush;
 }

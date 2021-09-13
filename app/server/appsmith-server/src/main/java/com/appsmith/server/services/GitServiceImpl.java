@@ -185,14 +185,28 @@ public class GitServiceImpl implements GitService {
                 } catch (IOException | GitAPIException e) {
                     log.error("git commit exception : ", e);
                     if (e instanceof EmptyCommitException) {
+                        final String emptyCommitError = "On current branch nothing to commit, working tree clean";
+                        if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
+                            return emptyCommitError;
+                        }
                         throw new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
                             "commit",
-                            "On current branch nothing to commit, working tree clean"
+                            emptyCommitError
                         );
                     }
                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", e.getMessage());
                 }
+            })
+            .flatMap(commitResult -> {
+                StringBuilder result = new StringBuilder("Commit Result : " + commitResult);
+                if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
+                    //push flow
+                    result.append(". Push Result : ");
+                    return pushApplication(applicationId)
+                        .map(pushResult -> result.append(pushResult).toString());
+                }
+                return Mono.just(result.toString());
             });
     }
 
