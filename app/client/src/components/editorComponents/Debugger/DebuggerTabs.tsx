@@ -21,7 +21,7 @@ const TABS_HEADER_HEIGHT = 36;
 
 const Container = styled.div`
   ${ResizerCSS}
-  position: fixed;
+  position: absolute;
   bottom: 0;
   height: 25%;
   min-height: ${TABS_HEADER_HEIGHT}px;

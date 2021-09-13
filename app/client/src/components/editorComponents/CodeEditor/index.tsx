@@ -87,6 +87,8 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Escape",
   "Comma",
   "Backspace",
+  "Semicolon",
+  "Space",
 ];
 
 interface ReduxStateProps {
@@ -414,7 +416,8 @@ class CodeEditor extends Component<Props, State> {
           const entityType = entity.ENTITY_TYPE;
           if (
             entityType === ENTITY_TYPE.WIDGET ||
-            entityType === ENTITY_TYPE.ACTION
+            entityType === ENTITY_TYPE.ACTION ||
+            entityType === ENTITY_TYPE.JSACTION
           ) {
             entityInformation.entityType = entityType;
           }
@@ -571,6 +574,8 @@ class CodeEditor extends Component<Props, State> {
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
+
+    const { entityName } = this.getEntityInformation();
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
       errors = this.props.errors;
@@ -586,9 +591,9 @@ class CodeEditor extends Component<Props, State> {
 
     const showEvaluatedValue =
       this.state.isFocused &&
+      !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!this.props.dataTreePath));
-
     return (
       <DynamicAutocompleteInputWrapper
         isActive={(this.state.isFocused && !isInvalid) || this.state.isOpened}
@@ -612,6 +617,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          entityName={entityName}
           errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}

@@ -19,7 +19,6 @@ export const Colors = {
   PURE_ORANGE: "#ffb100",
   WHITE_CLOUD: "#D3DEE3",
   GOLD: "#FFD300",
-
   BLACK: "#000000",
   BLACK_PEARL: "#040627",
   CODE_GRAY: "#090707",
@@ -37,6 +36,7 @@ export const Colors = {
   HIT_GRAY: "#A1ACB3",
   JUNGLE_MIST: "#BCCCD9",
   MERCURY: "#E8E8E8",
+  MERCURY_1: "#E3E3E3",
   MAKO: "#464D53",
   ALTO: "#DFDFDF",
 
@@ -81,6 +81,7 @@ export const Colors = {
   LIGHT_GREY: "#D4D4D4",
   LIGHT_GREY2: "#C4C4C4",
   Gallery: "#F0F0F0",
+  GALLERY_1: "#EBEBEB",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
   ALTO2: "#E0DEDE",
@@ -121,9 +122,15 @@ export const Colors = {
   BOX_SHADOW_DEFAULT_VARIANT5: "rgba(0, 0, 0, 0.25)",
 
   BUTTON_CUSTOM_SOLID_DARK_TEXT_COLOR: "#333",
+  BUTTON_DISABLED: "#c2c5c7",
 
   SELECT_DISABLED: "#ced9e080",
   SELECT_PLACEHOLDER: "#bfbfbf",
   SELECT_COLOR: "#182026",
+
+  GREY_2: "#F0F0F0",
+  GREY_3: "#EBEBEB",
+  GREY_8: "#716E6E",
+  GREY_9: "#4B4848",
 };
 export type Color = typeof Colors[keyof typeof Colors];

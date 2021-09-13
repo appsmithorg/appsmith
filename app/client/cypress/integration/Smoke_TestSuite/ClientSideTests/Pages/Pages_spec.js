@@ -23,9 +23,10 @@ describe("Pages", function() {
     );
     */
     // to check if apis are cloned
-    cy.get(".bp3-icon-caret-right ~ .t--entity-name:contains(Page1)").click({
-      multiple: true,
-    });
+    cy.get(".t--entity-name:contains(Page1)")
+      .its("length")
+      .should("be.gt", 1);
+
     cy.get(
       ".bp3-icon-caret-right ~ .t--entity-name:contains(Datasources)",
     ).click({

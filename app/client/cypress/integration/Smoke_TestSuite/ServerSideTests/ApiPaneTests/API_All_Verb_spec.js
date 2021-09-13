@@ -149,6 +149,7 @@ describe("API Panel Test Functionality", function() {
     cy.log("Response code check successful");
     cy.ResponseCheck("Josh M Krantz");
     cy.log("Response data check successful");
+    cy.switchToPaginationTab();
     cy.enterUrl(apiname, apiwidget.panigationPrevUrl, testdata.prevUrl);
     cy.clickTest(apiwidget.TestPreUrl);
     cy.validateRequest(

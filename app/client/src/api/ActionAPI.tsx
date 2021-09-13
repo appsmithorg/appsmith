@@ -92,6 +92,7 @@ export interface ActionResponse {
   isExecutionSuccess?: boolean;
   suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
+  errorType?: string;
 }
 
 export interface MoveActionRequest {
@@ -110,6 +111,7 @@ export interface UpdateActionNameRequest {
   layoutId: string;
   newName: string;
   oldName: string;
+  collectionId?: string;
 }
 
 class ActionAPI extends API {
