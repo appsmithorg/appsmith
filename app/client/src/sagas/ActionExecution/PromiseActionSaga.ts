@@ -6,8 +6,6 @@ import {
 import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
 
 export class TriggerFailureError extends Error {
