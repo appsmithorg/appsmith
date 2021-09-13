@@ -509,6 +509,7 @@ export function TableHeaderCell(props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
+  editMode?: boolean;
 }) {
   const { column } = props;
   const handleSortColumn = () => {
@@ -526,7 +527,7 @@ export function TableHeaderCell(props: {
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onClick={handleSortColumn}
+      onClick={props.editMode !== false ? handleSortColumn : undefined}
     >
       {props.isAscOrder !== undefined ? (
         <SortIconWrapper>

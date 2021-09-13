@@ -305,6 +305,7 @@ export function Table(props: TableProps) {
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
+                            editMode={props.editMode}
                             isAscOrder={column.isAscOrder}
                             isHidden={column.isHidden}
                             isResizingColumn={isResizingColumn.current}
