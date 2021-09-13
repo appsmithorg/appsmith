@@ -18,25 +18,25 @@ describe("Linting warning validation with Checkbox widget", function() {
      * @param{CheckboxPre Css} Assertion
      */
     //Mouse hover to exact warning message
-    cy.get(".CodeMirror-code .cm-variable")
+    cy.get(commonlocators.labelSectionTxt)
       .first()
       .click({ force: true })
       .wait(500);
 
     //lint mark validation
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .first()
       .should("be.visible");
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .last()
       .should("be.visible");
 
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
     //lint warning message
-    cy.get(".CodeMirror-lint-message-warning")
+    cy.get(commonlocators.lintWarningMsg)
       .should("be.visible")
       .contains("'iron_man' is not defined.");
   });

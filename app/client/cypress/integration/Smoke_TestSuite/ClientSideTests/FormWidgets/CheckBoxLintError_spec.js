@@ -17,29 +17,29 @@ describe("Linting warning validation with Checkbox widget", function() {
      * @param{CheckboxWidget}Mouseover
      * @param{CheckboxPre Css} Assertion
      */
-    //Mouse hover to exact warning message
-    cy.get(".cm-keyword")
+    //click on the text within the section
+    cy.get(commonlocators.labelSection)
       .first()
       .click({ force: true })
       .wait(500);
 
     //lint mark validation
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .first()
       .should("be.visible");
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .last()
       .should("be.visible");
 
-    cy.get(".CodeMirror-lint-mark-warning")
+    cy.get(commonlocators.lintWarning)
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
     //lint warning message
-    cy.get(".CodeMirror-lint-message-error")
+    cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
       .contains("Missing semicolon.");
-    cy.get(".CodeMirror-lint-message-warning")
+    cy.get(commonlocators.lintWarningMsg)
       .should("be.visible")
       .contains(
         "Expected an assignment or function call and instead saw an expression.",
