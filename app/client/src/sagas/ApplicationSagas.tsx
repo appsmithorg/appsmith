@@ -477,7 +477,7 @@ export function* createApplicationSaga(
         let pageURL;
         if (
           isFirstTimeUserOnboardingEnabled &&
-          FirstTimeUserOnboardingApplicationId == ""
+          FirstTimeUserOnboardingApplicationId === ""
         ) {
           yield put({
             type:
