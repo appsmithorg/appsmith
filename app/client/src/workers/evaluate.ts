@@ -98,15 +98,24 @@ const getLintingErrors = (
 
   const options = {
     indent: 2,
-    esversion: 7,
-    eqeqeq: false,
-    curly: false,
-    freeze: true,
-    undef: true,
-    unused: false,
-    asi: true,
-    worker: true,
+    esversion: 8, // For async/await support
+    eqeqeq: false, // Not necessary to use ===
+    curly: false, // Blocks can be added without {}, eg if (x) return true
+    freeze: true, // Overriding inbuilt classes like Array is not allowed
+    undef: true, // Undefined variables should be reported as error
+    forin: false, // Doesn't require filtering for..in loops with obj.hasOwnProperty()
+    noempty: false, // Empty blocks are allowed
+    strict: false, // We won't force strict mode
+    unused: false, // Unused variables are allowed
+    asi: true, // Tolerate Automatic Semicolon Insertion (no semicolons)
+    boss: true, // Tolerate assignments where comparisons would be expected
+    evil: false, // Use of eval not allowed
+    funcscope: true, // Tolerate variable definition inside control statements
+    // environments
     browser: true,
+    worker: true,
+    mocha: false,
+    // global values
     globals: globalData,
   };
 
@@ -117,9 +126,8 @@ const getLintingErrors = (
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
-      severity: lintError.code.startsWith("W")
-        ? Severity.WARNING
-        : Severity.ERROR,
+      // We are forcing warnings to errors and removing unwanted JSHint checks
+      severity: Severity.ERROR,
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
       originalBinding,
