@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Spinner from "./Spinner";
 
 type ToggleProps = CommonComponentProps & {
+  name?: string;
   onToggle: (value: boolean) => void;
   value: boolean;
 };
@@ -135,10 +136,12 @@ export default function Toggle(props: ToggleProps) {
       <input
         checked={value}
         disabled={props.disabled || props.isLoading}
+        name={props.name}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onChangeHandler(e.target.checked)
         }
         type="checkbox"
+        value={value ? "true" : "false"}
       />
       <span className="slider" />
       {props.isLoading ? (
