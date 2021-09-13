@@ -55,6 +55,7 @@ const Icon = styled.span<{
   size: string;
   color: string;
   marginOffset?: number;
+  hoverColor: string;
 }>`
   display: flex;
   justify-content: center;
@@ -66,6 +67,13 @@ const Icon = styled.span<{
     height: ${(props) => props.size};
     path {
       fill: ${(props) => props.color};
+    }
+  }
+  &:hover {
+    svg {
+      path {
+        fill: ${(props) => props.hoverColor};
+      }
     }
   }
 `;
@@ -167,8 +175,6 @@ function GitConnection(props: Props) {
 
   const placeholderText = "Paste Your Git SSH URL";
 
-  const showUnLinkIcon = remoteUrl || sshKeyPair;
-
   const gitConnectionRequest = () => {
     connectToGit({
       applicationId: currentApplicationId,
@@ -198,18 +204,21 @@ function GitConnection(props: Props) {
       <UrlContainer>
         <UrlInputContainer>
           <TextInput
-            disabled={!!sshKeyPair}
+            disabled={remoteUrl === remoteUrlInStore && remoteUrl !== ""}
             fill
             onChange={(value) => setRemoteUrl(value)}
             placeholder={placeholderText}
             value={remoteUrl}
           />
         </UrlInputContainer>
-        {showUnLinkIcon ? (
-          <Icon color={Colors.DARK_GRAY} size="22px">
-            <LinkSvg />
-          </Icon>
-        ) : null}
+        <Icon
+          color={Colors.DARK_GRAY}
+          hoverColor={Colors.GRAY2}
+          onClick={() => setRemoteUrl("")}
+          size="22px"
+        >
+          <LinkSvg />
+        </Icon>
       </UrlContainer>
       {!sshKeyPair ? (
         <ButtonContainer topMargin={4}>
@@ -239,6 +248,7 @@ function GitConnection(props: Props) {
           </DeployedKeyContainer>
           <Icon
             color={Colors.DARK_GRAY}
+            hoverColor={Colors.GRAY2}
             marginOffset={3}
             onClick={copyToClipboard}
             size="22px"
