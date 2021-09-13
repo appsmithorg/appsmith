@@ -68,9 +68,8 @@ export default function* executePromiseSaga(
         responseData = e.responseData;
       }
       // if the catch callback is not an anonymous function, passing arguments will cause errors in execution
-      const catchArguments = ACTION_ANONYMOUS_FUNC_REGEX.test(trigger.catch)
-        ? responseData
-        : undefined;
+      const matches = [...trigger.catch.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
+      const catchArguments = matches.length ? responseData : undefined;
 
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
