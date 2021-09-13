@@ -1,4 +1,5 @@
-import { debounce } from "lodash";
+import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import _, { debounce } from "lodash";
 import ReactDOM from "react-dom";
 import ResizeObserver from "resize-observer-polyfill";
 import getFeatureFlags from "utils/featureFlags";
@@ -167,4 +168,35 @@ const createDragHandler = (
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
   return dragElement;
+};
+
+export const useIsWidgetActionConnectionPresent = (
+  widgets: any,
+  actions: any,
+  deps: any,
+): boolean => {
+  const actionLables = actions.map((action: any) => action.config.name);
+
+  let isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
+    const depsConnections = getDependenciesFromInverseDependencies(
+      deps,
+      widget.widgetName,
+    );
+    return !!_.intersection(depsConnections?.directDependencies, actionLables)
+      .length;
+  });
+
+  if (!isBindingAvailable) {
+    isBindingAvailable = !!Object.values(widgets).find((widget: any) => {
+      return (
+        widget.dynamicTriggerPathList &&
+        !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
+          return !!actionLables.find((label: string) => {
+            return widget[path.key].indexOf(`${label}.run`) > -1;
+          });
+        })
+      );
+    });
+  }
+  return isBindingAvailable;
 };
