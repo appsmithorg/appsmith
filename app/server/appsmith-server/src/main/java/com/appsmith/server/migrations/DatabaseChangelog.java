@@ -3001,6 +3001,11 @@ public class DatabaseChangelog {
                 Plugin.class
         );
 
+        if (mongoUqiPlugin == null) {
+            // If there's no installed plugin for the same, don't go any further.
+            return;
+        }
+
         // Uninstall the plugin from all organizations
         for (Organization organization : mongoTemplate.findAll(Organization.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
