@@ -35,9 +35,9 @@ import {
 } from "constants/routes";
 import { AppState } from "reducers";
 import {
-  FetchApplicationPayload,
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
+  generateSSHKeyPairSuccess,
 } from "actions/applicationActions";
 import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -63,6 +63,12 @@ import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
+import { generateSSHKeyPairRequest } from "../api/ApplicationApi";
+import {
+  generateSSHKeyPairError,
+  generateSSHKeyPairReduxAction,
+  FetchApplicationReduxAction,
+} from "../actions/applicationActions";
 import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
@@ -178,9 +184,7 @@ export function* getAllApplicationSaga() {
   }
 }
 
-export function* fetchApplicationSaga(
-  action: ReduxAction<FetchApplicationPayload>,
-) {
+export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
   try {
     const { applicationId, mode } = action.payload;
     // Get endpoint based on app mode
@@ -204,6 +208,10 @@ export function* fetchApplicationSaga(
         response.data?.unreadCommentThreads,
       ),
     );
+
+    if (action.onSuccessCallback) {
+      action.onSuccessCallback(response);
+    }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
@@ -211,6 +219,9 @@ export function* fetchApplicationSaga(
         error,
       },
     });
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
   }
 }
 
@@ -596,6 +607,28 @@ export function* importApplicationSaga(
   }
 }
 
+export function* generateSSHKeyPairSaga(action: generateSSHKeyPairReduxAction) {
+  try {
+    const request: generateSSHKeyPairRequest = action.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.generateSSHKeyPair,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(generateSSHKeyPairSuccess(response.data));
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response);
+      }
+    }
+  } catch (error) {
+    yield put(generateSSHKeyPairError(error));
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -625,5 +658,9 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
+    takeLatest(
+      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+      generateSSHKeyPairSaga,
+    ),
   ]);
 }
