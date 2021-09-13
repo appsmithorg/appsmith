@@ -1,0 +1,47 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1206.35,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 420,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 37,
+    "minHeight": 430,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "JsonEditor1",
+        "rightColumn": 34,
+        "isCanvas": false,
+        "displayName": "Json Editor",
+        "iconSVG": "/static/media/icon.e6a95785.svg",
+        "widgetId": "om578oxxcp",
+        "topRow": 4,
+        "bottomRow": 38,
+        "parentRowSpace": 10,
+        "isVisible": true,
+        "type": "JSON_EDITOR_WIDGET",
+        "version": 1,
+        "hideCard": false,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "parentColumnSpace": 18.66171875,
+        "leftColumn": 2,
+        "defaultText": {"name": "myname"},
+        "key": "retsngn4d1"
+      }
+    ]
+  }
+}
