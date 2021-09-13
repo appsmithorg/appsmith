@@ -6,6 +6,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.solutions.UserChangedHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -48,6 +50,9 @@ public class UserDataServiceTest {
 
     @Autowired
     private AssetRepository assetRepository;
+
+    @MockBean
+    private UserChangedHandler userChangedHandler;
 
     private Mono<User> userMono;
 
@@ -226,6 +231,9 @@ public class UserDataServiceTest {
                 .assertNext(objects -> {
                     assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
                     assertThat(objects.getT2().getId()).isNull();
+                    Mockito.verify(userChangedHandler, Mockito.times(1)).publish(
+                            objects.getT1().getUserId(), null
+                    );
                 })
                 .verifyComplete();
     }
