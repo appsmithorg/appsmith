@@ -7,6 +7,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { ReactComponent as Function } from "assets/icons/menu/js-function.svg";
 import {
   getItemType,
   getItemTitle,
@@ -23,6 +24,7 @@ import {
   homePageIcon,
   pageIcon,
   apiIcon,
+  jsIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -112,9 +114,9 @@ const ItemTitle = styled.div`
   justify-content: space-between;
   flex: 1;
   align-items: center;
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   font-w [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${(props) => getTypographyByKey(props, "p1")};
   }
 `;
 
@@ -223,6 +225,32 @@ function ActionItem(props: {
           pluginGroups[item.config.datasource.pluginId],
         );
 
+  const title = getItemTitle(item);
+  const pageName = usePageName(config.pageId);
+  const subText = `${pageName}`;
+
+  return (
+    <>
+      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      <ItemTitle>
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </TextWrapper>
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
+      </ItemTitle>
+    </>
+  );
+}
+
+function JSCollectionItem(props: {
+  query: string;
+  item: SearchItem;
+  isActiveItem: boolean;
+}) {
+  const { item, query } = props;
+  const { config } = item || {};
+  const icon = jsIcon;
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
   const subText = `${pageName}`;
@@ -367,12 +395,27 @@ function CategoryItem({
   );
 }
 
-function SnippetItem({
-  item: {
-    body: { title },
-  },
-}: any) {
-  return <span>{title}</span>;
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  && svg {
+    width: 14px;
+    height: 14px;
+    path {
+      fill: #716e6e !important;
+    }
+  }
+`;
+
+function SnippetItem({ item: { body } }: any) {
+  return (
+    <FlexWrapper>
+      <Function />
+      <ItemTitle>
+        <span>{body.shortTitle || body.title}</span>
+      </ItemTitle>
+    </FlexWrapper>
+  );
 }
 
 const SearchItemByType = {
@@ -383,6 +426,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
+  [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
   [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
 };

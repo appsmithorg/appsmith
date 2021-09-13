@@ -157,6 +157,16 @@ public class PostgresPluginTest {
                         "    citextdata citext" +
                         ")");
 
+                statement.execute("CREATE SCHEMA sample_schema " +
+                    " CREATE TABLE sample_table (\n" +
+                    "    id serial PRIMARY KEY,\n" +
+                    "    username VARCHAR (50) UNIQUE,\n" +
+                    "    email VARCHAR (355) UNIQUE ,\n" +
+                    "    numbers INTEGER[3] ,\n" +
+                    "    texts VARCHAR[2] ,\n" +
+                    "    rating FLOAT4 \n" +
+                    ")");
+
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -168,6 +178,14 @@ public class PostgresPluginTest {
                                 " '1.2 years 3 months 2 hours'," +
                                 " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
                                 ")");
+            }
+
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                    "INSERT INTO sample_schema.\"sample_table\" VALUES (" +
+                        "1, 'Jack', 'jack@exemplars.com', " +
+                        " '{1, 2, 3}', '{\"a\", \"b\"}', 1.0" +
+                        ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -377,7 +395,7 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(4, structure.getTables().size());
+                    assertEquals(5, structure.getTables().size());
 
                     final DatasourceStructure.Table campusTable = structure.getTables().get(0);
                     assertEquals("public.campus", campusTable.getName());
@@ -448,7 +466,7 @@ public class PostgresPluginTest {
                             possessionsTable.getTemplates().toArray()
                     );
 
-                    final DatasourceStructure.Table usersTable = structure.getTables().get(3);
+                    final DatasourceStructure.Table usersTable = structure.getTables().get(4);
                     assertEquals("public.users", usersTable.getName());
                     assertEquals(DatasourceStructure.TableType.TABLE, usersTable.getType());
                     assertArrayEquals(
@@ -507,6 +525,48 @@ public class PostgresPluginTest {
                                             "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
                             },
                             usersTable.getTemplates().toArray()
+                    );
+
+                    final DatasourceStructure.Table sampleTable = structure.getTables().get(3);
+                    assertEquals("sample_schema.sample_table", sampleTable.getName());
+                    assertEquals("sample_schema", sampleTable.getSchema());
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                        new DatasourceStructure.Column[]{
+                            new DatasourceStructure.Column("id", "int4", "nextval('sample_schema.sample_table_id_seq'::regclass)",true),
+                            new DatasourceStructure.Column("username", "varchar", null, false),
+                            new DatasourceStructure.Column("email", "varchar", null, false),
+                            new DatasourceStructure.Column("numbers", "_int4", null, false),
+                            new DatasourceStructure.Column("texts", "_varchar", null, false),
+                            new DatasourceStructure.Column("rating", "float4", null, false),
+                        },
+                        sampleTable.getColumns().toArray()
+                    );
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey = new DatasourceStructure.PrimaryKey("sample_table_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                        new DatasourceStructure.Key[]{samplePrimaryKey},
+                        sampleTable.getKeys().toArray()
+                    );
+
+                    assertArrayEquals(
+                        new DatasourceStructure.Template[]{
+                            new DatasourceStructure.Template("SELECT", "SELECT * FROM sample_schema.\"sample_table\" LIMIT 10;"),
+                            new DatasourceStructure.Template("INSERT", "INSERT INTO sample_schema.\"sample_table\" " +
+                                "(\"username\", \"email\", \"numbers\", \"texts\", \"rating\")\n  " +
+                                "VALUES ('', '', '{1, 2, 3}', '{\"first\", \"second\"}', 1.0);"),
+                            new DatasourceStructure.Template("UPDATE", "UPDATE sample_schema.\"sample_table\" SET\n" +
+                                "    \"username\" = '',\n" +
+                                "    \"email\" = '',\n" +
+                                "    \"numbers\" = '{1, 2, 3}',\n" +
+                                "    \"texts\" = '{\"first\", \"second\"}',\n" +
+                                "    \"rating\" = 1.0\n" +
+                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!"),
+                            new DatasourceStructure.Template("DELETE", "DELETE FROM sample_schema.\"sample_table\"\n" +
+                                "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!"),
+                        },
+                        sampleTable.getTemplates().toArray()
                     );
                 })
                 .verifyComplete();
@@ -1165,7 +1225,7 @@ public class PostgresPluginTest {
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
-        String query = "INSERT INTO users (id, username, password, email, dob) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date)";
+        String query = "INSERT INTO users (id, username, password, email, dob, rating) VALUES ({{id}}, {{firstName}}::varchar, {{lastName}}, {{email}}, {{date}}::date, {{rating}})";
         actionConfiguration.setBody(query);
 
         List<Property> pluginSpecifiedTemplates = new ArrayList<>();
@@ -1179,6 +1239,7 @@ public class PostgresPluginTest {
         params.add(new Param("lastName", "LastName"));
         params.add(new Param("email", "email@email.com"));
         params.add(new Param("date", "2018-12-31"));
+        params.add(new Param("rating", String.valueOf(5.1)));
         executeActionDTO.setParams(params);
 
         Mono<HikariDataSource> connectionCreateMono = pluginExecutor.datasourceCreate(dsConfig).cache();
@@ -1209,7 +1270,7 @@ public class PostgresPluginTest {
                             case "email@email.com" :
                                 assertEquals(psParameter.getType(), "STRING");
                                 break;
-                            case "2018-12-31" :
+                            case "2018-12-31":
                                 assertEquals(psParameter.getType(), "DATE");
                                 break;
                         }
@@ -1217,6 +1278,15 @@ public class PostgresPluginTest {
 
                 })
                 .verifyComplete();
+
+        actionConfiguration.setBody("SELECT * FROM public.\"users\" WHERE id=10;");
+        final ActionExecutionResult actionExecutionResult = connectionCreateMono
+                .flatMap(pool -> pluginExecutor.executeParameterized(pool, executeActionDTO, dsConfig, actionConfiguration)).block();
+
+        // Check that precision for decimal value is maintained
+        assert actionExecutionResult != null;
+        final JsonNode node = ((ArrayNode) actionExecutionResult.getBody()).get(0);
+        Assert.assertEquals("5.1", node.get("rating").asText());
 
         // Delete the newly added row to not affect any other test case
         actionConfiguration.setBody("DELETE FROM users WHERE id = 10");
