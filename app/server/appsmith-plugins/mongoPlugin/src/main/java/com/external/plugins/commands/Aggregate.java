@@ -15,9 +15,9 @@ import org.pf4j.util.StringUtils;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 
 @Getter
@@ -30,8 +30,8 @@ public class Aggregate extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, AGGREGATE_PIPELINE)) {
-            this.pipeline = (String) getValueSafely(formData, AGGREGATE_PIPELINE);
+        if (validConfigurationPresentInFormData(formData, AGGREGATE_PIPELINE)) {
+            this.pipeline = (String) getValueSafelyFromFormData(formData, AGGREGATE_PIPELINE);
         }
     }
 

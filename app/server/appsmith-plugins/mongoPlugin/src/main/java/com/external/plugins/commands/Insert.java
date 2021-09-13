@@ -21,10 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.setValueSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
@@ -41,8 +41,8 @@ public class Insert extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, INSERT_DOCUMENT)) {
-            this.documents = (String) getValueSafely(formData, INSERT_DOCUMENT);
+        if (validConfigurationPresentInFormData(formData, INSERT_DOCUMENT)) {
+            this.documents = (String) getValueSafelyFromFormData(formData, INSERT_DOCUMENT);
         }
     }
 
@@ -100,10 +100,10 @@ public class Insert extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafely(configMap, COMMAND, "INSERT");
-        setValueSafely(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
-        setValueSafely(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"insert\": \"" + collectionName + "\",\n" +

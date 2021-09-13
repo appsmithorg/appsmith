@@ -8,9 +8,9 @@ import org.pf4j.util.StringUtils;
 
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 
 @Getter
@@ -23,8 +23,8 @@ public class Count extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, COUNT_QUERY)) {
-            this.query = (String) getValueSafely(formData, COUNT_QUERY);
+        if (validConfigurationPresentInFormData(formData, COUNT_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, COUNT_QUERY);
         }
     }
 

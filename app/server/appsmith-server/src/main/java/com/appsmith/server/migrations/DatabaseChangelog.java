@@ -101,6 +101,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.BeanCopyUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
@@ -3042,7 +3043,7 @@ public class DatabaseChangelog {
         }
     }
 
-    private final static Map<Integer, String> mongoMigrationMap = Map.ofEntries(
+    public final static Map<Integer, String> mongoMigrationMap = Map.ofEntries(
             Map.entry(0, "smartSubstitution"), //SMART_BSON_SUBSTITUTION
             Map.entry(2, "command"), // COMMAND
             Map.entry(19, "collection"), // COLLECTION
@@ -3063,44 +3064,21 @@ public class DatabaseChangelog {
             Map.entry(18, "insert.documents") // INSERT_DOCUMENT
     );
 
-    public static void setValueSafelyFormDataUqi(Map<String, Object> formData, String field, Object value) {
-
-        // This field value contains nesting
-        if (field.contains(".")) {
-
-            String[] fieldNames = field.split("\\.");
-
-            // In case the parent key does not exist in the map, create one
-            formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
-
-            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
-
-            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-            String nestedFieldName = String.join(".", trimmedFieldNames);
-
-            // Now set the value from the new nested map using trimmed field name (without the parent key)
-            setValueSafelyFormDataUqi(nestedMap, nestedFieldName, value);
-        } else {
-            // This is a top level field. Set the value
-            formData.put(field, value);
+    private void updateFormData(int index, Object value, Map formData, Map<Integer, String> migrationMap) {
+        if (migrationMap.containsKey(index)) {
+            String path = migrationMap.get(index);
+            setValueSafelyInFormData(formData, path, value);
         }
     }
 
-    private void updateFormData(int index, Object value, Map formData) {
-        if (mongoMigrationMap.containsKey(index)) {
-            String path = mongoMigrationMap.get(index);
-            setValueSafelyFormDataUqi(formData, path, value);
-        }
-    }
-
-    private Map iteratePluginSpecifiedTemplatesAndCreateFormData(List<Property> pluginSpecifiedTemplates) {
+    public Map iteratePluginSpecifiedTemplatesAndCreateFormData(List<Property> pluginSpecifiedTemplates, Map<Integer, String> migrationMap) {
 
         if (pluginSpecifiedTemplates != null && !pluginSpecifiedTemplates.isEmpty()) {
             Map<String, Object> formData = new HashMap<>();
             for (int i = 0; i < pluginSpecifiedTemplates.size(); i++) {
                 Property template = pluginSpecifiedTemplates.get(i);
                 if (template != null) {
-                    updateFormData(i, template.getValue(), formData);
+                    updateFormData(i, template.getValue(), formData, migrationMap);
                 }
             }
             return formData;
@@ -3137,7 +3115,7 @@ public class DatabaseChangelog {
             List<Property> pluginSpecifiedTemplates = mongoAction.getUnpublishedAction().getActionConfiguration().getPluginSpecifiedTemplates();
 
             mongoAction.getUnpublishedAction().getActionConfiguration().setFormData(
-                    iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates)
+                    iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates, mongoMigrationMap)
             );
             mongoAction.getUnpublishedAction().getActionConfiguration().setPluginSpecifiedTemplates(null);
 
@@ -3146,7 +3124,7 @@ public class DatabaseChangelog {
                     publishedAction.getActionConfiguration().getPluginSpecifiedTemplates() != null) {
                 pluginSpecifiedTemplates = publishedAction.getActionConfiguration().getPluginSpecifiedTemplates();
                 publishedAction.getActionConfiguration().setFormData(
-                        iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates)
+                        iteratePluginSpecifiedTemplatesAndCreateFormData(pluginSpecifiedTemplates, mongoMigrationMap)
                 );
                 publishedAction.getActionConfiguration().setPluginSpecifiedTemplates(null);
             }

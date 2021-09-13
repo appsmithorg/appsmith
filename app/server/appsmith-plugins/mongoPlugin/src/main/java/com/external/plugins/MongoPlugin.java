@@ -68,11 +68,11 @@ import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATI
 import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
 import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
 import static com.external.plugins.MongoPluginUtils.getDatabaseName;
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.isRawCommand;
-import static com.external.plugins.MongoPluginUtils.setValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.external.plugins.MongoPluginUtils.urlEncode;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
@@ -194,6 +194,8 @@ public class MongoPlugin extends BasePlugin {
             if (smartSubstitutionObject instanceof Boolean) {
                 smartBsonSubstitution = (Boolean) smartSubstitutionObject;
             } else if (smartSubstitutionObject instanceof String) {
+                // Older UI configuration used to set this value as a string which may/may not be castable to a boolean
+                // directly. This is to ensure we are backward compatible
                 smartBsonSubstitution = Boolean.parseBoolean((String) smartSubstitutionObject);
             }
 
@@ -431,10 +433,10 @@ public class MongoPlugin extends BasePlugin {
                                                 List<Map.Entry<String, String>> parameters) throws AppsmithPluginException {
 
             for (String bsonField : bsonFields) {
-                if (validConfigurationPresent(formData, bsonField)) {
-                    String preSmartSubValue = (String) getValueSafely(formData, bsonField);
+                if (validConfigurationPresentInFormData(formData, bsonField)) {
+                    String preSmartSubValue = (String) getValueSafelyFromFormData(formData, bsonField);
                     String postSmartSubValue = smartSubstituteBSON(preSmartSubValue, params, parameters);
-                    setValueSafely(formData, bsonField, postSmartSubValue);
+                    setValueSafelyInFormData(formData, bsonField, postSmartSubValue);
                 }
             }
         }

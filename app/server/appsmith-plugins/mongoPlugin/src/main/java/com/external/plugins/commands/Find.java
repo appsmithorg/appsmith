@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.setValueSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.FIND_LIMIT;
@@ -41,24 +41,24 @@ public class Find extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, FIND_QUERY)) {
-            this.query = (String) getValueSafely(formData, FIND_QUERY);
+        if (validConfigurationPresentInFormData(formData, FIND_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, FIND_QUERY);
         }
 
-        if (validConfigurationPresent(formData, FIND_SORT)) {
-            this.sort = (String) getValueSafely(formData, FIND_SORT);
+        if (validConfigurationPresentInFormData(formData, FIND_SORT)) {
+            this.sort = (String) getValueSafelyFromFormData(formData, FIND_SORT);
         }
 
-        if (validConfigurationPresent(formData, FIND_PROJECTION)) {
-            this.projection = (String) getValueSafely(formData, FIND_PROJECTION);
+        if (validConfigurationPresentInFormData(formData, FIND_PROJECTION)) {
+            this.projection = (String) getValueSafelyFromFormData(formData, FIND_PROJECTION);
         }
 
-        if (validConfigurationPresent(formData, FIND_LIMIT)) {
-            this.limit = (String) getValueSafely(formData, FIND_LIMIT);
+        if (validConfigurationPresentInFormData(formData, FIND_LIMIT)) {
+            this.limit = (String) getValueSafelyFromFormData(formData, FIND_LIMIT);
         }
 
-        if (validConfigurationPresent(formData, FIND_SKIP)) {
-            this.skip = (String) getValueSafely(formData, FIND_SKIP);
+        if (validConfigurationPresentInFormData(formData, FIND_SKIP)) {
+            this.skip = (String) getValueSafelyFromFormData(formData, FIND_SKIP);
         }
     }
 
@@ -115,15 +115,15 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindTemplate(String collectionName, String filterFieldName, String filterFieldValue) {
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafely(configMap, COMMAND, "FIND");
-        setValueSafely(configMap, COLLECTION, collectionName);
-        setValueSafely(configMap, FIND_SORT, "{\"_id\": 1}");
-        setValueSafely(configMap, FIND_LIMIT, "10");
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, FIND_SORT, "{\"_id\": 1}");
+        setValueSafelyInFormData(configMap, FIND_LIMIT, "10");
 
         String query = filterFieldName == null ? "{}" :
                 "{ \"" + filterFieldName + "\": \"" + filterFieldValue + "\"}";
-        setValueSafely(configMap, FIND_QUERY, query);
+        setValueSafelyInFormData(configMap, FIND_QUERY, query);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +
@@ -149,10 +149,10 @@ public class Find extends MongoCommand {
     private DatasourceStructure.Template generateFindByIdTemplate(String collectionName) {
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafely(configMap, COMMAND, "FIND");
-        setValueSafely(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
-        setValueSafely(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setValueSafelyInFormData(configMap, FIND_QUERY, "{\"_id\": ObjectId(\"id_to_query_with\")}");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"find\": \"" + collectionName + "\",\n" +

@@ -9,9 +9,9 @@ import org.pf4j.util.StringUtils;
 
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.DISTINCT_QUERY;
 
 @Getter
@@ -25,12 +25,12 @@ public class Distinct extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, DISTINCT_QUERY)) {
-            this.query = (String) getValueSafely(formData, DISTINCT_QUERY);
+        if (validConfigurationPresentInFormData(formData, DISTINCT_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, DISTINCT_QUERY);
         }
 
-        if (validConfigurationPresent(formData, FieldName.DISTINCT_KEY)) {
-            this.key = (String) getValueSafely(formData, FieldName.DISTINCT_KEY);
+        if (validConfigurationPresentInFormData(formData, FieldName.DISTINCT_KEY)) {
+            this.key = (String) getValueSafelyFromFormData(formData, FieldName.DISTINCT_KEY);
         }
     }
 

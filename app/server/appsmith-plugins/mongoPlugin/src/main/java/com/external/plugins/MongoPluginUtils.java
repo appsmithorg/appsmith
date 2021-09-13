@@ -36,64 +36,6 @@ import static com.external.plugins.constants.FieldName.RAW;
 
 public class MongoPluginUtils {
 
-    public static Boolean validConfigurationPresent(Map<String, Object> formData, String field) {
-        return getValueSafely(formData, field) != null;
-    }
-
-    public static Object getValueSafely(Map<String, Object> formData, String field) {
-        if (formData == null || formData.isEmpty()) {
-            return null;
-        }
-
-        // formData exists and is not empty. Continue with fetching the value for the field
-
-        // This field value contains nesting
-        if (field.contains(".")) {
-
-            String[] fieldNames = field.split("\\.");
-
-            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
-
-            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-            String nestedFieldName = String.join(".", trimmedFieldNames);
-
-            // Now get the value from the new nested map using trimmed field name (without the parent key)
-            return getValueSafely(nestedMap, nestedFieldName);
-        } else {
-            // This is a top level field. Return the value
-            return formData.getOrDefault(field, null);
-        }
-
-    }
-
-    public static void setValueSafely(Map<String, Object> formData, String field, Object value) {
-
-        // In case the formData has not been initialized before the fxn call, assign a new HashMap to the variable
-        if (formData == null) {
-            formData = new HashMap<>();
-        }
-
-        // This field value contains nesting
-        if (field.contains(".")) {
-
-            String[] fieldNames = field.split("\\.");
-
-            // In case the parent key does not exist in the map, create one
-            formData.putIfAbsent(fieldNames[0], new HashMap<String, Object>());
-
-            Map<String, Object> nestedMap = (Map<String, Object>) formData.get(fieldNames[0]);
-
-            String[] trimmedFieldNames = Arrays.copyOfRange(fieldNames, 1, fieldNames.length);
-            String nestedFieldName = String.join(".", trimmedFieldNames);
-
-            // Now set the value from the new nested map using trimmed field name (without the parent key)
-            setValueSafely(nestedMap, nestedFieldName, value);
-        } else {
-            // This is a top level field. Set the value
-            formData.put(field, value);
-        }
-    }
-
     public static Document parseSafely(String fieldName, String input) {
         try {
             return Document.parse(input);

@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.external.plugins.MongoPluginUtils.getValueSafely;
+import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.external.plugins.MongoPluginUtils.parseSafely;
-import static com.external.plugins.MongoPluginUtils.setValueSafely;
-import static com.external.plugins.MongoPluginUtils.validConfigurationPresent;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
@@ -36,12 +36,12 @@ public class Delete extends MongoCommand {
 
         Map<String, Object> formData = actionConfiguration.getFormData();
 
-        if (validConfigurationPresent(formData, DELETE_QUERY)) {
-            this.query = (String) getValueSafely(formData, DELETE_QUERY);
+        if (validConfigurationPresentInFormData(formData, DELETE_QUERY)) {
+            this.query = (String) getValueSafelyFromFormData(formData, DELETE_QUERY);
         }
 
-        if (validConfigurationPresent(formData, DELETE_LIMIT)) {
-            String limitOption = (String) getValueSafely(formData, DELETE_LIMIT);
+        if (validConfigurationPresentInFormData(formData, DELETE_LIMIT)) {
+            String limitOption = (String) getValueSafelyFromFormData(formData, DELETE_LIMIT);
             if ("ALL".equals(limitOption)) {
                 this.limit = 0;
             }
@@ -87,11 +87,11 @@ public class Delete extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafely(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafely(configMap, COMMAND, "DELETE");
-        setValueSafely(configMap, COLLECTION, collectionName);
-        setValueSafely(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-        setValueSafely(configMap, DELETE_LIMIT, "SINGLE");
+        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         String rawQuery = "{\n" +
                 "  \"delete\": \"" + collectionName + "\",\n" +
