@@ -19,7 +19,14 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Set;
+
+import static com.appsmith.server.constants.Constraint.PROFILE_PHOTO_DIMENSION;
 
 @Slf4j
 @Service
@@ -66,10 +73,14 @@ public class AssetServiceImpl implements AssetService {
                     return DataBufferUtils.join(contentCache);
                 })
                 .flatMap(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return repository.save(new Asset(contentType, data));
+                    byte[] bytes;
+                    try {
+                        bytes = resizeImage(dataBuffer, PROFILE_PHOTO_DIMENSION);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
+                    }
+                    return repository.save(new Asset(contentType, bytes));
                 })
                 .flatMap(analyticsService::sendCreateEvent);
     }
@@ -88,6 +99,18 @@ public class AssetServiceImpl implements AssetService {
         return repository.deleteById(assetId)
                 .then(analyticsService.sendDeleteEvent(tempAsset))
                 .then();
+    }
+
+    private byte[] resizeImage(DataBuffer dataBuffer, int dimension) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
+        BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
+        imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        ImageIO.write(imageBuff, "jpg", buffer);
+        byte[] data = buffer.toByteArray();
+        DataBufferUtils.release(dataBuffer);
+        return data;
     }
 
     @Override
