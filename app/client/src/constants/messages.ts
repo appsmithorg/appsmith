@@ -345,6 +345,8 @@ export const SKIP = () => "SKIP";
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
+export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
+  " to see more info in the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
