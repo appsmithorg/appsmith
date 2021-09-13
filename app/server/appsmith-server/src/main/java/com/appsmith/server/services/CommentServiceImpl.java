@@ -143,7 +143,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
      */
     private Mono<CommentThread> updateThreadOnAddComment(CommentThread commentThread, Comment comment, User user) {
         commentThread.setViewedByUsers(Set.of(user.getUsername()));
-        if(commentThread.getResolvedState().getActive() == TRUE) {
+        if(commentThread.getResolvedState() != null && commentThread.getResolvedState().getActive() == TRUE) {
             commentThread.getResolvedState().setActive(FALSE);
         }
 
