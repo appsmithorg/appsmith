@@ -267,8 +267,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                 .flatMap(tuple -> {
                     final UserData userData = tuple.getT1();
                     final Application application = tuple.getT2();
-                    commentThread.setAuthorPhotoId(userData.getProfilePhotoAssetId());
 
+                    // set the profile asset id from user data to comment
+                    for(Comment comment : commentThread.getComments()) {
+                        comment.setAuthorPhotoId(userData.getProfilePhotoAssetId());
+                    }
                     boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
                             application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
                     ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
@@ -299,7 +302,6 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         thread.getComments().get(0).setLeading(true);
                         for (final Comment comment : thread.getComments()) {
                             comment.setId(null);
-                            comment.setAuthorPhotoId(thread.getAuthorPhotoId());
                             commentSaverMonos.add(create(thread, user, comment, originHeader));
                         }
                     }
