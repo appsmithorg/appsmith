@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/appsmithorg/appsmith.git",
-    "directory": "deploy/fat_container"
+    "directory": "deploy/docker"
   },
   "dependencies": {
     "boxen": "^5.0.1",

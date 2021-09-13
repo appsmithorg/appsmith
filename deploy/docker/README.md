@@ -154,7 +154,7 @@ Supervisord comes with a web interface for managing the various processes, avail
 Here's a screenshot of the web interface listing all the processes managed:
 
 <p>
-  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/fat_container/images/appsmith_supervisord_ui.png" width="80%">
+  <img src="https://raw.githubusercontent.com/appsmithorg/appsmith/release/deploy/docker/images/appsmith_supervisord_ui.png" width="80%">
 </p>
 
 The command line interface can also be used to perform operations like restarting the Appsmith server, or restarting Nginx etc. For example, the following command (run in the installation folder) can be used to get a status of all running processes:
