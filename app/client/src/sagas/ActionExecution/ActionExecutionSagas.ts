@@ -32,6 +32,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { createMessage, DEBUGGER_TRIGGER_ERROR } from "constants/messages";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -158,6 +160,12 @@ function* initiateActionTriggerExecution(
           message: e.message,
         },
       ],
+    });
+
+    Toaster.show({
+      text: e.message || "There was an error while executing trigger",
+      variant: Variant.danger,
+      showDebugButton: true,
     });
   }
 }
