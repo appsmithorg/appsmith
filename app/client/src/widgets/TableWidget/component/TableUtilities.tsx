@@ -45,6 +45,7 @@ import {
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import DropDownComponent from "widgets/DropdownWidget/component";
+import CheckboxComponent from "widgets/CheckboxWidget/component";
 
 export const renderCell = (
   value: any,
@@ -828,5 +829,59 @@ export function SwitchCell(props: {
         widgetId={props.widgetId}
       />
     </SwitchCellWrapper>
+  );
+}
+
+export function CheckboxCell(props: {
+  value: any;
+  defaultCheckedState: boolean;
+  label: string;
+  action: string;
+  columnId: string;
+  isDisabled: boolean;
+  alignWidget: AlignWidget;
+  isHidden: boolean;
+  onChange: (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    isSwitchedOn: boolean,
+  ) => void;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  widgetId: string;
+  rowIndex: number;
+}) {
+  let isCheckboxChecked;
+  try {
+    isCheckboxChecked = JSON.parse(props.value);
+  } catch (error) {
+    isCheckboxChecked = props.defaultCheckedState;
+  }
+  return (
+    <CellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+    >
+      <CheckboxComponent
+        alignWidget={props.alignWidget || "LEFT"}
+        isChecked={isCheckboxChecked}
+        isDisabled={props.isDisabled}
+        isLoading={false}
+        key={props.widgetId}
+        label={props.label || "Label"}
+        onCheckChange={(isChecked: boolean) => {
+          props.onChange(
+            props.columnId,
+            props.rowIndex,
+            props.action,
+            isChecked,
+          );
+        }}
+        rowSpace={0}
+        widgetId={props.widgetId}
+      />
+    </CellWrapper>
   );
 }

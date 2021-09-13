@@ -19,6 +19,7 @@ enum ColumnTypes {
   ICON_BUTTON = "iconButton",
   SELECT = "select",
   SWITCH = "switch",
+  CHECKBOX = "checkbox",
 }
 
 function defaultSelectedRowValidation(
@@ -359,6 +360,10 @@ export default [
                     {
                       label: "Switch",
                       value: "switch",
+                    },
+                    {
+                      label: "Checkbox",
+                      value: "checkbox",
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
@@ -781,6 +786,50 @@ export default [
                   ],
                 },
                 {
+                  propertyName: "checkboxLabel",
+                  label: "Label",
+                  controlType: "INPUT_TEXT",
+                  helpText: "Displays a label next to checkbox",
+                  placeholderText: "Enter label text",
+                  defaultValue: "Label",
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: { type: ValidationTypes.TEXT },
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.CHECKBOX,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  propertyName: "defaultCheckedState",
+                  label: "Default Selected",
+                  helpText:
+                    "Checks / un-checks the checkbox by default. Changes to the default selection update the cell state",
+                  controlType: "SWITCH",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: { type: ValidationTypes.BOOLEAN },
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.CHECKBOX,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
                   propertyName: "defaultSwitchState",
                   label: "Default Selected",
                   helpText:
@@ -826,13 +875,10 @@ export default [
                   defaultValue: "LEFT",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    const baseProperty = getBasePropertyPath(propertyPath);
-                    const columnType = get(
-                      props,
-                      `${baseProperty}.columnType`,
-                      "",
-                    );
-                    return columnType !== "switch";
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.SWITCH,
+                      ColumnTypes.CHECKBOX,
+                    ]);
                   },
                   dependencies: [
                     "primaryColumns",
@@ -853,6 +899,7 @@ export default [
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.SELECT,
                       ColumnTypes.SWITCH,
+                      ColumnTypes.CHECKBOX,
                     ]);
                   },
                   dependencies: [
@@ -946,6 +993,27 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.SWITCH,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  helpText:
+                    "Triggers an action when the check state is changed",
+                  propertyName: "onCheckChange",
+                  label: "onCheckChange",
+                  controlType: "ACTION_SELECTOR",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.CHECKBOX,
                     ]);
                   },
                   dependencies: [

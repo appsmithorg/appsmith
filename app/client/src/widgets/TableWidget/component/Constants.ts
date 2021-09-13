@@ -177,6 +177,7 @@ export interface ColumnProperties {
   isCellVisible?: boolean;
   defaultOptionValue?: string;
   defaultSwitchState?: boolean;
+  defaultCheckedState?: boolean;
 }
 
 export const ConditionFunctions: {
