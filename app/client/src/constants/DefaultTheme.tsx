@@ -1217,6 +1217,10 @@ type ColorType = {
     background: string;
     buttonBackgroundHover: string;
   };
+  link: string;
+  welcomePage?: {
+    text: string;
+  };
 };
 
 const editorBottomBar = {
@@ -2005,6 +2009,10 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
 };
 
 export const light: ColorType = {
@@ -2591,6 +2599,10 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
 };
 
 export const theme: Theme = {
@@ -2652,6 +2664,12 @@ export const theme: Theme = {
       lineHeight: 16,
       letterSpacing: -0.221538,
       fontWeight: "normal",
+    },
+    p4: {
+      fontSize: 13,
+      lineHeight: 16,
+      letterSpacing: -0.221538,
+      fontWeight: 600,
     },
     btnLarge: {
       fontSize: 13,
