@@ -763,8 +763,6 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
         position: relative;
         max-width: 100%;
         margin-bottom: 2px;
-        -webkit-margin-start: 7px;
-        margin-inline-start: 5px;
         height: 100%;
         display: flex;
         align-items: center;
