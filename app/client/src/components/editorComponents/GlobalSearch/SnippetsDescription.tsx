@@ -26,7 +26,6 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
-import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
@@ -36,7 +35,6 @@ import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
-import { ReactComponent as PlayIcon } from "assets/icons/menu/play-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
@@ -157,27 +155,23 @@ const removeDynamicBinding = (value: string) => {
   });
 };
 
-export const getSnippet = (snippet: string, args: any) => {
-  const regex = /{{(.*?)}}/g;
-  return snippet.replace(regex, function(match, capture) {
-    const substitution = (args[capture] || "")
-      .replaceAll("{{", "")
-      .replaceAll("}}", "");
-    return substitution || capture;
+export const getSnippet = (
+  snippet: string,
+  args: any,
+  replaceWithDynamicBinding = false,
+) => {
+  const templateSubstitutionRegex = /%%(.*?)%%/g;
+  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
+    const substitution = removeDynamicBinding(args[capture] || "");
+    return replaceWithDynamicBinding
+      ? `{{${capture}}}`
+      : substitution || capture;
   });
 };
 
 export default function SnippetDescription({ item }: { item: Snippet }) {
   const {
-    body: {
-      additionalInfo,
-      args,
-      isTrigger,
-      snippet,
-      summary,
-      template,
-      title,
-    },
+    body: { args, isTrigger, snippet, snippetMeta, summary, template, title },
     dataType,
     language,
   } = item;
@@ -277,20 +271,28 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       key: "Snippet",
       title: "Snippet",
       panelComponent: (
-        <div className="snippet-container">
-          <SyntaxHighlighter language={language} style={prism}>
-            {js_beautify(snippet, { indent_size: 2 })}
-          </SyntaxHighlighter>
-          <div className="action-icons">
-            <CopyIcon
-              onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-            />
+        <>
+          {snippetMeta && (
+            <div className="snippet-group">
+              <div
+                className="content"
+                dangerouslySetInnerHTML={{ __html: snippetMeta }}
+              />
+            </div>
+          )}
+          <div className="snippet-container">
+            <SyntaxHighlighter language={language} style={prism}>
+              {getSnippet(snippet, {}, true)}
+            </SyntaxHighlighter>
+            <div className="action-icons">
+              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+            </div>
           </div>
-        </div>
+        </>
       ),
     },
   ];
-  if (template && language === "javascript") {
+  if (template) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -299,15 +301,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <>
             <div className="snippet-container">
               <SyntaxHighlighter language={language} style={prism}>
-                {js_beautify(getSnippet(template, selectedArgs), {
-                  indent_size: 2,
-                })}
+                {getSnippet(template, selectedArgs)}
               </SyntaxHighlighter>
               <div className="action-icons">
-                <CopyIcon
-                  onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-                />
-                <PlayIcon onClick={handleRun} />
+                <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
               </div>
             </div>
             <div className="snippet-group">
@@ -393,13 +390,6 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           tabs={tabs}
         />
       </TabbedViewContainer>
-      {additionalInfo &&
-        additionalInfo.map(({ content, header }) => (
-          <div className="snippet-group" key={header}>
-            <div className="header">{header}</div>
-            <div className="content">{content}</div>
-          </div>
-        ))}
     </SnippetContainer>
   );
 }

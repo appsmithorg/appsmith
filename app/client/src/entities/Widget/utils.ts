@@ -6,7 +6,6 @@ import {
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { WidgetTypes } from "constants/WidgetConstants";
 
 /**
  * @typedef {Object} Paths
@@ -222,7 +221,7 @@ export const nextAvailableRowInContainer = (
   canvasWidgets: { [widgetId: string]: FlattenedWidgetProps },
 ) => {
   const filteredCanvasWidgets = omitBy(canvasWidgets, (widget) => {
-    return widget.type === WidgetTypes.MODAL_WIDGET;
+    return widget.type === "MODAL_WIDGET";
   });
 
   return (
