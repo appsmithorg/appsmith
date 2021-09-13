@@ -1,12 +1,17 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
+import { InputType } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
-import TextField from "components/editorComponents/form/fields/TextField";
-import FormLabel from "components/editorComponents/FormLabel";
+import {
+  FormInputField,
+  FormLabel,
+  FormInputHelperText,
+  FormInputAnchor,
+} from "components/editorComponents/form/fields/FormInputField";
 import { FormIcons } from "icons/FormIcons";
 import { Colors } from "constants/Colors";
+import { ReactComponent as Help } from "assets/icons/control/help.svg";
 import styled from "styled-components";
-import { InputType } from "components/constants";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -17,6 +22,7 @@ export const StyledInfo = styled.span`
 `;
 
 export function InputText(props: {
+  description?: string;
   label: string;
   value: string;
   isValid: boolean;
@@ -28,9 +34,13 @@ export function InputText(props: {
   name: string;
   encrypted?: boolean;
   disabled?: boolean;
+  showIcon?: boolean;
+  url?: string;
+  urlText?: string;
 }) {
   const {
     dataType,
+    description,
     disabled,
     encrypted,
     isRequired,
@@ -38,32 +48,40 @@ export function InputText(props: {
     name,
     placeholder,
     subtitle,
+    url,
+    urlText,
+    value,
   } = props;
 
   return (
     <div data-cy={name} style={{ width: "50vh" }}>
       <FormLabel>
-        {label} {isRequired && "*"}{" "}
-        {encrypted && (
-          <>
-            <FormIcons.LOCK_ICON height={12} keepColors width={12} />
-            <StyledInfo>Encrypted</StyledInfo>
-          </>
-        )}
-        {subtitle && (
-          <>
-            <br />
-            <StyledInfo>{subtitle}</StyledInfo>
-          </>
-        )}
+        <p className="label-icon-wrapper">
+          {label} {isRequired && "*"}{" "}
+          {encrypted && (
+            <>
+              <FormIcons.LOCK_ICON height={12} keepColors width={12} />
+              <StyledInfo>Encrypted</StyledInfo>
+            </>
+          )}
+          <Help height={16} width={16} />
+        </p>
+        {subtitle && <StyledInfo>{subtitle}</StyledInfo>}
       </FormLabel>
-      <TextField
-        disabled={disabled || false}
+      {urlText && (
+        <FormInputAnchor href={url} target="_blank">
+          {urlText}
+        </FormInputAnchor>
+      )}
+      <FormInputField
+        disabled={disabled}
         name={name}
         placeholder={placeholder}
         showError
         type={dataType}
+        value={value}
       />
+      {description && <FormInputHelperText>{description}</FormInputHelperText>}
     </div>
   );
 }

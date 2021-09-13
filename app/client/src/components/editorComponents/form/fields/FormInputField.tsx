@@ -8,6 +8,7 @@ import {
 } from "redux-form";
 import { TextInputProps } from "components/designSystems/appsmith/TextInputComponent";
 
+//Styled help text, intended to be used with FormInputField
 const FormInputHelperText = styled.p`
   color: #858282;
   font-style: normal;
@@ -18,6 +19,7 @@ const FormInputHelperText = styled.p`
   margin: 8px 0 0 0;
 `;
 
+//Styled error text, intended to be used with FormInputField
 const FormInputErrorText = styled.p`
   font-style: normal;
   font-weight: normal;
@@ -28,6 +30,7 @@ const FormInputErrorText = styled.p`
   margin: 8px 0 0 0;
 `;
 
+//Styled anchor tag, intended to be used with FormInputField
 const FormInputAnchor = styled.a`
   display: block;
   font-weight: 500;
@@ -40,6 +43,7 @@ const FormInputAnchor = styled.a`
   text-transform: uppercase;
 `;
 
+//Styled form label tag, intended to be used with FormInputField
 const StyledFormLabel = styled.label`
   display: block;
   font-weight: 500;
@@ -60,6 +64,7 @@ const StyledFormLabel = styled.label`
   }
 `;
 
+//Styled input tag
 const StyledInput = styled.input`
   padding: 8px 12px 9px;
   background-color: #fff;
@@ -79,6 +84,7 @@ const StyledInput = styled.input`
   }
 `;
 
+//required by Field component in FormInputField
 const renderComponent = (
   componentProps: FormInputProps & {
     meta: Partial<WrappedFieldMetaProps>;
@@ -105,17 +111,17 @@ const renderComponent = (
   );
 };
 
-type K = BaseFieldProps & TextInputProps;
+type FormInputBaseProps = BaseFieldProps & TextInputProps;
 
-export interface FormInputProps extends K {
+export interface FormInputProps extends FormInputBaseProps {
   autoFocus?: boolean;
   disabled?: boolean;
   placeholder: string | undefined;
   type: string | undefined;
-  url?: string;
   value: string;
 }
 
+//wrapper on styled <input />
 function FormInput(props: FormInputProps) {
   return (
     <StyledInput
@@ -133,10 +139,12 @@ interface FormLabelProps {
   children: JSX.Element | React.ReactNode;
 }
 
+//Wrapper on styled <label/>
 function FormLabel(props: FormLabelProps) {
   return <StyledFormLabel>{props.children}</StyledFormLabel>;
 }
 
+//Wrapper on Field component of redux-form
 function FormInputField(props: FormInputProps) {
   return (
     <Field
