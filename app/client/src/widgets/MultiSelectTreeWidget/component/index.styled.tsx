@@ -596,7 +596,10 @@ border: 1px solid #E8E8E8;
   }
 `;
 
-export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
+export const TreeSelectContainer = styled.div<{
+  compactMode: boolean;
+  allowClear: boolean;
+}>`
   display: flex;
   flex-direction: ${(props) => (props.compactMode ? "row" : "column")};
   align-items: ${(props) => (props.compactMode ? "center" : "left")};
@@ -714,7 +717,6 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
   }
   .rc-tree-select-multiple {
     .rc-tree-select-selector {
-      padding-right: 20px;
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
@@ -817,15 +819,22 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
       height: 100%;
       display: flex;
       align-items: center;
+      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
     }
   }
+  .rc-tree-select-allow-clear.rc-tree-select-focused {
+    .rc-tree-select-clear {
+      z-index: 1;
+    }
+  }
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
-      padding-right: 20px;
+      padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
+
       box-shadow: none;
       border: 1px solid rgb(231, 231, 231);
       border-radius: 0px;

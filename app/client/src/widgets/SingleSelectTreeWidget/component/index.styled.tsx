@@ -817,10 +817,16 @@ export const TreeSelectContainer = styled.div<{ compactMode: boolean }>`
       height: 100%;
       display: flex;
       align-items: center;
+      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
+    }
+  }
+  .rc-tree-select-allow-clear.rc-tree-select-focused {
+    .rc-tree-select-clear {
+      z-index: 1;
     }
   }
   .rc-tree-select-show-arrow.rc-tree-select-multiple {

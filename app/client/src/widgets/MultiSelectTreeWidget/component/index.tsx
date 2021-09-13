@@ -1,4 +1,10 @@
-import React, { ReactNode, useCallback, useRef } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import TreeSelect, { TreeSelectProps as SelectProps } from "rc-tree-select";
 import {
   TreeSelectContainer,
@@ -101,7 +107,14 @@ function MultiTreeSelectComponent({
   placeholder,
   value,
 }: TreeSelectProps): JSX.Element {
+  const [key, setKey] = useState(Math.random());
   const _menu = useRef<HTMLElement | null>(null);
+
+  // treeDefaultExpandAll is uncontrolled after first render,
+  // using this to force render to respond to changes in expandAll
+  useEffect(() => {
+    setKey(Math.random());
+  }, [expandAll]);
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
@@ -117,6 +130,7 @@ function MultiTreeSelectComponent({
 
   return (
     <TreeSelectContainer
+      allowClear={allowClear}
       compactMode={compactMode}
       ref={_menu as React.RefObject<HTMLDivElement>}
     >
@@ -147,6 +161,7 @@ function MultiTreeSelectComponent({
         dropdownStyle={dropdownStyle}
         getPopupContainer={getDropdownPosition}
         inputIcon={inputIcon}
+        key={key}
         loading={loading}
         maxTagCount={"responsive"}
         maxTagPlaceholder={(e) => `+${e.length} more`}
