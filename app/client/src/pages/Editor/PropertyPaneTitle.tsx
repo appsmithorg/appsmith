@@ -25,20 +25,12 @@ import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEqual } from "lodash";
 
-const FixedTitle = styled.div`
-  position: fixed;
-  z-index: 3;
-  width: ${(props) => props.theme.propertyPane.width}px;
-  padding: 0px ${(props) => props.theme.spaces[5]}px;
-`;
-
 const Wrapper = styled.div<{ iconCount: number }>`
   display: grid;
   grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
   justify-items: center;
   align-items: center;
   height: ${(props) => props.theme.propertyPane.titleHeight}px;
-  background-color: ${(props) => props.theme.colors.propertyPane.bg};
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
@@ -159,7 +151,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <FixedTitle>
+    <div className="z-3 w-full absolute px-3">
       <Wrapper iconCount={props.actions.length}>
         <NameWrapper isPanelTitle={props.isPanelTitle}>
           <>
@@ -201,7 +193,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           </TooltipComponent>
         ))}
       </Wrapper>
-    </FixedTitle>
+    </div>
   ) : null;
 });
 export default PropertyPaneTitle;

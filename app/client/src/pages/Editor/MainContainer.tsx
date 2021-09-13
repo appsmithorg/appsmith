@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { Route, Switch } from "react-router";
@@ -6,8 +6,9 @@ import { Route, Switch } from "react-router";
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import { BUILDER_URL } from "constants/routes";
-import Sidebar from "components/editorComponents/Sidebar";
 import BottomBar from "./BottomBar";
+import EntityExplorerSidebar from "components/editorComponents/Sidebar";
+import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 
 import getFeatureFlags from "utils/featureFlags";
 
@@ -22,25 +23,41 @@ const Container = styled.div`
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
-
-const EditorContainer = styled.div`
-  position: relative;
-  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
-  display: flex;
-  flex-direction: column;
-`;
-
 function MainContainer() {
+  const [sidebarWidth, setSidebarWidth] = useState(256);
+  const [propertyPaneWidth, setPropertyPaneWidth] = useState(256);
+
+  /**
+   * on entity explorer sidebar width change
+   */
+  const onLeftSidebarWidthChange = useCallback((newWidth) => {
+    setSidebarWidth(newWidth);
+  }, []);
+
+  /**
+   * on property pane sidebar width change
+   */
+  const onRightSidebarWidthChange = useCallback((newWidth) => {
+    setPropertyPaneWidth(newWidth);
+  }, []);
+
   return (
     <>
-      <Container>
-        <Sidebar />
-        <EditorContainer>
+      <Container className="w-full justify-between">
+        <EntityExplorerSidebar
+          onWidthChange={onLeftSidebarWidthChange}
+          width={sidebarWidth}
+        />
+        <div className="relative flex flex-col overflow-auto w-full">
           <Switch>
             <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
             <SentryRoute component={EditorsRouter} />
           </Switch>
-        </EditorContainer>
+        </div>
+        <PropertyPaneSidebar
+          onWidthChange={onRightSidebarWidthChange}
+          width={propertyPaneWidth}
+        />
       </Container>
       {getFeatureFlags().GIT && <BottomBar />}
     </>

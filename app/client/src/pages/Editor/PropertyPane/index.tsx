@@ -13,8 +13,6 @@ import {
   Icon,
 } from "@blueprintjs/core";
 
-import Popper from "pages/Editor/Popper";
-import { generateClassName } from "utils/generators";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import styled from "constants/DefaultTheme";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -25,7 +23,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import PropertyControlsGenerator from "./Generator";
-import PaneWrapper from "components/editorComponents/PaneWrapper";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
@@ -36,38 +33,23 @@ import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
-import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 
-const PropertyPaneWrapper = styled(PaneWrapper)<{
-  themeMode?: EditorTheme;
-}>`
-  max-height: ${(props) => props.theme.propertyPane.height}px;
-  width: ${(props) => props.theme.propertyPane.width}px;
-  padding-top: 0px;
-  margin-bottom: ${(props) => props.theme.spaces[2]}px;
-  margin-left: ${(props) => props.theme.spaces[10]}px;
-  padding-top: 0px;
-  border-right: 0;
-  overflow: hidden;
-  text-transform: none;
-`;
-
 const StyledPanelStack = styled(PanelStack)`
-  height: auto;
+  height: 100%;
   width: 100%;
   margin: 0;
   &&& .bp3-panel-stack-view {
     margin: 0;
     border: none;
-    background: transparent;
   }
   overflow: visible;
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
     overflow: hidden;
+    height: 100%;
   }
 `;
 
@@ -90,10 +72,6 @@ export const FixedHeader = styled.div`
 
 export const PropertyPaneBodyWrapper = styled.div`
   margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
-  max-height: ${(props) =>
-    props.theme.propertyPane.height -
-    (props.theme.propertyPane.titleHeight +
-      props.theme.propertyPane.connectionsHeight)}px;
   overflow: auto;
 `;
 
@@ -196,6 +174,7 @@ function PropertyPaneView(
         widgetId={widgetProperties.widgetId}
         widgetType={widgetProperties?.type}
       />
+
       <PropertyPaneBodyWrapper>
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
@@ -204,6 +183,7 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
+        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         <PropertyControlsWrapper>
           <PropertyControlsGenerator
             id={widgetProperties.widgetId}
@@ -246,24 +226,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     if (this.props.isVisible) {
       log.debug("Property pane rendered");
       const content = this.renderPropertyPane();
-      const el = document.getElementsByClassName(
-        generateClassName(this.props.widgetProperties?.widgetId),
-      )[0];
-      return (
-        <Popper
-          disablePopperEvents={this.props?.propPanePreference?.isMoved}
-          isDraggable
-          isOpen
-          onPositionChange={this.onPositionChange}
-          placement="right-start"
-          position={this.props?.propPanePreference?.position}
-          targetNode={el}
-          themeMode={this.getPopperTheme()}
-          zIndex={Layers.propertyPane}
-        >
-          {content}
-        </Popper>
-      );
+      return content;
     } else {
       return null;
     }
@@ -281,16 +244,14 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     if (widgetProperties?.disablePropertyPane) return null;
 
     return (
-      <PropertyPaneWrapper
-        className={"t--propertypane"}
+      <div
+        className={"t--propertypane w-full h-full"}
         data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
         ref={this.panelWrapperRef}
-        themeMode={this.getTheme()}
       >
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         <StyledPanelStack
           initialPanel={{
             component: PropertyPaneView,
@@ -305,7 +266,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
           }}
           showPanelHeader={false}
         />
-      </PropertyPaneWrapper>
+      </div>
     );
   }
 

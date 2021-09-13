@@ -33,11 +33,9 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  border-bottom: 0.5px solid #e0dede;
 
   .connection-dropdown {
     box-shadow: none;
-    background-color: ${(props) => props.theme.colors.propertyPane.bg};
     border: none;
   }
   .error {

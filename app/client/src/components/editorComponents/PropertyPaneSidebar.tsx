@@ -1,12 +1,11 @@
-import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import Explorer from "pages/Editor/Explorer";
-import { PanelStack } from "@blueprintjs/core";
 import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
+import classNames from "classnames";
+import PropertyPane from "pages/Editor/PropertyPane";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 
 type Props = {
@@ -14,14 +13,14 @@ type Props = {
   onWidthChange: (width: number) => void;
 };
 
-export const EntityExplorerSidebar = memo((props: Props) => {
+export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const {
     onMouseDown,
     onMouseUp,
     onTouchStart,
     resizing,
-  } = useHorizontalResize(sidebarRef, props.onWidthChange);
+  } = useHorizontalResize(sidebarRef, props.onWidthChange, true);
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
@@ -40,31 +39,25 @@ export const EntityExplorerSidebar = memo((props: Props) => {
 
   return (
     <div className="relative">
-      {/* sidebar */}
       <div
-        className="t--sidebar p-0 z-3 overflow-y-auto bg-trueGray-800 text-white h-full min-w-48 max-w-96"
-        ref={sidebarRef}
-        style={{ width: props.width }}
-      >
-        <PanelStack
-          className="h-full"
-          initialPanel={{ component: Explorer }}
-          showPanelHeader={false}
-        />
-      </div>
-      {/* resizer */}
-      <div
-        className="w-2 -mr-1 group z-4 cursor-ew-resize absolute right-0 top-0 h-full"
+        className="w-2 -ml-2 group z-4 cursor-ew-resize absolute left-0 top-0 h-full"
         onMouseDown={onMouseDown}
         onTouchEnd={onMouseUp}
         onTouchStart={onTouchStart}
       >
         <div className={resizerClassnames} />
       </div>
+      <div
+        className="t--sidebar p-0 z-3 overflow-y-auto bg-warmGray-100 text-white h-full min-w-80 max-w-108"
+        ref={sidebarRef}
+        style={{ width: props.width }}
+      >
+        <PropertyPane />
+      </div>
     </div>
   );
 });
 
-EntityExplorerSidebar.displayName = "EntityExplorerSidebar";
+PropertyPaneSidebar.displayName = "PropertyPaneSidebar";
 
-export default Sentry.withProfiler(EntityExplorerSidebar);
+export default Sentry.withProfiler(PropertyPaneSidebar);

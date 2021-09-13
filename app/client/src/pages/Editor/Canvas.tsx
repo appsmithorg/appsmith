@@ -1,7 +1,6 @@
 import React, { memo, useCallback } from "react";
 import store, { useSelector } from "store";
 import WidgetFactory from "utils/WidgetFactory";
-import PropertyPane from "pages/Editor/PropertyPane";
 import ArtBoard from "pages/common/ArtBoard";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
@@ -62,29 +61,26 @@ const Canvas = memo((props: CanvasProps) => {
 
   try {
     return (
-      <>
-        <PropertyPane />
-        <ArtBoard
-          className="t--canvas-artboard"
-          data-testid="t--canvas-artboard"
-          id="art-board"
-          onMouseMove={(e) => {
-            e.persist();
-            if (!isMultiplayerEnabledForUser) return;
-            delayedShareMousePointer(e);
-          }}
-          width={props.dsl.rightColumn}
-        >
-          {props.dsl.widgetId &&
-            WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
-          {isMultiplayerEnabledForUser && (
-            <CanvasMultiPointerArena
-              pageEditSocket={pageEditSocket}
-              pageId={pageId}
-            />
-          )}
-        </ArtBoard>
-      </>
+      <ArtBoard
+        className="t--canvas-artboard"
+        data-testid="t--canvas-artboard"
+        id="art-board"
+        onMouseMove={(e) => {
+          e.persist();
+          if (!isMultiplayerEnabledForUser) return;
+          delayedShareMousePointer(e);
+        }}
+        width={props.dsl.rightColumn}
+      >
+        {props.dsl.widgetId &&
+          WidgetFactory.createWidget(props.dsl, RenderModes.CANVAS)}
+        {isMultiplayerEnabledForUser && (
+          <CanvasMultiPointerArena
+            pageEditSocket={pageEditSocket}
+            pageId={pageId}
+          />
+        )}
+      </ArtBoard>
     );
   } catch (error) {
     log.error("Error rendering DSL", error);
