@@ -82,7 +82,6 @@ abstract class BaseWidget<
    *   }
    *  ```
    */
-  abstract getWidgetType(): WidgetType;
 
   /**
    *  Widgets can execute actions using this `executeAction` method.
@@ -490,7 +489,8 @@ export interface WidgetProps
 export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
-  widgetCardName: string;
+  displayName: string;
+  icon: string;
   isBeta?: boolean;
 }
 

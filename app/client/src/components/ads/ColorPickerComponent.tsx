@@ -73,6 +73,7 @@ const defaultColors: string[] = [
   "#F6F7F8",
   "#FFFFFF",
   "#231F20",
+  "#F86A2B",
 ];
 
 interface ColorBoardProps {
@@ -151,7 +152,6 @@ interface ColorPickerProps {
 
 function ColorPickerComponent(props: ColorPickerProps) {
   const [color, setColor] = React.useState(props.color);
-  const [isOpen, setOpen] = React.useState(false);
   const debouncedOnChange = React.useCallback(
     debounce(props.changeColor, 500),
     [props.changeColor],
@@ -165,7 +165,6 @@ function ColorPickerComponent(props: ColorPickerProps) {
     <Popover
       enforceFocus={false}
       interactionKind={PopoverInteractionKind.CLICK}
-      isOpen={isOpen}
       minimal
       modifiers={{
         offset: {
@@ -178,41 +177,22 @@ function ColorPickerComponent(props: ColorPickerProps) {
       <StyledInputGroup
         leftIcon={
           color ? (
-            <ColorIcon color={color} onClick={() => setOpen(true)} />
+            <ColorIcon color={color} />
           ) : (
-            <NoColorIconWrapper onClick={() => setOpen(true)}>
+            <NoColorIconWrapper>
               <NoColorIcon>
                 <div className="line" />
               </NoColorIcon>
             </NoColorIconWrapper>
           )
         }
-        onBlur={() => {
-          // Case 1
-          // On Tab key press Input loses focus and onKeyUp handler is not called
-          // To handle Tab key press onBlur event is used instead
-          // As input will lose focus on Tab press
-          // Case 2
-          // if user clicks on ColorBoard blur is called first and color is not updated
-          // to prevent that make sure to wait for color update before onBlur
-          setTimeout(() => {
-            setOpen(false);
-          }, 100);
-        }}
         onChange={handleChangeColor}
-        onFocus={() => setOpen(true)}
-        onKeyUp={(e) => {
-          if (e.key === "Enter") {
-            setOpen((state) => !state);
-          }
-        }}
         placeholder="enter color name or hex"
         value={color}
       />
       <ColorBoard
         selectColor={(color) => {
           setColor(color);
-          setOpen(false);
           props.changeColor(color);
         }}
         selectedColor={color}
