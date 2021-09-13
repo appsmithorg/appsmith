@@ -6,7 +6,9 @@ import styled from "styled-components";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { useSelector } from "react-redux";
-import { snipingModeSelector } from "../../../selectors/editorSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import WidgetFactory from "utils/WidgetFactory";
+import { memoize } from "lodash";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -22,6 +24,12 @@ export type PositionedContainerProps = {
   focused?: boolean;
   resizeDisabled?: boolean;
 };
+
+export const checkIsDropTarget = memoize(function isDropTarget(
+  type: WidgetType,
+) {
+  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
+});
 
 export function PositionedContainer(props: PositionedContainerProps) {
   const x = props.style.xPosition + (props.style.xPositionUnit || "px");
@@ -40,7 +48,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
         .toLowerCase()}`
     );
   }, [props.widgetType, props.widgetId]);
-  const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(props);
+  const isDropTarget = checkIsDropTarget(props.widgetType);
+  const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
+    props,
+    isDropTarget,
+  );
 
   const containerStyle: CSSProperties = useMemo(() => {
     return {

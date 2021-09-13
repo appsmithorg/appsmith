@@ -1,6 +1,6 @@
 import { validate, WIDGET_TYPE_VALIDATION_ERROR } from "workers/validations";
 import { WidgetProps } from "widgets/BaseWidget";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
 
@@ -13,7 +13,7 @@ const DUMMY_WIDGET: WidgetProps = {
   renderMode: RenderModes.CANVAS,
   rightColumn: 0,
   topRow: 0,
-  type: WidgetTypes.SKELETON_WIDGET,
+  type: "SKELETON_WIDGET",
   version: 2,
   widgetId: "",
   widgetName: "",

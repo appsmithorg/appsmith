@@ -11,6 +11,7 @@ export const PROFILE = "/profile";
 export const USERS_URL = "/users";
 export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
+export const SETUP = "/setup/welcome";
 
 export type BuilderRouteParams = {
   applicationId: string;
