@@ -3013,8 +3013,11 @@ public class DatabaseChangelog {
                 // do nothing
             }
 
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(OrganizationPlugin::getPluginId).collect(Collectors.toSet());
+            final Set<String> installedPlugins = organization
+                    .getPlugins()
+                    .stream()
+                    .map(OrganizationPlugin::getPluginId)
+                    .collect(Collectors.toSet());
 
             if (installedPlugins.contains(mongoUqiPlugin.getId())) {
                 OrganizationPlugin mongoUqiOrganizationPlugin = organization.getPlugins()
