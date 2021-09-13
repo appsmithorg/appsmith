@@ -52,7 +52,10 @@ public class GitExecutorImpl implements GitExecutor {
      * @throws GitAPIException exceptions due to git commands
      */
     @Override
-    public String commitApplication(Path repoPath, String commitMessage, String authorName, String authorEmail) throws IOException, GitAPIException {
+    public String commitApplication(Path repoPath,
+                                    String commitMessage,
+                                    String authorName,
+                                    String authorEmail) throws IOException, GitAPIException {
         log.debug("Trying to commit to local repo path, {}", repoPath);
         // Check if the repo has been already initialised
         if (!repositoryHelper.repositoryExists(repoPath)) {
@@ -134,9 +137,9 @@ public class GitExecutorImpl implements GitExecutor {
      */
     @Override
     public String pushApplication(Path branchSuffix,
-                           String remoteUrl,
-                           String publicKey,
-                           String privateKey) throws IOException, GitAPIException, URISyntaxException {
+                                  String remoteUrl,
+                                  String publicKey,
+                                  String privateKey) throws IOException, GitAPIException, URISyntaxException {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
         Path baseRepoPath = createRepoPath(branchSuffix);
