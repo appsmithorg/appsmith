@@ -49,6 +49,7 @@ public class GitServiceImpl implements GitService {
     private final UserDataService userDataService;
     private final SessionUserService sessionUserService;
     private final ApplicationService applicationService;
+    private final ApplicationPageService applicationPageService;
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
@@ -129,7 +130,8 @@ public class GitServiceImpl implements GitService {
                 "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
             ).cache();
 
-        return Mono.zip(getApplicationById(applicationId), currentUserMono)
+        return applicationPageService.publish(applicationId, true)
+            .zipWith(currentUserMono)
             .flatMap(tuple -> {
                 Application application = tuple.getT1();
                 GitApplicationMetadata gitMetadata = application.getGitApplicationMetadata();
@@ -337,6 +339,11 @@ public class GitServiceImpl implements GitService {
             "please provide as per standard format => git@github.com:username/reponame.git");
     }
 
+    /**
+     * Push flow for dehydrated apps
+     * @param applicationId application which needs to be pushed to remote repo
+     * @return Success message
+     */
     @Override
     public Mono<String> pushApplication(String applicationId) {
         Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)

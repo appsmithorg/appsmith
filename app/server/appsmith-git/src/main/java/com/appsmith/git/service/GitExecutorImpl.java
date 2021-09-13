@@ -38,8 +38,6 @@ public class GitExecutorImpl implements GitExecutor {
 
     public static final DateTimeFormatter ISO_FORMATTER = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
 
-    private final static String DEFAULT_REMOTE = "origin";
-
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
