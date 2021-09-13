@@ -6,6 +6,9 @@ import FixedKeyInputControl, {
 import InputTextControl, {
   InputControlProps,
 } from "components/formControls/InputTextControl";
+import InputTextControlV2, {
+  InputControlProps as InputControlWrapperProps,
+} from "components/formControls/InputTextControlV2";
 import DropDownControl, {
   DropDownControlProps,
 } from "components/formControls/DropDownControl";
@@ -39,7 +42,7 @@ class FormControlRegistry {
   static registerFormControlBuilders() {
     FormControlFactory.registerControlBuilder("INPUT_TEXT", {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
-        return <InputTextControl {...controlProps} />;
+        return <InputTextControlV2 {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder("FIXED_KEY_INPUT", {

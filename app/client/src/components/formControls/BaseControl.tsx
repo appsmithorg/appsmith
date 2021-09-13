@@ -53,6 +53,9 @@ export interface ControlData {
   conditionals: string;
   hidden?: HiddenType;
   placeholderText?: string;
+  tootip?: string;
+  url?: string;
+  urlText?: string;
   schema?: any;
 }
 
