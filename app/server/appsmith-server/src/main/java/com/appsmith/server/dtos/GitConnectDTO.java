@@ -10,7 +10,5 @@ public class GitConnectDTO {
 
     String remoteUrl;
 
-    String applicationId;
-
     GitConfig gitConfig;
 }
