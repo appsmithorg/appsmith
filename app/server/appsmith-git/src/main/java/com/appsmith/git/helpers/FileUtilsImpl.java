@@ -109,8 +109,10 @@ public class FileUtilsImpl implements FileInterface {
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan actions directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(ACTION_DIRECTORY));
-        validFileNames.clear();
+        if (!applicationGitReference.getActions().isEmpty()) {
+            scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(ACTION_DIRECTORY));
+            validFileNames.clear();
+        }
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
@@ -118,7 +120,9 @@ public class FileUtilsImpl implements FileInterface {
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY));
+        if (!applicationGitReference.getDatasources().isEmpty()) {
+            scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY));
+        }
         return Mono.just(baseRepoBranchPath);
     }
 
@@ -156,7 +160,7 @@ public class FileUtilsImpl implements FileInterface {
                 .filter(path -> Files.isRegularFile(path) && !validResources.contains(path.getFileName().toString()))
                 .forEach(path -> deleteFile(path, false));
         } catch (IOException e) {
-            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e.getMessage());
+            log.debug("Error while scanning directory: {}, with error {}", resourceDirectory, e);
         }
     }
 

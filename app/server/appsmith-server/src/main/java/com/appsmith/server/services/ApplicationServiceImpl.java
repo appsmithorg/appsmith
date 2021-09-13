@@ -332,7 +332,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(privateKeyOutput.toString());
+        gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(

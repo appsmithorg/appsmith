@@ -261,9 +261,11 @@ public class GitServiceImpl implements GitService {
                                 String defaultBranch;
                                 String repoName = getRepoName(gitApplicationMetadata.getRemoteUrl());
                                 try {
-                                    Path repoPath = getRelativePath(application.getOrganizationId(),
-                                                                    gitConnectDTO.getApplicationId(),
-                                                                    repoName);
+                                    String defaultApplicationId =
+                                        application.getGitApplicationMetadata().getDefaultApplicationId();
+
+                                    Path repoPath =
+                                        Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
                                     defaultBranch = gitExecutor.cloneApp(
                                             repoPath,
@@ -301,10 +303,6 @@ public class GitServiceImpl implements GitService {
                             }
                         })
                 );
-    }
-
-    private Path getRelativePath(String organizationId, String defaultApplicationId, String repoName) {
-        return Paths.get(organizationId,defaultApplicationId, repoName);
     }
 
     /**

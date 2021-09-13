@@ -63,7 +63,7 @@ public class GitController {
 
     @GetMapping("/commit-history/{applicationId}")
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
-        log.debug("Going to commit application {}", applicationId);
+        log.debug("Fetching commit-history for application {}", applicationId);
         return service.getCommitHistory(applicationId)
             .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
     }

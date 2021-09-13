@@ -11,5 +11,4 @@ public class GitServiceConfig {
     @Value("${appsmith.git.root:./container-volumes/git-storage}")
     private String gitRootPath;
 
-    public GitServiceConfig() {};
 }
