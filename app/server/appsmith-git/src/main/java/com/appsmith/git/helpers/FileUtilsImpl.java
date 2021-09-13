@@ -94,6 +94,9 @@ public class FileUtilsImpl implements FileInterface {
         // Save application
         saveFile(applicationGitReference.getApplication(), baseRepoBranchPath.resolve("application.json"), gson);
 
+        // Save application metadata
+        saveFile(applicationGitReference.getMetadata(), baseRepoBranchPath.resolve("metadata.json"), gson);
+
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
             saveFile(resource.getValue(), baseRepoBranchPath.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
@@ -215,6 +218,11 @@ public class FileUtilsImpl implements FileInterface {
         // Extract application data from the json
         applicationGitReference.setApplication(
             readFile( baseRepoPath.resolve("application.json"), gson)
+        );
+
+        // Extract application metadata from the json
+        applicationGitReference.setApplication(
+            readFile( baseRepoPath.resolve("metadata.json"), gson)
         );
 
         // Extract actions

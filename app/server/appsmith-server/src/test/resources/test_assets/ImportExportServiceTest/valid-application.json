@@ -526,28 +526,30 @@
         "new": false
       }
     ],
-    "decryptedFields": {
-      "db-auth": {
-        "password": "CreativePassword",
-        "authType": "com.appsmith.external.models.DBAuth",
-        "dbAuth": {
-          "authenticationType": "dbAuth",
-          "authType": "SCRAM_SHA_1",
-          "username": "CreativeUser",
-          "databaseName": "db-name"
+    "metadata": {
+      "decryptedFields": {
+        "db-auth": {
+          "password": "CreativePassword",
+          "authType": "com.appsmith.external.models.DBAuth",
+          "dbAuth": {
+            "authenticationType": "dbAuth",
+            "authType": "SCRAM_SHA_1",
+            "username": "CreativeUser",
+            "databaseName": "db-name"
+          }
         }
+      },
+      "publishedDefaultPageName": "Page1",
+      "unpublishedDefaultPageName": "Page1",
+      "publishedLayoutmongoEscapedWidgets": {
+        "60aca056136c4b7178f67906": [
+          "Table1"
+        ]
+      },
+      "unpublishedLayoutmongoEscapedWidgets": {
+        "60aca056136c4b7178f67906": [
+          "Table1"
+        ]
       }
-    },
-    "publishedDefaultPageName": "Page1",
-    "unpublishedDefaultPageName": "Page1",
-    "publishedLayoutmongoEscapedWidgets": {
-      "60aca056136c4b7178f67906": [
-        "Table1"
-      ]
-    },
-    "unpublishedLayoutmongoEscapedWidgets": {
-      "60aca056136c4b7178f67906": [
-        "Table1"
-      ]
     }
 }

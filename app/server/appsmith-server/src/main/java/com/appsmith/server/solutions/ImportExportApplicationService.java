@@ -15,6 +15,7 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.ApplicationMetadata;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -99,6 +100,7 @@ public class ImportExportApplicationService {
             5. Filter out relevant datasources using actions reference
          */
         ApplicationJson applicationJson = new ApplicationJson();
+        ApplicationMetadata applicationMetadata = new ApplicationMetadata();
         Map<String, String> pluginMap = new HashMap<>();
         Map<String, String> datasourceIdToNameMap = new HashMap<>();
         Map<String, String> pageIdToNameMap = new HashMap<>();
@@ -131,7 +133,7 @@ public class ImportExportApplicationService {
                 if (unpublishedDefaultPage == null) {
                     return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DEFAULT_PAGE_NAME));
                 } else {
-                    applicationJson.setUnpublishedDefaultPageName(unpublishedDefaultPage.getId());
+                    applicationMetadata.setUnpublishedDefaultPageName(unpublishedDefaultPage.getId());
                 }
                 
                 if (application.getPublishedPages() != null) {
@@ -140,7 +142,7 @@ public class ImportExportApplicationService {
                         .filter(ApplicationPage::getIsDefault)
                         .findFirst()
                         .ifPresent(
-                            publishedDefaultPage -> applicationJson.setPublishedDefaultPageName(publishedDefaultPage.getId())
+                            publishedDefaultPage -> applicationMetadata.setPublishedDefaultPageName(publishedDefaultPage.getId())
                         );
                 }
 
@@ -171,9 +173,9 @@ public class ImportExportApplicationService {
                                 );
                                 PageDTO unpublishedPageDTO = newPage.getUnpublishedPage();
                                 if (StringUtils.equals(
-                                    applicationJson.getUnpublishedDefaultPageName(), newPage.getId())
+                                    applicationMetadata.getUnpublishedDefaultPageName(), newPage.getId())
                                 ) {
-                                    applicationJson.setUnpublishedDefaultPageName(unpublishedPageDTO.getName());
+                                    applicationMetadata.setUnpublishedDefaultPageName(unpublishedPageDTO.getName());
                                 }
                                 if (unpublishedPageDTO.getLayouts() != null) {
                                     
@@ -189,12 +191,12 @@ public class ImportExportApplicationService {
                                     newPage.getId() + PublishType.PUBLISHED, newPage.getPublishedPage().getName()
                                 );
                                 PageDTO publishedPageDTO = newPage.getPublishedPage();
-                                if (applicationJson.getPublishedDefaultPageName() != null &&
+                                if (applicationMetadata.getPublishedDefaultPageName() != null &&
                                     StringUtils.equals(
-                                        applicationJson.getPublishedDefaultPageName(), newPage.getId()
+                                        applicationMetadata.getPublishedDefaultPageName(), newPage.getId()
                                     )
                                 ) {
-                                    applicationJson.setPublishedDefaultPageName(publishedPageDTO.getName());
+                                    applicationMetadata.setPublishedDefaultPageName(publishedPageDTO.getName());
                                 }
                                 
                                 if (publishedPageDTO.getLayouts() != null) {
@@ -208,8 +210,8 @@ public class ImportExportApplicationService {
                             examplesOrganizationCloner.makePristine(newPage);
                         });
                         applicationJson.setPageList(newPageList);
-                        applicationJson.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
-                        applicationJson.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
+                        applicationMetadata.setPublishedLayoutmongoEscapedWidgets(publishedMongoEscapedWidgetsNames);
+                        applicationMetadata.setUnpublishedLayoutmongoEscapedWidgets(unpublishedMongoEscapedWidgetsNames);
                         return datasourceRepository
                             .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
                             .collectList();
@@ -272,7 +274,12 @@ public class ImportExportApplicationService {
                                 datasource.getDatasourceConfiguration().setAuthentication(null);
                             }
                         });
-                        applicationJson.setDecryptedFields(decryptedFields);
+                        if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
+                            applicationMetadata.setDecryptedFields(null);
+                        } else {
+                            applicationMetadata.setDecryptedFields(decryptedFields);
+                        }
+                        applicationJson.setMetadata(applicationMetadata);
                         return applicationJson;
                     });
             })
@@ -360,6 +367,7 @@ public class ImportExportApplicationService {
         Map<String, String> actionIdMap = new HashMap<>();
 
         Application importedApplication = importedDoc.getExportedApplication();
+        ApplicationMetadata applicationMetadata = importedDoc.getMetadata();
         List<Datasource> importedDatasourceList = importedDoc.getDatasourceList();
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
@@ -430,10 +438,10 @@ public class ImportExportApplicationService {
                         datasource.setOrganizationId(organizationId);
 
                         //Check if any decrypted fields are present for datasource
-                        if (importedDoc.getDecryptedFields().get(datasource.getName()) != null) {
+                        if (applicationMetadata.getDecryptedFields().get(datasource.getName()) != null) {
 
                             DecryptedSensitiveFields decryptedFields =
-                                importedDoc.getDecryptedFields().get(datasource.getName());
+                                applicationMetadata.getDecryptedFields().get(datasource.getName());
 
                             updateAuthenticationDTO(datasource, decryptedFields);
                         }
@@ -499,8 +507,8 @@ public class ImportExportApplicationService {
                 return importAndSavePages(
                     importedNewPageList,
                     importedApplication,
-                    importedDoc.getPublishedLayoutmongoEscapedWidgets(),
-                    importedDoc.getUnpublishedLayoutmongoEscapedWidgets()
+                    applicationMetadata.getPublishedLayoutmongoEscapedWidgets(),
+                    applicationMetadata.getUnpublishedLayoutmongoEscapedWidgets()
                 )
                 .map(newPage -> {
                     ApplicationPage unpublishedAppPage = new ApplicationPage();
@@ -509,7 +517,7 @@ public class ImportExportApplicationService {
                     if (newPage.getUnpublishedPage() != null && newPage.getUnpublishedPage().getName() != null) {
                         unpublishedAppPage.setIsDefault(
                             StringUtils.equals(
-                                newPage.getUnpublishedPage().getName(), importedDoc.getUnpublishedDefaultPageName()
+                                newPage.getUnpublishedPage().getName(), applicationMetadata.getUnpublishedDefaultPageName()
                             )
                         );
                         unpublishedAppPage.setId(newPage.getId());
@@ -519,7 +527,7 @@ public class ImportExportApplicationService {
                     if (newPage.getPublishedPage() != null && newPage.getPublishedPage().getName() != null) {
                         publishedAppPage.setIsDefault(
                             StringUtils.equals(
-                                newPage.getPublishedPage().getName(), importedDoc.getPublishedDefaultPageName()
+                                newPage.getPublishedPage().getName(), applicationMetadata.getPublishedDefaultPageName()
                             )
                         );
                         publishedAppPage.setId(newPage.getId());

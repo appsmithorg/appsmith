@@ -47,6 +47,7 @@ public class GitFileUtils {
 
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
+        applicationReference.setMetadata(applicationJson.getMetadata());
 
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();

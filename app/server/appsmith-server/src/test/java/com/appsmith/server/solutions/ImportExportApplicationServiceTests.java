@@ -10,6 +10,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.ApplicationMetadata;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -273,7 +274,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(applicationJson.getPageList()).hasSize(1);
                     assertThat(applicationJson.getActionList()).isEmpty();
                     assertThat(applicationJson.getDatasourceList()).isEmpty();
-                    assertThat(applicationJson.getDecryptedFields()).isEmpty();
+                    assertThat(applicationJson.getMetadata().getDecryptedFields()).isEmpty();
                 })
                 .verifyComplete();
     }
@@ -395,15 +396,16 @@ public class ImportExportApplicationServiceTests {
                     assertThat(datasource.getDatasourceConfiguration()).isNotNull();
                     assertThat(datasource.getDatasourceConfiguration().getAuthentication()).isNull();
 
+                    ApplicationMetadata applicationMetadata = applicationJson.getMetadata();
                     DecryptedSensitiveFields decryptedFields =
-                            applicationJson.getDecryptedFields().get(datasource.getName());
+                        applicationMetadata.getDecryptedFields().get(datasource.getName());
 
                     DBAuth auth = (DBAuth) datasourceMap.get("DS2").getDatasourceConfiguration().getAuthentication();
                     assertThat(decryptedFields.getAuthType()).isEqualTo(auth.getClass().getName());
                     assertThat(decryptedFields.getPassword()).isEqualTo("awesome-password");
 
-                    assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
-                    assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationMetadata.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                    assertThat(applicationMetadata.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -499,8 +501,8 @@ public class ImportExportApplicationServiceTests {
                 assertThat(datasource.getPluginId()).isEqualTo(installedPlugin.getPackageName());
                 assertThat(datasource.getDatasourceConfiguration()).isNull();
 
-                assertThat(applicationJson.getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
-                assertThat(applicationJson.getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                assertThat(applicationJson.getMetadata().getUnpublishedLayoutmongoEscapedWidgets()).isNotEmpty();
+                assertThat(applicationJson.getMetadata().getPublishedLayoutmongoEscapedWidgets()).isNotEmpty();
             })
             .verifyComplete();
     }

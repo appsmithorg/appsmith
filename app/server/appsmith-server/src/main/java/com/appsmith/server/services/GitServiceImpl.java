@@ -275,10 +275,15 @@ public class GitServiceImpl implements GitService {
                                         "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
                                 String defaultBranch;
-                                String repoName = getRepoName(gitApplicationMetadata.getRemoteUrl());
+                                String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                                 try {
                                     String defaultApplicationId =
                                         application.getGitApplicationMetadata().getDefaultApplicationId();
+
+                                    if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
+                                        defaultApplicationId = application.getId();
+                                        application.getGitApplicationMetadata().setDefaultApplicationId(defaultApplicationId);
+                                    }
 
                                     Path repoPath =
                                         Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
@@ -309,7 +314,6 @@ public class GitServiceImpl implements GitService {
                                     return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                 }
 
-                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
                                 gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 gitApplicationMetadata.setRepoName(repoName);
