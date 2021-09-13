@@ -202,4 +202,31 @@ public class UserDataServiceTest {
             Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
         }).verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteProfilePhotot_WhenExists_RemovedFromAssetAndUserData() {
+        // create an asset first
+        Mono<Tuple2<UserData, Asset>> tuple2Mono = assetRepository.save(new Asset(MediaType.IMAGE_PNG, new byte[10]))
+                .flatMap(savedAsset ->
+                        userDataService.getForCurrentUser().flatMap(userData -> {
+                            userData.setProfilePhotoAssetId(savedAsset.getId());
+                            return userDataRepository.save(userData);
+                        }))
+                .flatMap(userData -> {
+                    String assetId = userData.getProfilePhotoAssetId();
+                    return userDataService.deleteProfilePhoto().thenReturn(assetId);
+                })
+                .flatMap(assetId -> {
+                    Mono<UserData> forCurrentUser = userDataService.getForCurrentUser();
+                    return forCurrentUser.zipWith(assetRepository.findById(assetId).defaultIfEmpty(new Asset()));
+                });
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(objects -> {
+                    assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
+                    assertThat(objects.getT2().getId()).isNull();
+                })
+                .verifyComplete();
+    }
 }
