@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Spinner from "./Spinner";
 
-type ToggleProps = CommonComponentProps & {
+export type ToggleProps = CommonComponentProps & {
   name?: string;
   onToggle: (value: boolean) => void;
   value: boolean;
