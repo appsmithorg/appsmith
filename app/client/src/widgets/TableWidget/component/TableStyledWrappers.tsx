@@ -585,7 +585,7 @@ export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
 
-export const TableOperationHeaderCell = styled.div`
+export const TableEditHeaderCell = styled.div`
   width: 150px;
   padding-left: 10px !important;
 `;

@@ -18,7 +18,7 @@ import {
   renderEmptyRows,
   renderCheckBoxCell,
   renderCheckBoxHeaderCell,
-  renderOperationHeaderCell,
+  renderEditHeaderCell,
   renderEditCell,
   renderUpdateCell,
 } from "./TableUtilities";
@@ -322,7 +322,7 @@ export function Table(props: TableProps) {
                         );
                       },
                     )}
-                    {props.enableInlineEditing && renderOperationHeaderCell()}
+                    {props.enableInlineEditing && renderEditHeaderCell()}
                   </div>
                 );
               })}

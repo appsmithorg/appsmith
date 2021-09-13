@@ -7,7 +7,7 @@ import {
   ActionWrapper,
   SortIconWrapper,
   DraggableHeaderWrapper,
-  TableOperationHeaderCell,
+  TableEditHeaderCell,
   TableEditCell,
   TableUpdateCell,
   OperationCellWrapper,
@@ -784,11 +784,11 @@ export const renderDropdown = (props: {
   );
 };
 
-export const renderOperationHeaderCell = () => {
+export const renderEditHeaderCell = () => {
   return (
-    <TableOperationHeaderCell className="th header-reorder" role="columnheader">
-      <div>Operation</div>
-    </TableOperationHeaderCell>
+    <TableEditHeaderCell className="th header-reorder" role="columnheader">
+      <div>Edit</div>
+    </TableEditHeaderCell>
   );
 };
 
