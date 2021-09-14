@@ -1,12 +1,11 @@
-import { WidgetTypes } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
+import { DSLWidget } from "widgets/constants";
 
 export const migrateCheckboxGroupWidgetInlineProperty = (
-  currentDSL: ContainerWidgetProps<WidgetProps>,
+  currentDSL: DSLWidget,
 ) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === WidgetTypes.CHECKBOX_GROUP_WIDGET) {
+    if (child.type === "CHECKBOX_GROUP_WIDGET") {
       if (!("isInline" in child)) {
         child.isInline = true;
       }
