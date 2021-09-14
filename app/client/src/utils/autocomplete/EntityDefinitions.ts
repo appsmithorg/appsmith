@@ -315,9 +315,9 @@ export const entityDefinitions: Record<string, unknown> = {
     label: "string",
   },
   //TODO: fix this after development
-  TREE_SINGLE_SELECT_WIDGET: {
+  SINGLE_SELECT_TREE_WIDGET: {
     "!doc":
-      "Tree Single Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs.",
+      "Single Select Tree is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
     "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValue: {
@@ -331,11 +331,12 @@ export const entityDefinitions: Record<string, unknown> = {
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",
+    isValid: "bool",
     options: "[dropdownOption]",
   },
-  TREE_MULTI_SELECT_WIDGET: {
+  MULTI_SELECT_TREE_WIDGET: {
     "!doc":
-      "Tree Multi Select is used to capture user input/s from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
+      "Multi Select Tree is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValues: {
@@ -349,6 +350,7 @@ export const entityDefinitions: Record<string, unknown> = {
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",
+    isValid: "bool",
     options: "[dropdownOption]",
   },
   ICON_BUTTON_WIDGET: {

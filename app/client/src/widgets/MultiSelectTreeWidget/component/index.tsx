@@ -23,7 +23,6 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
-
 export interface TreeSelectProps
   extends Required<
     Pick<

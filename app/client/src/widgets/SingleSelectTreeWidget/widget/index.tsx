@@ -368,7 +368,6 @@ class SingleSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-    return;
   };
 
   flat(array: DropdownOption[]) {
@@ -383,9 +382,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   filterValues(values: string | undefined) {
-    const options = this.props.options
-      ? this.flat(this.props.options as DropdownOption[])
-      : [];
+    const options = this.props.options ? this.flat(this.props.options) : [];
 
     if (isString(values)) {
       const index = findIndex(options, { value: values as string });

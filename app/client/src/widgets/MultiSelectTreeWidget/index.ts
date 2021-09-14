@@ -10,7 +10,6 @@ export const CONFIG = {
   defaults: {
     rows: 1.72 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
-    selectionType: "SINGLE_SELECT",
     mode: "SHOW_ALL",
     options: [
       {
@@ -31,8 +30,9 @@ export const CONFIG = {
       { label: "Red", value: "RED" },
     ],
     widgetName: "MultiSelectTree",
-    defaultOptionValue: ["BLUE"],
+    defaultOptionValue: ["GREEN"],
     version: 1,
+    isVisible: true,
     isRequired: false,
     isDisabled: false,
     allowClear: false,

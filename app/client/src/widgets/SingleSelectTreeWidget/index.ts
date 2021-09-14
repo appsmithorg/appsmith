@@ -10,8 +10,6 @@ export const CONFIG = {
   defaults: {
     rows: 1.7 * GRID_DENSITY_MIGRATION_V1,
     columns: 4 * GRID_DENSITY_MIGRATION_V1,
-    selectionType: "SINGLE_SELECT",
-    mode: "SHOW_ALL",
     options: [
       {
         label: "Blue",
@@ -33,6 +31,7 @@ export const CONFIG = {
     widgetName: "SingleSelectTree",
     defaultOptionValue: "BLUE",
     version: 1,
+    isVisible: true,
     isRequired: false,
     isDisabled: false,
     allowClear: false,

@@ -335,7 +335,7 @@ border: 1px solid #E8E8E8;
 .rc-tree-select-tree
 	.rc-tree-select-tree-treenode.filter-node
 	> .rc-tree-select-tree-node-content-wrapper {
-	color: #a60000 !important;
+	color: #182026 !important;
 	font-weight: bold !important;
 }
 .rc-tree-select-tree .rc-tree-select-tree-treenode ul {
