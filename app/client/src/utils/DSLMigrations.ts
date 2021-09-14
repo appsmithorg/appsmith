@@ -34,6 +34,7 @@ import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -913,6 +914,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 37) {
     currentDSL = migrateTableSanitizeColumnKeys(currentDSL);
+    currentDSL.version = 38;
+  }
+
+  if (currentDSL.version === 38) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
