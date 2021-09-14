@@ -7,7 +7,7 @@ import {
   ReduxActionWithMeta,
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
-import { getFormData } from "selectors/formSelectors";
+import { getFormData, getUIComponent } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
@@ -27,6 +27,7 @@ import {
   getDatasource,
   getPluginTemplates,
   getPlugin,
+  getPlugins,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
@@ -43,6 +44,7 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
+import { UIComponentTypes } from "api/PluginApi";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
@@ -74,6 +76,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const currentEditorConfig = editorConfigs[action.datasource.pluginId];
   const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
+  const uiComponent = getUIComponent(id, getPlugins(state));
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
   yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
@@ -100,8 +103,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
-  // Once the initial values are set, we can run the evaluations based on them.
-  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+    // Once the initial values are set, we can run the evaluations based on them.
+    yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
+  }
 }
 
 function* formValueChangeSaga(
