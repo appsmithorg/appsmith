@@ -80,7 +80,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
-import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  extractAppIdAndPageIdFromUrl,
+  SIGNUP_SUCCESS_URL,
+} from "constants/routes";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 
@@ -367,7 +370,9 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
 
   return (
     <MenuItem
-      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      containerClassName={
+        isFetchingApplications ? BlueprintClasses.SKELETON : ""
+      }
       ellipsize={20}
       href={`${window.location.pathname}#${org.organization.slug}`}
       icon="workspace"
@@ -442,7 +447,9 @@ function LeftPane() {
             />
           </div>
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
             icon="book"
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
@@ -450,7 +457,7 @@ function LeftPane() {
             text={"Documentation"}
           />
           <MenuItem
-            className={
+            containerClassName={
               isFetchingApplications
                 ? BlueprintClasses.SKELETON
                 : "t--welcome-tour"
@@ -875,7 +882,6 @@ function ApplicationsSection(props: any) {
 }
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
@@ -887,6 +893,7 @@ type ApplicationProps = {
   userOrgs: any;
   currentUser?: User;
   searchKeyword: string | undefined;
+  enableFirstTimeUserOnboarding: (applicationId: string) => void;
 };
 
 const getIsFromSignup = () => {
@@ -919,9 +926,30 @@ class Applications extends Component<
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
+      "enableFirstTimeUserExperience",
+    );
     if (redirectUrl) {
       try {
-        if (getIsSafeRedirectURL(redirectUrl)) {
+        if (
+          window.location.pathname == SIGNUP_SUCCESS_URL &&
+          shouldEnableFirstTimeUserOnboarding === "true"
+        ) {
+          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
+            redirectUrl,
+          );
+          if (applicationId && pageId) {
+            this.props.enableFirstTimeUserOnboarding(applicationId);
+            /*
+             * window.location.replace resets the application, adding
+             * this timeout to store onboarding variables in indexdb
+             */
+
+            setTimeout(() => {
+              window.location.replace(redirectUrl);
+            });
+          }
+        } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
         }
       } catch (e) {
@@ -961,15 +989,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () =>
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
-  createApplication: (appName: string) => {
-    dispatch({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        name: appName,
-      },
-    });
+  getAllApplication: () => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
   searchApplications: (keyword: string) => {
     dispatch({
@@ -977,6 +998,20 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: {
         keyword,
       },
+    });
+  },
+  enableFirstTimeUserOnboarding: (applicationId: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: true,
     });
   },
 });

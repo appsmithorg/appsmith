@@ -7,7 +7,6 @@ import {
 } from "actions/helpActions";
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
-import ModalComponent from "components/designSystems/blueprint/ModalComponent";
 import { HelpIcons } from "icons/HelpIcons";
 import { getAppsmithConfigs } from "configs";
 import { LayersContext } from "constants/Layers";
@@ -15,6 +14,7 @@ import { connect } from "react-redux";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
+import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { bootIntercom } from "utils/helpers";

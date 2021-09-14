@@ -34,7 +34,7 @@
   "inputValue": ".t--table-filter-value-input",
   "canvas": ".canvas",
   "removeFilter": ".t--table-filter-remove-btn",
-  "rowHeight": ".t--table-compact-mode-toggle-btn",
+    "rowHeight": ".t--property-control-rowheight .bp3-popover-target",
   "rowHeightOpt": ".t--table-compact-mode-option",
   "visibilityMode": ".t--table-column-visibility-toggle-btn",
   "visibilityOpt": ".option-title",

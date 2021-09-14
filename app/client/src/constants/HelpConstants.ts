@@ -1,4 +1,4 @@
-export const HelpMap = {
+export const HelpMap: Record<string, { path: string; searchKey: string }> = {
   CONTAINER_WIDGET: {
     path: "/widget-reference/container",
     searchKey: "Container",
@@ -143,9 +143,17 @@ export const HelpMap = {
     path: "/widget-reference/icon-button",
     searchKey: "Icon Button",
   },
+  STATBOX_WIDGET: {
+    path: "/widget-reference/statbox",
+    searchKey: "Stat Box",
+  },
   CHECKBOX_GROUP_WIDGET: {
     path: "/widget-reference/checkbox-group",
     searchKey: "Checkbox Group",
+  },
+  AUDIO_RECORDER_WIDGET: {
+    path: "/widget-reference/audio-recorder",
+    searchKey: "Audio Recorder",
   },
 };
 

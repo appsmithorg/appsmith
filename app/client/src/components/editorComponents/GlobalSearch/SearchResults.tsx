@@ -7,11 +7,15 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { ReactComponent as Function } from "assets/icons/menu/js-function.svg";
 import {
   getItemType,
   getItemTitle,
   SEARCH_ITEM_TYPES,
   SearchItem,
+  SearchCategory,
+  isMenu,
+  comboHelpText,
 } from "./utils";
 import SearchContext from "./GlobalSearchContext";
 import {
@@ -20,6 +24,7 @@ import {
   homePageIcon,
   pageIcon,
   apiIcon,
+  jsIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { HelpIcons } from "icons/HelpIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
@@ -27,7 +32,6 @@ import { AppState } from "reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
-import { APPLY_SEARCH_CATEGORY, createMessage } from "constants/messages";
 
 const DocumentIcon = HelpIcons.DOCUMENT;
 
@@ -48,13 +52,9 @@ export const SearchItemContainer = styled.div<{
       : "default"};
   display: flex;
   align-items: center;
-  padding: ${(props) =>
-    `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
-  color: ${(props) =>
-    props.isActiveItem
-      ? "white"
-      : props.theme.colors.globalSearch.searchItemText};
-  margin: ${(props) => props.theme.spaces[1]}px 0;
+  padding: ${(props) => props.theme.spaces[4]}px};
+  color: ${(props) => props.theme.colors.globalSearch.searchItemText};
+  transition: 0.3s background-color ease;
   background-color: ${(props) =>
     props.isActiveItem &&
     props.itemType !== SEARCH_ITEM_TYPES.sectionTitle &&
@@ -64,10 +64,7 @@ export const SearchItemContainer = styled.div<{
 
   .text {
     max-width: 300px;
-    color: ${(props) =>
-      props.isActiveItem
-        ? "white"
-        : props.theme.colors.globalSearch.searchItemText};
+    color: ${(props) => props.theme.colors.globalSearch.searchItemText};
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[1]}px`};
@@ -75,10 +72,7 @@ export const SearchItemContainer = styled.div<{
   }
 
   .subtext {
-    color: ${(props) =>
-      props.isActiveItem
-        ? "white"
-        : props.theme.colors.globalSearch.searchItemSubText};
+    color: ${(props) => props.theme.colors.globalSearch.searchItemSubText};
     font-size: ${(props) => props.theme.fontSizes[2]}px;
     font-weight: ${(props) => props.theme.fontWeights[1]};
     margin-right: ${(props) => `${props.theme.spaces[2]}px`};
@@ -93,15 +87,11 @@ export const SearchItemContainer = styled.div<{
       props.itemType !== SEARCH_ITEM_TYPES.placeholder
         ? "#E8E8E8"
         : "unset"};
-    color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    .category-title {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    }
-    .category-desc {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    }
     ${StyledActionLink} {
       visibility: visible;
+      &:hover {
+        transform: scale(1.2);
+      }
     }
     .icon-wrapper {
       svg {
@@ -110,15 +100,11 @@ export const SearchItemContainer = styled.div<{
         }
       }
     }
-    .subtext,
-    .text {
-      color: ${(props) => (props.isActiveItem ? "white" : "#484848")};
-    }
   }
 
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${(props) => getTypographyByKey(props, "p1")};
   }
 `;
 
@@ -128,9 +114,9 @@ const ItemTitle = styled.div`
   justify-content: space-between;
   flex: 1;
   align-items: center;
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   font-w [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${(props) => getTypographyByKey(props, "p1")};
   }
 `;
 
@@ -139,8 +125,7 @@ const StyledDocumentIcon = styled(DocumentIcon)<{ isActiveItem: boolean }>`
     width: 14px;
     height: 14px;
     path {
-      fill: ${(props) =>
-        props.isActiveItem ? "transparent" : "#6a86ce !important"};
+      fill: #716e6e !important;
     }
   }
   display: flex;
@@ -172,7 +157,7 @@ const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
   svg {
     height: 14px;
     path {
-      fill: ${(props) => (props.isActiveItem ? "white" : "#716E6E !important")};
+      fill: #716e6e !important;
     }
   }
 `;
@@ -240,6 +225,32 @@ function ActionItem(props: {
           pluginGroups[item.config.datasource.pluginId],
         );
 
+  const title = getItemTitle(item);
+  const pageName = usePageName(config.pageId);
+  const subText = `${pageName}`;
+
+  return (
+    <>
+      <ActionIconWrapper>{icon}</ActionIconWrapper>
+      <ItemTitle>
+        <TextWrapper>
+          <Highlight className="text" match={query} text={title} />
+          <Highlight className="subtext" match={query} text={subText} />
+        </TextWrapper>
+        <ActionLink isActiveItem={props.isActiveItem} item={props.item} />
+      </ItemTitle>
+    </>
+  );
+}
+
+function JSCollectionItem(props: {
+  query: string;
+  item: SearchItem;
+  isActiveItem: boolean;
+}) {
+  const { item, query } = props;
+  const { config } = item || {};
+  const icon = jsIcon;
   const title = getItemTitle(item);
   const pageName = usePageName(config.pageId);
   const subText = `${pageName}`;
@@ -336,7 +347,6 @@ const CategoryContainer = styled.div`
   flex-direction: row;
   align-item: center;
   justify-content: space-between;
-  padding: 12px 10px;
   width: 100%;
 `;
 
@@ -351,21 +361,15 @@ const CategoryListItem = styled.div<{ isActiveItem: boolean }>`
     flex-direction: column;
     .category-title {
       ${(props) => getTypographyByKey(props, "h5")}
-      color: ${(props) =>
-        props.isActiveItem
-          ? props.theme.colors.globalSearch.searchItemAltText
-          : props.theme.colors.globalSearch.searchItemText};
+      color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
     }
     .category-desc {
       ${(props) => getTypographyByKey(props, "p3")}
-      color: ${(props) =>
-        props.isActiveItem
-          ? props.theme.colors.globalSearch.searchItemAltText
-          : props.theme.colors.globalSearch.searchItemSubText};
+      color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     }
   }
   .action-msg {
-    color: ${(props) => props.theme.colors.globalSearch.searchItemAltText};
+    color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
     ${(props) => getTypographyByKey(props, "p3")}
     flex-shrink: 0;
   }
@@ -375,7 +379,7 @@ function CategoryItem({
   isActiveItem,
   item,
 }: {
-  item: SearchItem;
+  item: SearchCategory;
   isActiveItem: boolean;
 }) {
   return (
@@ -385,22 +389,33 @@ function CategoryItem({
           <span className="category-title">{item.title}</span>
           <span className="category-desc">{item.desc}</span>
         </div>
-        {isActiveItem && (
-          <div className="action-msg">
-            {createMessage(APPLY_SEARCH_CATEGORY)}
-          </div>
-        )}
+        <div className="action-msg">{comboHelpText[item.id]}</div>
       </CategoryListItem>
     </CategoryContainer>
   );
 }
 
-function SnippetItem({
-  item: {
-    body: { title },
-  },
-}: any) {
-  return <span>{title}</span>;
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  && svg {
+    width: 14px;
+    height: 14px;
+    path {
+      fill: #716e6e !important;
+    }
+  }
+`;
+
+function SnippetItem({ item: { body } }: any) {
+  return (
+    <FlexWrapper>
+      <Function />
+      <ItemTitle>
+        <span>{body.shortTitle || body.title}</span>
+      </ItemTitle>
+    </FlexWrapper>
+  );
 }
 
 const SearchItemByType = {
@@ -411,6 +426,7 @@ const SearchItemByType = {
   [SEARCH_ITEM_TYPES.page]: PageItem,
   [SEARCH_ITEM_TYPES.sectionTitle]: SectionTitle,
   [SEARCH_ITEM_TYPES.placeholder]: Placeholder,
+  [SEARCH_ITEM_TYPES.jsAction]: JSCollectionItem,
   [SEARCH_ITEM_TYPES.category]: CategoryItem,
   [SEARCH_ITEM_TYPES.snippet]: SnippetItem,
 };
@@ -460,7 +476,7 @@ function SearchItemComponent(props: ItemProps) {
   );
 }
 
-const SearchResultsContainer = styled.div`
+const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   flex: 1;
   background: white;
   position: relative;
@@ -468,21 +484,21 @@ const SearchResultsContainer = styled.div`
     overflow: auto;
     height: 100%;
     width: 100%;
-    padding-bottom: 50px;
+    padding-bottom: ${(props) => (isMenu(props.category) ? "0" : "50px")};
   }
 `;
 
 function SearchResults({
+  category,
   query,
   searchResults,
 }: {
   searchResults: SearchItem[];
   query: string;
-  showFilter: boolean;
-  refinements: any;
+  category: SearchCategory;
 }) {
   return (
-    <SearchResultsContainer>
+    <SearchResultsContainer category={category}>
       <div className="container">
         {searchResults.map((item: SearchItem, index: number) => (
           <SearchItemComponent

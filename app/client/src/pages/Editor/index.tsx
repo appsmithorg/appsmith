@@ -10,7 +10,6 @@ import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getIsEditorLoading,
   getIsPublishingApplication,
@@ -23,9 +22,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import ConfirmRunModal from "pages/Editor/ConfirmRunModal";
 import * as Sentry from "@sentry/react";
-import { getSelectedWidget } from "selectors/ui";
 import Welcome from "./Welcome";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
@@ -36,10 +34,10 @@ import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 
 import history from "utils/history";
+import { fetchPage, updateCurrentPage } from "actions/pageActions";
 
 type EditorProps = {
   currentApplicationId?: string;
-  currentPageId?: string;
   currentApplicationName?: string;
   initEditor: (applicationId: string, pageId: string) => void;
   isPublishing: boolean;
@@ -49,10 +47,11 @@ type EditorProps = {
   errorPublishing: boolean;
   creatingOnboardingDatabase: boolean;
   user?: User;
-  selectedWidget?: string;
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
+  fetchPage: (pageId: string) => void;
+  updateCurrentPage: (pageId: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -79,7 +78,7 @@ class Editor extends Component<Props> {
   shouldComponentUpdate(nextProps: Props, nextState: { registered: boolean }) {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
-      nextProps.currentPageId !== this.props.currentPageId ||
+      nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -91,6 +90,15 @@ class Editor extends Component<Props> {
         this.props.creatingOnboardingDatabase ||
       nextState.registered !== this.state.registered
     );
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { pageId } = this.props.match.params || {};
+    const { pageId: prevPageId } = prevProps.match.params || {};
+    if (pageId && pageId !== prevPageId) {
+      this.props.updateCurrentPage(pageId);
+      this.props.fetchPage(pageId);
+    }
   }
 
   componentWillUnmount() {
@@ -115,7 +123,7 @@ class Editor extends Component<Props> {
       );
     }
     return (
-      <ThemeProvider theme={this.props.lightTheme}>
+      <ThemeProvider theme={theme}>
         <DndProvider
           backend={TouchBackend}
           options={{
@@ -144,17 +152,16 @@ class Editor extends Component<Props> {
   }
 }
 
+const theme = getTheme(ThemeMode.LIGHT);
+
 const mapStateToProps = (state: AppState) => ({
   currentApplicationId: getCurrentApplicationId(state),
-  currentPageId: getCurrentPageId(state),
   errorPublishing: getPublishingError(state),
   isPublishing: getIsPublishingApplication(state),
   isEditorLoading: getIsEditorLoading(state),
   isEditorInitialized: getIsEditorInitialized(state),
   user: getCurrentUser(state),
-  selectedWidget: getSelectedWidget(state),
   creatingOnboardingDatabase: state.ui.onBoarding.showOnboardingLoader,
-  lightTheme: getThemeDetails(state, ThemeMode.LIGHT),
   currentApplicationName: state.ui.applications.currentApplication?.name,
 });
 
@@ -165,6 +172,8 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
+    updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
   };
 };
 

@@ -1,9 +1,9 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -111,4 +112,15 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
         return setAllAsNonDefaultMono.then(setDefaultMono);
     }
 
+    @Override
+    public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
+        Update updateObj = new Update();
+        gitAuth.setGeneratedAt(Instant.now());
+        String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
+                        fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
+        );
+
+        updateObj.set(path, gitAuth);
+        return this.updateById(applicationId, updateObj, aclPermission);
+    }
 }
