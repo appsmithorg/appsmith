@@ -120,21 +120,8 @@ export const getLintAnnotations = (
         });
       }
     } else {
-      return bindingPositions.map((from) => {
-        const originalBindingLines = originalBinding.split("\n");
-        const lastLineLentgth = last(originalBindingLines)?.length || 0;
-        const to = {
-          lines: originalBindingLines.length,
-          ch: lastLineLentgth,
-        };
-
-        return {
-          from,
-          to,
-          message: errorMessage,
-          severity,
-        };
-      });
+      // Don't show linting errors if code has parsing errors
+      return [];
     }
   });
   return annotations;
