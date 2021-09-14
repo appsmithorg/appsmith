@@ -729,6 +729,7 @@ function ApplicationsSection(props: any) {
                           category={Category.tertiary}
                           icon={"share"}
                           size={Size.medium}
+                          tag="button"
                           text={"Share"}
                         />
                       }
