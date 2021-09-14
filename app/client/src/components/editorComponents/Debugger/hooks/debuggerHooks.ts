@@ -1,33 +1,21 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { AppState } from "reducers";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getWidget } from "sagas/selectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getAction, getDatasource } from "selectors/entitiesSelector";
-import { isWidget, isAction } from "workers/evaluationUtils";
-import {
-  onApiEditor,
-  onQueryEditor,
-  onCanvas,
-  doesEntityHaveErrors,
-} from "./helpers";
-import history from "utils/history";
+import { getAction } from "selectors/entitiesSelector";
+import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
-import { getFilteredErrors } from "selectors/debuggerSelectors";
-import { isEqual, keyBy } from "lodash";
-import {
-  getPluginIcon,
-  getWidgetIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import { isStoredDatasource } from "entities/Action";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { isWidget, isAction } from "workers/evaluationUtils";
+import history from "utils/history";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -154,51 +142,4 @@ export const useEntityLink = () => {
   return {
     navigateToEntity,
   };
-};
-
-export const useGetEntityInfo = (name: string) => {
-  const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
-  const debuggerErrors = useSelector(getFilteredErrors);
-  const action = useSelector((state: AppState) =>
-    isAction(entity) ? getAction(state, entity.actionId) : undefined,
-  );
-
-  const plugins = useSelector((state: AppState) => {
-    return state.entities.plugins.list;
-  }, isEqual);
-  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const icon = action && getPluginIcon(pluginGroups[action.pluginId]);
-  const datasource = useSelector((state: AppState) =>
-    action && isStoredDatasource(action.datasource)
-      ? getDatasource(state, action.datasource.id)
-      : undefined,
-  );
-
-  const getEntityInfo = useCallback(() => {
-    if (isWidget(entity)) {
-      const icon = getWidgetIcon(entity.type);
-      const hasError = doesEntityHaveErrors(entity.widgetId, debuggerErrors);
-
-      return {
-        name,
-        icon,
-        hasError,
-        type: ENTITY_TYPE.WIDGET,
-        entityType: entity.type,
-      };
-    } else if (isAction(entity)) {
-      const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
-
-      return {
-        name,
-        icon,
-        datasourceName: datasource?.name ?? "",
-        hasError,
-        type: ENTITY_TYPE.ACTION,
-        entityType: action?.pluginId ? pluginGroups[action.pluginId].name : "",
-      };
-    }
-  }, [name]);
-
-  return getEntityInfo;
 };

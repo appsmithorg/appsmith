@@ -1,5 +1,14 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionWithCallbacks,
+} from "../constants/ReduxActionConstants";
+import {
+  FetchApplicationResponse,
+  generateSSHKeyPairRequest,
+} from "../api/ApplicationApi";
+import { ResponseMeta } from "../api/ApiResponses";
 import {
   UpdateApplicationPayload,
   ImportApplicationRequest,
@@ -23,16 +32,26 @@ export interface FetchApplicationPayload {
   mode: APP_MODE;
 }
 
-export const fetchApplication = (
-  applicationId: string,
-  mode: APP_MODE,
-): ReduxAction<FetchApplicationPayload> => {
+export type FetchApplicationReduxAction = ReduxActionWithCallbacks<
+  FetchApplicationPayload,
+  FetchApplicationResponse,
+  string
+>;
+
+export const fetchApplication = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: {
+  payload: FetchApplicationPayload;
+  onSuccessCallback?: (payload: FetchApplicationResponse) => void;
+  onErrorCallback?: (error: string) => void;
+}): FetchApplicationReduxAction => {
   return {
     type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-    payload: {
-      applicationId,
-      mode,
-    },
+    payload,
+    onSuccessCallback,
+    onErrorCallback,
   };
 };
 
@@ -103,3 +122,53 @@ export const setShowAppInviteUsersDialog = (payload: boolean) => ({
   type: ReduxActionTypes.SET_SHOW_APP_INVITE_USERS_MODAL,
   payload,
 });
+
+type errorPayload = string;
+
+export type GenerateSSHKeyPairResponsePayload<T> = {
+  responseMeta: ResponseMeta;
+  data: T;
+};
+
+export type generateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
+  generateSSHKeyPairRequest,
+  GenerateSSHKeyPairResponsePayload<string>,
+  errorPayload
+>;
+
+export type GenerateKeyParams = {
+  onErrorCallback?: (payload: errorPayload) => void;
+  onSuccessCallback?: (
+    payload: GenerateSSHKeyPairResponsePayload<string>,
+  ) => void;
+  payload: generateSSHKeyPairRequest;
+};
+
+export const generateSSHKeyPair = ({
+  onErrorCallback,
+  onSuccessCallback,
+  payload,
+}: GenerateKeyParams): generateSSHKeyPairReduxAction => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
+    payload,
+    onErrorCallback,
+    onSuccessCallback,
+  };
+};
+
+export const generateSSHKeyPairSuccess = (
+  payload: GenerateSSHKeyPairResponsePayload<string>,
+) => {
+  return {
+    type: ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS,
+    payload,
+  };
+};
+
+export const generateSSHKeyPairError = (error: string) => {
+  return {
+    type: ReduxActionErrorTypes.GENERATE_SSH_KEY_PAIR_ERROR,
+    error,
+  };
+};

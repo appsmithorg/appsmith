@@ -58,6 +58,8 @@ import Tooltip from "components/ads/Tooltip";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 //  ---------- Styles ----------
 
@@ -241,6 +243,10 @@ function GeneratePageForm() {
     fetchBucketList,
     isFetchingBucketList,
   } = useS3BucketList();
+
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   const onSelectDataSource = useCallback(
     (
@@ -500,6 +506,12 @@ function GeneratePageForm() {
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
     dispatch(generateTemplateToUpdatePage(payload));
+    if (isFirstTimeUserOnboardingEnabled) {
+      dispatch({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+        payload: "",
+      });
+    }
   };
 
   const handleFormSubmit = () => {
@@ -648,8 +660,9 @@ function GeneratePageForm() {
             {showSearchableColumn && (
               <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
                 <Row>
-                  Select a searchable {pluginField.COLUMN} from
-                  <Bold> &nbsp;{selectedTable.label} </Bold>
+                  Select a searchable {pluginField.COLUMN} from the
+                  selected&nbsp;
+                  {pluginField.TABLE}
                   <TooltipWrapper>
                     <Tooltip
                       content="Only string values are allowed for searchable column"
