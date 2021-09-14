@@ -584,3 +584,11 @@ export const MenuCategoryWrapper = styled.div`
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
 `;
+
+export const SwitchCellWrapper = styled(CellWrapper)`
+  line-height: 1.28581;
+  & > div {
+    width: 100%;
+    height: 100%;
+  }
+`;

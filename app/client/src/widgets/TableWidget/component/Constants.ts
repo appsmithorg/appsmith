@@ -175,6 +175,8 @@ export interface ColumnProperties {
   boxShadowColor?: string;
   iconButtonStyle?: ButtonStyleType;
   isCellVisible?: boolean;
+  defaultOptionValue?: string;
+  defaultSwitchState?: boolean;
 }
 
 export const ConditionFunctions: {

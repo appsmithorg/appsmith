@@ -9,6 +9,9 @@ import {
   xor,
   without,
   isBoolean,
+  cloneDeep,
+  size,
+  setWith,
   isArray,
 } from "lodash";
 
@@ -21,7 +24,9 @@ import {
   renderCell,
   renderDropdown,
   renderActions,
+  SelectCell,
   renderIconButton,
+  SwitchCell,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -31,7 +36,7 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { ReactTableFilter, OperatorTypes } from "../component/Constants";
 import { TableWidgetProps } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
-
+import { DropdownOption } from "components/constants";
 import {
   ColumnProperties,
   CellLayoutProperties,
@@ -68,6 +73,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         column: "",
         order: null,
       },
+      // shape : { [columnId]: { [rowIndex]: value, ... }, ...}
+      editedColumnData: {},
+      editedRowIndex: -1,
     };
   }
 
@@ -197,6 +205,51 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return cellProperties;
   };
 
+  handleDropdowOptionChange = (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    optionSelected: DropdownOption,
+  ) => {
+    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    setWith(
+      editedColumnData,
+      [columnId, rowIndex],
+      optionSelected.value,
+      Object,
+    );
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
+      triggerPropertyName: "onOptionChange",
+      dynamicString: action,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+
+    this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+  };
+
+  handleSwitchChange = (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    isSwitchedOn: boolean,
+  ) => {
+    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
+      triggerPropertyName: "onChange",
+      dynamicString: action,
+      event: {
+        type: EventType.ON_SWITCH_CHANGE,
+      },
+    });
+
+    this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+  };
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -288,6 +341,53 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCellVisible,
               onClick,
               isSelected,
+            );
+          } else if (columnProperties.columnType === "select") {
+            let options = [];
+            try {
+              options = JSON.parse(columnProperties.options || "");
+            } catch (e) {
+              if (Array.isArray(columnProperties.options)) {
+                options = columnProperties.options;
+              }
+            }
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+            return (
+              <SelectCell
+                action={columnProperties.onOptionChange}
+                cellProperties={cellProperties}
+                columnId={accessor}
+                defaultOptionValue={columnProperties.defaultOptionValue}
+                isCellVisible={isCellVisible}
+                isDisabled={columnProperties.isDisabled}
+                isHidden={isHidden}
+                onOptionChange={this.handleDropdowOptionChange}
+                options={options}
+                placeholderText={columnProperties.placeholderText}
+                rowIndex={rowIndex}
+                serverSideFiltering={columnProperties.serverSideFiltering}
+                value={props.cell.value}
+                widgetId={this.props.widgetId}
+              />
+            );
+          } else if (columnProperties.columnType === "switch") {
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+            return (
+              <SwitchCell
+                action={columnProperties.onChange}
+                alignWidget={columnProperties.alignWidget}
+                cellProperties={cellProperties}
+                columnId={accessor}
+                defaultSwitchState={columnProperties.defaultSwitchState}
+                isCellVisible={isCellVisible}
+                isDisabled={columnProperties.isDisabled}
+                isHidden={isHidden}
+                label={columnProperties.switchLabel}
+                onChange={this.handleSwitchChange}
+                rowIndex={rowIndex}
+                value={props.cell.value}
+                widgetId={this.props.widgetId}
+              />
             );
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
@@ -619,6 +719,33 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       newPrimaryColumns = this.createTablePrimaryColumns();
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
+
+    // set defaultOptionValue for column type "select" if exist
+    const columnIds = Object.keys(this.props.primaryColumns);
+    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    for (let index = 0; index < columnIds.length; index++) {
+      const column = this.props.primaryColumns[columnIds[index]];
+      if (column.columnType === "select") {
+        // set default value if exist
+        if (column?.defaultOptionValue) {
+          setWith(
+            editedColumnData,
+            [column.id, "defaultOptionValue"],
+            column?.defaultOptionValue,
+            Object,
+          );
+        }
+      } else if (column.columnType === "switch") {
+        setWith(
+          editedColumnData,
+          [column.id, "defaultOptionValue"],
+          !!column?.defaultSwitchState,
+          Object,
+        );
+      }
+    }
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -632,24 +759,28 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const tableDataModified =
       JSON.stringify(this.props.sanitizedTableData) !==
       JSON.stringify(prevProps.sanitizedTableData);
-
+    const editedColumnDataExist = size(this.props.editedColumnData);
     if (tableDataModified) {
-      this.updateSelectedRowIndex();
+      if (!editedColumnDataExist) {
+        this.updateSelectedRowIndex();
+      }
     }
 
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (tableDataModified && this.props.renderMode === RenderModes.CANVAS) {
-      // Set filter to default
-      const defaultFilter = [
-        {
-          column: "",
-          operator: OperatorTypes.OR,
-          value: "",
-          condition: "",
-        },
-      ];
-      this.applyFilters(defaultFilter);
+      if (!editedColumnDataExist) {
+        // Set filter to default
+        const defaultFilter = [
+          {
+            column: "",
+            operator: OperatorTypes.OR,
+            value: "",
+            condition: "",
+          },
+        ];
+        this.applyFilters(defaultFilter);
+      }
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
       // Get column keys from columns except for derivedColumns
@@ -722,6 +853,59 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_PAGE_SIZE_CHANGE,
           },
         });
+      }
+    }
+
+    //Runs only when column properties are updated,
+    // basically column type or column deleted
+    if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
+      const columnIds = Object.keys(this.props.primaryColumns);
+      const editedColumnData = cloneDeep(this.props.editedColumnData);
+      for (let index = 0; index < columnIds.length; index++) {
+        const column = this.props.primaryColumns[columnIds[index]];
+        if (column.columnType === "select") {
+          // set default value if exist
+          if (column?.defaultOptionValue) {
+            setWith(
+              editedColumnData,
+              [column.id, "defaultOptionValue"],
+              column?.defaultOptionValue,
+              Object,
+            );
+          }
+        } else if (column.columnType === "switch") {
+          setWith(
+            editedColumnData,
+            [column.id, "defaultOptionValue"],
+            !!column?.defaultSwitchState,
+            Object,
+          );
+        } else {
+          // clean column data if column type change
+          delete editedColumnData[column.id];
+        }
+      }
+      // clean column data if column is deleted
+      const editedColumnDataKeys = Object.keys(editedColumnData);
+      for (let index = 0; index < editedColumnDataKeys.length; index++) {
+        const editedKey = editedColumnDataKeys[index];
+        if (!columnIds.includes(editedKey)) {
+          delete editedColumnData[editedKey];
+        }
+      }
+      this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData);
+      // if column edited by "select", do not reset selectedRowIndex
+      // keep selectedRowIndex as last selected edited row
+      if (size(editedColumnData)) {
+        if (
+          this.props.editedRowIndex !== -1 &&
+          this.props.editedRowIndex !== this.props.selectedRowIndex
+        ) {
+          this.props.updateWidgetMetaProperty(
+            "selectedRowIndex",
+            this.props.editedRowIndex,
+          );
+        }
       }
     }
   }
