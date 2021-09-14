@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import React, { memo, useEffect, useRef, useMemo } from "react";
+import React, { memo } from "react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 

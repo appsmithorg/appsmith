@@ -5,13 +5,7 @@ import {
   getIsPropertyPaneVisible,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import {
-  PanelStack,
-  IPanel,
-  Classes,
-  IPanelProps,
-  Icon,
-} from "@blueprintjs/core";
+import { PanelStack, IPanel, Classes, IPanelProps } from "@blueprintjs/core";
 
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import styled from "constants/DefaultTheme";
