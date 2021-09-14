@@ -122,6 +122,8 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = yield call(parseJSCollection, body, jsAction);
+    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+    jsActionTobeUpdated.body = body;
     if (parsedBody) {
       AppsmithConsole.info({
         logType: LOG_TYPE.JS_PARSE_SUCCESS,
@@ -132,73 +134,72 @@ function* handleParseUpdateJSCollection(actionPayload: { body: string }) {
           id: jsActionId,
         },
       });
-    }
-    const data = getDifferenceInJSCollection(parsedBody, jsAction);
-    const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-    jsActionTobeUpdated.body = body;
-    if (parsedBody.variables) {
-      jsActionTobeUpdated.variables = parsedBody.variables;
-    }
-    if (data.nameChangedActions.length) {
-      for (let i = 0; i < data.nameChangedActions.length; i++) {
+      const data = getDifferenceInJSCollection(parsedBody, jsAction);
+      if (parsedBody.variables) {
+        jsActionTobeUpdated.variables = parsedBody.variables;
+      }
+      if (data.nameChangedActions.length) {
+        for (let i = 0; i < data.nameChangedActions.length; i++) {
+          yield put(
+            refactorJSCollectionAction({
+              actionId: data.nameChangedActions[i].id,
+              collectionId: data.nameChangedActions[i].collectionId || "",
+              pageId: data.nameChangedActions[i].pageId,
+              oldName: data.nameChangedActions[i].oldName,
+              newName: data.nameChangedActions[i].newName,
+            }),
+          );
+        }
+      }
+      if (data.newActions.length) {
+        for (let i = 0; i < data.newActions.length; i++) {
+          jsActionTobeUpdated.actions.push({
+            ...data.newActions[i],
+            organizationId: organizationId,
+          });
+        }
         yield put(
-          refactorJSCollectionAction({
-            actionId: data.nameChangedActions[i].id,
-            collectionId: data.nameChangedActions[i].collectionId || "",
-            pageId: data.nameChangedActions[i].pageId,
-            oldName: data.nameChangedActions[i].oldName,
-            newName: data.nameChangedActions[i].newName,
+          addJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.newActions,
+          }),
+        );
+      }
+      if (data.updateActions.length > 0) {
+        let changedActions = [];
+        for (let i = 0; i < data.updateActions.length; i++) {
+          changedActions = jsActionTobeUpdated.actions.map(
+            (js: JSAction) =>
+              data.updateActions.find(
+                (update: JSAction) => update.id === js.id,
+              ) || js,
+          );
+        }
+        jsActionTobeUpdated.actions = changedActions;
+        yield put(
+          updateJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.updateActions,
+          }),
+        );
+      }
+      if (data.deletedActions.length > 0) {
+        for (let i = 0; i < data.deletedActions.length; i++) {
+          jsActionTobeUpdated.actions.map((js: JSAction) => {
+            if (js.id !== data.deletedActions[i].id) {
+              return js;
+            }
+          });
+        }
+        yield put(
+          deleteJSObjectAction({
+            jsAction: jsAction,
+            subActions: data.deletedActions,
           }),
         );
       }
     }
-    if (data.newActions.length) {
-      for (let i = 0; i < data.newActions.length; i++) {
-        jsActionTobeUpdated.actions.push({
-          ...data.newActions[i],
-          organizationId: organizationId,
-        });
-      }
-      yield put(
-        addJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.newActions,
-        }),
-      );
-    }
-    if (data.updateActions.length > 0) {
-      let changedActions = [];
-      for (let i = 0; i < data.updateActions.length; i++) {
-        changedActions = jsActionTobeUpdated.actions.map(
-          (js: JSAction) =>
-            data.updateActions.find(
-              (update: JSAction) => update.id === js.id,
-            ) || js,
-        );
-      }
-      jsActionTobeUpdated.actions = changedActions;
-      yield put(
-        updateJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.updateActions,
-        }),
-      );
-    }
-    if (data.deletedActions.length > 0) {
-      for (let i = 0; i < data.deletedActions.length; i++) {
-        jsActionTobeUpdated.actions.map((js: JSAction) => {
-          if (js.id !== data.deletedActions[i].id) {
-            return js;
-          }
-        });
-      }
-      yield put(
-        deleteJSObjectAction({
-          jsAction: jsAction,
-          subActions: data.deletedActions,
-        }),
-      );
-    }
+
     return jsActionTobeUpdated;
   }
 }

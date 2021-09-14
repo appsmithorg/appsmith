@@ -20,6 +20,7 @@ import {
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluate from "workers/evaluate";
+import { convertJSErrors } from "utils/JSPaneUtils";
 
 const ctx: Worker = self as any;
 
@@ -194,9 +195,19 @@ ctx.addEventListener(
         }
         try {
           const correctFormat = regex.test(body);
-          if (correctFormat) {
+          if (!!correctFormat) {
             const toBeParsedBody = body.replace(/export default/g, "");
-            const parsed = body && eval("(" + toBeParsedBody + ")");
+            const { errors, result } = evaluate(
+              toBeParsedBody,
+              {},
+              {},
+              undefined,
+              true,
+            );
+            debugger;
+            const errorList = convertJSErrors(errors, jsAction);
+            // const parsed = body && eval("(" + toBeParsedBody + ")");
+            const parsed = result;
             const parsedLength = Object.keys(parsed).length;
             const actions = [];
             const variables = [];
@@ -221,11 +232,22 @@ ctx.addEventListener(
               }
             }
             return {
-              actions: actions,
-              variables: variables,
+              result: {
+                actions: actions,
+                variables: variables,
+              },
+              errors: errorList,
             };
           } else {
-            throw new Error("syntax error");
+            return {
+              errors: [
+                {
+                  type: EvalErrorTypes.PARSE_JS_ERROR,
+                  message: "Object needs to start with export default",
+                  context: jsAction,
+                },
+              ],
+            };
           }
         } catch (e) {
           const errors = dataTreeEvaluator.errors;
@@ -234,7 +256,7 @@ ctx.addEventListener(
             message: e.message,
             context: jsAction,
           });
-          return errors;
+          return { errors };
         }
       }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {

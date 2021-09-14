@@ -1,5 +1,6 @@
 //check difference for after body change and parsing
 import { JSCollection, JSAction, Variable } from "entities/JSCollection";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export type ParsedJSSubAction = {
   name: string;
@@ -120,4 +121,18 @@ export const getDifferenceInJSCollection = (
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
   };
+};
+
+export const convertJSErrors = (errors: any, entity: JSCollection) => {
+  const errorList: any = [];
+  if (errors && errors.length) {
+    errors.forEach((error: any) => {
+      errorList.push({
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        message: error.errorMessage,
+        context: entity,
+      });
+    });
+  }
+  return errorList;
 };

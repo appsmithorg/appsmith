@@ -179,7 +179,7 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const parsedObject = yield call(
+  const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
@@ -187,7 +187,10 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  return parsedObject;
+  const { errors, result } = workerResponse;
+  const errorList = errors && errors.length ? errors : [];
+  yield call(evalErrorHandler, errorList);
+  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
