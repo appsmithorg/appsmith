@@ -22,14 +22,22 @@ describe("Widget error state", function() {
     cy.contains(".react-tabs__tab", "Errors").click();
 
     cy.get(debuggerLocators.debuggerLogState).contains("Test");
+    cy.get(".t--close-debugger").click();
   });
 
   it("All errors should be expanded by default", function() {
     cy.testJsontext("label", "{{[]}}");
+    cy.get(debuggerLocators.debuggerIcon).click();
 
     cy.get(debuggerLocators.errorMessage)
       .should("be.visible")
       .should("have.length", 2);
+  });
+
+  it("Recent errors are shown at the top of the list when the debugger is opened", function() {
+    cy.get(debuggerLocators.debuggerLogState)
+      .first()
+      .contains("text");
   });
 
   it("Clicking on a message should open the search menu", function() {
