@@ -111,11 +111,11 @@ function EntityExplorer(props: IPanelProps) {
       <div className="px-3 flex justify-between items-center">
         <h3 className="text-lg font-semibold">Explorer</h3>
         <div className="flex items-center">
-          <button className="hover:bg-warmGray-700 p-1" onClick={onPin}>
+          <button className="hover:bg-warmGray-700 p-1 group" onClick={onPin}>
             {pinned ? (
-              <PinIcon className="h-4 w-4" />
+              <PinIcon className="h-4 w-4 text-gray-500 group-hover:text-white" />
             ) : (
-              <UnPinIcon className="h-4 w-4" />
+              <UnPinIcon className="h-4 w-4 text-gray-500 group-hover:text-white" />
             )}
           </button>
         </div>

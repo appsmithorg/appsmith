@@ -25,13 +25,11 @@ export const ExplorerSearch = forwardRef(
             hidden: props.isHidden,
           })}
         >
-          <div className="p-1">
-            <SearchIcon className="h-3 w-3" />
-          </div>
+          <SearchIcon className="h-3 w-3 p-1 box-content" />
           <input
             autoComplete="off"
             autoFocus
-            className="flex-grow bg-transparent py-2"
+            className="flex-grow bg-transparent py-2 placeholder-trueGray-500"
             id={ENTITY_EXPLORER_SEARCH_ID}
             onBlur={() => setFocussed(false)}
             onFocus={() => setFocussed(true)}
@@ -40,7 +38,7 @@ export const ExplorerSearch = forwardRef(
             type="text"
           />
           <button className="hover:bg-warmGray-700 p-1" onClick={props.clear}>
-            <CrossIcon className="h-3 w-3" />
+            <CrossIcon className="h-3 w-3 text-red" />
           </button>
         </div>
         <div

@@ -114,11 +114,11 @@ function WidgetSidebar(props: IPanelProps) {
         </button>
         <h3 className="text-lg font-semibold flex-grow">Widgets</h3>
         <div className="flex items-center">
-          <button className="hover:bg-warmGray-700 p-1" onClick={onPin}>
+          <button className="hover:bg-warmGray-700 p-1 group" onClick={onPin}>
             {pinned ? (
-              <PinIcon className="h-4 w-4" />
+              <PinIcon className="h-4 w-4 text-gray-500 group-hover:text-white" />
             ) : (
-              <UnPinIcon className="h-4 w-4" />
+              <UnPinIcon className="h-4 w-4 text-gray-500 group-hover:text-white" />
             )}
           </button>
         </div>
@@ -137,7 +137,7 @@ function WidgetSidebar(props: IPanelProps) {
         {createMessage(WIDGET_SIDEBAR_CAPTION)}
       </p>
 
-      <div className="px-3">
+      <div className="px-3 pt-3">
         <CardsWrapper>
           {filteredCards.map((card) => (
             <Boxed
