@@ -138,6 +138,8 @@ import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import produce from "immer";
 
+const WidgetTypes = WidgetFactory.widgetTypes;
+
 function* getChildWidgetProps(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,

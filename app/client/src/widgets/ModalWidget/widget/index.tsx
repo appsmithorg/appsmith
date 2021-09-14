@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 
 import { connect } from "react-redux";
-import * as Sentry from "@sentry/react";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";

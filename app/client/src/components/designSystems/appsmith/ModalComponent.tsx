@@ -1,20 +1,9 @@
-import React, { ReactNode, RefObject, useRef, useEffect, useMemo } from "react";
-
+import React, { ReactNode, RefObject, useRef, useEffect } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
-import { get, noop, omit } from "lodash";
 import styled from "styled-components";
-
-import { UIElementSize } from "components/editorComponents/ResizableUtils";
+import { getCanvasClassName } from "utils/generators";
 import { Layers } from "constants/Layers";
 import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
-import Resizable from "resizable";
-import { getCanvasClassName } from "utils/generators";
-import {
-  LeftHandleStyles,
-  RightHandleStyles,
-  TopHandleStyles,
-  BottomHandleStyles,
-} from "../../editorComponents/ResizeStyledComponents";
 
 const Container = styled.div<{
   width?: number;
@@ -24,8 +13,6 @@ const Container = styled.div<{
   bottom?: number;
   right?: number;
   zIndex?: number;
-  maxWidth?: number;
-  isEditMode?: boolean;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -43,30 +30,15 @@ const Container = styled.div<{
       justify-content: center;
       align-items: center;
       & .${Classes.OVERLAY_CONTENT} {
-        max-width: ${(props) => {
-          if (props.maxWidth) return `${props.maxWidth}px`;
-
-          if (props.isEditMode)
-            return `calc(95% - ${props.theme.sidebarWidth}))`;
-
-          return `95%`;
-        }};
-        max-height: 90%;
+        max-width: 95%;
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
-        height: ${(props) => (props.height ? `${props.height}px` : "auto")};
-        min-height: 100px;
-        min-width: 100px;
+        min-height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         background: white;
         border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
         left: ${(props) => props.left}px;
         bottom: ${(props) => props.bottom}px;
         right: ${(props) => props.right}px;
-        ${(props) => {
-          if (props.isEditMode)
-            return `transform: translate(${parseInt(props.theme.sidebarWidth) /
-              2}px) !important`;
-        }}
       }
     }
   }
@@ -79,7 +51,7 @@ const Content = styled.div<{
   overflow-y: ${(props) => (props.scroll ? "visible" : "hidden")};
   overflow-x: hidden;
   width: 100%;
-  height: 100%;
+  height: ${(props) => (props.height ? `${props.height}px` : "auto")};
 `;
 
 export type ModalComponentProps = {
@@ -89,8 +61,6 @@ export type ModalComponentProps = {
   children: ReactNode;
   width?: number;
   className?: string;
-  usePortal?: boolean;
-  portalContainer?: HTMLElement;
   canOutsideClickClose: boolean;
   canEscapeKeyClose: boolean;
   overlayClassName?: string;
@@ -103,75 +73,26 @@ export type ModalComponentProps = {
   hasBackDrop?: boolean;
   zIndex?: number;
   portalClassName?: string;
-  enableResize?: boolean;
-  resizable?: boolean;
-  isEditMode?: boolean;
-  resizeModal?: (dimensions: UIElementSize) => void;
-  maxWidth?: number;
 };
 
 /* eslint-disable react/display-name */
-export default function ModalComponent(props: ModalComponentProps) {
+export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
-  const { enableResize = false, resizable = false } = props;
-  const resizeRef = React.useRef<HTMLDivElement>(null);
-
-  const handles = useMemo(() => {
-    const allHandles = {
-      left: LeftHandleStyles,
-      top: TopHandleStyles,
-      bottom: BottomHandleStyles,
-      right: RightHandleStyles,
+  useEffect(() => {
+    return () => {
+      // handle modal close events when this component unmounts
+      // will be called in all cases :-
+      //  escape key press, click out side, close click from other btn widget
+      if (props.onModalClose) props.onModalClose();
     };
-
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
-
+  }, []);
   useEffect(() => {
     if (!props.scrollContents) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
-
-  const getContent = () => {
-    return (
-      <Content
-        className={`${getCanvasClassName()} ${props.className}`}
-        ref={modalContentRef}
-        scroll={props.scrollContents}
-      >
-        {props.children}
-      </Content>
-    );
-  };
-
-  const getResizableContent = () => {
-    return (
-      <Resizable
-        allowResize
-        componentHeight={props.height || 0}
-        componentWidth={props.width || 0}
-        enable={enableResize}
-        handles={handles}
-        isColliding={() => false}
-        onStart={noop}
-        onStop={onResizeStop}
-        ref={resizeRef}
-        resizeDualSides
-        showLightBorder
-        snapGrid={{ x: 1, y: 1 }}
-      >
-        {getContent()}
-      </Resizable>
-    );
-  };
-
-  const onResizeStop = (dimensions: UIElementSize) => {
-    props.resizeModal && props.resizeModal(dimensions);
-  };
-
   return (
     <Overlay
       canEscapeKeyClose={false}
@@ -181,15 +102,12 @@ export default function ModalComponent(props: ModalComponentProps) {
       isOpen={props.isOpen}
       onClose={props.onClose}
       portalClassName={`${MODAL_PORTAL_CLASSNAME} ${props.portalClassName}`}
-      portalContainer={props.portalContainer}
-      usePortal={props.usePortal}
+      usePortal
     >
       <Container
         bottom={props.bottom}
         height={props.height}
-        isEditMode={props.isEditMode}
         left={props.left}
-        maxWidth={props.maxWidth}
         right={props.bottom}
         top={props.top}
         width={props.width}
@@ -207,9 +125,20 @@ export default function ModalComponent(props: ModalComponentProps) {
           onClose={props.onClose}
           usePortal={false}
         >
-          {resizable ? getResizableContent() : getContent()}
+          <div>
+            <Content
+              className={`${getCanvasClassName()} ${props.className}`}
+              height={props.height}
+              ref={modalContentRef}
+              scroll={props.scrollContents}
+            >
+              {props.children}
+            </Content>
+          </div>
         </Overlay>
       </Container>
     </Overlay>
   );
 }
+
+export default ModalComponent;
