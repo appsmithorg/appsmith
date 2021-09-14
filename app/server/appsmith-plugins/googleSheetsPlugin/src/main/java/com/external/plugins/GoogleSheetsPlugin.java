@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
@@ -15,6 +16,7 @@ import com.external.config.Method;
 import com.external.config.MethodConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.mongodb.reactivestreams.client.MongoClient;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -26,8 +28,14 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static java.lang.Boolean.TRUE;
 
 public class GoogleSheetsPlugin extends BasePlugin {
 
@@ -45,6 +53,77 @@ public class GoogleSheetsPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void> {
+
+        private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
+
+        private static final Set<String> jsonFields = new HashSet<>(Arrays.asList(
+                "rowObject",
+                "rowObjects"
+        ));
+
+        @Override
+        public Mono<ActionExecutionResult> executeParameterized(Void connection,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
+
+            Boolean smartBsonSubstitution;
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            List<Map.Entry<String, String>> parameters = new ArrayList<>();
+
+            // Default smart substitution to true
+            if (CollectionUtils.isEmpty(properties)) {
+                smartBsonSubstitution = true;
+            } else if (properties.size() > SMART_JSON_SUBSTITUTION_INDEX &&
+                    properties.get(SMART_JSON_SUBSTITUTION_INDEX) != null) {
+                Object ssubValue = properties.get(SMART_JSON_SUBSTITUTION_INDEX).getValue();
+                if (ssubValue instanceof Boolean) {
+                    smartBsonSubstitution = (Boolean) ssubValue;
+                } else if (ssubValue instanceof String) {
+                    smartBsonSubstitution = Boolean.parseBoolean((String) ssubValue);
+                } else {
+                    smartBsonSubstitution = true;
+                }
+            } else {
+                smartBsonSubstitution = true;
+            }
+
+            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
+            if (TRUE.equals(smartBsonSubstitution)) {
+
+                // If not raw, then it must be form input.
+                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
+                    List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
+                            executeActionDTO.getParams(), parameters);
+                    actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
+                } else {
+                    // For raw queries do smart replacements in BSON body
+                    if (actionConfiguration.getBody() != null) {
+                        try {
+                            String updatedRawQuery = smartSubstituteBSON(actionConfiguration.getBody(),
+                                    executeActionDTO.getParams(), parameters);
+                            actionConfiguration.setBody(updatedRawQuery);
+                        } catch (AppsmithPluginException e) {
+                            ActionExecutionResult errorResult = new ActionExecutionResult();
+                            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                            errorResult.setIsExecutionSuccess(false);
+                            errorResult.setBody(e.getMessage());
+                            return Mono.just(errorResult);
+                        }
+                    }
+                }
+            }
+
+            prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
+            // In case the input type is form instead of raw, parse the same into BSON command
+            String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
+            if (parsedRawCommand != null) {
+                actionConfiguration.setBody(parsedRawCommand);
+            }
+
+            return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(Void connection,
