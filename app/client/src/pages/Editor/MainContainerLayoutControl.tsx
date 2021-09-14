@@ -1,8 +1,7 @@
 import { updateApplicationLayout } from "actions/applicationActions";
-import Dropdown from "components/ads/Dropdown";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import {
   AppLayoutConfig,
@@ -13,8 +12,7 @@ import {
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
 import { useSelector } from "store";
-import styled from "styled-components";
-import { noop } from "utils/AppsmithUtils";
+import classNames from "classnames";
 
 interface AppsmithLayoutConfigOption {
   name: string;
@@ -54,76 +52,65 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   },
 ];
 
-const LayoutControlWrapper = styled.div`
-  position: absolute;
-  height: ${(props) => props.theme.spaces[15]}px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  .bp3-popover-target {
-    pointer-events: none;
-  }
-  .layout-control {
-    pointer-events: all;
-    cursor: pointer;
-    font-size: 14px;
-    border: none;
-    box-shadow: none;
-  }
-`;
-
 export function MainContainerLayoutControl() {
+  const dispatch = useDispatch();
   const appId = useSelector(getCurrentApplicationId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const layoutOptions = AppsmithLayouts.map((each) => {
-    return {
-      ...each,
-      iconSize: IconSize.SMALL,
-      iconColor: Colors.BLACK,
-      value: each.name,
-      onSelect: () =>
-        updateAppLayout({
-          type: each.type,
-        }),
-    };
-  });
-  const selectedLayout = appLayout
-    ? layoutOptions.find((each) => each.type === appLayout.type)
-    : layoutOptions[0];
-  const dispatch = useDispatch();
 
-  const updateAppLayout = (layoutConfig: AppLayoutConfig) => {
-    const { type } = layoutConfig;
-    dispatch(
-      updateApplicationLayout(appId || "", {
-        appLayout: {
-          type,
-        },
-      }),
-    );
-  };
+  /**
+   * selected layout. if there is no app
+   * layout, use the first one
+   */
+  const selectedLayout = useMemo(() => {
+    return appLayout
+      ? AppsmithLayouts.find((each) => each.type === appLayout.type)
+      : AppsmithLayouts[0];
+  }, [appLayout]);
+
+  /**
+   * updates the app layout
+   *
+   * @param layoutConfig
+   */
+  const updateAppLayout = useCallback(
+    (layoutConfig: AppLayoutConfig) => {
+      const { type } = layoutConfig;
+
+      dispatch(
+        updateApplicationLayout(appId || "", {
+          appLayout: {
+            type,
+          },
+        }),
+      );
+    },
+    [dispatch, appLayout],
+  );
+
+  // eslint-disable-next-line
   return (
-    <LayoutControlWrapper>
-      <div className="layout-control t--layout-control-wrapper">
-        <Dropdown
-          SelectedValueNode={({ selected }) => {
-            return (
+    <div className="t--layout-control-wrapper px-3 space-y-1">
+      <p className="text-sm text-gray-700">Canvas Size</p>
+      <div className="flex justify-around">
+        {AppsmithLayouts.map((layoutOption: any) => {
+          return (
+            <button
+              className={classNames({
+                "bg-gray-100 hover:bg-gray-200 flex items-center justify-center p-2 flex-grow": true,
+                "bg-gray-200": selectedLayout?.name === layoutOption.name,
+              })}
+              key={layoutOption.name}
+              onClick={() => updateAppLayout(layoutOption)}
+            >
               <Icon
                 fillColor={Colors.BLACK}
-                name={selected.icon}
-                size={selected.iconSize || IconSize.SMALL}
+                name={layoutOption.icon}
+                size={layoutOption.iconSize || IconSize.MEDIUM}
               />
-            );
-          }}
-          className="layout-control"
-          onSelect={noop}
-          options={layoutOptions}
-          selected={selectedLayout || layoutOptions[0]}
-          showDropIcon={false}
-          width={"30px"}
-        />
+            </button>
+          );
+        })}
       </div>
-    </LayoutControlWrapper>
+    </div>
   );
 }

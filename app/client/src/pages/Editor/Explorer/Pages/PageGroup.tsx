@@ -101,7 +101,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
         history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
       }}
       onCreate={createPageCallback}
-      rightIcon={settingsIcon}
+      rightIcon={<div>{settingsIcon}</div>}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >

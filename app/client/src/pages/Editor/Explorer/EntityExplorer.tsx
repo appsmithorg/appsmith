@@ -23,6 +23,9 @@ import PerformanceTracker, {
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import classNames from "classnames";
+import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
+import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -45,9 +48,12 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
-function EntityExplorer(props: IPanelProps) {
+function EntityExplorer(
+  props: IPanelProps & { pinned: boolean; onPin: () => void },
+) {
+  // eslint-disable-next-line
+  console.log({ props });
   const { applicationId } = useParams<ExplorerURLParams>();
-
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
   );
@@ -91,8 +97,27 @@ function EntityExplorer(props: IPanelProps) {
   );
 
   return (
-    <Wrapper ref={explorerRef}>
+    <Wrapper
+      className={classNames({
+        "relative py-3 space-y-3": true,
+      })}
+      ref={explorerRef}
+    >
+      <div className="px-3 flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Explorer</h3>
+        <div className="flex items-center">
+          <button className="hover:bg-warmGray-700 p-1" onClick={props.onPin}>
+            {props.pinned ? (
+              <PinIcon className="h-4 w-4" />
+            ) : (
+              <UnPinIcon className="h-4 w-4" />
+            )}
+          </button>
+        </div>
+      </div>
+
       <Search clear={clearSearch} isHidden ref={searchInputRef} />
+
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}

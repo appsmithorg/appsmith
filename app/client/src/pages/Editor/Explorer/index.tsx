@@ -5,7 +5,11 @@ import { inOnboarding, isAddWidgetComplete } from "sagas/OnboardingSagas";
 import EntityExplorer from "./EntityExplorer";
 import OnboardingExplorer from "./Onboarding";
 
-function ExplorerContent(props: IPanelProps) {
+import log from "loglevel";
+function ExplorerContent(
+  props: IPanelProps & { pinned: boolean; onPin: () => void },
+) {
+  log.debug({ pinned: props.pinned });
   const isInOnboarding = useSelector(inOnboarding);
   const addWidgetComplete = useSelector(isAddWidgetComplete);
 
