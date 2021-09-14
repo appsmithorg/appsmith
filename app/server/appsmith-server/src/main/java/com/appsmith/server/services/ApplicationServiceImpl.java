@@ -7,6 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -342,10 +343,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         // this is a child application, update the master application
                         targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
                     }
-                    return targetApplicationId;
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(targetApplicationId);
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return application;
                 })
-                .flatMap(targetApplicationId -> repository
-                        .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
+                .flatMap(targetApplication -> save(targetApplication)
                         .thenReturn(gitAuth.getPublicKey())
                 );
     }

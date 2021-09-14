@@ -276,7 +276,7 @@ public class GitServiceImpl implements GitService {
                                                 "SSH Key is empty. Please reach out to Appsmith support"));
                                     } else {
                                         String defaultBranch;
-                                        String repoName = getRepoName(gitApplicationMetadata.getRemoteUrl());
+                                        String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                                         try {
                                             Path repoPath =
                                                     Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);

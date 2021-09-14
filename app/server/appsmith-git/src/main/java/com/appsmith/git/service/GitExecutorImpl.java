@@ -43,12 +43,13 @@ public class GitExecutorImpl implements GitExecutor {
     /**
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
-     * @param repoPath parent path to repo
+     *
+     * @param repoPath      parent path to repo
      * @param commitMessage message which will be registered for this commit
-     * @param authorName author details
-     * @param authorEmail author details
+     * @param authorName    author details
+     * @param authorEmail   author details
      * @return if the commit was successful
-     * @throws IOException Exceptions due to file operations
+     * @throws IOException     Exceptions due to file operations
      * @throws GitAPIException exceptions due to git commands
      */
     @Override
@@ -69,11 +70,11 @@ public class GitExecutorImpl implements GitExecutor {
 
         // Commit the changes
         git.commit()
-            .setMessage(commitMessage)
-            // Only make a commit if there are any updates
-            .setAllowEmpty(false)
-            .setAuthor(authorName, authorEmail)
-            .call();
+                .setMessage(commitMessage)
+                // Only make a commit if there are any updates
+                .setAllowEmpty(false)
+                .setAuthor(authorName, authorEmail)
+                .call();
         // Close the repo once the operation is successful
         git.close();
         return "Committed successfully!";
@@ -81,6 +82,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to create a new repository to provided path
+     *
      * @param repoPath path where new repo needs to be created
      * @return if the operation was successful
      */
@@ -94,6 +96,7 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to get the commit history
+     *
      * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
      * @return list of git commits
      * @throws IOException
@@ -108,11 +111,11 @@ public class GitExecutorImpl implements GitExecutor {
         gitLogs.forEach(revCommit -> {
             PersonIdent author = revCommit.getAuthorIdent();
             GitLogDTO gitLog = new GitLogDTO(
-                revCommit.getName(),
-                author.getName(),
-                author.getEmailAddress(),
-                revCommit.getFullMessage(),
-                ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
+                    revCommit.getName(),
+                    author.getName(),
+                    author.getEmailAddress(),
+                    revCommit.getFullMessage(),
+                    ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant())
             );
             commitLogs.add(gitLog);
         });
@@ -126,13 +129,14 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to push changes to remote repo
+     *
      * @param branchSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
-     * @param remoteUrl remote repo url
+     * @param remoteUrl    remote repo url
      * @param publicKey
      * @param privateKey
      * @return Success message
-     * @throws IOException exception thrown if git open repo failed
-     * @throws GitAPIException git exceptions
+     * @throws IOException        exception thrown if git open repo failed
+     * @throws GitAPIException    git exceptions
      * @throws URISyntaxException exception thrown while constructing the remote url
      */
     @Override
@@ -149,13 +153,13 @@ public class GitExecutorImpl implements GitExecutor {
 
         StringBuilder result = new StringBuilder("Pushed successfully with status : ");
         git.push()
-            .setTransportConfigCallback(transportConfigCallback)
-            .setRemote(remoteUrl)
-            .call()
-            .forEach(pushResult ->
-                pushResult.getRemoteUpdates()
-                    .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
-            );
+                .setTransportConfigCallback(transportConfigCallback)
+                .setRemote(remoteUrl)
+                .call()
+                .forEach(pushResult ->
+                        pushResult.getRemoteUpdates()
+                                .forEach(remoteRefUpdate -> result.append(remoteRefUpdate.getStatus().name()).append(","))
+                );
         // We can support username and password in future if needed
         // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
         git.close();
@@ -176,10 +180,10 @@ public class GitExecutorImpl implements GitExecutor {
         }
 
         Git result = Git.cloneRepository()
-            .setURI(remoteUrl)
-            .setTransportConfigCallback(transportConfigCallback)
-            .setDirectory(file)
-            .call();
+                .setURI(remoteUrl)
+                .setTransportConfigCallback(transportConfigCallback)
+                .setDirectory(file)
+                .call();
         String branchName = result.getRepository().getBranch();
         result.close();
         return branchName;
