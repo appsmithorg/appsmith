@@ -46,15 +46,23 @@ describe("Addwidget from Query and bind with other widgets", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(queryEditor.suggestedTableWidget).click();
-    cy.SearchEntityandOpen("Table1");
-    cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then((tabData) => {
-      const tabValue = tabData;
-      cy.log("the value is" + tabValue);
-      expect(tabValue).to.be.equal("5");
-    });
+    cy.xpath(queryEditor.queryResponse)
+      .first()
+      .invoke("text")
+      .then((text) => {
+        const tableRowTxt = text;
+        cy.get(queryEditor.suggestedTableWidget).click();
+        cy.SearchEntityandOpen("Table1");
+        cy.isSelectRow(1);
+        cy.readTabledataPublish("1", "0").then((tabData) => {
+          const tabValue = tabData;
+          cy.log("the value is" + tabValue);
+          expect(tabValue).to.be.equal("5");
+          expect(tableRowTxt).to.equal(tabValue);
+        });
+      });
   });
+
   it("Input widget test with default value from table widget", () => {
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);

@@ -183,6 +183,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setPageId(commentThread.getPageId());
         comment.setOrgId(commentThread.getOrgId());
+        comment.setMode(commentThread.getMode());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),
@@ -264,10 +265,11 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                         final Application application = tuple.getT2();
                         boolean shouldCreateBotThread = policyUtils.isPermissionPresentForUser(
                                 application.getPolicies(), MANAGE_APPLICATIONS.getValue(), user.getUsername()
-                        );
+                        ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
+
                         // check whether this thread should be converted to bot thread
-                        if (userData.getLatestCommentEvent() == null && shouldCreateBotThread) {
-                            commentThread.setIsPrivate(true);
+                        if (userData.getLatestCommentEvent() == null) {
+                            commentThread.setIsPrivate(shouldCreateBotThread);
                             userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
                             return userDataRepository.save(userData).then(
                                     saveCommentThread(commentThread, application, user)

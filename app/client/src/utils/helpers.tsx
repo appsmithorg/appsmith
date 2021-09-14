@@ -291,6 +291,25 @@ export const isString = (str: any) => {
   return typeof str === "string" || str instanceof String;
 };
 
+/**
+ * Returns substring between two set of strings
+ * eg ->
+ * getSubstringBetweenTwoWords("abcdefgh", "abc", "fgh") -> de
+ */
+
+export const getSubstringBetweenTwoWords = (
+  str: string,
+  startWord: string,
+  endWord: string,
+) => {
+  const endIndexOfStartWord = str.indexOf(startWord) + startWord.length;
+  const startIndexOfEndWord = str.lastIndexOf(endWord);
+
+  if (startIndexOfEndWord < endIndexOfStartWord) return "";
+
+  return str.substring(startIndexOfEndWord, endIndexOfStartWord);
+};
+
 export const playOnboardingAnimation = () => {
   playLottieAnimation("#root", confetti);
 };
