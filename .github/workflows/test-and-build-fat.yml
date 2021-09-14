@@ -398,10 +398,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: app/client
-
     steps:
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -418,6 +414,12 @@ jobs:
         with:
           name: build
           path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: app/server/dist
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
