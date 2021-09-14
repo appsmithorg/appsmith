@@ -523,7 +523,7 @@ const getButtonContent = (props: ButtonProps) => {
   return (
     <>
       {iconPos === IconPositions.left && getIconContent(props)}
-      <span style={{ marginRight: props.tag === "a" ? 7.67 : 0 }}>
+      <span style={{ marginRight: iconPos === IconPositions.right ? 7.67 : 0 }}>
         {getTextContent(props)}
       </span>
       {iconPos === IconPositions.right && getIconContent(props)}
