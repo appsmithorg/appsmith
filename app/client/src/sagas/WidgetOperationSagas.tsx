@@ -425,7 +425,7 @@ function* batchUpdateWidgetPropertySaga(
   action: ReduxAction<UpdateWidgetPropertyPayload>,
 ) {
   const start = performance.now();
-  const { widgetId } = action.payload;
+  const { shouldReplay, widgetId } = action.payload;
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -442,7 +442,7 @@ function* batchUpdateWidgetPropertySaga(
     "ms",
   );
   // Save the layout
-  yield put(updateAndSaveLayout(widgets));
+  yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(

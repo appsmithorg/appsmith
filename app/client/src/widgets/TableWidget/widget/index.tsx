@@ -604,7 +604,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToUpdate.remove = pathsToDelete;
         }
 
-        super.batchUpdateWidgetProperty(propertiesToUpdate);
+        super.batchUpdateWidgetProperty(propertiesToUpdate, false);
       }
     }
   };
