@@ -159,16 +159,15 @@ const renderRecorderIcon = (
   switch (recorderStatus) {
     case RecorderStatusTypes.COMPLETE:
       return <RecorderCompleteIcon />;
-      
+
     case RecorderStatusTypes.PAUSE:
       return <RecorderPauseIcon />;
-      
+
     case RecorderStatusTypes.RECORDING:
       return <RecorderRecordingIcon />;
-      
+
     default:
       return <RecorderDefaultIcon />;
-      
   }
 };
 
@@ -239,7 +238,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="play"
         />
       );
-      
+
     case PlayerButtonIntentTypes.PAUSE:
       return (
         <Button
@@ -251,7 +250,7 @@ function PlayerButton(props: PlayerButtonProps) {
           title="pause"
         />
       );
-      
+
     case PlayerButtonIntentTypes.STOP:
       return (
         <Button
@@ -263,7 +262,6 @@ function PlayerButton(props: PlayerButtonProps) {
           title="stop"
         />
       );
-      
 
     default:
       return (
@@ -276,7 +274,6 @@ function PlayerButton(props: PlayerButtonProps) {
           title="discard"
         />
       );
-      
   }
 }
 
@@ -394,7 +391,7 @@ function RecorderRight(props: RecorderRightProps) {
             />
           </>
         );
-        
+
       case RecorderStatusTypes.COMPLETE:
         switch (playerStatus) {
           case PlayerStatusTypes.PLAY:
@@ -410,7 +407,6 @@ function RecorderRight(props: RecorderRightProps) {
                 />
               </>
             );
-            
 
           default:
             return (
@@ -425,9 +421,8 @@ function RecorderRight(props: RecorderRightProps) {
                 />
               </>
             );
-            
         }
-        
+
       case RecorderStatusTypes.SAVED:
         switch (playerStatus) {
           case PlayerStatusTypes.PLAY:
@@ -437,7 +432,7 @@ function RecorderRight(props: RecorderRightProps) {
                 onClick={onPausePlayer}
               />
             );
-            
+
           case PlayerStatusTypes.PAUSE:
           default:
             return (
@@ -446,13 +441,10 @@ function RecorderRight(props: RecorderRightProps) {
                 onClick={onPlayPlayer}
               />
             );
-            
         }
-        
 
       default:
         return null;
-        
     }
   };
 
