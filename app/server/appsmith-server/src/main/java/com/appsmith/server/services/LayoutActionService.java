@@ -27,6 +27,8 @@ public interface LayoutActionService {
 
     Mono<ActionDTO> updateSingleAction(String id, ActionDTO action);
 
+    Mono<String> updatePageLayoutsGivenAction(String pageId);
+
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
@@ -36,4 +38,6 @@ public interface LayoutActionService {
     Mono<ActionDTO> createSingleAction(ActionDTO action);
 
     Mono<ActionDTO> createAction(ActionDTO action, AppsmithEventContext eventContext);
+
+    Mono<ActionDTO> deleteUnpublishedAction(String id);
 }
