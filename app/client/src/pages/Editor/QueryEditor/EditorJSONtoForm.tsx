@@ -524,6 +524,12 @@ export function EditorJSONtoForm(props: Props) {
     ) {
       let allowToRender = true;
       if (
+        section.hasOwnProperty("propertyName") &&
+        props.formEvaluationState.hasOwnProperty(section.propertyName)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.propertyName].visible;
+      } else if (
         section.hasOwnProperty("configProperty") &&
         props.formEvaluationState.hasOwnProperty(section.configProperty)
       ) {
