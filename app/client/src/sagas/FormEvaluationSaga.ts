@@ -77,16 +77,17 @@ function* getFormEvaluation(formId: string, actionConfiguration: any): any {
   const currentEvalState: any = yield select(getFormEvaluationState);
 
   if (currentEvalState.hasOwnProperty(formId)) {
-    return {
-      [formId]: yield call(
-        evaluate,
-        actionConfiguration,
-        currentEvalState[formId],
-      ),
-    };
-  } else {
-    return currentEvalState;
+    currentEvalState[formId] = yield call(
+      evaluate,
+      actionConfiguration,
+      currentEvalState[formId],
+    );
   }
+
+  yield put({
+    type: ReduxActionTypes.SET_FORM_EVALUATION,
+    payload: currentEvalState,
+  });
 }
 
 // Filter function to assign a function to the Action dispatched
@@ -111,15 +112,7 @@ function* setFormEvaluationSaga(type: string, payload: any) {
     if (!actionConfiguration.formData) {
       yield;
     } else {
-      const formEvaluation = yield call(
-        getFormEvaluation,
-        formId,
-        actionConfiguration,
-      );
-      yield put({
-        type: ReduxActionTypes.SET_FORM_EVALUATION,
-        payload: formEvaluation,
-      });
+      yield call(getFormEvaluation, formId, actionConfiguration);
     }
   }
 }
