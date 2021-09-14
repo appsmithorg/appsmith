@@ -42,15 +42,6 @@ const debuggerReducer = createReducer(initialState, {
   ) => {
     if (!action.payload.id) return state;
 
-    if (state.isOpen) {
-      return {
-        ...state,
-        errors: {
-          ...state.errors,
-          [action.payload.id]: action.payload,
-        },
-      };
-    }
     // Moving recent update to the top of the error list
     const errors = omit(state.errors, action.payload.id);
     return {
