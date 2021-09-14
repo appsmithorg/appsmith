@@ -3,6 +3,8 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -11,12 +13,12 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.external.config.GoogleSheetsMethodStrategy;
 import com.external.config.Method;
 import com.external.config.MethodConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.reactivestreams.client.MongoClient;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -52,7 +54,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
     @Slf4j
     @Extension
-    public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void> {
+    public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
 
         private static final int SMART_JSON_SUBSTITUTION_INDEX = 13;
 
@@ -88,47 +90,47 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 smartBsonSubstitution = true;
             }
 
-            // Smartly substitute in actionConfiguration.body and replace all the bindings with values.
-            if (TRUE.equals(smartBsonSubstitution)) {
+            try {
+                // Smartly substitute in Json fields and replace all the bindings with values.
+                if (TRUE.equals(smartBsonSubstitution)) {
+                    properties.stream().parallel().forEach(property -> {
+                        if (property.getValue() != null) {
+                            String propertyValue = String.valueOf(property.getValue());
+                            String propertyKey = property.getKey();
 
-                // If not raw, then it must be form input.
-                if (!isRawCommand(actionConfiguration.getPluginSpecifiedTemplates())) {
-                    List<Property> updatedTemplates = smartSubstituteFormCommand(actionConfiguration.getPluginSpecifiedTemplates(),
-                            executeActionDTO.getParams(), parameters);
-                    actionConfiguration.setPluginSpecifiedTemplates(updatedTemplates);
-                } else {
-                    // For raw queries do smart replacements in BSON body
-                    if (actionConfiguration.getBody() != null) {
-                        try {
-                            String updatedRawQuery = smartSubstituteBSON(actionConfiguration.getBody(),
-                                    executeActionDTO.getParams(), parameters);
-                            actionConfiguration.setBody(updatedRawQuery);
-                        } catch (AppsmithPluginException e) {
-                            ActionExecutionResult errorResult = new ActionExecutionResult();
-                            errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
-                            errorResult.setIsExecutionSuccess(false);
-                            errorResult.setBody(e.getMessage());
-                            return Mono.just(errorResult);
+                            if (jsonFields.contains(propertyKey)) {
+                                // First extract all the bindings in order
+                                List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(propertyValue);
+                                // Replace all the bindings with a placeholder
+                                String updatedValue = MustacheHelper.replaceMustacheWithPlaceholder(propertyValue, mustacheKeysInOrder);
+
+                                updatedValue = (String) smartSubstitutionOfBindings(updatedValue,
+                                        mustacheKeysInOrder,
+                                        executeActionDTO.getParams(),
+                                        parameters);
+
+                                property.setValue(updatedValue);
+                            }
                         }
-                    }
+                    });
                 }
+            } catch (AppsmithPluginException e) {
+                // Initializing object for error condition
+                ActionExecutionResult errorResult = new ActionExecutionResult();
+                errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setErrorInfo(e);
+                return Mono.just(errorResult);
             }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            // In case the input type is form instead of raw, parse the same into BSON command
-            String parsedRawCommand = convertMongoFormInputToRawCommand(actionConfiguration);
-            if (parsedRawCommand != null) {
-                actionConfiguration.setBody(parsedRawCommand);
-            }
-
-            return this.executeCommon(mongoClient, datasourceConfiguration, actionConfiguration, parameters);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration);
         }
 
-        @Override
-        public Mono<ActionExecutionResult> execute(Void connection,
-                                                   DatasourceConfiguration datasourceConfiguration,
-                                                   ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeCommon(Void connection,
+                                                         DatasourceConfiguration datasourceConfiguration,
+                                                         ActionConfiguration actionConfiguration) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -243,6 +245,12 @@ public class GoogleSheetsPlugin extends BasePlugin {
         }
 
         @Override
+        public Mono<ActionExecutionResult> execute(Void connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+            // Unused function
+            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+        }
+
+        @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
         }
@@ -269,6 +277,17 @@ public class GoogleSheetsPlugin extends BasePlugin {
             ActionConfiguration actionConfiguration = new ActionConfiguration();
             actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
             return execute(null, datasourceConfiguration, actionConfiguration);
+        }
+
+        @Override
+        public Object substituteValueInInput(int index,
+                                             String binding,
+                                             String value,
+                                             Object input,
+                                             List<Map.Entry<String, String>> insertedParams,
+                                             Object... args) {
+            String jsonBody = (String) input;
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
         }
     }
 }
