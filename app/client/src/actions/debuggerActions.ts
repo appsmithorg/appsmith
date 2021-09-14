@@ -1,3 +1,4 @@
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ENTITY_TYPE, Log, Message } from "entities/AppsmithConsole";
 import { EventName } from "utils/AnalyticsUtil";
@@ -71,5 +72,10 @@ export const logDebuggerErrorAnalytics = (
 
 export const hideDebuggerErrors = (payload: boolean) => ({
   type: ReduxActionTypes.HIDE_DEBUGGER_ERRORS,
+  payload,
+});
+
+export const setCurrentTab = (payload: DEBUGGER_TAB_KEYS) => ({
+  type: ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB,
   payload,
 });

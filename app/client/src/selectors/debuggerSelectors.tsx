@@ -11,3 +11,5 @@ export const getFilteredErrors = createSelector(
     return errors;
   },
 );
+export const getCurrentDebuggerTab = (state: AppState) =>
+  state.ui.debugger.currentTab;
