@@ -649,7 +649,7 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
-    public Mono<String> updatePageLayoutsGivenAction(String pageId) {
+    private Mono<String> updatePageLayoutsGivenAction(String pageId) {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
                 .flatMap(id -> newPageService.findPageById(id, MANAGE_PAGES, false))

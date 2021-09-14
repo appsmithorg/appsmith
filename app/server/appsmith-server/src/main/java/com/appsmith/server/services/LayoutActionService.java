@@ -27,8 +27,6 @@ public interface LayoutActionService {
 
     Mono<ActionDTO> updateSingleAction(String id, ActionDTO action);
 
-    Mono<String> updatePageLayoutsGivenAction(String pageId);
-
     Mono<ActionDTO> setExecuteOnLoad(String id, Boolean isExecuteOnLoad);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
