@@ -52,3 +52,5 @@ export const Classes = {
   GIT_SYNC_MODAL: "git-sync-modal",
   OPTION_SELECTOR_WRAPPER: "option-wrapper",
 };
+
+export const DEFAULT_REMOTE = "origin";

@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
@@ -26,6 +27,7 @@ export type PopperProps = {
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
+  cypressSelectorDragHandle?: string;
   position?: {
     top: number;
     left: number;
@@ -65,6 +67,9 @@ export function PopperDragHandle() {
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
+  const popperIdRef = useRef(generateReactKey());
+  const popperId = popperIdRef.current;
+
   const {
     isDraggable = false,
     disablePopperEvents = false,
@@ -73,6 +78,7 @@ export default (props: PopperProps) => {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
+    cypressSelectorDragHandle,
   } = props;
   // Meomoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
@@ -132,7 +138,7 @@ export default (props: PopperProps) => {
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
-          "popper",
+          `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
           position,
@@ -145,6 +151,7 @@ export default (props: PopperProps) => {
                 <PopperDragHandle />
               </ThemeProvider>
             ),
+          cypressSelectorDragHandle,
         );
       }
 
