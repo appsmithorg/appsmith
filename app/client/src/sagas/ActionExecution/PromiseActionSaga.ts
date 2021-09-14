@@ -8,7 +8,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { ACTION_ANONYMOUS_FUNC_REGEX } from "components/editorComponents/ActionCreator/Fields";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -38,7 +37,7 @@ export default function* executePromiseSaga(
     );
     if (trigger.then) {
       if (trigger.then.length) {
-        let responseData: unknown[] = [];
+        let responseData: unknown[] = [{}];
         if (responses.length === 1) {
           responseData = responses[0];
         }
@@ -67,9 +66,7 @@ export default function* executePromiseSaga(
       if (e instanceof PluginTriggerFailureError) {
         responseData = e.responseData;
       }
-      // if the catch callback is not an anonymous function, passing arguments will cause errors in execution
-      const matches = [...trigger.catch.matchAll(ACTION_ANONYMOUS_FUNC_REGEX)];
-      const catchArguments = matches.length ? responseData : undefined;
+      const catchArguments = responseData || [{}];
 
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
