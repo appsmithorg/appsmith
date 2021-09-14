@@ -5,6 +5,9 @@ import com.appsmith.external.models.WidgetType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -16,10 +19,13 @@ import java.util.Set;
 @Slf4j
 public class WidgetSuggestionHelper {
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
     private static class DataFields {
-        private List<String> fields;
-        private List<String> numericFields;
-        private List<String> objectFields;
+        List<String> fields;
+        List<String> numericFields;
+        List<String> objectFields;
     }
 
     /**
@@ -55,9 +61,9 @@ public class WidgetSuggestionHelper {
             DataFields dataFields = collectFieldsFromData(node.fields());
 
             if (JsonNodeType.STRING.equals(nodeType)) {
-                return getWidgetsForTypeString(dataFields.fields, length);
+                return getWidgetsForTypeString(dataFields.getFields(), length);
             } else if (JsonNodeType.OBJECT.equals(nodeType) || JsonNodeType.ARRAY.equals(nodeType)) {
-                return getWidgetsForTypeArray(dataFields.fields, dataFields.numericFields);
+                return getWidgetsForTypeArray(dataFields.getFields(), dataFields.getNumericFields());
             } else if (JsonNodeType.NUMBER.equals(nodeType)) {
                 return getWidgetsForTypeNumber();
             }
@@ -78,9 +84,9 @@ public class WidgetSuggestionHelper {
             DataFields dataFields = collectFieldsFromData(node.fields());
 
             if (JsonNodeType.STRING.equals(nodeType)) {
-                widgetTypeList = getWidgetsForTypeString(dataFields.fields, length);
+                widgetTypeList = getWidgetsForTypeString(dataFields.getFields(), length);
             } else if (JsonNodeType.ARRAY.equals(nodeType)) {
-                widgetTypeList = getWidgetsForTypeArray(dataFields.fields, dataFields.numericFields);
+                widgetTypeList = getWidgetsForTypeArray(dataFields.getFields(), dataFields.getNumericFields());
             } else if (JsonNodeType.OBJECT.equals(nodeType)) {
                 /*
                  * Get fields from nested object
@@ -89,12 +95,12 @@ public class WidgetSuggestionHelper {
                 if (dataFields.objectFields.isEmpty()) {
                     widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                 } else {
-                    String nestedFieldName = dataFields.objectFields.get(0);
+                    String nestedFieldName = dataFields.getObjectFields().get(0);
                     if (node.get(nestedFieldName).size() == 0) {
                         widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
                     } else {
                         dataFields = collectFieldsFromData(node.get(nestedFieldName).get(0).fields());
-                        widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName, dataFields.fields, dataFields.numericFields);
+                        widgetTypeList = getWidgetsForTypeNestedObject(nestedFieldName, dataFields.getFields(), dataFields.getNumericFields());
                     }
                 }
             } else if (JsonNodeType.NUMBER.equals(nodeType)) {
@@ -102,7 +108,7 @@ public class WidgetSuggestionHelper {
             }
         } else if (node.isArray() || node.isNumber() || node.isTextual()) {
             DataFields dataFields = collectFieldsFromData(node.fields());
-            widgetTypeList = getWidgetsForTypeString(dataFields.fields, 0);
+            widgetTypeList = getWidgetsForTypeString(dataFields.getFields(), 0);
         }
         return widgetTypeList;
     }
@@ -134,22 +140,25 @@ public class WidgetSuggestionHelper {
      */
     private static DataFields collectFieldsFromData(Iterator<Map.Entry<String, JsonNode>> jsonFields) {
         DataFields dataFields = new DataFields();
-        dataFields.fields = new ArrayList<>();
-        dataFields.numericFields = new ArrayList<>();
-        dataFields.objectFields = new ArrayList<>();
+        List<String> fields = new ArrayList<>();
+        List<String> numericFields = new ArrayList<>();
+        List<String> objectFields = new ArrayList<>();
         while(jsonFields.hasNext()) {
             Map.Entry<String, JsonNode> jsonField = jsonFields.next();
             if(JsonNodeType.STRING.equals(jsonField.getValue().getNodeType())) {
-                dataFields.fields.add(jsonField.getKey());
+                fields.add(jsonField.getKey());
             }
             if(JsonNodeType.NUMBER.equals(jsonField.getValue().getNodeType())) {
-                dataFields.numericFields.add(jsonField.getKey());
+                numericFields.add(jsonField.getKey());
             }
 
             if(JsonNodeType.ARRAY.equals(jsonField.getValue().getNodeType())) {
-                dataFields.objectFields.add(jsonField.getKey());
+                objectFields.add(jsonField.getKey());
             }
         }
+        dataFields.setFields(fields);
+        dataFields.setNumericFields(numericFields);
+        dataFields.setObjectFields(objectFields);
         return dataFields;
     }
 
