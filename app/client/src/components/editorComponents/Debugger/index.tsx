@@ -101,10 +101,34 @@ function Debugger() {
   ) : null;
 }
 
-const TriggerContainer = styled.div`
+const TriggerContainer = styled.div<{
+  errorCount: number;
+  warningCount: number;
+}>`
+  position: relative;
+  overflow: visible;
   display: flex;
   align-items: center;
-  margin-right: ${(props) => props.theme.spaces[4]}px;
+  margin-right: ${(props) => props.theme.spaces[9]}px;
+
+  .debugger-count {
+    color: ${Colors.WHITE};
+    ${(props) => getTypographyByKey(props, "p3")}
+    height: 16px;
+    width: 16px;
+    background-color: ${(props) =>
+      props.errorCount + props.warningCount > 0
+        ? props.errorCount === 0
+          ? props.theme.colors.debugger.floatingButton.warningCount
+          : props.theme.colors.debugger.floatingButton.errorCount
+        : props.theme.colors.debugger.floatingButton.noErrorCount};
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 100%;
+  }
 `;
 
 export function DebuggerTrigger() {
@@ -112,6 +136,16 @@ export function DebuggerTrigger() {
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+
+  const messageCounters = useSelector((state) => {
+    const errorKeys = Object.keys(getFilteredErrors(state));
+    const warnings = errorKeys.filter((key: string) => key.includes("warning"))
+      .length;
+    const errors = errorKeys.length - warnings;
+    return { errors, warnings };
+  });
+
+  const totalMessageCount = messageCounters.errors + messageCounters.warnings;
 
   const onClick = (e: any) => {
     if (!showDebugger)
@@ -123,8 +157,16 @@ export function DebuggerTrigger() {
   };
 
   return (
-    <TriggerContainer>
+    <TriggerContainer
+      errorCount={messageCounters.errors}
+      warningCount={messageCounters.warnings}
+    >
       <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+      {!!messageCounters.errors && (
+        <div className="debugger-count t--debugger-count">
+          {totalMessageCount > 9 ? "9+" : totalMessageCount}
+        </div>
+      )}
     </TriggerContainer>
   );
 }

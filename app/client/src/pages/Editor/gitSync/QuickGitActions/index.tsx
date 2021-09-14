@@ -11,7 +11,12 @@ import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 import { COMMIT, PUSH, PULL, MERGE, createMessage } from "constants/messages";
 import { noop } from "lodash";
 
+import Tooltip from "components/ads/Tooltip";
+import { Colors } from "constants/Colors";
+import { getTypographyByKey } from "constants/DefaultTheme";
+
 type QuickActionButtonProps = {
+  count?: number;
   icon: React.ReactNode;
   onClick: () => void;
   tooltipText: string;
@@ -26,17 +31,41 @@ const QuickActionButtonContainer = styled.div`
     background-color: ${(props) =>
       props.theme.colors.editorBottomBar.buttonBackgroundHover};
   }
+  position: relative;
+  overflow: visible;
+  z-index: 0; /* fix z-index on hover */
+  .count {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: ${Colors.WHITE};
+    background-color: ${Colors.BLACK};
+    top: -3px;
+    left: 15px;
+    border-radius: 50%;
+    ${(props) => getTypographyByKey(props, "p3")};
+    z-index: 1;
+  }
 `;
 
 function QuickActionButton({
+  count = 0,
   icon,
   onClick,
-}: // tooltipText,
-QuickActionButtonProps) {
+  tooltipText,
+}: QuickActionButtonProps) {
   return (
-    <QuickActionButtonContainer onClick={onClick}>
-      {icon}
-    </QuickActionButtonContainer>
+    <Tooltip content={tooltipText} hoverOpenDelay={1000}>
+      <QuickActionButtonContainer onClick={onClick}>
+        {icon}
+        {count > 0 && (
+          <span className="count">{count > 9 ? `${9}+` : count}</span>
+        )}
+      </QuickActionButtonContainer>
+    </Tooltip>
   );
 }
 
@@ -90,7 +119,7 @@ export default function QuickGitActions() {
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (
-        <QuickActionButton key={button.tooltipText} {...button} />
+        <QuickActionButton key={button.tooltipText} {...button} count={0} />
       ))}
     </Container>
   );
