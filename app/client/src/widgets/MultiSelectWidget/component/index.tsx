@@ -116,7 +116,10 @@ function MultiSelectComponent({
   }, []);
 
   return (
-    <MultiSelectContainer ref={_menu as React.RefObject<HTMLDivElement>}>
+    <MultiSelectContainer
+      className={loading ? Classes.SKELETON : ""}
+      ref={_menu as React.RefObject<HTMLDivElement>}
+    >
       <DropdownStyles />
       <Select
         animation="slide-up"
