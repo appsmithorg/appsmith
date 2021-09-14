@@ -1,4 +1,4 @@
-import { isBoolean, get, map, set } from "lodash";
+import { isBoolean, get, set } from "lodash";
 import { HiddenType } from "./BaseControl";
 
 export const evaluateCondtionWithType = (
