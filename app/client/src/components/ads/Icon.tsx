@@ -21,7 +21,7 @@ import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
-import ShareIcon from "remixicon-react/SendPlaneLineIcon";
+import ShareIcon from "remixicon-react/ShareForwardFillIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import WorkspaceIcon from "remixicon-react/Building3FillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";

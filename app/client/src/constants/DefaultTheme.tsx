@@ -1035,6 +1035,7 @@ type ColorType = {
     codeBackground: string;
     documentationCodeBackground: string;
     documentLink: string;
+    helpBarText: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
@@ -1243,10 +1244,6 @@ type ColorType = {
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
-  };
-  link: string;
-  welcomePage?: {
-    text: string;
   };
 };
 
@@ -2057,10 +2054,6 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
-  link: "#f86a2b",
-  welcomePage: {
-    text: lightShades[5],
-  },
 };
 
 export const light: ColorType = {
@@ -2075,8 +2068,17 @@ export const light: ColorType = {
   mentionSuggestion,
   reactionsComponent,
   mentionsInput,
-  helpModal,
-  globalSearch,
+  helpModal: {
+    itemHighlight: "#EBEBEB",
+    background: "#FFFFFF",
+  },
+  globalSearch: {
+    ...globalSearch,
+    helpBarBackground: "#F0F0F0",
+    helpBarText: "#A9A7A7",
+    helpButtonBackground: "#F0F0F0",
+    helpIcon: "#939090",
+  },
   comments: {
     ...comments,
     activeModeBackground: "#EBEBEB",
@@ -2677,10 +2679,6 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
-  link: "#f86a2b",
-  welcomePage: {
-    text: lightShades[5],
-  },
 };
 
 export const theme: Theme = {

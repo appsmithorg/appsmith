@@ -14,13 +14,17 @@ import {
 
 const UserImageContainer = styled.div`
   display: flex;
-  margin-right: ${(props) => props.theme.spaces[3]}px;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
 
   div {
     cursor: default;
     margin-left: ${(props) => props.theme.spaces[1]}px;
     width: 24px;
     height: 24px;
+  }
+
+  div:first-chilc {
+    margin-left: 0px;
   }
 
   div:last-child {

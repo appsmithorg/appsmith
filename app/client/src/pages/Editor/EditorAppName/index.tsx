@@ -44,9 +44,7 @@ const Container = styled.div<{ isPopoverOpen: boolean }>`
     props.isPopoverOpen &&
     `
       background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
-      > span {
-        background-color: ${props.theme.colors.navigationMenu.backgroundInactive};
-      }`}
+    `}
   &:hover {
     background-color: ${(props) =>
       props.theme.colors.navigationMenu.backgroundActive};

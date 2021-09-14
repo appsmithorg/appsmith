@@ -42,7 +42,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import { IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -134,12 +134,20 @@ const DeploySection = styled.div`
 
 const ProfileDropdownContainer = styled.div`
   margin: 0 ${(props) => props.theme.spaces[7]}px;
+  margin-right: 0px;
 `;
 
-const StyledDeployButton = styled(Button)`
+const StyledInviteButton = styled(Button)`
+  margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
+`;
+
+const StyledDeployButton = styled(StyledInviteButton)`
+  margin-right: 0px;
+  background: transparent;
+  border-color: transparent;
 `;
 
 const BindingBanner = styled.div`
@@ -163,6 +171,12 @@ const BindingBanner = styled.div`
 
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
+`;
+
+const StyledIcon = styled(Icon)`
+  height: 34px;
+  padding-right: ${(props) => props.theme.spaces[2]}px;
+  align-self: center;
 `;
 
 type EditorHeaderProps = {
@@ -304,10 +318,10 @@ export function EditorHeader(props: EditorHeaderProps) {
                   : "Share Application"
               }
               trigger={
-                <Button
-                  className="t--application-share-btn header__application-share-btn"
+                <StyledInviteButton
                   icon={"share"}
                   size={Size.small}
+                  tag="button"
                   text={"Share"}
                 />
               }
@@ -325,9 +339,11 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
+                  isLink
                   isLoading={isPublishing}
                   onClick={handlePublish}
                   size={Size.small}
+                  tag="button"
                   text={"Deploy"}
                 />
               </OnboardingIndicator>
@@ -335,7 +351,11 @@ export function EditorHeader(props: EditorHeaderProps) {
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
-                  <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                  <StyledIcon
+                    fillColor={theme.colors.navigationMenu.contentActive}
+                    name={isPopoverOpen ? "upArrow" : "downArrow"}
+                    size={IconSize.XXS}
+                  />
                 }
               />
             </DeploySection>
@@ -361,7 +381,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
-const theme = getTheme(ThemeMode.DARK);
+const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
