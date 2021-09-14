@@ -32,7 +32,7 @@ import history from "utils/history";
 import { getAppMode } from "selectors/applicationSelectors";
 import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
-import { USER_PHOTO_URL, USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -278,13 +278,7 @@ function CommentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const {
-    authorName,
-    authorPhotoId,
-    authorUsername,
-    body,
-    id: commentId,
-  } = comment;
+  const { authorName, authorPhotoId, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -422,7 +416,7 @@ function CommentCard({
   const hasReactions = !!reactions && Object.keys(reactions).length > 0;
   const profilePhotoUrl = authorPhotoId
     ? `/api/${USER_PHOTO_ASSET_URL}/${authorPhotoId}`
-    : `/api/${USER_PHOTO_URL}/${authorUsername}`;
+    : "";
 
   return (
     <StyledContainer
