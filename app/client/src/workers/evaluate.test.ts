@@ -60,7 +60,7 @@ describe("evaluate", () => {
   }
   closedFunction()
   `,
-          severity: "warning",
+          severity: "error",
           originalBinding: "wrongJS",
           variables: ["wrongJS", undefined, undefined, undefined],
         },
