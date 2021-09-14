@@ -549,6 +549,7 @@ export const ReduxActionTypes = {
   SET_PAGE_ORDER_SUCCESS: "SET_PAGE_ORDER_SUCCESS",
   GROUP_WIDGETS_INIT: "GROUP_WIDGETS_INIT",
   REFACTOR_JS_ACTION_NAME: "REFACTOR_JS_ACTION_NAME",
+  SET_EXPLORER_PINNED: "SET_EXPLORER_PINNED",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

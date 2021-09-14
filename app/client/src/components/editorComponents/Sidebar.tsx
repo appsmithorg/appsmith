@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
+import { useDispatch, useSelector } from "react-redux";
 import { PanelStack } from "@blueprintjs/core";
 import React, { memo, useEffect, useRef, useCallback, useState } from "react";
 
@@ -8,6 +9,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import Explorer from "pages/Editor/Explorer";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinned } from "actions/explorerActions";
 
 type Props = {
   width: number;
@@ -16,8 +19,9 @@ type Props = {
 
 export const EntityExplorerSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const [pinned, setPinned] = useState(true);
+  const pinned = useSelector(getExplorerPinned);
   const [active, setActive] = useState(true);
+  const dispatch = useDispatch();
   const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
@@ -69,8 +73,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
    * toggles the pinned state of sidebar
    */
   const onPin = useCallback(() => {
-    setPinned((pinned) => !pinned);
-  }, [pinned, setPinned, active]);
+    dispatch(setExplorerPinned(!pinned));
+  }, [pinned, dispatch, setExplorerPinned]);
 
   /**
    * if the sidebar is not pinned and we are not resizing,
@@ -81,6 +85,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       setActive(false);
     }
   }, [active, setActive, pinned, resizer.resizing]);
+
+  // eslint-disable-next-line
+  console.log({ pinned, active });
 
   return (
     <div

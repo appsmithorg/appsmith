@@ -9,8 +9,11 @@ export interface ExplorerReduxState {
   updatingEntity?: string;
   updateEntityError?: string;
   editingEntityName?: string;
+  pinned: boolean;
 }
-const initialState: ExplorerReduxState = {};
+const initialState: ExplorerReduxState = {
+  pinned: false,
+};
 
 const setUpdatingEntity = (
   state: ExplorerReduxState,
@@ -105,6 +108,12 @@ const explorerReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
     return {};
+  },
+  [ReduxActionTypes.SET_EXPLORER_PINNED]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<{ shouldPin: boolean }>,
+  ) => {
+    return { ...state, pinned: action.payload.shouldPin };
   },
 });
 

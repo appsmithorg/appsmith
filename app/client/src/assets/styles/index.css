@@ -1,7 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import './tailwind.css';
+/**
+* ---------------------------------------------------------------------------------------------------
+* blueprint specific css overrides
+* ---------------------------------------------------------------------------------------------------
+*/
 .bp3-panel-stack-view {
   background: none;
+}
+
+
+/**
+* ---------------------------------------------------------------------------------------------------
+* custom css
+* ---------------------------------------------------------------------------------------------------
+*/
+/* width */
+*::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+/* Track */
+*::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+/* Handle */
+*::-webkit-scrollbar-thumb {
+  @apply bg-gray-400;
+}
+
+/* Handle on hover */
+*::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500
 }
