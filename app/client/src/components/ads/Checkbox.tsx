@@ -82,7 +82,7 @@ const StyledCheckbox = styled.label<{
   }
 `;
 
-const LabelContainer = styled.div<{ info?: string }>`
+export const LabelContainer = styled.div<{ info?: string }>`
   display: flex;
   flex-direction: column;
   .${Classes.TEXT}:first-child {

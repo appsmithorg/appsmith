@@ -71,6 +71,7 @@ export type DropdownProps = CommonComponentProps &
     placeholder?: string;
     helperText?: string;
     fillOptions?: boolean;
+    dontUsePortal?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -694,6 +695,7 @@ export default function Dropdown(props: DropdownProps) {
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
+        usePortal={!props.dontUsePortal}
       >
         {dropdownTrigger}
         <RenderDropdownOptions
