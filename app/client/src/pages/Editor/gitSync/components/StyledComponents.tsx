@@ -6,7 +6,7 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.p`
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p2")};
 `;
 
 export const Caption = styled.span`

@@ -401,6 +401,8 @@ function* addNewTabChildSaga(
     "Tab ",
     tabsArray.map((tab: any) => tab.label),
   );
+  const newTabIndex = Object.keys(tabs)?.length - 1;
+
   tabs = {
     ...tabs,
     [newTabId]: {
@@ -408,6 +410,7 @@ function* addNewTabChildSaga(
       label: newTabLabel,
       widgetId: newTabWidgetId,
       isVisible: true,
+      index: newTabIndex,
     },
   };
   const newTabProps: any = getChildTabData(tabProps, {

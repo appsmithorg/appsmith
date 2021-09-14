@@ -36,11 +36,28 @@ function messageEventListener(
     const { method, requestData, requestId } = e.data;
     const responseData = fn(method, requestData);
     const endTime = performance.now();
-    ctx.postMessage({
-      requestId,
-      responseData,
-      timeTaken: (endTime - startTime).toFixed(2),
-    });
+    try {
+      ctx.postMessage({
+        requestId,
+        responseData,
+        timeTaken: (endTime - startTime).toFixed(2),
+      });
+    } catch (e) {
+      console.error(e);
+      ctx.postMessage({
+        requestId,
+        responseData: {
+          errors: [
+            {
+              type: EvalErrorTypes.CLONE_ERROR,
+              message: e,
+              context: requestData,
+            },
+          ],
+        },
+        timeTaken: (endTime - startTime).toFixed(2),
+      });
+    }
   };
 }
 

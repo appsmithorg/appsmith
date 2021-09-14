@@ -1217,6 +1217,7 @@ type ColorType = {
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
+    branchBtnText: string;
   };
   link: string;
   welcomePage?: {
@@ -1227,6 +1228,7 @@ type ColorType = {
 const editorBottomBar = {
   background: Colors.WHITE,
   buttonBackgroundHover: Colors.Gallery,
+  branchBtnText: Colors.CHARCOAL,
 };
 
 const gitSyncModal = {

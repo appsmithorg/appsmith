@@ -124,17 +124,6 @@ describe("check processDiff from replayUtils for type of update", () => {
     });
   });
   describe("check diff of kind 'E'", () => {
-    it("should ignore if prop is not string", () => {
-      const replay = {};
-      const updateWidgetDiff = {
-        kind: "E",
-        path: ["abcde", "children", 5],
-      };
-
-      processDiff(dsl, updateWidgetDiff, replay, true);
-
-      expect(replay).toEqual({});
-    });
     it("should be considered as just a position update and needs focus if Base props change", () => {
       const replay = {};
       const updateWidgetDiff = {

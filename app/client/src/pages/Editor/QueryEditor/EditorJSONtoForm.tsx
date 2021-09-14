@@ -49,6 +49,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
@@ -627,6 +628,9 @@ export function EditorJSONtoForm(props: Props) {
                   });
                   setSelectedIndex(1);
                 }}
+                secondHalfText={createMessage(
+                  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
+                )}
               />
             </ErrorContainer>
           )}

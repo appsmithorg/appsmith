@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -101,20 +101,42 @@ function TabControlComponent(props: RenderComponentProps) {
       payload: { ...item, index },
     });
   };
+
+  const [value, setValue] = useState(item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && item && item.label) setValue(item.label);
+  }, [item?.label, isEditing]);
+
   const debouncedUpdate = debounce(updateOption, 1000);
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,
   ]);
+
+  const onChange = useCallback(
+    (index: number, value: string) => {
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={item.label}
+        onBlur={onBlur}
         onChange={(value: string) => {
-          debouncedUpdate(index, value);
+          onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Tab Title"
+        value={value}
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
