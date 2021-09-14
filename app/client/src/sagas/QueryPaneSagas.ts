@@ -76,7 +76,6 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const currentEditorConfig = editorConfigs[action.datasource.pluginId];
   const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
-  const uiComponent = getUIComponent(id, getPlugins(state));
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
   yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
@@ -103,10 +102,8 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
 
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
-  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
-    // Once the initial values are set, we can run the evaluations based on them.
-    yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
-  }
+  // Once the initial values are set, we can run the evaluations based on them.
+  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
 }
 
 function* formValueChangeSaga(
