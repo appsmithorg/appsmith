@@ -1,10 +1,14 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
+import { GitSyncModalTab } from "entities/GitSync";
 
-export const setIsGitSyncModalOpen = (isOpen: boolean) => ({
+export const setIsGitSyncModalOpen = (payload: {
+  isOpen: boolean;
+  tab?: GitSyncModalTab;
+}) => ({
   type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
-  payload: isOpen,
+  payload,
 });
 
 export const commitToRepoInit = (payload: {

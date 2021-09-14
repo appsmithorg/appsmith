@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import Dialog from "components/ads/DialogComponent";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import {
+  getActiveGitSyncModalTab,
+  getIsGitSyncModalOpen,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -64,10 +67,13 @@ function GitSyncModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const handleClose = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(false));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const setActiveTabIndex = (index: number) =>
+    dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
+
   const BodyComponent =
     ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
 

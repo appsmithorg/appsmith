@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import Button, { Category, Size } from "components/ads/Button";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -129,7 +130,7 @@ function ConnectGitPlaceholder() {
       <Button
         category={Category.tertiary}
         onClick={() => {
-          dispatch(setIsGitSyncModalOpen(true));
+          dispatch(setIsGitSyncModalOpen({ isOpen: true }));
         }}
         size={Size.small}
         text={createMessage(CONNECT_GIT)}
@@ -140,12 +141,27 @@ function ConnectGitPlaceholder() {
 
 export default function QuickGitActions() {
   const isGitRepoSetup = useSelector(getIsGitRepoSetup);
+  const dispatch = useDispatch();
 
   const quickActionButtons = getQuickActionButtons({
-    commit: noop,
+    commit: () => {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.GIT_CONNECTION,
+        }),
+      );
+    },
     push: noop,
     pull: noop,
-    merge: noop,
+    merge: () => {
+      dispatch(
+        setIsGitSyncModalOpen({
+          isOpen: true,
+          tab: GitSyncModalTab.MERGE,
+        }),
+      );
+    },
   });
   return isGitRepoSetup ? (
     <Container>

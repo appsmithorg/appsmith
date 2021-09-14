@@ -224,7 +224,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(true));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const isMultiplayerEnabledForUser = useSelector(
