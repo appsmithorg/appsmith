@@ -221,9 +221,7 @@ public class FileUtilsImpl implements FileInterface {
         );
 
         // Extract application metadata from the json
-        applicationGitReference.setApplication(
-            readFile( baseRepoPath.resolve("metadata.json"), gson)
-        );
+        applicationGitReference.setMetadata(readFile(baseRepoPath.resolve("metadata.json"), gson));
 
         // Extract actions
         applicationGitReference.setActions(readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson));

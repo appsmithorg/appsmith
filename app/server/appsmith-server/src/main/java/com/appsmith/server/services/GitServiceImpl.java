@@ -130,10 +130,8 @@ public class GitServiceImpl implements GitService {
                 "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
             ).cache();
 
-        return applicationPageService.publish(applicationId, true)
-            .zipWith(currentUserMono)
-            .flatMap(tuple -> {
-                Application application = tuple.getT1();
+        return publishOrGetApplication(applicationId, commitDTO.getDoPush())
+            .flatMap(application -> {
                 GitApplicationMetadata gitMetadata = application.getGitApplicationMetadata();
                 if (gitMetadata == null) {
                     throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
@@ -205,7 +203,7 @@ public class GitServiceImpl implements GitService {
                 if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
                     //push flow
                     result.append(". Push Result : ");
-                    return pushApplication(applicationId)
+                    return pushApplication(applicationId, false)
                         .map(pushResult -> result.append(pushResult).toString());
                 }
                 return Mono.just(result.toString());
@@ -343,17 +341,19 @@ public class GitServiceImpl implements GitService {
             "please provide as per standard format => git@github.com:username/reponame.git");
     }
 
+    @Override
+    public Mono<String> pushApplication(String applicationId) {
+        return pushApplication(applicationId, true);
+    }
+
     /**
      * Push flow for dehydrated apps
      * @param applicationId application which needs to be pushed to remote repo
      * @return Success message
      */
-    @Override
-    public Mono<String> pushApplication(String applicationId) {
-        Mono<Application> applicationMono = applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
+    private Mono<String> pushApplication(String applicationId, boolean doPublish) {
 
-        return applicationMono
+        return publishOrGetApplication(applicationId, doPublish)
             .map(application -> {
                 GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 if (gitData == null
@@ -380,6 +380,13 @@ public class GitServiceImpl implements GitService {
                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
                 }
             });
+    }
+
+    Mono<Application> publishOrGetApplication(String applicationId, boolean publish) {
+        if (Boolean.TRUE.equals(publish)) {
+            return applicationPageService.publish(applicationId, true);
+        }
+        return getApplicationById(applicationId);
     }
 
     Mono<Application> getApplicationById(String applicationId) {

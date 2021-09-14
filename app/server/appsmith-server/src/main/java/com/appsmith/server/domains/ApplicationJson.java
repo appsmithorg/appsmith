@@ -1,9 +1,12 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.DecryptedSensitiveFields;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A DTO class to hold complete information about an application, which will then be serialized to a file so as to
@@ -20,6 +23,16 @@ public class ApplicationJson {
     List<NewPage> pageList;
     
     List<NewAction> actionList;
-    
-    ApplicationMetadata metadata;
+
+    String publishedDefaultPageName;
+
+    String unpublishedDefaultPageName;
+
+    Map<String, DecryptedSensitiveFields> decryptedFields;
+
+    /**
+     * Mapping mongoEscapedWidgets with layoutId
+     */
+    Map<String, Set<String>> publishedLayoutmongoEscapedWidgets;
+    Map<String, Set<String>> unpublishedLayoutmongoEscapedWidgets;
 }
