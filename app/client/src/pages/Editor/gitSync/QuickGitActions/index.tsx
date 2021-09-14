@@ -8,12 +8,24 @@ import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
 import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
-import { COMMIT, PUSH, PULL, MERGE, createMessage } from "constants/messages";
+import {
+  COMMIT,
+  PUSH,
+  PULL,
+  MERGE,
+  CONNECT_GIT,
+  createMessage,
+} from "constants/messages";
 import { noop } from "lodash";
 
 import Tooltip from "components/ads/Tooltip";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { getIsGitRepoSetup } from "selectors/gitSyncSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
+import Button, { Category, Size } from "components/ads/Button";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 
 type QuickActionButtonProps = {
   count?: number;
@@ -108,19 +120,41 @@ const Container = styled.div`
   align-items: center;
 `;
 
+function ConnectGitPlaceholder() {
+  const dispatch = useDispatch();
+
+  return (
+    <Container>
+      <GitCommitLine />
+      <Button
+        category={Category.tertiary}
+        onClick={() => {
+          dispatch(setIsGitSyncModalOpen(true));
+        }}
+        size={Size.small}
+        text={createMessage(CONNECT_GIT)}
+      />
+    </Container>
+  );
+}
+
 export default function QuickGitActions() {
+  const isGitRepoSetup = useSelector(getIsGitRepoSetup);
+
   const quickActionButtons = getQuickActionButtons({
     commit: noop,
     push: noop,
     pull: noop,
     merge: noop,
   });
-  return (
+  return isGitRepoSetup ? (
     <Container>
       <BranchButton />
       {quickActionButtons.map((button) => (
         <QuickActionButton key={button.tooltipText} {...button} count={0} />
       ))}
     </Container>
+  ) : (
+    <ConnectGitPlaceholder />
   );
 }
