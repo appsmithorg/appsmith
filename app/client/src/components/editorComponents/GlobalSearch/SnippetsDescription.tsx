@@ -26,7 +26,6 @@ import { useSelector } from "store";
 import { AppState } from "reducers";
 import ReadOnlyEditor from "../ReadOnlyEditor";
 import copy from "copy-to-clipboard";
-import { js_beautify } from "js-beautify";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
@@ -156,13 +155,17 @@ const removeDynamicBinding = (value: string) => {
   });
 };
 
-export const getSnippet = (snippet: string, args: any) => {
-  const regex = /{{(.*?)}}/g;
-  return snippet.replace(regex, function(match, capture) {
-    const substitution = (args[capture] || "")
-      .replaceAll("{{", "")
-      .replaceAll("}}", "");
-    return substitution || capture;
+export const getSnippet = (
+  snippet: string,
+  args: any,
+  replaceWithDynamicBinding = false,
+) => {
+  const templateSubstitutionRegex = /%%(.*?)%%/g;
+  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
+    const substitution = removeDynamicBinding(args[capture] || "");
+    return replaceWithDynamicBinding
+      ? `{{${capture}}}`
+      : substitution || capture;
   });
 };
 
@@ -279,19 +282,17 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           )}
           <div className="snippet-container">
             <SyntaxHighlighter language={language} style={prism}>
-              {js_beautify(snippet, { indent_size: 2 })}
+              {getSnippet(snippet, {}, true)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon
-                onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-              />
+              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
             </div>
           </div>
         </>
       ),
     },
   ];
-  if (template && language === "javascript") {
+  if (template) {
     tabs.push({
       key: "Customize",
       title: "Customize",
@@ -300,14 +301,10 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
           <>
             <div className="snippet-container">
               <SyntaxHighlighter language={language} style={prism}>
-                {js_beautify(getSnippet(template, selectedArgs), {
-                  indent_size: 2,
-                })}
+                {getSnippet(template, selectedArgs)}
               </SyntaxHighlighter>
               <div className="action-icons">
-                <CopyIcon
-                  onClick={() => handleCopy(`{{ ${getSnippet(snippet, {})} }}`)}
-                />
+                <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
               </div>
             </div>
             <div className="snippet-group">
