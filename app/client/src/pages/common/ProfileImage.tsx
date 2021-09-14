@@ -14,6 +14,7 @@ export const Profile = styled.div<{ backgroundColor?: string; side?: number }>`
   background-color: ${(props) => props.backgroundColor};
   && span {
     color: ${(props) => props.theme.colors.text.highlight};
+    letter-spacing: normal;
   }
 
   img {

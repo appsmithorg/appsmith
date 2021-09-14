@@ -31,7 +31,7 @@ import org.testcontainers.containers.FirestoreEmulatorContainer;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -445,92 +445,73 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
+    private ActionConfiguration constructActionConfiguration(Map<String, Object> first, Map<String, Object> last) {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setPath("pagination");
+        List<Property> propertyList = new ArrayList<>();
+        propertyList.add(new Property("method", "GET_COLLECTION"));
+        propertyList.add(new Property("order", "[\"n\"]"));
+        propertyList.add(new Property("limit", "5"));
+
+        if (first != null && last != null) {
+            try {
+                propertyList.add(new Property());
+                propertyList.add(new Property());
+                propertyList.add(new Property());
+                propertyList.add(new Property("startAfter", objectMapper.writeValueAsString(last)));
+                propertyList.add(new Property("endBefore", objectMapper.writeValueAsString(first)));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        actionConfiguration.setPluginSpecifiedTemplates(propertyList);
+        return actionConfiguration;
+    }
+
+    private Mono<ActionExecutionResult> getNextOrPrevPage(ActionExecutionResult currentPage, PaginationField paginationField) {
+        List<Map<String, Object>> results = (List) currentPage.getBody();
+        final Map<String, Object> first = results.get(0);
+        final Map<String, Object> last = results.get(results.size() - 1);
+
+        final ExecuteActionDTO execDetails = new ExecuteActionDTO();
+        execDetails.setPaginationField(paginationField);
+
+        final ActionConfiguration actionConfiguration1 = constructActionConfiguration(first, last);
+        return pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1);
+    }
+
     @Test
     public void testPagination() {
-        final ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPath("pagination");
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(
-                new Property("method", "GET_COLLECTION"),
-                new Property("order", "[\"n\"]"),
-                new Property("limit", "5")
-        ));
-
-        final ObjectMapper objectMapper = new ObjectMapper();
-
-        Mono<Tuple3<ActionExecutionResult, ActionExecutionResult, ActionExecutionResult>> pagesMono = pluginExecutor
+        final ActionConfiguration actionConfiguration = constructActionConfiguration(null, null);
+        // Fetch data for page 1
+        Mono<ActionExecutionResult> page1Mono = pluginExecutor
                 .executeParameterized(firestoreConnection, null, dsConfig, actionConfiguration)
-                .flatMap(result -> {
-                    List<Map<String, Object>> results = (List) result.getBody();
-                    final Map<String, Object> first = results.get(0);
-                    final Map<String, Object> last = results.get(results.size() - 1);
+                .cache();
 
-                    final ExecuteActionDTO execDetails = new ExecuteActionDTO();
-                    execDetails.setPaginationField(PaginationField.NEXT);
+        // Fetch data for page 2 by clicking on the next button
+        Mono<ActionExecutionResult> page2Mono = page1Mono
+                .flatMap(page1 -> getNextOrPrevPage(page1, PaginationField.NEXT))
+                .cache();
 
-                    final ActionConfiguration actionConfiguration1 = new ActionConfiguration();
-                    actionConfiguration1.setPath(actionConfiguration.getPath());
-                    try {
-                        actionConfiguration1.setPluginSpecifiedTemplates(List.of(
-                                new Property("method", "GET_COLLECTION"),
-                                new Property("order", "[\"n\"]"),
-                                new Property("limit", "5"),
-                                new Property(),
-                                new Property(),
-                                new Property(),
-                                new Property("startAfter", objectMapper.writeValueAsString(last)),
-                                new Property("endBefore", objectMapper.writeValueAsString(first))
-                        ));
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return Mono.error(e);
-                    }
+        // Fetch data for page 3 by clicking on the next button
+        Mono<ActionExecutionResult> page3Mono = page2Mono
+                .flatMap(page2 -> getNextOrPrevPage(page2, PaginationField.NEXT))
+                .cache();
 
-                    return Mono.zip(
-                            Mono.just(result),
-                            pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1)
-                    );
-                })
-                .flatMap(twoPagesMono -> {
-                    final ActionExecutionResult page1 = twoPagesMono.getT1();
-                    final ActionExecutionResult page2 = twoPagesMono.getT2();
+        // Fetch data for page 2 by clicking on the previous button
+        Mono<ActionExecutionResult> prevPage2Mono = page3Mono
+                .flatMap(page3 -> getNextOrPrevPage(page3, PaginationField.PREV))
+                .cache();
 
-                    List<Map<String, Object>> results = (List) page2.getBody();
-                    final Map<String, Object> first = results.get(0);
-                    final Map<String, Object> last = results.get(results.size() - 1);
-
-                    final ExecuteActionDTO execDetails = new ExecuteActionDTO();
-                    execDetails.setPaginationField(PaginationField.PREV);
-
-                    final ActionConfiguration actionConfiguration1 = new ActionConfiguration();
-                    actionConfiguration1.setPath(actionConfiguration.getPath());
-                    try {
-                        actionConfiguration1.setPluginSpecifiedTemplates(List.of(
-                                new Property("method", "GET_COLLECTION"),
-                                new Property("order", "[\"n\"]"),
-                                new Property("limit", "5"),
-                                new Property(),
-                                new Property(),
-                                new Property(),
-                                new Property("startAfter", objectMapper.writeValueAsString(last)),
-                                new Property("endBefore", objectMapper.writeValueAsString(first))
-                        ));
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                        return Mono.error(e);
-                    }
-
-                    return Mono.zip(
-                            Mono.just(page1),
-                            Mono.just(page2),
-                            pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1)
-                    );
-                });
+        var pagesMono = Mono.zip(page1Mono, page2Mono, page3Mono, prevPage2Mono);
 
         StepVerifier.create(pagesMono)
                 .assertNext(resultPages -> {
                     final ActionExecutionResult firstPageResult = resultPages.getT1();
                     final ActionExecutionResult secondPageResult = resultPages.getT2();
-                    final ActionExecutionResult firstPageResultAgain = resultPages.getT3();
+                    final ActionExecutionResult thirdPageResult = resultPages.getT3();
+                    final ActionExecutionResult secondPageResultAgain = resultPages.getT4();
 
                     assertTrue(firstPageResult.getIsExecutionSuccess());
 
@@ -548,11 +529,18 @@ public class FirestorePluginTest {
                             secondResults.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
                     );
 
-                    List<Map<String, Object>> firstResultsAgain = (List) firstPageResultAgain.getBody();
+                    List<Map<String, Object>> firstResultsAgain = (List) thirdPageResult.getBody();
                     assertEquals(5, firstResultsAgain.size());
                     assertEquals(
-                            "[1, 2, 3, 4, 5]",
+                            "[11, 12, 13, 14, 15]",
                             firstResultsAgain.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
+                    );
+
+                    List<Map<String, Object>> secondResultsAgain = (List) secondPageResultAgain.getBody();
+                    assertEquals(5, secondResultsAgain.size());
+                    assertEquals(
+                            "[6, 7, 8, 9, 10]",
+                            secondResultsAgain.stream().map(m -> m.get("n").toString()).collect(Collectors.toList()).toString()
                     );
 
                 })
@@ -580,7 +568,7 @@ public class FirestorePluginTest {
                             error.getMessage());
 
                     // Check that the error does not get logged externally.
-                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException)error).getError().getErrorAction()));
+                    assertFalse(AppsmithErrorAction.LOG_EXTERNALLY.equals(((AppsmithPluginException) error).getError().getErrorAction()));
                 })
                 .verify();
     }
@@ -710,7 +698,7 @@ public class FirestorePluginTest {
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {{
             put("path", "{{Input1.text}}");
             put("operator", "EQ");
             put("value", "{{Input2.text}}");
@@ -720,7 +708,7 @@ public class FirestorePluginTest {
          * - get all documents where name == two.
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
-        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {{
             put("path", "{{Input3.text}}");
             put("operator", "EQ");
             put("value", "{{Input4.text}}");
@@ -1048,7 +1036,7 @@ public class FirestorePluginTest {
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        ((List)whereProperty.getValue()).add(new HashMap<String, Object>() {{
+        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {{
             put("path", "{{Input2.text}}");
             put("operator", "EQ");
             put("value", "{{Input3.text}}");
@@ -1080,10 +1068,10 @@ public class FirestorePluginTest {
         // check if dynamic binding values have been substituted correctly
         assertEquals("initial", actionConfiguration.getPath());
         assertEquals("category",
-                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                ((Map) ((List) actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
                         "path"));
         assertEquals("test",
-                ((Map)((List)actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
+                ((Map) ((List) actionConfiguration.getPluginSpecifiedTemplates().get(3).getValue()).get(0)).get(
                         "value"));
     }
 }
