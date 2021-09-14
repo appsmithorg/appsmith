@@ -86,6 +86,11 @@ describe("Drag and Drop widgets into Main container", () => {
       left: tab.style.left,
       top: tab.style.top,
     };
+
+    act(() => {
+      fireEvent.mouseOver(tabsWidget);
+    });
+
     act(() => {
       fireEvent.dragStart(tabsWidget);
     });
@@ -181,6 +186,11 @@ describe("Drag and Drop widgets into Main container", () => {
       left: tab.style.left,
       top: tab.style.top,
     };
+
+    act(() => {
+      fireEvent.mouseOver(tabsWidget);
+    });
+
     act(() => {
       fireEvent.dragStart(tabsWidget);
     });
@@ -283,6 +293,11 @@ describe("Drag and Drop widgets into Main container", () => {
       left: tab.style.left,
       top: tab.style.top,
     };
+
+    act(() => {
+      fireEvent.mouseOver(tabsWidget);
+    });
+
     act(() => {
       fireEvent.dragStart(tabsWidget);
     });
@@ -382,6 +397,10 @@ describe("Drag and Drop widgets into Main container", () => {
     const tabsWidget: any = component.container.querySelector(
       ".t--draggable-tablewidget",
     );
+
+    act(() => {
+      fireEvent.mouseOver(tabsWidget);
+    });
 
     act(() => {
       fireEvent.dragStart(tabsWidget);
