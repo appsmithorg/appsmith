@@ -57,7 +57,6 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 import getFeatureFlags from "utils/featureFlags";
 
 const HeaderWrapper = styled(StyledHeader)`
@@ -227,10 +226,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     dispatch(setIsGitSyncModalOpen(true));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const isMultiplayerEnabledForUser = useSelector(
-    isMultiplayerEnabledForUserSelector,
-  );
-
   const handleClickDeploy = useCallback(() => {
     if (getFeatureFlags().GIT) {
       showGitSyncModal();
@@ -288,9 +283,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          {isMultiplayerEnabledForUser && (
-            <RealtimeAppEditors applicationId={applicationId} />
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
