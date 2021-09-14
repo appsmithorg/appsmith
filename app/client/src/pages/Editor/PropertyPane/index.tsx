@@ -251,6 +251,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       )[0];
       return (
         <Popper
+          cypressSelectorDragHandle="t--property-pane-drag-handle"
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
