@@ -126,15 +126,10 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
-    // Update the page and evaluations when the queryID is changed by changing the
+    // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
       this.props.changeQueryPage(this.props.match.params.queryId);
-      this.props.initFormEvaluation(
-        this.props.editorConfig,
-        this.props.settingConfig,
-        this.props.match.params.queryId,
-      );
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
