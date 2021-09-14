@@ -7,7 +7,7 @@ import {
   ReduxActionWithMeta,
   ReduxFormActionTypes,
 } from "constants/ReduxActionConstants";
-import { getFormData, getUIComponent } from "selectors/formSelectors";
+import { getFormData } from "selectors/formSelectors";
 import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import history from "utils/history";
 import {
@@ -27,7 +27,6 @@ import {
   getDatasource,
   getPluginTemplates,
   getPlugin,
-  getPlugins,
 } from "selectors/entitiesSelector";
 import { PluginType, QueryAction } from "entities/Action";
 import { setActionProperty } from "actions/pluginActionActions";
@@ -44,7 +43,6 @@ import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
-import { UIComponentTypes } from "api/PluginApi";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
