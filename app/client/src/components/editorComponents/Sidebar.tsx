@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { PanelStack } from "@blueprintjs/core";
 import React, { memo, useEffect, useRef, useCallback, useState } from "react";
 
@@ -20,7 +20,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const [active, setActive] = useState(true);
-  const dispatch = useDispatch();
   const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
 
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
@@ -93,7 +92,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="t--sidebar p-0  overflow-y-auto bg-trueGray-800 text-white h-full min-w-48 max-w-96"
+        className="t--sidebar p-0  overflow-y-auto bg-trueGray-800 text-white h-full min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
         ref={sidebarRef}
         style={{ width: props.width }}
       >

@@ -7,9 +7,7 @@ import {
   getCurrentPageId,
   getWidgetCards,
 } from "selectors/editorSelectors";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
+import { IPanelProps } from "@blueprintjs/core";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import produce from "immer";
@@ -30,31 +28,6 @@ import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { setExplorerPinned } from "actions/explorerActions";
 
-const MainWrapper = styled.div`
-  text-transform: capitalize;
-  padding: 10px 10px 20px 10px;
-  height: 100%;
-  overflow-y: auto;
-
-  scrollbar-color: ${(props) => props.theme.colors.paneCard}
-    ${(props) => props.theme.colors.paneBG};
-  scrollbar-width: thin;
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  &::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 6px
-      ${(props) => getColorWithOpacity(props.theme.colors.paneBG, 0.3)};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.paneCard};
-    outline: 1px solid ${(props) => props.theme.paneText};
-    border-radius: ${(props) => props.theme.radii[1]}px;
-  }
-`;
-
 const CardsWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -62,38 +35,6 @@ const CardsWrapper = styled.div`
   justify-items: stretch;
   align-items: stretch;
 `;
-
-const CloseIcon = styled(Icon)`
-  &&.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    opacity: 0.6;
-    &:hover {
-      opacity: 1;
-    }
-  }
-`;
-
-const Header = styled.div`
-  display: grid;
-  grid-template-columns: 7fr 1fr;
-`;
-
-const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: space-around;
-  text-transform: none;
-  h4 {
-    margin-top: 0px;
-  }
-  p {
-    opacity: 0.6;
-  }
-`;
-
 function WidgetSidebar(props: IPanelProps) {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -163,7 +104,7 @@ function WidgetSidebar(props: IPanelProps) {
   }, [pinned, dispatch, setExplorerPinned]);
 
   return (
-    <div className="py-3 space-y-3">
+    <div className="py-3 space-y-2 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400">
       <div className="px-3 flex items-center space-x-2">
         <button
           className="hover:bg-warmGray-700 p-1"
@@ -192,11 +133,12 @@ function WidgetSidebar(props: IPanelProps) {
         />
       </Boxed>
 
-      <MainWrapper>
-        <p className="text-xs text-trueGray-400 leading-loose">
-          {createMessage(WIDGET_SIDEBAR_CAPTION)}
-        </p>
-        <CardsWrapper className="mt-4">
+      <p className="text-xs px-3 text-trueGray-400 leading-relaxed">
+        {createMessage(WIDGET_SIDEBAR_CAPTION)}
+      </p>
+
+      <div className="px-3">
+        <CardsWrapper>
           {filteredCards.map((card) => (
             <Boxed
               key={card.key}
@@ -227,7 +169,7 @@ function WidgetSidebar(props: IPanelProps) {
             </Boxed>
           ))}
         </CardsWrapper>
-      </MainWrapper>
+      </div>
     </div>
   );
 }

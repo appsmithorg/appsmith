@@ -1,65 +1,10 @@
-import React, { forwardRef, Ref } from "react";
-import { Icon, Classes } from "@blueprintjs/core";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
+import classNames from "classnames";
+import React, { forwardRef, Ref, useState } from "react";
+
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
+import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 
-const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
-  display: ${(props) => (props.isHidden ? "none" : "grid")};
-  grid-template-columns: 30px 1fr 30px;
-  margin-bottom: 5px;
-  height: 48px;
-  justify-content: flex-start;
-  align-items: center;
-  position: sticky;
-  font-size: 12px;
-  top: 0;
-  z-index: 1;
-  background: ${Colors.MINE_SHAFT};
-  & {
-    .${Classes.ICON} {
-      color: ${Colors.DOVE_GRAY};
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      &:last-of-type {
-        color: ${Colors.MINE_SHAFT};
-      }
-    }
-    input {
-      display: flex;
-      border: none;
-      background: none;
-      padding: 0px 10px 0px 10px;
-      color: ${Colors.WHITE};
-      &::placeholder {
-        color: ${Colors.DOVE_GRAY};
-      }
-      &:focus {
-        & ~ div.underline {
-          width: 100%;
-        }
-        & ~ .${Classes.ICON} {
-          color: ${Colors.WHITE};
-        }
-      }
-    }
-  }
-`;
-
-const Underline = styled.div`
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 0%;
-  height: 1px;
-  background: ${Colors.TIA_MARIA};
-  bottom: 0;
-  transition: width 0.3s ease-in;
-`;
 /*eslint-disable react/display-name */
 export const ExplorerSearch = forwardRef(
   (
@@ -71,20 +16,41 @@ export const ExplorerSearch = forwardRef(
     },
     ref: Ref<HTMLInputElement>,
   ) => {
+    const [focussed, setFocussed] = useState(false);
     return (
-      <ExplorerSearchWrapper isHidden={props.isHidden}>
-        <Icon icon="search" iconSize={12} />
-        <input
-          autoComplete="off"
-          autoFocus={props.autoFocus}
-          id={ENTITY_EXPLORER_SEARCH_ID}
-          placeholder={props.placeholder || "Search entities..."}
-          ref={ref}
-          type="text"
+      <div className="relative">
+        <div
+          className={classNames({
+            "flex px-3 items-center space-x-2": true,
+            hidden: props.isHidden,
+          })}
+        >
+          <div className="p-1">
+            <SearchIcon className="h-3 w-3" />
+          </div>
+          <input
+            autoComplete="off"
+            autoFocus
+            className="flex-grow bg-transparent py-2"
+            id={ENTITY_EXPLORER_SEARCH_ID}
+            onBlur={() => setFocussed(false)}
+            onFocus={() => setFocussed(true)}
+            placeholder="Search Widgets"
+            ref={ref}
+            type="text"
+          />
+          <button className="hover:bg-warmGray-700 p-1" onClick={props.clear}>
+            <CrossIcon className="h-3 w-3" />
+          </button>
+        </div>
+        <div
+          className={classNames({
+            "border-b border-primary-500 transition-all absolute bottom-0": true,
+            "w-0": !focussed,
+            "w-full": focussed,
+          })}
         />
-        <Icon icon="cross" iconSize={12} onClick={props.clear} />
-        <Underline className="underline" />
-      </ExplorerSearchWrapper>
+      </div>
     );
   },
 );

@@ -104,7 +104,7 @@ function EntityExplorer(props: IPanelProps) {
   return (
     <Wrapper
       className={classNames({
-        "relative py-3 space-y-3": true,
+        "relative py-3 space-y-2": true,
       })}
       ref={explorerRef}
     >

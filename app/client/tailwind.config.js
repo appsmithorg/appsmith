@@ -915,6 +915,7 @@ module.exports = {
       "responsive",
       "dark",
       "group-hover",
+      "group-focus",
       "focus-within",
       "hover",
       "focus",
@@ -1084,5 +1085,5 @@ module.exports = {
     wordBreak: ["responsive"],
     zIndex: ["responsive", "focus-within", "focus"],
   },
-  plugins: [],
+  plugins: [require("tailwind-scrollbar")],
 };

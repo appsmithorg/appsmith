@@ -11,7 +11,6 @@ import {
 } from "constants/routes";
 import classNames from "classnames";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
-import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
