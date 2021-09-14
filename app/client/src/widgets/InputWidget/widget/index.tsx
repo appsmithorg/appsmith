@@ -24,7 +24,7 @@ import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultValueValidation(
+export function defaultValueValidation(
   value: unknown,
   props: InputWidgetProps,
   _?: any,
