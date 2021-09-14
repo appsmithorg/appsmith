@@ -267,6 +267,14 @@ export function* evalErrorHandler(
         });
         break;
       }
+      case EvalErrorTypes.CLONE_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: {
+            request: error.context,
+          },
+        });
+        break;
+      }
       default: {
         Sentry.captureException(error);
         log.debug(error);

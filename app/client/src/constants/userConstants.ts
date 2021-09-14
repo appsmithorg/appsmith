@@ -8,6 +8,7 @@ export type User = {
   username: string;
   name: string;
   gender: Gender;
+  emptyInstance?: boolean;
 };
 
 export interface UserApplication {
