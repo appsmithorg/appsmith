@@ -25,16 +25,15 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.time.Duration;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
@@ -57,7 +56,7 @@ public class UserDataServiceTest {
     @MockBean
     private UserChangedHandler userChangedHandler;
 
-    @MockBean
+    @Autowired
     private AssetService assetService;
 
     private Mono<User> userMono;
@@ -110,23 +109,21 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUploadAndDeleteProfilePhoto_validImage() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
-                .cache();
-
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
-
+        FilePart filepart = createMockFilePart();
         Mono<Tuple2<UserData, Asset>> loadProfileImageMono = userDataService.getForUserEmail("api_user")
-                .flatMap(userData -> Mono.zip(
-                        Mono.just(userData),
-                        assetRepository.findById(userData.getProfilePhotoAssetId())
-                ));
+                .flatMap(userData -> {
+                    Mono<UserData> userDataMono = Mono.just(userData);
+                    if(StringUtils.isEmpty(userData.getProfilePhotoAssetId())) {
+                        return userDataMono.zipWith(Mono.just(new Asset()));
+                    } else {
+                        return userDataMono.zipWith(assetRepository.findById(userData.getProfilePhotoAssetId()));
+                    }
+                });
 
         final Mono<UserData> saveMono = userDataService.saveProfilePhoto(filepart).cache();
         final Mono<Tuple2<UserData, Asset>> saveAndGetMono = saveMono.then(loadProfileImageMono);
-        final Mono<Tuple2<UserData, Asset>> deleteAndGetMono = saveMono.then(userDataService.deleteProfilePhoto()).then(loadProfileImageMono);
+        final Mono<Tuple2<UserData, Asset>> deleteAndGetMono = saveMono.then(userDataService.deleteProfilePhoto())
+                .then(loadProfileImageMono);
 
         StepVerifier.create(saveAndGetMono)
                 .assertNext(tuple -> {
@@ -135,14 +132,14 @@ public class UserDataServiceTest {
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
-                    DataBuffer buffer = DataBufferUtils.join(dataBufferFlux).block(Duration.ofSeconds(3));
-                    byte[] res = new byte[buffer.readableByteCount()];
-                    buffer.read(res);
-                    assertThat(asset.getData()).isEqualTo(res);
                 })
                 .verifyComplete();
 
         StepVerifier.create(deleteAndGetMono)
+                .assertNext(objects -> {
+                    assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
+                    assertThat(objects.getT2().getId()).isNull();
+                })
                 // Should be empty since the profile photo has been deleted.
                 .verifyComplete();
     }
@@ -244,20 +241,22 @@ public class UserDataServiceTest {
                 .verifyComplete();
     }
 
+    private FilePart createMockFilePart() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+        return filepart;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void saveProfilePhoto_WhenPhotoUploaded_PhotoChangedEventTriggered() {
-        Asset sampleAsset = new Asset();
-        sampleAsset.setId("my-test-asset-id");
-        // mock assetService to return sampleAsset when upload is called
-        Mockito.when(assetService.upload(any(Part.class), any(Integer.class))).thenReturn(Mono.just(sampleAsset));
-        // mock assetService to return successfully when asset is deleted
-        Mockito.when(assetService.remove(anyString())).thenReturn(Mono.empty());
-
-        Part mock = Mockito.mock(Part.class);
-        Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mock);
+        Part mockFilePart = createMockFilePart();
+        Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mockFilePart);
         StepVerifier.create(userDataMono).assertNext(userData -> {
-            assertThat(userData.getProfilePhotoAssetId()).isEqualTo("my-test-asset-id");
+            assertThat(userData.getProfilePhotoAssetId()).isNotNull();
             Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
         }).verifyComplete();
     }

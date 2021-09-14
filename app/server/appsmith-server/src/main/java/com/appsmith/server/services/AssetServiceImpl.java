@@ -80,7 +80,7 @@ public class AssetServiceImpl implements AssetService {
                         e.printStackTrace();
                         return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
                     }
-                    return repository.save(new Asset(contentType, bytes));
+                    return repository.save(new Asset(MediaType.IMAGE_JPEG, bytes)); // we create jpeg after image
                 })
                 .flatMap(analyticsService::sendCreateEvent);
     }
@@ -109,6 +109,7 @@ public class AssetServiceImpl implements AssetService {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         ImageIO.write(imageBuff, "jpg", buffer);
         byte[] data = buffer.toByteArray();
+        buffer.close();
         DataBufferUtils.release(dataBuffer);
         return data;
     }
