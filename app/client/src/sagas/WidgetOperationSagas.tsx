@@ -1543,6 +1543,7 @@ function* pasteWidgetSaga(action: ReduxAction<{ groupWidgets: boolean }>) {
           // Create a copy of the widget properties
           const newWidget = cloneDeep(widget);
           newWidget.widgetId = generateReactKey();
+          newWidget.key = generateReactKey();
           // Add the new widget id so that it maps the previous widget id
           widgetIdMap[widget.widgetId] = newWidget.widgetId;
 
