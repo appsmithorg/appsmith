@@ -36,17 +36,20 @@ function defaultValueValidation(
     inputType === "CURRENCY" ||
     inputType === "PHONE_NUMBER"
   ) {
+    const defaultValue = ["INTEGER", "NUMBER"].includes(inputType)
+      ? undefined
+      : 0;
     if (_.isNil(value) || value === "") {
       return {
         isValid: true,
-        parsed: 0,
+        parsed: defaultValue,
         message: "",
       };
     }
     if (!Number.isFinite(value) && !_.isString(value)) {
       return {
         isValid: false,
-        parsed: 0,
+        parsed: defaultValue,
         message: "This value must be a number",
       };
     }
