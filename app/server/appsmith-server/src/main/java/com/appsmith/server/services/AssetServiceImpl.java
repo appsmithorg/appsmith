@@ -26,7 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.appsmith.server.constants.Constraint.PROFILE_PHOTO_DIMENSION;
+import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
 
 @Slf4j
 @Service
@@ -45,7 +45,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Mono<Asset> upload(Part filePart, int maxFileSizeKB) {
+    public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {
         if (filePart == null) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
@@ -73,14 +73,12 @@ public class AssetServiceImpl implements AssetService {
                     return DataBufferUtils.join(contentCache);
                 })
                 .flatMap(dataBuffer -> {
-                    byte[] bytes;
                     try {
-                        bytes = resizeImage(dataBuffer, PROFILE_PHOTO_DIMENSION);
+                        return repository.save(createAsset(dataBuffer, contentType, isThumbnail));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error("failed to upload image", e);
                         return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
                     }
-                    return repository.save(new Asset(MediaType.IMAGE_JPEG, bytes)); // we create jpeg after image
                 })
                 .flatMap(analyticsService::sendCreateEvent);
     }
@@ -101,7 +99,24 @@ public class AssetServiceImpl implements AssetService {
                 .then();
     }
 
-    private byte[] resizeImage(DataBuffer dataBuffer, int dimension) throws IOException {
+    private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
+        byte[] imageData;
+        MediaType contentType;
+
+        if(createThumbnail) {
+            imageData = resizeImage(dataBuffer);
+            contentType = MediaType.IMAGE_JPEG;
+        } else {
+            imageData = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(imageData);
+            contentType = srcContentType;
+        }
+        DataBufferUtils.release(dataBuffer);
+        return new Asset(contentType, imageData);
+    }
+
+    private byte[] resizeImage(DataBuffer dataBuffer) throws IOException {
+        int dimension = THUMBNAIL_PHOTO_DIMENSION;
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
         Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
         BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);

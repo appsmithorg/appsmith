@@ -185,7 +185,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
         final Mono<String> prevAssetIdMono = getForCurrentUser()
                 .map(userData -> ObjectUtils.defaultIfNull(userData.getProfilePhotoAssetId(), ""));
 
-        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB);
+        final Mono<Asset> uploaderMono = assetService.upload(filePart, MAX_PROFILE_PHOTO_SIZE_KB, true);
 
         return Mono.zip(prevAssetIdMono, uploaderMono)
                 .flatMap(tuple -> {
