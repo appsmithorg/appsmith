@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 # Install MongoDB v4.0.5, Redis - Service Layer
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-	&& apt-get remove wget -y 
+	&& apt-get remove wget -y
 
 # Install node v14 - Service Layer
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
@@ -84,4 +84,4 @@ EXPOSE 80
 EXPOSE 443
 EXPOSE 9001
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
-CMD ["/usr/bin/supervisord" ,"-n"]
+CMD ["/usr/bin/supervisord", "-n"]
