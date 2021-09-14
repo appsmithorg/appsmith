@@ -21,5 +21,6 @@ public class GitApplicationMetadata {
     String defaultApplicationId;
 
     // Git credentials used to push changes to remote repo
+    @JsonIgnore
     GitAuth gitAuth;
 }
