@@ -6,28 +6,40 @@ import {
 } from "constants/ReduxActionConstants";
 
 export interface ExplorerReduxState {
-  updatingEntity?: string;
-  updateEntityError?: string;
-  editingEntityName?: string;
+  entity: {
+    updatingEntity?: string;
+    updateEntityError?: string;
+    editingEntityName?: string;
+  };
   pinned: boolean;
 }
 const initialState: ExplorerReduxState = {
-  pinned: false,
+  pinned: true,
+  entity: {},
 };
 
 const setUpdatingEntity = (
   state: ExplorerReduxState,
   action: ReduxAction<{ id: string }>,
 ) => {
-  return { updatingEntity: action.payload.id, updateEntityError: undefined };
+  return {
+    ...state,
+    entity: { updatingEntity: action.payload.id, updateEntityError: undefined },
+  };
 };
 
 const setEntityUpdateError = (state: ExplorerReduxState) => {
-  return { updatingEntity: undefined, updateEntityError: state.updatingEntity };
+  return {
+    ...state,
+    entity: {
+      updatingEntity: undefined,
+      updateEntityError: state.entity.updatingEntity,
+    },
+  };
 };
 
-const setEntityUpdateSuccess = () => {
-  return {};
+const setEntityUpdateSuccess = (state: ExplorerReduxState) => {
+  return { ...state, entity: {} };
 };
 
 const setUpdatingDatasourceEntity = (
@@ -37,10 +49,13 @@ const setUpdatingDatasourceEntity = (
   const pathParts = window.location.pathname.split("/");
   const pageId = pathParts[pathParts.indexOf("pages") + 1];
 
-  if (!state.updatingEntity?.includes(action.payload.id)) {
+  if (!state.entity.updatingEntity?.includes(action.payload.id)) {
     return {
-      updatingEntity: `${action.payload.id}-${pageId}`,
-      updateEntityError: undefined,
+      ...state,
+      entity: {
+        updatingEntity: `${action.payload.id}-${pageId}`,
+        updateEntityError: undefined,
+      },
     };
   }
 
@@ -104,7 +119,7 @@ const explorerReducer = createReducer(initialState, {
     state: ExplorerReduxState,
     action: ReduxAction<{ id: string }>,
   ) => {
-    return { editingEntityName: action.payload.id };
+    return { ...state, entity: { editingEntityName: action.payload.id } };
   },
   [ReduxActionTypes.END_EXPLORER_ENTITY_NAME_EDIT]: () => {
     return {};

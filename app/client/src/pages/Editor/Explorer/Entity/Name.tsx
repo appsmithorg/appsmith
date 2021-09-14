@@ -101,7 +101,7 @@ export const EntityName = forwardRef(
     });
 
     const nameUpdateError = useSelector((state: AppState) => {
-      return state.ui.explorer.updateEntityError === props.entityId;
+      return state.ui.explorer.entity.updateEntityError === props.entityId;
     });
 
     const [updatedName, setUpdatedName] = useState(name);

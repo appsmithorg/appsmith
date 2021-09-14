@@ -267,12 +267,13 @@ export const useFilteredEntities = (
 
 export const useEntityUpdateState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.updatingEntity === entityId,
+    (state: AppState) => state.ui.explorer.entity.updatingEntity === entityId,
   );
 };
 
 export const useEntityEditState = (entityId: string) => {
   return useSelector(
-    (state: AppState) => state.ui.explorer.editingEntityName === entityId,
+    (state: AppState) =>
+      state.ui.explorer.entity.editingEntityName === entityId,
   );
 };

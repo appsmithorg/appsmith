@@ -20,12 +20,14 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import classNames from "classnames";
 import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { setExplorerPinned } from "actions/explorerActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -48,11 +50,8 @@ const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
 
-function EntityExplorer(
-  props: IPanelProps & { pinned: boolean; onPin: () => void },
-) {
-  // eslint-disable-next-line
-  console.log({ props });
+function EntityExplorer(props: IPanelProps) {
+  const dispatch = useDispatch();
   const { applicationId } = useParams<ExplorerURLParams>();
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -63,13 +62,12 @@ function EntityExplorer(
   });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const { clearSearch, searchKeyword } = useFilteredEntities(searchInputRef);
-  const datasources = useFilteredDatasources(searchKeyword);
-
   const plugins = useSelector(getPlugins);
-
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
+  const pinned = useSelector(getExplorerPinned);
   const jsActions = useJSCollections(searchKeyword);
+  const datasources = useFilteredDatasources(searchKeyword);
 
   let noResults = false;
   if (searchKeyword) {
@@ -96,6 +94,13 @@ function EntityExplorer(
     [openPanel, applicationId],
   );
 
+  /**
+   * toggles the pinned state of sidebar
+   */
+  const onPin = useCallback(() => {
+    dispatch(setExplorerPinned(!pinned));
+  }, [pinned, dispatch, setExplorerPinned]);
+
   return (
     <Wrapper
       className={classNames({
@@ -106,8 +111,8 @@ function EntityExplorer(
       <div className="px-3 flex justify-between items-center">
         <h3 className="text-lg font-semibold">Explorer</h3>
         <div className="flex items-center">
-          <button className="hover:bg-warmGray-700 p-1" onClick={props.onPin}>
-            {props.pinned ? (
+          <button className="hover:bg-warmGray-700 p-1" onClick={onPin}>
+            {pinned ? (
               <PinIcon className="h-4 w-4" />
             ) : (
               <UnPinIcon className="h-4 w-4" />

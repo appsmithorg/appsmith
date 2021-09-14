@@ -107,7 +107,6 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
-  margin-left: ${(props) => props.theme.smallHeaderHeight};
 `;
 
 /**
@@ -385,7 +384,7 @@ function ToggleCommentModeButton({
   if (isHideComments) return null;
 
   return (
-    <Container>
+    <Container className="pl-9">
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton

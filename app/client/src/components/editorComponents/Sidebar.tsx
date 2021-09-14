@@ -10,7 +10,6 @@ import PerformanceTracker, {
 import Explorer from "pages/Editor/Explorer";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinned } from "actions/explorerActions";
 
 type Props = {
   width: number;
@@ -70,13 +69,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   };
 
   /**
-   * toggles the pinned state of sidebar
-   */
-  const onPin = useCallback(() => {
-    dispatch(setExplorerPinned(!pinned));
-  }, [pinned, dispatch, setExplorerPinned]);
-
-  /**
    * if the sidebar is not pinned and we are not resizing,
    * sets the active
    */
@@ -109,10 +101,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           className="h-full"
           initialPanel={{
             component: Explorer,
-            props: {
-              onPin,
-              pinned,
-            },
           }}
           showPanelHeader={false}
         />

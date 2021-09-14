@@ -9,6 +9,7 @@ import {
   APPLICATIONS_URL,
   getApplicationViewerPageURL,
 } from "constants/routes";
+import classNames from "classnames";
 import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -57,12 +58,12 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
+import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
+import { getExplorerPinned } from "selectors/explorerSelector";
 
-const HeaderWrapper = styled(StyledHeader)`
+const HeaderWrapper = styled.div`
   width: 100%;
-  padding-right: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
@@ -75,7 +76,6 @@ const HeaderWrapper = styled(StyledHeader)`
   & .header__application-share-btn {
     background-color: ${(props) => props.theme.colors.header.background};
     border-color: ${(props) => props.theme.colors.header.background};
-    // margin-right: ${(props) => props.theme.spaces[1]}px;
   }
 
   & .header__application-share-btn:hover {
@@ -116,7 +116,6 @@ const HeaderSection = styled.div`
 `;
 
 const AppsmithLogoImg = styled.img`
-  margin-right: ${(props) => props.theme.spaces[6]}px;
   height: 24px;
 `;
 
@@ -182,6 +181,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   } = props;
   const location = useLocation();
   const dispatch = useDispatch();
+  const pinned = useSelector(getExplorerPinned);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
@@ -233,12 +233,21 @@ export function EditorHeader(props: EditorHeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <HeaderWrapper>
-        <HeaderSection>
+      <HeaderWrapper className="flex items-center justify-around">
+        <HeaderSection className="">
+          <div
+            className={classNames({
+              "text-white pl-3 transform transition-all": true,
+              "ml-0": !pinned,
+              "-ml-8": pinned,
+            })}
+          >
+            <MenuIcon className="fill-current h-4 w-4" />
+          </div>
           <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
             <AppsmithLogoImg
               alt="Appsmith logo"
-              className="t--appsmith-logo"
+              className="t--appsmith-logo ml-4"
               src={AppsmithLogo}
             />
           </Link>
