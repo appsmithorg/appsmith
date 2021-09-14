@@ -81,11 +81,13 @@ import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
+  BUILDER_PAGE_URL,
   extractAppIdAndPageIdFromUrl,
   SIGNUP_SUCCESS_URL,
 } from "constants/routes";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
+import history from "utils/history";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -940,14 +942,7 @@ class Applications extends Component<
           );
           if (applicationId && pageId) {
             this.props.enableFirstTimeUserOnboarding(applicationId);
-            /*
-             * window.location.replace resets the application, adding
-             * this timeout to store onboarding variables in indexdb
-             */
-
-            setTimeout(() => {
-              window.location.replace(redirectUrl);
-            });
+            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
