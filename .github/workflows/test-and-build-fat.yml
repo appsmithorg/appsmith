@@ -171,7 +171,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-          ./build.sh -DskipTests
+          ./build.sh
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
