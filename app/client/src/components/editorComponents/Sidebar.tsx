@@ -10,6 +10,11 @@ import PerformanceTracker, {
 import Explorer from "pages/Editor/Explorer";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getExplorerPinned } from "selectors/explorerSelector";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
+import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
 type Props = {
   width: number;
@@ -21,7 +26,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const pinned = useSelector(getExplorerPinned);
   const [active, setActive] = useState(true);
   const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
-
+  const enableFirstTimeUserOnboarding = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
+  );
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -96,6 +106,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         ref={sidebarRef}
         style={{ width: props.width }}
       >
+        {(enableFirstTimeUserOnboarding ||
+          isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         <PanelStack
           className="h-full"
           initialPanel={{

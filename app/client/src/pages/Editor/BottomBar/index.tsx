@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
+import { DebuggerTrigger } from "components/editorComponents/Debugger";
 
 const Container = styled.div`
   position: relative;
@@ -17,6 +18,7 @@ export default function BottomBar() {
   return (
     <Container>
       <QuickGitActions />
+      <DebuggerTrigger />
     </Container>
   );
 }

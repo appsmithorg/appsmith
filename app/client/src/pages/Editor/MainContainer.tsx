@@ -2,16 +2,16 @@ import React, { useState, useCallback } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { Route, Switch } from "react-router";
-
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
-import { BUILDER_URL } from "constants/routes";
 import BottomBar from "./BottomBar";
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
 
 import getFeatureFlags from "utils/featureFlags";
 
+import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
+import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -51,6 +51,11 @@ function MainContainer() {
         <div className="relative flex flex-col overflow-auto w-full">
           <Switch>
             <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
+            <SentryRoute
+              component={OnboardingChecklist}
+              exact
+              path={BUILDER_CHECKLIST_URL}
+            />
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>

@@ -27,6 +27,12 @@ import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import CrudInfoModal from "./GeneratePage/components/CrudInfoModal";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
+import OnboardingTasks from "./FirstTimeUserOnboarding/Tasks";
+import {
+  getIsOnboardingTasksView,
+  getIsOnboardingWidgetSelection,
+} from "selectors/entitiesSelector";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -66,6 +72,13 @@ function WidgetsEditor() {
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
 
+  const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
+  const enableFirstTimeUserOnboarding = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
+  const isOnboardingWidgetSelection = useSelector(
+    getIsOnboardingWidgetSelection,
+  );
   useDynamicAppLayout();
   useEffect(() => {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
@@ -136,18 +149,24 @@ function WidgetsEditor() {
   PerformanceTracker.stopTracking();
   return (
     <EditorContextProvider>
-      <EditorWrapper
-        data-testid="widgets-editor"
-        draggable
-        onClick={handleWrapperClick}
-        onDragStart={onDragStart}
-      >
-        <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
-          {node}
-        </CanvasContainer>
-        <Debugger />
-        <CrudInfoModal />
-      </EditorWrapper>
+      {enableFirstTimeUserOnboarding &&
+      showOnboardingTasks &&
+      !isOnboardingWidgetSelection ? (
+        <OnboardingTasks />
+      ) : (
+        <EditorWrapper
+          data-testid="widgets-editor"
+          draggable
+          onClick={handleWrapperClick}
+          onDragStart={onDragStart}
+        >
+          <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
+            {node}
+          </CanvasContainer>
+          <Debugger />
+          <CrudInfoModal />
+        </EditorWrapper>
+      )}
     </EditorContextProvider>
   );
 }

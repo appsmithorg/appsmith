@@ -49,6 +49,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
@@ -67,6 +68,7 @@ import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
+import * as Sentry from "@sentry/react";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -506,12 +508,31 @@ export function EditorJSONtoForm(props: Props) {
 
   // Added function to handle the render of the configs
   const renderConfig = (editorConfig: any) => {
-    // Selectively rendering form based on uiComponent prop
-    return uiComponent === UIComponentTypes.UQIDbEditorForm
-      ? editorConfig.map((config: any, idx: number) => {
-          return renderEachConfigV2(formName, config, idx);
-        })
-      : editorConfig.map(renderEachConfig(formName));
+    try {
+      // Selectively rendering form based on uiComponent prop
+      return uiComponent === UIComponentTypes.UQIDbEditorForm
+        ? editorConfig.map((config: any, idx: number) => {
+            return renderEachConfigV2(formName, config, idx);
+          })
+        : editorConfig.map(renderEachConfig(formName));
+    } catch (e) {
+      log.error(e);
+      Sentry.captureException(e);
+      return (
+        <>
+          <ErrorMessage>Invalid form configuration</ErrorMessage>
+          <Tag
+            intent="warning"
+            interactive
+            minimal
+            onClick={() => window.location.reload()}
+            round
+          >
+            Refresh
+          </Tag>
+        </>
+      );
+    }
   };
 
   // V2 call to make rendering more flexible, used for UQI forms
@@ -627,6 +648,9 @@ export function EditorJSONtoForm(props: Props) {
                   });
                   setSelectedIndex(1);
                 }}
+                secondHalfText={createMessage(
+                  DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
+                )}
               />
             </ErrorContainer>
           )}

@@ -22,6 +22,7 @@ import {
 import { BUILDER_PAGE_URL } from "constants/routes";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import { useLocation } from "react-router";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
@@ -95,6 +96,10 @@ function WidgetSidebar(props: IPanelProps) {
 
   const showTableWidget = currentStep >= OnboardingStep.RUN_QUERY_SUCCESS;
   const showInputWidget = currentStep >= OnboardingStep.ADD_INPUT_WIDGET;
+  const closeWidgetPanel = () => {
+    dispatch(forceOpenWidgetPanel(false));
+    props.closePanel();
+  };
 
   /**
    * toggles the pinned state of sidebar
@@ -108,7 +113,7 @@ function WidgetSidebar(props: IPanelProps) {
       <div className="px-3 flex items-center space-x-2">
         <button
           className="hover:bg-warmGray-700 p-1"
-          onClick={props.closePanel}
+          onClick={closeWidgetPanel}
         >
           <BackIcon className="h-4 w-4" />
         </button>

@@ -367,3 +367,6 @@ export const getJSCollectionById = createSelector(
     }
   },
 );
+
+export const getApplicationLastDeployedAt = (state: AppState) =>
+  state.ui.applications.currentApplication?.lastDeployedAt;
