@@ -103,7 +103,7 @@ export function NavigationMenuItem({
   if (!isVisible) return null;
 
   const labelElement = isOpensNewWindow && (
-    <Icon name="open" size={IconSize.LARGE} />
+    <Icon name="share-box" size={IconSize.LARGE} />
   );
 
   const handleClick = (e: React.SyntheticEvent) => {
