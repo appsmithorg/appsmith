@@ -256,7 +256,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     action: string,
     isSwitchedOn: boolean,
   ) => {
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
 
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
@@ -759,7 +759,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
 
-    // set defaultOptionValue for column type "select" and "switch" if exist
+    // set defaultOptionValue for column type "select" or "switch" or "checkbox" if exist
     const columnIds = Object.keys(this.props.primaryColumns);
     const editedColumnData = { ...this.props.editedColumnData };
     for (let index = 0; index < columnIds.length; index++) {
