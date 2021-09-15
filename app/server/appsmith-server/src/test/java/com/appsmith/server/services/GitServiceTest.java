@@ -69,13 +69,9 @@ public class GitServiceTest {
         return gitConfig;
     }
 
-    private GitConnectDTO getConnectRequest(String remoteUrl,
-                                            String applicationId,
-                                            String organizationId,
-                                            GitConfig gitConfig) {
+    private GitConnectDTO getConnectRequest(String remoteUrl, GitConfig gitConfig) {
         GitConnectDTO gitConnectDTO = new GitConnectDTO();
         gitConnectDTO.setRemoteUrl(remoteUrl);
-        gitConnectDTO.setApplicationId(applicationId);
         gitConnectDTO.setGitConfig(gitConfig);
         return gitConnectDTO;
     }
@@ -167,8 +163,8 @@ public class GitServiceTest {
         testApplication.setName("ValidTest TestApp");
         Application application1 = applicationService.createDefault(testApplication).block();
 
-        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", application1.getId(), orgId, gitConfig);
-        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
+        GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", gitConfig);
+        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -183,8 +179,8 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
         GitConfig gitConfig = getConfigRequest("test@appsmith.com", "Test 1");
-        GitConnectDTO gitConnectDTO = getConnectRequest(null, "testID", orgId, gitConfig);
-        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(gitConnectDTO);
+        GitConnectDTO gitConnectDTO = getConnectRequest(null, gitConfig);
+        Mono<Application> applicationMono = gitDataService.connectApplicationToGit("testID", gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)

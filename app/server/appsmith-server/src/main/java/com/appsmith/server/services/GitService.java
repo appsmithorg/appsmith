@@ -17,7 +17,7 @@ public interface GitService {
 
     Mono<GitConfig> getGitConfigForUser();
 
-    Mono<Application> connectApplicationToGit(GitConnectDTO gitConnectDTO);
+    Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId);
 

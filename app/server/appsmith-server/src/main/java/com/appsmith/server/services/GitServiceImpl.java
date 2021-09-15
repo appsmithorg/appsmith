@@ -250,7 +250,7 @@ public class GitServiceImpl implements GitService {
     *  @return Application object with the updated data
     * */
     @Override
-    public Mono<Application> connectApplicationToGit(GitConnectDTO gitConnectDTO) {
+    public Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO) {
         /*
         *  Connecting the application for the first time
         *  The ssh keys is already present in application object from the generate SSH key step
@@ -263,7 +263,7 @@ public class GitServiceImpl implements GitService {
 
         return saveGitConfigData(gitConnectDTO.getGitConfig())
                 .then(
-                    getApplicationById(gitConnectDTO.getApplicationId())
+                    getApplicationById(defaultApplicationId)
                         .flatMap(application -> {
                             GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
                             if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
@@ -276,21 +276,13 @@ public class GitServiceImpl implements GitService {
                                 String defaultBranch;
                                 String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                                 try {
-                                    String defaultApplicationId =
-                                        application.getGitApplicationMetadata().getDefaultApplicationId();
-
-                                    if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
-                                        defaultApplicationId = application.getId();
-                                        application.getGitApplicationMetadata().setDefaultApplicationId(defaultApplicationId);
-                                    }
-
                                     Path repoPath =
                                         Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
                                     defaultBranch = gitExecutor.cloneApp(
                                             repoPath,
                                             gitConnectDTO.getRemoteUrl(),
-                                            encryptionService.decryptString(gitApplicationMetadata.getGitAuth().getPrivateKey()),
+                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
                                             gitApplicationMetadata.getGitAuth().getPublicKey()
                                     );
                                 } catch (GitAPIException e) {
@@ -313,12 +305,13 @@ public class GitServiceImpl implements GitService {
                                     return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                 }
 
+                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
                                 gitApplicationMetadata.setBranchName(defaultBranch);
                                 gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                 gitApplicationMetadata.setRepoName(repoName);
                                 Application application1 = new Application();
                                 application1.setGitApplicationMetadata(gitApplicationMetadata);
-                                return applicationService.update(gitConnectDTO.getApplicationId(), application1);
+                                return applicationService.update(defaultApplicationId, application1);
                             }
                         })
                 );
@@ -350,7 +343,6 @@ public class GitServiceImpl implements GitService {
     /**
      * Push flow for dehydrated apps
      * @param applicationId application which needs to be pushed to remote repo
-     * @param doPublish should the application published before pushing to remote
      * @return Success message
      */
     private Mono<String> pushApplication(String applicationId, boolean doPublish) {
@@ -376,13 +368,13 @@ public class GitServiceImpl implements GitService {
                     Path branchSuffix =
                         Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName(), branchRef);
 
-                    GitAuth gitAuth = gitData.getGitAuth();
-                    String privateKey = encryptionService.decryptString(gitAuth.getPrivateKey());
-                    return gitExecutor.pushApplication(branchSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), privateKey);
-                } catch (IOException | GitAPIException | URISyntaxException e) {
-                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
-                }
-            });
+                        GitAuth gitAuth = gitData.getGitAuth();
+                        String privateKey = gitAuth.getPrivateKey();
+                        return gitExecutor.pushApplication(branchSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), privateKey);
+                    } catch (IOException | GitAPIException | URISyntaxException e) {
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
+                    }
+                });
     }
 
     public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {

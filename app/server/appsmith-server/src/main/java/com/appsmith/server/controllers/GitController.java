@@ -48,9 +48,9 @@ public class GitController {
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
-    @PostMapping("/connect")
-    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@RequestBody GitConnectDTO gitConnectDTO) {
-        return service.connectApplicationToGit(gitConnectDTO)
+    @PostMapping("/connect/{applicationId}")
+    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId, @RequestBody GitConnectDTO gitConnectDTO) {
+        return service.connectApplicationToGit(applicationId, gitConnectDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 

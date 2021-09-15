@@ -1,11 +1,12 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.AppsmithDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
-public class GitApplicationMetadata {
+public class GitApplicationMetadata implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     String branchName;
 
@@ -17,7 +18,6 @@ public class GitApplicationMetadata {
 
     // Default application id used for storing the application files in local volume :
     // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
-    @JsonIgnore
     String defaultApplicationId;
 
     // Git credentials used to push changes to remote repo

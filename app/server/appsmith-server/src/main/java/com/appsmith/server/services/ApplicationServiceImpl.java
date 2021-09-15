@@ -55,7 +55,6 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     private final ConfigService configService;
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
-    private final EncryptionService encryptionService;
 
     @Autowired
     public ApplicationServiceImpl(Scheduler scheduler,
@@ -67,14 +66,12 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                                   PolicyUtils policyUtils,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
-                                  SessionUserService sessionUserService,
-                                  EncryptionService encryptionService) {
+                                  SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
-        this.encryptionService = encryptionService;
     }
 
     @Override
@@ -340,7 +337,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
 
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey(publicKeyOutput.toString());
-        gitAuth.setPrivateKey(encryptionService.encryptString(privateKeyOutput.toString()));
+        gitAuth.setPrivateKey(privateKeyOutput.toString());
 
         return repository.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
@@ -353,10 +350,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         // this is a child application, update the master application
                         targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
                     }
-                    return targetApplicationId;
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    gitApplicationMetadata.setDefaultApplicationId(targetApplicationId);
+                    gitApplicationMetadata.setGitAuth(gitAuth);
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    return application;
                 })
-                .flatMap(targetApplicationId -> repository
-                        .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
+                .flatMap(targetApplication -> save(targetApplication)
                         .thenReturn(gitAuth.getPublicKey())
                 );
     }
