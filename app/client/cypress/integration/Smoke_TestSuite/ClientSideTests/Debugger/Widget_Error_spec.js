@@ -32,6 +32,12 @@ describe("Widget error state", function() {
       .should("have.length", 2);
   });
 
+  it("Recent errors are shown at the top of the list", function() {
+    cy.get(debuggerLocators.debuggerLogState)
+      .first()
+      .contains("text");
+  });
+
   it("Clicking on a message should open the search menu", function() {
     cy.get(debuggerLocators.errorMessage)
       .first()

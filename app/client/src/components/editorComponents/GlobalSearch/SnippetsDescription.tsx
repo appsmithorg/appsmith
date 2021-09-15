@@ -236,7 +236,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     );
     dispatch(
       evaluateSnippet({
-        expression: getSnippet(template, selectedArgs),
+        expression: removeDynamicBinding(getSnippet(template, selectedArgs)),
         dataType: dataType,
         isTrigger,
       }),
@@ -335,15 +335,17 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 </div>
               ))}
               <div className="actions-container">
-                <Button
-                  className="t--apiFormRunBtn"
-                  disabled={executionInProgress}
-                  onClick={handleRun}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
+                {language === "javascript" && (
+                  <Button
+                    className="t--apiFormRunBtn"
+                    disabled={executionInProgress}
+                    onClick={handleRun}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                )}
               </div>
               <div id="snippet-evaluator">
                 {evaluatedSnippet && (
