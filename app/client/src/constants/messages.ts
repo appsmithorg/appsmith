@@ -402,6 +402,9 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;

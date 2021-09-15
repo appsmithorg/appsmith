@@ -26,6 +26,7 @@ import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { JSCollection, Variable } from "entities/JSCollection";
 import evaluate from "workers/evaluate";
+import { createMessage, EXPORT_DEFAULT_BEGINNING } from "constants/messages";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -601,7 +602,7 @@ export const parseJSCollection = (
           type: EvalErrorTypes.PARSE_JS_ERROR,
           messages: [
             {
-              message: "Start object with export default",
+              message: createMessage(EXPORT_DEFAULT_BEGINNING),
               type: PropertyEvaluationErrorType.PARSE,
             },
           ],
