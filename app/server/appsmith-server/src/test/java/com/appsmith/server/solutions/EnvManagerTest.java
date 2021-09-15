@@ -117,4 +117,42 @@ public class EnvManagerTest {
 
     }
 
+    @Test
+    public void parseTest() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=second value\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "second value",
+                "VAR_3", "third value"
+        ));
+
+    }
+
+    @Test
+    public void parseEmptyValues() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "",
+                "VAR_3", "third value"
+        ));
+
+    }
+
+    @Test
+    public void parseQuotedValues() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=\"quoted value\"\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "quoted value",
+                "VAR_3", "third value"
+        ));
+
+    }
 }
