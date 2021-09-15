@@ -345,6 +345,8 @@ export const SKIP = () => "SKIP";
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
+export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
+  " to see more info in the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -360,6 +362,9 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
+  `Error occurred while evaluating trigger ${propertyName}`;
+
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
@@ -469,7 +474,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 // Git sync
-export const GIT_CONNECTION = () => "Git Connections";
+export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
 export const SHARE_APPLICATION = () => "Share Application";
@@ -477,14 +482,15 @@ export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
-export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+export const REMOTE_URL_VIA = () => "Remote URL via";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
+export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 
-export const AUTHOR_NAME = () => "AUTHOR NAME";
-export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const USER_NAME = () => "USER NAME";
-export const USER_PASSWORD = () => "PASSWORD";
+export const AUTHOR_NAME = () => "Author Name";
+export const AUTHOR_EMAIL = () => "Author Email";
+
+export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
+export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
@@ -497,8 +503,14 @@ export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
+export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
+export const PUSH_TO = () => "Push to";
+export const PUSH_CHANGES = () => "PUSH CHANGES";
 export const PULL = () => "PULL";
+export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
+export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;

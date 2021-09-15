@@ -4,6 +4,7 @@ about: Create a bug report to help us improve appsmith
 title: "[Bug]"
 labels: Bug, Needs Triaging
 assignees: Nikhil-Nandagopal
+
 ---
 
 ## Description

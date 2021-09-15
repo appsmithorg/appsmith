@@ -13,6 +13,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
+import getFeatureFlags from "utils/featureFlags";
 
 const Container = styled.div<{ errorCount: number; warningCount: number }>`
   z-index: ${Layers.debugger};
@@ -79,7 +80,7 @@ function Debugger() {
     stopEventPropagation(e);
   };
 
-  if (!showDebugger)
+  if (!showDebugger && !getFeatureFlags().GIT)
     return (
       <Container
         className="t--debugger"
@@ -95,7 +96,37 @@ function Debugger() {
         )}
       </Container>
     );
-  return <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />;
+  return showDebugger ? (
+    <DebuggerTabs defaultIndex={totalMessageCount ? 0 : 1} />
+  ) : null;
+}
+
+const TriggerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: ${(props) => props.theme.spaces[4]}px;
+`;
+
+export function DebuggerTrigger() {
+  const dispatch = useDispatch();
+  const showDebugger = useSelector(
+    (state: AppState) => state.ui.debugger.isOpen,
+  );
+
+  const onClick = (e: any) => {
+    if (!showDebugger)
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "CANVAS",
+      });
+    dispatch(showDebuggerAction(!showDebugger));
+    stopEventPropagation(e);
+  };
+
+  return (
+    <TriggerContainer>
+      <Icon name="bug" onClick={onClick} size={IconSize.XL} />
+    </TriggerContainer>
+  );
 }
 
 export default Debugger;
