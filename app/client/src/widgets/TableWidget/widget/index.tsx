@@ -256,7 +256,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     action: string,
     newValue: number,
   ) => {
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], newValue, Object);
 
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
