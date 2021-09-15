@@ -53,7 +53,6 @@ public class GitServiceImpl implements GitService {
     private final GitFileUtils fileUtils;
     private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
-    private final EncryptionService encryptionService;
 
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
@@ -273,7 +272,7 @@ public class GitServiceImpl implements GitService {
                                         "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
                                 String defaultBranch;
-                                String repoName = getRepoName(gitApplicationMetadata.getRemoteUrl());
+                                String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                                 try {
                                     Path repoPath =
                                         Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
