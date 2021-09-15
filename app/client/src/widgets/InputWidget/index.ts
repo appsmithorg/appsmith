@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { BOLD } from "@blueprintjs/icons/lib/esm/generated/iconContents";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
