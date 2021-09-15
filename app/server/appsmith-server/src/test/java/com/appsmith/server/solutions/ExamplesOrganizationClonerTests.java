@@ -697,18 +697,18 @@ public class ExamplesOrganizationClonerTests {
                                                 .flatMap(page -> {
                                                     newPageAction.setPageId(page.getId());
                                                     return applicationPageService.addPageToApplication(app, page, false)
-                                                            .then(actionCollectionService.createAction(newPageAction))
-                                                            .flatMap(savedAction -> layoutActionService.updateAction(savedAction.getId(), savedAction))
+                                                            .then(layoutActionService.createSingleAction(newPageAction))
+                                                            .flatMap(savedAction -> layoutActionService.updateSingleAction(savedAction.getId(), savedAction))
                                                             .then(newPageService.findPageById(page.getId(), READ_PAGES, false));
                                                 })
                                                 .map(tuple2 -> {
                                                     log.info("Created action and added page to app {}", tuple2);
                                                     return tuple2;
                                                 }),
-                                        actionCollectionService.createAction(action1),
-                                        actionCollectionService.createAction(action2),
-                                        actionCollectionService.createAction(action3),
-                                        actionCollectionService.createAction(action4)
+                                        layoutActionService.createSingleAction(action1),
+                                        layoutActionService.createSingleAction(action2),
+                                        layoutActionService.createSingleAction(action3),
+                                        layoutActionService.createSingleAction(action4)
                                 ).thenReturn(List.of(tuple1.getT1(), tuple1.getT2()));
                             })
                             .flatMap(applications ->
@@ -902,9 +902,9 @@ public class ExamplesOrganizationClonerTests {
                                 action3.setPluginId(installedPlugin.getId());
 
                                 return Mono.when(
-                                        actionCollectionService.createAction(action1),
-                                        actionCollectionService.createAction(action2),
-                                        actionCollectionService.createAction(action3)
+                                        layoutActionService.createSingleAction(action1),
+                                        layoutActionService.createSingleAction(action2),
+                                        layoutActionService.createSingleAction(action3)
                                 ).then(Mono.zip(
                                         organizationService.create(targetOrg),
                                         Mono.just(app)

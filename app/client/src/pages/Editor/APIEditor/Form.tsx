@@ -56,13 +56,7 @@ import { isEmpty } from "lodash";
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh -
-      (
-        ${(props) => props.theme.smallHeaderHeight} +
-          ${(props) => props.theme.backBanner}
-      )
-  );
+  flex: 1;
   overflow: hidden;
   width: 100%;
   ${FormLabel} {

@@ -21,7 +21,7 @@ const TABS_HEADER_HEIGHT = 36;
 
 const Container = styled.div`
   ${ResizerCSS}
-  position: fixed;
+  position: absolute;
   bottom: 0;
   height: 25%;
   min-height: ${TABS_HEADER_HEIGHT}px;
@@ -86,7 +86,7 @@ function DebuggerTabs(props: DebuggerTabsProps) {
         tabs={DEBUGGER_TABS}
       />
       <Icon
-        className="close-debugger"
+        className="close-debugger t--close-debugger"
         name="cross"
         onClick={onClose}
         size={IconSize.SMALL}

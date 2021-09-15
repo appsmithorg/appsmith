@@ -10,6 +10,7 @@ import ApiEditor from "./APIEditor";
 import IntegrationEditor from "./IntegrationEditor";
 import QueryEditor from "./QueryEditor";
 import DataSourceEditor from "./DataSourceEditor";
+import JSEditor from "./JSEditor";
 
 import GeneratePage from "./GeneratePage";
 import CurlImportForm from "./APIEditor/CurlImportForm";
@@ -24,6 +25,8 @@ import {
   getCurlImportPageURL,
   PAGE_LIST_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
+  JS_COLLECTION_EDITOR_URL,
+  JS_COLLECTION_ID_URL,
   getGenerateTemplateURL,
   getProviderTemplatesURL,
   getGenerateTemplateFormURL,
@@ -48,7 +51,7 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
   top: 0;
   left: 0;
   width: ${(props) => (!props.isVisible ? "0px" : "100%")};
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  height: 100%;
   background-color: ${(props) =>
     props.isVisible ? "rgba(0, 0, 0, 0.26)" : "transparent"};
   z-index: ${(props) => (props.isVisible ? 2 : -1)};
@@ -61,6 +64,8 @@ const DrawerWrapper = styled.div<{
   background-color: white;
   width: ${(props) => (!props.isVisible ? "0" : "100%")};
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 interface RouterState {
@@ -147,6 +152,17 @@ class EditorsRouter extends React.Component<
               component={QueryEditor}
               exact
               path={QUERIES_EDITOR_ID_URL()}
+            />
+
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_COLLECTION_EDITOR_URL()}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_COLLECTION_ID_URL()}
             />
 
             <SentryRoute

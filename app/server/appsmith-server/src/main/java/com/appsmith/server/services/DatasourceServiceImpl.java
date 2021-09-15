@@ -33,6 +33,7 @@ import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -91,6 +92,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
         }
         if (datasource.getId() != null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        if (datasource.getGitSyncId() == null) {
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
         }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
@@ -260,6 +264,9 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Mono<Datasource> save(Datasource datasource) {
+        if (datasource.getGitSyncId() == null) {
+            datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString());
+        }
         return repository.save(datasource);
     }
 
@@ -356,7 +363,7 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Set<String> extractKeysFromDatasource(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() == null) {
+        if (datasource == null || datasource.getDatasourceConfiguration() == null) {
             return new HashSet<>();
         }
 
@@ -383,6 +390,10 @@ public class DatasourceServiceImpl extends BaseService<DatasourceRepository, Dat
 
     @Override
     public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        datasourceList
+            .stream()
+            .filter(datasource -> datasource.getGitSyncId() == null)
+            .forEach(datasource -> datasource.setGitSyncId(datasource.getOrganizationId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
     }
 

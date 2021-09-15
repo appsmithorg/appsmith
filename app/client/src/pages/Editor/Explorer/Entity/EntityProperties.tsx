@@ -10,7 +10,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import { AppState } from "reducers";
-import _ from "lodash";
+import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
+import { isEmpty } from "lodash";
 
 export const EntityProperties = memo(
   (props: {
@@ -44,12 +45,28 @@ export const EntityProperties = memo(
     } else {
       return null;
     }
-
     let config: any;
     let entityProperties: Array<EntityPropertyProps> = [];
     switch (props.entityType) {
+      case ENTITY_TYPE.JSACTION:
+        const jsAction = entity.config;
+        const properties = getPropsForJSActionEntity(jsAction);
+        if (properties) {
+          entityProperties = Object.keys(properties).map(
+            (actionProperty: string) => {
+              const value = properties[actionProperty];
+              return {
+                propertyName: actionProperty,
+                entityName: jsAction.name,
+                value: value,
+                step: props.step,
+              };
+            },
+          );
+        }
+        break;
       case ENTITY_TYPE.ACTION:
-        config = entityDefinitions.ACTION(entity as DataTreeAction);
+        config = (entityDefinitions.ACTION as any)(entity as DataTreeAction);
         if (config) {
           entityProperties = Object.keys(config)
             .filter((k) => k.indexOf("!") === -1)
@@ -68,7 +85,7 @@ export const EntityProperties = memo(
               }
               if (actionProperty === "data") {
                 if (
-                  _.isEmpty(entity.data) ||
+                  isEmpty(entity.data) ||
                   !entity.data.hasOwnProperty("body")
                 ) {
                   value = "{}";

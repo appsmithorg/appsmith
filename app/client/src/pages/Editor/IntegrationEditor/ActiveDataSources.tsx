@@ -16,9 +16,7 @@ const QueryHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
+  flex: 1;
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};
@@ -33,12 +31,25 @@ const CreateButton = styled(Button)`
 `;
 
 const EmptyActiveDatasource = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.integrationsPageUnusableHeight}
-  );
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const GenerateInfoBanner = styled.div`
+  width: 518px;
+`;
+
+const GenerateInfoHeader = styled.h5`
+  margin: 32px 0px 8px;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.textOnGreyBG};
+`;
+
+const GenerateInfoBody = styled.p`
+  font-size: 12px;
+  color: ${(props) => props.theme.colors.searchInput.placeholder};
 `;
 
 type ActiveDataSourcesProps = {
@@ -57,7 +68,6 @@ type ActiveDataSourcesProps = {
 
 function ActiveDataSources(props: ActiveDataSourcesProps) {
   const { dataSources } = props;
-
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
@@ -91,6 +101,14 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           />
         );
       })}
+      <GenerateInfoBanner>
+        <GenerateInfoHeader>Generate an application</GenerateInfoHeader>
+        <GenerateInfoBody>
+          Quickly create a full application with using our Generation
+          &nbsp;Application feature By adding a new query you’ll be able to
+          choose your own widgets, connect them to your data.
+        </GenerateInfoBody>
+      </GenerateInfoBanner>
     </QueryHomePage>
   );
 }

@@ -48,7 +48,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
@@ -57,7 +57,7 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
+import getFeatureFlags from "utils/featureFlags";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -168,7 +168,6 @@ type EditorHeaderProps = {
   currentApplication?: ApplicationPayload;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
-  darkTheme: any;
   lastUpdatedTime?: number;
 };
 
@@ -223,17 +222,20 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  // eslint-disable-next-line
   const showGitSyncModal = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(true));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const isMultiplayerEnabledForUser = useSelector(
-    isMultiplayerEnabledForUserSelector,
-  );
+  const handleClickDeploy = useCallback(() => {
+    if (getFeatureFlags().GIT) {
+      showGitSyncModal();
+    } else {
+      handlePublish();
+    }
+  }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
   return (
-    <ThemeProvider theme={props.darkTheme}>
+    <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
           <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
@@ -255,7 +257,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={handlePublish}
+              deploy={handleClickDeploy}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -281,9 +283,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          {isMultiplayerEnabledForUser && (
-            <RealtimeAppEditors applicationId={applicationId} />
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -319,7 +319,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <StyledDeployButton
                   className="t--application-publish-btn"
                   isLoading={isPublishing}
-                  onClick={handlePublish}
+                  onClick={handleClickDeploy}
                   size={Size.small}
                   text={"Deploy"}
                 />
@@ -336,7 +336,6 @@ export function EditorHeader(props: EditorHeaderProps) {
           {user && user.username !== ANONYMOUS_USERNAME && (
             <ProfileDropdownContainer>
               <ProfileDropdown
-                hideThemeSwitch
                 name={user.name}
                 userName={user?.username || ""}
               />
@@ -355,6 +354,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
+const theme = getTheme(ThemeMode.DARK);
+
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,
   orgId: getCurrentOrgId(state),
@@ -362,7 +363,6 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
-  darkTheme: getThemeDetails(state, ThemeMode.DARK),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -375,5 +375,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     });
   },
 });
+
+EditorHeader.whyDidYouRender = {
+  logOnDifferentValues: false,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditorHeader);
