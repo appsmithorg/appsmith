@@ -16,7 +16,7 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
-  getParams,
+  parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluate from "workers/evaluate";
@@ -204,54 +204,27 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
-        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
         if (!dataTreeEvaluator) {
           return true;
         }
         try {
-          const correctFormat = regex.test(body);
-          if (correctFormat) {
-            const toBeParsedBody = body.replace(/export default/g, "");
-            const parsed = body && eval("(" + toBeParsedBody + ")");
-            const parsedLength = Object.keys(parsed).length;
-            const actions = [];
-            const variables = [];
-            if (parsedLength > 0) {
-              for (const key in parsed) {
-                if (parsed.hasOwnProperty(key)) {
-                  if (typeof parsed[key] === "function") {
-                    const value = parsed[key];
-                    const params = getParams(value);
-                    actions.push({
-                      name: key,
-                      body: parsed[key].toString(),
-                      arguments: params,
-                    });
-                  } else {
-                    variables.push({
-                      name: key,
-                      value: parsed[key],
-                    });
-                  }
-                }
-              }
-            }
-            return {
-              actions: actions,
-              variables: variables,
-            };
-          } else {
-            throw new Error("syntax error");
-          }
+          return parseJSCollection(body, jsAction, dataTreeEvaluator.evalTree);
         } catch (e) {
-          const errors = dataTreeEvaluator.errors;
-          errors.push({
-            type: EvalErrorTypes.PARSE_JS_ERROR,
-            message: e.message,
-            context: jsAction,
-          });
-          return errors;
+          return {
+            errors: [
+              {
+                type: EvalErrorTypes.PARSE_JS_ERROR,
+                messages: [
+                  {
+                    message: e.message,
+                    type: PropertyEvaluationErrorType.PARSE,
+                  },
+                ],
+                context: jsAction,
+              },
+            ],
+          };
         }
       }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {

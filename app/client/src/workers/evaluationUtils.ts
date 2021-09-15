@@ -7,6 +7,7 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   PropertyEvaluationErrorType,
+  EvalErrorTypes,
 } from "utils/DynamicBindingUtils";
 import { validate } from "./validations";
 import { Diff } from "deep-diff";
@@ -23,7 +24,8 @@ import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-import { Variable } from "entities/JSCollection";
+import { JSCollection, Variable } from "entities/JSCollection";
+import evaluate from "workers/evaluate";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -526,4 +528,86 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
     return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return relativePropertyPath in entity.bindingPaths;
+};
+
+/*
+  after every update  get js object body to parse into actions and variables 
+*/
+export const parseJSCollection = (
+  body: string,
+  jsCollection: JSCollection,
+  evalTree: DataTree,
+) => {
+  const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+  const correctFormat = regex.test(body);
+  if (correctFormat) {
+    const toBeParsedBody = body.replace(/export default/g, "");
+    const { errors, result } = evaluate(
+      toBeParsedBody,
+      evalTree,
+      {},
+      undefined,
+      true,
+    );
+    const parsedLength = Object.keys(result).length;
+    const actions = [];
+    const variables = [];
+    const errorList = [];
+    const errorObject = {
+      type: EvalErrorTypes.PARSE_JS_ERROR,
+      messages:
+        errors &&
+        errors.length &&
+        errors.map((e: any) => {
+          return {
+            message: e.errorMessage,
+            type: PropertyEvaluationErrorType.PARSE,
+          };
+        }),
+      context: jsCollection,
+    };
+    errorList.push(errorObject);
+    if (parsedLength > 0) {
+      for (const key in result) {
+        if (result.hasOwnProperty(key)) {
+          if (typeof result[key] === "function") {
+            const value = result[key];
+            const params = getParams(value);
+            actions.push({
+              name: key,
+              body: result[key].toString(),
+              arguments: params,
+            });
+          } else {
+            variables.push({
+              name: key,
+              value: result[key],
+            });
+          }
+        }
+      }
+    }
+    return {
+      result: {
+        actions: actions,
+        variables: variables,
+      },
+      errors: errors && errors.length ? errorList : [],
+    };
+  } else {
+    return {
+      errors: [
+        {
+          type: EvalErrorTypes.PARSE_JS_ERROR,
+          messages: [
+            {
+              message: "Start object with export default",
+              type: PropertyEvaluationErrorType.PARSE,
+            },
+          ],
+          context: jsCollection,
+        },
+      ],
+    };
+  }
 };

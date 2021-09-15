@@ -43,6 +43,7 @@ import {
   logSuccessfulBindings,
   postEvalActionDispatcher,
   updateTernDefinitions,
+  handleJSEditorErrors,
 } from "./PostEvaluationSagas";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
@@ -179,7 +180,7 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const parsedObject = yield call(
+  const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
@@ -187,7 +188,9 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  return parsedObject;
+  const { errors, result } = workerResponse;
+  yield call(handleJSEditorErrors, errors, jsAction);
+  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {

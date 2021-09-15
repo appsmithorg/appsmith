@@ -42,6 +42,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import getFeatureFlags from "utils/featureFlags";
 import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
+import { JSCollection } from "entities/JSCollection";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -172,6 +173,40 @@ function logLatestEvalPropertyErrors(
   }
 }
 
+/*
+  handling parsing js object errors as they are not part of eval errors and pushing to debugger
+*/
+export function* handleJSEditorErrors(errors: any, jsAction: JSCollection) {
+  const currentDebuggerErrors: Record<string, Log> = yield select(
+    getDebuggerErrors,
+  );
+  const updatedDebuggerErrors: Record<string, Log> = {
+    ...currentDebuggerErrors,
+  };
+  const debuggerKey = {
+    key: `${jsAction.id}`,
+    errors: errors,
+  };
+  if (errors && errors.length) {
+    errors.forEach((error: any) => {
+      AppsmithConsole.addError({
+        id: debuggerKey.key,
+        logType: LOG_TYPE.EVAL_ERROR,
+        text: createMessage(PARSE_JS_FUNCTION_ERROR, error.context.name),
+        messages: error.messages,
+        source: {
+          id: debuggerKey.key,
+          name: error.context.name,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath: debuggerKey.key,
+        },
+      });
+    });
+  } else if (debuggerKey.key in updatedDebuggerErrors) {
+    AppsmithConsole.deleteError(debuggerKey.key);
+  }
+}
+
 export function* evalErrorHandler(
   errors: EvalError[],
   dataTree?: DataTree,
@@ -252,19 +287,6 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
-        break;
-      }
-      case EvalErrorTypes.PARSE_JS_ERROR: {
-        AppsmithConsole.addError({
-          id: error?.context?.id,
-          logType: LOG_TYPE.JS_PARSE_ERROR,
-          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: error?.context?.name,
-            id: error?.context?.id,
-          },
-        });
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
