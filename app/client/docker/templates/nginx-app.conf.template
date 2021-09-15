@@ -73,5 +73,14 @@ server {
         proxy_set_header X-Forwarded-Host $host;
         proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
+
+    location /rts {
+        proxy_pass https://release.app.appsmith.com;
+        # websocket support
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Upgrade $http_upgrade;
+    }
 }
 

@@ -30,7 +30,6 @@ import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
 import commentSagas from "./CommentSagas";
-import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
@@ -73,7 +72,6 @@ const sagas = [
   globalSearchSagas,
   recentEntitiesSagas,
   commentSagas,
-  websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
   tourSagas,

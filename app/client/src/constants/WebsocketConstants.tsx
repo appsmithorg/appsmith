@@ -17,3 +17,4 @@ export const websocketConnectedEvent = () => ({
 });
 
 export const RTS_BASE_PATH = "/rts";
+export const NAMESPACE_COLLAB_PAGE_EDIT = "/page/edit";

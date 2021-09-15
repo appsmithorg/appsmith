@@ -36,7 +36,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
   const dispatch = useDispatch();
 
   const isWebsocketConnected = useSelector(
-    (state: AppState) => state.ui.websocket.connected,
+    (state: AppState) => state.ui.websocket.appEditSocketConnected,
   );
 
   useEffect(() => {
