@@ -17,7 +17,7 @@ import { Icon, IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
-import { PropertyControlsWrapper, PropertyPaneBodyWrapper } from ".";
+import { PropertyControlsWrapper } from ".";
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -181,7 +181,7 @@ export function PanelPropertiesEditor(
     }
   };
   return (
-    <>
+    <div className="relative flex flex-col w-full py-3 space-y-2">
       <PanelHeader
         closePanel={closePanel}
         hidePropertyPane={hidePropertyPane}
@@ -190,7 +190,7 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <PropertyPaneBodyWrapper>
+      <div>
         <PropertyControlsWrapper>
           {panelConfigs &&
             generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
@@ -200,8 +200,8 @@ export function PanelPropertiesEditor(
               theme,
             })}
         </PropertyControlsWrapper>
-      </PropertyPaneBodyWrapper>
-    </>
+      </div>
+    </div>
   );
 }
 

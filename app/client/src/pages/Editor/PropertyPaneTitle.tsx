@@ -30,7 +30,6 @@ const Wrapper = styled.div<{ iconCount: number }>`
   grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
   justify-items: center;
   align-items: center;
-  height: ${(props) => props.theme.propertyPane.titleHeight}px;
   & span.${BlueprintClasses.POPOVER_TARGET} {
     cursor: pointer;
     display: flex;
@@ -41,13 +40,6 @@ const Wrapper = styled.div<{ iconCount: number }>`
     height: auto;
     padding: 0;
     width: 100%;
-  }
-  &&&
-    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
-    &&&
-    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    color: ${(props) => props.theme.colors.propertyPane.title};
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
   }
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.label};
@@ -151,7 +143,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <div className="z-3 w-full absolute px-3">
+    <div className="z-3 w-full px-3">
       <Wrapper iconCount={props.actions.length}>
         <NameWrapper isPanelTitle={props.isPanelTitle}>
           <>
@@ -163,7 +155,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
             )}
 
             <EditableText
-              className="t--propery-page-title"
+              className="t--propery-page-title text-lg font-semibold"
               defaultValue={name}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill

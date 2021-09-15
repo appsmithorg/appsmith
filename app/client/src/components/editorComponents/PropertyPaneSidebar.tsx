@@ -26,7 +26,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   return (
     <div className="relative">
       <div
-        className="t--property-pane-sidebar p-0 z-3 overflow-y-auto bg-white h-full min-w-72"
+        className="h-full p-0 overflow-hidden bg-white t--property-pane-sidebar z-3 min-w-72"
         ref={sidebarRef}
         style={{ width: props.width }}
       >

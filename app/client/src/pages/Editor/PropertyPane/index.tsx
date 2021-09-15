@@ -38,7 +38,7 @@ const StyledPanelStack = styled(PanelStack)`
     margin: 0;
     border: none;
   }
-  overflow: visible;
+  overflow: auto;
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
@@ -62,11 +62,6 @@ export const PropertyControlsWrapper = styled.div`
 export const FixedHeader = styled.div`
   position: fixed;
   z-index: 3;
-`;
-
-export const PropertyPaneBodyWrapper = styled.div`
-  margin-top: ${(props) => props.theme.propertyPane.titleHeight}px;
-  overflow: auto;
 `;
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
@@ -141,7 +136,7 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   return (
-    <>
+    <div className="relative flex flex-col w-full py-3 space-y-2">
       <PropertyPaneTitle
         actions={actions}
         key={widgetProperties.widgetId}
@@ -150,7 +145,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <PropertyPaneBodyWrapper>
+      <div className="overflow-scroll">
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -167,8 +162,8 @@ function PropertyPaneView(
             type={widgetProperties.type}
           />
         </PropertyControlsWrapper>
-      </PropertyPaneBodyWrapper>
-    </>
+      </div>
+    </div>
   );
 }
 
@@ -220,7 +215,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
     return (
       <div
-        className={"t--propertypane w-full h-full"}
+        className={"t--propertypane"}
         data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();
