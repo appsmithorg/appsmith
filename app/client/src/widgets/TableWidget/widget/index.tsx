@@ -9,7 +9,6 @@ import {
   xor,
   without,
   isBoolean,
-  cloneDeep,
   size,
   setWith,
   isArray,
@@ -212,7 +211,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     action: string,
     optionSelected: DropdownOption,
   ) => {
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    const editedColumnData = { ...this.props.editedColumnData };
     setWith(
       editedColumnData,
       [columnId, rowIndex],
@@ -237,7 +236,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     action: string,
     isSwitchedOn: boolean,
   ) => {
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    const editedColumnData = { ...this.props.editedColumnData };
     setWith(editedColumnData, [columnId, rowIndex], isSwitchedOn, Object);
 
     this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
@@ -762,9 +761,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
 
-    // set defaultOptionValue for column type "select" if exist
+    // set defaultOptionValue for column type "select" and "switch" if exist
     const columnIds = Object.keys(this.props.primaryColumns);
-    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    const editedColumnData = { ...this.props.editedColumnData };
     for (let index = 0; index < columnIds.length; index++) {
       const column = this.props.primaryColumns[columnIds[index]];
       if (column.columnType === "select") {
@@ -902,7 +901,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // basically column type or column deleted
     if (!isEqual(this.props.primaryColumns, prevProps.primaryColumns)) {
       const columnIds = Object.keys(this.props.primaryColumns);
-      const editedColumnData = cloneDeep(this.props.editedColumnData);
+      const editedColumnData = { ...this.props.editedColumnData };
       for (let index = 0; index < columnIds.length; index++) {
         const column = this.props.primaryColumns[columnIds[index]];
         if (column.columnType === "select") {
