@@ -181,8 +181,8 @@ const StyledNumericInput = styled(NumericInput)`
         border: 1px solid #e7e7e7;
         border-right: 0;
       }
-      input {
-        padding-left: 0;
+      input:not(:first-child) {
+        padding-left: 5px;
         border-left: 0;
         z-index: 16;
         line-height: 16px;
