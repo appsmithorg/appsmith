@@ -11,7 +11,6 @@ import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -155,7 +154,7 @@ public class EnvManager {
                     final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
                     if (matcher.matches()) {
                         final String name = matcher.group("name");
-                        if (!VARIABLE_BLACKLIST.contains(name)) {
+                        if (VARIABLE_WHITELIST.contains(name)) {
                             data.put(name, matcher.group("value"));
                         }
                     }
