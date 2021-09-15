@@ -1,13 +1,17 @@
 import React, { Component, ReactNode } from "react";
 import styled from "styled-components";
 import {
+  Button,
   MenuItem,
   Menu,
   ControlGroup,
   InputGroup,
   IMenuProps,
 } from "@blueprintjs/core";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import {
+  BaseButton,
+  StyledButton,
+} from "components/designSystems/appsmith/BaseButton";
 import {
   ItemRenderer,
   Select,
@@ -31,6 +35,9 @@ const StyledDropdown = styled(Dropdown)``;
 
 const StyledButtonWrapper = styled.div<ButtonWrapperProps>`
   width: ${(props) => props.width || "100%"};
+  ${StyledButton} {
+    font-weight: ${(props) => props.theme.fontWeights[1]};
+  }
 `;
 const StyledMenu = styled(Menu)<MenuComponentProps>`
   min-width: ${(props) => props.width || "100%"};
@@ -197,6 +204,7 @@ class DropdownComponent extends Component<
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
+              buttonColor={color}
               buttonStyle={color ? "CUSTOM" : "PRIMARY"}
               buttonVariant="SOLID"
               rightIcon="chevron-down"

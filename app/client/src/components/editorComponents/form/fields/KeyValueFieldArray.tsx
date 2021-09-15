@@ -21,6 +21,7 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants";
+import { EditorWrapper } from "components/editorComponents/CodeEditor/styledComponents";
 
 type CustomStack = {
   removeTopPadding?: boolean;
@@ -34,6 +35,7 @@ const KeyValueStackContainer = styled.div<CustomStack>`
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
+  margin-bottom: 5px;
   ${FormLabel} {
     width: 100%;
   }
@@ -93,11 +95,11 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
+  top: 1px;
   border-bottom: solid 1px ${Colors.MERCURY};
-  margin-bottom: 10px;
-  top: -2px;
-  & .CodeEditorTarget * {
-    border-bottom: none !important;
+  overflow: hidden;
+  ${EditorWrapper} * {
+    border-bottom: none;
   }
 `;
 
