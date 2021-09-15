@@ -13,10 +13,11 @@ import {
 import { generatePropertyControl } from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { Icon, IPanelProps } from "@blueprintjs/core";
+import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
+import PropertyPaneHelpButton from "../PropertyPaneHelpButton";
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -35,7 +36,7 @@ function PanelHeader(props: PanelHeaderProps) {
                 <span> to a widget property</span>
               </div>
             ),
-            icon: <Icon icon="help" iconSize={16} />,
+            icon: <PropertyPaneHelpButton />,
           },
         ]}
         isPanelTitle

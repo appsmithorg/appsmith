@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { isEqual } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -19,9 +20,7 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
 
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
-import { isEqual } from "lodash";
 import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 
 type PropertyPaneTitleProps = {
@@ -124,7 +123,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       </div>
 
       {/* ACTIONS */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1">
         {props.actions.map((value, index) => (
           <TooltipComponent
             content={value.tooltipContent}

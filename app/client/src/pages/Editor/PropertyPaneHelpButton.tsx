@@ -1,29 +1,26 @@
 import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { withTheme } from "styled-components";
-import { Icon } from "@blueprintjs/core";
 
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
-import { getSelectedWidget } from "sagas/selectors";
-import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import WidgetFactory from "utils/WidgetFactory";
+import { getSelectedWidget } from "sagas/selectors";
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
-type Props = {
-  theme: Theme;
-};
-
-const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
+function PropertyPaneHelpButton() {
   const selectedWidget = useSelector(getSelectedWidget);
   const selectedWidgetType = selectedWidget?.type || "";
   const dispatch = useDispatch();
   const displayName =
     WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.name || "";
 
-  const openHelpModal = useCallback(() => {
+  /**
+   * on click open the omnibar and toggle global search
+   */
+  const onClick = useCallback(() => {
     dispatch(setGlobalSearchQuery(displayName));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
@@ -32,13 +29,10 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   }, [selectedWidgetType]);
 
   return (
-    <Icon
-      color={theme.colors.paneSectionLabel}
-      icon="help"
-      iconSize={16}
-      onClick={openHelpModal}
-    />
+    <button className="p-1 hover:bg-warmGray-100 group" onClick={onClick}>
+      <HelpIcon className="h-4 w-4 text-trueGray-500" />
+    </button>
   );
-});
+}
 
 export default PropertyPaneHelpButton;

@@ -21,14 +21,12 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
-import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 
