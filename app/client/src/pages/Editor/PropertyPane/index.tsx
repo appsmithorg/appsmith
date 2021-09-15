@@ -21,7 +21,6 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import PropertyPaneHelpButton from "pages/Editor/PropertyPaneHelpButton";
 import { getProppanePreference } from "selectors/usersSelectors";
@@ -29,6 +28,9 @@ import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
+import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
+import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
+import { ReactComponent as DeleteIcon } from "assets/icons/form/trash.svg";
 
 const StyledPanelStack = styled(PanelStack)`
   height: 100%;
@@ -47,22 +49,9 @@ const StyledPanelStack = styled(PanelStack)`
   }
 `;
 
-const CopyIcon = ControlIcons.COPY_CONTROL;
-const DeleteIcon = FormIcons.DELETE_ICON;
 interface PropertyPaneState {
   currentPanelStack: IPanel[];
 }
-
-export const PropertyControlsWrapper = styled.div`
-  overflow: hidden;
-  margin: ${(props) => props.theme.spaces[5]}px;
-  margin-top: 0px;
-`;
-
-export const FixedHeader = styled.div`
-  position: fixed;
-  z-index: 3;
-`;
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -83,6 +72,7 @@ function PropertyPaneView(
     theme: EditorTheme;
   } & IPanelProps,
 ) {
+  const dispatch = useDispatch();
   const { hidePropertyPane, theme, ...panel } = props;
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
   const doActionsExist = useSelector(actionsExist);
@@ -94,12 +84,21 @@ function PropertyPaneView(
     return true;
   }, [widgetProperties?.type, excludeList]);
 
-  const dispatch = useDispatch();
-  const handleDelete = useCallback(() => {
+  /**
+   * on delete
+   */
+  const onDelete = useCallback(() => {
     dispatch(deleteSelectedWidget(false));
   }, [dispatch]);
-  const handleCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
 
+  /**
+   * on  copy
+   */
+  const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  /**
+   * actions shown on the right of title
+   */
   const actions = useMemo((): Array<{
     tooltipContent: any;
     icon: ReactElement;
@@ -108,23 +107,17 @@ function PropertyPaneView(
       {
         tooltipContent: "Copy Widget",
         icon: (
-          <CopyIcon
-            className="t--copy-widget"
-            height={14}
-            onClick={handleCopy}
-            width={14}
-          />
+          <button className="p-1 hover:bg-warmGray-100 group" onClick={onCopy}>
+            <CopyIcon className="w-4 h-4 text-gray-500" />
+          </button>
         ),
       },
       {
         tooltipContent: "Delete Widget",
         icon: (
-          <DeleteIcon
-            className="t--delete-widget"
-            height={16}
-            onClick={handleDelete}
-            width={16}
-          />
+          <button className="p-1 hover:bg-warmGray-100 group" onClick={onCopy}>
+            <DeleteIcon className="w-4 h-4 text-gray-500" />
+          </button>
         ),
       },
       {
@@ -132,7 +125,8 @@ function PropertyPaneView(
         icon: <PropertyPaneHelpButton />,
       },
     ];
-  }, [hidePropertyPane, handleCopy, handleDelete]);
+  }, [hidePropertyPane, onCopy, onDelete]);
+
   if (!widgetProperties) return null;
 
   return (
@@ -145,7 +139,7 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div className="overflow-scroll">
+      <div className="px-3 overflow-scroll">
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -154,14 +148,12 @@ function PropertyPaneView(
           />
         )}
         <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
-        <PropertyControlsWrapper>
-          <PropertyControlsGenerator
-            id={widgetProperties.widgetId}
-            panel={panel}
-            theme={theme}
-            type={widgetProperties.type}
-          />
-        </PropertyControlsWrapper>
+        <PropertyControlsGenerator
+          id={widgetProperties.widgetId}
+          panel={panel}
+          theme={theme}
+          type={widgetProperties.type}
+        />
       </div>
     </div>
   );
@@ -169,21 +161,6 @@ function PropertyPaneView(
 
 class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
   private panelWrapperRef = React.createRef<HTMLDivElement>();
-
-  getTheme() {
-    return EditorTheme.LIGHT;
-  }
-
-  getPopperTheme() {
-    return ThemeMode.LIGHT;
-  }
-
-  onPositionChange = (position: any) => {
-    this.props.setPropPanePoistion(
-      position,
-      this.props.widgetProperties?.widgetId,
-    );
-  };
 
   render() {
     if (
@@ -227,7 +204,6 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
             component: PropertyPaneView,
             props: {
               hidePropertyPane: this.props.hidePropertyPane,
-              theme: this.getTheme(),
             },
           }}
           onOpen={() => {

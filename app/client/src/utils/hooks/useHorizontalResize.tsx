@@ -69,6 +69,7 @@ const useHorizontalResize = (
     unFocus(document, window);
     setPosition(event.touches[0].clientX);
     setResizing(true);
+    document.body.classList.add("cursor-ew-resize");
   };
 
   /**
@@ -77,6 +78,7 @@ const useHorizontalResize = (
   const onMouseUp = () => {
     if (resizing) {
       setResizing(false);
+      document.body.classList.remove("cursor-ew-resize");
     }
   };
 

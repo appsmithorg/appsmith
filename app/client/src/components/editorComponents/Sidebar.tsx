@@ -87,9 +87,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     }
   }, [active, setActive, pinned, resizer.resizing]);
 
-  // eslint-disable-next-line
-  console.log({ pinned, active });
-
   return (
     <div
       className={classNames({
@@ -102,7 +99,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="t--sidebar p-0  overflow-y-auto bg-trueGray-800 text-white h-full min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
+        className="h-full p-0 overflow-y-auto text-white t--sidebar bg-trueGray-800 min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
@@ -118,7 +115,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       </div>
       {/* RESIZER */}
       <div
-        className="w-2 -mr-1 group z-4 cursor-ew-resize h-full"
+        className="w-2 h-full -mr-1 group z-4 cursor-ew-resize"
         onMouseDown={resizer.onMouseDown}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}

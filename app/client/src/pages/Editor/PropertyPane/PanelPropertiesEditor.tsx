@@ -17,7 +17,6 @@ import { Icon, IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
 import { BindingText } from "../APIEditor/Form";
-import { PropertyControlsWrapper } from ".";
 
 function PanelHeader(props: PanelHeaderProps) {
   return (
@@ -37,21 +36,6 @@ function PanelHeader(props: PanelHeaderProps) {
               </div>
             ),
             icon: <Icon icon="help" iconSize={16} />,
-          },
-          {
-            tooltipContent: "Close",
-            icon: (
-              <Icon
-                className={"t--property-pane-close-btn"}
-                icon="cross"
-                iconSize={16}
-                onClick={(e: any) => {
-                  props.hidePropertyPane();
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              />
-            ),
           },
         ]}
         isPanelTitle
@@ -190,16 +174,14 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      <div>
-        <PropertyControlsWrapper>
-          {panelConfigs &&
-            generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-              id: widgetProperties.widgetId,
-              type: widgetProperties.type,
-              panel,
-              theme,
-            })}
-        </PropertyControlsWrapper>
+      <div className="px-3">
+        {panelConfigs &&
+          generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
+            id: widgetProperties.widgetId,
+            type: widgetProperties.type,
+            panel,
+            theme,
+          })}
       </div>
     </div>
   );

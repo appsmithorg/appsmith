@@ -18,8 +18,11 @@ import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
+
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEqual } from "lodash";
+import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -92,15 +95,18 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <div className="flex items-center w-full px-3 z-3">
+    <div className="flex items-center w-full px-3 space-x-2 z-3">
+      {/* BACK BUTTON */}
+      {props.isPanelTitle && (
+        <button
+          className="p-1 hover:bg-warmGray-100 group"
+          onClick={props.onBackClick}
+        >
+          <BackIcon className="w-4 h-4 text-gray-500" />
+        </button>
+      )}
+      {/* EDITABLE TEXT */}
       <div className="flex-grow">
-        {props.isPanelTitle && (
-          <div
-            className="t--property-pane-back-btn"
-            onClick={props.onBackClick}
-          />
-        )}
-
         <EditableText
           className="flex-grow text-lg font-semibold t--propery-page-title"
           defaultValue={name}
@@ -118,7 +124,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       </div>
 
       {/* ACTIONS */}
-      <div className="flex items-center">
+      <div className="flex items-center space-x-2">
         {props.actions.map((value, index) => (
           <TooltipComponent
             content={value.tooltipContent}
