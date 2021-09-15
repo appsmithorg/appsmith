@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.constants.Url;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.EnvManager;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +34,12 @@ public class InstanceAdminController {
     }
 
     @PutMapping("/env")
-    public Mono<ResponseDTO<Boolean>> saveEnvChanges(
+    public Mono<ResponseDTO<EnvChangesResponseDTO>> saveEnvChanges(
             @Valid @RequestBody Map<String, String> changes
     ) {
         log.debug("Applying env updates {}", changes);
         return envManager.applyChanges(changes)
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+                .map(res -> new ResponseDTO<>(HttpStatus.OK.value(), res, null));
     }
 
     @PostMapping("/restart")

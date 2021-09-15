@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -120,9 +121,10 @@ public class EnvManager {
         return outLines;
     }
 
-    public Mono<Void> applyChanges(Map<String, String> changes) {
+    public Mono<EnvChangesResponseDTO> applyChanges(Map<String, String> changes) {
         return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
+                    // Write the changes to the env file.
                     final String originalContent;
                     final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
 
@@ -142,7 +144,18 @@ public class EnvManager {
                         return Mono.error(e);
                     }
 
-                    return Mono.empty();
+                    return Mono.just(user);
+                })
+                .flatMap(user -> {
+                    // Try and update any at runtime, that can be.
+                    final Map<String, String> changesCopy = new HashMap<>(changes);
+
+                    if (changesCopy.containsKey("APPSMITH_INSTANCE_NAME")) {
+                        commonConfig.setInstanceName(changesCopy.remove("APPSMITH_INSTANCE_NAME"));
+                    }
+
+                    // If `changesCopy` is not empty here, then we need a restart.
+                    return Mono.just(new EnvChangesResponseDTO(!changesCopy.isEmpty()));
                 });
     }
 
