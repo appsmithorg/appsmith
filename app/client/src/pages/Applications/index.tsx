@@ -85,6 +85,16 @@ import {
   extractAppIdAndPageIdFromUrl,
   SIGNUP_SUCCESS_URL,
 } from "constants/routes";
+import {
+  createMessage,
+  CREATE_NEW_APPLICATION,
+  DOCUMENTATION,
+  GETTING_STARTED,
+  ORGANIZATIONS_HEADING,
+  SEARCH_APPS,
+  WELCOME_TOUR,
+  NO_APPS_FOUND,
+} from "constants/messages";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
@@ -410,7 +420,7 @@ function LeftPane() {
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
-        heading="ORGANIZATIONS"
+        heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
@@ -444,7 +454,7 @@ function LeftPane() {
           <div style={{ marginTop: 12 }}>
             <Item
               isFetchingApplications={isFetchingApplications}
-              label={"GETTING STARTED"}
+              label={createMessage(GETTING_STARTED)}
               textType={TextType.H6}
             />
           </div>
@@ -456,7 +466,7 @@ function LeftPane() {
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
             }}
-            text={"Documentation"}
+            text={createMessage(DOCUMENTATION)}
           />
           <MenuItem
             containerClassName={
@@ -470,7 +480,7 @@ function LeftPane() {
 
               initiateOnboarding();
             }}
-            text={"Welcome Tour"}
+            text={createMessage(WELCOME_TOUR)}
           />
         </WorkpsacesNavigator>
       </LeftPaneSection>
@@ -635,7 +645,7 @@ function ApplicationsSection(props: any) {
     organizationsListComponent = (
       <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
         <CreateNewLabel type={TextType.H4}>
-          Whale! Whale! this name doesn&apos;t ring a bell!
+          {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
         <NoSearchResultImg alt="No result found" src={NoSearchImage} />
       </CenteredWrapper>
@@ -845,7 +855,7 @@ function ApplicationsSection(props: any) {
                             className="createnew"
                             type={TextType.H4}
                           >
-                            Create New
+                            {createMessage(CREATE_NEW_APPLICATION)}
                           </CreateNewLabel>
                         </>
                       )}
@@ -960,7 +970,7 @@ class Applications extends Component<
         <LeftPane />
         <SubHeader
           search={{
-            placeholder: "Search for apps...",
+            placeholder: createMessage(SEARCH_APPS),
             queryFn: this.props.searchApplications,
             defaultValue: this.props.searchKeyword,
           }}
