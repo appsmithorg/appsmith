@@ -14,7 +14,6 @@ import {
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -22,19 +21,8 @@ import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { commentModeSelector } from "../../../selectors/commentsSelectors";
-
-const StyledSelectionCanvas = styled.canvas`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  height: calc(
-    100% +
-      ${(props) =>
-        props.id === "canvas-0" ? props.theme.canvasBottomPadding : 0}px
-  );
-  width: 100%;
-  overflow-y: auto;
-`;
+import { StickyCanvasArena } from "./StickyCanvasArena";
+import { getCanvasTopOffset } from "./utils";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -62,7 +50,8 @@ export function CanvasSelectionArena({
 }) {
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const slidingArenaRef = React.useRef<HTMLDivElement>(null);
+  const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
     getWidget(state, parentId || ""),
   );
@@ -139,8 +128,8 @@ export function CanvasSelectionArena({
       canDraw: canDrawOnEnter,
       startPoints: canDrawOnEnter ? outOfCanvasStartPositions : undefined,
     };
-    if (canvasRef.current && canDrawOnEnter) {
-      canvasRef.current.style.zIndex = "2";
+    if (slidingArenaRef.current && canDrawOnEnter) {
+      slidingArenaRef.current.style.zIndex = "2";
     }
   }, [
     isDraggingForSelection,
@@ -149,25 +138,26 @@ export function CanvasSelectionArena({
   ]);
 
   useCanvasDragToScroll(
-    canvasRef,
+    slidingArenaRef,
     isCurrentWidgetDrawing || isResizing,
     isDraggingForSelection || isResizing,
     snapRows,
     canExtend,
   );
   useEffect(() => {
-    if (appMode === APP_MODE.EDIT && !isDragging && canvasRef.current) {
-      // ToDo: Needs a repositioning canvas window to limit the highest number of pixels rendered for an application of any height.
-      // as of today (Pixels rendered by canvas) ∝ (Application height) so as height increases will run into to dead renders.
-      // https://on690.codesandbox.io/ to check the number of pixels limit supported for a canvas
-      // const { devicePixelRatio: scale = 1 } = window;
+    if (
+      appMode === APP_MODE.EDIT &&
+      !isDragging &&
+      slidingArenaRef.current &&
+      stickyCanvasRef.current
+    ) {
+      const { devicePixelRatio: scale = 1 } = window;
 
-      const scale = 1;
       const scrollParent: Element | null = getNearestParentCanvas(
-        canvasRef.current,
+        slidingArenaRef.current,
       );
       const scrollObj: any = {};
-      let canvasCtx: any = canvasRef.current.getContext("2d");
+      let canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
         top: 0,
         left: 0,
@@ -216,18 +206,23 @@ export function CanvasSelectionArena({
 
       const drawRectangle = (selectionDimensions: SelectedArenaDimensions) => {
         const strokeWidth = 1;
+        const topOffset = getCanvasTopOffset(
+          slidingArenaRef,
+          stickyCanvasRef,
+          canExtend,
+        );
         canvasCtx.setLineDash([5]);
         canvasCtx.strokeStyle = "rgba(125,188,255,1)";
         canvasCtx.strokeRect(
           selectionDimensions.left - strokeWidth,
-          selectionDimensions.top - strokeWidth,
+          selectionDimensions.top - strokeWidth - topOffset,
           selectionDimensions.width + 2 * strokeWidth,
           selectionDimensions.height + 2 * strokeWidth,
         );
         canvasCtx.fillStyle = "rgb(84, 132, 236, 0.06)";
         canvasCtx.fillRect(
           selectionDimensions.left,
-          selectionDimensions.top,
+          selectionDimensions.top - topOffset,
           selectionDimensions.width,
           selectionDimensions.height,
         );
@@ -242,7 +237,7 @@ export function CanvasSelectionArena({
 
       const onMouseEnter = (e: any) => {
         if (
-          canvasRef.current &&
+          slidingArenaRef.current &&
           !isDragging &&
           drawOnEnterObj?.current.canDraw
         ) {
@@ -274,13 +269,13 @@ export function CanvasSelectionArena({
           top: 0,
           left: 0,
         };
-        if (canvasRef.current && startPoints) {
+        if (slidingArenaRef.current && startPoints) {
           const {
             height,
             left,
             top,
             width,
-          } = canvasRef.current.getBoundingClientRect();
+          } = slidingArenaRef.current.getBoundingClientRect();
           const outOfMaxBounds = {
             x: startPoints.x < left + width,
             y: startPoints.y < top + height,
@@ -307,28 +302,30 @@ export function CanvasSelectionArena({
       };
 
       const firstRender = (e: any, fromOuterCanvas = false) => {
-        if (canvasRef.current && !isDragging) {
+        if (slidingArenaRef.current && !isDragging) {
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           if (fromOuterCanvas) {
             const { left, top } = startPositionsForOutCanvasSelection();
             selectionRectangle.left = left;
             selectionRectangle.top = top;
           } else {
-            selectionRectangle.left = e.offsetX - canvasRef.current.offsetLeft;
-            selectionRectangle.top = e.offsetY - canvasRef.current.offsetTop;
+            selectionRectangle.left =
+              e.offsetX - slidingArenaRef.current.offsetLeft;
+            selectionRectangle.top =
+              e.offsetY - slidingArenaRef.current.offsetTop;
           }
           selectionRectangle.width = 0;
           selectionRectangle.height = 0;
 
           isDragging = true;
           // bring the canvas to the top layer
-          canvasRef.current.style.zIndex = "2";
+          slidingArenaRef.current.style.zIndex = "2";
         }
       };
 
       const onMouseDown = (e: any) => {
         if (
-          canvasRef.current &&
+          slidingArenaRef.current &&
           (!isDraggableParent || e.ctrlKey || e.metaKey)
         ) {
           dispatch(setCanvasSelectionStateAction(true, widgetId));
@@ -336,29 +333,33 @@ export function CanvasSelectionArena({
         }
       };
       const onMouseUp = () => {
-        if (isDragging && canvasRef.current) {
+        if (isDragging && slidingArenaRef.current && stickyCanvasRef.current) {
           isDragging = false;
           canvasCtx.clearRect(
             0,
             0,
-            canvasRef.current.width,
-            canvasRef.current.height,
+            stickyCanvasRef.current.width,
+            stickyCanvasRef.current.height,
           );
-          canvasRef.current.style.zIndex = "";
+          slidingArenaRef.current.style.zIndex = "";
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };
       const onMouseMove = (e: any) => {
-        if (isDragging && canvasRef.current) {
+        if (isDragging && slidingArenaRef.current && stickyCanvasRef.current) {
           selectionRectangle.width =
-            e.offsetX - canvasRef.current.offsetLeft - selectionRectangle.left;
+            e.offsetX -
+            slidingArenaRef.current.offsetLeft -
+            selectionRectangle.left;
           selectionRectangle.height =
-            e.offsetY - canvasRef.current.offsetTop - selectionRectangle.top;
+            e.offsetY -
+            slidingArenaRef.current.offsetTop -
+            selectionRectangle.top;
           canvasCtx.clearRect(
             0,
             0,
-            canvasRef.current.width,
-            canvasRef.current.height,
+            stickyCanvasRef.current.width,
+            stickyCanvasRef.current.height,
           );
           const selectionDimensions = getSelectionDimensions();
           drawRectangle(selectionDimensions);
@@ -392,35 +393,58 @@ export function CanvasSelectionArena({
       };
 
       const addEventListeners = () => {
-        canvasRef.current?.addEventListener("click", onClick, false);
-        canvasRef.current?.addEventListener("mousedown", onMouseDown, false);
-        document.addEventListener("mouseup", onMouseUp, false);
-        canvasRef.current?.addEventListener("mousemove", onMouseMove, false);
-        canvasRef.current?.addEventListener("mouseleave", onMouseLeave, false);
-        canvasRef.current?.addEventListener("mouseenter", onMouseEnter, false);
+        slidingArenaRef.current?.addEventListener("click", onClick, false);
+        slidingArenaRef.current?.addEventListener(
+          "mousedown",
+          onMouseDown,
+          false,
+        );
+        slidingArenaRef.current?.addEventListener("mouseup", onMouseUp, false);
+        slidingArenaRef.current?.addEventListener(
+          "mousemove",
+          onMouseMove,
+          false,
+        );
+        slidingArenaRef.current?.addEventListener(
+          "mouseleave",
+          onMouseLeave,
+          false,
+        );
+        slidingArenaRef.current?.addEventListener(
+          "mouseenter",
+          onMouseEnter,
+          false,
+        );
         scrollParent?.addEventListener("scroll", onScroll, false);
       };
       const removeEventListeners = () => {
-        canvasRef.current?.removeEventListener("mousedown", onMouseDown);
-        document?.removeEventListener("mouseup", onMouseUp);
-        canvasRef.current?.removeEventListener("mousemove", onMouseMove);
-        canvasRef.current?.removeEventListener("mouseleave", onMouseLeave);
-        canvasRef.current?.removeEventListener("mouseenter", onMouseEnter);
-        canvasRef.current?.removeEventListener("click", onClick);
+        slidingArenaRef.current?.removeEventListener("mousedown", onMouseDown);
+        slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
+        slidingArenaRef.current?.removeEventListener("mousemove", onMouseMove);
+        slidingArenaRef.current?.removeEventListener(
+          "mouseleave",
+          onMouseLeave,
+        );
+        slidingArenaRef.current?.removeEventListener(
+          "mouseenter",
+          onMouseEnter,
+        );
+        slidingArenaRef.current?.removeEventListener("click", onClick);
       };
       const init = () => {
-        if (canvasRef.current) {
-          const { height, width } = canvasRef.current.getBoundingClientRect();
+        if (
+          scrollParent &&
+          stickyCanvasRef.current &&
+          slidingArenaRef.current
+        ) {
+          const { height } = scrollParent.getBoundingClientRect();
+          const { width } = slidingArenaRef.current.getBoundingClientRect();
+          canvasCtx = stickyCanvasRef.current.getContext("2d");
+
           if (height && width) {
-            canvasRef.current.width = width * scale;
-            canvasRef.current.height =
-              (snapRows * snapRowSpace +
-                (widgetId === MAIN_CONTAINER_WIDGET_ID
-                  ? theme.canvasBottomPadding
-                  : 0)) *
-              scale;
+            stickyCanvasRef.current.width = width * scale;
+            stickyCanvasRef.current.height = height * scale;
           }
-          canvasCtx = canvasRef.current.getContext("2d");
           canvasCtx.scale(scale, scale);
           removeEventListeners();
           addEventListeners();
@@ -452,12 +476,21 @@ export function CanvasSelectionArena({
     appMode === APP_MODE.EDIT &&
     !(isDragging || isCommentMode || isPreviewMode || dropDisabled);
 
-  return shouldShow ? (
-    <StyledSelectionCanvas
-      data-testid={`canvas-${widgetId}`}
-      id={`canvas-${widgetId}`}
+  const canvasRef = React.useRef({
+    slidingArenaRef,
+    stickyCanvasRef,
+  });
+  return (
+    <StickyCanvasArena
+      canExtend={canExtend}
+      canvasId={`canvas-${widgetId}`}
+      canvasPadding={
+        widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0
+      }
+      getRelativeScrollingParent={getNearestParentCanvas}
       ref={canvasRef}
+      showCanvas={shouldShow}
     />
-  ) : null;
+  );
 }
 CanvasSelectionArena.displayName = "CanvasSelectionArena";

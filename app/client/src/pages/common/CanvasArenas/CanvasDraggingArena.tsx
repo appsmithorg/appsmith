@@ -1,21 +1,9 @@
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
-import styled from "styled-components";
+import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
-
-const StyledSelectionCanvas = styled.div<{ paddingBottom: number }>`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  height: calc(100% + ${(props) => props.paddingBottom}px);
-  width: 100%;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  overflow-y: auto;
-`;
+import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -50,9 +38,9 @@ export function CanvasDraggingArena({
     return widgetId === MAIN_CONTAINER_WIDGET_ID;
   }, [widgetId]);
 
-  const canvasRef = React.useRef<HTMLDivElement>(null);
-  const canvasDrawRef = React.useRef<HTMLCanvasElement>(null);
-  const { showCanvas } = useCanvasDragging(canvasRef, canvasDrawRef, {
+  const slidingArenaRef = React.useRef<HTMLDivElement>(null);
+  const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  const { showCanvas } = useCanvasDragging(slidingArenaRef, stickyCanvasRef, {
     canExtend,
     dropDisabled,
     noPad,
@@ -62,17 +50,19 @@ export function CanvasDraggingArena({
     snapRowSpace,
     widgetId,
   });
-
-  return showCanvas ? (
-    <>
-      <canvas ref={canvasDrawRef} />
-      <StyledSelectionCanvas
-        data-testid={`canvas-dragging-${widgetId}`}
-        id={`canvas-dragging-${widgetId}`}
-        paddingBottom={needsPadding ? theme.canvasBottomPadding : 0}
-        ref={canvasRef}
-      />
-    </>
-  ) : null;
+  const canvasRef = React.useRef({
+    stickyCanvasRef,
+    slidingArenaRef,
+  });
+  return (
+    <StickyCanvasArena
+      canExtend={canExtend}
+      canvasId={`canvas-dragging-${widgetId}`}
+      canvasPadding={needsPadding ? theme.canvasBottomPadding : 0}
+      getRelativeScrollingParent={getNearestParentCanvas}
+      ref={canvasRef}
+      showCanvas={showCanvas}
+    />
+  );
 }
 CanvasDraggingArena.displayName = "CanvasDraggingArena";
