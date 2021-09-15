@@ -83,7 +83,7 @@ const InputComponentWrapper = styled((props) => (
   &&&& {
     .currency-type-filter,
     .country-type-filter {
-      width: 40px;
+      width: fit-content;
       height: 32px;
       position: absolute;
       display: inline-block;
@@ -167,6 +167,26 @@ const InputComponentWrapper = styled((props) => (
         props?.labelStyle?.includes(FontStyleTypes.UNDERLINE)
           ? "underline"
           : ""};
+    }
+  }
+`;
+
+const StyledNumericInput = styled(NumericInput)`
+  &&&& .bp3-input-group {
+    display: flex;
+    > {
+      &:first-child:not(input) {
+        position: static;
+        background: #fff;
+        border: 1px solid #e7e7e7;
+        border-right: 0;
+      }
+      input {
+        padding-left: 0;
+        border-left: 0;
+        z-index: 16;
+        line-height: 16px;
+      }
     }
   }
 `;
@@ -339,7 +359,7 @@ class InputComponent extends React.Component<
         ? this.props.decimalsInCurrency || 0
         : 0;
     return (
-      <NumericInput
+      <StyledNumericInput
         allowNumericCharactersOnly
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
