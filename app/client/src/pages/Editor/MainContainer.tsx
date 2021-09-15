@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { Route, Switch } from "react-router";
+import { Route, Switch, matchPath, useLocation } from "react-router";
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
 import BottomBar from "./BottomBar";
@@ -24,22 +24,34 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 function MainContainer() {
+  const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(256);
-  const [propertyPaneWidth, setPropertyPaneWidth] = useState(256);
 
   /**
    * on entity explorer sidebar width change
+   *
+   * @return void
    */
   const onLeftSidebarWidthChange = useCallback((newWidth) => {
     setSidebarWidth(newWidth);
   }, []);
 
   /**
-   * on property pane sidebar width change
+   * checks if property pane should be rendered or not
+   *
+   * @return boolean
    */
-  const onRightSidebarWidthChange = useCallback((newWidth) => {
-    setPropertyPaneWidth(newWidth);
-  }, []);
+  const shouldRenderPropertyPane = useMemo(() => {
+    const match = matchPath(location.pathname, {
+      path: BUILDER_URL,
+      exact: true,
+    });
+
+    // match is found, that means current URL is BUILDER_URL i.e our editor
+    if (match) return true;
+
+    return false;
+  }, [location]);
 
   return (
     <>
@@ -59,10 +71,7 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        <PropertyPaneSidebar
-          onWidthChange={onRightSidebarWidthChange}
-          width={propertyPaneWidth}
-        />
+        {shouldRenderPropertyPane && <PropertyPaneSidebar />}
       </Container>
       {getFeatureFlags().GIT && <BottomBar />}
     </>

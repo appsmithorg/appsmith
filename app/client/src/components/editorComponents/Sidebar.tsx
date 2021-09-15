@@ -71,7 +71,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     if (!pinned && !active) {
       const current = event.touches[0].clientX;
 
-      if (current <= 30) {
+      if (current <= 10) {
         setActive(true);
       }
     }

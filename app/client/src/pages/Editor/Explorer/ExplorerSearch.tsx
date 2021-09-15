@@ -37,9 +37,11 @@ export const ExplorerSearch = forwardRef(
             ref={ref}
             type="text"
           />
-          <button className="hover:bg-warmGray-700 p-1" onClick={props.clear}>
-            <CrossIcon className="h-3 w-3 text-red" />
-          </button>
+          {focussed && (
+            <button className="hover:bg-warmGray-700 p-1" onClick={props.clear}>
+              <CrossIcon className="h-3 w-3 text-red" />
+            </button>
+          )}
         </div>
         <div
           className={classNames({
