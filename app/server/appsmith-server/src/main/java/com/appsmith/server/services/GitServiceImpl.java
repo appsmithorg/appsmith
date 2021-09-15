@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -11,13 +10,14 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.GitConfig;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +36,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,11 +59,11 @@ public class GitServiceImpl implements GitService {
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
     @Override
-    public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
-        if(gitConfig.getAuthorName() == null || gitConfig.getAuthorName().length() == 0) {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, boolean isDefault, String defaultApplicationId) {
+        if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
         }
-        if(gitConfig.getAuthorEmail() == null || gitConfig.getAuthorEmail().length() == 0) {
+        if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
         }
         return sessionUserService.getCurrentUser()
@@ -70,30 +71,50 @@ public class GitServiceImpl implements GitService {
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-
+                            GitProfile userGitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
                             /*
-                            *  The gitConfig will be null if the user has not created profiles.
-                            *  If null then we need to create this field for the currentUser and save the profile data
-                            *  Else, replace the existing config value with the latest information
-                            *  This config is used as the default git metadata in application object
-                            * */
+                             *  The gitProfiles will be null if the user has not created any git profile.
+                             *  If null or if the request is to save the profile as default then we need to create this
+                             *  field for the currentUser and save the profile data
+                             *  Otherwise create a new entry or update existing entry
+                             * */
 
-                            userData.setGitGlobalConfigData(gitConfig);
+
+                            if (gitProfile.equals(userGitProfile)) {
+                                return Mono.just(userData);
+                            } else if (userGitProfile == null || isDefault) {
+                                // Assign the default config
+                                userData.setDefaultGitProfile(gitProfile);
+                            } else {
+                                userData.getGitProfiles().put(defaultApplicationId, gitProfile);
+                            }
                             return userDataService.updateForUser(user, userData);
-                        }));
+                        })
+                        .map(userData -> userData.getGitProfiles())
+                );
     }
 
     @Override
-    public Mono<GitConfig> getGitConfigForUser() {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
+        return updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.TRUE, null);
+    }
+
+    @Override
+    public Mono<GitProfile> getGitProfileForUser() {
+        return getGitProfileForUser(null);
+    }
+
+    @Override
+    public Mono<GitProfile> getGitProfileForUser(String defaultApplicationId) {
         return userDataService.getForCurrentUser()
                 .map(userData -> {
-                    if (userData.getGitGlobalConfigData() == null) {
+                    if (userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId) == null) {
                         throw new AppsmithException(
                             AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
                             " You can set up a git profile from the user profile section."
                         );
                     }
-                    return userData.getGitGlobalConfigData();
+                    return userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
                 });
     }
 
@@ -125,10 +146,10 @@ public class GitServiceImpl implements GitService {
         }
 
         Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
-            .filter(userData -> userData.getGitGlobalConfigData() != null)
+            .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                 "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
-            ).cache();
+            );
 
         return publishOrGetApplication(applicationId, commitDTO.getDoPush())
             .flatMap(application -> {
@@ -166,7 +187,8 @@ public class GitServiceImpl implements GitService {
                 try {
                     return Mono.zip(
                         fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName(), isDefault),
-                        currentUserMono
+                        currentUserMono,
+                        Mono.just(application.getGitApplicationMetadata())
                     );
                 } catch (IOException e) {
                     log.error("Unable to open git directory, with error : ", e);
@@ -175,12 +197,19 @@ public class GitServiceImpl implements GitService {
             })
             .map(tuple -> {
                 Path branchRepoPath = tuple.getT1();
-                // TODO : We will be creating a separate map of username to git profiles if user want separate profile
-                //  for different repos, this implementation need updates after we introduce that change
-                GitConfig userGitProfile = tuple.getT2().getGitGlobalConfigData();
+                GitApplicationMetadata gitApplicationData = tuple.getT3();
+                GitProfile authorProfile =
+                    tuple.getT2().getDefaultOrAppSpecificGitProfiles(gitApplicationData.getDefaultApplicationId());
+
+                if (authorProfile == null) {
+                    throw new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
+                        " You can set up a git profile from the user profile section."
+                    );
+                }
                 try {
                     return gitExecutor.commitApplication(
-                        branchRepoPath, commitMessage, userGitProfile.getAuthorName(), userGitProfile.getAuthorEmail()
+                        branchRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail()
                     );
                 } catch (IOException | GitAPIException e) {
                     log.error("git commit exception : ", e);
@@ -260,60 +289,61 @@ public class GitServiceImpl implements GitService {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        return saveGitConfigData(gitConnectDTO.getGitConfig())
-                .then(
-                    getApplicationById(defaultApplicationId)
-                        .flatMap(application -> {
-                            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                            if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
-                                    || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
-                                    || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
-                                    || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
-                                        "SSH Key is empty. Please reach out to Appsmith support"));
-                            } else {
-                                String defaultBranch;
-                                String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
-                                try {
-                                    Path repoPath =
-                                        Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
+        return updateOrCreateGitProfileForCurrentUser(
+            gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), gitConnectDTO.getDefaultApplicationId())
+            .then(
+                getApplicationById(defaultApplicationId)
+                    .flatMap(application -> {
+                        GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                        if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
+                                || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
+                                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
+                                    "SSH Key is empty. Please reach out to Appsmith support"));
+                        } else {
+                            String defaultBranch;
+                            String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                            try {
+                                Path repoPath =
+                                    Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
-                                    defaultBranch = gitExecutor.cloneApp(
-                                            repoPath,
-                                            gitConnectDTO.getRemoteUrl(),
-                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                            gitApplicationMetadata.getGitAuth().getPublicKey()
-                                    );
-                                } catch (GitAPIException e) {
-                                    if (e instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.AUTHENTICATION_FAILURE,
-                                                "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
-                                        ));
-                                    }
-                                    if (e instanceof InvalidRemoteException) {
-                                        return Mono.error(new AppsmithException(
-                                                AppsmithError.INVALID_PARAMETER,
-                                                "remote url"
-                                        ));
-                                    }
-                                    log.error("Error while cloning the remote repo, {}", e.getMessage());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                                } catch (IOException e) {
-                                    log.error("Error while accessing the file system, {}", e.getMessage());
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                defaultBranch = gitExecutor.cloneApp(
+                                        repoPath,
+                                        gitConnectDTO.getRemoteUrl(),
+                                        gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                        gitApplicationMetadata.getGitAuth().getPublicKey()
+                                );
+                            } catch (GitAPIException e) {
+                                if (e instanceof TransportException) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                            "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
+                                    ));
                                 }
-
-                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
-                                gitApplicationMetadata.setBranchName(defaultBranch);
-                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
-                                gitApplicationMetadata.setRepoName(repoName);
-                                Application application1 = new Application();
-                                application1.setGitApplicationMetadata(gitApplicationMetadata);
-                                return applicationService.update(defaultApplicationId, application1);
+                                if (e instanceof InvalidRemoteException) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.INVALID_PARAMETER,
+                                            "remote url"
+                                    ));
+                                }
+                                log.error("Error while cloning the remote repo, {}", e.getMessage());
+                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                            } catch (IOException e) {
+                                log.error("Error while accessing the file system, {}", e.getMessage());
+                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                             }
-                        })
-                );
+
+                            gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                            gitApplicationMetadata.setBranchName(defaultBranch);
+                            gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                            gitApplicationMetadata.setRepoName(repoName);
+                            Application application1 = new Application();
+                            application1.setGitApplicationMetadata(gitApplicationMetadata);
+                            return applicationService.update(defaultApplicationId, application1);
+                        }
+                    })
+            );
     }
 
     /**

@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class GitConfig implements AppsmithDomain {
+public class GitProfile implements AppsmithDomain {
 
     String authorName;
 

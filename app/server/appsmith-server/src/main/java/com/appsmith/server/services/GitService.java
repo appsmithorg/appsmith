@@ -2,20 +2,24 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitConfig;
-import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GitService {
 
-    Mono<UserData> saveGitConfigData(GitConfig gitConfig);
+    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile);
 
-    Mono<GitConfig> getGitConfigForUser();
+    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, boolean isDefault, String defaultApplicationId);
+
+    Mono<GitProfile> getGitProfileForUser();
+
+    Mono<GitProfile> getGitProfileForUser(String defaultApplicationId);
 
     Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO);
 
