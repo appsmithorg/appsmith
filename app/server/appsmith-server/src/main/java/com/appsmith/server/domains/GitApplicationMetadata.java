@@ -6,7 +6,7 @@ import lombok.Data;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
-public class GitApplicationMetadata implements AppsmithDomain {
+public class GitApplicationMetadata {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     String branchName;
 

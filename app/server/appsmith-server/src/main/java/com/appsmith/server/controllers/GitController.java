@@ -84,4 +84,11 @@ public class GitController {
         return service.updateRemote(applicationId, remoteUrl)
                 .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
     }
+
+    @GetMapping("/pull/{applicationId}/{branchName}")
+    public Mono<ResponseDTO<String>> pull(@PathVariable String applicationId, String branchName) {
+        log.debug("Going to pull the latest for branch");
+        return service.pullForApplication(applicationId, branchName)
+                .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
+    }
 }

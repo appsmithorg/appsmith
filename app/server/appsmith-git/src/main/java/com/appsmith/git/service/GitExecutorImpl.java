@@ -8,10 +8,14 @@ import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.FetchResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
@@ -26,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -185,6 +190,29 @@ public class GitExecutorImpl implements GitExecutor {
         String branchName = result.getRepository().getBranch();
         result.close();
         return branchName;
+    }
+
+    @Override
+    public String pullApp(Path repoPath,
+                          String remoteUrl,
+                          String branchName,
+                          String privateKey,
+                          String publicKey) throws GitAPIException, IOException {
+
+        //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
+        //TODO SHow number of commits fetched or Already upto date
+        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
+        TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
+        MergeResult mergeResult = git.pull()
+                .setRemoteBranchName(branchName)
+                .setTransportConfigCallback(transportConfigCallback)
+                .call()
+                .getMergeResult();
+        if (mergeResult.getMergeStatus().isSuccessful()) {
+            return mergeResult.getMergeStatus().name();
+        }
+        log.error("Git merge from remote branch failed, {}", branchName, mergeResult.getMergeStatus());
+        return "Merge from remote failed";
     }
 
 }
