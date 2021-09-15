@@ -149,4 +149,22 @@ public class EnvManager {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
     }
 
+    public Mono<Void> restartServer() {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    log.warn("Initiating restart via supervisor.");
+                    try {
+                        Runtime.getRuntime().exec(new String[]{
+                                "supervisorctl",
+                                "restart",
+                                "backend",
+                        });
+                    } catch (IOException e) {
+                        log.error("Error invoking supervisorctl to restart server.", e);
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                    }
+                    return Mono.empty();
+                });
+    }
+
 }

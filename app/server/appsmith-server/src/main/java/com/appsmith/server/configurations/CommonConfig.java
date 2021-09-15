@@ -27,6 +27,9 @@ public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
 
+    @Value("${appsmith.instance.name:}")
+    private String instanceName;
+
     @Value("${signup.disabled}")
     private boolean isSignupDisabled;
 

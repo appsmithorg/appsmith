@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,13 @@ public class InstanceAdminController {
     ) {
         log.debug("Applying env updates {}", changes);
         return envManager.applyChanges(changes)
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+    }
+
+    @PostMapping("/restart")
+    public Mono<ResponseDTO<Boolean>> restart() {
+        log.debug("Received restart request");
+        return envManager.restartServer()
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
