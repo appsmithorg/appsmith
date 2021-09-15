@@ -194,5 +194,8 @@ init_mongodb
 configure_ssl
 configure_supervisord
 
+# Ensure the restore path exists in the container, so an archive can be copied to it, if need be.
+mkdir -p /appsmith-stacks/data/{backup,restore}
+
 # Handle CMD command
 exec "$@"
