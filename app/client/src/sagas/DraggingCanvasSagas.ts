@@ -9,7 +9,7 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, put, select, takeLatest } from "redux-saga/effects";
-import { WidgetDraggingUpdateParams } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
+import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { updateWidgetPosition } from "utils/WidgetPropsUtils";
 import { getWidgets } from "./selectors";
 import log from "loglevel";

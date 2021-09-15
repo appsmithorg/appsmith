@@ -6,8 +6,8 @@ import { debounce, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useEffect } from "react";
 import { getNearestParentCanvas } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { noCollision } from "utils/WidgetPropsUtils";
-import { useWidgetDragResize } from "./dragResizeHooks";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,

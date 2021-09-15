@@ -1,5 +1,4 @@
 import React, { useContext, useRef, memo, useMemo } from "react";
-import { XYCord } from "utils/hooks/useCanvasDragging";
 
 import {
   WidgetOperations,
@@ -45,6 +44,7 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
+import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

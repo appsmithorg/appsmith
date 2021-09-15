@@ -2,7 +2,7 @@ import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { useCanvasDragging } from "utils/hooks/useCanvasDragging";
+import { useCanvasDragging } from "./hooks/useCanvasDragging";
 
 const StyledSelectionCanvas = styled.div<{ paddingBottom: number }>`
   position: absolute;
