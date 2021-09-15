@@ -1,13 +1,7 @@
 import { Classes, Icon } from "@blueprintjs/core";
 import { endOnboarding } from "actions/onboardingActions";
 import { Colors } from "constants/Colors";
-import React, {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import styled from "styled-components";
@@ -23,7 +17,6 @@ import {
   createMessage,
   WELCOME_TOUR_STICKY_BUTTON_TEXT,
 } from "../../../constants/messages";
-import { debounce } from "lodash";
 
 const StyledContainer = styled.div`
   position: fixed;
@@ -240,9 +233,18 @@ function Helper() {
   const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(snippetRef);
 
-  // This is a quick fix to avoid issues when the users
-  // clicks on the button quickly
-  const debouncedOnClick = useCallback(debounce(dispatch, 2000), []);
+  const isClickedRef = useRef(false);
+
+  const cheatActionOnClick = () => {
+    if (isClickedRef.current) return;
+
+    dispatch(helperConfig.cheatAction?.action);
+    isClickedRef.current = true;
+  };
+
+  useEffect(() => {
+    isClickedRef.current = false;
+  }, [helperConfig.step]);
 
   if (!showHelper) return null;
 
@@ -363,9 +365,7 @@ function Helper() {
           {(cheatMode || !helperConfig.action) && (
             <CheatActionButton
               className="t--onboarding-cheat-action"
-              onClick={() => {
-                debouncedOnClick(helperConfig.cheatAction?.action);
-              }}
+              onClick={cheatActionOnClick}
             >
               {helperConfig.cheatAction?.label}
             </CheatActionButton>
