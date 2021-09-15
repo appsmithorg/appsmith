@@ -6,6 +6,7 @@ import com.appsmith.server.solutions.EnvManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,13 @@ import java.util.Map;
 public class InstanceAdminController {
 
     private final EnvManager envManager;
+
+    @GetMapping("/env")
+    public Mono<ResponseDTO<Map<String, String>>> getAll() {
+        log.debug("Getting all env configuration");
+        return envManager.getAll()
+                .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
+    }
 
     @PutMapping("/env")
     public Mono<ResponseDTO<Boolean>> saveEnvChanges(
