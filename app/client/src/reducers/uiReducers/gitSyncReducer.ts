@@ -15,6 +15,7 @@ const initialState: GitSyncReducerState = {
     README.md app/client/cypress/support/commands.js
     app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
   `,
+  isImportAppViaGitModalOpen: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -56,6 +57,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isErrorPopupVisible: action.payload.isVisible,
   }),
+  [ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<{ isOpen: boolean; organizationId: string }>,
+  ) => ({
+    ...state,
+    isImportAppViaGitModalOpen: action.payload.isOpen,
+    organisationIdForImport: action.payload.organizationId,
+  }),
 });
 
 export type GitSyncReducerState = {
@@ -64,6 +73,8 @@ export type GitSyncReducerState = {
   activeGitSyncModalTab: GitSyncModalTab;
   isErrorPopupVisible: boolean;
   gitError: string;
+  isImportAppViaGitModalOpen: boolean;
+  organizationIdForImport?: string;
 };
 
 export default gitSyncReducer;

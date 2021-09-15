@@ -9,6 +9,7 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
   SHOW_CREATE_GIT_BRANCH_POPUP: "SHOW_CREATE_GIT_BRANCH_POPUP",
   SHOW_ERROR_POPUP: "SHOW_ERROR_POPUP",
   CONNECT_TO_GIT_INIT: "CONNECT_TO_GIT_INIT",

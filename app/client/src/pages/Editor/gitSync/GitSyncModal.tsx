@@ -18,6 +18,7 @@ import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -76,6 +77,8 @@ function GitSyncModal() {
   const setActiveTabIndex = (index: number) =>
     dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
 
+  const orgId = useSelector(getCurrentOrgId);
+
   const BodyComponent =
     ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
 
@@ -98,7 +101,10 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
+            <BodyComponent
+              onSuccess={() => setActiveTabIndex(1)}
+              organizationId={orgId}
+            />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

@@ -71,3 +71,11 @@ export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
 export const showCreateBranchPopup = () => ({
   type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
 });
+
+export const setIsImportAppViaGitModalOpen = (payload: {
+  isOpen: boolean;
+  organizationId?: string;
+}) => ({
+  type: ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN,
+  payload,
+});
