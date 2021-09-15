@@ -9,7 +9,7 @@ import { DSLWidget } from "widgets/constants";
 
 import CanvasMultiPointerArena, {
   POINTERS_CANVAS_ID,
-} from "../common/CanvasMultiPointerArena";
+} from "../common/CanvasArenas/CanvasMultiPointerArena";
 import { throttle } from "lodash";
 import { io } from "socket.io-client";
 import {
