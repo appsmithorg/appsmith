@@ -272,7 +272,13 @@ public class ImportExportApplicationService {
                                 datasource.getDatasourceConfiguration().setAuthentication(null);
                             }
                         });
-                        applicationJson.setDecryptedFields(decryptedFields);
+
+                        // Caution : Please don't serialise the credentials if we are serialising for git version control
+                        if (SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)) {
+                            applicationJson.setDecryptedFields(null);
+                        } else {
+                            applicationJson.setDecryptedFields(decryptedFields);
+                        }
                         return applicationJson;
                     });
             })

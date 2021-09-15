@@ -22,14 +22,14 @@ public class ApplicationJson {
     
     List<NewPage> pageList;
     
-    String publishedDefaultPageName;
-    
-    String unpublishedDefaultPageName;
-    
     List<NewAction> actionList;
-    
+
+    String publishedDefaultPageName;
+
+    String unpublishedDefaultPageName;
+
     Map<String, DecryptedSensitiveFields> decryptedFields;
-    
+
     /**
      * Mapping mongoEscapedWidgets with layoutId
      */

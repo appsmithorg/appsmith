@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.Application;
@@ -14,9 +15,12 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -25,6 +29,10 @@ public class GitFileUtils {
 
     @Autowired
     FileInterface fileUtils;
+
+    // Only include the application helper fields in metadata object
+    private static final Set<String> blockedMetadataFields
+        = Set.of("exportedApplication", "datasourceList", "pageList", "actionList", "decryptedFields");
 
     /**
      * This method will save the complete application in the local repo directory.
@@ -47,6 +55,17 @@ public class GitFileUtils {
 
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
+
+        // Pass metadata
+        Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
+            .map(key -> key.getName())
+            .filter(name -> !blockedMetadataFields.contains(name))
+            .collect(Collectors.toList());
+
+        ApplicationJson applicationMetadata = new ApplicationJson();
+
+        BeanCopyUtils.copyProperties(applicationJson, applicationMetadata, keys);
+        applicationReference.setMetadata(applicationMetadata);
 
         // Pass pages within the application
         Map<String, Object> resourceMap = new HashMap<>();
@@ -108,6 +127,10 @@ public class GitFileUtils {
 
         // Extract application data from the json
         applicationJson.setExportedApplication((Application) applicationReference.getApplication());
+
+        // TODO test this during rehydration
+        // Extract application metadata from the json
+        BeanCopyUtils.copyNestedNonNullProperties(applicationReference.getMetadata(), applicationJson);
 
         // Extract actions
         applicationJson.setActionList(getApplicationResource(applicationReference.getActions()));
