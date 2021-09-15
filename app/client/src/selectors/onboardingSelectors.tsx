@@ -32,3 +32,6 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
     return enabled && currentApplicationId === applicationId;
   },
 );
+
+export const getIsInOnboarding = (state: AppState) =>
+  state.ui.onBoarding.inOnboarding;
