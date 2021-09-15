@@ -28,12 +28,11 @@ export const collabStopEditingPageEvent = () =>
     type: APP_MULTIPLAYER_SOCKET_EVENTS.STOP_EDITING_APP,
   });
 
-export const collabShareUserPointerEvent = (payload: any) => {
+export const collabShareUserPointerEvent = (payload: any) =>
   pageEditwebsocketWriteEvent({
     type: APP_MULTIPLAYER_SOCKET_EVENTS.SHARE_USER_POINTER,
     payload,
   });
-};
 
 export const collabSetEditorsPointersData = (payload: any) => ({
   type: ReduxActionTypes.APP_COLLAB_SET_EDITORS_POINTER_DATA,

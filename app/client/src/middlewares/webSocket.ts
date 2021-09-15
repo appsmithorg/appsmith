@@ -55,12 +55,11 @@ const socketMiddleware = () => {
           path: RTS_BASE_PATH,
         });
         store.dispatch(setIsPageEditWebsocketConnected(true));
-        const pageSocketId = pageEditSocket.id;
         pageEditSocket.onAny((event: any, ...args: any) =>
           handlePageEditSocketEvent(
             { type: event, payload: args },
-            pageSocketId,
             store,
+            pageEditSocket?.id,
           ),
         );
         break;

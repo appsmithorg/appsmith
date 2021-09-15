@@ -116,8 +116,8 @@ type PointerEventDataType = {
 
 export function handlePageEditSocketEvent(
   event: any,
-  socketId: string,
   store: any,
+  socketId?: string,
 ) {
   switch (event.type) {
     case APP_MULTIPLAYER_SOCKET_EVENTS.SHARE_USER_POINTER: {

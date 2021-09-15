@@ -10,6 +10,7 @@ import {
   collabStopEditingPageEvent,
 } from "../../actions/appCollabActions";
 import { initPageEditSocketConnection } from "../../actions/websocketActions";
+import store from "store";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 
@@ -76,9 +77,6 @@ type PointerDataType = {
 
 function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const dispatch = useDispatch();
-  const pointerData: PointerDataType = useSelector(
-    (state: AppState) => state.ui.appCollab.pointerData,
-  );
   const animationStepIdRef = useRef<number>(0);
   const isWebsocketConnected = useSelector(
     (state: AppState) => state.ui.websocket.pageEditSocketConnected,
@@ -114,6 +112,8 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const previousAnimationStep = useRef<number>();
 
   const drawPointers = (animationStep: number) => {
+    const pointerData: PointerDataType = store.getState().ui.appCollab
+      .pointerData;
     if (previousAnimationStep.current === animationStep) return;
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();
