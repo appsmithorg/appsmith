@@ -121,11 +121,22 @@ const usersReducer = createReducer(initialState, {
     ...state,
     current: action.payload,
   }),
-  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (state: UsersReduxState) => ({
+  [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
     ...state,
     current: undefined,
-    currentUser: DefaultCurrentUserDetails,
-    users: [DefaultCurrentUserDetails],
+    currentUser: {
+      ...DefaultCurrentUserDetails,
+      emptyInstance: action.payload,
+    },
+    users: [
+      {
+        ...DefaultCurrentUserDetails,
+        emptyInstance: action.payload,
+      },
+    ],
   }),
   [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
     ...state,
