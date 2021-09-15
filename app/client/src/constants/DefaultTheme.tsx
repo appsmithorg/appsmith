@@ -23,6 +23,7 @@ export const IntentColors: Record<string, Color> = {
   danger: Colors.RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
+  successLight: Colors.GREEN,
 };
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
@@ -1358,16 +1359,16 @@ const comments = {
 };
 
 const auth: any = {
-  background: darkShades[1],
-  cardBackground: lightShades[10],
-  btnPrimary: "#F86A2B",
-  inputBackground: darkShades[1],
-  headingText: "#FFF",
-  link: "#106ba3",
-  text: darkShades[7],
-  placeholder: darkShades[5],
-  socialBtnText: darkShades[8],
-  socialBtnBorder: darkShades[8],
+  background: lightShades[11],
+  cardBackground: lightShades[0],
+  btnPrimary: Colors.CRUSTA,
+  inputBackground: lightShades[11],
+  headingText: darkShades[11],
+  link: Colors.CRUSTA,
+  text: "#000",
+  placeholder: lightShades[8],
+  socialBtnText: "#000",
+  socialBtnBorder: lightShades[13],
   socialBtnHighlight: darkShades[1],
 };
 
@@ -1381,11 +1382,13 @@ const formMessage = {
     danger: "rgba(226,44,44,0.08)",
     success: "#172320",
     warning: "rgba(224, 179, 14, 0.08)",
+    lightSuccess: "#EFFFF4",
   },
   text: {
     danger: "#E22C2C",
     success: "#03B365",
     warning: "#E0B30E",
+    lightSuccess: "#00693B",
   },
 };
 
