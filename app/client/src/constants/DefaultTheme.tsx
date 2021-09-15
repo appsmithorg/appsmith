@@ -1036,6 +1036,7 @@ type ColorType = {
     codeBackground: string;
     documentationCodeBackground: string;
     documentLink: string;
+    helpBarText: string;
     helpBarBackground: string;
     helpButtonBackground: string;
     helpIcon: string;
@@ -1245,10 +1246,6 @@ type ColorType = {
     background: string;
     buttonBackgroundHover: string;
     branchBtnText: string;
-  };
-  link: string;
-  welcomePage?: {
-    text: string;
   };
 };
 
@@ -2062,10 +2059,6 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
-  link: "#f86a2b",
-  welcomePage: {
-    text: lightShades[5],
-  },
 };
 
 export const light: ColorType = {
@@ -2080,8 +2073,17 @@ export const light: ColorType = {
   mentionSuggestion,
   reactionsComponent,
   mentionsInput,
-  helpModal,
-  globalSearch,
+  helpModal: {
+    itemHighlight: "#EBEBEB",
+    background: "#FFFFFF",
+  },
+  globalSearch: {
+    ...globalSearch,
+    helpBarBackground: "#F0F0F0",
+    helpBarText: "#A9A7A7",
+    helpButtonBackground: "#F0F0F0",
+    helpIcon: "#939090",
+  },
   comments: {
     ...comments,
     activeModeBackground: "#EBEBEB",
@@ -2090,7 +2092,15 @@ export const light: ColorType = {
     modeIconCircleStroke: "#fff",
     activeModeIconCircleStroke: "#EBEBEB",
   },
-  navigationMenu,
+  navigationMenu: {
+    contentActive: "#090707",
+    backgroundActive: "#EBEBEB",
+    contentInactive: "#4B4848",
+    backgroundInactive: "#FFFFFF",
+    label: "#A9A7A7",
+    warning: "#F22B2B",
+    warningBackground: "#FFFFFF",
+  },
   selected: lightShades[12],
   header: {
     separator: "#E0DEDE",
@@ -2366,7 +2376,7 @@ export const light: ColorType = {
   },
   menuBorder: lightShades[3],
   editableText: {
-    color: lightShades[10],
+    color: lightShades[8],
     bg: lightShades[2],
     dangerBg: "rgba(242, 43, 43, 0.06)",
   },
@@ -2674,10 +2684,6 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
-  link: "#f86a2b",
-  welcomePage: {
-    text: lightShades[5],
-  },
 };
 
 export const theme: Theme = {
@@ -2956,7 +2962,7 @@ export const theme: Theme = {
     sidebar: 256,
   },
   headerHeight: "48px",
-  smallHeaderHeight: "35px",
+  smallHeaderHeight: "34px",
   bottomBarHeight: "34px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",

@@ -20,8 +20,8 @@ import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
-import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
-import ShareIcon from "remixicon-react/SendPlaneLineIcon";
+import ShareIcon from "remixicon-react/ShareForwardFillIcon";
+import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import WorkspaceIcon from "remixicon-react/Building3FillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
@@ -38,7 +38,7 @@ import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
-import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
+import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
@@ -72,7 +72,8 @@ import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
-import { ReactComponent as UpArrow } from "assets/icons/ads/upper_arrow.svg";
+import UpArrow from "remixicon-react/ArrowUpSFillIcon";
+import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
@@ -230,6 +231,7 @@ export const IconCollection = [
   "gear",
   "user-2",
   "support",
+  "share-box",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -309,6 +311,9 @@ const Icon = forwardRef(
         break;
       case "open":
         returnIcon = <OpenIcon />;
+        break;
+      case "share-box":
+        returnIcon = <ShareBoxFillIcon />;
         break;
       case "user":
         returnIcon = <UserIcon />;

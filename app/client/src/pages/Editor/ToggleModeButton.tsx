@@ -107,7 +107,7 @@ const Container = styled.div`
   display: flex;
   flex: 1;
   z-index: ${Indices.Layer1};
-  margin-left: ${(props) => props.theme.smallHeaderHeight};
+  margin-left: ${(props) => props.theme.spaces[15]}px;
 `;
 
 /**

@@ -42,7 +42,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import { IconWrapper } from "components/ads/Icon";
+import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
@@ -62,9 +62,8 @@ import getFeatureFlags from "utils/featureFlags";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
-  padding-right: 0;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   background-color: ${(props) => props.theme.colors.header.background};
+  padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
@@ -116,9 +115,18 @@ const HeaderSection = styled.div`
   }
 `;
 
-const AppsmithLogoImg = styled.img`
-  margin-right: ${(props) => props.theme.spaces[6]}px;
-  height: 24px;
+const AppsmithLink = styled((props) => {
+  // we are removing non input related props before passing them in the components
+  // eslint-disable @typescript-eslint/no-unused-vars
+  return <Link {...props} />;
+})`
+  margin-right: ${(props) => props.theme.spaces[4]}px;
+  height: 20px;
+  width: 20px;
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const DeploySection = styled.div`
@@ -127,12 +135,20 @@ const DeploySection = styled.div`
 
 const ProfileDropdownContainer = styled.div`
   margin: 0 ${(props) => props.theme.spaces[7]}px;
+  margin-right: 0px;
 `;
 
-const StyledDeployButton = styled(Button)`
+const StyledInviteButton = styled(Button)`
+  margin-right: ${(props) => props.theme.spaces[9]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   ${(props) => getTypographyByKey(props, "btnLarge")}
   padding: ${(props) => props.theme.spaces[2]}px;
+`;
+
+const StyledDeployButton = styled(StyledInviteButton)`
+  margin-right: 0px;
+  background: transparent;
+  border-color: transparent;
 `;
 
 const BindingBanner = styled.div`
@@ -156,6 +172,12 @@ const BindingBanner = styled.div`
 
   box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
   z-index: 9999;
+`;
+
+const StyledIcon = styled(Icon)`
+  height: 34px;
+  padding-right: ${(props) => props.theme.spaces[2]}px;
+  align-self: center;
 `;
 
 type EditorHeaderProps = {
@@ -243,13 +265,13 @@ export function EditorHeader(props: EditorHeaderProps) {
     <ThemeProvider theme={theme}>
       <HeaderWrapper>
         <HeaderSection>
-          <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
-            <AppsmithLogoImg
+          <AppsmithLink to={APPLICATIONS_URL}>
+            <img
               alt="Appsmith logo"
               className="t--appsmith-logo"
               src={AppsmithLogo}
             />
-          </Link>
+          </AppsmithLink>
           <Boxed step={OnboardingStep.FINISH}>
             <EditorAppName
               applicationId={applicationId}
@@ -304,10 +326,10 @@ export function EditorHeader(props: EditorHeaderProps) {
                   : "Share Application"
               }
               trigger={
-                <Button
-                  className="t--application-share-btn header__application-share-btn"
+                <StyledInviteButton
                   icon={"share"}
                   size={Size.small}
+                  tag="button"
                   text={"Share"}
                 />
               }
@@ -325,9 +347,11 @@ export function EditorHeader(props: EditorHeaderProps) {
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
+                  isLink
                   isLoading={isPublishing}
                   onClick={handleClickDeploy}
                   size={Size.small}
+                  tag="button"
                   text={"Deploy"}
                 />
               </OnboardingIndicator>
@@ -335,7 +359,11 @@ export function EditorHeader(props: EditorHeaderProps) {
               <DeployLinkButtonDialog
                 link={getApplicationViewerPageURL(applicationId, pageId)}
                 trigger={
-                  <StyledDeployButton icon={"downArrow"} size={Size.xxs} />
+                  <StyledIcon
+                    fillColor={theme.colors.navigationMenu.contentActive}
+                    name={isPopoverOpen ? "upArrow" : "downArrow"}
+                    size={IconSize.XXL}
+                  />
                 }
               />
             </DeploySection>
@@ -361,7 +389,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 }
 
-const theme = getTheme(ThemeMode.DARK);
+const theme = getTheme(ThemeMode.LIGHT);
 
 const mapStateToProps = (state: AppState) => ({
   pageName: state.ui.editor.currentPageName,

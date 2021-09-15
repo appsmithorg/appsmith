@@ -34,7 +34,7 @@ const GithubIcon = HelpIcons.GITHUB;
 const ChatIcon = HelpIcons.CHAT;
 const DiscordIcon = HelpIcons.DISCORD;
 
-const StyledOpenLinkIcon = styled(OenLinkIcon)`
+const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
   position: absolute;
   right: 14px;
   top: 1px;
@@ -44,6 +44,10 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)`
   && svg {
     width: 12px;
     height: 12px;
+    path {
+      fill: transparent;
+      stroke: ${(props) => props.color};
+    }
   }
 `;
 
@@ -88,11 +92,11 @@ function Hit(props: { hit: { path: string } }) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon color="#181F24" height={14} width={11.2} />
+        <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
-          color={"#181F24"}
+          color={"#4b4848"}
         />
       </div>
     </div>
@@ -123,7 +127,7 @@ function DefaultHelpMenuItem(props: {
           <span className="ais-Highlight">{props.item.label}</span>
           <StyledOpenLinkIcon
             className="t--docOpenLink open-link"
-            color={"#181F24"}
+            color={"#4b4848"}
           />
         </div>
       </div>
@@ -189,7 +193,7 @@ const SearchContainer = styled.div`
   }
 
   .ais-Hits-item:hover {
-    background-color: #313740;
+    background-color: ${(props) => props.theme.colors.helpModal.itemHighlight};
   }
   .ais-Hits-item:hover .open-link {
     display: block;
@@ -198,7 +202,7 @@ const SearchContainer = styled.div`
   .hit-name {
     font-size: 14px;
     line-height: 16px;
-    color: #e7e9e9;
+    color: #4b4848;
     position: relative;
   }
 
@@ -317,17 +321,17 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon color="#181F24" height={14} width={11.2} />,
+    icon: <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon color="#fff" height={14} width={11.2} />,
+    icon: <StyledGithubIcon color="#4b4848" height={14} width={11.2} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledDiscordIcon height={16} width={16} />,
+    icon: <StyledDiscordIcon color="#4b4848" height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -335,7 +339,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
-    icon: <StyledChatIcon color="#fff" height={14} width={11.2} />,
+    icon: <StyledChatIcon color="#4b4848" height={14} width={11.2} />,
     label: "Chat with us",
     id: "intercom-trigger",
   });
