@@ -17,9 +17,9 @@
           "info": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "Use Prepared Statement",
-          "info": "Turning on Prepared Statement makes the query parameterized. This in turn makes it resilient against SQL injections",
-          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
+          "label": "Smart JSON Substitution",
+          "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
           "controlType": "SWITCH",
           "initialValue": true
         },
