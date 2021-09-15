@@ -14,8 +14,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
-            helpText:
-              "Displays a list of options for a user to select. Values must be unique",
+            helpText: "Displays a list of unique options",
             propertyName: "options",
             label: "Options",
             controlType: "OPTION_INPUT",
@@ -56,10 +55,10 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Selects a value of the options entered by default",
+            helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
             label: "Default Selected Value",
-            placeholderText: "Enter option value",
+            placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,

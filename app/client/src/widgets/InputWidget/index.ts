@@ -15,7 +15,6 @@ export const CONFIG = {
     widgetName: "Input",
     version: 1,
     defaultText: "",
-    maxChars: 255,
     iconAlign: "left",
     autoFocus: false,
     resetOnSubmit: true,

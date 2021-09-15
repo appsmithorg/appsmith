@@ -10,7 +10,7 @@ export const CONFIG = {
   isCanvas: true,
   defaults: {
     rows: 13 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],

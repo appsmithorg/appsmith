@@ -13,8 +13,8 @@ export const CONFIG = {
     rows: 8 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Chart",
-    chartType: "LINE_CHART",
-    chartName: "Last week's revenue",
+    chartType: "COLUMN_CHART",
+    chartName: "Sales Report",
     allowHorizontalScroll: false,
     version: 1,
     chartData: {
@@ -22,88 +22,44 @@ export const CONFIG = {
         seriesName: "Sales",
         data: [
           {
-            x: "Mon",
-            y: 10000,
+            x: "Product1",
+            y: 20000,
           },
           {
-            x: "Tue",
-            y: 12000,
+            x: "Product2",
+            y: 22000,
           },
           {
-            x: "Wed",
+            x: "Product3",
             y: 32000,
-          },
-          {
-            x: "Thu",
-            y: 28000,
-          },
-          {
-            x: "Fri",
-            y: 14000,
-          },
-          {
-            x: "Sat",
-            y: 19000,
-          },
-          {
-            x: "Sun",
-            y: 36000,
           },
         ],
       },
     },
-    xAxisName: "Last Week",
-    yAxisName: "Total Order Revenue $",
+    xAxisName: "Product Line",
+    yAxisName: "Revenue($)",
     labelOrientation: LabelOrientation.AUTO,
     customFusionChartConfig: {
       type: "column2d",
       dataSource: {
-        seriesName: "Revenue",
         chart: {
-          caption: "Last week's revenue",
-          xAxisName: "Last Week",
-          yAxisName: "Total Order Revenue $",
+          caption: "Sales Report",
+          xAxisName: "Product Line",
+          yAxisName: "Revenue($)",
           theme: "fusion",
         },
         data: [
           {
-            label: "Mon",
-            value: 10000,
+            x: "Product1",
+            y: 20000,
           },
           {
-            label: "Tue",
-            value: 12000,
+            x: "Product2",
+            y: 22000,
           },
           {
-            label: "Wed",
-            value: 32000,
-          },
-          {
-            label: "Thu",
-            value: 28000,
-          },
-          {
-            label: "Fri",
-            value: 14000,
-          },
-          {
-            label: "Sat",
-            value: 19000,
-          },
-          {
-            label: "Sun",
-            value: 36000,
-          },
-        ],
-        trendlines: [
-          {
-            line: [
-              {
-                startvalue: "38000",
-                valueOnRight: "1",
-                displayvalue: "Weekly Target",
-              },
-            ],
+            x: "Product3",
+            y: 32000,
           },
         ],
       },

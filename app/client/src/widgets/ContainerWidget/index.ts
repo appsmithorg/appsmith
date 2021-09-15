@@ -10,7 +10,7 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Container",
     containerStyle: "card",
     children: [],
