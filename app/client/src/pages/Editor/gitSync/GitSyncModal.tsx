@@ -15,7 +15,7 @@ import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
 const Container = styled.div`
-  height: 660px;
+  height: 600px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -25,9 +25,9 @@ const Container = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  padding-left: ${(props) => props.theme.spaces[12]}px;
-  padding-top: ${(props) => props.theme.spaces[13]}px;
+  padding-left: ${(props) => props.theme.spaces[11]}px;
   padding-bottom: ${(props) => props.theme.spaces[13]}px;
+  padding-right: ${(props) => props.theme.spaces[13]}px;
   overflow-y: auto;
   height: 100%;
 `;
@@ -79,14 +79,14 @@ function GitSyncModal() {
       isOpen={isModalOpen}
       maxWidth={"900px"}
       onClose={handleClose}
-      width={"600px"}
+      width={"550px"}
     >
       <Container>
         <MenuContainer>
           <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
         </MenuContainer>
         <BodyContainer>
-          <BodyComponent />
+          <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
         </BodyContainer>
         <CloseBtnContainer onClick={handleClose}>
           <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

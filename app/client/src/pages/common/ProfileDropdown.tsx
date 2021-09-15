@@ -4,7 +4,6 @@ import Text, { TextType } from "components/ads/Text";
 import styled, { createGlobalStyle } from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
-import ThemeSwitcher from "./ThemeSwitcher";
 import MenuDivider from "components/ads/MenuDivider";
 import MenuItem from "components/ads/MenuItem";
 import {
@@ -16,12 +15,10 @@ import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
 import UserApi from "api/UserApi";
-
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
   name: string;
-  hideThemeSwitch?: boolean;
   modifiers?: PopperModifiers;
 };
 
@@ -110,12 +107,6 @@ export default function ProfileDropdown(props: TagProps) {
           </UserNameWrapper>
         </UserInformation>
         <MenuDivider />
-        {!props.hideThemeSwitch && (
-          <>
-            <ThemeSwitcher />
-            <MenuDivider />
-          </>
-        )}
         <MenuItem
           className={`t--edit-profile ${BlueprintClasses.POPOVER_DISMISS}`}
           icon="edit"

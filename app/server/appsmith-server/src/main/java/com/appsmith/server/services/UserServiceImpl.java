@@ -855,8 +855,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
-        return isUsersEmpty()
-                .map(isUsersEmpty -> {
+        return Mono.zip(
+                        isUsersEmpty(),
+                        user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail())
+                )
+                .map(tuple -> {
+                    final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
+                    final User userFromDb = tuple.getT2();
+
                     final UserProfileDTO profile = new UserProfileDTO();
 
                     profile.setEmail(user.getEmail());
@@ -865,6 +871,14 @@ public class UserServiceImpl extends BaseService<UserRepository, User, String> i
                     profile.setName(user.getName());
                     profile.setGender(user.getGender());
                     profile.setEmptyInstance(isUsersEmpty);
+                    profile.setAnonymous(user.isAnonymous());
+                    profile.setEnabled(user.isEnabled());
+
+                    profile.setSuperUser(policyUtils.isPermissionPresentForUser(
+                            userFromDb.getPolicies(),
+                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                            userFromDb.getUsername()
+                    ));
 
                     return profile;
                 });

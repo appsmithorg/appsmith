@@ -54,6 +54,7 @@ describe("Form Widget Functionality", function() {
      * @param{FormWidget}Mouseover
      * @param{FormPre Css} Assertion
      */
+    // Change the form name
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
@@ -62,20 +63,24 @@ describe("Form Widget Functionality", function() {
     /**
      * @param{Text} Random Colour
      */
+    // Change the form  background color
     cy.get(widgetsPage.backgroundcolorPicker)
       .first()
       .click({ force: true });
     cy.xpath(widgetsPage.greenColor).click();
+    // Verify the form background color
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(3, 179, 101)");
     /**
      * @param{toggleButton Css} Assert to be checked
      */
+    // Check the Scroll and verify
     cy.togglebar(commonlocators.scrollView);
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")
       .should("be.visible");
+    // Close the form propert pane
     cy.get(commonlocators.editPropCrossButton).click({ force: true });
   });
   it("Form Widget Functionality To Verify The Colour", function() {
@@ -86,15 +91,20 @@ describe("Form Widget Functionality", function() {
   });
   it("Form Widget Functionality To Unchecked Visible Widget", function() {
     cy.openPropertyPane("formwidget");
+    // Uncheck the visble JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
+    // Verify the unchecked visible JS
     cy.get(publish.formWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
   it("Form Widget Functionality To Check Visible Widget", function() {
+    // Open property pone
     cy.openPropertyPane("formwidget");
+    // Check the visible JS
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
+    // Verify the Checked Visible JS
     cy.get(publish.formWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
@@ -135,9 +145,16 @@ describe("Form Widget Functionality", function() {
   });
 
   it("Form-Delete Verification", function() {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("formwidget");
     // Delete the Form widget
-    cy.deleteWidget(widgetsPage.formWidget);
+    cy.get("body").type("{del}", { force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    //cy.deleteWidget(widgetsPage.formWidget);
     cy.PublishtheApp();
     cy.get(widgetsPage.formWidget).should("not.exist");
   });

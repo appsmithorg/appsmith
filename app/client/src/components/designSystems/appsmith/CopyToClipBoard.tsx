@@ -2,7 +2,7 @@ import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
-import { BaseButton } from "components/designSystems/blueprint/ButtonComponent";
+import { BaseButton } from "./BaseButton";
 
 const Wrapper = styled.div`
   display: flex;

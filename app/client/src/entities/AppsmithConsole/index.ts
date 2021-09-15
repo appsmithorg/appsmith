@@ -6,6 +6,7 @@ export enum ENTITY_TYPE {
   ACTION = "ACTION",
   DATASOURCE = "DATASOURCE",
   WIDGET = "WIDGET",
+  JSACTION = "JSACTION",
 }
 
 export enum PLATFORM_ERROR {

@@ -1,6 +1,8 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +35,13 @@ public class EnvManager {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final PolicyUtils policyUtils;
+    private final CommonConfig commonConfig;
 
-    @Value("${appsmith.admin.envfile:/opt/appsmith/docker.env}")
-    public String envFilePath;
-
+    /**
+     * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
+     * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
+     * respectively.
+     */
     private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
@@ -116,18 +122,13 @@ public class EnvManager {
     }
 
     public Mono<Void> applyChanges(Map<String, String> changes) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
-                .filter(user -> policyUtils.isPermissionPresentForUser(
-                        user.getPolicies(),
-                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                        user.getUsername()
-                ))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)))
+        return verifyCurrentUserIsSuper()
                 .flatMap(user -> {
                     final String originalContent;
+                    final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+
                     try {
-                        originalContent = Files.readString(Path.of(envFilePath));
+                        originalContent = Files.readString(envFilePath);
                     } catch (IOException e) {
                         log.error("Unable to read env file " + envFilePath, e);
                         return Mono.error(e);
@@ -136,7 +137,7 @@ public class EnvManager {
                     final List<String> changedContent = transformEnvContent(originalContent, changes);
 
                     try {
-                        Files.write(Path.of(envFilePath), changedContent);
+                        Files.write(envFilePath, changedContent);
                     } catch (IOException e) {
                         log.error("Unable to write to env file " + envFilePath, e);
                         return Mono.error(e);
@@ -144,6 +145,49 @@ public class EnvManager {
 
                     return Mono.empty();
                 });
+    }
+
+    public static Map<String, String> parseToMap(String content) {
+        final Map<String, String> data = new HashMap<>();
+
+        content.lines()
+                .forEach(line -> {
+                    final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
+                    if (matcher.matches()) {
+                        final String name = matcher.group("name");
+                        if (!VARIABLE_BLACKLIST.contains(name)) {
+                            data.put(name, matcher.group("value"));
+                        }
+                    }
+                });
+
+        return data;
+    }
+
+    public Mono<Map<String, String>> getAll() {
+        return verifyCurrentUserIsSuper()
+                .flatMap(user -> {
+                    final String originalContent;
+                    try {
+                        originalContent = Files.readString(Path.of(commonConfig.getEnvFilePath()));
+                    } catch (IOException e) {
+                        log.error("Unable to read env file " + commonConfig.getEnvFilePath(), e);
+                        return Mono.error(e);
+                    }
+
+                    return Mono.justOrEmpty(parseToMap(originalContent));
+                });
+    }
+
+    public Mono<User> verifyCurrentUserIsSuper() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> userService.findByEmail(user.getEmail()))
+                .filter(user -> policyUtils.isPermissionPresentForUser(
+                        user.getPolicies(),
+                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
+                        user.getUsername()
+                ))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
     }
 
 }

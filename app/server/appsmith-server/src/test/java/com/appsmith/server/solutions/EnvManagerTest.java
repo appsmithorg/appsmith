@@ -120,6 +120,44 @@ public class EnvManagerTest {
 
     }
 
+    public void parseTest() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=second value\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "second value",
+                "VAR_3", "third value"
+        ));
+
+    }
+
+    @Test
+    public void parseEmptyValues() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "",
+                "VAR_3", "third value"
+        ));
+
+    }
+
+    @Test
+    public void parseQuotedValues() {
+
+        assertThat(EnvManager.parseToMap(
+                "VAR_1=first value\nVAR_2=\"quoted value\"\n\nVAR_3=third value"
+        )).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "VAR_1", "first value",
+                "VAR_2", "quoted value",
+                "VAR_3", "third value"
+        ));
+
+    }
+
     @Test
     public void disallowedVariable() {
         final String content = "APPSMITH_MONGODB_URI=first value\nDISALLOWED_NASTY_STUFF=\"quoted value\"\n\nAPPSMITH_INSTANCE_NAME=third value";

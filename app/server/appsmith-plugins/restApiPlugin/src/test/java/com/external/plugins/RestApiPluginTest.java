@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.services.SharedConfig;
 import com.external.connections.APIConnection;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,7 +45,21 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class RestApiPluginTest {
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(() -> 10 * 1024 * 1024);
+
+    public class MockSharedConfig implements SharedConfig {
+
+        @Override
+        public int getCodecSize() {
+            return 10 * 1024 * 1024;
+        }
+
+        @Override
+        public int getMaxResponseSize() {
+            return 10000;
+        }
+    }
+
+    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
 
     @Before
     public void setUp() {

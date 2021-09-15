@@ -1,12 +1,12 @@
 import React from "react";
 import { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { WidgetIcons } from "icons/WidgetIcons";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Colors } from "constants/Colors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { IconWrapper } from "constants/IconConstants";
 
 type CardProps = {
   details: WidgetCardProps;
@@ -79,7 +79,7 @@ function WidgetCard(props: CardProps) {
     deselectAll();
     AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
       widgetType: props.details.type,
-      widgetName: props.details.widgetCardName,
+      widgetName: props.details.displayName,
     });
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
@@ -87,8 +87,7 @@ function WidgetCard(props: CardProps) {
         widgetId: generateReactKey(),
       });
   };
-  const iconType: string = props.details.type;
-  const Icon = WidgetIcons[iconType];
+
   const className = `t--widget-card-draggable-${props.details.type
     .split("_")
     .join("")
@@ -96,8 +95,10 @@ function WidgetCard(props: CardProps) {
   return (
     <Wrapper className={className} draggable onDragStart={onDragStart}>
       <div>
-        <Icon />
-        <IconLabel>{props.details.widgetCardName}</IconLabel>
+        <IconWrapper>
+          <img height="24px" src={props.details.icon} width="24px" />
+        </IconWrapper>
+        <IconLabel>{props.details.displayName}</IconLabel>
         {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
       </div>
     </Wrapper>
