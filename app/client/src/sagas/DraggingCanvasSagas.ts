@@ -9,7 +9,6 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { WidgetDraggingUpdateParams } from "utils/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "./selectors";
 import log from "loglevel";
 import { cloneDeep } from "lodash";
@@ -21,6 +20,7 @@ import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { getUpdateDslAfterCreatingChild } from "./WidgetAdditionSagas";
+import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 
 export type WidgetMoveParams = {
   widgetId: string;

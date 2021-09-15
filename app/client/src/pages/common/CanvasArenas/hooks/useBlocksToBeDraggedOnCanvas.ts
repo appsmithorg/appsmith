@@ -17,18 +17,18 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { XYCord } from "utils/hooks/useCanvasDragging";
 import { isEmpty, isEqual } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import { useWidgetSelection } from "./useWidgetSelection";
+import { useWidgetSelection } from "../../../../utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { XYCord } from "./useCanvasDragging";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;

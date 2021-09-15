@@ -10,7 +10,6 @@ import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getDropZoneOffsets, noCollision } from "utils/WidgetPropsUtils";
-import { useWidgetDragResize } from "./dragResizeHooks";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
@@ -19,6 +18,7 @@ import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 export interface XYCord {
   x: number;

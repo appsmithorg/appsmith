@@ -16,9 +16,9 @@ import {
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getNearestParentCanvas } from "utils/generators";
-import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
+import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { XYCord } from "utils/hooks/useCanvasDragging";
+import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import { commentModeSelector } from "../../../selectors/commentsSelectors";
