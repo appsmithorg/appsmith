@@ -406,6 +406,19 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    @Override
+    public Mono<String> updateRemote(String applicationId, String remoteUrl) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    Application application1 = new Application();
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    gitApplicationMetadata.setRemoteUrl(remoteUrl);
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.update(applicationId, application1);
+                })
+                .thenReturn(remoteUrl);
+    }
+
     public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
         return getApplicationById(srcApplicationId)
                 .flatMap(application -> {
