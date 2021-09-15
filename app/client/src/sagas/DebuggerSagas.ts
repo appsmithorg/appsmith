@@ -18,8 +18,13 @@ import {
 } from "redux-saga/effects";
 import { findIndex, get, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { getAction, getPlugin } from "selectors/entitiesSelector";
+import {
+  getAction,
+  getPlugin,
+  getJSCollection,
+} from "selectors/entitiesSelector";
 import { Action, PluginType } from "entities/Action";
+import { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
@@ -37,12 +42,12 @@ import {
   createMessage,
   WIDGET_PROPERTIES_UPDATED,
 } from "constants/messages";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { getWidget } from "./selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getWidget } from "./selectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import AppsmithConsole from "utils/AppsmithConsole";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -167,6 +172,21 @@ function* logDependentEntityProperties(payload: Log) {
   );
 }
 
+function* onTriggerPropertyUpdates(payload: Log) {
+  const dataTree: DataTree = yield select(getDataTree);
+  const source = payload.source;
+
+  if (!source || !source.propertyPath) return;
+  const widget = dataTree[source.name];
+  // If property is not a trigger property we ignore
+  if (!isWidget(widget) || !(source.propertyPath in widget.triggerPaths))
+    return;
+  // If the value of the property is empty(or set to 'No Action')
+  if (widget[source.propertyPath] === "") {
+    AppsmithConsole.deleteError(`${source.id}-${source.propertyPath}`);
+  }
+}
+
 function* debuggerLogSaga(action: ReduxAction<Log>) {
   const { payload } = action;
 
@@ -174,11 +194,26 @@ function* debuggerLogSaga(action: ReduxAction<Log>) {
     case LOG_TYPE.WIDGET_UPDATE:
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
+      yield call(onTriggerPropertyUpdates, payload);
       return;
     case LOG_TYPE.ACTION_UPDATE:
       yield put(debuggerLog(payload));
       yield call(logDependentEntityProperties, payload);
       return;
+    case LOG_TYPE.JS_ACTION_UPDATE:
+      yield put(debuggerLog(payload));
+      return;
+    case LOG_TYPE.JS_PARSE_ERROR:
+      yield put(addErrorLog(payload));
+      break;
+    case LOG_TYPE.JS_PARSE_SUCCESS:
+      AppsmithConsole.deleteError(payload.source?.id ?? "");
+      break;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    // Fall through intentional here
+    case LOG_TYPE.TRIGGER_EVAL_ERROR:
+      yield put(debuggerLog(payload));
     case LOG_TYPE.EVAL_ERROR:
     case LOG_TYPE.EVAL_WARNING:
     case LOG_TYPE.WIDGET_PROPERTY_VALIDATION_ERROR:
@@ -268,6 +303,21 @@ function* logDebuggerErrorAnalyticsSaga(
         errorMessage: payload.errorMessage,
         errorType: payload.errorType,
         errorSubType: payload.errorSubType,
+      });
+    } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
+      const action: JSCollection = yield select(
+        getJSCollection,
+        payload.entityId,
+      );
+      const plugin: Plugin = yield select(getPlugin, action.pluginId);
+      const pluginName = plugin.name.replace(/ /g, "");
+
+      // Sending plugin name for actions
+      AnalyticsUtil.logEvent(payload.eventName, {
+        entityType: pluginName,
+        propertyPath: "",
+        errorMessages: payload.errorMessages,
+        pageId: currentPageId,
       });
     }
   } catch (e) {
@@ -383,7 +433,7 @@ function* deleteDebuggerErrorLogSaga(
 
   const error = errors[action.payload.id];
 
-  if (!error.source) return;
+  if (!error || !error.source) return;
 
   const analyticsPayload = {
     entityName: error.source.name,
@@ -426,6 +476,7 @@ function* deleteDebuggerErrorLogSaga(
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
+
     takeEvery(
       ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
       logDebuggerErrorAnalyticsSaga,

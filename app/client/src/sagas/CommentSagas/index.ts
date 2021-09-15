@@ -58,7 +58,6 @@ function* createUnpublishedCommentThread(
 
 function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
   try {
-    yield put(removeUnpublishedCommentThreads());
     const newCommentThreadPayload = transformUnpublishCommentThreadToCreateNew(
       action.payload,
     );
@@ -76,6 +75,7 @@ function* createCommentThread(action: ReduxAction<CreateCommentThreadPayload>) {
     if (isValidResponse) {
       yield put(createCommentThreadSuccess(response.data));
       yield put(setVisibleThread(response.data.id));
+      yield put(removeUnpublishedCommentThreads());
     }
   } catch (error) {
     yield put({

@@ -7,8 +7,11 @@ import {
   appCommentsFilter as appCommentsFilterSelector,
   applicationCommentsSelector,
   getAppCommentThreads,
+  getCommentThreadsFetched,
   getSortedAndFilteredAppCommentThreadIds,
   shouldShowResolved as shouldShowResolvedSelector,
+  getLastUpdatedCommentThreadId,
+  getUnreadCommentsCount,
 } from "selectors/commentsSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -37,6 +40,8 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
 
   const currentUser = useSelector(getCurrentUser);
   const currentUsername = currentUser?.username;
+  const unreadCommentsCount = useSelector(getUnreadCommentsCount);
+  const lastUpdatedCommentThreadId = useSelector(getLastUpdatedCommentThreadId);
 
   return useMemo(
     () =>
@@ -53,6 +58,8 @@ export const useSortedCommentThreadIds = (commentThreadIds: string[]) => {
       shouldShowResolved,
       appCommentsFilter,
       currentUsername,
+      lastUpdatedCommentThreadId,
+      unreadCommentsCount,
     ],
   );
 };
@@ -68,22 +75,29 @@ function AppCommentThreads() {
 
   const commentThreadIds = useSortedCommentThreadIds(appCommentThreadIds);
 
+  const commentThreadsMap = useSelector(allCommentThreadsMap);
+
+  // TODO (rishabh s) Update this when adding pagination to comments
+  const appCommentThreadsFetched = useSelector(getCommentThreadsFetched);
+
   useEffect(() => {
     // if user is visiting a comment thread link which is already resolved,
     // we'll activate the resolved comments filter
-    if (
-      commentThreadIdFromUrl &&
-      !commentThreadIds.includes(commentThreadIdFromUrl)
-    ) {
-      if (appCommentThreadIds.includes(commentThreadIdFromUrl))
-        dispatch(setShouldShowResolvedComments(true));
-      else
+    if (commentThreadIdFromUrl && appCommentThreadsFetched) {
+      const commentInStore = commentThreadsMap[commentThreadIdFromUrl];
+
+      if (commentInStore) {
+        if (commentInStore.resolvedState?.active) {
+          dispatch(setShouldShowResolvedComments(true));
+        }
+      } else {
         Toaster.show({
           text: createMessage(COMMENT_HAS_BEEN_DELETED),
           variant: Variant.warning,
         });
+      }
     }
-  }, [commentThreadIdFromUrl]);
+  }, [commentThreadIdFromUrl, appCommentThreadsFetched]);
 
   return (
     <Container>

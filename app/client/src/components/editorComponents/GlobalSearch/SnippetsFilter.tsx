@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getSnippetFilterLabel } from "./utils";
+import { useStore } from "react-redux";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
@@ -115,7 +117,6 @@ const SnippetsFilterContainer = styled.div<{
             }
             .ais-RefinementList-labelText {
               margin: 0 ${(props) => props.theme.spaces[4]}px;
-              text-transform: capitalize;
             }
             .ais-RefinementList-count {
               display: none;
@@ -141,6 +142,16 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
     document.addEventListener("click", handleOutsideClick);
     return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
+  const store = useStore();
+
+  const transformItems = useCallback(
+    (items: any) =>
+      items.map((item: any) => ({
+        ...item,
+        label: getSnippetFilterLabel(store.getState(), item.label),
+      })),
+    [store, getSnippetFilterLabel],
+  );
 
   return (
     <SnippetsFilterContainer
@@ -172,6 +183,7 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
           <RefinementList
             attribute="entities"
             defaultRefinement={refinements.entities || []}
+            transformItems={transformItems}
           />
         </div>
         {showSnippetFilter && (

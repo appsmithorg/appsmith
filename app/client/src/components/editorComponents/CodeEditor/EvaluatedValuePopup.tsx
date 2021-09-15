@@ -7,7 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import DebugButton from "components/editorComponents/Debugger/DebugCTA";
+import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
@@ -135,10 +135,6 @@ const StyledTitle = styled.p`
   cursor: pointer;
 `;
 
-const StyledDebugButton = styled(DebugButton)`
-  margin-left: auto;
-`;
-
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
   return (
@@ -161,10 +157,12 @@ interface Props {
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  entityName?: string;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
+  entityName?: string;
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
@@ -337,7 +335,7 @@ function PopoverContent(props: PopoverContentProps) {
     onMouseLeave,
     theme,
   } = props;
-  let error;
+  let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
   }
@@ -356,9 +354,9 @@ function PopoverContent(props: PopoverContentProps) {
               ? `This value does not evaluate to type "${expected?.type}".`
               : error.errorMessage}
           </span>
-          <StyledDebugButton
-            className="evaluated-value"
-            source={"EVALUATED_VALUE"}
+          <EvaluatedValueDebugButton
+            entityName={props.entityName}
+            error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
       )}
@@ -429,6 +427,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
+          entityName={props.entityName}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}

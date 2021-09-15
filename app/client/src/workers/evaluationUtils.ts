@@ -17,12 +17,13 @@ import {
   DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
+  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
-
+import { Variable } from "entities/JSCollection";
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
 // Dropdown1.options -> Dropdown1
@@ -88,6 +89,7 @@ export function getEntityNameAndPropertyPath(
 
 export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
+  unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
@@ -100,6 +102,9 @@ export const translateDiffEventToDataTreeDiffEvent = (
     return result;
   }
   const propertyPath = convertPathToString(difference.path);
+  const { entityName } = getEntityNameAndPropertyPath(propertyPath);
+  const entity = unEvalDataTree[entityName];
+  const isJsAction = isJSAction(entity);
   switch (difference.kind) {
     case "N": {
       result.event = DataTreeDiffEvent.NEW;
@@ -114,11 +119,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      const rhsChange =
-        typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
+      let rhsChange, lhsChange;
+      if (isJsAction) {
+        rhsChange = typeof difference.rhs === "string";
+        lhsChange = typeof difference.lhs === "string";
+      } else {
+        rhsChange =
+          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
 
-      const lhsChange =
-        typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+        lhsChange =
+          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+      }
 
       if (rhsChange || lhsChange) {
         result.event = DataTreeDiffEvent.EDIT;
@@ -176,10 +187,13 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "A": {
-      return translateDiffEventToDataTreeDiffEvent({
-        ...difference.item,
-        path: [...difference.path, difference.index],
-      });
+      return translateDiffEventToDataTreeDiffEvent(
+        {
+          ...difference.item,
+          path: [...difference.path, difference.index],
+        },
+        unEvalDataTree,
+      );
     }
     default: {
       break;
@@ -237,6 +251,14 @@ export function isAppsmithEntity(
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
     entity.ENTITY_TYPE === ENTITY_TYPE.APPSMITH
+  );
+}
+
+export function isJSAction(entity: DataTreeEntity): entity is DataTreeJSAction {
+  return (
+    typeof entity === "object" &&
+    "ENTITY_TYPE" in entity &&
+    entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION
   );
 }
 
@@ -377,7 +399,6 @@ export const getAllPaths = (
 ): Record<string, true> => {
   // Add the key if it exists
   if (curKey) result[curKey] = true;
-
   if (Array.isArray(records)) {
     for (let i = 0; i < records.length; i++) {
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
@@ -441,6 +462,28 @@ export function getSafeToRenderDataTree(
   }, tree);
 }
 
+export const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm;
+export const ARGUMENT_NAMES = /([^\s,]+)/g;
+
+export function getParams(func: any) {
+  const fnStr = func.toString().replace(STRIP_COMMENTS, "");
+  const args: Array<Variable> = [];
+  let result = fnStr
+    .slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")"))
+    .match(ARGUMENT_NAMES);
+  if (result === null) result = [];
+  if (result && result.length) {
+    result.forEach((arg: string) => {
+      const element = arg.split("=");
+      args.push({
+        name: element[0],
+        value: element[1],
+      });
+    });
+  }
+  return args;
+}
+
 export const addErrorToEntityProperty = (
   errors: EvaluationError[],
   dataTree: DataTree,
@@ -479,7 +522,8 @@ export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   if (!(entityName in unEvalTree)) return false;
 
   const entity = unEvalTree[entityName];
-  if (!isAction(entity) && !isWidget(entity)) return false;
+  if (!isAction(entity) && !isWidget(entity) && !isJSAction(entity))
+    return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return relativePropertyPath in entity.bindingPaths;
 };

@@ -10,7 +10,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import {

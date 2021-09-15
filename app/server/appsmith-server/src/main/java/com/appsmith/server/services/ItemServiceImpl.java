@@ -111,6 +111,6 @@ public class ItemServiceImpl implements ItemService {
                     action.setPluginType(plugin.getType());
                     return action;
                 })
-                .flatMap(layoutActionService::createAction);
+                .flatMap(layoutActionService::createSingleAction);
     }
 }
