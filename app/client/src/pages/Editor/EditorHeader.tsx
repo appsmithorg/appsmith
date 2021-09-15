@@ -57,7 +57,7 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
+import getFeatureFlags from "utils/featureFlags";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -222,14 +222,17 @@ export function EditorHeader(props: EditorHeaderProps) {
     showAppInviteUsersDialogSelector,
   );
 
-  // eslint-disable-next-line
   const showGitSyncModal = useCallback(() => {
     dispatch(setIsGitSyncModalOpen(true));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const isMultiplayerEnabledForUser = useSelector(
-    isMultiplayerEnabledForUserSelector,
-  );
+  const handleClickDeploy = useCallback(() => {
+    if (getFeatureFlags().GIT) {
+      showGitSyncModal();
+    } else {
+      handlePublish();
+    }
+  }, [getFeatureFlags().GIT, showGitSyncModal, handlePublish]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -254,7 +257,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
               defaultValue={currentApplication?.name || ""}
-              deploy={handlePublish}
+              deploy={handleClickDeploy}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
               isError={isErroredSavingName}
@@ -280,9 +283,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          {isMultiplayerEnabledForUser && (
-            <RealtimeAppEditors applicationId={applicationId} />
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -318,7 +319,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 <StyledDeployButton
                   className="t--application-publish-btn"
                   isLoading={isPublishing}
-                  onClick={handlePublish}
+                  onClick={handleClickDeploy}
                   size={Size.small}
                   text={"Deploy"}
                 />

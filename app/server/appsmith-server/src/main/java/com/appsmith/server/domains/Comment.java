@@ -29,9 +29,6 @@ public class Comment extends AbstractCommentDomain {
 
     Body body;
 
-    /** Edit/Published Mode */
-    String mode;
-
     List<Reaction> reactions;
 
     /**

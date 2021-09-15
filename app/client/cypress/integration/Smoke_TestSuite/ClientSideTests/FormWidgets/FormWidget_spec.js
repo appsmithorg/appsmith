@@ -145,9 +145,16 @@ describe("Form Widget Functionality", function() {
   });
 
   it("Form-Delete Verification", function() {
+    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.openPropertyPane("formwidget");
     // Delete the Form widget
-    cy.deleteWidget(widgetsPage.formWidget);
+    cy.get("body").type("{del}", { force: true });
+    cy.wait("@updateLayout").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    //cy.deleteWidget(widgetsPage.formWidget);
     cy.PublishtheApp();
     cy.get(widgetsPage.formWidget).should("not.exist");
   });
