@@ -3,7 +3,11 @@ import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
 import Tooltip from "components/ads/Tooltip";
-import { createMessage, RESOLVE_THREAD } from "constants/messages";
+import {
+  createMessage,
+  RESOLVE_THREAD,
+  RESOLVED_THREAD,
+} from "constants/messages";
 import { Colors } from "constants/Colors";
 
 const Container = styled.div`
@@ -64,7 +68,10 @@ const ResolveCommentButton = withTheme(
 
     return (
       <Container onClick={_handleClick}>
-        <Tooltip content={createMessage(RESOLVE_THREAD)} hoverOpenDelay={1000}>
+        <Tooltip
+          content={createMessage(resolved ? RESOLVED_THREAD : RESOLVE_THREAD)}
+          hoverOpenDelay={1000}
+        >
           <StyledResolveIcon
             fillColor={fillColor}
             keepColors
