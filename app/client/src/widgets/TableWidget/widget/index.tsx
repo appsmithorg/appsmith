@@ -27,6 +27,7 @@ import {
   SelectCell,
   renderIconButton,
   SwitchCell,
+  RatingCell,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -250,6 +251,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
   };
 
+  handleRatingChange = (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    newValue: number,
+  ) => {
+    const editedColumnData = cloneDeep(this.props.editedColumnData);
+    setWith(editedColumnData, [columnId, rowIndex], newValue, Object);
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
+      triggerPropertyName: "onRateChanged",
+      dynamicString: action,
+      event: {
+        type: EventType.ON_RATE_CHANGED,
+      },
+    });
+    // also update selectedRowIndex because we are preventing propogation for "rating cell"
+    this.props.updateWidgetMetaProperty("selectedRowIndex", rowIndex);
+    this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+  };
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -384,6 +406,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 isHidden={isHidden}
                 label={columnProperties.switchLabel}
                 onChange={this.handleSwitchChange}
+                rowIndex={rowIndex}
+                value={props.cell.value}
+                widgetId={this.props.widgetId}
+              />
+            );
+          } else if (columnProperties.columnType === "rating") {
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+            return (
+              <RatingCell
+                action={columnProperties.onRateChanged}
+                activeColor={columnProperties.activeColor}
+                cellProperties={cellProperties}
+                columnId={accessor}
+                inactiveColor={columnProperties.inactiveColor}
+                isAllowHalf={columnProperties.isAllowHalf}
+                isCellVisible={isCellVisible}
+                isDisabled={columnProperties.isDisabled}
+                isHidden={isHidden}
+                maxCount={columnProperties.maxCount}
+                onChange={this.handleRatingChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
@@ -881,8 +923,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             Object,
           );
         } else {
-          // clean column data if column type change
-          delete editedColumnData[column.id];
+          // do not reset data if columnType rating
+          if (column.columnType !== "rating") {
+            // clean column data if column type change
+            delete editedColumnData[column.id];
+          }
         }
       }
       // clean column data if column is deleted

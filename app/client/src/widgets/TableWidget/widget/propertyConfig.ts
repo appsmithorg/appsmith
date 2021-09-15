@@ -19,6 +19,7 @@ enum ColumnTypes {
   ICON_BUTTON = "iconButton",
   SELECT = "select",
   SWITCH = "switch",
+  RATING = "rating",
 }
 
 function defaultSelectedRowValidation(
@@ -360,6 +361,10 @@ export default [
                       label: "Switch",
                       value: "switch",
                     },
+                    {
+                      label: "Rating",
+                      value: "rating",
+                    },
                   ],
                   updateHook: updateDerivedColumnsHook,
                   dependencies: [
@@ -406,6 +411,7 @@ export default [
                       ColumnTypes.TEXT,
                       ColumnTypes.VIDEO,
                       ColumnTypes.URL,
+                      ColumnTypes.RATING,
                     ]);
                   },
                   dependencies: [
@@ -1439,6 +1445,114 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: true,
+                },
+              ],
+            },
+            {
+              sectionName: "Rating Properties",
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [ColumnTypes.RATING],
+                  true,
+                );
+              },
+              children: [
+                {
+                  propertyName: "maxCount",
+                  helpText: "Sets the maximum limit of the number of stars",
+                  label: "Max count",
+                  controlType: "INPUT_TEXT",
+                  placeholderText: "Enter max count",
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: {
+                    type: ValidationTypes.NUMBER,
+                    params: { natural: true },
+                  },
+                  defaultValue: 5,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  propertyName: "activeColor",
+                  label: "Active color",
+                  controlType: "COLOR_PICKER",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  defaultValue: Colors.RATE_ACTIVE,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  propertyName: "inactiveColor",
+                  label: "Inactive color",
+                  controlType: "COLOR_PICKER",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  defaultValue: Colors.RATE_INACTIVE,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  propertyName: "isAllowHalf",
+                  helpText: "Controls if user can submit half stars",
+                  label: "Allow half stars",
+                  controlType: "SWITCH",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: { type: ValidationTypes.BOOLEAN },
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  propertyName: "isDisabled",
+                  helpText: "Disables input to the widget",
+                  label: "Disabled",
+                  controlType: "SWITCH",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: false,
+                  validation: { type: ValidationTypes.BOOLEAN },
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  helpText: "Triggers an action when the rate is changed",
+                  propertyName: "onRateChanged",
+                  label: "onChange",
+                  controlType: "ACTION_SELECTOR",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                 },
               ],
             },

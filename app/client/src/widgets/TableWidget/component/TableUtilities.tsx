@@ -19,7 +19,7 @@ import {
   CellLayoutProperties,
   TableStyles,
 } from "./Constants";
-import { isString, isEmpty, findIndex } from "lodash";
+import { isString, isEmpty, findIndex, isUndefined } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
@@ -45,6 +45,7 @@ import {
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import DropDownComponent from "widgets/DropdownWidget/component";
+import RateComponent from "widgets/RateWidget/component";
 
 export const renderCell = (
   value: any,
@@ -828,5 +829,72 @@ export function SwitchCell(props: {
         widgetId={props.widgetId}
       />
     </SwitchCellWrapper>
+  );
+}
+
+export function RatingCell(props: {
+  value: any;
+  maxCount: number;
+  action: string;
+  activeColor: string;
+  inactiveColor: string;
+  isAllowHalf: boolean;
+  columnId: string;
+  isDisabled: boolean;
+  isHidden: boolean;
+  onChange: (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    newValue: number,
+  ) => void;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  widgetId: string;
+  rowIndex: number;
+}) {
+  const showRating = props.value || props.value === 0;
+  return (
+    <CellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+      onClick={(e) => {
+        if (showRating) {
+          e.stopPropagation();
+        }
+      }}
+    >
+      {showRating && (
+        <RateComponent
+          activeColor={
+            isUndefined(props.activeColor)
+              ? Colors.RATE_ACTIVE
+              : props.activeColor
+          }
+          inactiveColor={
+            isUndefined(props.inactiveColor)
+              ? Colors.RATE_INACTIVE
+              : props.inactiveColor
+          }
+          isAllowHalf={props.isAllowHalf}
+          isLoading={false}
+          key={props.widgetId}
+          maxCount={props.maxCount}
+          onValueChanged={(newValue: number) => {
+            props.onChange(
+              props.columnId,
+              props.rowIndex,
+              props.action,
+              newValue,
+            );
+          }}
+          readonly={props.isDisabled}
+          size="MEDIUM"
+          value={props.value}
+          widgetId={props.widgetId}
+        />
+      )}
+    </CellWrapper>
   );
 }
