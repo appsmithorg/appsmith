@@ -50,16 +50,16 @@ export const CONFIG = {
         },
         data: [
           {
-            x: "Product1",
-            y: 20000,
+            label: "Product1",
+            value: 20000,
           },
           {
-            x: "Product2",
-            y: 22000,
+            label: "Product2",
+            value: 22000,
           },
           {
-            x: "Product3",
-            y: 32000,
+            label: "Product3",
+            value: 32000,
           },
         ],
       },

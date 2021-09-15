@@ -14,7 +14,7 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 7 * GRID_DENSITY_MIGRATION_V1,
+    rows: 10 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     shouldScrollContents: false,
     widgetName: "Tabs",
