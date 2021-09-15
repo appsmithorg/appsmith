@@ -6,8 +6,8 @@ import {
 } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { connectToGitInit } from "../../../actions/gitSyncActions";
-import { ConnectToGitPayload } from "../../../api/GitSyncAPI";
+import { connectToGitInit } from "actions/gitSyncActions";
+import { ConnectToGitPayload } from "api/GitSyncAPI";
 
 export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
@@ -30,6 +30,16 @@ export const useSSHKeyPair = () => {
     setFailedGeneratingSSHKey(true);
   }, [setIsGeneratingSSHKey]);
 
+  const dispatchFetchApplication = (applicationId: string) => {
+    dispatch(
+      fetchApplication({
+        payload: { applicationId, mode: APP_MODE.EDIT },
+        onSuccessCallback: onGenerateSSHKeySuccess,
+        onErrorCallback: onGenerateSSHKeyFailure,
+      }),
+    );
+  };
+
   const generateSSHKey = useCallback(
     (applicationId) => {
       if (applicationId) {
@@ -42,13 +52,7 @@ export const useSSHKeyPair = () => {
             payload: { applicationId },
             onErrorCallback: onGenerateSSHKeyFailure,
             onSuccessCallback: () => {
-              dispatch(
-                fetchApplication({
-                  payload: { applicationId, mode: APP_MODE.EDIT },
-                  onSuccessCallback: onGenerateSSHKeySuccess,
-                  onErrorCallback: onGenerateSSHKeyFailure,
-                }),
-              );
+              dispatchFetchApplication(applicationId);
             },
           }),
         );
@@ -115,4 +119,13 @@ export const useGitConnect = ({
     failedConnectingToGit,
     connectToGit,
   };
+};
+
+export const useIsGitConnected = () => {
+  const { remoteUrl: remoteUrlInStore } =
+    useSelector(getCurrentAppGitMetaData) || ({} as any);
+
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const sshKeyPair = gitMetaData?.gitAuth?.publicKey;
+  return sshKeyPair && remoteUrlInStore;
 };

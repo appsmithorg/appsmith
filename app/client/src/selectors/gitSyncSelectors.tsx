@@ -5,7 +5,5 @@ export const getIsGitSyncModalOpen = (state: AppState) =>
 
 export const getIsGitRepoSetup = () => false;
 
-export const getCurrentGitBranch = () => "master";
-
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;

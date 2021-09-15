@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Subtitle, Title, Space } from "./components/StyledComponents";
+import { Subtitle, Title, Space } from "../components/StyledComponents";
 import {
   CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
   REMOTE_URL_VIA,
   createMessage,
+  DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DEPLOY_KEY_TITLE,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
-import UserGitProfileSettings from "./components/UserGitProfileSettings";
-import { AUTH_TYPE_OPTIONS } from "./constants";
+import UserGitProfileSettings from "../components/UserGitProfileSettings";
+import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { useGitConnect, useSSHKeyPair } from "./hooks";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { Toaster } from "components/ads/Toast";
@@ -25,7 +27,7 @@ import { useSelector } from "react-redux";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { DOCS_BASE_URL } from "../../../constants/ThirdPartyConstants";
+import { DOCS_BASE_URL } from "../../../../constants/ThirdPartyConstants";
 
 const UrlOptionContainer = styled.div`
   display: flex;
@@ -200,6 +202,10 @@ function GitConnection(props: Props) {
     }
   }, [failedGeneratingSSHKey, failedConnectingToGit]);
 
+  const remoteUrlChangeHandler = (value: string) => {
+    setRemoteUrl(value);
+  };
+
   return (
     <>
       <Title>{createMessage(CONNECT_TO_GIT)}</Title>
@@ -213,7 +219,7 @@ function GitConnection(props: Props) {
           <TextInput
             disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
             fill
-            onChange={(value) => setRemoteUrl(value)}
+            onChange={remoteUrlChangeHandler}
             placeholder={placeholderText}
             value={remoteUrl}
           />
@@ -249,7 +255,7 @@ function GitConnection(props: Props) {
                 </Flex>
 
                 <FlexColumn>
-                  <LabelText>Deployed Key</LabelText>
+                  <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
                   <KeyText>{sshKeyPair}</KeyText>
                 </FlexColumn>
               </FlexRow>
@@ -265,9 +271,9 @@ function GitConnection(props: Props) {
             </Icon>
           </FlexRow>
           <span>
-            Copy this deploy key to your Git Repository setting.
+            {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
             <LintText href={DOCS_BASE_URL} target="_blank">
-              Learn More
+              &nbsp;Learn More
             </LintText>
           </span>
         </>

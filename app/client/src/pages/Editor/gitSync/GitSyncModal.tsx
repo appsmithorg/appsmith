@@ -6,13 +6,14 @@ import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import styled from "styled-components";
 import Menu from "./Menu";
-import { MENU_ITEM, MENU_ITEMS } from "./constants";
-import GitConnection from "./GitConnection";
-import Deploy from "./Deploy/Deploy";
-import Merge from "./Merge";
+import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
+import GitConnection from "./Tabs/GitConnection";
+import Deploy from "./Tabs/Deploy";
+import Merge from "./Tabs/Merge";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
+import { useIsGitConnected } from "./hooks";
 
 const Container = styled.div`
   height: 600px;
@@ -60,6 +61,8 @@ const ComponentsByTab = {
   // [MENU_ITEM.SETTINGS]: NoopComponent,
 };
 
+const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+
 function GitSyncModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
@@ -67,9 +70,23 @@ function GitSyncModal() {
     dispatch(setIsGitSyncModalOpen(false));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const BodyComponent =
-    ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
+  const isGitConnected = useIsGitConnected();
+  let initialTabIndex = 0;
+  let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
+  if (!isGitConnected) {
+    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+  } else {
+    menuOptions = allMenuOptions;
+    initialTabIndex = menuOptions.findIndex(
+      (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
+    );
+  }
+
+  const [activeTabIndex, setActiveTabIndex] = useState(initialTabIndex);
+  const activeMenuItemKey = menuOptions[activeTabIndex]
+    ? menuOptions[activeTabIndex].key
+    : MENU_ITEMS_MAP.GIT_CONNECTION.key;
+  const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
   return (
     <Dialog
@@ -83,7 +100,11 @@ function GitSyncModal() {
     >
       <Container>
         <MenuContainer>
-          <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
+          <Menu
+            activeTabIndex={activeTabIndex}
+            onSelect={setActiveTabIndex}
+            options={menuOptions}
+          />
         </MenuContainer>
         <BodyContainer>
           <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
