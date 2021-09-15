@@ -18,7 +18,7 @@ export const ExplorerJSCollectionGroup = memo(
   (props: ExplorerJSCollectionGroupProps) => {
     const emptyNode = (
       <EntityPlaceholder step={props.step + 1}>
-        Please click the <strong>+</strong> icon on to create a JS Object
+        Please click the <strong>+</strong> icon above to create new JS Objects
       </EntityPlaceholder>
     );
     const jsActions = props.jsActions || [];
