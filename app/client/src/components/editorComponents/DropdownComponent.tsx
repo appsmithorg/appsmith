@@ -46,7 +46,7 @@ const StyledMenuItem = styled(MenuItem)`
 const isFormDropdown = (
   props: DropdownComponentProps | FormDropdownComponentProps,
 ): props is FormDropdownComponentProps => {
-  return (props as FormDropdownComponentProps).input !== undefined;
+  return "input" in props && props.input !== undefined;
 };
 
 class DropdownComponent extends Component<
@@ -197,10 +197,8 @@ class DropdownComponent extends Component<
         {this.props.toggle || (
           <StyledButtonWrapper width={width}>
             <BaseButton
-              buttonColor={color}
               buttonStyle={color ? "CUSTOM" : "PRIMARY"}
               buttonVariant="SOLID"
-              fontWeight={400}
               rightIcon="chevron-down"
               text={this.getSelectedDisplayText()}
             />
