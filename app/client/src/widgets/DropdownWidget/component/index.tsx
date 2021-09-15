@@ -90,7 +90,7 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
 
 const DropdownStyles = createGlobalStyle`
   .select-popover-wrapper {
-    width: 100%;
+    min-width: 269px;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
