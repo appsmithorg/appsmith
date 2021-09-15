@@ -26,13 +26,7 @@ public interface GitService {
 
     Mono<String> pushApplication(String applicationId);
 
-    Mono<String> updateRemote(String applicationId, String remoteUrl);
+    Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
 
-    /**
-     * We assume that the repo already exists via the connect or commit api
-     * @param applicationId application for which we want to pull remote changes and merge
-     * @param branchName remoteBranch from which the changes will be pulled and merged
-     * @return return the status of pull operation
-     */
     Mono<String> pullForApplication(String applicationId, String branchName);
 }

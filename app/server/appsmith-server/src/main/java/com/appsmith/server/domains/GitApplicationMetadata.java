@@ -18,9 +18,9 @@ public class GitApplicationMetadata {
 
     // Default application id used for storing the application files in local volume :
     // container-volumes/git_repo/organizationId/defaultApplicationId/branchName/applicationDirectoryStructure...
-    @JsonIgnore
     String defaultApplicationId;
 
     // Git credentials used to push changes to remote repo
+    @JsonIgnore
     GitAuth gitAuth;
 }

@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -11,12 +10,14 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
-import com.appsmith.server.domains.GitConfig;
+import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,42 +59,62 @@ public class GitServiceImpl implements GitService {
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
     @Override
-    public Mono<UserData> saveGitConfigData(GitConfig gitConfig) {
-        if (gitConfig.getAuthorName() == null || gitConfig.getAuthorName().length() == 0) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, boolean isDefault, String defaultApplicationId) {
+        if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
         }
-        if (gitConfig.getAuthorEmail() == null || gitConfig.getAuthorEmail().length() == 0) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
+        if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
+            return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
                         .flatMap(userData -> {
-
+                            GitProfile userGitProfile = userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
                             /*
-                             *  The gitConfig will be null if the user has not created profiles.
-                             *  If null then we need to create this field for the currentUser and save the profile data
-                             *  Else, replace the existing config value with the latest information
-                             *  This config is used as the default git metadata in application object
+                             *  The gitProfiles will be null if the user has not created any git profile.
+                             *  If null or if the request is to save the profile as default then we need to create this
+                             *  field for the currentUser and save the profile data
+                             *  Otherwise create a new entry or update existing entry
                              * */
 
-                            userData.setGitGlobalConfigData(gitConfig);
+
+                            if (gitProfile.equals(userGitProfile)) {
+                                return Mono.just(userData);
+                            } else if (userGitProfile == null || isDefault) {
+                                // Assign the default config
+                                userData.setDefaultGitProfile(gitProfile);
+                            } else {
+                                userData.getGitProfiles().put(defaultApplicationId, gitProfile);
+                            }
                             return userDataService.updateForUser(user, userData);
-                        }));
+                        })
+                        .map(userData -> userData.getGitProfiles())
+                );
     }
 
     @Override
-    public Mono<GitConfig> getGitConfigForUser() {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile) {
+        return updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.TRUE, null);
+    }
+
+    @Override
+    public Mono<GitProfile> getGitProfileForUser() {
+        return getGitProfileForUser(null);
+    }
+
+    @Override
+    public Mono<GitProfile> getGitProfileForUser(String defaultApplicationId) {
         return userDataService.getForCurrentUser()
                 .map(userData -> {
-                    if (userData.getGitGlobalConfigData() == null) {
+                    if (userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId) == null) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
                                 " You can set up a git profile from the user profile section."
                         );
                     }
-                    return userData.getGitGlobalConfigData();
+                    return userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
                 });
     }
 
@@ -105,8 +127,7 @@ public class GitServiceImpl implements GitService {
 
     /**
      * This method will make a commit to local repo
-     *
-     * @param commitDTO     information required for making a commit
+     * @param commitDTO information required for making a commit
      * @param applicationId application branch on which the commit needs to be done
      * @return success message
      */
@@ -125,10 +146,10 @@ public class GitServiceImpl implements GitService {
         }
 
         Mono<UserData> currentUserMono = userDataService.getForCurrentUser()
-                .filter(userData -> userData.getGitGlobalConfigData() != null)
+                .filter(userData -> !CollectionUtils.isNullOrEmpty(userData.getGitProfiles()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Unable to find git author configuration for logged-in user. You can set up a git profile from the user profile section."))
-                ).cache();
+                );
 
         return publishOrGetApplication(applicationId, commitDTO.getDoPush())
                 .flatMap(application -> {
@@ -166,7 +187,8 @@ public class GitServiceImpl implements GitService {
                     try {
                         return Mono.zip(
                                 fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName(), isDefault),
-                                currentUserMono
+                                currentUserMono,
+                                Mono.just(application.getGitApplicationMetadata())
                         );
                     } catch (IOException e) {
                         log.error("Unable to open git directory, with error : ", e);
@@ -175,12 +197,19 @@ public class GitServiceImpl implements GitService {
                 })
                 .map(tuple -> {
                     Path branchRepoPath = tuple.getT1();
-                    // TODO : We will be creating a separate map of username to git profiles if user want separate profile
-                    //  for different repos, this implementation need updates after we introduce that change
-                    GitConfig userGitProfile = tuple.getT2().getGitGlobalConfigData();
+                    GitApplicationMetadata gitApplicationData = tuple.getT3();
+                    GitProfile authorProfile =
+                            tuple.getT2().getDefaultOrAppSpecificGitProfiles(gitApplicationData.getDefaultApplicationId());
+
+                    if (authorProfile == null) {
+                        throw new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
+                                " You can set up a git profile from the user profile section."
+                        );
+                    }
                     try {
                         return gitExecutor.commitApplication(
-                                branchRepoPath, commitMessage, userGitProfile.getAuthorName(), userGitProfile.getAuthorEmail()
+                                branchRepoPath, commitMessage, authorProfile.getAuthorName(), authorProfile.getAuthorEmail()
                         );
                     } catch (IOException | GitAPIException e) {
                         log.error("git commit exception : ", e);
@@ -212,7 +241,6 @@ public class GitServiceImpl implements GitService {
 
     /**
      * Method to get commit history for application branch
-     *
      * @param applicationId application for which the commit history is needed
      * @return list of commits
      */
@@ -240,15 +268,15 @@ public class GitServiceImpl implements GitService {
     }
 
     /**
-     * Connect the application from Appsmith to a git repo
-     * This is the prerequisite step needed to perform all the git operation for an application
-     * We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under application.
-     * Each application is equal to a repo in the git(and each branch creates a new application with default application as parent)
-     *
-     * @param gitConnectDTO applicationId - this is used to link the local git repo to an application
-     *                      remoteUrl - used for connecting to remote repo etc
-     * @return Application object with the updated data
-     */
+     *  Connect the application from Appsmith to a git repo
+     *  This is the prerequisite step needed to perform all the git operation for an application
+     *  We are implementing the deployKey approach and since the deploy-keys are repo level these keys are store under application.
+     *  Each application is equal to a repo in the git(and each branch creates a new application with default application as parent)
+     *  @param gitConnectDTO
+     *            applicationId - this is used to link the local git repo to an application
+     *            remoteUrl - used for connecting to remote repo etc
+     *  @return Application object with the updated data
+     * */
     @Override
     public Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO) {
         /*
@@ -257,11 +285,12 @@ public class GitServiceImpl implements GitService {
          *  We would be updating the remote url and default branchName
          * */
 
-        if (StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
+        if(StringUtils.isEmptyOrNull(gitConnectDTO.getRemoteUrl())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Remote Url"));
         }
 
-        return saveGitConfigData(gitConnectDTO.getGitConfig())
+        return updateOrCreateGitProfileForCurrentUser(
+                gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), gitConnectDTO.getDefaultApplicationId())
                 .then(
                         getApplicationById(defaultApplicationId)
                                 .flatMap(application -> {
@@ -322,7 +351,6 @@ public class GitServiceImpl implements GitService {
      * Sample repo urls :
      * git@github.com:username/reponame.git
      * ssh://git@bitbucket.org/<workspace_ID>/<repo_name>.git
-     *
      * @param remoteUrl ssh url of repo
      * @return repo name extracted from repo url
      */
@@ -343,7 +371,6 @@ public class GitServiceImpl implements GitService {
 
     /**
      * Push flow for dehydrated apps
-     *
      * @param applicationId application which needs to be pushed to remote repo
      * @return Success message
      */
@@ -367,13 +394,38 @@ public class GitServiceImpl implements GitService {
                         if (!applicationId.equals(gitData.getDefaultApplicationId())) {
                             branchRef = gitData.getBranchName();
                         }
-                        Path branchSuffix = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName(), branchRef);
+                        Path branchSuffix =
+                                Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName(), branchRef);
 
                         GitAuth gitAuth = gitData.getGitAuth();
                         String privateKey = gitAuth.getPrivateKey();
                         return gitExecutor.pushApplication(branchSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), privateKey);
                     } catch (IOException | GitAPIException | URISyntaxException e) {
                         throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
+                    }
+                });
+    }
+
+    public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
+        return getApplicationById(srcApplicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    if (gitData == null || gitData.getDefaultApplicationId() == null) {
+                        throw new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Can't find root application. Please configure the application with git"
+                        );
+                    }
+                    // create a worktree in local, also check if branch is already present
+                    Path repoSuffix =
+                            Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                    try {
+                        String branchName = gitExecutor.createWorktree(repoSuffix, branchDTO.getBranchName());
+                        gitData.setBranchName(branchName);
+                        gitData.setGitAuth(null);
+                        return applicationPageService.createApplication(application);
+                    } catch (IOException | GitAPIException e) {
+                        throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", e.getMessage());
                     }
                 });
     }
@@ -388,20 +440,6 @@ public class GitServiceImpl implements GitService {
     Mono<Application> getApplicationById(String applicationId) {
         return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
-    }
-
-
-    @Override
-    public Mono<String> updateRemote(String applicationId, String remoteUrl) {
-        return getApplicationById(applicationId)
-                .flatMap(application -> {
-                    Application application1 = new Application();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    gitApplicationMetadata.setRemoteUrl(remoteUrl);
-                    application1.setGitApplicationMetadata(gitApplicationMetadata);
-                    return applicationService.update(applicationId, application1);
-                })
-                .thenReturn(remoteUrl);
     }
 
     /**
@@ -435,6 +473,4 @@ public class GitServiceImpl implements GitService {
                     }
                 });
     }
-
-
 }

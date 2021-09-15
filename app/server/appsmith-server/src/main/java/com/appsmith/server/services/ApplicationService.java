@@ -35,4 +35,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> saveLastEditInformation(String applicationId);
 
     Mono<String> generateSshKeyPair(String applicationId);
+
+    Mono<String> getSshKey(String applicationId);
 }

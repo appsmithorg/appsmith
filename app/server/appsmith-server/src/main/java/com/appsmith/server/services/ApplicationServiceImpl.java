@@ -311,6 +311,13 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    /**
+     * Generate SSH private and public keys required to communicate with remote. Keys will be stored only in the
+     * default/root application only and not the child branched application. This decision is taken because the combined
+     * size of keys is close to 4kB
+     * @param applicationId application for which the SSH key needs to be generated
+     * @return public key which will be used by user to copy to relevant platform
+     */
     @Override
     public Mono<String> generateSshKeyPair(String applicationId) {
         JSch jsch = new JSch();
@@ -353,6 +360,41 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         .thenReturn(gitAuth.getPublicKey())
                 );
     }
+
+    /**
+     * Method to get the SSH public key
+     * @param applicationId application for which the SSH key is requested
+     * @return public SSH key
+     */
+    @Override
+    public Mono<String> getSshKey(String applicationId) {
+        return repository.findById(applicationId, MANAGE_APPLICATIONS)
+            .switchIfEmpty(
+                Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+            )
+            .flatMap(application -> {
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                if (gitData == null) {
+                    return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Can't find valid SSH key. Please configure the application with git"
+                    ));
+                }
+                // Check if the application is default(root)
+                if (applicationId.equals(gitData.getDefaultApplicationId())) {
+                    return Mono.just(gitData.getGitAuth().getPublicKey());
+                }
+                if (gitData.getDefaultApplicationId() == null) {
+                    return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Can't find root application. Please configure the application with git"
+                    ));
+                }
+                return repository.findById(gitData.getDefaultApplicationId())
+                    .map(rootApplication -> rootApplication.getGitApplicationMetadata().getGitAuth().getPublicKey());
+            });
+    }
+
     /**
      * Sets the updatedAt and modifiedBy fields of the Application
      * @param applicationId Application ID

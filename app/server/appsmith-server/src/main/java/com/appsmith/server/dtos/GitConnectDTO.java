@@ -1,6 +1,6 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.GitConfig;
+import com.appsmith.server.domains.GitProfile;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,5 +10,9 @@ public class GitConnectDTO {
 
     String remoteUrl;
 
-    GitConfig gitConfig;
+    GitProfile gitProfile;
+
+    boolean isDefaultProfile;
+
+    String defaultApplicationId;
 }

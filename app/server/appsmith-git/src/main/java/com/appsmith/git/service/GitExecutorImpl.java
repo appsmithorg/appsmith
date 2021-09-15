@@ -9,13 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.FetchResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
@@ -30,7 +28,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Component
@@ -47,12 +44,12 @@ public class GitExecutorImpl implements GitExecutor {
      * This method will handle the git-commit functionality. Under the hood it checks if the repo has already been
      * initialised and will be initialised if git repo is not present
      *
-     * @param repoPath      parent path to repo
+     * @param repoPath parent path to repo
      * @param commitMessage message which will be registered for this commit
-     * @param authorName    author details
-     * @param authorEmail   author details
+     * @param authorName author details
+     * @param authorEmail author details
      * @return if the commit was successful
-     * @throws IOException     Exceptions due to file operations
+     * @throws IOException Exceptions due to file operations
      * @throws GitAPIException exceptions due to git commands
      */
     @Override
@@ -85,7 +82,6 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to create a new repository to provided path
-     *
      * @param repoPath path where new repo needs to be created
      * @return if the operation was successful
      */
@@ -99,7 +95,6 @@ public class GitExecutorImpl implements GitExecutor {
 
     /**
      * Method to get the commit history
-     *
      * @param repoSuffix Path used to generate the repo url specific to the application for which the commit history is requested
      * @return list of git commits
      * @throws IOException
@@ -134,13 +129,12 @@ public class GitExecutorImpl implements GitExecutor {
      * Method to push changes to remote repo
      *
      * @param branchSuffix Path used to generate the repo url specific to the application which needs to be pushed to remote
-     * @param remoteUrl    remote repo url
+     * @param remoteUrl remote repo url
      * @param publicKey
      * @param privateKey
      * @return Success message
-     * @throws IOException        exception thrown if git open repo failed
-     * @throws GitAPIException    git exceptions
-     * @throws URISyntaxException exception thrown while constructing the remote url
+     * @throws IOException exception thrown if git open repo failed
+     * @throws GitAPIException git exceptions
      */
     @Override
     public String pushApplication(Path branchSuffix,
@@ -170,14 +164,14 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public String cloneApp(Path repoPath,
+    public String cloneApp(Path repoSuffix,
                            String remoteUrl,
                            String privateSshKey,
                            String publicSshKey) throws GitAPIException, IOException {
 
         final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
 
-        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile();
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
         }
@@ -190,6 +184,18 @@ public class GitExecutorImpl implements GitExecutor {
         String branchName = result.getRepository().getBranch();
         result.close();
         return branchName;
+    }
+
+    @Override
+    public String createWorktree(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        Git git = Git.open(baseRepoPath.toFile());
+
+        Ref ref = git.branchCreate().setName(branchName).call();
+        git.close();
+        return ref.getName();
     }
 
     @Override
@@ -214,5 +220,4 @@ public class GitExecutorImpl implements GitExecutor {
         log.error("Git merge from remote branch failed, {}", branchName, mergeResult.getMergeStatus());
         return "Merge from remote failed";
     }
-
 }

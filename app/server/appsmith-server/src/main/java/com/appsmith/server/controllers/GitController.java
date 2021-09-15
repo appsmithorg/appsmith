@@ -3,7 +3,8 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitConfig;
+import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -36,21 +38,34 @@ public class GitController {
     }
 
     @PostMapping("/config/save")
-    public Mono<ResponseDTO<String>> saveGitConfigData(@RequestBody GitConfig gitConfig) {
+    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitConfigData(@RequestBody GitProfile gitProfile) {
         //Add to the userData object - git config data
-        return service.saveGitConfigData(gitConfig)
-                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), "Success", null));
+        return service.updateOrCreateGitProfileForCurrentUser(gitProfile)
+                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+    }
+
+    @PutMapping("/config/{defaultApplicationId}")
+    public Mono<ResponseDTO<Map<String, GitProfile>>> saveGitConfigData(@PathVariable String defaultApplicationId,
+                                                                        @RequestBody GitProfile gitProfile) {
+        //Add to the userData object - git config data
+        return service.updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.FALSE, defaultApplicationId)
+                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
     }
 
     @GetMapping("/config")
-    public Mono<ResponseDTO<GitConfig>> getGitConfigForUser() {
-        return service.getGitConfigForUser()
+    public Mono<ResponseDTO<GitProfile>> getDefaultGitConfigForUser() {
+        return service.getGitProfileForUser()
+                .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+    }
+
+    @GetMapping("/config/{defaultApplicationId}")
+    public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String defaultApplicationId) {
+        return service.getGitProfileForUser(defaultApplicationId)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
     }
 
     @PostMapping("/connect/{applicationId}")
     public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId, @RequestBody GitConnectDTO gitConnectDTO) {
-        log.debug("Going to clone repo for the application {}", applicationId);
         return service.connectApplicationToGit(applicationId, gitConnectDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
@@ -76,6 +91,15 @@ public class GitController {
         log.debug("Going to push application {}", applicationId);
         return service.pushApplication(applicationId)
             .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+    }
+
+    @PostMapping("/create-branch/{srcApplicationId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Application>> createBranch(@RequestBody GitBranchDTO branchDTO,
+                                                       @PathVariable String srcApplicationId) {
+        log.debug("Going to push application {}", srcApplicationId);
+        return service.createBranch(srcApplicationId, branchDTO)
+                .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
     }
 
     @PutMapping("/connect/{applicationId}/updateRemote")
