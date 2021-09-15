@@ -9,7 +9,7 @@ export const setIsGitSyncModalOpen = (isOpen: boolean) => ({
 
 export const commitToRepoInit = (payload: {
   commitMessage: string;
-  pushImmediately: boolean;
+  doPush: boolean;
 }) => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT,
   payload,

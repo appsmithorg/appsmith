@@ -25,13 +25,13 @@ import { useSelector } from "react-redux";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { DOCS_BASE_URL } from "../../../constants/ThirdPartyConstants";
 
 const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
 
   & .primary {
-    color: ${Colors.CRUSTA};
   }
   margin-bottom: 8px;
   margin-top: ${(props) => `${props.theme.spaces[2]}px`};
@@ -115,15 +115,22 @@ const KeyText = styled.span`
   overflow: hidden;
   width: 100%;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 400;
   text-transform: uppercase;
   color: ${Colors.CODE_GRAY};
 `;
 
+const LintText = styled.a`
+  :hover {
+    text-decoration: none;
+    color: ${Colors.CRUSTA};
+  }
+  color: ${Colors.CRUSTA};
+  cursor: pointer;
+`;
+
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
-
-// const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
 
 type Props = {
   setActiveMenuIndex: (menuIndex: number) => void;
@@ -185,7 +192,7 @@ function GitConnection(props: Props) {
   };
 
   useEffect(() => {
-    if (failedConnectingToGit || failedConnectingToGit) {
+    if (failedGeneratingSSHKey || failedConnectingToGit) {
       Toaster.show({
         text: "Something Went Wrong",
         variant: Variant.danger,
@@ -204,7 +211,7 @@ function GitConnection(props: Props) {
       <UrlContainer>
         <UrlInputContainer>
           <TextInput
-            disabled={remoteUrl === remoteUrlInStore && remoteUrl !== ""}
+            disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
             fill
             onChange={(value) => setRemoteUrl(value)}
             placeholder={placeholderText}
@@ -233,29 +240,37 @@ function GitConnection(props: Props) {
           />
         </ButtonContainer>
       ) : (
-        <FlexRow>
-          <DeployedKeyContainer>
-            <FlexRow>
-              <Flex>
-                <KeySvg />
-              </Flex>
+        <>
+          <FlexRow>
+            <DeployedKeyContainer>
+              <FlexRow>
+                <Flex>
+                  <KeySvg />
+                </Flex>
 
-              <FlexColumn>
-                <LabelText>Deployed Key</LabelText>
-                <KeyText>{sshKeyPair}</KeyText>
-              </FlexColumn>
-            </FlexRow>
-          </DeployedKeyContainer>
-          <Icon
-            color={Colors.DARK_GRAY}
-            hoverColor={Colors.GRAY2}
-            marginOffset={3}
-            onClick={copyToClipboard}
-            size="22px"
-          >
-            <CopySvg />
-          </Icon>
-        </FlexRow>
+                <FlexColumn>
+                  <LabelText>Deployed Key</LabelText>
+                  <KeyText>{sshKeyPair}</KeyText>
+                </FlexColumn>
+              </FlexRow>
+            </DeployedKeyContainer>
+            <Icon
+              color={Colors.DARK_GRAY}
+              hoverColor={Colors.GRAY2}
+              marginOffset={3}
+              onClick={copyToClipboard}
+              size="22px"
+            >
+              <CopySvg />
+            </Icon>
+          </FlexRow>
+          <span>
+            Copy this deploy key to your Git Repository setting.
+            <LintText href={DOCS_BASE_URL} target="_blank">
+              Learn More
+            </LintText>
+          </span>
+        </>
       )}
 
       {sshKeyPair ? (

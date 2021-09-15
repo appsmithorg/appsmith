@@ -69,12 +69,11 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
   const dispatch = useDispatch();
-
   // eslint-disable-next-line
   const [commitDisabled, setCommitDisabled] = useState(false);
 
   const handleCommit = () => {
-    dispatch(commitToRepoInit({ commitMessage, pushImmediately }));
+    dispatch(commitToRepoInit({ commitMessage, doPush: pushImmediately }));
   };
 
   const commitButtonText = commitDisabled
