@@ -11,6 +11,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -134,7 +135,7 @@ public class GitExecutorImpl implements GitExecutor {
     public String pushApplication(Path branchSuffix,
                            String remoteUrl,
                            String publicKey,
-                           String privateKey) throws IOException, GitAPIException, URISyntaxException {
+                           String privateKey) throws IOException, GitAPIException {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
         Path baseRepoPath = createRepoPath(branchSuffix);
@@ -158,14 +159,14 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public String cloneApp(Path repoPath,
+    public String cloneApp(Path repoSuffix,
                            String remoteUrl,
                            String privateSshKey,
                            String publicSshKey) throws GitAPIException, IOException {
 
         final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
 
-        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile();
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile();
         while (file.exists()) {
             FileSystemUtils.deleteRecursively(file);
         }
@@ -180,4 +181,15 @@ public class GitExecutorImpl implements GitExecutor {
         return branchName;
     }
 
+    @Override
+    public String createWorktree(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        Git git = Git.open(baseRepoPath.toFile());
+
+        Ref ref = git.branchCreate().setName(branchName).call();
+        git.close();
+        return ref.getName();
+    }
 }

@@ -13,6 +13,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -349,6 +350,7 @@ public class GitServiceImpl implements GitService {
     /**
      * Push flow for dehydrated apps
      * @param applicationId application which needs to be pushed to remote repo
+     * @param doPublish should the application published before pushing to remote
      * @return Success message
      */
     private Mono<String> pushApplication(String applicationId, boolean doPublish) {
@@ -371,13 +373,38 @@ public class GitServiceImpl implements GitService {
                     if (!applicationId.equals(gitData.getDefaultApplicationId())) {
                         branchRef = gitData.getBranchName();
                     }
-                    Path branchSuffix = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName(), branchRef);
+                    Path branchSuffix =
+                        Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName(), branchRef);
 
                     GitAuth gitAuth = gitData.getGitAuth();
                     String privateKey = encryptionService.decryptString(gitAuth.getPrivateKey());
                     return gitExecutor.pushApplication(branchSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), privateKey);
                 } catch (IOException | GitAPIException | URISyntaxException e) {
                     throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
+                }
+            });
+    }
+
+    public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
+        return getApplicationById(srcApplicationId)
+            .flatMap(application -> {
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                if (gitData == null || gitData.getDefaultApplicationId() == null) {
+                    throw new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Can't find root application. Please configure the application with git"
+                    );
+                }
+                // create a worktree in local, also check if branch is already present
+                Path repoSuffix =
+                    Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
+                try {
+                    String branchName = gitExecutor.createWorktree(repoSuffix, branchDTO.getBranchName());
+                    gitData.setBranchName(branchName);
+                    gitData.setGitAuth(null);
+                    return applicationPageService.createApplication(application);
+                } catch (IOException | GitAPIException e) {
+                    throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "branch", e.getMessage());
                 }
             });
     }

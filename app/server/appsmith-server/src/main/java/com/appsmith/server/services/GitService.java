@@ -4,6 +4,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitConfig;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import reactor.core.publisher.Mono;
@@ -25,4 +26,6 @@ public interface GitService {
     Mono<List<GitLogDTO>> getCommitHistory(String applicationId);
 
     Mono<String> pushApplication(String applicationId);
+
+    Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
 }

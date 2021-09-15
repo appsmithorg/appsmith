@@ -375,20 +375,20 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             .flatMap(application -> {
                 GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 if (gitData == null) {
-                    throw new AppsmithException(
+                    return Mono.error(new AppsmithException(
                         AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Can't find valid SSH key. Please configure the application with git"
-                    );
+                    ));
                 }
                 // Check if the application is default(root)
-                if (gitData != null && applicationId.equals(gitData.getDefaultApplicationId())) {
+                if (applicationId.equals(gitData.getDefaultApplicationId())) {
                     return Mono.just(gitData.getGitAuth().getPublicKey());
                 }
                 if (gitData.getDefaultApplicationId() == null) {
-                    throw new AppsmithException(
+                    return Mono.error(new AppsmithException(
                         AppsmithError.INVALID_GIT_CONFIGURATION,
                         "Can't find root application. Please configure the application with git"
-                    );
+                    ));
                 }
                 return repository.findById(gitData.getDefaultApplicationId())
                     .map(rootApplication -> rootApplication.getGitApplicationMetadata().getGitAuth().getPublicKey());
