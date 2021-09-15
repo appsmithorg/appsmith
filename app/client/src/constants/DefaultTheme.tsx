@@ -166,6 +166,17 @@ export const invisible = css`
   }
 `;
 
+export const disable = css`
+  & {
+    cursor: not-allowed;
+
+    & > * {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+`;
+
 export const BlueprintCSSTransform = css`
   &&&& {
     .${Classes.BUTTON} {
@@ -1205,12 +1216,18 @@ type ColorType = {
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
+    branchBtnText: string;
+  };
+  link: string;
+  welcomePage?: {
+    text: string;
   };
 };
 
 const editorBottomBar = {
   background: Colors.WHITE,
   buttonBackgroundHover: Colors.Gallery,
+  branchBtnText: Colors.CHARCOAL,
 };
 
 const gitSyncModal = {
@@ -1460,7 +1477,7 @@ export const dark: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -1994,6 +2011,10 @@ export const dark: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
 };
 
 export const light: ColorType = {
@@ -2045,7 +2066,7 @@ export const light: ColorType = {
       },
     },
     disabled: {
-      bgColor: Colors.DARK_GRAY,
+      bgColor: Colors.BUTTON_DISABLED,
       textColor: Colors.WHITE,
     },
     primary: {
@@ -2580,6 +2601,10 @@ export const light: ColorType = {
   },
   actionSidePane,
   pagesEditor,
+  link: "#f86a2b",
+  welcomePage: {
+    text: lightShades[5],
+  },
 };
 
 export const theme: Theme = {
@@ -2641,6 +2666,12 @@ export const theme: Theme = {
       lineHeight: 16,
       letterSpacing: -0.221538,
       fontWeight: "normal",
+    },
+    p4: {
+      fontSize: 13,
+      lineHeight: 16,
+      letterSpacing: -0.221538,
+      fontWeight: 600,
     },
     btnLarge: {
       fontSize: 13,

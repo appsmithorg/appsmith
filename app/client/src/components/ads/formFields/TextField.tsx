@@ -26,7 +26,7 @@ const renderComponent = (
   );
 };
 
-type FormTextFieldProps = {
+export type FormTextFieldProps = {
   name: string;
   placeholder: string;
   type?: InputType;
