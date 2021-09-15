@@ -58,6 +58,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
+import { getIsInOnboarding } from "selectors/onboardingSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -169,6 +170,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -342,7 +344,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
+        {props.inOnboarding && <OnboardingHelper />}
         <GlobalSearch />
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
@@ -363,6 +365,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  inOnboarding: getIsInOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
