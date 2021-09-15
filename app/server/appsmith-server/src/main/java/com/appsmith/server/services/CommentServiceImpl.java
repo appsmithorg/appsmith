@@ -183,6 +183,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
         comment.setApplicationName(commentThread.getApplicationName());
         comment.setPageId(commentThread.getPageId());
         comment.setOrgId(commentThread.getOrgId());
+        comment.setMode(commentThread.getMode());
 
         final Set<Policy> policies = policyGenerator.getAllChildPolicies(
                 commentThread.getPolicies(),

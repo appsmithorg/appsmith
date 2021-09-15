@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+
+import BranchButton from "./BranchButton";
+
 import { ReactComponent as UpArrow } from "assets/icons/ads/up-arrow.svg";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down-arrow.svg";
 import { ReactComponent as Plus } from "assets/icons/ads/plus.svg";
-// import { ReactComponent as GitMerge } from "assets/icons/ads/git-merge.svg";
 import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import { COMMIT, PUSH, PULL, MERGE, createMessage } from "constants/messages";
@@ -86,6 +88,7 @@ export default function QuickGitActions() {
   });
   return (
     <Container>
+      <BranchButton />
       {quickActionButtons.map((button) => (
         <QuickActionButton key={button.tooltipText} {...button} />
       ))}

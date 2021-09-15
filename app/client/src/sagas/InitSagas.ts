@@ -54,6 +54,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 
 function* failFastApiCalls(
@@ -106,7 +107,7 @@ function* initializeEditorSaga(
       [
         fetchPageList(applicationId, APP_MODE.EDIT),
         fetchPage(pageId, true),
-        fetchApplication(applicationId, APP_MODE.EDIT),
+        fetchApplication({ payload: { applicationId, mode: APP_MODE.EDIT } }),
       ],
       [
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
@@ -164,6 +165,8 @@ function* initializeEditorSaga(
 
     yield put(restoreRecentEntitiesRequest(applicationId));
 
+    yield put(fetchCommentThreadsInit());
+
     AnalyticsUtil.logEvent("EDITOR_OPEN", {
       appId: appId,
       appName: appName,
@@ -204,7 +207,11 @@ export function* initializeAppViewerSaga(
     // TODO (hetu) Remove spl view call for fetch actions
     put(fetchActionsForView(applicationId)),
     put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
-    put(fetchApplication(applicationId, APP_MODE.PUBLISHED)),
+    put(
+      fetchApplication({
+        payload: { applicationId, mode: APP_MODE.PUBLISHED },
+      }),
+    ),
   ]);
 
   const resultOfPrimaryCalls = yield race({
@@ -268,6 +275,8 @@ export function* initializeAppViewerSaga(
     if (!jsActionsCall) return;
 
     yield put(setAppMode(APP_MODE.PUBLISHED));
+
+    yield put(fetchCommentThreadsInit());
 
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,

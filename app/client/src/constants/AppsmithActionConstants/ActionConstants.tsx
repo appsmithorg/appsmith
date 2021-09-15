@@ -25,6 +25,7 @@ export type ExecuteTriggerPayload = {
 // triggerPropertyName was added as a requirement for logging purposes
 export type WidgetExecuteActionPayload = ExecuteTriggerPayload & {
   triggerPropertyName?: string;
+  widgetId?: string;
 };
 
 export type ContentType =
