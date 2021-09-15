@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -49,6 +50,7 @@ public class GitController {
 
     @PostMapping("/connect/{applicationId}")
     public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId, @RequestBody GitConnectDTO gitConnectDTO) {
+        log.debug("Going to clone repo for the application {}", applicationId);
         return service.connectApplicationToGit(applicationId, gitConnectDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
@@ -74,5 +76,12 @@ public class GitController {
         log.debug("Going to push application {}", applicationId);
         return service.pushApplication(applicationId)
             .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+    }
+
+    @PutMapping("/connect/{applicationId}/updateRemote")
+    public Mono<ResponseDTO<String>> updateRemote(@PathVariable String applicationId, @RequestBody String remoteUrl) {
+        log.debug("Going to update the remoteUrl for application {}", applicationId, remoteUrl);
+        return service.updateRemote(applicationId, remoteUrl)
+                .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
     }
 }

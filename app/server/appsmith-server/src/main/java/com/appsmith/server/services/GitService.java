@@ -25,4 +25,6 @@ public interface GitService {
     Mono<List<GitLogDTO>> getCommitHistory(String applicationId);
 
     Mono<String> pushApplication(String applicationId);
+
+    Mono<String> updateRemote(String applicationId, String remoteUrl);
 }
