@@ -3,7 +3,7 @@ import {
   pageEditwebsocketWriteEvent,
 } from "./websocketActions";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APP_MULTIPLAYER_SOCKET_EVENTS } from "sagas/WebsocketSagas/constants";
+import { APP_MULTIPLAYER_SOCKET_EVENTS } from "middlewares/webSocket/constants";
 
 export const collabStartEditingAppEvent = (appId: string) =>
   appEditwebsocketWriteEvent({

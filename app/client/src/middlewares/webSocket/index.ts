@@ -1,17 +1,17 @@
 import {
   setIsAppEditWebsocketConnected,
   setIsPageEditWebsocketConnected,
-} from "../actions/websocketActions";
+} from "actions/websocketActions";
 import { io, Socket } from "socket.io-client";
-import { WebsocketActionTypes } from "../constants/ReduxActionConstants";
+import { WebsocketActionTypes } from "constants/ReduxActionConstants";
 import {
   NAMESPACE_COLLAB_PAGE_EDIT,
   RTS_BASE_PATH,
-} from "../constants/WebsocketConstants";
+} from "constants/WebsocketConstants";
 import {
   handleAppEditSocketEvent,
   handlePageEditSocketEvent,
-} from "../sagas/WebsocketSagas/handleSocketEvent";
+} from "./handleSocketEvent";
 
 const socketMiddleware = () => {
   let appEditSocket: Socket | null = null;
