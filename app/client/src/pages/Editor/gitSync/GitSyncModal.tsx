@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
