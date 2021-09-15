@@ -38,7 +38,7 @@ const StyledPanelStack = styled(PanelStack)`
     margin: 0;
     border: none;
   }
-  overflow: auto;
+  overflow: hidden;
   position: static;
   &&& .${Classes.PANEL_STACK_VIEW} {
     position: static;
@@ -136,7 +136,7 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   return (
-    <div className="relative flex flex-col w-full py-3 space-y-2">
+    <div className="relative flex flex-col w-full py-3 space-y-2 overflow-y-auto">
       <PropertyPaneTitle
         actions={actions}
         key={widgetProperties.widgetId}
@@ -215,7 +215,7 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
 
     return (
       <div
-        className={"t--propertypane"}
+        className={"t--propertypane overflow-y-auto h-full"}
         data-testid={"t--propertypane"}
         onClick={(e: any) => {
           e.stopPropagation();

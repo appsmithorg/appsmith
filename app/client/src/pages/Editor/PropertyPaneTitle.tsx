@@ -18,59 +18,8 @@ import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 
 import { WidgetType } from "constants/WidgetConstants";
-import styled from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import TooltipComponent from "components/ads/Tooltip";
 import { isEqual } from "lodash";
-
-const Wrapper = styled.div<{ iconCount: number }>`
-  display: grid;
-  grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
-  justify-items: center;
-  align-items: center;
-  & span.${BlueprintClasses.POPOVER_TARGET} {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  &&& .${BlueprintClasses.EDITABLE_TEXT} {
-    height: auto;
-    padding: 0;
-    width: 100%;
-  }
-  && svg path {
-    fill: ${(props) => props.theme.colors.propertyPane.label};
-  }
-`;
-
-const NameWrapper = styled.div<{ isPanelTitle?: boolean }>`
-  display: ${(props) => (props.isPanelTitle ? "flex" : "block")};
-  align-items: center;
-  min-width: 100%;
-  padding-right: 25px;
-  max-width: 134px;
-  &&&&&&& > * {
-    overflow: hidden;
-  }
-`;
-
-const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  top: 3px;
-  margin-right: 8px;
-  && svg {
-    width: 16px;
-    height: 16px;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.label};
-    }
-  }
-`;
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -143,38 +92,33 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   }, [props.title]);
 
   return props.widgetId || props.isPanelTitle ? (
-    <div className="z-3 w-full px-3">
-      <Wrapper iconCount={props.actions.length}>
-        <NameWrapper isPanelTitle={props.isPanelTitle}>
-          <>
-            {props.isPanelTitle && (
-              <StyledBackIcon
-                className="t--property-pane-back-btn"
-                onClick={props.onBackClick}
-              />
-            )}
+    <div className="flex items-center w-full px-3 z-3">
+      <div className="flex-grow">
+        {props.isPanelTitle && (
+          <div
+            className="t--property-pane-back-btn"
+            onClick={props.onBackClick}
+          />
+        )}
 
-            <EditableText
-              className="t--propery-page-title text-lg font-semibold"
-              defaultValue={name}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              hideEditIcon
-              isEditingDefault={!props.isPanelTitle ? isNew : undefined}
-              onBlur={!props.isPanelTitle ? updateTitle : undefined}
-              onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              placeholder={props.title}
-              savingState={
-                updating ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              underline
-              valueTransform={
-                !props.isPanelTitle ? removeSpecialChars : undefined
-              }
-            />
-          </>
-        </NameWrapper>
+        <EditableText
+          className="flex-grow text-lg font-semibold t--propery-page-title"
+          defaultValue={name}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          fill
+          hideEditIcon
+          isEditingDefault={!props.isPanelTitle ? isNew : undefined}
+          onBlur={!props.isPanelTitle ? updateTitle : undefined}
+          onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
+          placeholder={props.title}
+          savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
+          underline
+          valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
+        />
+      </div>
 
+      {/* ACTIONS */}
+      <div className="flex items-center">
         {props.actions.map((value, index) => (
           <TooltipComponent
             content={value.tooltipContent}
@@ -184,7 +128,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
             {value.icon}
           </TooltipComponent>
         ))}
-      </Wrapper>
+      </div>
     </div>
   ) : null;
 });
