@@ -99,7 +99,7 @@ function DebuggerTabs(props: DebuggerTabsProps) {
         tabs={DEBUGGER_TABS}
       />
       <Icon
-        className="close-debugger"
+        className="close-debugger t--close-debugger"
         name="cross"
         onClick={onClose}
         size={IconSize.SMALL}

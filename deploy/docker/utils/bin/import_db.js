@@ -1,12 +1,10 @@
 // Init function export mongodb
-var shell = require('shelljs')
-
-// Load env configuration
-const RESTORE_PATH = '/appsmith-stacks/data/restore'
+const shell = require('shelljs')
+const Constants = require('./constants')
 
 function import_database() {
 	console.log('import_database  ....')
-	const cmd = `mongorestore --uri='${process.env.APPSMITH_MONGODB_URI}' --gzip --archive=${RESTORE_PATH}/data.archive`
+	const cmd = `mongorestore --uri='${process.env.APPSMITH_MONGODB_URI}' --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`
 	shell.exec(cmd)
 	console.log('import_database done')
 }
