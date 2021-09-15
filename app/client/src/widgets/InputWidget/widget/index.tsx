@@ -46,7 +46,8 @@ export function defaultValueValidation(
           message: "",
         };
       }
-      if (!isFinite(parsed)) {
+
+      if (!Number.isFinite(parsed)) {
         return {
           isValid: false,
           parsed: undefined,
