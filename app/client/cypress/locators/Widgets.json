@@ -12,6 +12,7 @@
     "removeWidget": ".t--delete-widget svg",
     "propertypaneText": ".t--propertypane .bp3-panel-stack-view",
     "formButtonWidget": ".t--widget-formbuttonwidget",
+    "dropdownwidget": ".t--widget-dropdownwidget",
     "textWidget": ".t--draggable-textwidget",
     "tableWidget": ".t--draggable-tablewidget",
     "tableOnRowSelected": ".t--property-control-onrowselected",
