@@ -3,7 +3,7 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { isEqual } from "lodash";
-import { SelectedArenaDimensions } from "pages/common/CanvasSelectionArena";
+import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { all, cancel, put, select, take, takeLatest } from "redux-saga/effects";
 import { getOccupiedSpaces } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";

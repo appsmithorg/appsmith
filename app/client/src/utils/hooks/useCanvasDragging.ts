@@ -3,7 +3,6 @@ import {
   GridDefaults,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
 import { useEffect, useRef } from "react";
 import { ReflowDirection, ReflowedSpaceMap } from "reflow/reflowTypes";
 import { useReflow, ReflowInterface } from "utils/hooks/useReflow";
@@ -19,6 +18,7 @@ import {
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { isReflowEnabled } from "selectors/widgetReflowSelectors";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 
 export interface XYCord {
   x: number;

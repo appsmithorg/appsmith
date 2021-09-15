@@ -19,7 +19,7 @@ import {
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { isEmpty, isEqual } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasDraggingArena";
+import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";

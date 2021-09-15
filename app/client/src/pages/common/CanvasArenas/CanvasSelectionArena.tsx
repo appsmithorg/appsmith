@@ -20,8 +20,8 @@ import { useCanvasDragToScroll } from "utils/hooks/useCanvasDragToScroll";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "utils/hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
-import { commentModeSelector } from "../../selectors/commentsSelectors";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import { commentModeSelector } from "../../../selectors/commentsSelectors";
 
 const StyledSelectionCanvas = styled.canvas`
   position: absolute;
