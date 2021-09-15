@@ -74,3 +74,4 @@ server {
         proxy_pass __APPSMITH_SERVER_PROXY_PASS__;
     }
 }
+
