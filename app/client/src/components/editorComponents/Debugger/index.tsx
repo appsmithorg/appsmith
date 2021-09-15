@@ -12,7 +12,7 @@ import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Layers } from "constants/Layers";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getFilteredErrors } from "selectors/debuggerSelectors";
+import { getMessageCount } from "selectors/debuggerSelectors";
 import getFeatureFlags from "utils/featureFlags";
 
 const Container = styled.div<{ errorCount: number; warningCount: number }>`
@@ -59,13 +59,7 @@ const Container = styled.div<{ errorCount: number; warningCount: number }>`
 
 function Debugger() {
   const dispatch = useDispatch();
-  const messageCounters = useSelector((state) => {
-    const errorKeys = Object.keys(getFilteredErrors(state));
-    const warnings = errorKeys.filter((key: string) => key.includes("warning"))
-      .length;
-    const errors = errorKeys.length - warnings;
-    return { errors, warnings };
-  });
+  const messageCounters = useSelector(getMessageCount);
 
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const showDebugger = useSelector(
@@ -137,13 +131,7 @@ export function DebuggerTrigger() {
     (state: AppState) => state.ui.debugger.isOpen,
   );
 
-  const messageCounters = useSelector((state) => {
-    const errorKeys = Object.keys(getFilteredErrors(state));
-    const warnings = errorKeys.filter((key: string) => key.includes("warning"))
-      .length;
-    const errors = errorKeys.length - warnings;
-    return { errors, warnings };
-  });
+  const messageCounters = useSelector(getMessageCount);
 
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
 
