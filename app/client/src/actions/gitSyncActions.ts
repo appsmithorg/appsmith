@@ -62,3 +62,12 @@ export const createNewBranchInit = (branchName: string) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
   payload: branchName,
 });
+
+export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
+  type: ReduxActionTypes.SHOW_ERROR_POPUP,
+  payload,
+});
+
+export const showCreateBranchPopup = () => ({
+  type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
+});

@@ -10,6 +10,11 @@ const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
+  isErrorPopupVisible: false,
+  gitError: `
+    README.md app/client/cypress/support/commands.js
+    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
+  `,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -44,12 +49,21 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isCommitting: false,
   }),
+  [ReduxActionTypes.SHOW_ERROR_POPUP]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<{ isVisible: boolean }>,
+  ) => ({
+    ...state,
+    isErrorPopupVisible: action.payload.isVisible,
+  }),
 });
 
 export type GitSyncReducerState = {
   isGitSyncModalOpen: boolean;
   isCommitting: boolean;
   activeGitSyncModalTab: GitSyncModalTab;
+  isErrorPopupVisible: boolean;
+  gitError: string;
 };
 
 export default gitSyncReducer;

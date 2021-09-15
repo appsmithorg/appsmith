@@ -512,6 +512,9 @@ export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 export const CONNECT_GIT = () => "Connect Git";
+export const RETRY = () => "RETRY";
+export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;

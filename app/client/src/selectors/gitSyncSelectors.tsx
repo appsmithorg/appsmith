@@ -12,3 +12,8 @@ export const getIsCommittingInProgress = (state: AppState) =>
 
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
+
+export const getIsGitErrorPopupVisible = (state: AppState) =>
+  state.ui.gitSync.isErrorPopupVisible;
+
+export const getGitError = (state: AppState) => state.ui.gitSync.gitError;

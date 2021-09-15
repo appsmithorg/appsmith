@@ -17,6 +17,8 @@ import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
+import GitErrorPopup from "./components/GitErrorPopup";
+
 const Container = styled.div`
   height: 600px;
   width: 100%;
@@ -78,27 +80,33 @@ function GitSyncModal() {
     ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      className={Classes.GIT_SYNC_MODAL}
-      isOpen={isModalOpen}
-      maxWidth={"900px"}
-      onClose={handleClose}
-      width={"550px"}
-    >
-      <Container>
-        <MenuContainer>
-          <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
-        </MenuContainer>
-        <BodyContainer>
-          <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
-        </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
-          <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
-        </CloseBtnContainer>
-      </Container>
-    </Dialog>
+    <>
+      <Dialog
+        canEscapeKeyClose
+        canOutsideClickClose
+        className={Classes.GIT_SYNC_MODAL}
+        isOpen={isModalOpen}
+        maxWidth={"900px"}
+        onClose={handleClose}
+        width={"550px"}
+      >
+        <Container>
+          <MenuContainer>
+            <Menu
+              activeTabIndex={activeTabIndex}
+              onSelect={setActiveTabIndex}
+            />
+          </MenuContainer>
+          <BodyContainer>
+            <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
+          </BodyContainer>
+          <CloseBtnContainer onClick={handleClose}>
+            <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
+          </CloseBtnContainer>
+        </Container>
+      </Dialog>
+      <GitErrorPopup />
+    </>
   );
 }
 
