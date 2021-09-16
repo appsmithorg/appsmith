@@ -34,7 +34,7 @@ import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes } from "../components/constants";
+import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
 
 /**
@@ -948,6 +948,7 @@ export const revertButtonStyleToButtonColor = (
 ) => {
   if (
     currentDSL.type === "BUTTON_WIDGET" ||
+    currentDSL.type === "FORM_BUTTON_WIDGET" ||
     currentDSL.type === "ICON_BUTTON_WIDGET"
   ) {
     if (currentDSL.hasOwnProperty("buttonStyle")) {
@@ -966,6 +967,16 @@ export const revertButtonStyleToButtonColor = (
           break;
         case ButtonStyleTypes.SECONDARY:
           currentDSL.buttonColor = Colors.GRAY;
+          break;
+        case "PRIMARY_BUTTON":
+          currentDSL.buttonColor = Colors.GREEN;
+          break;
+        case "SECONDARY_BUTTON":
+          currentDSL.buttonColor = Colors.GREEN;
+          currentDSL.buttonVariant = ButtonVariantTypes.OUTLINE;
+          break;
+        case "DANGER_BUTTON":
+          currentDSL.buttonColor = Colors.DANGER_SOLID;
           break;
         default:
           currentDSL.buttonColor = Colors.GREEN;
