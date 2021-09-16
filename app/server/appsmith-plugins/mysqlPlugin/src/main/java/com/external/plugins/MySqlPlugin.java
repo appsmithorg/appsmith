@@ -230,13 +230,18 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
-            if (isIsOperatorUsed(query)) {
+            /**
+             * - The r2dbc mysql driver is not able to substitute Boolean values when IS keyword is used. Hence, adding
+             * this check to inform users.
+             * - Tracking the issue here: https://github.com/mirromutth/r2dbc-mysql/issues/200
+             */
+            if (preparedStatement && isIsOperatorUsed(query)) {
                 return Mono.error(
                         new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Appsmith currently does not support the IS keyword with the preprared statements " +
-                                        "setting turned ON. Please re-write your SQL without the IS keyword or " +
-                                        "switch off the prepared statement knob from the settings tab."
+                                "Appsmith currently does not support the IS keyword with the prepared statement " +
+                                        "setting turned ON. Please re-write your SQL query without the IS keyword or " +
+                                        "turn OFF the 'Use prepared statement' knob from the settings tab."
                         )
                 );
             }
