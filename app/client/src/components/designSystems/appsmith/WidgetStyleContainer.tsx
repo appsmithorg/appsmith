@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import { Color } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export enum BoxShadowTypes {
   NONE = "NONE",
@@ -81,10 +80,6 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
 
 // wrapper component for apply styles on any widget boundary
 function WidgetStyleContainer(props: WidgetStyleContainerProps) {
-  //ToDo(Ashok): clean up the styling mess to make sure element flashing works properly on page load.
-  if (props.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    return <div>{props.children}</div>;
-  }
   return (
     <WidgetStyle {...props} data-testid={`container-wrapper-${props.widgetId}`}>
       <div>{props.children}</div>
