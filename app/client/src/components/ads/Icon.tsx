@@ -259,7 +259,6 @@ export const IconWrapper = styled.span<IconProps>`
     `
         : ""}
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-
   &:hover {
     cursor: ${(props) => (props.clickable ? "pointer" : "default")};
     ${(props) =>
