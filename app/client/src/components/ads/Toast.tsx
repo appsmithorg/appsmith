@@ -109,6 +109,11 @@ const ToastBody = styled.div<{
 const FlexContainer = styled.div`
   display: flex;
   align-items: flex-start;
+  flex: 1;
+`;
+
+const ToastTextWrapper = styled.div`
+  flex: 1;
 `;
 
 const StyledDebugButton = styled(DebugButton)`
@@ -134,7 +139,7 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <div>
+        <ToastTextWrapper>
           <Text type={TextType.P1}>{props.text}</Text>
           {props.variant === Variant.danger && props.showDebugButton ? (
             <StyledDebugButton
@@ -142,7 +147,7 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
               source={"TOAST"}
             />
           ) : null}
-        </div>
+        </ToastTextWrapper>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (
