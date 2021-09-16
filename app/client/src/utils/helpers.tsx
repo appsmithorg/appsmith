@@ -173,8 +173,8 @@ export const flashElementsById = (id: string | string[], timeout = 0) => {
 
       el?.scrollIntoView({
         behavior: "smooth",
-        block: "center",
-        inline: "center",
+        block: "nearest",
+        inline: "nearest",
       });
 
       if (el) flashElement(el);
