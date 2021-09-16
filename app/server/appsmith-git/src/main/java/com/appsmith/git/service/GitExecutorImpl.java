@@ -11,12 +11,14 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
+import javax.management.InvalidApplicationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -161,6 +163,29 @@ public class GitExecutorImpl implements GitExecutor {
         // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username", "password"));
         git.close();
         return result.substring(0, result.length() - 1);
+    }
+
+    @Override
+    public String connectApplication(Path repoSuffix,
+                                        String remoteUrl,
+                                        String privateSshKey,
+                                        String publicSshKey) throws GitAPIException, IOException {
+        final TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateSshKey, publicSshKey);
+        /*
+         * Check if the remote repo is empty/bare and if empty
+         * clone the repo and Initialize the repo with Readme.md file
+         * Readme.md file contains the the link to deployed app in Appsmith and basic information
+         * Commit and push these changes to the remote repo - Initial commit from Appsmith
+         * */
+        if (Git.lsRemoteRepository()
+                .setRemote(remoteUrl)
+                .setTransportConfigCallback(transportConfigCallback)
+                .call()
+                .isEmpty()) {
+            return cloneApp(repoSuffix, remoteUrl, privateSshKey, publicSshKey);
+        }
+        throw new NotSupportedException("The remote repo has committs. Please create a new repo with no commits. " +
+                "If you want to clone from remote repo and build application, please go to the Clone Application option.");
     }
 
     @Override

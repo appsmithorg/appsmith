@@ -26,6 +26,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -290,7 +291,7 @@ public class GitServiceImpl implements GitService {
         }
 
         return updateOrCreateGitProfileForCurrentUser(
-                gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), gitConnectDTO.getDefaultApplicationId())
+                gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
                 .then(
                         getApplicationById(defaultApplicationId)
                                 .flatMap(application -> {
@@ -308,7 +309,7 @@ public class GitServiceImpl implements GitService {
                                             Path repoPath =
                                                     Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
-                                            defaultBranch = gitExecutor.cloneApp(
+                                            defaultBranch = gitExecutor.connectApplication(
                                                     repoPath,
                                                     gitConnectDTO.getRemoteUrl(),
                                                     gitApplicationMetadata.getGitAuth().getPrivateKey(),
@@ -330,6 +331,13 @@ public class GitServiceImpl implements GitService {
                                             log.error("Error while cloning the remote repo, {}", e.getMessage());
                                             return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                         } catch (IOException e) {
+                                            if( e instanceof NotSupportedException) {
+                                                return Mono.error(new AppsmithException(
+                                                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                                                        e.getMessage()
+                                                ));
+                                            }
+
                                             log.error("Error while accessing the file system, {}", e.getMessage());
                                             return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                         }
@@ -338,9 +346,8 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.setBranchName(defaultBranch);
                                         gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
                                         gitApplicationMetadata.setRepoName(repoName);
-                                        Application application1 = new Application();
-                                        application1.setGitApplicationMetadata(gitApplicationMetadata);
-                                        return applicationService.update(defaultApplicationId, application1);
+                                        application.setGitApplicationMetadata(gitApplicationMetadata);
+                                        return applicationService.save(application);
                                     }
                                 })
                 );
