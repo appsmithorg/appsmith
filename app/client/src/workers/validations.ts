@@ -363,6 +363,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: "This value is required",
         };
       }
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || 0,
+        };
+      }
+
       return {
         isValid: true,
         parsed: value,
@@ -441,6 +449,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || false,
+        };
+      }
+
       return { isValid: true, parsed: config.params?.default || value };
     }
     const isABoolean = value === true || value === false;
@@ -531,12 +547,19 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           "This property is required for the widget to function correctly";
         return invalidResponse;
       }
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || [],
+        };
+      }
       if (config.params && isArray(config.params.default)) {
         return {
           isValid: true,
           parsed: config.params?.default,
         };
       }
+
       return {
         isValid: true,
         parsed: value,
@@ -573,6 +596,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (value === undefined || value === null || value === "") {
       if (config.params?.required) return invalidResponse;
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || [{}],
+        };
+      }
+
       return { isValid: true, parsed: value };
     }
     if (!isString(value) && !Array.isArray(value)) {
@@ -624,6 +655,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return invalidResponse;
     }
     if (isString(value)) {
+      if (value === "" && !config.params?.required) {
+        return {
+          isValid: true,
+          parsed: config.params?.default || moment().toISOString(true),
+        };
+      }
+
       if (!moment(value).isValid()) return invalidResponse;
 
       if (

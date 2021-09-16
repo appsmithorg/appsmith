@@ -42,13 +42,14 @@ const debuggerReducer = createReducer(initialState, {
   ) => {
     if (!action.payload.id) return state;
 
+    // Moving recent update to the top of the error list
+    const errors = omit(state.errors, action.payload.id);
     return {
       ...state,
       errors: {
-        ...state.errors,
         [action.payload.id]: action.payload,
+        ...errors,
       },
-      expandId: action.payload.id,
     };
   },
   [ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG]: (
