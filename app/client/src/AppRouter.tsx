@@ -134,7 +134,7 @@ class AppRouter extends React.Component<any, any> {
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
-                <SentryRoute component={Setup} path={SETUP} />
+                <SentryRoute component={Setup} exact path={SETUP} />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>
