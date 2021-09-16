@@ -88,9 +88,10 @@ const StyledControlGroup = styled(ControlGroup)<{ haslabel: string }>`
   }
 `;
 
-const DropdownStyles = createGlobalStyle`
+const DropdownStyles = createGlobalStyle<{ parentWidth: number }>`
   .select-popover-wrapper {
-    min-width: 269px;
+    min-width:${({ parentWidth }) =>
+      parentWidth > 269 ? `${parentWidth}px` : "269px"} ;
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.2) !important;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
     border-color: rgba(0, 0, 0, 0.2);
@@ -153,7 +154,7 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
   render() {
     return (
       <DropdownContainer>
-        <DropdownStyles />
+        <DropdownStyles parentWidth={this.props.width - 7} />
         <StyledControlGroup
           fill
           haslabel={!!this.props.label ? "true" : "false"}
