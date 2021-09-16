@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import Dialog from "components/ads/DialogComponent";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import {
+  getActiveGitSyncModalTab,
+  getIsGitSyncModalOpen,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -13,6 +16,8 @@ import Merge from "./Merge";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
+
+import GitErrorPopup from "./components/GitErrorPopup";
 
 const Container = styled.div`
   height: 600px;
@@ -64,35 +69,44 @@ function GitSyncModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const handleClose = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(false));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const setActiveTabIndex = (index: number) =>
+    dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
+
   const BodyComponent =
     ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      className={Classes.GIT_SYNC_MODAL}
-      isOpen={isModalOpen}
-      maxWidth={"900px"}
-      onClose={handleClose}
-      width={"550px"}
-    >
-      <Container>
-        <MenuContainer>
-          <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
-        </MenuContainer>
-        <BodyContainer>
-          <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
-        </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
-          <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
-        </CloseBtnContainer>
-      </Container>
-    </Dialog>
+    <>
+      <Dialog
+        canEscapeKeyClose
+        canOutsideClickClose
+        className={Classes.GIT_SYNC_MODAL}
+        isOpen={isModalOpen}
+        maxWidth={"900px"}
+        onClose={handleClose}
+        width={"550px"}
+      >
+        <Container>
+          <MenuContainer>
+            <Menu
+              activeTabIndex={activeTabIndex}
+              onSelect={setActiveTabIndex}
+            />
+          </MenuContainer>
+          <BodyContainer>
+            <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
+          </BodyContainer>
+          <CloseBtnContainer onClick={handleClose}>
+            <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
+          </CloseBtnContainer>
+        </Container>
+      </Dialog>
+      <GitErrorPopup />
+    </>
   );
 }
 

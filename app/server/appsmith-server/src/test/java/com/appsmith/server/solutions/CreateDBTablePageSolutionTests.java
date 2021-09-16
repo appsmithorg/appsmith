@@ -118,7 +118,7 @@ public class CreateDBTablePageSolutionTests {
 
         "SelectQuery", "SELECT * FROM sampleTable\n" +
             "WHERE \"field1.something\" like '%{{Table1.searchText || \"\"}}%'\n" +
-            "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionLabel}}\n" +
+            "ORDER BY \"{{col_select.selectedOptionValue}}\" {{order_select.selectedOptionValue}}\n" +
             "LIMIT {{Table1.pageSize}}" +
             "OFFSET {{(Table1.pageNo - 1) * Table1.pageSize}};",
 
