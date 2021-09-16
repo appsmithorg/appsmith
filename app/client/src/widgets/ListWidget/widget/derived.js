@@ -111,7 +111,7 @@ export default {
 
     return updatedItems;
   },
-  //
+  // this is just a patch for #7520
   getChildAutoComplete: (props, moment, _) => {
     const data = [...props.listData];
 
