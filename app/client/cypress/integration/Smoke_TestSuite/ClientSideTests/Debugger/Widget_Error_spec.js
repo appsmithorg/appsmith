@@ -38,14 +38,13 @@ describe("Widget error state", function() {
   });
 
   it("All errors should be expanded by default", function() {
-    cy.testJsontext("label", "{{[]}}");
-
     cy.get(debuggerLocators.errorMessage)
       .should("be.visible")
       .should("have.length", 2);
   });
 
   it("Recent errors are shown at the top of the list", function() {
+    cy.testJsontext("label", "{{[]}}");
     cy.get(debuggerLocators.debuggerLogState)
       .first()
       .contains("text");
