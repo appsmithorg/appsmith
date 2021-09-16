@@ -77,6 +77,7 @@ public enum AppsmithError {
     INVALID_CURL_COMMAND(400, 4029, "Invalid cURL command, couldn't import.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR),
     INVALID_LOGIN_METHOD(401, 4030, "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_GIT_CONFIGURATION(400, 4031, "Git configuration is invalid. Details: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
+    INVALID_GIT_SSH_CONFIGURATION(400, 4032, "SSH Key is not configured properly. Did you forget to add SSH key to remote? Can you please try again by reconfiguring the SSH key", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR),
     REMOVE_LAST_ORG_ADMIN_ERROR(400, 4037, "The last admin can not be removed from an organization", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR),
     INVALID_CRUD_PAGE_REQUEST(400, 4038, "Unable to process page generation request, {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST),
     INTERNAL_SERVER_ERROR(500, 5000, "Internal server error while processing request", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR),

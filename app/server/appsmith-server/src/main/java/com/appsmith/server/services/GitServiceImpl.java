@@ -308,8 +308,7 @@ public class GitServiceImpl implements GitService {
                                 || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
                                 || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
                                 || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
-                                    "SSH Key is empty. Please reach out to Appsmith support"));
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                         } else {
                             String defaultBranch;
                             String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
@@ -324,23 +323,17 @@ public class GitServiceImpl implements GitService {
                                         gitApplicationMetadata.getGitAuth().getPublicKey()
                                 );
                             } catch (GitAPIException e) {
-                                if (e instanceof TransportException) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.AUTHENTICATION_FAILURE,
-                                            "SSH Key is not configured properly. Can you please try again by reconfiguring the SSH key"
-                                    ));
-                                }
-                                if (e instanceof InvalidRemoteException) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.INVALID_PARAMETER,
-                                            "remote url"
-                                    ));
-                                }
                                 log.error("Error while cloning the remote repo, {}", e.getMessage());
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                if (e instanceof TransportException) {
+                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
+                                } else if (e instanceof InvalidRemoteException) {
+                                    return Mono.error(
+                                        new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REMOTE_URL));
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", e.getMessage()));
                             } catch (IOException e) {
                                 log.error("Error while accessing the file system, {}", e.getMessage());
-                                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", e.getMessage()));
                             }
 
                             gitApplicationMetadata.setDefaultApplicationId(application.getId());
