@@ -18,6 +18,7 @@ import { Classes } from "./constants";
 import { useIsGitConnected } from "./hooks";
 
 import GitErrorPopup from "./components/GitErrorPopup";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 import GitConnection from "./Tabs/GitConnection";
 
 const Container = styled.div`
@@ -96,6 +97,8 @@ function GitSyncModal() {
     }
   }, [initialTabIndex]);
 
+  const orgId = useSelector(getCurrentOrgId);
+
   const activeMenuItemKey = menuOptions[activeTabIndex]
     ? menuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
@@ -121,7 +124,10 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
+            <BodyComponent
+              onSuccess={() => setActiveTabIndex(1)}
+              organizationId={orgId}
+            />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
