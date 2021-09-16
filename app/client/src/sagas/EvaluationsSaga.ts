@@ -163,7 +163,9 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
+
   yield call(evalErrorHandler, errors);
+
   return triggers;
 }
 

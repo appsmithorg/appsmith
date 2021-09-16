@@ -71,6 +71,20 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
     const sampleBody =
       "export default {\n\tresults: [],\n\trun: () => {\n\t\t//write code here\n\t}\n}";
+    const sampleActions = [
+      {
+        name: "run",
+        pageId,
+        organizationId,
+        executeOnLoad: false,
+        actionConfiguration: {
+          body: "() => {\n\t\t//write code here\n\t}",
+          isAsync: false,
+          timeoutInMilliseconds: 0,
+          jsArguments: [],
+        },
+      },
+    ];
     yield put(
       createJSCollectionRequest({
         name: newJSCollectionName,
@@ -78,8 +92,13 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
         organizationId,
         pluginId,
         body: sampleBody,
-        variables: [],
-        actions: [],
+        variables: [
+          {
+            name: "results",
+            value: [],
+          },
+        ],
+        actions: sampleActions,
         applicationId,
         pluginType: PluginType.JS,
       }),
@@ -257,16 +276,15 @@ function* handleExecuteJSFunctionSaga(
       ),
     );
   }
-  if (result) {
-    yield put({
-      type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
-      payload: {
-        results: result,
-        collectionId,
-        actionId,
-      },
-    });
-  }
+
+  yield put({
+    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+    payload: {
+      results: result,
+      collectionId,
+      actionId,
+    },
+  });
 }
 
 function* handleRefactorJSActionNameSaga(
