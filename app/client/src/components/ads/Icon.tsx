@@ -10,7 +10,7 @@ import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
-import EditIcon from "remixicon-react/PencilLineIcon";
+import EditIcon from "remixicon-react/PencilFillIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
@@ -54,21 +54,22 @@ import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
 import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
 import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
-import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
+import Emoji from "remixicon-react/EmotionLineIcon";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
-import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
+import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
+import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import ContextMenu from "remixicon-react/MoreFillIcon";
-import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import Trash from "remixicon-react/DeleteBin7FillIcon";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
-import { ReactComponent as CommentContextMenu } from "assets/icons/comments/context-menu.svg";
+import Link2 from "remixicon-react/LinkIcon";
+import CommentContextMenu from "remixicon-react/More2FillIcon";
 import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
-import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
+import Filter from "remixicon-react/Filter2FillIcon";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
-import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
-import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
+import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
@@ -199,6 +200,7 @@ export const IconCollection = [
   "emoji",
   "pin",
   "oval-check",
+  "oval-check-fill",
   "HEADING_ONE",
   "HEADING_TWO",
   "HEADING_THREE",
@@ -465,6 +467,9 @@ const Icon = forwardRef(
         break;
       case "oval-check":
         returnIcon = <OvalCheck />;
+        break;
+      case "oval-check-fill":
+        returnIcon = <OvalCheckFill />;
         break;
 
       case "HEADING_ONE":

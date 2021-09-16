@@ -1350,7 +1350,7 @@ const comments = {
   appCommentsPlaceholderText: lightShades[8],
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
-  cardHoverBackground: "#FAFAFA",
+  cardHoverBackground: "#FBEED0",
   modeIconCircleStroke: "#222222",
   activeModeIconCircleStroke: "#090707",
 };
