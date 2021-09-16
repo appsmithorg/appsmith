@@ -456,7 +456,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
                     Application sourceApplication = tuple.getT1();
                     String newName = tuple.getT2();
 
-                    // Create a new clone application object without the pages using the parametrized Application constructor
+                    // Create a new clone application object without the pages using the parameterized Application constructor
                     Application newApplication = new Application(sourceApplication);
                     newApplication.setName(newName);
 

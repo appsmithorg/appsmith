@@ -27,8 +27,10 @@ const generateInitialEvalState = (formConfig: any) => {
   if (formConfig.hasOwnProperty("conditionals")) {
     let key = "unknowns";
 
-    // A unique key is used to refer the object in the eval state, can be configProperty or serverLabel
-    if (formConfig.hasOwnProperty("configProperty")) {
+    // A unique key is used to refer the object in the eval state, can be propertyName, configProperty or identifier
+    if (formConfig.hasOwnProperty("propertyName")) {
+      key = formConfig.propertyName;
+    } else if (formConfig.hasOwnProperty("configProperty")) {
       key = formConfig.configProperty;
     } else if (formConfig.hasOwnProperty("identifier")) {
       key = formConfig.identifier;

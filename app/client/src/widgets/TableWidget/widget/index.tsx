@@ -232,14 +232,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         columnProperties: columnProperties,
         Cell: (props: any) => {
-          let rowIndex: number = props.cell.row.index;
+          const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+          const originalIndex = data?.__originalIndex__ || rowIndex;
 
+          // cellProperties order or size does not change when filter/sorting/grouping is applied
+          // on the data thus original index is need to identify the column's cell property.
           const cellProperties = this.getCellProperties(
             columnProperties,
-            rowIndex,
+            originalIndex,
           );
+
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,

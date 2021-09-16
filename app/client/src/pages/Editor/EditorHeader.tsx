@@ -60,6 +60,7 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
+import { getIsInOnboarding } from "selectors/onboardingSelectors";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -167,6 +168,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -222,7 +224,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(true));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const handleClickDeploy = useCallback(() => {
@@ -244,12 +246,12 @@ export function EditorHeader(props: EditorHeaderProps) {
               "-ml-8": pinned,
             })}
           >
-            <MenuIcon className="fill-current h-4 w-4" />
+            <MenuIcon className="w-4 h-4 fill-current" />
           </div>
           <Link style={{ height: 24 }} to={APPLICATIONS_URL}>
             <AppsmithLogoImg
               alt="Appsmith logo"
-              className="t--appsmith-logo ml-4"
+              className="ml-4 t--appsmith-logo"
               src={AppsmithLogo}
             />
           </Link>
@@ -350,7 +352,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
+        {props.inOnboarding && <OnboardingHelper />}
         <GlobalSearch />
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
@@ -371,6 +373,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  inOnboarding: getIsInOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
