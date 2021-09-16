@@ -162,8 +162,20 @@ public class EnvManager {
                         commonConfig.setInstanceName(changesCopy.remove("APPSMITH_INSTANCE_NAME"));
                     }
 
+                    if (changesCopy.containsKey("APPSMITH_MAIL_FROM")) {
+                        emailConfig.setMailFrom(changesCopy.remove("APPSMITH_MAIL_FROM"));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_REPLY_TO")) {
+                        emailConfig.setReplyTo(changesCopy.remove("APPSMITH_REPLY_TO"));
+                    }
+
                     if (changesCopy.containsKey("APPSMITH_MAIL_ENABLED")) {
                         emailConfig.setEmailEnabled("true".equals(changesCopy.remove("APPSMITH_MAIL_ENABLED")));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_MAIL_SMTP_AUTH")) {
+                        emailConfig.setEmailEnabled("true".equals(changesCopy.remove("APPSMITH_MAIL_SMTP_AUTH")));
                     }
 
                     if (javaMailSender instanceof JavaMailSenderImpl) {
@@ -173,6 +185,12 @@ public class EnvManager {
                         }
                         if (changesCopy.containsKey("APPSMITH_MAIL_PORT")) {
                             javaMailSenderImpl.setPort(Integer.parseInt(changesCopy.remove("APPSMITH_MAIL_PORT")));
+                        }
+                        if (changesCopy.containsKey("APPSMITH_MAIL_USERNAME")) {
+                            javaMailSenderImpl.setUsername(changesCopy.remove("APPSMITH_MAIL_USERNAME"));
+                        }
+                        if (changesCopy.containsKey("APPSMITH_MAIL_PASSWORD")) {
+                            javaMailSenderImpl.setPassword(changesCopy.remove("APPSMITH_MAIL_PASSWORD"));
                         }
                     }
 
