@@ -250,7 +250,7 @@ const DATA_TREE_FUNCTIONS: Record<
       },
     ]);
   },
-  resetWidget: function(widgetName: string, resetChildren = false) {
+  resetWidget: function(widgetName: string, resetChildren = true) {
     return new AppsmithPromise([
       {
         type: ActionTriggerType.RESET_WIDGET_META_RECURSIVE_BY_NAME,
