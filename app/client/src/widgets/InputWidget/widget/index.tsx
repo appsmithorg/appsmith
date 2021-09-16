@@ -24,8 +24,8 @@ import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-function defaultValueValidation(
-  value: unknown,
+export function defaultValueValidation(
+  value: any,
   props: InputWidgetProps,
   _?: any,
 ): ValidationResponse {
@@ -36,23 +36,29 @@ function defaultValueValidation(
     inputType === "CURRENCY" ||
     inputType === "PHONE_NUMBER"
   ) {
-    if (_.isNil(value) || value === "") {
-      return {
-        isValid: true,
-        parsed: 0,
-        message: "",
-      };
+    const parsed = Number(value);
+
+    if (typeof value === "string") {
+      if (value.trim() === "") {
+        return {
+          isValid: true,
+          parsed: undefined,
+          message: "",
+        };
+      }
+
+      if (!Number.isFinite(parsed)) {
+        return {
+          isValid: false,
+          parsed: undefined,
+          message: "This value must be a number",
+        };
+      }
     }
-    if (!Number.isFinite(value) && !_.isString(value)) {
-      return {
-        isValid: false,
-        parsed: 0,
-        message: "This value must be a number",
-      };
-    }
+
     return {
       isValid: true,
-      parsed: Number(value),
+      parsed,
       message: "",
     };
   }
@@ -545,7 +551,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             } else {
               return false;
             }
-          } 
+          }
           if (parsedRegex) {
             return parsedRegex.test(this.text)
           } else {
@@ -658,7 +664,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   getPageView() {
-    const value = this.props.text || "";
+    const value = this.props.text ?? "";
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCountryCode = this.props.selectedCurrencyCountryCode
@@ -672,7 +678,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
-    if (this.props.maxChars) {
+    if (this.props.inputType === "TEXT" && this.props.maxChars) {
+      // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
       if (
         this.props.defaultText &&
