@@ -266,7 +266,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null) {
+    if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
           isValid: false,

@@ -19,6 +19,13 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         parsed = Number(value);
         isValid = true;
       } else {
+        if (value === "") {
+          return {
+            isValid: true,
+            parsed: 0,
+          };
+        }
+
         return {
           isValid: false,
           parsed: 0,
