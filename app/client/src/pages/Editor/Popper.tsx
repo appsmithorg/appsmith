@@ -6,6 +6,7 @@ import { AppState } from "reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
@@ -26,6 +27,7 @@ export type PopperProps = {
   modifiers?: Partial<PopperOptions["modifiers"]>;
   isDraggable?: boolean;
   disablePopperEvents?: boolean;
+  cypressSelectorDragHandle?: string;
   position?: {
     top: number;
     left: number;
@@ -39,23 +41,6 @@ const PopperWrapper = styled.div<{ zIndex: number }>`
   position: absolute;
 `;
 
-// const DragHandleBlock = styled.div`
-//   padding: 6px;
-//   height: 28px;
-//   background-color: ${(props) =>
-//     props.theme.colors?.propertyPane?.bg || Colors.BLACK};
-//   cursor: grab;
-//   box-shadow: 0px 0px 2px rgb(0 0 0 / 10%), 0px 2px 10px rgb(0 0 0 / 10%);
-//   clip-path: inset(-2px 0px -2px -2px);
-// `;
-
-// export function PopperDragHandle() {
-//   return (
-//     <DragHandleBlock>
-//       <DragHandleIcon />
-//     </DragHandleBlock>
-//   );
-// }
 const DragHandleBlock = styled.div`
   cursor: grab;
   display: flex;
@@ -82,6 +67,9 @@ export function PopperDragHandle() {
 /* eslint-disable react/display-name */
 export default (props: PopperProps) => {
   const contentRef = useRef(null);
+  const popperIdRef = useRef(generateReactKey());
+  const popperId = popperIdRef.current;
+
   const {
     isDraggable = false,
     disablePopperEvents = false,
@@ -90,6 +78,7 @@ export default (props: PopperProps) => {
     onPositionChange = noop,
     themeMode = props.themeMode || ThemeMode.LIGHT,
     renderDragBlockPositions,
+    cypressSelectorDragHandle,
   } = props;
   // Meomoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
@@ -149,7 +138,7 @@ export default (props: PopperProps) => {
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
-          "popper",
+          `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
           position,
@@ -162,6 +151,7 @@ export default (props: PopperProps) => {
                 <PopperDragHandle />
               </ThemeProvider>
             ),
+          cypressSelectorDragHandle,
         );
       }
 

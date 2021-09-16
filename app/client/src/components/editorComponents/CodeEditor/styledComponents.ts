@@ -49,6 +49,7 @@ export const EditorWrapper = styled.div<{
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
+  className?: string;
 }>`
   width: 100%;
   ${(props) =>
@@ -212,6 +213,14 @@ export const EditorWrapper = styled.div<{
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
     }
   }
+  ${(props) =>
+    props.className === "js-editor" &&
+    `
+    .cm-tab {
+      border-right: 1px dotted #ccc;
+    }
+  `}
+  
   .bp3-popover-target {
     padding-right: 10px;
     padding-top: 5px;
@@ -247,7 +256,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "32px";
+        height = props.height || "35px";
       }
       return `height: ${height}`;
     }}

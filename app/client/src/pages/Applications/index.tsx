@@ -80,9 +80,24 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
-import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  BUILDER_PAGE_URL,
+  extractAppIdAndPageIdFromUrl,
+  SIGNUP_SUCCESS_URL,
+} from "constants/routes";
+import {
+  createMessage,
+  CREATE_NEW_APPLICATION,
+  DOCUMENTATION,
+  GETTING_STARTED,
+  ORGANIZATIONS_HEADING,
+  SEARCH_APPS,
+  WELCOME_TOUR,
+  NO_APPS_FOUND,
+} from "constants/messages";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
+import history from "utils/history";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -367,7 +382,9 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
 
   return (
     <MenuItem
-      className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+      containerClassName={
+        isFetchingApplications ? BlueprintClasses.SKELETON : ""
+      }
       ellipsize={20}
       href={`${window.location.pathname}#${org.organization.slug}`}
       icon="workspace"
@@ -403,7 +420,7 @@ function LeftPane() {
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
-        heading="ORGANIZATIONS"
+        heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
@@ -437,20 +454,22 @@ function LeftPane() {
           <div style={{ marginTop: 12 }}>
             <Item
               isFetchingApplications={isFetchingApplications}
-              label={"GETTING STARTED"}
+              label={createMessage(GETTING_STARTED)}
               textType={TextType.H6}
             />
           </div>
           <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            containerClassName={
+              isFetchingApplications ? BlueprintClasses.SKELETON : ""
+            }
             icon="book"
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
             }}
-            text={"Documentation"}
+            text={createMessage(DOCUMENTATION)}
           />
           <MenuItem
-            className={
+            containerClassName={
               isFetchingApplications
                 ? BlueprintClasses.SKELETON
                 : "t--welcome-tour"
@@ -461,7 +480,7 @@ function LeftPane() {
 
               initiateOnboarding();
             }}
-            text={"Welcome Tour"}
+            text={createMessage(WELCOME_TOUR)}
           />
         </WorkpsacesNavigator>
       </LeftPaneSection>
@@ -626,7 +645,7 @@ function ApplicationsSection(props: any) {
     organizationsListComponent = (
       <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
         <CreateNewLabel type={TextType.H4}>
-          Whale! Whale! this name doesn&apos;t ring a bell!
+          {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
         <NoSearchResultImg alt="No result found" src={NoSearchImage} />
       </CenteredWrapper>
@@ -836,7 +855,7 @@ function ApplicationsSection(props: any) {
                             className="createnew"
                             type={TextType.H4}
                           >
-                            Create New
+                            {createMessage(CREATE_NEW_APPLICATION)}
                           </CreateNewLabel>
                         </>
                       )}
@@ -875,7 +894,6 @@ function ApplicationsSection(props: any) {
 }
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
@@ -887,6 +905,7 @@ type ApplicationProps = {
   userOrgs: any;
   currentUser?: User;
   searchKeyword: string | undefined;
+  enableFirstTimeUserOnboarding: (applicationId: string) => void;
 };
 
 const getIsFromSignup = () => {
@@ -919,9 +938,23 @@ class Applications extends Component<
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
+      "enableFirstTimeUserExperience",
+    );
     if (redirectUrl) {
       try {
-        if (getIsSafeRedirectURL(redirectUrl)) {
+        if (
+          window.location.pathname == SIGNUP_SUCCESS_URL &&
+          shouldEnableFirstTimeUserOnboarding === "true"
+        ) {
+          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
+            redirectUrl,
+          );
+          if (applicationId && pageId) {
+            this.props.enableFirstTimeUserOnboarding(applicationId);
+            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+          }
+        } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
         }
       } catch (e) {
@@ -937,7 +970,7 @@ class Applications extends Component<
         <LeftPane />
         <SubHeader
           search={{
-            placeholder: "Search for apps...",
+            placeholder: createMessage(SEARCH_APPS),
             queryFn: this.props.searchApplications,
             defaultValue: this.props.searchKeyword,
           }}
@@ -961,15 +994,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () =>
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
-  createApplication: (appName: string) => {
-    dispatch({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        name: appName,
-      },
-    });
+  getAllApplication: () => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
   searchApplications: (keyword: string) => {
     dispatch({
@@ -977,6 +1003,20 @@ const mapDispatchToProps = (dispatch: any) => ({
       payload: {
         keyword,
       },
+    });
+  },
+  enableFirstTimeUserOnboarding: (applicationId: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: true,
     });
   },
 });

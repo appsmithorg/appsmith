@@ -7,8 +7,11 @@ import { Colors } from "constants/Colors";
 import { scrollbarWidth } from "utils/helpers";
 import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-import { CellWrapper } from "components/designSystems/appsmith/TableComponent/TableStyledWrappers";
-import AutoToolTipComponent from "components/designSystems/appsmith/TableComponent/AutoToolTipComponent";
+
+// TODO(abhinav): The following two imports are from the table widget's component
+// We need to decouple the platform stuff from the widget stuff
+import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
+import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
@@ -123,6 +126,7 @@ export const TableWrapper = styled.div`
     width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
     color: ${Colors.OXFORD_BLUE};
     font-weight: 500;
     padding-left: 10px;
@@ -252,7 +256,7 @@ function Table(props: TableProps) {
         >
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
-              <div key={cellIndex} {...cell.getCellProps()} className="td">
+              <div {...cell.getCellProps()} className="td" key={cellIndex}>
                 <CellWrapper>{cell.render("Cell")}</CellWrapper>
               </div>
             );
@@ -274,16 +278,16 @@ function Table(props: TableProps) {
             <div>
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
-                  key={index}
                   {...headerGroup.getHeaderGroupProps()}
                   className="tr"
+                  key={index}
                 >
                   {headerGroup.headers.map(
                     (column: any, columnIndex: number) => (
                       <div
-                        key={columnIndex}
                         {...column.getHeaderProps()}
                         className="th header-reorder"
+                        key={columnIndex}
                       >
                         <div
                           className={
@@ -292,7 +296,9 @@ function Table(props: TableProps) {
                               : "hidden-header"
                           }
                         >
-                          {column.render("Header")}
+                          <AutoToolTipComponent title={column.render("Header")}>
+                            {column.render("Header")}
+                          </AutoToolTipComponent>
                         </div>
                       </div>
                     ),

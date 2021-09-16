@@ -3,13 +3,9 @@ import {
   executeActionTriggers,
   executeAppAction,
 } from "sagas/ActionExecution/ActionExecutionSagas";
-import { all, call, select } from "redux-saga/effects";
+import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-import { getAppMode } from "selectors/entitiesSelector";
-import { APP_MODE } from "entities/App";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -19,48 +15,60 @@ export class TriggerFailureError extends Error {
   }
 }
 
+export class PluginTriggerFailureError extends TriggerFailureError {
+  responseData: unknown[] = [];
+  constructor(reason: string, responseData: unknown[]) {
+    super(reason);
+    this.responseData = responseData;
+  }
+}
+
 export default function* executePromiseSaga(
   trigger: AppsmithPromisePayload,
   eventType: EventType,
 ): any {
+  let error: unknown;
+
   try {
-    yield all(
+    const responses = yield all(
       trigger.executor.map((executionTrigger) =>
         call(executeActionTriggers, executionTrigger, eventType),
       ),
     );
     if (trigger.then) {
       if (trigger.then.length) {
+        let responseData: unknown[] = [{}];
+        if (responses.length === 1) {
+          responseData = responses[0];
+        }
         for (const thenable of trigger.then) {
-          yield call(executeAppAction, {
+          responseData = yield call(executeAppAction, {
             dynamicString: thenable,
             event: {
               type: eventType,
             },
+            responseData,
           });
         }
       }
     }
   } catch (e) {
     log.error(e);
-    const appMode = yield select(getAppMode);
-    if (appMode === APP_MODE.EDIT) {
-      Toaster.show({
-        text: "There was an error while executing",
-        variant: Variant.danger,
-        showDebugButton: true,
-      });
-    }
+    error = e;
     if (trigger.catch) {
+      let responseData = [e.message];
+      if (e instanceof PluginTriggerFailureError) {
+        responseData = e.responseData;
+      }
+      const catchArguments = responseData || [{}];
+
       yield call(executeAppAction, {
         dynamicString: trigger.catch,
         event: {
           type: eventType,
         },
-        responseData: [e.message],
+        responseData: catchArguments,
       });
-    } else {
-      throw new TriggerFailureError("Uncaught promise rejection", e);
     }
   }
 
@@ -71,5 +79,11 @@ export default function* executePromiseSaga(
         type: eventType,
       },
     });
+  }
+
+  // Throwing any errors present, which can then be used by the caller
+  // to be show in a toast(or debugger etc.)
+  if (error) {
+    throw error;
   }
 }

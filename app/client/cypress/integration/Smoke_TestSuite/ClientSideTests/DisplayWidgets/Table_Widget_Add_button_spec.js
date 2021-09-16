@@ -45,4 +45,22 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
+  it("Table widget add new icon button column", function() {
+    cy.openPropertyPane("tablewidget");
+    // click on Add new Column.
+    cy.get(".t--add-column-btn").click();
+
+    //Open New Custom Column
+    cy.editColumn("customColumn1");
+    // Change Column type to icon Button
+    cy.changeColumnType("Icon Button");
+    // Select Icon from Icon Control
+    cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+      force: true,
+    });
+    cy.get(".bp3-icon-add")
+      .first()
+      .click({ force: true });
+    cy.get(".t--widget-tablewidget .tbody .bp3-icon-add").should("exist");
+  });
 });

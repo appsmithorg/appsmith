@@ -27,6 +27,13 @@ import {
   openModalSaga,
   closeModalSaga,
 } from "sagas/ActionExecution/ModalSagas";
+import AppsmithConsole from "utils/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { createMessage, DEBUGGER_TRIGGER_ERROR } from "constants/messages";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { Toaster } from "components/ads/Toast";
+import { Variant } from "components/ads/common";
 
 export class TriggerEvaluationError extends Error {
   constructor(message: string) {
@@ -38,12 +45,18 @@ export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
 ) {
+  // when called via a promise, a trigger can return some value to be used in .then
+  let response: unknown[] = [];
   switch (trigger.type) {
     case ActionTriggerType.PROMISE:
       yield call(executePromiseSaga, trigger.payload, eventType);
       break;
     case ActionTriggerType.RUN_PLUGIN_ACTION:
-      yield call(executePluginActionTriggerSaga, trigger.payload, eventType);
+      response = yield call(
+        executePluginActionTriggerSaga,
+        trigger.payload,
+        eventType,
+      );
       break;
     case ActionTriggerType.CLEAR_PLUGIN_ACTION:
       yield put(clearActionResponse(trigger.payload.actionId));
@@ -76,6 +89,7 @@ export function* executeActionTriggers(
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
   }
+  return response;
 }
 
 export function* executeAppAction(payload: ExecuteTriggerPayload) {
@@ -88,37 +102,71 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
-  const triggers = yield call(
-    evaluateDynamicTrigger,
-    dynamicString,
-    responseData,
-  );
 
-  log.debug({ triggers });
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, type),
-      ),
+  try {
+    const triggers = yield call(
+      evaluateDynamicTrigger,
+      dynamicString,
+      responseData,
     );
+
+    log.debug({ triggers });
+    if (triggers && triggers.length) {
+      yield all(
+        triggers.map((trigger: ActionDescription) =>
+          call(executeActionTriggers, trigger, type),
+        ),
+      );
+    }
+  } catch (e) {
+    throw e;
   }
 }
 
 function* initiateActionTriggerExecution(
   action: ReduxAction<ExecuteTriggerPayload>,
 ) {
-  const { event } = action.payload;
+  const { event, source, triggerPropertyName } = action.payload;
   try {
     yield call(executeAppAction, action.payload);
+
     if (event.callback) {
       event.callback({ success: true });
     }
+    AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   } catch (e) {
     // handle errors here
     if (event.callback) {
       event.callback({ success: false });
     }
     log.error(e);
+
+    AppsmithConsole.addError({
+      id: `${source?.id}-${triggerPropertyName}`,
+      logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
+      text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
+      source: {
+        type: ENTITY_TYPE.WIDGET,
+        id: source?.id ?? "",
+        name: source?.name ?? "",
+        propertyPath: triggerPropertyName,
+      },
+      messages: [
+        {
+          type:
+            e instanceof TriggerEvaluationError
+              ? PropertyEvaluationErrorType.PARSE
+              : undefined,
+          message: e.message,
+        },
+      ],
+    });
+
+    Toaster.show({
+      text: e.message || "There was an error while executing trigger",
+      variant: Variant.danger,
+      showDebugButton: true,
+    });
   }
 }
 

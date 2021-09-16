@@ -11,6 +11,8 @@ export const PROFILE = "/profile";
 export const USERS_URL = "/users";
 export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
+export const SETUP = "/setup/welcome";
+export const BUILDER_CHECKLIST_URL = `${BUILDER_URL}/checklist`;
 
 export type BuilderRouteParams = {
   applicationId: string;
@@ -38,6 +40,12 @@ export type QueryEditorRouteParams = {
   applicationId: string;
   pageId: string;
   queryId: string;
+};
+
+export type JSEditorRouteParams = {
+  applicationId: string;
+  pageId: string;
+  collectionId?: string;
 };
 
 export const BUILDER_BASE_URL = (applicationId = ":applicationId"): string =>
@@ -87,6 +95,11 @@ export const QUERIES_EDITOR_URL = (
   applicationId = ":applicationId",
   pageId = ":pageId",
 ): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/queries`;
+
+export const JS_COLLECTION_EDITOR_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/jsObjects`;
 
 export const INTEGRATION_TABS = {
   ACTIVE: "ACTIVE",
@@ -145,6 +158,19 @@ export const API_EDITOR_URL_WITH_SELECTED_PAGE_ID = (
     applicationId,
     pageId,
   )}/api?importTo=${selectedPageId}`;
+};
+
+export const JS_COLLECTION_ID_URL = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+  collectionId = ":collectionId",
+  params = {},
+): string => {
+  const queryParams = convertToQueryParams(params);
+  return `${JS_COLLECTION_EDITOR_URL(
+    applicationId,
+    pageId,
+  )}/${collectionId}${queryParams}`;
 };
 
 export const APP_VIEW_URL = `/applications/:applicationId`;
@@ -218,6 +244,11 @@ export const getGenerateTemplateFormURL = (
     pageId,
   )}${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`;
 
+export const getOnboardingCheckListUrl = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/checklist`;
+
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
 export const BASE_SIGNUP_URL = `/signup`;
@@ -233,4 +264,22 @@ export const matchApiPath = match(API_EDITOR_ID_URL());
 export const matchDatasourcePath = match(DATA_SOURCES_EDITOR_ID_URL());
 export const matchQueryPath = match(QUERIES_EDITOR_ID_URL());
 export const matchBuilderPath = match(BUILDER_URL);
+export const matchJSObjectPath = match(JS_COLLECTION_ID_URL());
+
 export const matchViewerPath = match(getApplicationViewerPageURL());
+
+export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
+export const extractAppIdAndPageIdFromUrl = (url = "") => {
+  const matched = url.match(BUILDER_URL_REGEX);
+  if (matched) {
+    return {
+      applicationId: matched[1],
+      pageId: matched[2],
+    };
+  }
+
+  return {
+    applicationId: "",
+    pageId: "",
+  };
+};

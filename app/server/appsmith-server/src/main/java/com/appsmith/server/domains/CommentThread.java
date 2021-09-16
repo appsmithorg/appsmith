@@ -42,8 +42,6 @@ public class CommentThread extends AbstractCommentDomain {
     @JsonIgnore
     Set<String> subscribers;
 
-    /** Edit/Published Mode */
-    String mode;
 
     @Transient
     Boolean isViewed;

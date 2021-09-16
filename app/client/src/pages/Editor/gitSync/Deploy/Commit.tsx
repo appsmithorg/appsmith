@@ -1,21 +1,39 @@
-import React from "react";
-import { Title, Caption } from "../components/StyledComponents";
+import React, { useState } from "react";
+import { Title } from "../components/StyledComponents";
 import {
   DEPLOY_YOUR_APPLICATION,
+  COMMIT_TO,
   COMMIT,
-  PUSH,
+  PUSH_CHANGES_IMMEDIATELY_TO,
+  PUSH_CHANGES,
+  PUSH_TO,
   createMessage,
+  COMMIT_AND_PUSH,
+  COMMITTED_SUCCESSFULLY,
 } from "constants/messages";
 import styled from "styled-components";
+import TextInput from "components/ads/TextInput";
+import Button, { Category, Size } from "components/ads/Button";
+import Checkbox, { LabelContainer } from "components/ads/Checkbox";
 
-import NumberedStep from "components/ads/NumberedStep";
+import { DEFAULT_REMOTE } from "../constants";
+
+import {
+  getCurrentGitBranch,
+  getIsCommittingInProgress,
+} from "selectors/gitSyncSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { commitToRepoInit } from "actions/gitSyncActions";
+
+import { Space } from "../components/StyledComponents";
+import { Colors } from "constants/Colors";
+import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import OptionSelector from "../components/OptionSelector";
 import { noop } from "lodash";
-import TextInput from "components/ads/TextInput";
-import Button, { Size } from "components/ads/Button";
+
+import { withTheme } from "styled-components";
 
 const Section = styled.div`
-  display: flex;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -24,13 +42,19 @@ const Row = styled.div`
   align-items: center;
 `;
 
-const NumberedStepContainer = styled.div`
-  padding-top: ${(props) => `${props.theme.spaces[3] + 1}px`};
-  padding-right: ${(props) => `${props.theme.spaces[11]}px`};
+const SectionTitle = styled.div`
+  ${(props) => getTypographyByKey(props, "p1")};
+  color: ${Colors.CHARCOAL};
+  & .branch {
+    color: ${Colors.CRUSTA};
+  }
 `;
 
-const Gutter = styled.div`
-  height: ${(props) => props.theme.spaces[3]}px;
+const Container = styled.div`
+  width: 100%;
+  && ${LabelContainer} span {
+    color: ${Colors.CHARCOAL};
+  }
 `;
 
 // mock data
@@ -39,58 +63,93 @@ const options = [
   { label: "Feature/new-feature", value: "Feature/new-feature" },
 ];
 
-export default function Commit() {
+const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
+  const currentBranch = useSelector(getCurrentGitBranch);
+  const [pushImmediately, setPushImmediately] = useState(true);
+  const [commitMessage, setCommitMessage] = useState("Initial Commit");
+  const isCommittingInProgress = useSelector(getIsCommittingInProgress);
+  const dispatch = useDispatch();
+
+  // eslint-disable-next-line
+  const [commitDisabled, setCommitDisabled] = useState(false);
+
+  const handleCommit = () => {
+    dispatch(commitToRepoInit({ commitMessage, pushImmediately }));
+  };
+
+  const commitButtonText = commitDisabled
+    ? createMessage(COMMITTED_SUCCESSFULLY)
+    : !pushImmediately
+    ? createMessage(COMMIT)
+    : createMessage(COMMIT_AND_PUSH);
+
   return (
-    <>
+    <Container>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
-        <NumberedStepContainer>
-          <NumberedStep current={1} total={2} />
-        </NumberedStepContainer>
-        <div>
-          <Row>
-            <Caption>{createMessage(COMMIT)}&nbsp;</Caption>
-            <OptionSelector
-              onSelect={noop}
-              options={options}
-              selected={{
-                label: "Feature/new-feature",
-                value: "Feature/new-feature",
-              }}
-            />
-          </Row>
-          <TextInput defaultValue="Initial Commit" />
-          <Gutter />
-          <Button
-            size={Size.medium}
-            text={createMessage(COMMIT)}
-            width="max-content"
-          />
-        </div>
+        <Row>
+          <SectionTitle>
+            <span>{createMessage(COMMIT_TO)}</span>
+            <span className="branch">&nbsp;{currentBranch}</span>
+          </SectionTitle>
+        </Row>
+        <Space size={3} />
+        <TextInput
+          autoFocus
+          defaultValue={commitMessage}
+          disabled={commitDisabled}
+          fill
+          onChange={setCommitMessage}
+        />
+        <Space size={3} />
+        <Checkbox
+          isDefaultChecked
+          label={`${createMessage(
+            PUSH_CHANGES_IMMEDIATELY_TO,
+          )} ${DEFAULT_REMOTE}/${currentBranch}`}
+          onCheckChange={(checked: boolean) => setPushImmediately(checked)}
+        />
+        <Space size={11} />
+        <Button
+          disabled={commitDisabled}
+          isLoading={isCommittingInProgress}
+          onClick={handleCommit}
+          size={Size.medium}
+          text={commitButtonText}
+          width="max-content"
+        />
       </Section>
+      {/** TODO: handle error cases and create new branch for push */}
       <Section>
-        <NumberedStepContainer>
-          <NumberedStep current={2} total={2} />
-        </NumberedStepContainer>
-        <div>
-          <Row>
-            <Caption>{createMessage(PUSH)}&nbsp;</Caption>
-            <OptionSelector
-              onSelect={noop}
-              options={options}
-              selected={{
-                label: "Feature/new-feature",
-                value: "Feature/new-feature",
-              }}
-            />
-          </Row>
-          <Button
-            size={Size.medium}
-            text={createMessage(PUSH)}
-            width="max-content"
+        <Row>
+          {/** TODO: refactor dropdown component to avoid negative margins */}
+          <SectionTitle
+            style={{
+              marginRight: -1 * theme.spaces[2],
+              top: -1,
+              position: "relative",
+            }}
+          >
+            {createMessage(PUSH_TO)}
+          </SectionTitle>
+          <OptionSelector
+            onSelect={noop}
+            options={options}
+            selected={{
+              label: "Feature/new-feature",
+              value: "Feature/new-feature",
+            }}
           />
-        </div>
+        </Row>
+        <Button
+          category={Category.tertiary}
+          size={Size.medium}
+          text={createMessage(PUSH_CHANGES)}
+          width="max-content"
+        />
       </Section>
-    </>
+    </Container>
   );
-}
+});
+
+export default Commit;

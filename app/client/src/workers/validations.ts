@@ -311,7 +311,11 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       }
     }
 
-    if (config.params?.regex && !config.params?.regex.test(parsed as string)) {
+    if (
+      config.params?.regex &&
+      isString(config.params?.regex) &&
+      !config.params?.regex.test(parsed as string)
+    ) {
       return {
         parsed: config.params?.default || "",
         message: `Value does not match expected regex: ${config.params?.regex.source}`,
@@ -359,6 +363,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: "This value is required",
         };
       }
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || 0,
+        };
+      }
+
       return {
         isValid: true,
         parsed: value,
@@ -437,6 +449,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || false,
+        };
+      }
+
       return { isValid: true, parsed: config.params?.default || value };
     }
     const isABoolean = value === true || value === false;
@@ -523,6 +543,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           "This property is required for the widget to function correctly";
         return invalidResponse;
       }
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || [],
+        };
+      }
+
       return {
         isValid: true,
         parsed: value,
@@ -559,6 +587,14 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (value === undefined || value === null || value === "") {
       if (config.params?.required) return invalidResponse;
+
+      if (value === "") {
+        return {
+          isValid: true,
+          parsed: config.params?.default || [{}],
+        };
+      }
+
       return { isValid: true, parsed: value };
     }
     if (!isString(value) && !Array.isArray(value)) {
@@ -610,6 +646,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       return invalidResponse;
     }
     if (isString(value)) {
+      if (value === "" && !config.params?.required) {
+        return {
+          isValid: true,
+          parsed: config.params?.default || moment().toISOString(true),
+        };
+      }
+
       if (!moment(value).isValid()) return invalidResponse;
 
       if (
@@ -638,7 +681,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
     if (config.params?.fnString && isString(config.params?.fnString)) {
       try {
-        const { result } = evaluate(config.params.fnString, {}, [
+        const { result } = evaluate(config.params.fnString, {}, {}, [
           value,
           props,
           _,

@@ -29,7 +29,7 @@ const IntegrationHomePage = styled.div`
   overflow: auto;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - ${(props) => props.theme.smallHeaderHeight});
+  flex: 1;
 
   .sectionHeader {
     font-weight: ${(props) => props.theme.fontWeights[2]};

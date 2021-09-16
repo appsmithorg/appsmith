@@ -1,7 +1,6 @@
 import React, { useState, useRef, RefObject, useCallback } from "react";
 import { connect, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
-import { BaseText } from "components/designSystems/blueprint/TextComponent";
 import styled from "styled-components";
 import { AppState } from "reducers";
 import { ActionResponse } from "api/ActionAPI";
@@ -23,6 +22,7 @@ import {
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import Text, { TextType } from "components/ads/Text";
+import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -35,6 +35,11 @@ import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
 import Button, { Size } from "components/ads/Button";
 import { getActionTabsInitialIndex } from "selectors/editorSelectors";
+
+type TextStyleProps = {
+  accent: "primary" | "secondary" | "error";
+};
+export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -73,7 +78,7 @@ const ResponseTabWrapper = styled.div`
 `;
 
 const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
-  height: calc(100% - 30px);
+  height: 100%;
 
   &&& {
     ul.react-tabs__tab-list {
@@ -93,6 +98,12 @@ const TabbedViewWrapper = styled.div<{ isCentered: boolean }>`
     }
   `
       : null}
+
+  & {
+    .react-tabs__tab-panel {
+      height: calc(100% - 32px);
+    }
+  }
 `;
 
 const SectionDivider = styled.div`
@@ -112,7 +123,7 @@ const Flex = styled.div`
 `;
 
 const NoResponseContainer = styled.div`
-  height: 100%;
+  flex: 1;
   width: 100%;
   display: flex;
   align-items: center;
@@ -153,8 +164,8 @@ const InlineButton = styled(Button)`
 `;
 
 const HelpSection = styled.div`
-  margin-bottom: 5px;
-  margin-top: 10px;
+  padding-bottom: 5px;
+  padding-top: 10px;
 `;
 
 interface ReduxStateProps {
@@ -186,6 +197,16 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<{ code: string }>`
   color: ${(props) =>
     props.code.startsWith("2") ? props.theme.colors.primaryOld : Colors.RED};
+`;
+
+const ResponseDataContainer = styled.div`
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  & .CodeEditorTarget {
+    overflow: hidden;
+  }
 `;
 
 function ApiResponseView(props: Props) {
@@ -222,13 +243,14 @@ function ApiResponseView(props: Props) {
   const initialIndex = useSelector(getActionTabsInitialIndex);
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const messages = response?.messages;
+
   const tabs = [
     {
       key: "body",
       title: "Response Body",
       panelComponent: (
         <ResponseTabWrapper>
-          {messages && (
+          {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
                 <Callout fill key={i} text={msg} variant={Variant.warning} />
@@ -250,33 +272,35 @@ function ApiResponseView(props: Props) {
               variant={Variant.danger}
             />
           )}
-          {_.isEmpty(response.statusCode) ? (
-            <NoResponseContainer>
-              <Icon name="no-response" />
-              <Text type={TextType.P1}>
-                {EMPTY_RESPONSE_FIRST_HALF()}
-                <InlineButton
-                  isLoading={isRunning}
-                  onClick={onRunClick}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
-                {EMPTY_RESPONSE_LAST_HALF()}
-              </Text>
-            </NoResponseContainer>
-          ) : (
-            <ReadOnlyEditor
-              folding
-              height={"100%"}
-              input={{
-                value: response.body
-                  ? JSON.stringify(response.body, null, 2)
-                  : "",
-              }}
-            />
-          )}
+          <ResponseDataContainer>
+            {_.isEmpty(response.statusCode) ? (
+              <NoResponseContainer>
+                <Icon name="no-response" />
+                <Text type={TextType.P1}>
+                  {EMPTY_RESPONSE_FIRST_HALF()}
+                  <InlineButton
+                    isLoading={isRunning}
+                    onClick={onRunClick}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                  {EMPTY_RESPONSE_LAST_HALF()}
+                </Text>
+              </NoResponseContainer>
+            ) : (
+              <ReadOnlyEditor
+                folding
+                height={"100%"}
+                input={{
+                  value: response.body
+                    ? JSON.stringify(response.body, null, 2)
+                    : "",
+                }}
+              />
+            )}
+          </ResponseDataContainer>
         </ResponseTabWrapper>
       ),
     },

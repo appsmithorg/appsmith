@@ -1,9 +1,8 @@
-import { WidgetProps } from "widgets/BaseWidget";
-import { ContainerWidgetProps } from "widgets/ContainerWidget";
 import { migrateTextStyleFromTextWidget } from "utils/migrations/TextWidgetReplaceTextStyle";
 import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { DSLWidget } from "widgets/constants";
 
-const inputDsl1: ContainerWidgetProps<WidgetProps> = {
+const inputDsl1: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
@@ -50,7 +49,7 @@ const inputDsl1: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const inputDsl2: ContainerWidgetProps<WidgetProps> = {
+const inputDsl2: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
@@ -97,7 +96,7 @@ const inputDsl2: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const inputDsl3: ContainerWidgetProps<WidgetProps> = {
+const inputDsl3: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
@@ -144,7 +143,7 @@ const inputDsl3: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const outputDsl1: ContainerWidgetProps<WidgetProps> = {
+const outputDsl1: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
@@ -192,7 +191,7 @@ const outputDsl1: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const outputDsl2: ContainerWidgetProps<WidgetProps> = {
+const outputDsl2: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
@@ -240,7 +239,7 @@ const outputDsl2: ContainerWidgetProps<WidgetProps> = {
   ],
 };
 
-const outputDsl3: ContainerWidgetProps<WidgetProps> = {
+const outputDsl3: DSLWidget = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1118,
