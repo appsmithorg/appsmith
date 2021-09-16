@@ -75,6 +75,21 @@ describe("Create new org and share with a user", function() {
     cy.LogOut();
   });
 
+  it("Open the app without login and validate public access of Application", function() {
+    cy.visit(currentUrl);
+    cy.wait("@getPagesForViewApp").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(publish.pageInfo)
+      .invoke("text")
+      .then((text) => {
+        const someText = text;
+        expect(someText).to.equal("This page seems to be blank");
+      });
+  });
+
   it("login as uninvited user and then validate public access of Application", function() {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
