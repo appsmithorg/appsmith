@@ -65,7 +65,8 @@ const HeaderWrapper = styled(StyledHeader)`
   padding: 0px ${(props) => props.theme.spaces[6]}px;
   height: ${(props) => props.theme.smallHeaderHeight};
   flex-direction: row;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
   & .editable-application-name {
     ${(props) => getTypographyByKey(props, "h4")}
     color: ${(props) => props.theme.colors.header.appName};
