@@ -200,6 +200,20 @@ describe("Input Widget Functionality", function() {
       .click({ force: true });
     cy.get(".bp3-input-group .bp3-icon-add").should("exist");
   });
+
+  it("Input value of number type should reflect the default text value 0", () => {
+    cy.openPropertyPane("inputwidget");
+    cy.selectDropdownValue(commonlocators.dataType, "Number");
+    cy.get(widgetsPage.defaultInput)
+      .click({ force: true })
+      .type("0");
+    cy.closePropertyPane("inputwidget");
+    cy.get(widgetsPage.innertext)
+      .invoke("val")
+      .then((text) => {
+        expect(text).to.equal("0");
+      });
+  });
 });
 afterEach(() => {
   // put your clean up code if any
