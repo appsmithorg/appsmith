@@ -46,7 +46,6 @@ function* selectAllWidgetsInAreaSaga(
       snapRowSpace: number;
     };
   } = action.payload;
-
   const { snapColumnSpace, snapRowSpace } = snapSpaces;
   // we use snapToNextRow, snapToNextColumn to determine if the selection rectangle is inverted
   // so to snap not to the next column or row like we usually do,
@@ -64,7 +63,7 @@ function* selectAllWidgetsInAreaSaga(
     selectionArena.top + selectionArena.height,
   );
 
-  if (widgetOccupiedSpaces) {
+  if (widgetOccupiedSpaces && mainContainer) {
     const mainContainerWidgets = widgetOccupiedSpaces[mainContainer.widgetId];
     const widgets = Object.values(mainContainerWidgets || {});
     const widgetsToBeSelected = widgets.filter((eachWidget) => {
@@ -106,7 +105,7 @@ function* startCanvasSelectionSaga(
   const widgetId = actionPayload.payload.widgetId || MAIN_CONTAINER_WIDGET_ID;
   const mainContainer: WidgetProps = yield select(getWidget, widgetId);
   const lastSelectedWidgetsWithoutParent = lastSelectedWidgets.filter(
-    (each) => each !== mainContainer.parentId,
+    (each) => mainContainer && each !== mainContainer.parentId,
   );
   const widgetOccupiedSpaces:
     | {

@@ -435,8 +435,8 @@ describe("Canvas selection test cases", () => {
     );
 
     expect(selectionCanvas.style.zIndex).toBe("2");
-    fireEvent.mouseEnter(selectionCanvas);
-    fireEvent.mouseUp(selectionCanvas);
+    fireEvent.mouseEnter(selectionDiv);
+    fireEvent.mouseUp(selectionDiv);
     selectionCanvas = component.queryByTestId(
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
