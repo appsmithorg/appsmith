@@ -162,6 +162,18 @@ public class EnvManager {
                         commonConfig.setInstanceName(changesCopy.remove("APPSMITH_INSTANCE_NAME"));
                     }
 
+                    if (changesCopy.containsKey("APPSMITH_SIGNUP_DISABLED")) {
+                        commonConfig.setSignupDisabled("true".equals(changesCopy.remove("APPSMITH_SIGNUP_DISABLED")));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_SIGNUP_ALLOWED_DOMAINS")) {
+                        commonConfig.setAllowedDomainsString(changesCopy.remove("APPSMITH_SIGNUP_ALLOWED_DOMAINS"));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_ADMIN_EMAILS")) {
+                        commonConfig.setAdminEmails(changesCopy.remove("APPSMITH_ADMIN_EMAILS"));
+                    }
+
                     if (changesCopy.containsKey("APPSMITH_MAIL_FROM")) {
                         emailConfig.setMailFrom(changesCopy.remove("APPSMITH_MAIL_FROM"));
                     }
