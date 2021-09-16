@@ -79,6 +79,7 @@ import { ReactComponent as LineDashedIcon } from "assets/icons/control/line_dash
 import { ReactComponent as TableIcon } from "assets/icons/ads/tables.svg";
 import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
+import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -220,6 +221,7 @@ export const IconCollection = [
   "tables",
   "column",
   "support",
+  "git-branch",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -551,6 +553,10 @@ const Icon = forwardRef(
 
       case "support":
         returnIcon = <SupportIcon />;
+        break;
+
+      case "git-branch":
+        returnIcon = <GitBranch />;
         break;
 
       default:
