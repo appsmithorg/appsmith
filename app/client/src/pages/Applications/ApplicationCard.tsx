@@ -23,7 +23,7 @@ import {
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
-import Button, { Category, Size } from "components/ads/Button";
+import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
@@ -266,17 +266,7 @@ const EditButton = styled(Button)`
   margin-bottom: 0;
 `;
 
-const ContextDropdownWrapper = styled.div`
-  .${Classes.POPOVER_TARGET} {
-    span {
-      svg {
-        path {
-          fill: #000;
-        }
-      }
-    }
-  }
-`;
+const ContextDropdownWrapper = styled.div``;
 
 const CircleAppIcon = styled(AppIcon)`
   padding: 12px;
@@ -506,7 +496,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon name="context-menu" size={IconSize.XXXL} />
+            <Icon
+              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
+              hoverFillColor="#000"
+              name="context-menu"
+              size={IconSize.XXXL}
+            />
           </MoreOptionsContainer>
         }
       >
@@ -625,6 +620,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     fill
                     href={editApplicationURL}
                     icon={"edit"}
+                    iconPosition={IconPositions.left}
                     size={Size.medium}
                     text="Edit"
                   />
@@ -636,6 +632,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     fill
                     href={viewApplicationURL}
                     icon={"rocket"}
+                    iconPosition={IconPositions.left}
                     size={Size.medium}
                     text="Launch"
                   />

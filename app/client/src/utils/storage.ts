@@ -13,6 +13,11 @@ const STORAGE_KEYS: { [id: string]: string } = {
   RECENT_ENTITIES: "RecentEntities",
   COMMENTS_INTRO_SEEN: "CommentsIntroSeen",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
+  ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
+  FIRST_TIME_USER_ONBOARDING_APPLICATION_ID:
+    "FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+  FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
+    "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
 };
 
 const store = localforage.createInstance({
@@ -208,6 +213,116 @@ export const getCommentsIntroSeen = async () => {
     return commentsIntroSeen;
   } catch (error) {
     log.error("An error occurred while fetching COMMENTS_INTRO_SEEN");
+    log.error(error);
+  }
+};
+
+export const setOnboardingFormInProgress = async (flag?: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS, flag);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when setting ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
+    return false;
+  }
+};
+
+export const getOnboardingFormInProgress = async () => {
+  try {
+    const onboardingFormInProgress = await store.getItem(
+      STORAGE_KEYS.ONBOARDING_FORM_IN_PROGRESS,
+    );
+    return onboardingFormInProgress;
+  } catch (error) {
+    log.error("An error occurred while fetching ONBOARDING_FORM_IN_PROGRESS");
+    log.error(error);
+  }
+};
+
+export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING, flag);
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
+    log.error(error);
+  }
+};
+
+export const getEnableFirstTimeUserOnboarding = async () => {
+  try {
+    const enableFirstTimeUserOnboarding: any = await store.getItem(
+      STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
+    );
+    enableFirstTimeUserOnboarding.toString();
+    return enableFirstTimeUserOnboarding;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserOnboardingApplicationId = async (id: string) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      id,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserOnboardingApplicationId = async () => {
+  try {
+    const id = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    );
+    return id;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
+    );
+    log.error(error);
+  }
+};
+
+export const setFirstTimeUserOnboardingIntroModalVisibility = async (
+  flag: boolean,
+) => {
+  try {
+    await store.setItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
+      flag,
+    );
+    return true;
+  } catch (error) {
+    log.error(
+      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+    );
+    log.error(error);
+  }
+};
+
+export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
+  try {
+    const flag = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY,
+    );
+    return flag;
+  } catch (error) {
+    log.error(
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
+    );
     log.error(error);
   }
 };

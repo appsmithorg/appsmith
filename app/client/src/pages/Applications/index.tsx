@@ -79,7 +79,10 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
-import { SIGNUP_SUCCESS_URL } from "constants/routes";
+import {
+  extractAppIdAndPageIdFromUrl,
+  SIGNUP_SUCCESS_URL,
+} from "constants/routes";
 
 import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
@@ -729,6 +732,7 @@ function ApplicationsSection(props: any) {
                           category={Category.tertiary}
                           icon={"share"}
                           size={Size.medium}
+                          tag="button"
                           text={"Share"}
                         />
                       }
@@ -909,7 +913,6 @@ function ApplicationsSection(props: any) {
 }
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
-  createApplication: (appName: string) => void;
   searchApplications: (keyword: string) => void;
   isCreatingApplication: creatingApplicationMap;
   isFetchingApplications: boolean;
@@ -925,6 +928,7 @@ type ApplicationProps = {
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
+  enableFirstTimeUserOnboarding: (applicationId: string) => void;
 };
 
 const getIsFromSignup = () => {
@@ -962,9 +966,30 @@ class Applications extends Component<
   redirectUsingQueryParam = () => {
     const urlObject = new URL(window.location.href);
     const redirectUrl = urlObject?.searchParams.get("redirectUrl");
+    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
+      "enableFirstTimeUserExperience",
+    );
     if (redirectUrl) {
       try {
-        if (getIsSafeRedirectURL(redirectUrl)) {
+        if (
+          window.location.pathname == SIGNUP_SUCCESS_URL &&
+          shouldEnableFirstTimeUserOnboarding === "true"
+        ) {
+          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
+            redirectUrl,
+          );
+          if (applicationId && pageId) {
+            this.props.enableFirstTimeUserOnboarding(applicationId);
+            /*
+             * window.location.replace resets the application, adding
+             * this timeout to store onboarding variables in indexdb
+             */
+
+            setTimeout(() => {
+              window.location.replace(redirectUrl);
+            });
+          }
+        } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
         }
       } catch (e) {
@@ -1003,15 +1028,8 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAllApplication: () =>
-    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT }),
-  createApplication: (appName: string) => {
-    dispatch({
-      type: ReduxActionTypes.CREATE_APPLICATION_INIT,
-      payload: {
-        name: appName,
-      },
-    });
+  getAllApplication: () => {
+    dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
   },
   searchApplications: (keyword: string) => {
     dispatch({
@@ -1026,6 +1044,20 @@ const mapDispatchToProps = (dispatch: any) => ({
     showHeaderSeparator: boolean,
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
+  },
+  enableFirstTimeUserOnboarding: (applicationId: string) => {
+    dispatch({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    dispatch({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: true,
+    });
   },
 });
 

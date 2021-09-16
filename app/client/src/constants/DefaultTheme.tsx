@@ -23,6 +23,7 @@ export const IntentColors: Record<string, Color> = {
   danger: Colors.RED,
   none: Colors.GEYSER_LIGHT,
   warning: Colors.JAFFA,
+  successLight: Colors.GREEN,
 };
 
 export type Intent = typeof IntentColors[keyof typeof IntentColors];
@@ -1244,12 +1245,14 @@ type ColorType = {
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
+    branchBtnText: string;
   };
 };
 
 const editorBottomBar = {
   background: Colors.WHITE,
   buttonBackgroundHover: Colors.Gallery,
+  branchBtnText: Colors.CHARCOAL,
 };
 
 const gitSyncModal = {
@@ -1347,22 +1350,22 @@ const comments = {
   appCommentsPlaceholderText: lightShades[8],
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
-  cardHoverBackground: "#FAFAFA",
+  cardHoverBackground: "#FBEED0",
   modeIconCircleStroke: "#222222",
   activeModeIconCircleStroke: "#090707",
 };
 
 const auth: any = {
-  background: darkShades[1],
-  cardBackground: lightShades[10],
-  btnPrimary: "#F86A2B",
-  inputBackground: darkShades[1],
-  headingText: "#FFF",
-  link: "#106ba3",
-  text: darkShades[7],
-  placeholder: darkShades[5],
-  socialBtnText: darkShades[8],
-  socialBtnBorder: darkShades[8],
+  background: lightShades[11],
+  cardBackground: lightShades[0],
+  btnPrimary: Colors.CRUSTA,
+  inputBackground: lightShades[11],
+  headingText: darkShades[11],
+  link: Colors.CRUSTA,
+  text: "#000",
+  placeholder: lightShades[8],
+  socialBtnText: "#000",
+  socialBtnBorder: lightShades[13],
   socialBtnHighlight: darkShades[1],
 };
 
@@ -1376,11 +1379,13 @@ const formMessage = {
     danger: "rgba(226,44,44,0.08)",
     success: "#172320",
     warning: "rgba(224, 179, 14, 0.08)",
+    lightSuccess: "#EFFFF4",
   },
   text: {
     danger: "#E22C2C",
     success: "#03B365",
     warning: "#E0B30E",
+    lightSuccess: "#00693B",
   },
 };
 
@@ -2740,6 +2745,12 @@ export const theme: Theme = {
       lineHeight: 16,
       letterSpacing: -0.221538,
       fontWeight: "normal",
+    },
+    p4: {
+      fontSize: 13,
+      lineHeight: 16,
+      letterSpacing: -0.221538,
+      fontWeight: 600,
     },
     btnLarge: {
       fontSize: 13,

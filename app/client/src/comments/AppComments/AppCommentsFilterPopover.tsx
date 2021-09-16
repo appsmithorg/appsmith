@@ -136,7 +136,7 @@ function AppCommentsFilterPopover() {
       portalClassName="comment-context-menu"
     >
       <FilterIconContainer open={open}>
-        <Icon name="filter" size={IconSize.LARGE} />
+        <Icon name="filter" size={IconSize.XXL} />
       </FilterIconContainer>
     </Popover2>
   );

@@ -39,6 +39,7 @@ export function notEmptyValidator(value: string) {
 }
 
 export type TextInputProps = CommonComponentProps & {
+  autoFocus?: boolean;
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
@@ -322,6 +323,7 @@ const TextInput = forwardRef(
           </IconWrapper>
         )}
         <StyledInput
+          autoFocus={props.autoFocus}
           defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}
