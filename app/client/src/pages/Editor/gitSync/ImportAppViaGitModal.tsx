@@ -7,7 +7,7 @@ import {
   getIsImportAppViaGitModalOpen,
   getOrganizationIdForImport,
 } from "selectors/gitSyncSelectors";
-import GitConnection from "./GitConnection";
+import GitConnection from "./Tabs/GitConnection";
 
 export default function ImportAppViaGitModal() {
   const isOpen = useSelector(getIsImportAppViaGitModalOpen);
