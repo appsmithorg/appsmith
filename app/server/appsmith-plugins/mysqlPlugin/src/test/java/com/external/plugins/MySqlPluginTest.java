@@ -397,6 +397,46 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testPreparedStatementErrorWithIsKeyword() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        /**
+         * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
+         * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
+         * integers with IS keyword.
+         * - I have raised an issue with r2dbc to track it: https://github.com/mirromutth/r2dbc-mysql/issues/200
+         */
+        actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean IS {{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("True");
+        params.add(param1);
+
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .verifyErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithPluginException);
+                    String expectedMessage = "Appsmith currently does not support the IS keyword with the prepared " +
+                            "statement setting turned ON. Please re-write your SQL query without the IS keyword or " +
+                            "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
+                    assertTrue(expectedMessage.equals(error.getMessage()));
+                });
+    }
+
+    @Test
     public void testPreparedStatementWithRealTypes() {
         ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
         ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
