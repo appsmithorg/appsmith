@@ -207,6 +207,15 @@ public class SnowflakePlugin extends BasePlugin {
                     .flatMap(connection -> {
                         if (connection != null) {
                             try {
+                                Set<String> invalids = validateWarehouseDatabaseSchema(connection);
+                                if (invalids.size() != 0) {
+                                    return Mono.error(
+                                            new AppsmithPluginException(
+                                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                                    invalids.toArray()[0]
+                                            )
+                                    );
+                                }
                                 connection.close();
                             } catch (SQLException throwable) {
                                 throwable.printStackTrace();
@@ -217,6 +226,11 @@ public class SnowflakePlugin extends BasePlugin {
                         return Mono.just(new DatasourceTestResult());
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
+        }
+
+        private Set<String> validateWarehouseDatabaseSchema(Connection connection) {
+            Set<String> invalids = new HashSet<>();
+
         }
 
         @Override
