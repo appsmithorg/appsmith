@@ -49,7 +49,7 @@ describe("Widget property pane draggable", function() {
       cy.openPropertyPane(testWidget);
       cy.get("[data-cy=t--property-pane-drag-handle]")
         .trigger("mousedown", { which: 1 })
-        .trigger("mousemove", { clientX: 400, clientY: 500 })
+        .trigger("mousemove", { clientX: 0, clientY: 0 })
         .trigger("mouseup", { force: true });
       cy.get("[data-cy=t--property-pane-drag-handle]").then((oldPorpPane) => {
         const oldPropPanePosition = oldPorpPane[0].getBoundingClientRect();
