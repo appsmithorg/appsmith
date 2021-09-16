@@ -5,6 +5,10 @@ import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
+import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 
 const scrollContents = css`
@@ -16,12 +20,6 @@ const StyledContainerComponent = styled.div<
     ref: RefObject<HTMLDivElement>;
   }
 >`
-  ${(props) =>
-    props.containerStyle !== "none"
-      ? `
-  box-shadow: 0px 0px 0px 1px #E7E7E7;
-  border-radius: 0;`
-      : ""}
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
@@ -70,25 +68,38 @@ function ContainerComponent(props: ContainerComponentProps) {
     }
   }, [props.shouldScrollContents]);
   return (
-    <StyledContainerComponent
-      {...props}
-      className={`${
-        props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)}`}
-      containerStyle={containerStyle}
-      // Before you remove: generateClassName is used for bounding the resizables within this canvas
-      // getCanvasClassName is used to add a scrollable parent.
-      ref={containerRef}
+    <WidgetStyleContainer
+      {...pick(props, [
+        "widgetId",
+        "containerStyle",
+        "borderColor",
+        "borderWidth",
+        "borderRadius",
+        "boxShadow",
+        "boxShadowColor",
+      ])}
     >
-      {props.children}
-    </StyledContainerComponent>
+      <StyledContainerComponent
+        {...props}
+        className={`${
+          props.shouldScrollContents ? getCanvasClassName() : ""
+        } ${generateClassName(props.widgetId)}`}
+        containerStyle={containerStyle}
+        // Before you remove: generateClassName is used for bounding the resizables within this canvas
+        // getCanvasClassName is used to add a scrollable parent.
+        ref={containerRef}
+      >
+        {props.children}
+      </StyledContainerComponent>
+    </WidgetStyleContainer>
   );
 }
 
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
-export interface ContainerComponentProps extends ComponentProps {
-  containerStyle?: ContainerStyle;
+export interface ContainerComponentProps
+  extends ComponentProps,
+    WidgetStyleContainerProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;

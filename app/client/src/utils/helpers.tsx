@@ -173,8 +173,8 @@ export const flashElementsById = (id: string | string[], timeout = 0) => {
 
       el?.scrollIntoView({
         behavior: "smooth",
-        block: "center",
-        inline: "center",
+        block: "nearest",
+        inline: "nearest",
       });
 
       if (el) flashElement(el);
@@ -289,6 +289,25 @@ export const removeFalsyEntries = (arr: any[]): any[] => {
  */
 export const isString = (str: any) => {
   return typeof str === "string" || str instanceof String;
+};
+
+/**
+ * Returns substring between two set of strings
+ * eg ->
+ * getSubstringBetweenTwoWords("abcdefgh", "abc", "fgh") -> de
+ */
+
+export const getSubstringBetweenTwoWords = (
+  str: string,
+  startWord: string,
+  endWord: string,
+) => {
+  const endIndexOfStartWord = str.indexOf(startWord) + startWord.length;
+  const startIndexOfEndWord = str.lastIndexOf(endWord);
+
+  if (startIndexOfEndWord < endIndexOfStartWord) return "";
+
+  return str.substring(startIndexOfEndWord, endIndexOfStartWord);
 };
 
 export const playOnboardingAnimation = () => {

@@ -2993,4 +2993,55 @@ public class DatabaseChangelog {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+
+    @ChangeSet(order = "085", id = "update-google-sheet-plugin-smartSubstitution-config", author = "")
+    public void updateGoogleSheetActionsSetSmartSubstitutionConfiguration(MongoTemplate mongoTemplate) {
+
+        Plugin googleSheetPlugin = mongoTemplate.findOne(
+                query(new Criteria().andOperator(
+                        where(fieldName(QPlugin.plugin.packageName)).is("google-sheets-plugin")
+                )),
+                Plugin.class);
+
+        if (googleSheetPlugin == null) {
+            return;
+        }
+
+        // Fetch all the actions built on top of a google sheet plugin
+        List<NewAction> googleSheetActions = mongoTemplate.find(
+                query(new Criteria().andOperator(
+                        where(fieldName(QNewAction.newAction.pluginId)).is(googleSheetPlugin.getId())
+                )),
+                NewAction.class
+        );
+
+        Set<String> toMigrateUnPublishedActions = new HashSet<>();
+        Set<String> toMigratePublishedActions = new HashSet<>();
+
+        for (NewAction action : googleSheetActions) {
+            if (action.getUnpublishedAction().getActionConfiguration() != null) {
+                toMigrateUnPublishedActions.add(action.getId());
+            }
+
+            if (action.getPublishedAction() != null && action.getPublishedAction().getActionConfiguration() != null) {
+                toMigratePublishedActions.add(action.getId());
+            }
+        }
+
+        Property smartSubProperty = new Property("smartSubstitution", false);
+
+        // Migrate unpublished actions
+        mongoTemplate.updateMulti(
+                query(where("_id").in(toMigrateUnPublishedActions)),
+                new Update().set("unpublishedAction.actionConfiguration.pluginSpecifiedTemplates.13", smartSubProperty),
+                NewAction.class
+        );
+
+        // Migrate published actions
+        mongoTemplate.updateMulti(
+                query(where("_id").in(toMigratePublishedActions)),
+                new Update().set("publishedAction.actionConfiguration.pluginSpecifiedTemplates.13", smartSubProperty),
+                NewAction.class
+        );
+    }
 }

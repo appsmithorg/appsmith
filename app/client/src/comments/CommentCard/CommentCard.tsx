@@ -91,11 +91,13 @@ const UserName = styled.span`
   display: -webkit-box;
   -webkit-line-clamp: 1; /* number of lines to show */
   -webkit-box-orient: vertical;
+  word-break: break-word;
 `;
 
 const HeaderSection = styled.div`
   display: flex;
   align-items: center;
+  max-width: 100%;
 
   & ${Profile} {
     flex-shrink: 0;
