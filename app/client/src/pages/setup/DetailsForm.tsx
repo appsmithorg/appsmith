@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import {
   Field,
   InjectedFormProps,
@@ -43,6 +43,15 @@ const DropdownWrapper = styled(StyledFormGroup)`
   }
 `;
 
+const DropdownStyle = createGlobalStyle`
+  .setup-dropdown {
+    .ads-dropdown-options-wrapper {
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 8%);
+    }
+  }
+`;
+
 function withDropdown(options: OptionType[]) {
   return function Fieldropdown(
     ComponentProps: FormTextFieldProps & {
@@ -61,6 +70,8 @@ function withDropdown(options: OptionType[]) {
 
     return (
       <Dropdown
+        className="setup-dropdown"
+        dontUsePortal
         onSelect={onSelect}
         options={options}
         selected={selected}
@@ -149,6 +160,7 @@ export default function DetailsForm(
           />
         </ButtonWrapper>
       </StyledFormBodyWrapper>
+      <DropdownStyle />
     </DetailsFormWrapper>
   );
 }
