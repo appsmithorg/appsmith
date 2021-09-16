@@ -16,6 +16,9 @@ const DropdownTriggerIconWrapper = styled.div`
   line-height: 18px;
   letter-spacing: -0.24px;
   color: #090707;
+  > * {
+    margin-left: 5px;
+  }
 `;
 
 const CurrencyIconWrapper = styled.span`
