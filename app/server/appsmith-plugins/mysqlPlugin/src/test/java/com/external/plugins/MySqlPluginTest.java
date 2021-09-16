@@ -104,7 +104,6 @@ public class MySqlPluginTest {
                                     "    time1 time not null,\n" +
                                     "    created_on timestamp not null,\n" +
                                     "    updated_on datetime not null,\n" +
-                                    "    isEmployee boolean not null,\n" +
                                     "    constraint unique index (username, email)\n" +
                                     ")"
                             )
@@ -123,13 +122,13 @@ public class MySqlPluginTest {
                             .add("INSERT INTO users VALUES (" +
                                     "1, 'Jack', 'jill', 'jack@exemplars.com', NULL, '2018-12-31', 2018," +
                                     " '18:32:45'," +
-                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00', true" +
+                                    " '2018-11-30 20:45:15', '0000-00-00 00:00:00'" +
                                     ")"
                             )
                             .add("INSERT INTO users VALUES (" +
                                     "2, 'Jill', 'jack', 'jill@exemplars.com', NULL, '2019-12-31', 2019," +
                                     " '15:45:30'," +
-                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59', false" +
+                                    " '2019-11-30 23:59:59', '2019-11-30 23:59:59'" +
                                     ")"
                             );
                 })
@@ -398,6 +397,133 @@ public class MySqlPluginTest {
     }
 
     @Test
+    public void testPreparedStatementWithRealTypes() {
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                            .add("create table test_real_types(id int, c_float float, c_double double, c_real real)")
+                            .add("insert into test_real_types values (1, 1.123, 3.123, 5.123)")
+                            .add("insert into test_real_types values (2, 11.123, 13.123, 15.123)")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        /**
+         * - For mysql float / double / real types the actual values that are stored in the db my differ by a very
+         * thin margin as long as they are approximately same. Hence adding comparison based check instead of direct
+         * equality.
+         * - Ref: https://dev.mysql.com/doc/refman/8.0/en/problems-with-float.html
+         */
+        actionConfiguration.setBody("SELECT id FROM test_real_types WHERE ABS(c_float - {{binding1}}) < 0.1 AND ABS" +
+                "(c_double - {{binding2}}) < 0.1 AND ABS(c_real - {{binding3}}) < 0.1;");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("1.123");
+        params.add(param1);
+
+        Param param2 = new Param();
+        param2.setKey("binding2");
+        param2.setValue("3.123");
+        params.add(param2);
+
+        Param param3 = new Param();
+        param3.setKey("binding3");
+        param3.setValue("5.123");
+        params.add(param3);
+
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody());
+                    assertEquals(1, node.size());
+                    // Verify selected row id.
+                    assertEquals(1, node.get(0).get("id").asInt());
+                })
+                .verifyComplete();
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                                .add("drop table test_real_types")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+    }
+
+    @Test
+    public void testPreparedStatementWithBooleanType() {
+        // Create a new table with boolean type
+        ConnectionFactoryOptions baseOptions = MySQLR2DBCDatabaseContainer.getOptions(mySQLContainer);
+        ConnectionFactoryOptions.Builder ob = ConnectionFactoryOptions.builder().from(baseOptions);
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                            .add("create table test_boolean_type(id int, c_boolean boolean)")
+                            .add("insert into test_boolean_type values (1, True)")
+                            .add("insert into test_boolean_type values (2, True)")
+                            .add("insert into test_boolean_type values (3, False)")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody("SELECT id FROM test_boolean_type WHERE c_boolean={{binding1}};");
+
+        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
+        pluginSpecifiedTemplates.add(new Property("preparedStatement", "true"));
+        actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("binding1");
+        param1.setValue("True");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> executeMono = dsConnectionMono
+                .flatMap(conn -> pluginExecutor.executeParameterized(conn, executeActionDTO, dsConfig, actionConfiguration));
+
+        StepVerifier.create(executeMono)
+                .assertNext(result -> {
+                    final JsonNode node = ((ArrayNode) result.getBody());
+                    assertEquals(2, node.size());
+                    // Verify selected row id.
+                    assertEquals(1, node.get(0).get("id").asInt());
+                    assertEquals(2, node.get(1).get("id").asInt());
+                })
+                .verifyComplete();
+
+        Mono.from(ConnectionFactories.get(ob.build()).create())
+                .map(connection ->
+                        connection.createBatch()
+                                .add("drop table test_boolean_type")
+                )
+                .flatMap(batch -> Mono.from(batch.execute()))
+                .block();
+    }
+
+    @Test
     public void testExecuteWithPreparedStatement() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<Connection> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
@@ -508,8 +634,7 @@ public class MySqlPluginTest {
                                     "yob",
                                     "time1",
                                     "created_on",
-                                    "updated_on",
-                                    "isEmployee"
+                                    "updated_on"
                             },
                             new ObjectMapper()
                                     .convertValue(node, LinkedHashMap.class)
@@ -680,8 +805,7 @@ public class MySqlPluginTest {
                                     new DatasourceStructure.Column("yob", "year", null, false),
                                     new DatasourceStructure.Column("time1", "time", null, false),
                                     new DatasourceStructure.Column("created_on", "timestamp", null, false),
-                                    new DatasourceStructure.Column("updated_on", "datetime", null, false),
-                                    new DatasourceStructure.Column("isEmployee", "tinyint", null, false),
+                                    new DatasourceStructure.Column("updated_on", "datetime", null, false)
                             },
                             usersTable.getColumns().toArray()
                     );
