@@ -6,6 +6,7 @@ import {
   FlattenedWidgetProps,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -17,9 +18,7 @@ export const CONFIG = {
     rows: 6 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
     width: 456,
-    height: 240,
-    size: "MODAL_SMALL",
-    isCustomResize: false,
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
     canEscapeKeyClose: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
     // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
@@ -28,7 +27,7 @@ export const CONFIG = {
     shouldScrollContents: true,
     widgetName: "Modal",
     children: [],
-    version: 1,
+    version: 2,
     blueprint: {
       view: [
         {

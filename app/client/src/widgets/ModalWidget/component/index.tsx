@@ -25,6 +25,7 @@ const Container = styled.div<{
   right?: number;
   zIndex?: number;
   maxWidth?: number;
+  minSize?: number;
   isEditMode?: boolean;
 }>`
   &&& {
@@ -51,11 +52,11 @@ const Container = styled.div<{
 
           return `95%`;
         }};
-        max-height: 90%;
+        max-height: 85%;
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
-        min-height: 100px;
-        min-width: 100px;
+        min-height: ${(props) => `${props.minSize}px`};
+        min-width: ${(props) => `${props.minSize}px`};
         background: white;
         border-radius: ${(props) => props.theme.radii[0]}px;
         top: ${(props) => props.top}px;
@@ -104,10 +105,10 @@ export type ModalComponentProps = {
   zIndex?: number;
   portalClassName?: string;
   enableResize?: boolean;
-  resizable?: boolean;
   isEditMode?: boolean;
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
+  minSize?: number;
 };
 
 /* eslint-disable react/display-name */
@@ -115,7 +116,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(
     null,
   );
-  const { enableResize = false, resizable = false } = props;
+  const { enableResize = false } = props;
   const resizeRef = React.useRef<HTMLDivElement>(null);
 
   const handles = useMemo(() => {
@@ -135,18 +136,6 @@ export default function ModalComponent(props: ModalComponentProps) {
     }
   }, [props.scrollContents]);
 
-  const getContent = () => {
-    return (
-      <Content
-        className={`${getCanvasClassName()} ${props.className}`}
-        ref={modalContentRef}
-        scroll={props.scrollContents}
-      >
-        {props.children}
-      </Content>
-    );
-  };
-
   const getResizableContent = () => {
     return (
       <Resizable
@@ -163,7 +152,13 @@ export default function ModalComponent(props: ModalComponentProps) {
         showLightBorder
         snapGrid={{ x: 1, y: 1 }}
       >
-        {getContent()}
+        <Content
+          className={`${getCanvasClassName()} ${props.className}`}
+          ref={modalContentRef}
+          scroll={props.scrollContents}
+        >
+          {props.children}
+        </Content>
       </Resizable>
     );
   };
@@ -190,6 +185,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         isEditMode={props.isEditMode}
         left={props.left}
         maxWidth={props.maxWidth}
+        minSize={props.minSize}
         right={props.bottom}
         top={props.top}
         width={props.width}
@@ -207,7 +203,7 @@ export default function ModalComponent(props: ModalComponentProps) {
           onClose={props.onClose}
           usePortal={false}
         >
-          {resizable ? getResizableContent() : getContent()}
+          {getResizableContent()}
         </Overlay>
       </Container>
     </Overlay>

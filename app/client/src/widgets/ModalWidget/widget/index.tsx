@@ -10,7 +10,6 @@ import WidgetFactory from "utils/WidgetFactory";
 import ModalComponent from "../component";
 import {
   RenderMode,
-  GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
@@ -20,18 +19,7 @@ import { getWidget } from "sagas/selectors";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 
-const MODAL_SIZE: { [id: string]: { width: number; height: number } } = {
-  MODAL_SMALL: {
-    width: 456,
-    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
-  },
-  MODAL_LARGE: {
-    width: 532,
-    // adjust if DEFAULT_GRID_ROW_HEIGHT changes
-    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 60,
-  },
-};
+const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -44,65 +32,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             label: "Quick Dismiss",
             helpText: "Allows dismissing the modal when user taps outside",
             controlType: "SWITCH",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "size",
-            label: "Modal Type",
-            controlType: "DROP_DOWN",
-            options: [
-              {
-                label: "Form Modal",
-                value: "MODAL_LARGE",
-              },
-              {
-                label: "Alert Modal",
-                value: "MODAL_SMALL",
-              },
-              {
-                label: "Custom Modal",
-                value: "MODAL_CUSTOM",
-              },
-            ],
-            updateHook: (
-              _: any,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              if (MODAL_SIZE[propertyValue]) {
-                const { height, width } = MODAL_SIZE[propertyValue];
-                return [
-                  {
-                    propertyPath: "height",
-                    propertyValue: height,
-                  },
-                  {
-                    propertyPath: "width",
-                    propertyValue: width,
-                  },
-                  {
-                    propertyPath: "isCustomResize",
-                    propertyValue: false,
-                  },
-                  {
-                    propertyPath,
-                    propertyValue,
-                  },
-                ];
-              } else {
-                return [
-                  {
-                    propertyPath: "isCustomResize",
-                    propertyValue: true,
-                  },
-                  {
-                    propertyPath,
-                    propertyValue,
-                  },
-                ];
-              }
-            },
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -134,15 +63,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static defaultProps = {
     isOpen: true,
     canEscapeKeyClose: false,
-    isCustomResize: false,
   };
-
-  componentDidMount() {
-    if (!this.props.height && !this.props.width && this.props.size) {
-      const dimensions = MODAL_SIZE[this.props.size];
-      dimensions && this.onModalResize(dimensions);
-    }
-  }
 
   getMaxModalWidth() {
     return this.props.mainContainer.rightColumn * 0.95;
@@ -162,7 +83,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = this.props.height;
-    childWidgetData.rightColumn = this.getModalWidth(this.props.width);
+    childWidgetData.rightColumn = this.props.width;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -180,8 +101,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   onModalResize = (dimensions: UIElementSize) => {
     const newDimensions = {
-      height: dimensions.height,
-      width: this.getModalWidth(dimensions.width),
+      height: Math.max(minSize, dimensions.height),
+      width: Math.max(minSize, this.getModalWidth(dimensions.width)),
     };
 
     const canvasWidgetId =
@@ -231,7 +152,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const {
       focusedWidget,
       isCommentMode,
-      isCustomResize,
       isDragging,
       isSnipingMode,
       selectedWidget,
@@ -248,7 +168,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       !isDragging &&
       isWidgetFocused &&
       isEditMode &&
-      isCustomResize &&
       !isCommentMode &&
       !isSnipingMode;
 
@@ -263,10 +182,10 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         isEditMode={isEditMode}
         isOpen={!!this.props.isVisible}
         maxWidth={this.getMaxModalWidth()}
+        minSize={minSize}
         onClose={this.closeModal}
         onModalClose={this.onModalClose}
         portalContainer={portalContainer}
-        resizable
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
         usePortal={false}
@@ -301,7 +220,6 @@ export interface ModalWidgetProps extends WidgetProps {
   canOutsideClickClose?: boolean;
   width: number;
   height: number;
-  isCustomResize: boolean;
   showPropertyPane: (widgetId?: string) => void;
   canEscapeKeyClose?: boolean;
   shouldScrollContents?: boolean;
