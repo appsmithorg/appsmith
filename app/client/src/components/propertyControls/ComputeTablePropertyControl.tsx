@@ -13,7 +13,7 @@ import {
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
-import { isString } from "../../utils/helpers";
+import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
