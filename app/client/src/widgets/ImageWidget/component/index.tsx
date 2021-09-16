@@ -216,10 +216,16 @@ class ImageComponent extends React.Component<
   }
 
   renderImageControl = () => {
-    const { enableDownload, enableRotation } = this.props;
+    const {
+      defaultImageUrl,
+      enableDownload,
+      enableRotation,
+      imageUrl,
+    } = this.props;
     const { showImageControl } = this.state;
+    const showDownloadBtn = enableDownload && (!!imageUrl || !!defaultImageUrl);
 
-    if (showImageControl && (enableRotation || enableDownload)) {
+    if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
         <ControlBtnWrapper>
           {enableRotation && (
@@ -265,7 +271,7 @@ class ImageComponent extends React.Component<
               </ControlBtn>
             </>
           )}
-          {enableDownload && (
+          {showDownloadBtn && (
             <ControlBtn onClick={this.handleImageDownload}>
               <div>
                 <svg fill="none" height="20" viewBox="0 0 20 20" width="20">
