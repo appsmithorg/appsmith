@@ -5,9 +5,9 @@ import { Colors } from "constants/Colors";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 
 const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
-  display: ${(props) => (props.isHidden ? "none" : "grid")};
-  grid-template-columns: 30px 1fr 30px;
+  display: ${(props) => (props.isHidden ? "none" : "flex")};
   margin-bottom: 5px;
+  padding: 0 8px;
   height: 48px;
   justify-content: flex-start;
   align-items: center;
@@ -15,13 +15,13 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
   font-size: 14px;
   top: 0;
   z-index: 1;
-  background: ${Colors.WHITE};
+  background: ${Colors.ALABASTER_ALT};
   & {
     .${Classes.ICON} {
       color: ${Colors.GRAY};
       cursor: pointer;
-      width: 100%;
-      height: 100%;
+      width: 18px;
+      height: 18px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -40,6 +40,8 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
     }
     input {
       display: flex;
+      flex: 1;
+      min-width: 0; //firefox flex issue fix
       border: none;
       background: none;
       padding: 0px 10px 0px 10px;
