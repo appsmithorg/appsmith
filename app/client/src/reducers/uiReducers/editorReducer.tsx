@@ -7,7 +7,6 @@ import {
 } from "constants/ReduxActionConstants";
 import moment from "moment";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
-import { CommentsReduxState } from "./commentsReducer/interfaces";
 
 const initialState: EditorReduxState = {
   initialized: false,

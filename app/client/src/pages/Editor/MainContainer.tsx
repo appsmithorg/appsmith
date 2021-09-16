@@ -55,12 +55,12 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="w-full justify-between overflow-x-hidden">
+      <Container className="w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onWidthChange={onLeftSidebarWidthChange}
           width={sidebarWidth}
         />
-        <div className="relative flex flex-col overflow-auto w-full">
+        <div className="relative flex flex-col w-full overflow-auto">
           <Switch>
             <SentryRoute component={WidgetsEditor} exact path={BUILDER_URL} />
             <SentryRoute
