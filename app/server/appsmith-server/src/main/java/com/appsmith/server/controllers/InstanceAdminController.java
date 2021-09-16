@@ -49,4 +49,11 @@ public class InstanceAdminController {
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
+    @PostMapping("/send-test-email")
+    public Mono<ResponseDTO<Boolean>> sendTestEmail() {
+        log.debug("Sending test email");
+        return envManager.sendTestEmail()
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+    }
+
 }

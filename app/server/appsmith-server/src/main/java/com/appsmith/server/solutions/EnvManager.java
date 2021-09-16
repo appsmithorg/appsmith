@@ -2,16 +2,20 @@ package com.appsmith.server.solutions;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -35,7 +39,11 @@ public class EnvManager {
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final PolicyUtils policyUtils;
+    private final EmailSender emailSender;
+
     private final CommonConfig commonConfig;
+    private final EmailConfig emailConfig;
+    private final JavaMailSender javaMailSender;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -88,11 +96,11 @@ public class EnvManager {
         }
 
         if (changes.containsKey("APPSMITH_MAIL_HOST")) {
-            changes.put("APPSMITH_MAIL_ENABLED", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_HOST"))));
+            changes.put("APPSMITH_MAIL_ENABLED", Boolean.toString(StringUtils.isNotEmpty(changes.get("APPSMITH_MAIL_HOST"))));
         }
 
         if (changes.containsKey("APPSMITH_MAIL_USERNAME")) {
-            changes.put("APPSMITH_MAIL_SMTP_AUTH", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_USERNAME"))));
+            changes.put("APPSMITH_MAIL_SMTP_AUTH", Boolean.toString(StringUtils.isNotEmpty(changes.get("APPSMITH_MAIL_USERNAME"))));
         }
 
         final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
@@ -152,6 +160,20 @@ public class EnvManager {
 
                     if (changesCopy.containsKey("APPSMITH_INSTANCE_NAME")) {
                         commonConfig.setInstanceName(changesCopy.remove("APPSMITH_INSTANCE_NAME"));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_MAIL_ENABLED")) {
+                        emailConfig.setEmailEnabled("true".equals(changesCopy.remove("APPSMITH_MAIL_ENABLED")));
+                    }
+
+                    if (javaMailSender instanceof JavaMailSenderImpl) {
+                        JavaMailSenderImpl javaMailSenderImpl = (JavaMailSenderImpl) javaMailSender;
+                        if (changesCopy.containsKey("APPSMITH_MAIL_HOST")) {
+                            javaMailSenderImpl.setHost(changesCopy.remove("APPSMITH_MAIL_HOST"));
+                        }
+                        if (changesCopy.containsKey("APPSMITH_MAIL_PORT")) {
+                            javaMailSenderImpl.setPort(Integer.parseInt(changesCopy.remove("APPSMITH_MAIL_PORT")));
+                        }
                     }
 
                     // If `changesCopy` is not empty here, then we need a restart.
@@ -218,6 +240,15 @@ public class EnvManager {
                     }
                     return Mono.empty();
                 });
+    }
+
+    public Mono<Boolean> sendTestEmail() {
+        return sessionUserService.getCurrentUser()
+                .flatMap(user -> emailSender.sendMail(
+                        user.getEmail(),
+                        "Test email from Appsmith",
+                        "This is a test email from Appsmith, initiated from Admin Settings page. If you are seeing this, your email configuration is working!\n"
+                ));
     }
 
 }
