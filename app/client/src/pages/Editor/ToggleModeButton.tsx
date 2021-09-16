@@ -47,6 +47,8 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { setPreviewMode } from "actions/editorActions";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 const getShowCommentsButtonToolTip = () => {
   const flag = localStorage.getItem("ShowCommentsButtonToolTip");
@@ -340,7 +342,9 @@ type ToggleCommentModeButtonProps = {
 function ToggleCommentModeButton({
   showSelectedMode = true,
 }: ToggleCommentModeButtonProps) {
+  const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
+  const isPreviewMode = useSelector(previewModeSelector);
   const currentUser = useSelector(getCurrentUser);
 
   const [
@@ -374,12 +378,18 @@ function ToggleCommentModeButton({
     });
     setCommentModeInUrl(true);
     proceedToNextTourStep();
+    dispatch(setPreviewMode(false));
     setShowCommentButtonDiscoveryTooltipInState(false);
     setShowCommentsButtonToolTip();
   }, [proceedToNextTourStep, setShowCommentButtonDiscoveryTooltipInState]);
 
   // Show comment mode button only on the canvas editor and viewer
   const isHideComments = useHideComments();
+
+  const onClickPreviewModeButton = useCallback(() => {
+    dispatch(setPreviewMode(true));
+    setCommentModeInUrl(false);
+  }, [dispatch, setPreviewMode]);
 
   if (isHideComments) return null;
 
@@ -388,7 +398,7 @@ function ToggleCommentModeButton({
       <TourTooltipWrapper {...tourToolTipProps}>
         <div style={{ display: "flex" }}>
           <ModeButton
-            active={!isCommentMode}
+            active={!isCommentMode && !isPreviewMode}
             className="t--switch-comment-mode-off"
             onClick={() => {
               AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
@@ -396,6 +406,7 @@ function ToggleCommentModeButton({
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
+              setPreviewMode(false);
             }}
             showSelectedMode={showSelectedMode}
             type="fill"
@@ -408,12 +419,15 @@ function ToggleCommentModeButton({
             showSelectedMode={showSelectedMode}
             showUnreadIndicator={showUnreadIndicator}
           />
-          <CommentModeBtn
-            handleSetCommentModeButton={handleSetCommentModeButton}
-            isCommentMode={isCommentMode || isTourStepActive} // Highlight the button during the tour
+          <ModeButton
+            active={isPreviewMode}
+            className="t--switch-comment-mode-off"
+            onClick={onClickPreviewModeButton}
             showSelectedMode={showSelectedMode}
-            showUnreadIndicator={showUnreadIndicator}
-          />
+            type="fill"
+          >
+            <Eye />
+          </ModeButton>
         </div>
       </TourTooltipWrapper>
     </Container>

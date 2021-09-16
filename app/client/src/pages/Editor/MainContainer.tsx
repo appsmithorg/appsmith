@@ -55,7 +55,7 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="w-full justify-between">
+      <Container className="w-full justify-between overflow-x-hidden">
         <EntityExplorerSidebar
           onWidthChange={onLeftSidebarWidthChange}
           width={sidebarWidth}

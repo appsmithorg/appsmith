@@ -373,3 +373,6 @@ export const getJSCollectionById = createSelector(
 
 export const getApplicationLastDeployedAt = (state: AppState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
+
+export const previewModeSelector = (state: AppState) =>
+  state.ui.editor.isPreviewMode;

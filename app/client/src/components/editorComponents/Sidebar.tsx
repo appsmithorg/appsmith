@@ -15,6 +15,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 type Props = {
   width: number;
@@ -25,6 +26,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const pinned = useSelector(getExplorerPinned);
   const [active, setActive] = useState(true);
+  const isPreviewMode = useSelector(previewModeSelector);
   const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -87,13 +89,16 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     }
   }, [active, setActive, pinned, resizer.resizing]);
 
+  // eslint-disable-next-line
+  console.log({ isPreviewMode, pinned });
+
   return (
     <div
       className={classNames({
         "transform transition flex h-full z-3": true,
-        "relative ": pinned,
-        "-translate-x-full": !pinned && !active,
-        fixed: !pinned,
+        "relative ": pinned && !isPreviewMode,
+        "-translate-x-full": (!pinned && !active) || isPreviewMode,
+        fixed: !pinned || isPreviewMode,
       })}
       onMouseLeave={onMouseLeave}
     >

@@ -8,6 +8,7 @@ import {
   getCanvasWidgetDsl,
   getCurrentPageName,
   getViewModePageList,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import { Spinner } from "@blueprintjs/core";
@@ -35,6 +36,7 @@ import {
 } from "selectors/entitiesSelector";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import PageTabsContainer from "pages/AppViewer/viewer/PageTabsContainer";
+import classNames from "classnames";
 
 const EditorWrapper = styled.div`
   display: flex;
@@ -74,6 +76,7 @@ function WidgetsEditor() {
   const currentPageName = useSelector(getCurrentPageName);
   const pages = useSelector(getViewModePageList);
   const currentApp = useSelector(getCurrentApplication);
+  const isPreviewMode = useSelector(previewModeSelector);
   const currentApplicationDetails = useSelector(getCurrentApplication);
 
   const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
@@ -164,10 +167,18 @@ function WidgetsEditor() {
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
-          <PageTabsContainer
-            currentApplicationDetails={currentApplicationDetails}
-            pages={pages}
-          />
+          <div
+            className={classNames({
+              "transform transition bg-gray-50": true,
+              "translate-y-0": isPreviewMode,
+              "-translate-y-full": !isPreviewMode,
+            })}
+          >
+            <PageTabsContainer
+              currentApplicationDetails={currentApplicationDetails}
+              pages={pages}
+            />
+          </div>
           <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
             {node}
           </CanvasContainer>

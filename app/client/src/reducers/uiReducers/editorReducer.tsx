@@ -176,12 +176,21 @@ const editorReducer = createReducer(initialState, {
     return { ...state };
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (
-    state: CommentsReduxState,
+    state: EditorReduxState,
     action: ReduxAction<boolean>,
   ) => {
     return {
       ...state,
       isSnipingMode: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_PREVIEW_MODE]: (
+    state: EditorReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      isPreviewMode: action.payload,
     };
   },
 });

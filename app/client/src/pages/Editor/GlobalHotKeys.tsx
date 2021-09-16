@@ -41,6 +41,7 @@ import { APP_MODE } from "entities/App";
 
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
+import { setPreviewMode } from "actions/editorActions";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -62,6 +63,7 @@ type Props = {
   children: React.ReactNode;
   appMode?: APP_MODE;
   isCommentMode: boolean;
+  setPreviewMode: (shouldSet: boolean) => void;
 };
 
 @HotkeysTarget
@@ -241,6 +243,7 @@ class GlobalHotKeys extends React.Component<Props> {
               });
             }
             setCommentModeInUrl(false);
+            this.props.setPreviewMode(false);
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -344,6 +347,7 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
+    setPreviewMode: (shouldSet: boolean) => dispatch(setPreviewMode(shouldSet)),
   };
 };
 
