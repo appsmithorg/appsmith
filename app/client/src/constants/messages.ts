@@ -174,6 +174,16 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign In`;
 
+// Homepage
+export const CREATE_NEW_APPLICATION = () => `Create New`;
+export const SEARCH_APPS = () => `Search for apps...`;
+export const GETTING_STARTED = () => `GETTING STARTED`;
+export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
+export const WELCOME_TOUR = () => `Welcome Tour`;
+export const NO_APPS_FOUND = () =>
+  `Whale! Whale! This name doesn't ring a bell!`;
+
+// Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
 export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a Query`;
 export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
@@ -511,6 +521,10 @@ export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const CONNECT_GIT = () => "Connect Git";
+export const RETRY = () => "RETRY";
+export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;

@@ -228,11 +228,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
-          key={this.props.widgetId}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
           value={this.props.rate}
           {...this.props}
+          key={this.props.widgetId}
         />
       )
     );

@@ -1,10 +1,14 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
+import { GitSyncModalTab } from "entities/GitSync";
 
-export const setIsGitSyncModalOpen = (isOpen: boolean) => ({
+export const setIsGitSyncModalOpen = (payload: {
+  isOpen: boolean;
+  tab?: GitSyncModalTab;
+}) => ({
   type: ReduxActionTypes.SET_IS_GIT_SYNC_MODAL_OPEN,
-  payload: isOpen,
+  payload,
 });
 
 export const commitToRepoInit = (payload: {
@@ -57,4 +61,13 @@ export const switchGitBranchInit = (branchName: string) => ({
 export const createNewBranchInit = (branchName: string) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
   payload: branchName,
+});
+
+export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
+  type: ReduxActionTypes.SHOW_ERROR_POPUP,
+  payload,
+});
+
+export const showCreateBranchPopup = () => ({
+  type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
 });
