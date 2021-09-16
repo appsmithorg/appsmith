@@ -202,7 +202,6 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input value of number type should reflect the default text value 0", () => {
-    cy.openPropertyPane("inputwidget");
     cy.selectDropdownValue(commonlocators.dataType, "Number");
     cy.get(widgetsPage.defaultInput)
       .click({ force: true })
