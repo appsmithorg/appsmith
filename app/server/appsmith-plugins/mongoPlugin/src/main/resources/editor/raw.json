@@ -12,7 +12,6 @@
       "children": [
         {
           "label": "",
-          "internalLabel": "Query",
           "propertyName" : "rawWithSmartSubstitute",
           "configProperty": "actionConfiguration.body",
           "controlType": "QUERY_DYNAMIC_TEXT",
@@ -24,7 +23,6 @@
         {
           "label": "",
           "configProperty": "actionConfiguration.body",
-          "internalLabel": "Query",
           "propertyName" : "rawWithTemplateSubstitute",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
