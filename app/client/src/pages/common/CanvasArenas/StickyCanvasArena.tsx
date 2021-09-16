@@ -5,6 +5,7 @@ import { getCanvasTopOffset } from "./utils";
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
   canvasId: string;
+  id: string;
   canvasPadding: number;
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
@@ -36,6 +37,7 @@ export const StickyCanvasArena = forwardRef(
       canvasId,
       canvasPadding,
       getRelativeScrollingParent,
+      id,
       showCanvas,
     } = props;
     const { slidingArenaRef, stickyCanvasRef } = ref.current;
@@ -83,10 +85,10 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas ref={stickyCanvasRef} />
+        <canvas data-testid={canvasId} id={canvasId} ref={stickyCanvasRef} />
         <StyledCanvasSlider
-          data-testid={canvasId}
-          id={canvasId}
+          data-testid={id}
+          id={id}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}
         />

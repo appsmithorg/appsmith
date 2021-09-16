@@ -41,25 +41,39 @@ describe("Canvas selection test cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+    const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+    mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
-      </MockPageDSL>,
+      <MemoryRouter
+        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+      >
+        <MockApplication>
+          <GlobalHotKeys>
+            <UpdatedMainContainer dsl={dsl} />
+          </GlobalHotKeys>
+        </MockApplication>
+      </MemoryRouter>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     let selectionCanvas: any = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
+    );
+    const selectionDiv: any = component.queryByTestId(
+      `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
     expect(selectionCanvas.style.zIndex).toBe("");
-    fireEvent.mouseDown(selectionCanvas);
+    fireEvent.mouseDown(selectionDiv);
 
     selectionCanvas = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
     expect(selectionCanvas.style.zIndex).toBe("2");
-    fireEvent.mouseUp(selectionCanvas);
+    fireEvent.mouseUp(selectionDiv);
     selectionCanvas = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
     expect(selectionCanvas.style.zIndex).toBe("");
@@ -85,16 +99,27 @@ describe("Canvas selection test cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+    const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+    mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
-      </MockPageDSL>,
+      <MemoryRouter
+        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+      >
+        <MockApplication>
+          <GlobalHotKeys>
+            <UpdatedMainContainer dsl={dsl} />
+          </GlobalHotKeys>
+        </MockApplication>
+      </MemoryRouter>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
-    const selectionCanvas: any = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+    const selectionDiv: any = component.queryByTestId(
+      `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mousedown", {
           bubbles: true,
@@ -107,7 +132,7 @@ describe("Canvas selection test cases", () => {
       ),
     );
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mousemove", {
           bubbles: true,
@@ -121,7 +146,7 @@ describe("Canvas selection test cases", () => {
     );
 
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mouseup", {
           bubbles: true,
@@ -165,27 +190,43 @@ describe("Canvas selection test cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });
+    const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+    const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+    mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
-      </MockPageDSL>,
+      <MemoryRouter
+        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+      >
+        <MockApplication>
+          <GlobalHotKeys>
+            <UpdatedMainContainer dsl={dsl} />
+          </GlobalHotKeys>
+        </MockApplication>
+      </MemoryRouter>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
-    let selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
+    let selectionCanvas: any = component.queryByTestId(
+      `canvas-selection-${canvasId}`,
+    );
+    const selectionDiv: any = component.queryByTestId(
+      `div-selection-${canvasId}`,
+    );
     expect(selectionCanvas.style.zIndex).toBe("");
-    fireEvent.mouseDown(selectionCanvas);
+    fireEvent.mouseDown(selectionDiv);
     // should not allow draw when cmd/ctrl is not pressed
-    selectionCanvas = component.queryByTestId(`canvas-${canvasId}`);
+    selectionCanvas = component.queryByTestId(`canvas-selection-${canvasId}`);
     expect(selectionCanvas.style.zIndex).toBe("");
-    fireEvent.mouseDown(selectionCanvas, {
+    fireEvent.mouseDown(selectionDiv, {
       metaKey: true,
     });
 
-    selectionCanvas = component.queryByTestId(`canvas-${canvasId}`);
+    selectionCanvas = component.queryByTestId(`canvas-selection-${canvasId}`);
 
     expect(selectionCanvas.style.zIndex).toBe("2");
-    fireEvent.mouseUp(selectionCanvas);
-    selectionCanvas = component.queryByTestId(`canvas-${canvasId}`);
+    fireEvent.mouseUp(selectionDiv);
+    selectionCanvas = component.queryByTestId(`canvas-selection-${canvasId}`);
 
     expect(selectionCanvas.style.zIndex).toBe("");
   });
@@ -272,14 +313,29 @@ describe("Canvas selection test cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });
+    const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+    const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
+    mockGetIsFetchingPage.mockImplementation(() => false);
+
     const component = render(
-      <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
-      </MockPageDSL>,
+      <MemoryRouter
+        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+      >
+        <MockApplication>
+          <GlobalHotKeys>
+            <UpdatedMainContainer dsl={dsl} />
+          </GlobalHotKeys>
+        </MockApplication>
+      </MemoryRouter>,
+      { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
-    const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
+
+    const selectionDiv: any = component.queryByTestId(
+      `div-selection-${canvasId}`,
+    );
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mousedown", {
           metaKey: true,
@@ -293,7 +349,7 @@ describe("Canvas selection test cases", () => {
       ),
     );
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mousemove", {
           metaKey: true,
@@ -308,7 +364,7 @@ describe("Canvas selection test cases", () => {
     );
 
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mouseup", {
           metaKey: true,
@@ -364,7 +420,10 @@ describe("Canvas selection test cases", () => {
     );
     const widgetEditor: any = component.queryByTestId("widgets-editor");
     let selectionCanvas: any = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
+    );
+    const selectionDiv: any = component.queryByTestId(
+      `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
     expect(selectionCanvas.style.zIndex).toBe("");
     act(() => {
@@ -372,14 +431,14 @@ describe("Canvas selection test cases", () => {
     });
 
     selectionCanvas = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
     expect(selectionCanvas.style.zIndex).toBe("2");
     fireEvent.mouseEnter(selectionCanvas);
     fireEvent.mouseUp(selectionCanvas);
     selectionCanvas = component.queryByTestId(
-      `canvas-${MAIN_CONTAINER_WIDGET_ID}`,
+      `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
 
     expect(selectionCanvas.style.zIndex).toBe("");
@@ -387,7 +446,7 @@ describe("Canvas selection test cases", () => {
       fireEvent.dragStart(widgetEditor);
     });
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mousemove", {
           bubbles: true,
@@ -401,7 +460,7 @@ describe("Canvas selection test cases", () => {
     );
 
     fireEvent(
-      selectionCanvas,
+      selectionDiv,
       syntheticTestMouseEvent(
         new MouseEvent("mouseup", {
           bubbles: true,

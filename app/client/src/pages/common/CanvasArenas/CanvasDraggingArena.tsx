@@ -60,6 +60,7 @@ export function CanvasDraggingArena({
       canvasId={`canvas-dragging-${widgetId}`}
       canvasPadding={needsPadding ? theme.canvasBottomPadding : 0}
       getRelativeScrollingParent={getNearestParentCanvas}
+      id={`div-dragging-${widgetId}`}
       ref={canvasRef}
       showCanvas={showCanvas}
     />
