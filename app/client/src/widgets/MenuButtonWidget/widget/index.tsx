@@ -428,10 +428,13 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const { componentWidth } = this.getComponentDimensions();
+
     return (
       <MenuButtonComponent
         {...this.props}
         onItemClicked={this.menuItemClickHandler}
+        width={componentWidth}
       />
     );
   }

@@ -114,9 +114,13 @@ export const MenuButtonContainer = styled.div`
   }
 `;
 
-const PopoverStyles = createGlobalStyle`
+const PopoverStyles = createGlobalStyle<{ parentWidth: number }>`
   .menu-button-popover > .${Classes.POPOVER2_CONTENT} {
     background: none;
+  }
+  .menu-button-popover {
+     min-width:${({ parentWidth }) =>
+       parentWidth > 180 ? `${parentWidth}px` : "180px"} ;
   }
 `;
 
@@ -514,6 +518,7 @@ export interface MenuButtonComponentProps {
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
   backgroundColor?: string;
+  width: number;
 }
 
 function MenuButtonComponent(props: MenuButtonComponentProps) {
@@ -532,11 +537,12 @@ function MenuButtonComponent(props: MenuButtonComponentProps) {
     menuVariant,
     onItemClicked,
     prevMenuStyle,
+    width,
   } = props;
 
   return (
     <MenuButtonContainer>
-      <PopoverStyles />
+      <PopoverStyles parentWidth={width - 7} />
       <Popover2
         content={
           <PopoverContent
