@@ -125,7 +125,8 @@ export function CanvasSelectionArena({
       canDraw: canDrawOnEnter,
       startPoints: canDrawOnEnter ? outOfCanvasStartPositions : undefined,
     };
-    if (slidingArenaRef.current && canDrawOnEnter) {
+    if (slidingArenaRef.current && stickyCanvasRef.current && canDrawOnEnter) {
+      stickyCanvasRef.current.style.zIndex = "2";
       slidingArenaRef.current.style.zIndex = "2";
     }
   }, [
@@ -317,6 +318,7 @@ export function CanvasSelectionArena({
           isDragging = true;
           // bring the canvas to the top layer
           stickyCanvasRef.current.style.zIndex = "2";
+          slidingArenaRef.current.style.zIndex = "2";
         }
       };
 
@@ -339,6 +341,7 @@ export function CanvasSelectionArena({
             stickyCanvasRef.current.height,
           );
           stickyCanvasRef.current.style.zIndex = "";
+          slidingArenaRef.current.style.zIndex = "";
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };
