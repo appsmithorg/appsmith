@@ -128,4 +128,25 @@ describe("Text Widget color/font/alignment Functionality", function() {
     );
     cy.closePropertyPane();
   });
+
+  it("Test border width, color and verity", function() {
+    cy.openPropertyPane("textwidget");
+
+    cy.testJsontext("borderwidth", "10");
+    cy.get(
+      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
+    )
+      .should("have.css", "border-width")
+      .and("eq", "10px");
+
+    cy.get(widgetsPage.boadercolorPicker)
+      .first()
+      .click({ force: true });
+    cy.xpath(widgetsPage.yellowColor).click();
+    cy.get(
+      `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
+    )
+      .should("have.css", "border-color")
+      .and("eq", "rgb(255, 193, 61)");
+  });
 });

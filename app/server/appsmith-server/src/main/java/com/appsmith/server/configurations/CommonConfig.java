@@ -49,6 +49,9 @@ public class CommonConfig {
     @Value("${github_repo}")
     private String repo;
 
+    @Value("${appsmith.admin.envfile:}")
+    public String envFilePath;
+
 
     private List<String> allowedDomains;
 
