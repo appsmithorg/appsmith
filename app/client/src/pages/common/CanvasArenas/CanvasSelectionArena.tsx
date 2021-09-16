@@ -299,7 +299,7 @@ export function CanvasSelectionArena({
       };
 
       const firstRender = (e: any, fromOuterCanvas = false) => {
-        if (slidingArenaRef.current && !isDragging) {
+        if (slidingArenaRef.current && stickyCanvasRef.current && !isDragging) {
           isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
           if (fromOuterCanvas) {
             const { left, top } = startPositionsForOutCanvasSelection();
@@ -316,7 +316,7 @@ export function CanvasSelectionArena({
 
           isDragging = true;
           // bring the canvas to the top layer
-          slidingArenaRef.current.style.zIndex = "2";
+          stickyCanvasRef.current.style.zIndex = "2";
         }
       };
 
@@ -338,7 +338,7 @@ export function CanvasSelectionArena({
             stickyCanvasRef.current.width,
             stickyCanvasRef.current.height,
           );
-          slidingArenaRef.current.style.zIndex = "";
+          stickyCanvasRef.current.style.zIndex = "";
           dispatch(setCanvasSelectionStateAction(false, widgetId));
         }
       };
@@ -475,11 +475,12 @@ export function CanvasSelectionArena({
   return (
     <StickyCanvasArena
       canExtend={canExtend}
-      canvasId={`canvas-${widgetId}`}
+      canvasId={`canvas-selection-${widgetId}`}
       canvasPadding={
         widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0
       }
       getRelativeScrollingParent={getNearestParentCanvas}
+      id={`div-selection-${widgetId}`}
       ref={canvasRef}
       showCanvas={shouldShow}
     />
