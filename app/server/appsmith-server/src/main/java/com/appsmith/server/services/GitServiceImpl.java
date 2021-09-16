@@ -66,7 +66,14 @@ public class GitServiceImpl implements GitService {
         if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
         }
-        return sessionUserService.getCurrentUser()
+
+        Mono<Application> defaultApplicationMono = getApplicationById(defaultApplicationId)
+            .filter(application -> application.getGitApplicationMetadata() != null
+                && application.getGitApplicationMetadata().getDefaultApplicationId().equals(defaultApplicationId))
+            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DEFAULT_APPLICATION_ID)));
+
+        return defaultApplicationMono
+                .then(sessionUserService.getCurrentUser())
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
@@ -88,9 +95,11 @@ public class GitServiceImpl implements GitService {
                             } else {
                                 userData.getGitProfiles().put(defaultApplicationId, gitProfile);
                             }
-                            return userDataService.updateForUser(user, userData);
+                            UserData requiredUpdates = new UserData();
+                            requiredUpdates.setGitProfiles(userData.getGitProfiles());
+                            return userDataService.updateForUser(user, requiredUpdates);
                         })
-                        .map(userData -> userData.getGitProfiles())
+                        .map(UserData::getGitProfiles)
                 );
     }
 

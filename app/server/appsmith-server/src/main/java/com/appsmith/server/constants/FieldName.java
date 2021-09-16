@@ -18,6 +18,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static final String DEFAULT_APPLICATION_ID = "defaultApplicationId";
     public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
     public static String CONFIG = "config";
