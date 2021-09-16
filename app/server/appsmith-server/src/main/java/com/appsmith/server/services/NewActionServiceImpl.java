@@ -165,7 +165,6 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
         newAction.setProviderId(action.getProviderId());
         newAction.setDocumentation(action.getDocumentation());
         newAction.setApplicationId(action.getApplicationId());
-        // HERE?
     }
 
     @Override
