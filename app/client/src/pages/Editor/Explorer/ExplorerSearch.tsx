@@ -12,13 +12,13 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
   justify-content: flex-start;
   align-items: center;
   position: sticky;
-  font-size: 12px;
+  font-size: 14px;
   top: 0;
   z-index: 1;
-  background: ${Colors.MINE_SHAFT};
+  background: ${Colors.WHITE};
   & {
     .${Classes.ICON} {
-      color: ${Colors.DOVE_GRAY};
+      color: ${Colors.GRAY};
       cursor: pointer;
       width: 100%;
       height: 100%;
@@ -26,7 +26,16 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
       justify-content: center;
       align-items: center;
       &:last-of-type {
-        color: ${Colors.MINE_SHAFT};
+        color: ${Colors.GRAY};
+      }
+      svg {
+        width: 16px;
+        height: 16px;
+
+        &:last-of-type {
+          width: 14px;
+          height: 14px;
+        }
       }
     }
     input {
@@ -34,16 +43,16 @@ const ExplorerSearchWrapper = styled.div<{ isHidden?: boolean }>`
       border: none;
       background: none;
       padding: 0px 10px 0px 10px;
-      color: ${Colors.WHITE};
+      color: ${Colors.DOVE_GRAY2};
       &::placeholder {
-        color: ${Colors.DOVE_GRAY};
+        color: ${Colors.DOVE_GRAY2};
       }
       &:focus {
         & ~ div.underline {
           width: 100%;
         }
         & ~ .${Classes.ICON} {
-          color: ${Colors.WHITE};
+          color: ${Colors.GRAY};
         }
       }
     }
