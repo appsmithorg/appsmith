@@ -73,7 +73,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         column: "",
         order: null,
       },
-      // shape : { [columnId]: { [rowIndex]: value, ... }, ...}
       editedColumnData: {},
       editedRowIndex: -1,
     };

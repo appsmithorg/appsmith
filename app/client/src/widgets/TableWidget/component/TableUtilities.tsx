@@ -8,6 +8,7 @@ import {
   SortIconWrapper,
   DraggableHeaderWrapper,
   SwitchCellWrapper,
+  CheckboxCellWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -799,6 +800,9 @@ export function SwitchCell(props: {
   widgetId: string;
   rowIndex: number;
 }) {
+  const handleSwitchChange = (isSwitchedOn: boolean) => {
+    props.onChange(props.columnId, props.rowIndex, props.action, isSwitchedOn);
+  };
   let isSwitchOn;
   try {
     isSwitchOn = JSON.parse(props.value);
@@ -817,15 +821,8 @@ export function SwitchCell(props: {
         isLoading={false}
         isSwitchedOn={isSwitchOn}
         key={props.widgetId}
-        label={props.label || "Label"}
-        onChange={(isSwitchedOn: boolean) => {
-          props.onChange(
-            props.columnId,
-            props.rowIndex,
-            props.action,
-            isSwitchedOn,
-          );
-        }}
+        label={props.label}
+        onChange={handleSwitchChange}
         widgetId={props.widgetId}
       />
     </SwitchCellWrapper>
@@ -852,6 +849,9 @@ export function CheckboxCell(props: {
   widgetId: string;
   rowIndex: number;
 }) {
+  const handleCheckboxChange = (isChecked: boolean) => {
+    props.onChange(props.columnId, props.rowIndex, props.action, isChecked);
+  };
   let isCheckboxChecked;
   try {
     isCheckboxChecked = JSON.parse(props.value);
@@ -859,7 +859,7 @@ export function CheckboxCell(props: {
     isCheckboxChecked = props.defaultCheckedState;
   }
   return (
-    <CellWrapper
+    <CheckboxCellWrapper
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
@@ -870,18 +870,11 @@ export function CheckboxCell(props: {
         isDisabled={props.isDisabled}
         isLoading={false}
         key={props.widgetId}
-        label={props.label || "Label"}
-        onCheckChange={(isChecked: boolean) => {
-          props.onChange(
-            props.columnId,
-            props.rowIndex,
-            props.action,
-            isChecked,
-          );
-        }}
+        label={props.label}
+        onCheckChange={handleCheckboxChange}
         rowSpace={0}
         widgetId={props.widgetId}
       />
-    </CellWrapper>
+    </CheckboxCellWrapper>
   );
 }

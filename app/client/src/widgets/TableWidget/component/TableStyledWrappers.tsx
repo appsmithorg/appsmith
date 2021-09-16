@@ -592,3 +592,10 @@ export const SwitchCellWrapper = styled(CellWrapper)`
     height: 100%;
   }
 `;
+
+export const CheckboxCellWrapper = styled(CellWrapper)`
+  & > div > label {
+    margin-bottom: 0px;
+    height: auto;
+  }
+`;
