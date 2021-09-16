@@ -23,6 +23,8 @@ import PerformanceTracker, {
 import { useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
+import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -38,6 +40,26 @@ const Wrapper = styled.div`
 const NoResult = styled(NonIdealState)`
   &.${Classes.NON_IDEAL_STATE} {
     height: auto;
+    margin: 20px 0;
+
+    .${Classes.NON_IDEAL_STATE_VISUAL} {
+      margin-bottom: 16px;
+      height: 52px;
+
+      svg {
+        height: 52px;
+        width: 144px;
+      }
+    }
+
+    div {
+      color: ${Colors.DOVE_GRAY2};
+    }
+
+    .${Classes.HEADING} {
+      margin-bottom: 4px;
+      color: ${(props) => props.theme.colors.textOnWhiteBG};
+    }
   }
 `;
 
@@ -92,7 +114,7 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden ref={searchInputRef} />
+      <Search clear={clearSearch} isHidden={false} ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}
@@ -107,7 +129,7 @@ function EntityExplorer(props: IPanelProps) {
         <NoResult
           className={Classes.DARK}
           description="Try modifying the search keyword."
-          icon="search"
+          icon={<NoEntityFoundSvg />}
           title="No entities found"
         />
       )}

@@ -2869,6 +2869,7 @@ export const theme: Theme = {
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
     textOnGreyBG: Colors.CHARCOAL,
+    textOnWhiteBG: Colors.CODE_GRAY,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,

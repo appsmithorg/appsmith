@@ -66,6 +66,7 @@ export const AuthCardHeader = styled.header`
     h1 {
       font-size: ${(props) => props.theme.fontSizes[6]}px;
       white-space: nowrap;
+      font-weight: 500;
     }
     h5 {
       font-size: ${(props) => props.theme.fontSizes[4]}px;

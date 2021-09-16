@@ -16,12 +16,12 @@ import {
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 
 const SidebarWrapper = styled.div`
-  background-color: ${Colors.MINE_SHAFT};
+  background-color: ${Colors.WHITE};
   padding: 0;
   width: ${(props) => props.theme.sidebarWidth};
   z-index: ${Layers.sideBar};
 
-  color: ${(props) => props.theme.colors.textOnDarkBG};
+  color: ${(props) => props.theme.colors.textOnWhiteBG};
   overflow-y: auto;
   & .${Classes.PANEL_STACK} {
     height: 100%;
