@@ -24,7 +24,7 @@ export const PropertyPaneSidebar = memo(() => {
 
   return (
     <div
-      className="h-full p-0 overflow-y-auto bg-white t--property-pane-sidebar z-3 w-80"
+      className="h-full p-0 overflow-y-auto bg-white t--property-pane-sidebar z-3 w-96"
       ref={sidebarRef}
     >
       {isAnyWidgetSelected ? <WidgetPropertyPane /> : <CanvasPropertyPane />}

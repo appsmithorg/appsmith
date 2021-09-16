@@ -408,6 +408,12 @@ function ToggleCommentModeButton({
             showSelectedMode={showSelectedMode}
             showUnreadIndicator={showUnreadIndicator}
           />
+          <CommentModeBtn
+            handleSetCommentModeButton={handleSetCommentModeButton}
+            isCommentMode={isCommentMode || isTourStepActive} // Highlight the button during the tour
+            showSelectedMode={showSelectedMode}
+            showUnreadIndicator={showUnreadIndicator}
+          />
         </div>
       </TourTooltipWrapper>
     </Container>

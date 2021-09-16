@@ -97,6 +97,9 @@ export const getPageList = (state: AppState) => state.entities.pageList.pages;
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
+
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId;
 

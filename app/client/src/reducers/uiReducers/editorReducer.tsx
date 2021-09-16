@@ -28,6 +28,7 @@ const initialState: EditorReduxState = {
     updateWidgetNameError: false,
   },
   isSnipingMode: false,
+  isPreviewMode: false,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -194,6 +195,7 @@ export interface EditorReduxState {
   lastUpdatedTime?: number;
   pageActions?: PageAction[][];
   isSnipingMode: boolean;
+  isPreviewMode: boolean;
   loadingStates: {
     saving: boolean;
     savingError: boolean;
