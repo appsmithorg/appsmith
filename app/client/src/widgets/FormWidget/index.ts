@@ -47,7 +47,7 @@ export const CONFIG = {
                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
-                    top: 18.25 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
                     left: 11.6 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
