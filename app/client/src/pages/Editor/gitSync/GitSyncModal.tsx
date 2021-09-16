@@ -12,6 +12,7 @@ import Menu from "./Menu";
 import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
+import GitConnection from "./Tabs/GitConnection";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
@@ -19,7 +20,6 @@ import { useIsGitConnected } from "./hooks";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import { getCurrentOrgId } from "selectors/organizationSelectors";
-import GitConnection from "./Tabs/GitConnection";
 
 const Container = styled.div`
   height: 600px;
@@ -86,16 +86,21 @@ function GitSyncModal() {
     menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
   } else {
     menuOptions = allMenuOptions;
+    // when git is connected directly open deploy tab
     initialTabIndex = menuOptions.findIndex(
       (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
     );
   }
 
-  useEffect(() => {
+  const initializeTabIndex = () => {
     if (initialTabIndex !== activeTabIndex) {
       setActiveTabIndex(initialTabIndex);
     }
-  }, [initialTabIndex]);
+  };
+
+  useEffect(() => {
+    initializeTabIndex();
+  }, []);
 
   const orgId = useSelector(getCurrentOrgId);
 
@@ -104,6 +109,7 @@ function GitSyncModal() {
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
+  const showDeployTab = () => setActiveTabIndex(1);
   return (
     <>
       <Dialog
@@ -124,10 +130,7 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent
-              onSuccess={() => setActiveTabIndex(1)}
-              organizationId={orgId}
-            />
+            <BodyComponent onSuccess={showDeployTab} organizationId={orgId} />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

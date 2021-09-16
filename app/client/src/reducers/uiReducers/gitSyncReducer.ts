@@ -26,8 +26,8 @@ const gitSyncReducer = createReducer(initialState, {
       tab: GitSyncModalTab;
     }>,
   ) => {
-    const activeGitSyncModalTab =
-      action.payload.tab || state.activeGitSyncModalTab;
+    const activeGitSyncModalTab = action.payload.tab;
+
     return {
       ...state,
       isGitSyncModalOpen: action.payload.isOpen,
