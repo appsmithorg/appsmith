@@ -36,7 +36,7 @@ import {
   setOnboardingWelcomeState,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget, getWidgets } from "./selectors";
+import { getSelectedWidget, getWidgetByName, getWidgets } from "./selectors";
 import {
   endOnboarding,
   setCurrentStep,
@@ -688,6 +688,10 @@ function* executeQuery() {
 
 function* addWidget(widgetConfig: any) {
   try {
+    const widget = yield select(getWidgetByName, widgetConfig.widgetName ?? "");
+    // If widget already exists return
+    if (widget) return;
+
     const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
