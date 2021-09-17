@@ -55,9 +55,7 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
 ];
 
 const LayoutControlWrapper = styled.div`
-  position: absolute;
-  height: ${(props) => props.theme.spaces[15]}px;
-  width: 100%;
+  height: 40px;
   display: flex;
   justify-content: center;
   align-items: center;

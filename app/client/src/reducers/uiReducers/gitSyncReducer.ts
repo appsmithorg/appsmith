@@ -4,17 +4,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { GitSyncModalTab } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
-  gitError: `
-    README.md app/client/cypress/support/commands.js
-    app/client/src/comments/CommentsShowcaseCarousel/CommentsCarouselModal.tsx
-  `,
+  globalGitConfig: { authorEmail: "", authorName: "" },
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -56,14 +53,54 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isErrorPopupVisible: action.payload.isVisible,
   }),
+  [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitConfig: true,
+  }),
+  [ReduxActionTypes.UPDATE_GIT_CONFIG_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    isFetchingGitConfig: true,
+  }),
+  [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitConfig>,
+  ) => ({
+    ...state,
+    globalGitConfig: action.payload,
+    isFetchingGitConfig: false,
+  }),
+  [ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitConfig>,
+  ) => ({
+    ...state,
+    globalGitConfig: action.payload,
+    isFetchingGitConfig: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_GLOBAL_GIT_CONFIG_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitConfig: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_GLOBAL_GIT_CONFIG_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingGitConfig: false,
+  }),
 });
 
 export type GitSyncReducerState = {
-  isGitSyncModalOpen: boolean;
-  isCommitting: boolean;
+  isGitSyncModalOpen?: boolean;
+  isCommitting?: boolean;
   activeGitSyncModalTab: GitSyncModalTab;
-  isErrorPopupVisible: boolean;
-  gitError: string;
+  isErrorPopupVisible?: boolean;
+  gitError?: string;
+  globalGitConfig: GitConfig;
+  isFetchingGitConfig?: boolean;
 };
 
 export default gitSyncReducer;
