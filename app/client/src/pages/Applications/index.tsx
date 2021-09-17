@@ -80,12 +80,22 @@ import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
+  BUILDER_PAGE_URL,
   extractAppIdAndPageIdFromUrl,
   SIGNUP_SUCCESS_URL,
 } from "constants/routes";
+import {
+  createMessage,
+  DOCUMENTATION,
+  ORGANIZATIONS_HEADING,
+  SEARCH_APPS,
+  WELCOME_TOUR,
+  NO_APPS_FOUND,
+} from "constants/messages";
 
 import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
+import history from "utils/history";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -427,7 +437,7 @@ function LeftPane() {
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
-        heading="ORGANIZATIONS"
+        heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
@@ -476,7 +486,7 @@ function LeftPane() {
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
             }}
-            text={"Documentation"}
+            text={createMessage(DOCUMENTATION)}
           />
           <MenuItem
             containerClassName={
@@ -490,7 +500,7 @@ function LeftPane() {
 
               initiateOnboarding();
             }}
-            text={"Welcome Tour"}
+            text={createMessage(WELCOME_TOUR)}
           />
           <ProductUpdatesModal />
           <LeftPaneVersionData>
@@ -656,7 +666,7 @@ function ApplicationsSection(props: any) {
     organizationsListComponent = (
       <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
         <CreateNewLabel type={TextType.H4}>
-          Whale! Whale! this name doesn&apos;t ring a bell!
+          {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
         <NoSearchResultImg alt="No result found" src={NoSearchImage} />
       </CenteredWrapper>
@@ -980,14 +990,7 @@ class Applications extends Component<
           );
           if (applicationId && pageId) {
             this.props.enableFirstTimeUserOnboarding(applicationId);
-            /*
-             * window.location.replace resets the application, adding
-             * this timeout to store onboarding variables in indexdb
-             */
-
-            setTimeout(() => {
-              window.location.replace(redirectUrl);
-            });
+            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
@@ -1004,7 +1007,7 @@ class Applications extends Component<
         <LeftPane />
         <SubHeader
           search={{
-            placeholder: "Search for apps...",
+            placeholder: createMessage(SEARCH_APPS),
             queryFn: this.props.searchApplications,
             defaultValue: this.props.searchKeyword,
           }}

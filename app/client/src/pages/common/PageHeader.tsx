@@ -83,7 +83,7 @@ export function PageHeader(props: PageHeaderProps) {
       </HeaderSection>
       {user && (
         <>
-          <Bell />
+          {user.username !== ANONYMOUS_USERNAME && <Bell />}
           <StyledDropDownContainer>
             {user.username === ANONYMOUS_USERNAME ? (
               <Button

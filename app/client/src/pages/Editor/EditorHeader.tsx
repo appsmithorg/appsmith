@@ -57,8 +57,8 @@ import { useLocation } from "react-router";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { isMultiplayerEnabledForUser as isMultiplayerEnabledForUserSelector } from "selectors/appCollabSelectors";
 import getFeatureFlags from "utils/featureFlags";
+import { getIsInOnboarding } from "selectors/onboardingSelectors";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -193,6 +193,7 @@ type EditorHeaderProps = {
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
 };
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -247,12 +248,8 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(true));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
   }, [dispatch, setIsGitSyncModalOpen]);
-
-  const isMultiplayerEnabledForUser = useSelector(
-    isMultiplayerEnabledForUserSelector,
-  );
 
   const handleClickDeploy = useCallback(() => {
     if (getFeatureFlags().GIT) {
@@ -311,9 +308,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         </HeaderSection>
         <HeaderSection>
           <EditorSaveIndicator />
-          {isMultiplayerEnabledForUser && (
-            <RealtimeAppEditors applicationId={applicationId} />
-          )}
+          <RealtimeAppEditors applicationId={applicationId} />
           <Boxed step={OnboardingStep.FINISH}>
             <FormDialogComponent
               Form={AppInviteUsersForm}
@@ -378,7 +373,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
+        {props.inOnboarding && <OnboardingHelper />}
         <GlobalSearch />
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
@@ -399,6 +394,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  inOnboarding: getIsInOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/appsmithorg/appsmith.git",
-    "directory": "deploy/fat_container"
+    "directory": "deploy/docker"
   },
   "dependencies": {
     "boxen": "^5.0.1",
@@ -19,6 +19,6 @@
     "yargs": "^17.1.1"
   },
   "bin": {
-    "appsmith": "./bin/index.js"
+    "appsmithctl": "./bin/index.js"
   }
 }
