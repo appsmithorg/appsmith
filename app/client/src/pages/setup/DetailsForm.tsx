@@ -1,5 +1,5 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import {
   Field,
   InjectedFormProps,
@@ -34,6 +34,7 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
 
+const DROPDOWN_CLASSNAME = "setup-dropdown";
 const DropdownWrapper = styled(StyledFormGroup)`
   && {
     margin-bottom: 33px;
@@ -41,10 +42,8 @@ const DropdownWrapper = styled(StyledFormGroup)`
   && .cs-text {
     width: 100%;
   }
-`;
 
-const DropdownStyle = createGlobalStyle`
-  .setup-dropdown {
+  .${DROPDOWN_CLASSNAME} {
     .ads-dropdown-options-wrapper {
       padding: 0;
       border: 1px solid rgba(0, 0, 0, 8%);
@@ -70,7 +69,7 @@ function withDropdown(options: OptionType[]) {
 
     return (
       <Dropdown
-        className="setup-dropdown"
+        className={DROPDOWN_CLASSNAME}
         dontUsePortal
         onSelect={onSelect}
         options={options}
@@ -160,7 +159,6 @@ export default function DetailsForm(
           />
         </ButtonWrapper>
       </StyledFormBodyWrapper>
-      <DropdownStyle />
     </DetailsFormWrapper>
   );
 }
