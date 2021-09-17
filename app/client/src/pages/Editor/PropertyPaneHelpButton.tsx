@@ -21,7 +21,7 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const selectedWidgetType = selectedWidget?.type || "";
   const dispatch = useDispatch();
   const displayName =
-    WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.name || "";
+    WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.displayName || "";
 
   const openHelpModal = useCallback(() => {
     dispatch(setGlobalSearchQuery(displayName));
