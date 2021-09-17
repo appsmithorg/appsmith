@@ -1,6 +1,6 @@
-package com.external.plugins;
+package com.appsmith.external.models;
 
-public enum Op {
+public enum ConditionalOperator {
     LT,
     LTE,
     EQ,

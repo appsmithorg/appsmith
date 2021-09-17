@@ -22,6 +22,7 @@ import org.apache.commons.validator.routines.DateValidator;
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
+import org.bson.types.Binary;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -361,5 +362,55 @@ public class DataTypeStringUtils {
         dataTypes.add(new ParsedDataType(DisplayDataType.RAW));
 
         return dataTypes;
+    }
+
+    public static Object castToDataType(String data) {
+        DataType dataType = stringToKnownDataTypeConverter(data);
+
+        switch(dataType) {
+            case INTEGER:
+                return Integer.valueOf(data);
+            case LONG:
+                return Long.valueOf(data);
+            case FLOAT:
+                return Float.valueOf(data);
+            case DOUBLE:
+                return Double.valueOf(data);
+            case BOOLEAN:
+                return Boolean.valueOf(data);
+            case DATE:
+                // TODO handle this
+                break;
+            case TIME:
+                // TODO handle this
+                break;
+            case ASCII:
+                // TODO handle this
+                break;
+            case BINARY:
+                // TODO handle this
+                break;
+            case BYTES:
+                // TODO handle this
+                break;
+            case STRING:
+                return data;
+            case NULL:
+                return null;
+            case ARRAY:
+                // TODO handle this
+                break;
+            case JSON_OBJECT:
+                // TODO handle this
+                break;
+            case TIMESTAMP:
+                // TODO handle this
+                break;
+            case BSON:
+                // TODO handle this
+                break;
+        }
+
+        return data;
     }
 }
