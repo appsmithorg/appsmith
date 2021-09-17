@@ -27,7 +27,7 @@ describe("WidgetOperationSaga", () => {
     ).toBe(true);
   });
 
-  it("should returns widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
+  it("should return widgets after executing handleIfParentIsListWidgetWhilePasting", async () => {
     const result = handleIfParentIsListWidgetWhilePasting(
       {
         widgetId: "text1",
@@ -206,7 +206,7 @@ describe("WidgetOperationSaga", () => {
     );
   });
 
-  it("should returns correct close model reference name after executing handleSpecificCasesWhilePasting", async () => {
+  it("should return correct close modal reference name after executing handleSpecificCasesWhilePasting", async () => {
     const result = handleSpecificCasesWhilePasting(
       {
         widgetName: "Modal1Copy",

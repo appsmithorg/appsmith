@@ -4,13 +4,13 @@ import TestRenderer from "react-test-renderer";
 import TouchBackend from "react-dnd-touch-backend";
 
 import DragLayerComponent from "./DragLayerComponent";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { ThemeProvider, theme } from "constants/DefaultTheme";
 
 describe("DragLayerComponent", () => {
   it("it checks noPad prop", () => {
     const dummyWidget = {
-      type: WidgetTypes.CANVAS_WIDGET,
+      type: "CANVAS_WIDGET",
       widgetId: "0",
       widgetName: "canvas",
       parentColumnSpace: 1,

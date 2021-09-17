@@ -2,7 +2,8 @@ import API from "api/Api";
 import { AxiosPromise } from "axios";
 import { JSCollection } from "entities/JSCollection";
 import { ApiResponse, GenericApiResponse } from "./ApiResponses";
-
+import { Variable, JSAction } from "entities/JSCollection";
+import { PluginType } from "entities/Action";
 export interface JSCollectionCreateUpdateResponse extends ApiResponse {
   id: string;
 }
@@ -17,6 +18,18 @@ export interface UpdateJSObjectNameRequest {
   newName: string;
   oldName: string;
 }
+
+export interface CreateJSCollectionRequest {
+  name: string;
+  pageId: string;
+  organizationId: string;
+  pluginId: string;
+  body: string;
+  variables: Array<Variable>;
+  actions: Array<Partial<JSAction>>;
+  applicationId: string;
+  pluginType: PluginType;
+}
 class JSActionAPI extends API {
   static url = "v1/collections/actions";
 
@@ -27,15 +40,21 @@ class JSActionAPI extends API {
   }
 
   static createJSCollection(
-    apiConfig: Partial<JSCollection>,
+    jsConfig: CreateJSCollectionRequest,
   ): AxiosPromise<JSCollectionCreateUpdateResponse> {
-    return API.post(JSActionAPI.url, apiConfig);
+    return API.post(JSActionAPI.url, jsConfig);
+  }
+
+  static copyJSCollection(
+    jsConfig: Partial<JSCollection>,
+  ): AxiosPromise<JSCollectionCreateUpdateResponse> {
+    return API.post(JSActionAPI.url, jsConfig);
   }
 
   static updateJSCollection(
-    apiConfig: JSCollection,
+    jsConfig: JSCollection,
   ): AxiosPromise<JSCollectionCreateUpdateResponse> {
-    const jsAction = Object.assign({}, apiConfig);
+    const jsAction = Object.assign({}, jsConfig);
     return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
   }
 

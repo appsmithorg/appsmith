@@ -4,10 +4,9 @@ import {
   getApplicationViewerPageURL,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  WidgetTypes,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev
 export const reduceCommentsByRef = (comments: any[]) => {
