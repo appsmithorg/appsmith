@@ -108,12 +108,17 @@ const STEP = {
   SHOW_INFO: "show_info",
 };
 
+const getInfoImage = (): string =>
+  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
+
 function InfoContent({
   onClose,
+  successImageUrl,
   successMessage,
 }: {
   onClose: () => void;
   successMessage: string;
+  successImageUrl: string;
 }) {
   return (
     <>
@@ -126,7 +131,10 @@ function InfoContent({
           type={TextType.P1}
         />
         <ImageWrapper>
-          <InfoImage alt="CRUD Info" src={getInfoImage()} />
+          <InfoImage
+            alt="CRUD Info"
+            src={successImageUrl ? successImageUrl : getInfoImage()}
+          />
         </ImageWrapper>
       </Content>
 
@@ -143,8 +151,6 @@ function InfoContent({
     </>
   );
 }
-const getInfoImage = (): string =>
-  `${S3_BUCKET_URL}/crud/working-flow-chart.png`;
 
 function GenCRUDSuccessModal(props: Props) {
   const { crudInfoModalOpen, generateCRUDSuccessInfo } = props;
