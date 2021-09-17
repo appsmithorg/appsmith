@@ -263,28 +263,36 @@ function* handleExecuteJSFunctionSaga(
   const { action } = data.payload;
   const collectionId = action.collectionId;
   const actionId = action.id;
-  const { result, triggers } = yield call(
-    executeFunction,
-    data.payload.collectionName,
-    data.payload.action,
-  );
-
-  if (triggers && triggers.length) {
-    yield all(
-      triggers.map((trigger: ActionDescription) =>
-        call(executeActionTriggers, trigger, EventType.ON_CLICK),
-      ),
+  try {
+    const { result, triggers } = yield call(
+      executeFunction,
+      data.payload.collectionName,
+      data.payload.action,
     );
-  }
 
-  yield put({
-    type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
-    payload: {
-      results: result,
-      collectionId,
-      actionId,
-    },
-  });
+    if (triggers && triggers.length) {
+      yield all(
+        triggers.map((trigger: ActionDescription) =>
+          call(executeActionTriggers, trigger, EventType.ON_CLICK),
+        ),
+      );
+    }
+
+    yield put({
+      type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
+      payload: {
+        results: result,
+        collectionId,
+        actionId,
+      },
+    });
+  } catch (e) {
+    Toaster.show({
+      text: e.message || "There was an error while executing function",
+      variant: Variant.danger,
+      showDebugButton: true,
+    });
+  }
 }
 
 function* handleRefactorJSActionNameSaga(
