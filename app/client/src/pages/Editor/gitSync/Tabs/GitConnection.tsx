@@ -26,7 +26,9 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { DOCS_BASE_URL } from "../../../../constants/ThirdPartyConstants";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import Toggle from "components/ads/Toggle";
+import Text, { TextType } from "components/ads/Text";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -132,6 +134,7 @@ const LintText = styled.a`
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
+const HTTP_LITERAL = "https";
 
 type Props = {
   onSuccess: () => void;
@@ -144,6 +147,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
+  // const [isValidRemoteUrl, setIsValidRemoteUrl] = useState(true);
 
   const { applicationId: currentApplicationId } = useParams<
     ExplorerURLParams
@@ -158,6 +162,8 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
     authorName: currentUser?.name || "",
     authorEmail: currentUser?.email || "",
   });
+
+  const [useGlobalConfig, setUseGlobalConfig] = useState(false);
 
   const {
     failedGeneratingSSHKey,
@@ -191,6 +197,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
       gitConfig: authorInfo,
       organizationId,
       isImport,
+      isDefaultProfile: useGlobalConfig,
     });
   };
 
@@ -207,6 +214,11 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
     setRemoteUrl(value);
   };
 
+  const remoteUrlIsValid = (value: string) => value.startsWith(HTTP_LITERAL);
+
+  const connectButtonDisabled =
+    !authorInfo.authorEmail || !authorInfo.authorName;
+
   return (
     <>
       <Title>{createMessage(CONNECT_TO_GIT)}</Title>
@@ -222,6 +234,12 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
             fill
             onChange={remoteUrlChangeHandler}
             placeholder={placeholderText}
+            validator={(value) => ({
+              isValid: true,
+              message: remoteUrlIsValid(value)
+                ? "Please paste SSH URL of your repository"
+                : "",
+            })}
             value={remoteUrl}
           />
         </UrlInputContainer>
@@ -235,7 +253,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
         </Icon>
       </UrlContainer>
       {!sshKeyPair ? (
-        <ButtonContainer topMargin={4}>
+        <ButtonContainer topMargin={10}>
           <Button
             category={Category.secondary}
             disabled={!remoteUrl}
@@ -280,16 +298,28 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
         </>
       )}
 
-      {sshKeyPair ? (
+      {sshKeyPair && remoteUrl ? (
         <>
+          <Space size={12} />
+          <FlexRow>
+            <Text className="" type={TextType.P2}>
+              Use Default Config
+            </Text>
+            <Toggle
+              onToggle={() => setUseGlobalConfig(!useGlobalConfig)}
+              value={useGlobalConfig}
+            />
+          </FlexRow>
           <Space size={12} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
             authorInfo={authorInfo}
+            disabled={useGlobalConfig}
             setAuthorInfo={setAuthorInfo}
           />
           <ButtonContainer topMargin={11}>
             <Button
+              disabled={connectButtonDisabled}
               isLoading={isConnectingToGit}
               onClick={gitConnectionRequest}
               size={Size.large}
