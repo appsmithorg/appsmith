@@ -6,7 +6,7 @@
     "inputPropsDataType": ".t--property-control-datatype",
     "inputdatatypeplaceholder": ".t--property-control-placeholder",
     "buttonWidget": ".t--draggable-buttonwidget",
-    "buttonStyleDropdown": ".t--property-control-buttonstyle [name='downArrow']",
+    "buttonColor": ".t--property-control-buttoncolor input",
     "buttonBackground": ".sc-ecQjpJ > div > .bp3-button",
     "copyWidget": ".t--copy-widget svg",
     "removeWidget": ".t--delete-widget svg",
