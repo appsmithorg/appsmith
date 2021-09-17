@@ -31,9 +31,7 @@
             "type":"MULTI_SELECT_TREE_WIDGET",
             "hideCard":false,
             "mode":"SHOW_ALL",
-            "defaultOptionValue":[
-               "GREEN"
-            ],
+            "defaultOptionValue":[],
             "parentColumnSpace":15.974999999999998,
             "leftColumn":18,
             "options":[
