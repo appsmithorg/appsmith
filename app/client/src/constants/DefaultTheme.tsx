@@ -1366,7 +1366,7 @@ const auth: any = {
   placeholder: lightShades[8],
   socialBtnText: "#000",
   socialBtnBorder: lightShades[13],
-  socialBtnHighlight: darkShades[1],
+  socialBtnHighlight: lightShades[12],
 };
 
 const helpModal = {
