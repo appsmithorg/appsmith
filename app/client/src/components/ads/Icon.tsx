@@ -16,7 +16,7 @@ import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
 import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
-import SearchIcon from "remixicon-react/SearchLineIcon";
+import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";

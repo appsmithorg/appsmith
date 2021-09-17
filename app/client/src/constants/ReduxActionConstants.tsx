@@ -827,6 +827,8 @@ export type ApplicationPayload = {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
+  modifiedBy?: string;
+  modifiedAt?: string;
 };
 
 export type OrganizationDetails = {

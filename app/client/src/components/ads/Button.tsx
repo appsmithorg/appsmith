@@ -154,7 +154,7 @@ const getMainStateStyles = (props: ThemeProp & ButtonProps) => {
     },
     [Category.tertiary]: {
       bgColorTertiary: "transparent",
-      borderColorTertiary: props.theme.colors.tertiary.main,
+      borderColorTertiary: props.theme.colors.tertiary.darker,
       txtColorTertiary: props.theme.colors.tertiary.main,
     },
   };

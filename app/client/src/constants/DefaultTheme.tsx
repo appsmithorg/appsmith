@@ -2223,10 +2223,10 @@ export const light: ColorType = {
     },
   },
   tertiary: {
-    main: "#716E6E",
+    main: "#606065",
     light: "#090707",
     dark: "#FAFAFA",
-    darker: "#E8E8E8",
+    darker: "#EDEDED",
     darkest: "#A9A7A7",
   },
   info: {
