@@ -1,7 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import styled from "styled-components";
 import {
-  Button,
   MenuItem,
   Menu,
   ControlGroup,
@@ -59,17 +58,6 @@ const isFormDropdown = (
 class DropdownComponent extends Component<
   DropdownComponentProps | FormDropdownComponentProps
 > {
-  componentDidMount() {
-    if (isFormDropdown(this.props)) {
-      const { defaultOption, input, options } = this.props;
-      const defaultValue = defaultOption
-        ? defaultOption.value
-        : options[0].value;
-
-      !input.value && input.onChange(defaultValue);
-    }
-  }
-
   private newItemTextInput: HTMLInputElement | null = null;
   private setNewItemTextInput = (element: HTMLInputElement | null) => {
     this.newItemTextInput = element;
@@ -158,29 +146,26 @@ class DropdownComponent extends Component<
     );
   };
 
-  getDropdownOption = (value: string): DropdownOption | undefined => {
+  getDropdownOption = (
+    value: string | undefined,
+  ): DropdownOption | undefined => {
     return this.props.options.find((option) => option.value === value);
   };
 
   getSelectedDisplayText = () => {
     const value = isFormDropdown(this.props)
       ? this.props.input.value
-      : this.props.selected.value;
+      : this.props.selected?.value;
+
     const item = this.getDropdownOption(value);
-    return item ? item.label : "";
+    return item ? item.label : this.props.placeholder;
   };
 
-  getActiveOption = (): DropdownOption => {
-    const { options } = this.props;
-
+  getActiveOption = (): DropdownOption | undefined => {
     if (isFormDropdown(this.props)) {
-      return (
-        this.getDropdownOption(this.props.input.value) ||
-        this.props.defaultOption ||
-        options[0]
-      );
+      return this.getDropdownOption(this.props.input.value);
     } else {
-      return this.props.selected || options[0];
+      return this.props.selected;
     }
   };
 
@@ -229,17 +214,17 @@ export interface BaseDropdownComponentProps {
   multi?: boolean;
   multiselectDisplayType?: "TAGS" | "CHECKBOXES";
   options: DropdownOption[];
+  placeholder: string;
   toggle?: ReactNode;
   width?: string;
 }
 export interface DropdownComponentProps extends BaseDropdownComponentProps {
   selectHandler: (selectedValue: string) => void;
-  selected: DropdownOption;
+  selected: DropdownOption | undefined;
 }
 
 export interface FormDropdownComponentProps extends BaseDropdownComponentProps {
   input: WrappedFieldInputProps;
-  defaultOption?: DropdownOption;
 }
 
 export default DropdownComponent;

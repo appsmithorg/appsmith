@@ -18,6 +18,7 @@ import DynamicDropdownField from "./DynamicDropdownField";
 import { Colors } from "constants/Colors";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_COLOR,
+  DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants";
@@ -180,6 +181,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                           color={DEFAULT_MULTI_PART_DROPDOWN_COLOR}
                           name={`${field}.type`}
                           options={MULTI_PART_DROPDOWN_OPTIONS}
+                          placeholder={DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER}
                           width={DEFAULT_MULTI_PART_DROPDOWN_WIDTH}
                         />
                       </DynamicDropdownFieldWrapper>
