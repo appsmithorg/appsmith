@@ -22,11 +22,6 @@ on:
       - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
-# Change the working directory for all the jobs in this workflow
-defaults:
-  run:
-    working-directory: app/client
-
 jobs:
   buildClient:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
@@ -497,9 +492,6 @@ jobs:
   package:
     needs: ui-test
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
     if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
 
@@ -542,6 +534,7 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push client release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -550,6 +543,7 @@ jobs:
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
@@ -560,6 +554,7 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/server
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -568,12 +563,33 @@ jobs:
       # Build master Docker image and push to Docker Hub
       - name: Push server master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/server
         run: |
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push RTS release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push RTS master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
