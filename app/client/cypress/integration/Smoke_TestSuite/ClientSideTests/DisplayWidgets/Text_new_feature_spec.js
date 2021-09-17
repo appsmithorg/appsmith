@@ -12,6 +12,27 @@ describe("Text Widget color/font/alignment Functionality", function() {
   beforeEach(() => {
     cy.openPropertyPane("textwidget");
   });
+  it("Test to validate parsing link", function() {
+    // Add link to text widget
+    cy.testCodeMirror("https://app.appsmith.com/applications");
+    // check if it's parsed as link
+    cy.get(commonlocators.headingTextStyle);
+    cy.contains("a", "https://app.appsmith.com/applications").should(
+      "have.attr",
+      "href",
+      "https://app.appsmith.com/applications",
+    );
+    // disable parsing as link
+    cy.get(".t--property-control-disablelink .bp3-switch").click({
+      force: true,
+    });
+    cy.wait("@updateLayout");
+    // check if it's parsed as text
+    cy.contains("a", "https://app.appsmith.com/applications").should(
+      "not.exist",
+    );
+    cy.closePropertyPane();
+  });
 
   it("Text-TextStyle Heading, Text Name Validation", function() {
     //changing the Text Name and verifying
@@ -107,28 +128,6 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(commonlocators.headingTextStyle).scrollIntoView({ duration: 2000 });
     cy.closePropertyPane();
   });
-  it("Test to validate parsing link", function() {
-    // Add link to text widget
-    cy.testCodeMirror("https://app.appsmith.com/applications");
-    // check if it's parsed as link
-    cy.get(commonlocators.headingTextStyle);
-    cy.contains("a", "https://app.appsmith.com/applications").should(
-      "have.attr",
-      "href",
-      "https://app.appsmith.com/applications",
-    );
-    // disable parsing as link
-    cy.get(".t--property-control-disablelink .bp3-switch").click({
-      force: true,
-    });
-    cy.wait("@updateLayout");
-    // check if it's parsed as text
-    cy.contains("a", "https://app.appsmith.com/applications").should(
-      "not.exist",
-    );
-    cy.closePropertyPane();
-  });
-
   it("Test border width, color and verity", function() {
     cy.openPropertyPane("textwidget");
 
