@@ -240,14 +240,6 @@ export function* evalErrorHandler(
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
         log.error(error);
         const message = createMessage(ERROR_EVAL_TRIGGER, error.message);
-        Toaster.show({
-          text: message,
-          variant: Variant.danger,
-          showDebugButton: true,
-        });
-        AppsmithConsole.error({
-          text: message,
-        });
         throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
@@ -263,6 +255,14 @@ export function* evalErrorHandler(
             type: ENTITY_TYPE.JSACTION,
             name: error?.context?.name,
             id: error?.context?.id,
+          },
+        });
+        break;
+      }
+      case EvalErrorTypes.CLONE_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: {
+            request: error.context,
           },
         });
         break;

@@ -233,6 +233,19 @@ function Helper() {
   const snippetRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(snippetRef);
 
+  const isClickedRef = useRef(false);
+
+  const cheatActionOnClick = () => {
+    if (isClickedRef.current) return;
+
+    dispatch(helperConfig.cheatAction?.action);
+    isClickedRef.current = true;
+  };
+
+  useEffect(() => {
+    isClickedRef.current = false;
+  }, [helperConfig.step]);
+
   if (!showHelper) return null;
 
   const copyBindingToClipboard = () => {
@@ -352,9 +365,7 @@ function Helper() {
           {(cheatMode || !helperConfig.action) && (
             <CheatActionButton
               className="t--onboarding-cheat-action"
-              onClick={() => {
-                dispatch(helperConfig.cheatAction?.action);
-              }}
+              onClick={cheatActionOnClick}
             >
               {helperConfig.cheatAction?.label}
             </CheatActionButton>
