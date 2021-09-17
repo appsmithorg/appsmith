@@ -96,15 +96,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the variant of the icon button",
             options: [
               {
-                label: "Solid",
+                label: "Primary",
                 value: "SOLID",
               },
               {
-                label: "Outline",
+                label: "Secondary",
                 value: "OUTLINE",
               },
               {
-                label: "Ghost",
+                label: "Tertiary",
                 value: "GHOST",
               },
             ],
