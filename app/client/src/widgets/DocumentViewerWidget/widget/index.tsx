@@ -1,32 +1,44 @@
 import React from "react";
-
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-
 import DocumentViewerComponent from "../component";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class DocumentViewerWidget extends BaseWidget<
   DocumentViewerWidgetProps,
   WidgetState
 > {
   static getPropertyPaneConfig() {
-    return [];
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Document url for preview",
+            propertyName: "docUrl",
+            label: "Document Url",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter url of document",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Controls visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
   }
 
   getPageView() {
-    return <DocumentViewerComponent docUrl="" />;
+    return <DocumentViewerComponent docUrl={this.props.docUrl} />;
   }
 
   static getWidgetType(): string {

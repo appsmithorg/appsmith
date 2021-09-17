@@ -1,5 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,8 +10,10 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "DocumentViewer",
-    rows: 3,
-    columns: 6,
+    docUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf",
+    rows: 10 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     version: 1,
   },
   properties: {
