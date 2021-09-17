@@ -51,6 +51,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -64,6 +65,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.helpers.PluginUtils.MATCH_QUOTED_WORDS_REGEX;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
@@ -77,6 +79,7 @@ public class MySqlPlugin extends BasePlugin {
     private static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     private static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
     private static final int VALIDATION_CHECK_TIMEOUT = 4; // seconds
+    private static final String IS_KEY = "is";
 
     /**
      * Example output for COLUMNS_QUERY:
@@ -227,6 +230,23 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
 
+            /**
+             * - MySQL r2dbc driver is not able to substitute the `True/False` value properly after the IS keyword.
+             * Converting `True/False` to integer 1 or 0 also does not work in this case as MySQL syntax does not support
+             * integers with IS keyword.
+             * - I have raised an issue with r2dbc to track it: https://github.com/mirromutth/r2dbc-mysql/issues/200
+             */
+            if (preparedStatement && isIsOperatorUsed(query)) {
+                return Mono.error(
+                        new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "Appsmith currently does not support the IS keyword with the prepared statement " +
+                                        "setting turned ON. Please re-write your SQL query without the IS keyword or " +
+                                        "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab."
+                        )
+                );
+            }
+
             String finalQuery = QueryUtils.removeQueryComments(query);
 
             boolean isSelectOrShowQuery = getIsSelectOrShowQuery(finalQuery);
@@ -322,6 +342,12 @@ public class MySqlPlugin extends BasePlugin {
 
         }
 
+        private boolean isIsOperatorUsed(String query) {
+            String queryKeyWordsOnly = query.replaceAll(MATCH_QUOTED_WORDS_REGEX, "");
+            return Arrays.stream(queryKeyWordsOnly.split("\\s"))
+                    .anyMatch(word -> IS_KEY.equalsIgnoreCase(word.trim()));
+        }
+
         private Flux<Result> createAndExecuteQueryFromConnection(String query,
                                                                  Connection connection,
                                                                  Boolean preparedStatement,
@@ -381,6 +407,14 @@ public class MySqlPlugin extends BasePlugin {
                 } catch (UnsupportedOperationException e) {
                     // Do nothing. Move on
                 }
+            } else if (DataType.INTEGER.equals(valueType)) {
+                /**
+                 * - NumberFormatException is NOT expected here since stringToKnownDataTypeConverter uses parseInt
+                 * method to detect INTEGER type.
+                 */
+                connectionStatement.bind((index - 1), Integer.parseInt(value));
+            } else if (DataType.BOOLEAN.equals(valueType)) {
+                connectionStatement.bind((index - 1), Boolean.parseBoolean(value) == TRUE ? 1 : 0);
             } else {
                 connectionStatement.bind((index - 1), value);
             }
