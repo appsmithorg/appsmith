@@ -89,6 +89,7 @@ const StyledClose = styled(Icon)`
   top: 15px;
   right: 13px;
   opacity: 0;
+  cursor: pointer;
 `;
 
 type StatusProgressbarType = {
@@ -223,14 +224,16 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));
       }}
     >
-      <StyledClose
-        className="hover-icons"
-        color="#fff"
-        data-cy="statusbar-skip"
-        icon="cross"
-        iconSize={14}
-        onClick={endFirstTimeUserOnboarding}
-      />
+      {!isFirstTimeUserOnboardingComplete && (
+        <StyledClose
+          className="hover-icons"
+          color="#fff"
+          data-cy="statusbar-skip"
+          icon="cross"
+          iconSize={14}
+          onClick={endFirstTimeUserOnboarding}
+        />
+      )}
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
