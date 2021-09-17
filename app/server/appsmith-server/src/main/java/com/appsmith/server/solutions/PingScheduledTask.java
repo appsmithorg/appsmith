@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.services.ConfigService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.Map;
  * permissions to collect anonymized data
  */
 @Component
-@ConditionalOnExpression("!${is.cloud-hosted:false} && !${disable.telemetry:true}")
+@ConditionalOnExpression("!${is.cloud-hosted:false}")
 @Slf4j
 @RequiredArgsConstructor
 public class PingScheduledTask {
@@ -31,6 +32,8 @@ public class PingScheduledTask {
     private final ConfigService configService;
 
     private final SegmentConfig segmentConfig;
+
+    private final CommonConfig commonConfig;
 
     public static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
@@ -42,6 +45,10 @@ public class PingScheduledTask {
     // Number of milliseconds between the start of each scheduled calls to this method.
     @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 6 * 60 * 60 * 1000 /* six hours */)
     public void pingSchedule() {
+        if (commonConfig.isTelemetryDisabled()) {
+            return;
+        }
+
         Mono.zip(configService.getInstanceId(), getAddress())
                 .flatMap(tuple -> doPing(tuple.getT1(), tuple.getT2()))
                 .subscribeOn(Schedulers.single())

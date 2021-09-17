@@ -57,6 +57,8 @@ public class CommonConfig {
     @Value("${appsmith.admin.envfile:}")
     public String envFilePath;
 
+    @Value("${disable.telemetry:true}")
+    private boolean isTelemetryDisabled;
 
     private List<String> allowedDomains;
 

@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.configurations.GoogleRecaptchaConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -44,6 +45,7 @@ public class EnvManager {
     private final CommonConfig commonConfig;
     private final EmailConfig emailConfig;
     private final JavaMailSender javaMailSender;
+    private final GoogleRecaptchaConfig googleRecaptchaConfig;
 
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
@@ -204,6 +206,18 @@ public class EnvManager {
                         if (changesCopy.containsKey("APPSMITH_MAIL_PASSWORD")) {
                             javaMailSenderImpl.setPassword(changesCopy.remove("APPSMITH_MAIL_PASSWORD"));
                         }
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_RECAPTCHA_SITE_KEY")) {
+                        googleRecaptchaConfig.setSiteKey(changesCopy.remove("APPSMITH_RECAPTCHA_SITE_KEY"));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_RECAPTCHA_SECRET_KEY")) {
+                        googleRecaptchaConfig.setSecretKey(changesCopy.remove("APPSMITH_RECAPTCHA_SECRET_KEY"));
+                    }
+
+                    if (changesCopy.containsKey("APPSMITH_DISABLE_TELEMETRY")) {
+                        commonConfig.setTelemetryDisabled("true".equals(changesCopy.remove("APPSMITH_DISABLE_TELEMETRY")));
                     }
 
                     // If `changesCopy` is not empty here, then we need a restart.
