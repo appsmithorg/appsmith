@@ -18,6 +18,7 @@ const positionProps = [
   "renderMode",
   "detachFromLayout",
   "noContainerOffset",
+  "isCanvas",
 ];
 
 export const TOASTS = "toasts";

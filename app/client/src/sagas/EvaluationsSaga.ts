@@ -225,10 +225,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
-    const isPropertyUpdate =
-      replay.widgets &&
-      replay.propertyUpdates &&
-      Object.keys(replay.widgets).length <= 1;
+    const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
 
     AnalyticsUtil.logEvent(event, { paths, timeTaken });
 

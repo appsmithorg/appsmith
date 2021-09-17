@@ -41,6 +41,10 @@ export default function* undoRedoListenerSaga() {
  */
 export function* openPropertyPaneSaga(replay: any) {
   try {
+    if (Object.keys(replay.widgets).length > 1) {
+      yield put(selectWidgetAction(replay.widgets[0], false));
+    }
+
     const replayWidgetId = Object.keys(replay.widgets)[0];
 
     if (!replayWidgetId || !replay.widgets[replayWidgetId].propertyUpdates)
