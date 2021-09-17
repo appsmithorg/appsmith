@@ -5,6 +5,7 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isAction,
+  isJSAction,
   isWidget,
 } from "workers/evaluationUtils";
 import {
@@ -31,7 +32,6 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
-  PARSE_JS_FUNCTION_ERROR,
   VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
@@ -42,7 +42,6 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import TernServer from "utils/autocomplete/TernServer";
 import getFeatureFlags from "utils/featureFlags";
 import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
-import { JSCollection } from "entities/JSCollection";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -68,8 +67,8 @@ function logLatestEvalPropertyErrors(
       evaluatedPath,
     );
     const entity = dataTree[entityName];
-    if (isWidget(entity) || isAction(entity)) {
-      if (propertyPath in entity.logBlackList) {
+    if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
+      if (entity.logBlackList && propertyPath in entity.logBlackList) {
         continue;
       }
       let allEvalErrors: EvaluationError[] = get(
@@ -91,11 +90,15 @@ function logLatestEvalPropertyErrors(
       const evalWarnings: EvaluationError[] = [];
 
       for (const err of allEvalErrors) {
-        if (
-          err.severity === Severity.WARNING &&
-          !errorCodesToIgnoreInDebugger.includes(err.code || "")
-        ) {
-          evalWarnings.push(err);
+        if (err.severity === Severity.WARNING) {
+          if (
+            !isJSAction(entity) &&
+            !errorCodesToIgnoreInDebugger.includes(err.code || "")
+          ) {
+            evalWarnings.push(err);
+          } else {
+            evalWarnings.push(err);
+          }
         }
         if (err.severity === Severity.ERROR) {
           evalErrors.push(err);
@@ -106,7 +109,9 @@ function logLatestEvalPropertyErrors(
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
-        : ENTITY_TYPE.ACTION;
+        : isAction(entity)
+        ? ENTITY_TYPE.ACTION
+        : ENTITY_TYPE.JSACTION;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -170,40 +175,6 @@ function logLatestEvalPropertyErrors(
         }
       }
     }
-  }
-}
-
-/*
-  handling parsing js object errors as they are not part of eval errors and pushing to debugger
-*/
-export function* handleJSEditorErrors(errors: any, jsAction: JSCollection) {
-  const currentDebuggerErrors: Record<string, Log> = yield select(
-    getDebuggerErrors,
-  );
-  const updatedDebuggerErrors: Record<string, Log> = {
-    ...currentDebuggerErrors,
-  };
-  const debuggerKey = {
-    key: `${jsAction.id}`,
-    errors: errors,
-  };
-  if (errors && errors.length) {
-    errors.forEach((error: any) => {
-      AppsmithConsole.addError({
-        id: debuggerKey.key,
-        logType: LOG_TYPE.EVAL_ERROR,
-        text: createMessage(PARSE_JS_FUNCTION_ERROR, error.context.name),
-        messages: error.messages,
-        source: {
-          id: debuggerKey.key,
-          name: error.context.name,
-          type: ENTITY_TYPE.JSACTION,
-          propertyPath: debuggerKey.key,
-        },
-      });
-    });
-  } else if (debuggerKey.key in updatedDebuggerErrors) {
-    AppsmithConsole.deleteError(debuggerKey.key);
   }
 }
 
