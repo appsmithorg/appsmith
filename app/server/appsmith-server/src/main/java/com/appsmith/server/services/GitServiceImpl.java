@@ -26,6 +26,7 @@ import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -59,18 +60,13 @@ public class GitServiceImpl implements GitService {
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
     @Override
-    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, boolean isDefault, String defaultApplicationId) {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, Boolean isDefault, String defaultApplicationId) {
         if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
         }
         if(gitProfile.getAuthorEmail() == null || gitProfile.getAuthorEmail().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Email"));
         }
-
-        Mono<Application> defaultApplicationMono = getApplicationById(defaultApplicationId)
-            .filter(application -> application.getGitApplicationMetadata() != null
-                && application.getGitApplicationMetadata().getDefaultApplicationId().equals(defaultApplicationId))
-            .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DEFAULT_APPLICATION_ID)));
 
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
@@ -88,7 +84,7 @@ public class GitServiceImpl implements GitService {
 
                             if (gitProfile.equals(userGitProfile)) {
                                 return Mono.just(userData);
-                            } else if (userGitProfile == null || isDefault) {
+                            } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
                                 // Assign the default config
                                 userData.setDefaultGitProfile(gitProfile);
                             } else {
@@ -118,8 +114,8 @@ public class GitServiceImpl implements GitService {
                 .map(userData -> {
                     if (userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId) == null) {
                         throw new AppsmithException(
-                            AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
-                            " You can set up a git profile from the user profile section."
+                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find git author configuration for logged-in user." +
+                                " You can set up a git profile from the user profile section."
                         );
                     }
                     return userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId);
@@ -298,7 +294,7 @@ public class GitServiceImpl implements GitService {
         }
 
         return updateOrCreateGitProfileForCurrentUser(
-            gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), gitConnectDTO.getDefaultApplicationId())
+            gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
             .then(
                 getApplicationById(defaultApplicationId)
                     .flatMap(application -> {
@@ -332,19 +328,38 @@ public class GitServiceImpl implements GitService {
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", e.getMessage()));
                             } catch (IOException e) {
                                 log.error("Error while accessing the file system, {}", e.getMessage());
+                                if( e instanceof NotSupportedException) {
+                                    return Mono.error(new AppsmithException(
+                                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                                        e.getMessage()
+                                    ));
+                                }
                                 return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", e.getMessage()));
                             }
 
-                            gitApplicationMetadata.setDefaultApplicationId(application.getId());
-                            gitApplicationMetadata.setBranchName(defaultBranch);
-                            gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
-                            gitApplicationMetadata.setRepoName(repoName);
-                            Application application1 = new Application();
-                            application1.setGitApplicationMetadata(gitApplicationMetadata);
-                            return applicationService.update(defaultApplicationId, application1);
-                        }
-                    })
-            );
+                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                                gitApplicationMetadata.setBranchName(defaultBranch);
+                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                                gitApplicationMetadata.setRepoName(repoName);
+                                application.setGitApplicationMetadata(gitApplicationMetadata);
+                                return applicationService.save(application);
+                            }
+                        })
+                );
+    }
+
+    @Override
+    public Mono<GitApplicationMetadata> updateGitMetadata(String applicationId, GitApplicationMetadata gitMetadata){
+
+        // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
+        // @Encrypted annotation used for private SSH keys
+        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+            .flatMap(application -> {
+                application.setGitApplicationMetadata(gitMetadata);
+                return applicationService.save(application);
+            })
+            .flatMap(applicationService::setTransientFields)
+            .map(Application::getGitApplicationMetadata);
     }
 
     /**
