@@ -20,6 +20,7 @@ import { Plugin } from "api/PluginApi";
 import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -35,6 +36,7 @@ type ExplorerPageEntityProps = {
 
 export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   const params = useParams<ExplorerURLParams>();
+  const { deselectAll: deselectAllWidgets } = useWidgetSelection();
 
   const currentPageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;
@@ -43,6 +45,7 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
 
   const switchPage = useCallback(() => {
     if (!!params.applicationId) {
+      deselectAllWidgets();
       history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
     }
   }, [props.page.pageId, params.applicationId]);
