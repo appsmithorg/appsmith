@@ -27,7 +27,7 @@ import {
 } from "constants/messages";
 
 function* commitToGitRepoSaga(
-  action: ReduxAction<{ commitMessage: string; pushImmediately: boolean }>,
+  action: ReduxAction<{ commitMessage: string; doPush: boolean }>,
 ) {
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
