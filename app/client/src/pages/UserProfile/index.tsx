@@ -7,6 +7,8 @@ import { Icon } from "@blueprintjs/core";
 import { Link } from "react-router-dom";
 import General from "./General";
 import { Colors } from "constants/Colors";
+import getFeatureFlags from "utils/featureFlags";
+import GitConfig from "./GitConfig";
 
 const ProfileWrapper = styled.div`
   width: ${(props) => props.theme.pageContentWidth}px;
@@ -35,6 +37,15 @@ function UserProfile() {
       icon: "general",
     },
   ];
+
+  if (getFeatureFlags().GIT) {
+    tabs.push({
+      key: "gitConfig",
+      title: "Git user config",
+      panelComponent: <GitConfig />,
+      icon: "git-branch",
+    });
+  }
 
   return (
     <PageWrapper displayName={"Profile"}>
