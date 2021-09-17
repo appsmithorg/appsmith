@@ -25,16 +25,15 @@ export default {
       Number.isNaN(parseInt(props.triggeredRowIndex))
         ? -1
         : parseInt(props.triggeredRowIndex);
-    const filteredTableData =
-      props.filteredTableData || props.sanitizedTableData || [];
+    const tableData = props.sanitizedTableData || [];
     if (triggeredRowIndex === -1) {
-      const emptyRow = { ...filteredTableData[0] };
+      const emptyRow = { ...tableData[0] };
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
       return emptyRow;
     }
-    const triggeredRow = { ...filteredTableData[triggeredRowIndex] };
+    const triggeredRow = { ...tableData[triggeredRowIndex] };
     return triggeredRow;
   },
   //

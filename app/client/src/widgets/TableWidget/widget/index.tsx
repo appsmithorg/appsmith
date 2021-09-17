@@ -899,7 +899,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         responseData: rowData,
       });
-      this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
+      this.props.updateWidgetMetaProperty(
+        "triggeredRowIndex",
+        this.props.filteredTableData[rowIndex].__originalIndex__,
+      );
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
@@ -934,20 +937,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
       } else {
         selectedRowIndices.push(index);
-      }
-      this.props.updateWidgetMetaProperty(
-        "selectedRowIndices",
-        selectedRowIndices,
-        {
-          triggerPropertyName: "onRowSelected",
-          dynamicString: this.props.onRowSelected,
-          event: {
-            type: EventType.ON_ROW_SELECTED,
+        //trigger onRowSelected  on row selection
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+          {
+            triggerPropertyName: "onRowSelected",
+            dynamicString: this.props.onRowSelected,
+            event: {
+              type: EventType.ON_ROW_SELECTED,
+            },
           },
-        },
-      );
+        );
+      }
     } else {
       const selectedRowIndex = isNumber(this.props.selectedRowIndex)
         ? this.props.selectedRowIndex
