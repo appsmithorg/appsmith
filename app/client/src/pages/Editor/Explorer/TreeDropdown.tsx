@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { find, noop } from "lodash";
-import { DropdownOption } from "widgets/DropdownWidget";
+import { DropdownOption } from "components/constants";
 import {
   StyledPopover,
   StyledDropDownContainer,

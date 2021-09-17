@@ -1,4 +1,5 @@
 import { Collapse, Position } from "@blueprintjs/core";
+import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
@@ -12,7 +13,6 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { isString } from "lodash";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -249,7 +249,7 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <ContextualMenu error={e}>
+                  <ContextualMenu entityName={props.source?.name} error={e}>
                     <span className="debugger-message t--debugger-message">
                       {isString(e.message)
                         ? e.message

@@ -15,7 +15,6 @@ import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
 import { PROFILE } from "constants/routes";
 import UserApi from "api/UserApi";
-
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
