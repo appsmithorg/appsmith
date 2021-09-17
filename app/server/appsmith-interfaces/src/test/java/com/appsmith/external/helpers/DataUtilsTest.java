@@ -3,7 +3,7 @@ package com.appsmith.external.helpers;
 import com.appsmith.external.models.ConditionalOperator;
 import org.junit.Test;
 
-import static com.appsmith.external.helpers.DataUtils.compareInteger;
+import static com.appsmith.external.helpers.DataUtils.compareNumbers;
 import static org.junit.Assert.assertEquals;
 
 public class DataUtilsTest {
@@ -15,7 +15,7 @@ public class DataUtilsTest {
 
         ConditionalOperator op = ConditionalOperator.EQ;
 
-        Boolean aBoolean = compareInteger(source, destination, op);
+        Boolean aBoolean = compareNumbers(source, destination, op);
 
         assertEquals(aBoolean, Boolean.FALSE);
     }
@@ -27,7 +27,7 @@ public class DataUtilsTest {
 
         ConditionalOperator op = ConditionalOperator.IN;
 
-        Boolean aBoolean = compareInteger(source, destination, op);
+        Boolean aBoolean = compareNumbers(source, destination, op);
 
         assertEquals(aBoolean, Boolean.TRUE);
     }
@@ -39,8 +39,20 @@ public class DataUtilsTest {
 
         ConditionalOperator op = ConditionalOperator.NOT_IN;
 
-        Boolean aBoolean = compareInteger(source, destination, op);
+        Boolean aBoolean = compareNumbers(source, destination, op);
 
         assertEquals(aBoolean, Boolean.FALSE);
+    }
+
+    @Test
+    public void checkBooleanEqComparison() {
+        String source = "true";
+        String destination = "true";
+
+        ConditionalOperator op = ConditionalOperator.EQ;
+
+        Boolean aBoolean = compareNumbers(source, destination, op);
+
+        assertEquals(aBoolean, Boolean.TRUE);
     }
 }

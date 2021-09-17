@@ -1,21 +1,35 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.constants.DataType;
 import com.appsmith.external.models.ConditionalOperator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.castToDataType;
+import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
+import static com.appsmith.external.helpers.DataUtils.compareBooleans;
+import static com.appsmith.external.helpers.DataUtils.compareNumbers;
+import static com.appsmith.external.helpers.DataUtils.compareStrings;
+import static com.appsmith.external.helpers.InMemoryDataUtils.Condition.generateConditionList;
 
 @Slf4j
 public class InMemoryDataUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final Set NumberDataTypes = Set.of(DataType.INTEGER, DataType.FLOAT, DataType.DOUBLE, DataType.LONG, DataType.BINARY);
+    private static final Set StringDataTypes = Set.of(DataType.STRING, DataType.NULL);
 
     public static ArrayNode filter(ArrayNode items, List<Object> conditionList) {
 
@@ -27,15 +41,18 @@ public class InMemoryDataUtils {
             return items; // or throw an exception
         }
 
+        List<Condition> conditions = generateConditionList(conditionList);
+
         ArrayNode postFilteredList = objectMapper.createArrayNode();
 
         for (JsonNode item : items) {
-            Boolean passesCondition = Boolean.FALSE;
-            for(Object condition : conditionList) {
+            Boolean passesCondition = Boolean.TRUE;
+            for(Condition condition : conditions) {
 
-                String path = (String) ((Map<String, Object>) condition).get("path");
-                ConditionalOperator operatorString = (ConditionalOperator) ((Map<String, Object>) condition).get("operator");
-                Object value = castToDataType((String) ((Map<String, Object>) condition).get("value"));
+                String path = condition.getPath();
+                ConditionalOperator operator = condition.getOperator();
+                String value = condition.getValue();
+                DataType valueDataType = condition.getValueDataType();
 
                 JsonNode itemNode = item;
 
@@ -44,10 +61,22 @@ public class InMemoryDataUtils {
                     itemNode = itemNode.get(field);
                 }
 
-                Object itemValue = castToDataType(itemNode.asText());
+                String itemValue = itemNode.asText();
 
+                if (NumberDataTypes.contains(valueDataType)) {
+                    passesCondition = compareNumbers(itemValue, value, operator);
+                } else if (StringDataTypes.contains(valueDataType)) {
+                    passesCondition = compareStrings(itemValue, value, operator);
+                } else if (valueDataType.equals(DataType.BOOLEAN)) {
+                    passesCondition = compareBooleans(itemValue, value, operator);
+                }
+                // Other data types are unhandled. We would not filter on the basis of those conditions
+                // Either error out here or don't do filtering
+                // TODO !!
             }
-
+            if (passesCondition) {
+                postFilteredList.add(item);
+            }
         }
 
         return postFilteredList;
@@ -96,4 +125,30 @@ public class InMemoryDataUtils {
 //
 //        }
 //    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class Condition {
+        String path;
+        ConditionalOperator operator;
+        String value;
+        DataType valueDataType;
+
+        public static List<Condition> generateConditionList(List<Object> conditionList) {
+
+            List<Condition> conditions = new ArrayList<>();
+
+            for(Object condition : conditionList) {
+                String path = ((Map<String, String>) condition).get("path");
+                ConditionalOperator operator = ConditionalOperator.valueOf(((Map<String, String>) condition).get("operator"));
+                String value = ((Map<String, String>) condition).get("value");
+                DataType dataType = stringToKnownDataTypeConverter(value);
+
+                conditions.add(new Condition(path, operator, value, dataType));
+            }
+
+            return conditions;
+        }
+    }
 }

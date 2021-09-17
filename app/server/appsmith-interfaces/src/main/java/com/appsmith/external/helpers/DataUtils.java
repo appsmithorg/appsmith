@@ -8,92 +8,64 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 
-import java.util.concurrent.locks.Condition;
+import java.math.BigDecimal;
 
 @Slf4j
 public class DataUtils {
     private static JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
 
-    public static Boolean compareNumbers(Object source, Object destination, ConditionalOperator operator) {
-        Number sourceNumber = (Number) source;
-        Number destinationNumber = (Number) destination;
-
-        switch (operator) {
-            case LT:
-                return sourceNumber.compareTo(destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case LTE:
-                return sourceNumber <= destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case EQ:
-                return sourceNumber == destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case NOT_EQ:
-                return sourceNumber != destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case GT:
-                return sourceNumber > destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case GTE:
-                return sourceNumber >= destinationNumber ? Boolean.TRUE : Boolean.FALSE;
-            case ARRAY_CONTAINS:
-                // unsupported
-                break;
-            case IN:
-                return integerArrayContains(sourceNumber, destination);
-            case ARRAY_CONTAINS_ANY:
-                // unsupported
-                break;
-            case NOT_IN:
-                return !integerArrayContains(sourceNumber, destination);
-        }
-
-    }
-
-
-    public static Boolean compareInteger(String source, String destination, ConditionalOperator operator) {
-        Integer sourceInteger = null;
-        Integer destinationInteger = null;
-
+    public static Boolean compareNumbers(String source, String destination, ConditionalOperator operator) {
+        Number sourceNumber = new BigDecimal(source);
+        Integer compare = null;
         try {
-            sourceInteger  = Integer.valueOf(source);
-            destinationInteger = Integer.valueOf(destination);
+            Number destinationNumber = new BigDecimal(destination);
+
+            // Returns:
+            //-1, 0, or 1 as this BigDecimal is numerically less than, equal to, or greater than val.
+            compare = NumberComparator.compare(sourceNumber, destinationNumber);
         } catch (NumberFormatException e) {
-            // Do nothing because this may be caused by arrays being passed.
+            // In case the destination is an array, this exception is expected. Move on
         }
 
         switch (operator) {
             case LT:
-                return sourceInteger < destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare < 0 ? Boolean.TRUE : Boolean.FALSE;
             case LTE:
-                return sourceInteger <= destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare <= 0 ? Boolean.TRUE : Boolean.FALSE;
             case EQ:
-                return sourceInteger == destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare == 0 ? Boolean.TRUE : Boolean.FALSE;
             case NOT_EQ:
-                return sourceInteger != destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare != 0 ? Boolean.TRUE : Boolean.FALSE;
             case GT:
-                return sourceInteger > destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare > 0 ? Boolean.TRUE : Boolean.FALSE;
             case GTE:
-                return sourceInteger >= destinationInteger ? Boolean.TRUE : Boolean.FALSE;
+                return compare >= 0 ? Boolean.TRUE : Boolean.FALSE;
             case ARRAY_CONTAINS:
                 // unsupported
                 break;
             case IN:
-                return integerArrayContains(sourceInteger, destination);
+                return checkNumberArrayContains(sourceNumber, destination);
             case ARRAY_CONTAINS_ANY:
                 // unsupported
                 break;
             case NOT_IN:
-                return !integerArrayContains(sourceInteger, destination);
+                return !checkNumberArrayContains(sourceNumber, destination);
         }
 
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported operator. Could not compare");
+
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Could not perform comparison between " + source + ", " + destination + " with the operator " + operator.toString());
     }
 
-    private static Boolean integerArrayContains(Integer sourceInteger, String arrayString) {
+    private static Boolean checkNumberArrayContains(Number sourceInteger, String arrayString) {
         try {
             JSONArray jsonArray = (JSONArray) parser.parse(arrayString);
             Object[] array = jsonArray.toArray();
             Boolean found = false;
             for (Object element : array) {
-                Integer value = Integer.valueOf((String) element);
-                if (sourceInteger == value) {
+                Number value = new BigDecimal((String) element);
+                int compare = NumberComparator.compare(value, sourceInteger);
+                if (compare == 0) {
                     found = true;
                     break;
                 }
@@ -106,53 +78,47 @@ public class DataUtils {
         return Boolean.FALSE;
     }
 
-    public static Boolean compareFloat(String source, String destination, ConditionalOperator operator) {
-        Float sourceFloat = null;
-        Float destinationFloat = null;
+    public static Boolean compareStrings(String source, String destination, ConditionalOperator operator) {
 
-        try {
-            sourceFloat  = Float.valueOf(source);
-            destinationFloat = Float.valueOf(destination);
-        } catch (NumberFormatException e) {
-            // Do nothing because this may be caused by arrays being passed.
-        }
+        int compare = source.compareTo(destination);
 
         switch (operator) {
             case LT:
-                return sourceFloat < destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare < 0 ? Boolean.TRUE : Boolean.FALSE;
             case LTE:
-                return sourceFloat <= destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare <= 0 ? Boolean.TRUE : Boolean.FALSE;
             case EQ:
-                return sourceFloat == destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare == 0 ? Boolean.TRUE : Boolean.FALSE;
             case NOT_EQ:
-                return sourceFloat != destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare != 0 ? Boolean.TRUE : Boolean.FALSE;
             case GT:
-                return sourceFloat > destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare > 0 ? Boolean.TRUE : Boolean.FALSE;
             case GTE:
-                return sourceFloat >= destinationFloat ? Boolean.TRUE : Boolean.FALSE;
+                return compare >= 0 ? Boolean.TRUE : Boolean.FALSE;
             case ARRAY_CONTAINS:
                 // unsupported
                 break;
             case IN:
-                return floatArrayContains(sourceFloat, destination);
+                return checkStringArrayContains(source, destination);
             case ARRAY_CONTAINS_ANY:
                 // unsupported
                 break;
             case NOT_IN:
-                return !floatArrayContains(sourceFloat, destination);
+                return !checkStringArrayContains(source, destination);
         }
 
-        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Unsupported operator. Could not compare");
+        return Boolean.FALSE;
     }
 
-    private static Boolean floatArrayContains(Float sourceFloat, String arrayString) {
+    private static Boolean checkStringArrayContains(String source, String arrayString) {
         try {
             JSONArray jsonArray = (JSONArray) parser.parse(arrayString);
             Object[] array = jsonArray.toArray();
             Boolean found = false;
             for (Object element : array) {
-                Float value = Float.valueOf((String) element);
-                if (sourceFloat == value) {
+                String value = (String) element;
+                int compare = source.compareTo(value);
+                if (compare == 0) {
                     found = true;
                     break;
                 }
@@ -163,5 +129,37 @@ public class DataUtils {
         }
 
         return Boolean.FALSE;
+    }
+
+    public static Boolean compareBooleans(String source, String destination, ConditionalOperator operator) {
+        Boolean sourceBoolean = Boolean.parseBoolean(source);
+        Boolean destinationBoolean = Boolean.parseBoolean(destination);
+
+        switch (operator) {
+            case EQ:
+                return sourceBoolean.equals(destinationBoolean) ? Boolean.TRUE : Boolean.FALSE;
+            case NOT_EQ:
+                return sourceBoolean.equals(destinationBoolean) ? Boolean.TRUE : Boolean.FALSE;
+            case LT:
+            case LTE:
+            case GT:
+            case GTE:
+            case ARRAY_CONTAINS:
+            case IN:
+            case ARRAY_CONTAINS_ANY:
+            case NOT_IN:
+        }
+
+        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                "Unsupported Comparison for boolean values with operator " + operator);
+    }
+
+
+    static class NumberComparator {
+
+        public static int compare(Number a, Number b) {
+            return new BigDecimal(a.toString()).compareTo(new BigDecimal(b.toString()));
+        }
+
     }
 }
