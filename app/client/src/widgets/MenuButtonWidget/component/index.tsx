@@ -272,7 +272,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
 
