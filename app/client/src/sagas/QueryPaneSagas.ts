@@ -160,7 +160,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     pluginId,
     pluginType,
   } = actionPayload.payload;
-  if (pluginType === PluginType.DB) {
+  if (pluginType === PluginType.DB || pluginType === PluginType.REMOTE) {
     yield put(initialize(QUERY_EDITOR_FORM_NAME, actionPayload.payload));
     const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
@@ -183,7 +183,8 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
   // Only look at db plugins
-  if (plugin.type !== PluginType.DB) return;
+  if (plugin.type !== PluginType.DB || plugin.type !== PluginType.REMOTE)
+    return;
 
   const applicationId = yield select(getCurrentApplicationId);
   const pageId = yield select(getCurrentPageId);
