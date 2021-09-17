@@ -10,6 +10,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,9 +45,29 @@ public class EnvManager {
             "^(?<name>[A-Z0-9_]+)\\s*=\\s*\"?(?<value>.*?)\"?$"
     );
 
-    private static final Set<String> VARIABLE_BLACKLIST = Set.of(
-            "APPSMITH_ENCRYPTION_PASSWORD",
-            "APPSMITH_ENCRYPTION_SALT"
+    private static final Set<String> VARIABLE_WHITELIST = Set.of(
+            "APPSMITH_INSTANCE_NAME",
+            "APPSMITH_MONGODB_URI",
+            "APPSMITH_REDIS_URL",
+            "APPSMITH_MAIL_ENABLED",
+            "APPSMITH_MAIL_FROM",
+            "APPSMITH_REPLY_TO",
+            "APPSMITH_MAIL_HOST",
+            "APPSMITH_MAIL_PORT",
+            "APPSMITH_MAIL_USERNAME",
+            "APPSMITH_MAIL_PASSWORD",
+            "APPSMITH_MAIL_SMTP_TLS_ENABLED",
+            "APPSMITH_SIGNUP_DISABLED",
+            "APPSMITH_SIGNUP_ALLOWED_DOMAINS",
+            "APPSMITH_ADMIN_EMAILS",
+            "APPSMITH_RECAPTCHA_SITE_KEY",
+            "APPSMITH_RECAPTCHA_SECRET_KEY",
+            "APPSMITH_GOOGLE_MAPS_API_KEY",
+            "APPSMITH_DISABLE_TELEMETRY",
+            "APPSMITH_OAUTH2_GOOGLE_CLIENT_ID",
+            "APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET",
+            "APPSMITH_OAUTH2_GITHUB_CLIENT_ID",
+            "APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"
     );
 
     /**
@@ -57,13 +79,24 @@ public class EnvManager {
      * @return List of string lines for updated env file content.
      */
     public static List<String> transformEnvContent(String envContent, Map<String, String> changes) {
-        for (final String variable : VARIABLE_BLACKLIST) {
-            if (changes.containsKey(variable)) {
-                throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
-            }
+        final Set<String> variablesNotInWhitelist = new HashSet<>(changes.keySet());
+        variablesNotInWhitelist.removeAll(VARIABLE_WHITELIST);
+
+        if (!variablesNotInWhitelist.isEmpty()) {
+            throw new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS);
         }
 
-        return envContent.lines()
+        if (changes.containsKey("APPSMITH_MAIL_HOST")) {
+            changes.put("APPSMITH_MAIL_ENABLED", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_HOST"))));
+        }
+
+        if (changes.containsKey("APPSMITH_MAIL_USERNAME")) {
+            changes.put("APPSMITH_MAIL_SMTP_AUTH", Boolean.toString(StringUtils.isEmpty(changes.get("APPSMITH_MAIL_USERNAME"))));
+        }
+
+        final Set<String> remainingChangedNames = new HashSet<>(changes.keySet());
+
+        final List<String> outLines = envContent.lines()
                 .map(line -> {
                     final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
                     if (!matcher.matches()) {
@@ -73,11 +106,18 @@ public class EnvManager {
                     if (!changes.containsKey(name)) {
                         return line;
                     }
+                    remainingChangedNames.remove(name);
                     return line.substring(0, matcher.start("value"))
                                     + changes.get(name)
                                     + line.substring(matcher.end("value"));
                 })
                 .collect(Collectors.toList());
+
+        for (final String name : remainingChangedNames) {
+            outLines.add(name + "=" + changes.get(name));
+        }
+
+        return outLines;
     }
 
     public Mono<Void> applyChanges(Map<String, String> changes) {
@@ -114,7 +154,7 @@ public class EnvManager {
                     final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
                     if (matcher.matches()) {
                         final String name = matcher.group("name");
-                        if (!VARIABLE_BLACKLIST.contains(name)) {
+                        if (VARIABLE_WHITELIST.contains(name)) {
                             data.put(name, matcher.group("value"));
                         }
                     }
