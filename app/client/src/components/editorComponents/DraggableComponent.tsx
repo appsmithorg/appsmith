@@ -148,7 +148,9 @@ function DraggableComponent(props: DraggableComponentProps) {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
       if (!isCurrentWidgetFocused) return;
 
       if (!isCurrentWidgetSelected) {
