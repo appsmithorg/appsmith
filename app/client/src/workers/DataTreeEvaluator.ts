@@ -441,12 +441,16 @@ export default class DataTreeEvaluator {
           const isABindingPath =
             (isAction(entity) || isWidget(entity)) &&
             isPathADynamicBinding(entity, propertyPath);
+          const isATriggerPath =
+            isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
           let evalPropertyValue;
           const requiresEval =
-            isABindingPath && isDynamicValue(unEvalPropertyValue);
+            (isABindingPath || isATriggerPath) &&
+            isDynamicValue(unEvalPropertyValue);
           if (propertyPath) {
             _.set(currentTree, getEvalErrorPath(fullPropertyPath), []);
           }
+          debugger;
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -457,7 +461,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
-                false,
+                isATriggerPath,
                 undefined,
                 fullPropertyPath,
               );
@@ -633,13 +637,17 @@ export default class DataTreeEvaluator {
       entity,
     );
     if (returnTriggers) {
-      return this.evaluateDynamicBoundValue(
+      const { errors, result, triggers } = this.evaluateDynamicBoundValue(
         jsSnippets[0],
         data,
         resolvedFunctions,
         callBackData,
         returnTriggers,
       );
+      if (fullPropertyPath && errors.length) {
+        addErrorToEntityProperty(errors, data, fullPropertyPath);
+      }
+      return { triggers, errors, result };
     }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths

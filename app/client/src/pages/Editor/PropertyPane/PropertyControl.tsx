@@ -298,8 +298,8 @@ const PropertyControl = memo((props: Props) => {
         type: "Function",
         autocompleteDataType: AutocompleteDataType.FUNCTION,
       };
-      delete config.dataTreePath;
-      delete config.evaluatedValue;
+      // delete config.dataTreePath;
+      // delete config.evaluatedValue;
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
