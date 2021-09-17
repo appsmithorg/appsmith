@@ -62,7 +62,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
-      triggeredRow: undefined,
+      triggeredRowIndex: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
       sortOrder: {
@@ -75,6 +75,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
+      triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
@@ -454,17 +455,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       log.debug("Error parsing column values:", value);
     }
     return computedValues;
-  };
-
-  getEmptyRow = () => {
-    const columnKeys: string[] = getAllTableColumnKeys(
-      this.props.sanitizedTableData,
-    );
-    const selectedRow: { [key: string]: any } = {};
-    for (let i = 0; i < columnKeys.length; i++) {
-      selectedRow[columnKeys[i]] = "";
-    }
-    return selectedRow;
   };
 
   getDerivedColumns = (
@@ -909,7 +899,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         responseData: rowData,
       });
-      this.props.updateWidgetMetaProperty("triggeredRow", rowData);
+      this.props.updateWidgetMetaProperty("triggeredRowIndex", rowIndex);
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
@@ -950,6 +940,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
+        {
+          triggerPropertyName: "onRowSelected",
+          dynamicString: this.props.onRowSelected,
+          event: {
+            type: EventType.ON_ROW_SELECTED,
+          },
+        },
       );
     } else {
       const selectedRowIndex = isNumber(this.props.selectedRowIndex)

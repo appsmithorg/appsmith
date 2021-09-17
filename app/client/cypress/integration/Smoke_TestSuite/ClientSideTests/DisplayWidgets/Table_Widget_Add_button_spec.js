@@ -45,6 +45,9 @@ describe("Table Widget property pane feature validation", function() {
         expect(someText).to.equal("Successful tobias.funke@reqres.in");
       });
   });
+  it("Table widget triggeredRow property should be accessible", function() {
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+  });
   it("Table widget add new icon button column", function() {
     cy.openPropertyPane("tablewidget");
     // click on Add new Column.

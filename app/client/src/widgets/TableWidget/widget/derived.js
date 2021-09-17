@@ -19,6 +19,25 @@ export default {
     return selectedRow;
   },
   //
+  getTriggeredRow: (props, moment, _) => {
+    const triggeredRowIndex =
+      props.triggeredRowIndex === undefined ||
+      Number.isNaN(parseInt(props.triggeredRowIndex))
+        ? -1
+        : parseInt(props.triggeredRowIndex);
+    const filteredTableData =
+      props.filteredTableData || props.sanitizedTableData || [];
+    if (triggeredRowIndex === -1) {
+      const emptyRow = { ...filteredTableData[0] };
+      Object.keys(emptyRow).forEach((key) => {
+        emptyRow[key] = "";
+      });
+      return emptyRow;
+    }
+    const triggeredRow = { ...filteredTableData[triggeredRowIndex] };
+    return triggeredRow;
+  },
+  //
   getSelectedRows: (props, moment, _) => {
     const selectedRowIndices = Array.isArray(props.selectedRowIndices)
       ? props.selectedRowIndices

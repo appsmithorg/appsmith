@@ -70,6 +70,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
