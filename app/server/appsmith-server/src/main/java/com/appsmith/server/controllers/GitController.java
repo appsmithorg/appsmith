@@ -61,11 +61,12 @@ public class GitController {
     @GetMapping("/config/{defaultApplicationId}")
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String defaultApplicationId) {
         return service.getGitProfileForUser(defaultApplicationId)
-            .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+                .map(gitProfile -> new ResponseDTO<>(HttpStatus.OK.value(), gitProfile, null));
     }
 
     @PostMapping("/connect/{applicationId}")
-    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId, @RequestBody GitConnectDTO gitConnectDTO) {
+    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId,
+                                                                         @RequestBody GitConnectDTO gitConnectDTO) {
         return service.connectApplicationToGit(applicationId, gitConnectDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
@@ -75,14 +76,14 @@ public class GitController {
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO, @PathVariable String applicationId) {
         log.debug("Going to commit application {}", applicationId);
         return service.commitApplication(commitDTO, applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+            .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @GetMapping("/commit-history/{applicationId}")
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
         log.debug("Fetching commit-history for application {}", applicationId);
         return service.getCommitHistory(applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+            .map(logs -> new ResponseDTO<>(HttpStatus.CREATED.value(), logs, null));
     }
 
     @PostMapping("/push/{applicationId}")
@@ -90,7 +91,7 @@ public class GitController {
     public Mono<ResponseDTO<String>> push(@PathVariable String applicationId) {
         log.debug("Going to push application {}", applicationId);
         return service.pushApplication(applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+            .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @PostMapping("/create-branch/{srcApplicationId}")
@@ -99,6 +100,13 @@ public class GitController {
                                                        @PathVariable String srcApplicationId) {
         log.debug("Going to push application {}", srcApplicationId);
         return service.createBranch(srcApplicationId, branchDTO)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+    }
+
+    @GetMapping("/pull/{applicationId}/{branchName}")
+    public Mono<ResponseDTO<String>> pull(@PathVariable String applicationId, String branchName) {
+        log.debug("Going to pull the latest for branch");
+        return service.pullForApplication(applicationId, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

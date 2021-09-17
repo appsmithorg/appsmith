@@ -72,8 +72,7 @@ public class GitServiceImpl implements GitService {
                 && application.getGitApplicationMetadata().getDefaultApplicationId().equals(defaultApplicationId))
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DEFAULT_APPLICATION_ID)));
 
-        return defaultApplicationMono
-                .then(sessionUserService.getCurrentUser())
+        return sessionUserService.getCurrentUser()
                 .flatMap(user -> userService.findByEmail(user.getEmail()))
                 .flatMap(user -> userDataService
                         .getForUser(user.getId())
@@ -357,13 +356,12 @@ public class GitServiceImpl implements GitService {
      * @return repo name extracted from repo url
      */
     private String getRepoName(String remoteUrl) {
-        // Pattern to match all words in the text
         final Matcher matcher = Pattern.compile("([^/]*).git$").matcher(remoteUrl);
         if (matcher.find()) {
             return matcher.group(1);
         }
-        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! Can you " +
-            "please provide as per standard format => git@github.com:username/reponame.git");
+        throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Remote URL is incorrect! " +
+            "Please provide the one with standard format => git@github.com:username/reponame.git");
     }
 
     @Override
@@ -444,4 +442,35 @@ public class GitServiceImpl implements GitService {
             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)));
     }
 
+    /**
+     * We assume that the repo already exists via the connect or commit api
+     * @param applicationId application for which we want to pull remote changes and merge
+     * @param branchName remoteBranch from which the changes will be pulled and merged
+     * @return return the status of pull operation
+     */
+    @Override
+    public Mono<String> pullForApplication(String applicationId, String branchName) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+                    //TODO handle the condition for the non default branch as the file path varies
+                    try {
+                        return Mono.just(gitExecutor.pullApp(
+                                repoPath,
+                                gitApplicationMetadata.getRemoteUrl(),
+                                gitApplicationMetadata.getBranchName(),
+                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                gitApplicationMetadata.getGitAuth().getPublicKey()));
+                    } catch (IOException | GitAPIException e) {
+                        if (e.getMessage().contains("Nothing to fetch.")) {
+                            return Mono.just("Nothing to fetch from remote. All changes are upto date.");
+                        } else {
+                            throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
+                        }
+                    }
+                });
+    }
 }

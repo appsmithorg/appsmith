@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -350,14 +349,11 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         // this is a child application, update the master application
                         targetApplicationId = application.getGitApplicationMetadata().getDefaultApplicationId();
                     }
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(targetApplicationId);
-                    gitApplicationMetadata.setGitAuth(gitAuth);
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
-                    return application;
+                    return targetApplicationId;
                 })
-                .flatMap(targetApplication -> save(targetApplication)
-                        .thenReturn(gitAuth.getPublicKey())
+                .flatMap(targetApplicationId -> repository
+                    .setGitAuth(targetApplicationId, gitAuth, MANAGE_APPLICATIONS)
+                    .thenReturn(gitAuth.getPublicKey())
                 );
     }
 

@@ -71,4 +71,6 @@ public interface GitExecutor {
      * @return
      */
     String createWorktree(Path repoSuffix, String branchName) throws IOException, GitAPIException;
+
+    String pullApp(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
 }

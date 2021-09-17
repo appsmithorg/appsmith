@@ -32,4 +32,6 @@ public interface GitService {
     Mono<String> pushApplication(String applicationId);
 
     Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
+
+    Mono<String> pullForApplication(String applicationId, String branchName);
 }
