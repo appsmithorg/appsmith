@@ -485,6 +485,13 @@
             ]
           },
           "placeholderText": "{{\n  Table1.selectedRows.map((row) => {\n    return { ...row, columnName: Input1.text }\n  })\n}}"
+        },
+        {
+          "label": "Smart JSON Substitution Key",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].key",
+          "hidden": true,
+          "controlType": "INPUT_TEXT",
+          "initialValue": "smartSubstitution"
         }
       ]
     }
