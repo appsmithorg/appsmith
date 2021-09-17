@@ -5,6 +5,8 @@ appVersion: "1.16.0"
 name: appsmith
 type: application
 dependencies:
+  # This dependency is used to render common declaration (tplvalues.render, storage.class, labels.standard)
+  # in Deployment, PVC, Service, ServiceAccount and TLS-Secret template
   - name: common
     version: 0.3.1
     repository: https://charts.bitnami.com/bitnami
