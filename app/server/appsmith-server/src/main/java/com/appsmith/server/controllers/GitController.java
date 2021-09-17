@@ -12,6 +12,7 @@ import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -102,10 +103,10 @@ public class GitController {
                 .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
     }
 
-    @PutMapping("/connect/{applicationId}/updateRemote")
-    public Mono<ResponseDTO<String>> updateRemote(@PathVariable String applicationId, @RequestBody String remoteUrl) {
-        log.debug("Going to update the remoteUrl for application {}", applicationId, remoteUrl);
-        return service.updateRemote(applicationId, remoteUrl)
+    @PostMapping("/disconnect/{applicationId}")
+    public Mono<ResponseDTO<Application>> disconnectFromRemote(@PathVariable String applicationId) {
+        log.debug("Going to update the remoteUrl for application {}", applicationId);
+        return service.detachRemote(applicationId)
                 .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
     }
 

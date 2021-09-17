@@ -31,7 +31,7 @@ public interface GitService {
 
     Mono<String> pushApplication(String applicationId);
 
-    Mono<String> updateRemote(String applicationId, String remoteUrl);
+    Mono<Application> detachRemote(String applicationId);
 
     Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
 

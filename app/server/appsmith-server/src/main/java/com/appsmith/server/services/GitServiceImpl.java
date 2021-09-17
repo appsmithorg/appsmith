@@ -20,6 +20,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
+import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -413,17 +414,17 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
+    /*
+    * */
     @Override
-    public Mono<String> updateRemote(String applicationId, String remoteUrl) {
+    public Mono<Application> detachRemote(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     Application application1 = new Application();
-                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    gitApplicationMetadata.setRemoteUrl(remoteUrl);
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
                     application1.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.update(applicationId, application1);
-                })
-                .thenReturn(remoteUrl);
+                });
     }
 
     public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
