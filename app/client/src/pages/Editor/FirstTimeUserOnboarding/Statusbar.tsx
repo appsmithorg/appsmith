@@ -16,7 +16,10 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getInOnboardingWidgetSelection,
+} from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import history from "utils/history";
 import {
@@ -29,6 +32,7 @@ import {
   ONBOARDING_STATUS_STEPS_SIXTH,
   ONBOARDING_STATUS_GET_STARTED,
   createMessage,
+  ONBOARDING_STATUS_STEPS_THIRD_ALT,
 } from "constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
@@ -115,6 +119,9 @@ const useStatus = (): { percentage: number; content: string } => {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+  const inOnboardingWidgetSelection =
+    useSelector(getInOnboardingWidgetSelection) &&
+    Object.keys(widgets).length === 1;
 
   if (isFirstTimeUserOnboardingComplete) {
     return {
@@ -125,15 +132,18 @@ const useStatus = (): { percentage: number; content: string } => {
 
   let content = "";
   let percentage = 0;
-  if (!datasources.length && !actions.length) {
+  if (!datasources.length && !actions.length && !inOnboardingWidgetSelection) {
     content =
       Object.keys(widgets).length === 1
         ? createMessage(ONBOARDING_STATUS_STEPS_FIRST)
         : createMessage(ONBOARDING_STATUS_STEPS_FIRST_ALT);
-  } else if (!actions.length) {
+  } else if (!actions.length && !inOnboardingWidgetSelection) {
     content = createMessage(ONBOARDING_STATUS_STEPS_SECOND);
   } else if (Object.keys(widgets).length === 1) {
-    content = createMessage(ONBOARDING_STATUS_STEPS_THIRD);
+    content =
+      !datasources.length && !actions.length
+        ? createMessage(ONBOARDING_STATUS_STEPS_THIRD_ALT)
+        : createMessage(ONBOARDING_STATUS_STEPS_THIRD);
   } else if (!isConnectionPresent) {
     content = createMessage(ONBOARDING_STATUS_STEPS_FOURTH);
   } else if (!isDeployed) {

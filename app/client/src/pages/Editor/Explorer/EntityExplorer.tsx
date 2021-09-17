@@ -20,7 +20,7 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
@@ -64,6 +64,7 @@ function EntityExplorer(props: IPanelProps) {
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
   const jsActions = useJSCollections(searchKeyword);
+  const dispatch = useDispatch();
 
   let noResults = false;
   if (searchKeyword) {
