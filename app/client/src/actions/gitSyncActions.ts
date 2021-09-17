@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
-import { GitSyncModalTab } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -77,5 +77,24 @@ export const setIsImportAppViaGitModalOpen = (payload: {
   organizationId?: string;
 }) => ({
   type: ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN,
+  payload,
+});
+
+export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_GIT_CONFIG_INIT,
+  payload,
+});
+
+export const updateGlobalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const fetchGlobalGitConfigInit = () => ({
+  type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
+});
+
+export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS,
   payload,
 });

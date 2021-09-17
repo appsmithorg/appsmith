@@ -532,6 +532,9 @@ export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
+export const SUBMIT = () => "SUBMIT";
+export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
+  "Git user updated successfully";
 
 // Js Snippets
 export const SNIPPET_DESCRIPTION = () =>

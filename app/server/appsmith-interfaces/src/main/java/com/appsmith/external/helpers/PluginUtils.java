@@ -10,6 +10,17 @@ import java.util.stream.IntStream;
 
 public class PluginUtils {
 
+    /**
+     * - Regex to match everything inside double or single quotes, including the quotes.
+     * - e.g. Earth "revolves'" '"around"' "the" 'sun' will match:
+     * (1) "revolves'"
+     * (2) '"around"'
+     * (3) "the"
+     * (4) 'sun'
+     * - ref: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
+     */
+    public static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
+
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
         List<String> columnsList = IntStream
                 .range(1, metaData.getColumnCount()+1) // JDBC column indexes start from 1

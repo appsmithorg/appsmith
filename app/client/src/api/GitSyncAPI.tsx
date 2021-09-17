@@ -1,6 +1,7 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { GitConfig } from "entities/GitSync";
 
 export type CommitPayload = {
   applicationId: string;
@@ -36,6 +37,14 @@ class GitSyncAPI extends Api {
 
   static connect(payload: ConnectToGitPayload) {
     return Api.post(`${GitSyncAPI.baseURL}/connect/`, payload);
+  }
+
+  static getGlobalConfig() {
+    return Api.get(`${GitSyncAPI.baseURL}/config`);
+  }
+
+  static setGlobalConfig(payload: GitConfig) {
+    return Api.post(`${GitSyncAPI.baseURL}/config/save`, payload);
   }
 }
 
