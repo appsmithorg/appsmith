@@ -24,13 +24,15 @@ export const PropertyPaneSidebar = memo(() => {
   return (
     <div
       className={classNames({
-        "h-full p-0 overflow-y-auto bg-white t--property-pane-sidebar z-3 w-96 transform transition": true,
+        "bg-white flex h-full t--property-pane-sidebar z-3 transform transition duration-300": true,
         "relative ": !isPreviewMode,
         "fixed translate-x-full right-0": isPreviewMode,
       })}
       ref={sidebarRef}
     >
-      {isAnyWidgetSelected ? <WidgetPropertyPane /> : <CanvasPropertyPane />}
+      <div className="h-full p-0 overflow-y-auto w-72">
+        {isAnyWidgetSelected ? <WidgetPropertyPane /> : <CanvasPropertyPane />}
+      </div>
     </div>
   );
 });

@@ -406,7 +406,7 @@ function ToggleCommentModeButton({
                 source: "CLICK",
               });
               setCommentModeInUrl(false);
-              setPreviewMode(false);
+              dispatch(setPreviewMode(false));
             }}
             showSelectedMode={showSelectedMode}
             type="fill"

@@ -169,9 +169,9 @@ function WidgetsEditor() {
         >
           <div
             className={classNames({
-              "transform transition bg-gray-50": true,
-              "translate-y-0": isPreviewMode,
-              "-translate-y-full": !isPreviewMode,
+              "transform  bg-gray-50": true,
+              "translate-y-0 ease-in transition": isPreviewMode,
+              "-translate-y-full duration-0": !isPreviewMode,
             })}
           >
             <PageTabsContainer

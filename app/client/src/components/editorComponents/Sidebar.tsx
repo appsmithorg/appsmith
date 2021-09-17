@@ -16,6 +16,7 @@ import {
 } from "selectors/onboardingSelectors";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
 import { previewModeSelector } from "selectors/editorSelectors";
+import AppComments from "comments/AppComments/AppComments";
 
 type Props = {
   width: number;
@@ -95,7 +96,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        "transform transition flex h-full z-3": true,
+        "transform transition flex h-full z-3 duration-300": true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         fixed: !pinned || isPreviewMode,
@@ -117,10 +118,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
           }}
           showPanelHeader={false}
         />
+        <AppComments />
       </div>
       {/* RESIZER */}
       <div
-        className="w-2 h-full -mr-1 group z-4 cursor-ew-resize"
+        className="z-10 w-2 h-full -mr-1 group cursor-ew-resize"
         onMouseDown={resizer.onMouseDown}
         onTouchEnd={resizer.onMouseUp}
         onTouchStart={resizer.onTouchStart}

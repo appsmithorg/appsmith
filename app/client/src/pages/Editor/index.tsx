@@ -139,7 +139,6 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AppComments />
               <AddCommentTourComponent />
               <CommentShowCaseCarousel />
               <GitSyncModal />
