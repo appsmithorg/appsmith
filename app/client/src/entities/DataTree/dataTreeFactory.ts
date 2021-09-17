@@ -87,6 +87,7 @@ export interface DataTreeAppsmith extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
 }
+
 export type DataTreeObjectEntity =
   | DataTreeAction
   | DataTreeJSAction

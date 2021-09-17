@@ -98,9 +98,9 @@ const DynamicTextFieldWithDropdownWrapper = styled.div`
   position: relative;
   top: 1px;
   border-bottom: solid 1px ${Colors.MERCURY};
-  overflow: hidden;
-  ${EditorWrapper} * {
-    border-bottom: none;
+  &&& ${EditorWrapper} {
+    position: relative;
+    top: -1px;
   }
 `;
 
