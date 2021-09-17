@@ -30,7 +30,7 @@ export default function GitConfig() {
   const dispatch = useDispatch();
   const globalGitConfig = useSelector(getGlobalGitConfig);
 
-  const [isFormDirty, setIsFormDirty] = useState(false);
+  const [areFormValuesUpdated, setAreFormValuesUpdated] = useState(false);
 
   const [authorName, setAuthorNameInState] = useState(
     globalGitConfig.authorName,
@@ -41,16 +41,16 @@ export default function GitConfig() {
 
   const setAuthorName = (value: string) => {
     setAuthorNameInState(value);
-    if (authorName) setIsFormDirty(true);
+    if (authorName) setAreFormValuesUpdated(true);
   };
 
   const setAuthorEmail = (value: string) => {
     setAuthorEmailInState(value);
-    if (authorEmail) setIsFormDirty(true);
+    if (authorEmail) setAreFormValuesUpdated(true);
   };
 
   const isFetching = useSelector(getIsFetchingGlobalGitConfig);
-  const isSubmitDisabled = !authorName || !authorEmail || !isFormDirty;
+  const isSubmitDisabled = !authorName || !authorEmail || !areFormValuesUpdated;
 
   useEffect(() => {
     setAuthorName(globalGitConfig.authorName);
@@ -58,7 +58,7 @@ export default function GitConfig() {
   }, [globalGitConfig]);
 
   const updateConfig = () => {
-    setIsFormDirty(false);
+    setAreFormValuesUpdated(false);
     dispatch(updateGlobalGitConfigInit({ authorName, authorEmail }));
   };
 
