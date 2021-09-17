@@ -34,12 +34,20 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
 
+const DROPDOWN_CLASSNAME = "setup-dropdown";
 const DropdownWrapper = styled(StyledFormGroup)`
   && {
     margin-bottom: 33px;
   }
   && .cs-text {
     width: 100%;
+  }
+
+  .${DROPDOWN_CLASSNAME} {
+    .ads-dropdown-options-wrapper {
+      padding: 0;
+      border: 1px solid rgba(0, 0, 0, 8%);
+    }
   }
 `;
 
@@ -61,6 +69,8 @@ function withDropdown(options: OptionType[]) {
 
     return (
       <Dropdown
+        className={DROPDOWN_CLASSNAME}
+        dontUsePortal
         onSelect={onSelect}
         options={options}
         selected={selected}
