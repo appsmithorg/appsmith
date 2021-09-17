@@ -14,8 +14,9 @@ export const logoutUser = (payload?: { redirectURL: string }) => ({
   payload,
 });
 
-export const logoutUserSuccess = () => ({
+export const logoutUserSuccess = (isEmptyInstance: boolean) => ({
   type: ReduxActionTypes.LOGOUT_USER_SUCCESS,
+  payload: isEmptyInstance,
 });
 
 export const logoutUserError = (error: any) => ({

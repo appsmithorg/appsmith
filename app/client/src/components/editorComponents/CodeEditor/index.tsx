@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -285,7 +285,7 @@ class CodeEditor extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
         if (!!inputValue || inputValue === "") {
-          if (inputValue !== editorValue) {
+          if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
           }
         }

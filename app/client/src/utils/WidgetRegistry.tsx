@@ -89,10 +89,11 @@ import StatboxWidget, {
 } from "widgets/StatboxWidget";
 import FilePickerWidgetV2, {
   CONFIG as FILEPICKER_WIDGET_V2_CONFIG,
-} from "widgets/FilePickerWidgetV2Widget";
+} from "widgets/FilePickerWidgetV2";
 import AudioWidget, {
   CONFIG as AUDIO_WIDGET_CONFIG,
 } from "widgets/AudioWidget";
+
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
