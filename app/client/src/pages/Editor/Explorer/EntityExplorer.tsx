@@ -24,7 +24,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
