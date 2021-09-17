@@ -48,6 +48,14 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget triggeredRow property should be accessible", function() {
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
   });
+  it("Table widget triggeredRow property should be same even after sorting the table", function() {
+    //sort table date on second column
+    cy.get(".draggable-header ")
+      .first()
+      .click({ force: true });
+    cy.wait(1000);
+    cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
+  });
   it("Table widget add new icon button column", function() {
     cy.openPropertyPane("tablewidget");
     // click on Add new Column.
