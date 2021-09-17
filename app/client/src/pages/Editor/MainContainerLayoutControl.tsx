@@ -89,7 +89,7 @@ export function MainContainerLayoutControl() {
 
   // eslint-disable-next-line
   return (
-    <div className="t--layout-control-wrapper px-3 space-y-1">
+    <div className="px-3 space-y-1 t--layout-control-wrapper">
       <p className="text-sm text-gray-700">Canvas Size</p>
       <div className="flex justify-around">
         {AppsmithLayouts.map((layoutOption: any) => {
