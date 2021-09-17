@@ -311,7 +311,7 @@ public class GitServiceImpl implements GitService {
                                 Path repoPath =
                                     Paths.get(application.getOrganizationId(), defaultApplicationId, repoName);
 
-                                defaultBranch = gitExecutor.cloneApp(
+                                defaultBranch = gitExecutor.connectApplication(
                                         repoPath,
                                         gitConnectDTO.getRemoteUrl(),
                                         gitApplicationMetadata.getGitAuth().getPrivateKey(),
@@ -334,7 +334,7 @@ public class GitServiceImpl implements GitService {
                                         e.getMessage()
                                     ));
                                 }
-                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "clone", e.getMessage()));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "remote connect", e.getMessage()));
                             }
 
                                 gitApplicationMetadata.setDefaultApplicationId(application.getId());
@@ -418,6 +418,19 @@ public class GitServiceImpl implements GitService {
                     } catch (IOException | GitAPIException | URISyntaxException e) {
                         throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", e.getMessage());
                     }
+                });
+    }
+
+    /*
+    * */
+    @Override
+    public Mono<Application> detachRemote(String applicationId) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    Application application1 = new Application();
+                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    application1.setGitApplicationMetadata(gitApplicationMetadata);
+                    return applicationService.update(applicationId, application1);
                 });
     }
 

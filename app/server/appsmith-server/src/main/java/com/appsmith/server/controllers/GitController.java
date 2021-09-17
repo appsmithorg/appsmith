@@ -103,6 +103,13 @@ public class GitController {
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
+    @PostMapping("/disconnect/{applicationId}")
+    public Mono<ResponseDTO<Application>> disconnectFromRemote(@PathVariable String applicationId) {
+        log.debug("Going to update the remoteUrl for application {}", applicationId);
+        return service.detachRemote(applicationId)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
     @GetMapping("/pull/{applicationId}/{branchName}")
     public Mono<ResponseDTO<String>> pull(@PathVariable String applicationId, String branchName) {
         log.debug("Going to pull the latest for branch");
