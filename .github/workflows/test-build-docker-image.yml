@@ -10,6 +10,7 @@ on:
     paths:
       - "app/client/**"
       - "app/server/**"
+      - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
   # trigger for pushes to release and master
@@ -18,6 +19,7 @@ on:
     paths:
       - "app/client/**"
       - "app/server/**"
+      - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
