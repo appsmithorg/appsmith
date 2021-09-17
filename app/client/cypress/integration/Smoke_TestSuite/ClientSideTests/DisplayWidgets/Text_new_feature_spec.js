@@ -127,8 +127,6 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.closePropertyPane();
   });
   it("Test border width, color and verity", function() {
-    cy.openPropertyPane("textwidget");
-
     cy.testJsontext("borderwidth", "10");
     cy.get(
       `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}'] div`,
