@@ -80,12 +80,27 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
+import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
 import {
+  BUILDER_PAGE_URL,
   extractAppIdAndPageIdFromUrl,
   SIGNUP_SUCCESS_URL,
 } from "constants/routes";
+import {
+  createMessage,
+  CREATE_NEW_APPLICATION,
+  DOCUMENTATION,
+  GETTING_STARTED,
+  ORGANIZATIONS_HEADING,
+  SEARCH_APPS,
+  WELCOME_TOUR,
+  NO_APPS_FOUND,
+} from "constants/messages";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
+import history from "utils/history";
+import getFeatureFlags from "utils/featureFlags";
+import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -408,7 +423,7 @@ function LeftPane() {
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
-        heading="ORGANIZATIONS"
+        heading={createMessage(ORGANIZATIONS_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
@@ -442,7 +457,7 @@ function LeftPane() {
           <div style={{ marginTop: 12 }}>
             <Item
               isFetchingApplications={isFetchingApplications}
-              label={"GETTING STARTED"}
+              label={createMessage(GETTING_STARTED)}
               textType={TextType.H6}
             />
           </div>
@@ -454,7 +469,7 @@ function LeftPane() {
             onSelect={() => {
               window.open("https://docs.appsmith.com/", "_blank");
             }}
-            text={"Documentation"}
+            text={createMessage(DOCUMENTATION)}
           />
           <MenuItem
             containerClassName={
@@ -468,7 +483,7 @@ function LeftPane() {
 
               initiateOnboarding();
             }}
-            text={"Welcome Tour"}
+            text={createMessage(WELCOME_TOUR)}
           />
         </WorkpsacesNavigator>
       </LeftPaneSection>
@@ -633,7 +648,7 @@ function ApplicationsSection(props: any) {
     organizationsListComponent = (
       <CenteredWrapper style={{ flexDirection: "column", marginTop: "-150px" }}>
         <CreateNewLabel type={TextType.H4}>
-          Whale! Whale! this name doesn&apos;t ring a bell!
+          {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
         <NoSearchResultImg alt="No result found" src={NoSearchImage} />
       </CenteredWrapper>
@@ -710,6 +725,21 @@ function ApplicationsSection(props: any) {
                             )
                           }
                           text="Import Application"
+                        />
+                      )}
+                      {getFeatureFlags().GIT && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app-git"
+                          icon="upload"
+                          onSelect={() =>
+                            dispatch(
+                              setIsImportAppViaGitModalOpen({
+                                isOpen: true,
+                                organizationId: organization.id,
+                              }),
+                            )
+                          }
+                          text="Import Via GIT"
                         />
                       )}
                       <MenuItem
@@ -843,7 +873,7 @@ function ApplicationsSection(props: any) {
                             className="createnew"
                             type={TextType.H4}
                           >
-                            Create New
+                            {createMessage(CREATE_NEW_APPLICATION)}
                           </CreateNewLabel>
                         </>
                       )}
@@ -877,6 +907,7 @@ function ApplicationsSection(props: any) {
       {organizationsListComponent}
       <HelpModal page={"Applications"} />
       <WelcomeHelper />
+      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }
@@ -940,14 +971,7 @@ class Applications extends Component<
           );
           if (applicationId && pageId) {
             this.props.enableFirstTimeUserOnboarding(applicationId);
-            /*
-             * window.location.replace resets the application, adding
-             * this timeout to store onboarding variables in indexdb
-             */
-
-            setTimeout(() => {
-              window.location.replace(redirectUrl);
-            });
+            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
           }
         } else if (getIsSafeRedirectURL(redirectUrl)) {
           window.location.replace(redirectUrl);
@@ -965,7 +989,7 @@ class Applications extends Component<
         <LeftPane />
         <SubHeader
           search={{
-            placeholder: "Search for apps...",
+            placeholder: createMessage(SEARCH_APPS),
             queryFn: this.props.searchApplications,
             defaultValue: this.props.searchKeyword,
           }}
