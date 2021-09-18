@@ -254,7 +254,7 @@ public class GitServiceImpl implements GitService {
 
         return getApplicationById(applicationId)
                 .map(application -> {
-                    if (application.getGitApplicationMetadata() == null
+                    if (isInValidGitApplicationMetadata(application.getGitApplicationMetadata())
                             || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
 
                         throw new AppsmithException(
@@ -303,10 +303,7 @@ public class GitServiceImpl implements GitService {
                 .then(getApplicationById(defaultApplicationId)
                         .flatMap(application -> {
                             GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                            if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
-                                    || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
-                                    || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
-                                    || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
+                            if (isInValidGitApplicationMetadata(gitApplicationMetadata)) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                                         "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
@@ -439,14 +436,21 @@ public class GitServiceImpl implements GitService {
                 });
     }
 
-    /*
-    * */
+    /**
+     * Disconnect from the git repo. This method will remove all the git metadata for the application
+     * TODO Remove the files from the machine, since these files are stale
+     * @param applicationId
+     * @return Application data
+     */
     @Override
     public Mono<Application> detachRemote(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     Application application1 = new Application();
                     GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    if(isInValidGitApplicationMetadata(gitApplicationMetadata)) {
+                        return Mono.just(application1);
+                    }
                     application1.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.update(applicationId, application1);
                 });
@@ -513,6 +517,10 @@ public class GitServiceImpl implements GitService {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInValidGitApplicationMetadata(gitApplicationMetadata)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
+                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    }
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
                             gitApplicationMetadata.getRepoName());
@@ -532,5 +540,15 @@ public class GitServiceImpl implements GitService {
                         }
                     }
                 });
+    }
+
+    private boolean  isInValidGitApplicationMetadata(GitApplicationMetadata gitApplicationMetadata) {
+        if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
+                || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
+                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
+            return true;
+        }
+        return false;
     }
 }
