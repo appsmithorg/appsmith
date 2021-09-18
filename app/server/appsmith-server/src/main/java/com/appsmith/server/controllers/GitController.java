@@ -79,14 +79,14 @@ public class GitController {
     public Mono<ResponseDTO<String>> commit(@RequestBody GitCommitDTO commitDTO, @PathVariable String applicationId) {
         log.debug("Going to commit application {}", applicationId);
         return service.commitApplication(commitDTO, applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @GetMapping("/commit-history/{applicationId}")
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
         log.debug("Fetching commit-history for application {}", applicationId);
         return service.getCommitHistory(applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+                .map(logs -> new ResponseDTO<>(HttpStatus.CREATED.value(), logs, null));
     }
 
     @PostMapping("/push/{applicationId}")
@@ -94,7 +94,7 @@ public class GitController {
     public Mono<ResponseDTO<String>> push(@PathVariable String applicationId) {
         log.debug("Going to push application {}", applicationId);
         return service.pushApplication(applicationId)
-            .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @PostMapping("/create-branch/{srcApplicationId}")
@@ -103,20 +103,20 @@ public class GitController {
                                                        @PathVariable String srcApplicationId) {
         log.debug("Going to push application {}", srcApplicationId);
         return service.createBranch(srcApplicationId, branchDTO)
-                .map(success -> new ResponseDTO<>(HttpStatus.CREATED.value(), success, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @PostMapping("/disconnect/{applicationId}")
     public Mono<ResponseDTO<Application>> disconnectFromRemote(@PathVariable String applicationId) {
         log.debug("Going to update the remoteUrl for application {}", applicationId);
         return service.detachRemote(applicationId)
-                .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
     @GetMapping("/pull/{applicationId}/{branchName}")
     public Mono<ResponseDTO<String>> pull(@PathVariable String applicationId, String branchName) {
         log.debug("Going to pull the latest for branch");
         return service.pullForApplication(applicationId, branchName)
-                .map(sucess -> new ResponseDTO<>(HttpStatus.OK.value(), sucess, null));
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

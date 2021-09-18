@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -175,13 +176,13 @@ public class ApplicationController extends BaseController<ApplicationService, Ap
     }
 
     @PostMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<String>> generateSSHKeyPair(@PathVariable String applicationId) {
-        return service.generateSshKeyPair(applicationId)
+    public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(@PathVariable String applicationId) {
+        return service.createOrUpdateSshKeyPair(applicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @GetMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<String>> getSSHKey(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<GitAuth>> getSSHKey(@PathVariable String applicationId) {
         return service.getSshKey(applicationId)
             .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }

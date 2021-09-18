@@ -85,15 +85,17 @@ public class GitServiceImpl implements GitService {
 
                             if (gitProfile.equals(userGitProfile)) {
                                 return Mono.just(userData);
-                            } else if (userGitProfile == null || isDefault) {
+                            } else if (userGitProfile == null || Boolean.TRUE.equals(isDefault) || StringUtils.isEmptyOrNull(defaultApplicationId)) {
                                 // Assign the default config
                                 userData.setDefaultGitProfile(gitProfile);
                             } else {
                                 userData.getGitProfiles().put(defaultApplicationId, gitProfile);
                             }
+                            UserData requiredUpdates = new UserData();
+                            requiredUpdates.setGitProfiles(userData.getGitProfiles());
                             return userDataService.updateForUser(user, userData);
                         })
-                        .map(userData -> userData.getGitProfiles())
+                        .map(UserData::getGitProfiles)
                 );
     }
 
@@ -125,8 +127,6 @@ public class GitServiceImpl implements GitService {
     public Mono<String> commitApplication(String applicationId) {
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE);
-        commitDTO.setDoPush(true);
-        commitDTO.setCommitHeader(DEFAULT_COMMIT_MESSAGE);
         return commitApplication(commitDTO, applicationId);
     }
 
