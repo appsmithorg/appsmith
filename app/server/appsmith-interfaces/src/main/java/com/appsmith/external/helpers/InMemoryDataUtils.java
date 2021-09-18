@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.castToDataType;
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static com.appsmith.external.helpers.DataUtils.compareBooleans;
 import static com.appsmith.external.helpers.DataUtils.compareNumbers;
@@ -47,7 +46,7 @@ public class InMemoryDataUtils {
 
         for (JsonNode item : items) {
             Boolean passesCondition = Boolean.TRUE;
-            for(Condition condition : conditions) {
+            for (Condition condition : conditions) {
 
                 String path = condition.getPath();
                 ConditionalOperator operator = condition.getOperator();
@@ -89,7 +88,7 @@ public class InMemoryDataUtils {
     }
 
     public static boolean validConditionList(List<Object> conditionList) {
-        for(Object condition : conditionList) {
+        for (Object condition : conditionList) {
             String path = ((Map<String, String>) condition).get("path");
             String operatorString = ((Map<String, String>) condition).get("operator");
             String value = ((Map<String, String>) condition).get("value");
@@ -101,35 +100,6 @@ public class InMemoryDataUtils {
 
         return true;
     }
-
-//    private static Boolean passesCondition (Object sourceValue, Object destinationValue, ConditionalOperator operator) {
-//        switch (operator) {
-//            case LT:
-//                return sourceValue < destinationValue ? Boolean.TRUE : Boolean.FALSE;
-//                break;
-//            case LTE:
-//                break;
-//            case EQ:
-//                break;
-//            case NOT_EQ:
-//                break;
-//            case GT:
-//                break;
-//            case GTE:
-//                break;
-//            case ARRAY_CONTAINS:
-//                // unsupported
-//                break;
-//            case IN:
-//                break;
-//            case ARRAY_CONTAINS_ANY:
-//                // unsupported
-//                break;
-//            case NOT_IN:
-//                break;
-//
-//        }
-//    }
 
     @Getter
     @Setter
@@ -144,7 +114,7 @@ public class InMemoryDataUtils {
 
             List<Condition> conditions = new ArrayList<>();
 
-            for(Object condition : conditionList) {
+            for (Object condition : conditionList) {
                 String path = ((Map<String, String>) condition).get("path");
                 ConditionalOperator operator = ConditionalOperator.valueOf(((Map<String, String>) condition).get("operator"));
                 String value = ((Map<String, String>) condition).get("value");
