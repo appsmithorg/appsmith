@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -226,22 +227,29 @@ public class GitExecutorImpl implements GitExecutor {
                           String remoteUrl,
                           String branchName,
                           String privateKey,
-                          String publicKey) throws GitAPIException, IOException {
+                          String publicKey) throws IOException {
 
-        //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
-        //TODO Show number of commits fetched or Already upto date
         Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
-        MergeResult mergeResult = git.pull()
-                .setRemoteBranchName(branchName)
-                .setTransportConfigCallback(transportConfigCallback)
-                .call()
-                .getMergeResult();
-        if (mergeResult.getMergeStatus().isSuccessful()) {
-            return mergeResult.getMergeStatus().name();
+        try {
+            Long count = Arrays.stream(git
+                    .pull()
+                    .setRemoteBranchName(branchName)
+                    .setTransportConfigCallback(transportConfigCallback)
+                    .call()
+                    .getMergeResult()
+                    .getMergedCommits())
+                    .count();
+            git.close();
+            if (count > 0) {
+                return count + "commits merged from origin/" + branchName;
+            }
+            return "Your branch is updated with latest commits";
+        } catch (GitAPIException e) {
+            //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
+            log.error("Git merge from remote branch failed, {}", e.getMessage());
+            return e.getMessage();
         }
-        log.error("Git merge from remote branch failed, {}", branchName, mergeResult.getMergeStatus());
-        return "Merge from remote failed";
     }
 
     @Override
