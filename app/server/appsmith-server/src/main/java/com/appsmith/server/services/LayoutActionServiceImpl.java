@@ -635,6 +635,20 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                 });
     }
 
+    /**
+     * - Delete action.
+     * - Update page layout since a deleted action cannot be marked as on page load.
+     */
+    public Mono<ActionDTO> deleteUnpublishedAction(String id) {
+        return newActionService.deleteUnpublishedAction(id)
+                .flatMap(actionDTO -> Mono.zip(Mono.just(actionDTO),
+                        updatePageLayoutsGivenAction(actionDTO.getPageId())))
+                .flatMap(tuple -> {
+                    ActionDTO actionDTO = tuple.getT1();
+                    return Mono.just(actionDTO);
+                });
+    }
+
     private Mono<String> updatePageLayoutsGivenAction(String pageId) {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page

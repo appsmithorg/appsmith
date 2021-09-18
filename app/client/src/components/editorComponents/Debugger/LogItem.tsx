@@ -1,4 +1,5 @@
 import { Collapse, Position } from "@blueprintjs/core";
+import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
@@ -248,9 +249,11 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <ContextualMenu error={e}>
+                  <ContextualMenu entityName={props.source?.name} error={e}>
                     <span className="debugger-message t--debugger-message">
-                      {e.message}
+                      {isString(e.message)
+                        ? e.message
+                        : JSON.stringify(e.message)}
                     </span>
                   </ContextualMenu>
                 </MessageWrapper>

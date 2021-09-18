@@ -607,6 +607,8 @@ public class ImportExportApplicationServiceTests {
                 assertThat(application.getPages()).hasSize(2);
                 assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                 assertThat(application.getPublishedPages()).hasSize(1);
+                assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                assertThat(application.getUpdatedAt()).isNotNull();
 
                 assertThat(datasourceList).isNotEmpty();
                 datasourceList.forEach(datasource -> {

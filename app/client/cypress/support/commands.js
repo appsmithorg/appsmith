@@ -1805,6 +1805,14 @@ Cypress.Commands.add("dropdownMultiSelectDynamic", (text) => {
     .click({ force: true })
     .should("have.text", text);
 });
+Cypress.Commands.add("treeSelectDropdown", (text) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(".tree-select-dropdown")
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
 
 Cypress.Commands.add("dropdownDynamicUpdated", (text) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -2491,6 +2499,8 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
 Cypress.Commands.add("deleteWidget", (widget) => {
   // Delete the button widget
   cy.get(widgetsPage.removeWidget).click({ force: true });
+  cy.wait(5000);
+  cy.wait("@updateLayout");
   cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 

@@ -1,6 +1,5 @@
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
@@ -45,7 +44,6 @@ import formEvaluationChangeListener from "./FormEvaluationSaga";
 const sagas = [
   initSagas,
   pageSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
   watchJSActionSagas,
   watchActionExecutionSagas,

@@ -1,5 +1,5 @@
 import React from "react";
-import { DropdownOption } from "widgets/DropdownWidget";
+
 import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
@@ -10,6 +10,7 @@ import { InputText } from "components/propertyControls/InputTextControl";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import HightlightedCode from "components/editorComponents/HighlightedCode";
 import { Skin } from "constants/DefaultTheme";
+import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 

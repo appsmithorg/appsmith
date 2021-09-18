@@ -4,7 +4,7 @@ import {
   DataTreeWidget,
   ENTITY_TYPE,
 } from "entities/DataTree/dataTreeFactory";
-import { RenderModes, WidgetTypes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluate", () => {
   const widget: DataTreeWidget = {
@@ -16,7 +16,7 @@ describe("evaluate", () => {
     renderMode: RenderModes.CANVAS,
     rightColumn: 0,
     topRow: 0,
-    type: WidgetTypes.INPUT_WIDGET,
+    type: "INPUT_WIDGET",
     version: 0,
     widgetId: "",
     widgetName: "",
@@ -47,10 +47,12 @@ describe("evaluate", () => {
       triggers: [],
       errors: [
         {
+          ch: 1,
           code: "W117",
           errorMessage: "'wrongJS' is not defined.",
           errorSegment: "    const result = wrongJS",
           errorType: "LINT",
+          line: 0,
           raw: `
   function closedFunction () {
     const result = wrongJS
@@ -58,7 +60,7 @@ describe("evaluate", () => {
   }
   closedFunction()
   `,
-          severity: "warning",
+          severity: "error",
           originalBinding: "wrongJS",
           variables: ["wrongJS", undefined, undefined, undefined],
         },

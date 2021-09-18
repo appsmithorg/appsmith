@@ -18,4 +18,8 @@ public abstract class AbstractCommentDomain extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorUsername; // username i.e. email of the user, who authored this comment or thread.
     String orgId;
+
+    /** Edit/Published Mode */
+    String mode;
+
 }

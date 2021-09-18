@@ -1,0 +1,24 @@
+{
+  "name": "appsmith_utils",
+  "version": "1.0.0",
+  "description": "appsmith utils tool",
+  "main": "bin/index.js",
+	"author": "",
+  "license": "Apache-2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appsmithorg/appsmith.git",
+    "directory": "deploy/docker"
+  },
+  "dependencies": {
+    "boxen": "^5.0.1",
+    "chalk": "^4.1.2",
+    "dotenv": "^10.0.0",
+    "shelljs": "^0.8.4",
+    "yargs": "^17.1.1"
+  },
+  "bin": {
+    "appsmithctl": "./bin/index.js"
+  }
+}

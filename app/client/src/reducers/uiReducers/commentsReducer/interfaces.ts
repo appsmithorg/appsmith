@@ -23,4 +23,5 @@ export interface CommentsReduxState {
   unpublishedThreadDraftComment: EditorState | null;
   draftComments: Record<string, EditorState>;
   commentThreadsFetched: boolean;
+  lastUpdatedCommentThreadId: string | null;
 }

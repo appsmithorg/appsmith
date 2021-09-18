@@ -27,7 +27,7 @@ const Canvas = styled.canvas`
   position: absolute;
   top: 0;
   left: 0;
-  height: calc(100% + ${(props) => props.theme.canvasBottomPadding}px);
+  height: 100%;
   width: 100%;
   overflow-y: auto;
   z-index: 1;

@@ -10,7 +10,7 @@ import {
 import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { widgetSidebarConfig } from "mockResponses/WidgetSidebarResponse";
+import WidgetFactory from "utils/WidgetFactory";
 
 type Props = {
   theme: Theme;
@@ -18,12 +18,13 @@ type Props = {
 
 const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
   const selectedWidget = useSelector(getSelectedWidget);
-  const selectedWidgetType = selectedWidget?.type;
+  const selectedWidgetType = selectedWidget?.type || "";
   const dispatch = useDispatch();
-  const config = selectedWidgetType && widgetSidebarConfig[selectedWidgetType];
+  const displayName =
+    WidgetFactory.widgetConfigMap.get(selectedWidgetType)?.displayName || "";
 
   const openHelpModal = useCallback(() => {
-    dispatch(setGlobalSearchQuery(config?.widgetCardName || ""));
+    dispatch(setGlobalSearchQuery(displayName));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
       source: "PROPERTY_PANE_HELP_BUTTON",
