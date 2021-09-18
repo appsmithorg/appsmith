@@ -122,7 +122,7 @@ public class GitController {
     }
 
     @GetMapping("/branch/{applicationId}")
-    public Mono<ResponseDTO<List<Ref>>> branch(@PathVariable String applicationId) {
+    public Mono<ResponseDTO<List<String>>> branch(@PathVariable String applicationId) {
         return service.listBranchForApplication(applicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }

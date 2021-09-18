@@ -245,11 +245,22 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public List<Ref> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException {
+    public List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException {
 
         Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile());
         List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        List<String> branchList = new ArrayList<>();
+
+        if(refList.isEmpty()) {
+            branchList.add(git.getRepository().getBranch());
+        } else {
+            for(Ref ref : refList) {
+                branchList.add(ref.getName()
+                        .replace("refs/heads/","")
+                        .replace("refs/remotes/",""));
+            }
+        }
         git.close();
-        return refList;
+        return branchList;
     }
 }

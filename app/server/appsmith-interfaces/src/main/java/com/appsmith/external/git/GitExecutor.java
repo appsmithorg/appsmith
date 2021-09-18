@@ -108,5 +108,5 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    List<Ref> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException;
+    List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException;
 }

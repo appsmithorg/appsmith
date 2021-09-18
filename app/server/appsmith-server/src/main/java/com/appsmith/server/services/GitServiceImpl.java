@@ -538,7 +538,7 @@ public class GitServiceImpl implements GitService {
     }
 
     @Override
-    public Mono<List<Ref>> listBranchForApplication(String applicationId) {
+    public Mono<List<String>> listBranchForApplication(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
