@@ -152,7 +152,7 @@ public class GitServiceTest {
         Application application1 = applicationService.createDefault(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("test.url.git", gitProfile);
-        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO);
+        Mono<Application> applicationMono = gitDataService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier
                 .create(applicationMono)
@@ -168,7 +168,7 @@ public class GitServiceTest {
     public void connectApplicationToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
         GitProfile gitProfile = getConfigRequest("test@appsmith.com", "Test 1");
         GitConnectDTO gitConnectDTO = getConnectRequest(null, gitProfile);
-        Mono<Application> applicationMono = gitDataService.connectApplicationToGit("testID", gitConnectDTO);
+        Mono<Application> applicationMono = gitDataService.connectApplicationToGit("testID", gitConnectDTO, "baseUrl");
 
         StepVerifier
                 .create(applicationMono)

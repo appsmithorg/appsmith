@@ -43,4 +43,22 @@ public interface FileInterface {
     ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
                                                               String defaultApplicationId,
                                                               String branchName);
+
+    /**
+     * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -
+     * Url to the deployed app(view and edit mode)
+     * Link to discord channel for support
+     * Link to appsmith documentation for Git related operations
+     * Welcome message
+     *
+     * @param baseRepoSuffix       path suffix used to create a branch repo path as per worktree implementation
+     * @param defaultPageId        Used to construct the url of the published app
+     * @param applicationId        Used to construct the url of the published app
+     * @param baseUrlOfApplication Used to construct the url of the published app
+     * @return Path where the Application is stored
+     */
+    Mono<Path> initializeGitRepo(Path baseRepoSuffix,
+                                 String defaultPageId,
+                                 String applicationId,
+                                 String baseUrlOfApplication) throws IOException;
 }

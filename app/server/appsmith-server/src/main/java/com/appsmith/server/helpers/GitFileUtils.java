@@ -152,4 +152,11 @@ public class GitFileUtils {
         }
         return deserializedResources;
     }
+
+    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
+                                        String defaultPageId,
+                                        String applicationId,
+                                        String baseUrlOfApplication) throws IOException {
+        return fileUtils.initializeGitRepo(baseRepoSuffix,defaultPageId, applicationId,baseUrlOfApplication);
+    }
 }

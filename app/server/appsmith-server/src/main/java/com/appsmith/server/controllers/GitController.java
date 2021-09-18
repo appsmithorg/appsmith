@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -66,8 +67,10 @@ public class GitController {
     }
 
     @PostMapping("/connect/{applicationId}")
-    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId, @RequestBody GitConnectDTO gitConnectDTO) {
-        return service.connectApplicationToGit(applicationId, gitConnectDTO)
+    public Mono<ResponseDTO<Application>> connectApplicationToRemoteRepo(@PathVariable String applicationId,
+                                                                         @RequestBody GitConnectDTO gitConnectDTO,
+                                                                         @RequestHeader("Origin") String originHeader) {
+        return service.connectApplicationToGit(applicationId, gitConnectDTO, originHeader)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 

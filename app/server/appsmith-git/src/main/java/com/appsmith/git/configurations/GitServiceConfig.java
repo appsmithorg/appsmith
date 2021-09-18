@@ -11,4 +11,7 @@ public class GitServiceConfig {
     @Value("${appsmith.git.root:./container-volumes/git-storage}")
     private String gitRootPath;
 
+    @Value("gitInitializeRepo/GitConnect-Initialize-Repo-Template")
+    private String initialTemplatePath;
+
 }

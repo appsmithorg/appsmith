@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonReader;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -233,6 +234,32 @@ public class FileUtilsImpl implements FileInterface {
         applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson));
 
         return applicationGitReference;
+    }
+
+    /** This is used to initialize repo with Readme file when the application is connected to remote repo
+     * @param baseRepoSuffix       path suffix used to create a branch repo path as per worktree implementation
+     * @param defaultPageId        Used to construct the url of the published app
+     * @param applicationId        Used to construct the url of the published app
+     * @param baseUrlOfApplication Used to construct the url of the published app
+     * @return Path to the base repo
+     * @throws IOException
+     */
+    @Override
+    public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
+                                        String defaultPageId,
+                                        String applicationId,
+                                        String baseUrlOfApplication) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(gitServiceConfig.getInitialTemplatePath()).getFile());
+        String viewModeUrl = Paths.get(baseUrlOfApplication, applicationId, "application", "pages", defaultPageId).toString();
+        String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
+        String data = FileUtils.readFileToString(file, "UTF-8").replace("{{viewModeUrl}}", viewModeUrl);
+        data = data.replace("{{editModeUrl}}", editModeUrl);
+
+        file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
+        FileUtils.writeStringToFile(file, data, "UTF-8", false);
+
+        return Mono.just(baseRepoSuffix);
     }
 
     /**

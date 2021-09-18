@@ -184,7 +184,7 @@ public class GitExecutorImpl implements GitExecutor {
                 .isEmpty()) {
             return cloneApp(repoSuffix, remoteUrl, privateSshKey, publicSshKey);
         }
-        throw new NotSupportedException("The remote repo has committs. Please create a new repo with no commits. " +
+        throw new NotSupportedException("The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
                 "If you want to clone from remote repo and build application, please go to the Clone Application option.");
     }
 
@@ -231,7 +231,7 @@ public class GitExecutorImpl implements GitExecutor {
                           String publicKey) throws GitAPIException, IOException {
 
         //TODO Check out the branchName, check if file exists for the path without branchName,else update the file to new path
-        //TODO SHow number of commits fetched or Already upto date
+        //TODO Show number of commits fetched or Already upto date
         Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoPath).toFile());
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
         MergeResult mergeResult = git.pull()
