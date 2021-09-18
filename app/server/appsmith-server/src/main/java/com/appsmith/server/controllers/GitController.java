@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.lib.Ref;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -117,6 +118,12 @@ public class GitController {
     public Mono<ResponseDTO<String>> pull(@PathVariable String applicationId, String branchName) {
         log.debug("Going to pull the latest for branch");
         return service.pullForApplication(applicationId, branchName)
+                .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
+    }
+
+    @GetMapping("/branch/{applicationId}")
+    public Mono<ResponseDTO<List<Ref>>> branch(@PathVariable String applicationId) {
+        return service.listBranchForApplication(applicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 }

@@ -2,10 +2,9 @@ package com.appsmith.external.git;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.errors.NotSupportedException;
+import org.eclipse.jgit.lib.Ref;
 import org.springframework.stereotype.Component;
 
-import javax.management.InvalidApplicationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -101,4 +100,13 @@ public interface GitExecutor {
      * @throws IOException
      */
     String pullApp(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
+
+    /**
+     *
+     * @param repoSuffix
+     * @return List of branches for the application
+     * @throws GitAPIException
+     * @throws IOException
+     */
+    List<Ref> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException;
 }

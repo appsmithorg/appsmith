@@ -8,6 +8,7 @@ import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -241,5 +242,14 @@ public class GitExecutorImpl implements GitExecutor {
         }
         log.error("Git merge from remote branch failed, {}", branchName, mergeResult.getMergeStatus());
         return "Merge from remote failed";
+    }
+
+    @Override
+    public List<Ref> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException {
+
+        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile());
+        List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
+        git.close();
+        return refList;
     }
 }

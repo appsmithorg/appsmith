@@ -20,7 +20,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.solutions.ImportExportApplicationService;
-import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.EmptyCommitException;
@@ -28,6 +27,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.NotSupportedException;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -538,6 +538,27 @@ public class GitServiceImpl implements GitService {
                         } else {
                             throw new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", e.getMessage());
                         }
+                    }
+                });
+    }
+
+    @Override
+    public Mono<List<Ref>> listBranchForApplication(String applicationId) {
+        return getApplicationById(applicationId)
+                .flatMap(application -> {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInValidGitApplicationMetadata(gitApplicationMetadata)) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
+                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    }
+                    Path repoPath = Paths.get(application.getOrganizationId(),
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
+                    try {
+                        return Mono.just(gitExecutor.getBranchForApplication(repoPath));
+                    } catch (IOException | GitAPIException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR,
+                                "Error while accessing the file system. Please reach out to Appsmith support"));
                     }
                 });
     }

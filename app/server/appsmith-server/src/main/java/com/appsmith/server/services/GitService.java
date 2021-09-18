@@ -7,6 +7,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import org.eclipse.jgit.lib.Ref;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -39,4 +40,6 @@ public interface GitService {
     Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
 
     Mono<String> pullForApplication(String applicationId, String branchName);
+
+    Mono<List<Ref>> listBranchForApplication(String applicationId);
 }
