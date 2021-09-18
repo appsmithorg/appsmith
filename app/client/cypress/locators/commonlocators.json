@@ -127,6 +127,6 @@
   "lintWarning": ".CodeMirror-lint-mark-warning",
   "lintErrorMsg": ".CodeMirror-lint-message-error",
   "lintWarningMsg": ".CodeMirror-lint-message-warning",
-  "labelSectionTxt": ".CodeMirror-code .cm-variable"
-
+  "labelSectionTxt": ".CodeMirror-code .cm-variable",
+  "lintError": ".CodeMirror-lint-mark-error"
 }

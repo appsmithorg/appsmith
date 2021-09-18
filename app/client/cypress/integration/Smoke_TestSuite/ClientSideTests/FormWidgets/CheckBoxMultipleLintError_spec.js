@@ -24,14 +24,14 @@ describe("Linting warning validation with Checkbox widget", function() {
       .wait(500);
 
     //lint mark validation
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .first()
       .should("be.visible");
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .last()
       .should("be.visible");
 
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
@@ -39,10 +39,18 @@ describe("Linting warning validation with Checkbox widget", function() {
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
       .contains("Missing semicolon.");
-    cy.get(commonlocators.lintWarningMsg)
+    cy.get(commonlocators.lintErrorMsg)
+      .should("be.visible")
+      .contains("Expected an identifier and instead saw ')");
+    cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
       .contains(
-        "Expected an assignment or function call and instead saw an expression.",
+        "Expected an assignment or function call and instead saw an expression",
+      );
+    cy.get(commonlocators.lintErrorMsg)
+      .should("be.visible")
+      .contains(
+        "'function closure expressions' is only available in Mozilla JavaScript extensions (use moz option)",
       );
   });
 });

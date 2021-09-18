@@ -24,19 +24,19 @@ describe("Linting warning validation with Checkbox widget", function() {
       .wait(500);
 
     //lint mark validation
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .first()
       .should("be.visible");
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .last()
       .should("be.visible");
 
-    cy.get(commonlocators.lintWarning)
+    cy.get(commonlocators.lintError)
       .last()
       .trigger("mouseover", { force: true })
       .wait(500);
     //lint warning message
-    cy.get(commonlocators.lintWarningMsg)
+    cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
       .contains("'iron_man' is not defined.");
   });
