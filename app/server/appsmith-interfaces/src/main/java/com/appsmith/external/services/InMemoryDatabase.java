@@ -2,9 +2,8 @@ package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,12 +14,17 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static com.appsmith.external.services.InMemoryDatabase.Condition.generateConditionList;
@@ -30,6 +34,7 @@ public class InMemoryDatabase {
 
     private static String JDBC_DRIVER = "org.h2.Driver";
     private static String url = "jdbc:h2:mem:filterDb";
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     private static Map<DataType, String> sqlDataTypeMap = Map.of(
             DataType.INTEGER, "INT",
@@ -39,13 +44,23 @@ public class InMemoryDatabase {
             DataType.BOOLEAN, "BOOLEAN",
             DataType.STRING, "VARCHAR"
     );
+
+    private static Map<ConditionalOperator, String> sqlOperatorMapping = Map.of(
+            ConditionalOperator.LT, "<",
+            ConditionalOperator.LTE, "<=",
+            ConditionalOperator.EQ, "=",
+            ConditionalOperator.NOT_EQ, "<>",
+            ConditionalOperator.GT, ">",
+            ConditionalOperator.GTE, ">="
+    );
+
     private static Connection connection;
 
     public InMemoryDatabase() throws SQLException {
         connection = DriverManager.getConnection(url);
     }
 
-    public ArrayNode filterData(ArrayNode items, List<Object> conditionList) {
+    public static ArrayNode filterData(ArrayNode items, List<Object> conditionList) throws SQLException {
 
         if (items == null || items.size() == 0) {
             return items;
@@ -62,23 +77,165 @@ public class InMemoryDatabase {
 
         Map<String, DataType> schema = generateSchema(jsonNode);
 
+        String tableName = generateTable(schema);
 
-        return null;
+        // insert the data
+        insertData(tableName, items, schema);
+
+        // Filter the data
+        List<Map<String, Object>> finalResults = selectQuery(tableName, conditions);
+
+        ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
+
+        return finalResultsNode;
+    }
+
+    public static List<Map<String, Object>> selectQuery(String tableName, List<Condition> conditions) {
+        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
+
+        for (Condition condition : conditions) {
+            String path = condition.getPath();
+            ConditionalOperator operator = condition.getOperator();
+            String value = condition.getValue();
+
+            String sqlOp = sqlOperatorMapping.get(operator);
+            if (sqlOp == null) {
+                // Operator not supported. Handle the same // TODO
+            }
+
+            sb.append(path);
+            sb.append(" ");
+            sb.append(sqlOp);
+            sb.append(" ");
+            sb.append("'");
+            sb.append(value);
+            sb.append("' AND ");
+        }
+
+        if (!conditions.isEmpty()) {
+            // Trim the last " AND " aka last 5 characters
+            sb.setLength(sb.length() - 5);
+        }
+
+        sb.append(";");
+
+        String selectQuery = sb.toString();
+        System.out.println(selectQuery);
+
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(selectQuery);
+
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new LinkedHashMap<>(colCount);
+                for (int i = 1; i <= colCount; i++) {
+                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                }
+                rowsList.add(row);
+            }
+            System.out.println(rowsList);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return rowsList;
+    }
+
+    public static void fetchAll(String tableName) {
+        String query = "SELECT * FROM " + tableName + ";";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+            List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new LinkedHashMap<>(colCount);
+                for (int i = 1; i <= colCount; i++) {
+                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                }
+                rowsList.add(row);
+            }
+            System.out.println(rowsList);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
+    public static void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+
+        List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
+
+        StringBuilder mainBuilder = new StringBuilder("INSERT INTO ");
+        mainBuilder.append(tableName);
+
+        StringBuilder columnNamesBuilder = new StringBuilder("(");
+
+        for (String columnName : columnNames) {
+            columnNamesBuilder.append(columnName);
+            columnNamesBuilder.append(",");
+        }
+
+        // Trim the trailing comma
+        int i = columnNamesBuilder.lastIndexOf(",");
+        columnNamesBuilder.deleteCharAt(i);
+
+        columnNamesBuilder.append(")");
+
+        mainBuilder.append(columnNamesBuilder);
+        mainBuilder.append(" VALUES ");
+
+        for (JsonNode item : items) {
+
+            StringBuilder valuesBuilder = new StringBuilder("(");
+
+            for (String columnName : columnNames) {
+                JsonNode fieldNode = item.get(columnName);
+                if (fieldNode != null) {
+                    valuesBuilder.append("'");
+                    valuesBuilder.append(fieldNode.asText());
+                    valuesBuilder.append("'");
+                }
+                valuesBuilder.append(",");
+            }
+
+            // All the columns have been read
+            // Trim the trailing comma
+            i = valuesBuilder.lastIndexOf(",");
+            valuesBuilder.deleteCharAt(i);
+
+            valuesBuilder.append("),");
+
+            mainBuilder.append(valuesBuilder);
+        }
+
+        // Trim the trailing comma
+        i = mainBuilder.lastIndexOf(",");
+        mainBuilder.deleteCharAt(i);
+
+        String insertQuery = mainBuilder.toString();
+        System.out.println(insertQuery);
+
+        try {
+            connection.createStatement().execute(insertQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static String generateTable(Map<String, DataType> schema) throws SQLException {
-
-
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_ERROR,
-                    "Error loading H2 JDBC Driver class."
-            );
-        }
-
 
         if (connection == null || connection.isClosed() || !connection.isValid(5)) {
             connection = DriverManager.getConnection(url);
@@ -87,7 +244,7 @@ public class InMemoryDatabase {
         // Generate table name
         String generateUniqueId = new ObjectId().toString().toUpperCase(Locale.ROOT);
         String tableName = new StringBuilder("tbl_").append(generateUniqueId).toString();
-        
+
         StringBuilder sb = new StringBuilder("CREATE TABLE ");
 
         sb.append(tableName);
@@ -133,7 +290,7 @@ public class InMemoryDatabase {
     }
 
 
-    private Map<String, DataType> generateSchema(JsonNode jsonNode) {
+    private static Map<String, DataType> generateSchema(JsonNode jsonNode) {
         Map<String, DataType> schema = new HashMap<>();
 
         jsonNode.fieldNames().forEachRemaining(name -> {
