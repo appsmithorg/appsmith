@@ -9,6 +9,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  SHOW_CREATE_GIT_BRANCH_POPUP: "SHOW_CREATE_GIT_BRANCH_POPUP",
+  SHOW_ERROR_POPUP: "SHOW_ERROR_POPUP",
   CONNECT_TO_GIT_INIT: "CONNECT_TO_GIT_INIT",
   CONNECT_TO_GIT_SUCCESS: "CONNECT_TO_GIT_SUCCESS",
   CREATE_NEW_BRANCH_INIT: "CREATE_NEW_BRANCH_INIT",
@@ -825,6 +827,8 @@ export type ApplicationPayload = {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
+  modifiedBy?: string;
+  modifiedAt?: string;
 };
 
 export type OrganizationDetails = {

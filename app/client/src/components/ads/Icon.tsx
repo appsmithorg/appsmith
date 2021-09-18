@@ -10,7 +10,7 @@ import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
-import EditIcon from "remixicon-react/PencilLineIcon";
+import EditIcon from "remixicon-react/PencilFillIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
@@ -20,8 +20,8 @@ import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
 import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
-import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
-import ShareIcon from "remixicon-react/SendPlaneLineIcon";
+import ShareIcon from "remixicon-react/ShareForwardFillIcon";
+import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import WorkspaceIcon from "remixicon-react/Building3FillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
@@ -38,7 +38,7 @@ import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
-import { ReactComponent as HelpIcon } from "assets/icons/help/help.svg";
+import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
@@ -54,25 +54,27 @@ import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
 import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
 import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
-import { ReactComponent as Emoji } from "assets/icons/comments/emoji.svg";
+import Emoji from "remixicon-react/EmotionLineIcon";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
-import { ReactComponent as OvalCheck } from "assets/icons/comments/check-oval.svg";
+import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
+import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import ContextMenu from "remixicon-react/MoreFillIcon";
-import { ReactComponent as Trash } from "assets/icons/comments/trash.svg";
+import Trash from "remixicon-react/DeleteBin7FillIcon";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import { ReactComponent as Link2 } from "assets/icons/comments/link.svg";
-import { ReactComponent as CommentContextMenu } from "assets/icons/comments/context-menu.svg";
+import Link2 from "remixicon-react/LinkIcon";
+import CommentContextMenu from "remixicon-react/More2FillIcon";
 import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
-import { ReactComponent as Filter } from "assets/icons/comments/filter.svg";
+import Filter from "remixicon-react/Filter2FillIcon";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
-import { ReactComponent as Pin3 } from "assets/icons/comments/pin_3.svg";
-import { ReactComponent as Unpin } from "assets/icons/comments/unpin.svg";
+import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
-import { ReactComponent as UpArrow } from "assets/icons/ads/upper_arrow.svg";
+import UpArrow from "remixicon-react/ArrowUpSFillIcon";
+import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
@@ -198,6 +200,7 @@ export const IconCollection = [
   "emoji",
   "pin",
   "oval-check",
+  "oval-check-fill",
   "HEADING_ONE",
   "HEADING_TWO",
   "HEADING_THREE",
@@ -230,6 +233,7 @@ export const IconCollection = [
   "gear",
   "user-2",
   "support",
+  "share-box",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -255,7 +259,6 @@ export const IconWrapper = styled.span<IconProps>`
     `
         : ""}
   ${(props) => (props.invisible ? `visibility: hidden;` : null)};
-
   &:hover {
     cursor: ${(props) => (props.clickable ? "pointer" : "default")};
     ${(props) =>
@@ -309,6 +312,9 @@ const Icon = forwardRef(
         break;
       case "open":
         returnIcon = <OpenIcon />;
+        break;
+      case "share-box":
+        returnIcon = <ShareBoxFillIcon />;
         break;
       case "user":
         returnIcon = <UserIcon />;
@@ -460,6 +466,9 @@ const Icon = forwardRef(
         break;
       case "oval-check":
         returnIcon = <OvalCheck />;
+        break;
+      case "oval-check-fill":
+        returnIcon = <OvalCheckFill />;
         break;
 
       case "HEADING_ONE":

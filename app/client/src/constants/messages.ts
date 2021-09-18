@@ -39,8 +39,10 @@ export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
 export const LOGIN_PAGE_TITLE = () => `Sign In to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
-export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email address`;
+export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
@@ -174,6 +176,16 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign In`;
 
+// Homepage
+export const CREATE_NEW_APPLICATION = () => `Create New`;
+export const SEARCH_APPS = () => `Search for apps...`;
+export const GETTING_STARTED = () => `GETTING STARTED`;
+export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
+export const WELCOME_TOUR = () => `Welcome Tour`;
+export const NO_APPS_FOUND = () =>
+  `Whale! Whale! This name doesn't ring a bell!`;
+
+// Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
 export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a Query`;
 export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
@@ -362,6 +374,9 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
+  `Error occurred while evaluating trigger ${propertyName}`;
+
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
@@ -508,6 +523,10 @@ export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const CONNECT_GIT = () => "Connect Git";
+export const RETRY = () => "RETRY";
+export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;

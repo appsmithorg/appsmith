@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled, { css } from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
+import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
 import { AppState } from "reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
@@ -33,6 +33,13 @@ const HeaderSection = styled.div`
   display: flex;
   flex: 1;
   align-items: center;
+
+  .t--appsmith-logo {
+    svg {
+      max-width: 110px;
+      width: 110px;
+    }
+  }
 `;
 
 const sideBorder = css`
@@ -47,10 +54,6 @@ const sideBorder = css`
 `;
 
 const StyledDropDownContainer = styled.div``;
-
-const AppsmithLogoImg = styled.img`
-  max-width: 110px;
-`;
 
 type PageHeaderProps = {
   user?: User;
@@ -75,12 +78,12 @@ export function PageHeader(props: PageHeaderProps) {
     >
       <HeaderSection>
         <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
+          <AppsmithLogo />
         </Link>
       </HeaderSection>
       {user && (
         <>
-          <Bell />
+          {user.username !== ANONYMOUS_USERNAME && <Bell />}
           <StyledDropDownContainer>
             {user.username === ANONYMOUS_USERNAME ? (
               <Button

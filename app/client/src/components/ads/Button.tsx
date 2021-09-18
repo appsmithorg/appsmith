@@ -49,6 +49,11 @@ type BtnFontType = {
   height: number;
 };
 
+export enum IconPositions {
+  left = "left",
+  right = "right",
+}
+
 export type ButtonProps = CommonComponentProps & {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   text?: string;
@@ -64,6 +69,7 @@ export type ButtonProps = CommonComponentProps & {
   target?: string;
   width?: string;
   isLink?: boolean;
+  iconPosition?: IconPositions;
 };
 
 const defaultProps = {
@@ -148,7 +154,7 @@ const getMainStateStyles = (props: ThemeProp & ButtonProps) => {
     },
     [Category.tertiary]: {
       bgColorTertiary: "transparent",
-      borderColorTertiary: props.theme.colors.tertiary.main,
+      borderColorTertiary: props.theme.colors.tertiary.darker,
       txtColorTertiary: props.theme.colors.tertiary.main,
     },
   };
@@ -508,16 +514,23 @@ const getTextContent = (props: ButtonProps) =>
     )
   ) : null;
 
-const getButtonContent = (props: ButtonProps) => (
-  <>
-    {props.tag === "button" && getIconContent(props)}
-    <span style={{ marginRight: props.tag === "a" ? 7.67 : 0 }}>
-      {getTextContent(props)}
-    </span>
-    {props.tag === "a" && getIconContent(props)}
-    {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
-  </>
-);
+const getButtonContent = (props: ButtonProps) => {
+  const iconPos = props.iconPosition
+    ? props.iconPosition
+    : props.tag === "a"
+    ? IconPositions.right
+    : IconPositions.left;
+  return (
+    <>
+      {iconPos === IconPositions.left && getIconContent(props)}
+      <span style={{ marginRight: iconPos === IconPositions.right ? 7.67 : 0 }}>
+        {getTextContent(props)}
+      </span>
+      {iconPos === IconPositions.right && getIconContent(props)}
+      {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
+    </>
+  );
+};
 
 function ButtonComponent(props: ButtonProps) {
   return (

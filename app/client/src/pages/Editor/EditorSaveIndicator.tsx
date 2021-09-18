@@ -13,6 +13,7 @@ import {
   createMessage,
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "constants/messages";
+import { Colors } from "constants/Colors";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;
@@ -21,6 +22,10 @@ const SaveStatusContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 20px;
+  .bp3-popover-target {
+    display: flex;
+  }
 `;
 
 export function EditorSaveIndicator() {
@@ -56,7 +61,7 @@ export function EditorSaveIndicator() {
         >
           <HeaderIcons.SAVE_SUCCESS
             className="t--save-status-success"
-            color={"#36AB80"}
+            color={Colors.GREEN}
             height={20}
             width={20}
           />
@@ -66,7 +71,7 @@ export function EditorSaveIndicator() {
       saveStatusIcon = (
         <HeaderIcons.SAVE_FAILURE
           className={"t--save-status-error"}
-          color={"#F69D2C"}
+          color={Colors.WARNING_SOLID}
           height={20}
           width={20}
         />

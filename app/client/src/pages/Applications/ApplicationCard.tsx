@@ -23,7 +23,7 @@ import {
 } from "utils/AppsmithUtils";
 import { omit } from "lodash";
 import Text, { TextType } from "components/ads/Text";
-import Button, { Category, Size } from "components/ads/Button";
+import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
@@ -44,7 +44,11 @@ import {
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
 import TooltipComponent from "components/ads/Tooltip";
-import { isEllipsisActive } from "utils/helpers";
+import {
+  isEllipsisActive,
+  truncateString,
+  howMuchTimeBeforeText,
+} from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
@@ -251,6 +255,7 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   -webkit-box-orient: vertical;
   word-break: break-word;
   color: ${(props) => props.theme.colors.text.heading};
+  flex: 1;
 `;
 
 type ApplicationCardProps = {
@@ -266,17 +271,7 @@ const EditButton = styled(Button)`
   margin-bottom: 0;
 `;
 
-const ContextDropdownWrapper = styled.div`
-  .${Classes.POPOVER_TARGET} {
-    span {
-      svg {
-        path {
-          fill: #000;
-        }
-      }
-    }
-  }
-`;
+const ContextDropdownWrapper = styled.div``;
 
 const CircleAppIcon = styled(AppIcon)`
   padding: 12px;
@@ -297,6 +292,9 @@ const CircleAppIcon = styled(AppIcon)`
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
   color: #8a8a8a;
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 const CardFooter = styled.div`
@@ -506,7 +504,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
         position={Position.RIGHT_TOP}
         target={
           <MoreOptionsContainer>
-            <Icon name="context-menu" size={IconSize.XXXL} />
+            <Icon
+              fillColor={isMenuOpen ? "#000" : "#8a8a8a"}
+              hoverFillColor="#000"
+              name="context-menu"
+              size={IconSize.XXXL}
+            />
           </MoreOptionsContainer>
         }
       >
@@ -575,6 +578,25 @@ export function ApplicationCard(props: ApplicationCardProps) {
     </ContextDropdownWrapper>
   );
 
+  const editedByText = () => {
+    let editedBy = props.application.modifiedBy
+      ? props.application.modifiedBy
+      : "";
+    let editedOn = props.application.modifiedAt
+      ? props.application.modifiedAt
+      : "";
+
+    if (editedBy === "" && editedOn === "") return "";
+
+    editedBy = editedBy.split("@")[0];
+    editedBy = truncateString(editedBy, 9);
+
+    //assuming modifiedAt will be always available
+    editedOn = howMuchTimeBeforeText(editedOn);
+    editedOn = editedOn !== "" ? editedOn + " ago" : "";
+    return editedBy + " edited " + editedOn;
+  };
+
   return (
     <NameWrapper
       className="t--application-card"
@@ -625,6 +647,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     fill
                     href={editApplicationURL}
                     icon={"edit"}
+                    iconPosition={IconPositions.left}
                     size={Size.medium}
                     text="Edit"
                   />
@@ -636,6 +659,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     fill
                     href={viewApplicationURL}
                     icon={"rocket"}
+                    iconPosition={IconPositions.left}
                     size={Size.medium}
                     text="Launch"
                   />
@@ -646,9 +670,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         )}
       </Wrapper>
       <CardFooter>
-        <ModifiedDataComponent>
-          Last edit by Mark at 7:40 PM
-        </ModifiedDataComponent>
+        <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
         {!!moreActionItems.length && ContextMenu}
       </CardFooter>
     </NameWrapper>

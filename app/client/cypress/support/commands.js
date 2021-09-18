@@ -2491,6 +2491,8 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
 Cypress.Commands.add("deleteWidget", (widget) => {
   // Delete the button widget
   cy.get(widgetsPage.removeWidget).click({ force: true });
+  cy.wait(5000);
+  cy.wait("@updateLayout");
   cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 

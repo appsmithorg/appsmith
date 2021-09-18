@@ -4,7 +4,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Dropdown",
+  name: "Select",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
