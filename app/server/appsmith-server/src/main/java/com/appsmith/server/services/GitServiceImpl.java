@@ -521,7 +521,7 @@ public class GitServiceImpl implements GitService {
                             gitApplicationMetadata.getRepoName());
                     //TODO handle the condition for the non default branch as the file path varies
                     try {
-                        return Mono.just(gitExecutor.pullApp(
+                        return Mono.just(gitExecutor.pullApplication(
                                 repoPath,
                                 gitApplicationMetadata.getRemoteUrl(),
                                 gitApplicationMetadata.getBranchName(),

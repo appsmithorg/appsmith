@@ -181,14 +181,14 @@ public class GitExecutorImpl implements GitExecutor {
                 .setTransportConfigCallback(transportConfigCallback)
                 .call()
                 .isEmpty()) {
-            return cloneApp(repoSuffix, remoteUrl, privateSshKey, publicSshKey);
+            return cloneApplication(repoSuffix, remoteUrl, privateSshKey, publicSshKey);
         }
         throw new NotSupportedException("The remote repo is not empty. Please create a new empty repo and configure the SSH keys. " +
                 "If you want to clone from remote repo and build application, please go to the Clone Application option.");
     }
 
     @Override
-    public String cloneApp(Path repoSuffix,
+    public String cloneApplication(Path repoSuffix,
                            String remoteUrl,
                            String privateSshKey,
                            String publicSshKey) throws GitAPIException, IOException {
@@ -223,7 +223,7 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public String pullApp(Path repoPath,
+    public String pullApplication(Path repoPath,
                           String remoteUrl,
                           String branchName,
                           String privateKey,

@@ -2,7 +2,6 @@ package com.appsmith.external.git;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -66,7 +65,7 @@ public interface GitExecutor {
      *  @throws GitAPIException InvalidRemote, AuthenticationFailure, NotSupportedOperation
      *  @throws IOException
      * */
-    String cloneApp(Path repoSuffix,  String remoteUrl, String privateKey, String publicKey) throws GitAPIException, IOException;
+    String cloneApplication(Path repoSuffix,  String remoteUrl, String privateKey, String publicKey) throws GitAPIException, IOException;
 
     /**
      * connect to the remote repository
@@ -99,7 +98,7 @@ public interface GitExecutor {
      * @throws GitAPIException
      * @throws IOException
      */
-    String pullApp(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
+    String pullApplication(Path repoPath, String remoteUrl, String branchName, String privateKey, String publicKey) throws GitAPIException, IOException;
 
     /**
      *
