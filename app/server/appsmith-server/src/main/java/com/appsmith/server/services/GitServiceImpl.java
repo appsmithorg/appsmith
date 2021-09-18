@@ -62,7 +62,7 @@ public class GitServiceImpl implements GitService {
     private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit";
 
     @Override
-    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, boolean isDefault, String defaultApplicationId) {
+    public Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, Boolean isDefault, String defaultApplicationId) {
         if(gitProfile.getAuthorName() == null || gitProfile.getAuthorName().length() == 0) {
             return Mono.error( new AppsmithException( AppsmithError.INVALID_PARAMETER, "Author Name"));
         }
@@ -450,6 +450,20 @@ public class GitServiceImpl implements GitService {
                     application1.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.update(applicationId, application1);
                 });
+    }
+
+    @Override
+    public Mono<GitApplicationMetadata> updateGitMetadata(String applicationId, GitApplicationMetadata gitMetadata){
+
+        // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
+        // @Encrypted annotation used for private SSH keys
+        return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                .flatMap(application -> {
+                    application.setGitApplicationMetadata(gitMetadata);
+                    return applicationService.save(application);
+                })
+                .flatMap(applicationService::setTransientFields)
+                .map(Application::getGitApplicationMetadata);
     }
 
     public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
