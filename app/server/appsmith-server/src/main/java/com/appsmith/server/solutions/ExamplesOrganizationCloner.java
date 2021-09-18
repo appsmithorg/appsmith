@@ -1,5 +1,7 @@
 package com.appsmith.server.solutions;
 
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
@@ -259,7 +261,9 @@ public class ExamplesOrganizationCloner {
                         }
                     }
                     return actionMono
-                            .flatMap(layoutActionService::createSingleAction)
+                            .flatMap(actionDTO -> layoutActionService.createAction(
+                                    actionDTO, new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE))
+                            )
                             .map(ActionDTO::getId)
                             .zipWith(Mono.justOrEmpty(originalActionId));
                 })

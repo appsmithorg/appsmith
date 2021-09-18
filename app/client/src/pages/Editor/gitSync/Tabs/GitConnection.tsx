@@ -1,37 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Subtitle, Title, Space } from "./components/StyledComponents";
+import { Subtitle, Title, Space } from "../components/StyledComponents";
 import {
   CONNECT_TO_GIT,
   CONNECT_TO_GIT_SUBTITLE,
   REMOTE_URL_VIA,
   createMessage,
+  DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  DEPLOY_KEY_TITLE,
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
 import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
-import UserGitProfileSettings from "./components/UserGitProfileSettings";
-import { AUTH_TYPE_OPTIONS } from "./constants";
+import UserGitProfileSettings from "../components/UserGitProfileSettings";
+import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
-import { useGitConnect, useSSHKeyPair } from "./hooks";
+import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import Toggle from "components/ads/Toggle";
+import Text, { TextType } from "components/ads/Text";
 
-const UrlOptionContainer = styled.div`
+export const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
 
   & .primary {
-    color: ${Colors.CRUSTA};
   }
   margin-bottom: 8px;
   margin-top: ${(props) => `${props.theme.spaces[2]}px`};
@@ -115,32 +118,42 @@ const KeyText = styled.span`
   overflow: hidden;
   width: 100%;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 400;
   text-transform: uppercase;
   color: ${Colors.CODE_GRAY};
 `;
 
+const LintText = styled.a`
+  :hover {
+    text-decoration: none;
+    color: ${Colors.CRUSTA};
+  }
+  color: ${Colors.CRUSTA};
+  cursor: pointer;
+`;
+
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
-
-// const appsmithGitSshURL = "git@github.com:appsmithorg/appsmith.git";
+const HTTP_LITERAL = "https";
 
 type Props = {
-  setActiveMenuIndex: (menuIndex: number) => void;
+  onSuccess: () => void;
+  isImport?: boolean;
+  organizationId?: string;
 };
 
-function GitConnection(props: Props) {
+function GitConnection({ isImport, onSuccess, organizationId }: Props) {
   const { remoteUrl: remoteUrlInStore } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
+  // const [isValidRemoteUrl, setIsValidRemoteUrl] = useState(true);
 
   const { applicationId: currentApplicationId } = useParams<
     ExplorerURLParams
   >();
 
   const currentUser = useSelector(getCurrentUser);
-  const orgId = useSelector(getCurrentOrgId);
 
   const [authorInfo, setAuthorInfo] = useState<{
     authorName: string;
@@ -149,6 +162,8 @@ function GitConnection(props: Props) {
     authorName: currentUser?.name || "",
     authorEmail: currentUser?.email || "",
   });
+
+  const [useGlobalConfig, setUseGlobalConfig] = useState(false);
 
   const {
     failedGeneratingSSHKey,
@@ -161,7 +176,7 @@ function GitConnection(props: Props) {
     connectToGit,
     failedConnectingToGit,
     isConnectingToGit,
-  } = useGitConnect({ goToDeploySection: () => props.setActiveMenuIndex(1) });
+  } = useGitConnect({ onSuccess });
 
   const copyToClipboard = () => {
     if (sshKeyPair) {
@@ -180,18 +195,29 @@ function GitConnection(props: Props) {
       applicationId: currentApplicationId,
       remoteUrl,
       gitConfig: authorInfo,
-      organizationId: orgId,
+      organizationId,
+      isImport,
+      isDefaultProfile: useGlobalConfig,
     });
   };
 
   useEffect(() => {
-    if (failedConnectingToGit || failedConnectingToGit) {
+    if (failedGeneratingSSHKey || failedConnectingToGit) {
       Toaster.show({
         text: "Something Went Wrong",
         variant: Variant.danger,
       });
     }
   }, [failedGeneratingSSHKey, failedConnectingToGit]);
+
+  const remoteUrlChangeHandler = (value: string) => {
+    setRemoteUrl(value);
+  };
+
+  const remoteUrlIsValid = (value: string) => value.startsWith(HTTP_LITERAL);
+
+  const connectButtonDisabled =
+    !authorInfo.authorEmail || !authorInfo.authorName;
 
   return (
     <>
@@ -204,10 +230,16 @@ function GitConnection(props: Props) {
       <UrlContainer>
         <UrlInputContainer>
           <TextInput
-            disabled={remoteUrl === remoteUrlInStore && remoteUrl !== ""}
+            disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
             fill
-            onChange={(value) => setRemoteUrl(value)}
+            onChange={remoteUrlChangeHandler}
             placeholder={placeholderText}
+            validator={(value) => ({
+              isValid: true,
+              message: remoteUrlIsValid(value)
+                ? "Please paste SSH URL of your repository"
+                : "",
+            })}
             value={remoteUrl}
           />
         </UrlInputContainer>
@@ -221,7 +253,7 @@ function GitConnection(props: Props) {
         </Icon>
       </UrlContainer>
       {!sshKeyPair ? (
-        <ButtonContainer topMargin={4}>
+        <ButtonContainer topMargin={10}>
           <Button
             category={Category.secondary}
             disabled={!remoteUrl}
@@ -233,41 +265,61 @@ function GitConnection(props: Props) {
           />
         </ButtonContainer>
       ) : (
-        <FlexRow>
-          <DeployedKeyContainer>
-            <FlexRow>
-              <Flex>
-                <KeySvg />
-              </Flex>
+        <>
+          <FlexRow>
+            <DeployedKeyContainer>
+              <FlexRow>
+                <Flex>
+                  <KeySvg />
+                </Flex>
 
-              <FlexColumn>
-                <LabelText>Deployed Key</LabelText>
-                <KeyText>{sshKeyPair}</KeyText>
-              </FlexColumn>
-            </FlexRow>
-          </DeployedKeyContainer>
-          <Icon
-            color={Colors.DARK_GRAY}
-            hoverColor={Colors.GRAY2}
-            marginOffset={3}
-            onClick={copyToClipboard}
-            size="22px"
-          >
-            <CopySvg />
-          </Icon>
-        </FlexRow>
+                <FlexColumn>
+                  <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
+                  <KeyText>{sshKeyPair}</KeyText>
+                </FlexColumn>
+              </FlexRow>
+            </DeployedKeyContainer>
+            <Icon
+              color={Colors.DARK_GRAY}
+              hoverColor={Colors.GRAY2}
+              marginOffset={3}
+              onClick={copyToClipboard}
+              size="22px"
+            >
+              <CopySvg />
+            </Icon>
+          </FlexRow>
+          <span>
+            {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+            <LintText href={DOCS_BASE_URL} target="_blank">
+              &nbsp;Learn More
+            </LintText>
+          </span>
+        </>
       )}
 
-      {sshKeyPair ? (
+      {sshKeyPair && remoteUrl ? (
         <>
+          <Space size={12} />
+          <FlexRow>
+            <Text className="" type={TextType.P2}>
+              Use Default Config
+            </Text>
+            <Toggle
+              onToggle={() => setUseGlobalConfig(!useGlobalConfig)}
+              value={useGlobalConfig}
+            />
+          </FlexRow>
           <Space size={12} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
             authorInfo={authorInfo}
+            disabled={useGlobalConfig}
             setAuthorInfo={setAuthorInfo}
           />
           <ButtonContainer topMargin={11}>
             <Button
+              disabled={connectButtonDisabled}
               isLoading={isConnectingToGit}
               onClick={gitConnectionRequest}
               size={Size.large}

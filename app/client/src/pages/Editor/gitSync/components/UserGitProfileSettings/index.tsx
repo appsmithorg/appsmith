@@ -48,10 +48,12 @@ type UserGitProfileSettingsProps = {
   authType: string;
   authorInfo: AuthorInfo;
   setAuthorInfo: (authorInfo: AuthorInfo) => void;
+  disabled: boolean;
 };
 
 function UserGitProfileSettings({
   authorInfo,
+  disabled,
   setAuthorInfo,
 }: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
@@ -89,9 +91,11 @@ function UserGitProfileSettings({
           <LabelContainer>
             <span className="label">{createMessage(AUTHOR_NAME)}</span>
           </LabelContainer>
+
           <InputContainer>
             <TextInput
               dataType="text"
+              disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
@@ -108,6 +112,7 @@ function UserGitProfileSettings({
           <InputContainer>
             <TextInput
               dataType="email"
+              disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)

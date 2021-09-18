@@ -18,10 +18,7 @@ import Checkbox, { LabelContainer } from "components/ads/Checkbox";
 
 import { DEFAULT_REMOTE } from "../constants";
 
-import {
-  getCurrentGitBranch,
-  getIsCommittingInProgress,
-} from "selectors/gitSyncSelectors";
+import { getIsCommittingInProgress } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { commitToRepoInit } from "actions/gitSyncActions";
 
@@ -32,6 +29,7 @@ import OptionSelector from "../components/OptionSelector";
 import { noop } from "lodash";
 
 import { withTheme } from "styled-components";
+import { getCurrentAppGitMetaData } from "../../../../selectors/applicationSelectors";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -64,17 +62,17 @@ const options = [
 ];
 
 const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
-  const currentBranch = useSelector(getCurrentGitBranch);
   const [pushImmediately, setPushImmediately] = useState(true);
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const currentBranchName = gitMetaData?.branchName;
   const dispatch = useDispatch();
-
   // eslint-disable-next-line
   const [commitDisabled, setCommitDisabled] = useState(false);
 
   const handleCommit = () => {
-    dispatch(commitToRepoInit({ commitMessage, pushImmediately }));
+    dispatch(commitToRepoInit({ commitMessage, doPush: pushImmediately }));
   };
 
   const commitButtonText = commitDisabled
@@ -90,7 +88,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
-            <span className="branch">&nbsp;{currentBranch}</span>
+            <span className="branch">&nbsp;{currentBranchName}</span>
           </SectionTitle>
         </Row>
         <Space size={3} />
@@ -106,7 +104,7 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
           isDefaultChecked
           label={`${createMessage(
             PUSH_CHANGES_IMMEDIATELY_TO,
-          )} ${DEFAULT_REMOTE}/${currentBranch}`}
+          )} ${DEFAULT_REMOTE}/${currentBranchName}`}
           onCheckChange={(checked: boolean) => setPushImmediately(checked)}
         />
         <Space size={11} />

@@ -34,7 +34,7 @@ public class FieldName {
     public static final String FIND_PROJECTION = FIND + "." + PROJECTION;
     public static final String INSERT_DOCUMENT = INSERT + "." + DOCUMENTS;
     public static final String UPDATE_QUERY = UPDATE_MANY + "." + QUERY;
-    public static final String UPDATE_UPDATE = UPDATE_MANY + "." + UPDATE;
+    public static final String UPDATE_OPERATION = UPDATE_MANY + "." + UPDATE;
     public static final String DISTINCT_KEY = DISTINCT + "." + KEY;
     public static final String FIND_LIMIT = FIND + "." + LIMIT;
     public static final String FIND_SKIP = FIND + "." + SKIP;
