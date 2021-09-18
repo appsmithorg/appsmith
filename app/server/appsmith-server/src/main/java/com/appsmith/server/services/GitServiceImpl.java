@@ -368,11 +368,6 @@ public class GitServiceImpl implements GitService {
                             }
                             return Mono.just(application);
                         })
-                        .flatMap(application -> {
-                            //Commit and push the changes to remote repo
-                            commitApplication(application.getId());
-                            return Mono.just(application);
-                        })
                 );
     }
 
