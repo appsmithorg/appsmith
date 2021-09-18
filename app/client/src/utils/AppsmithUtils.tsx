@@ -344,3 +344,12 @@ export const parseBlobUrl = (blobId: string) => {
   }/${blobId.substring(5)}`;
   return url.split("?type=");
 };
+
+export const getCamelCaseString = (sourceString: string) => {
+  let out = "";
+  sourceString.split(" ").forEach(function(el, idx) {
+    const add = el.toLowerCase();
+    out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
+  });
+  return out;
+};

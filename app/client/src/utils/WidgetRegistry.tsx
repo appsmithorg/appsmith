@@ -95,6 +95,10 @@ import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
 
+import SwitchGroupWidget, {
+  CONFIG as SWITCH_GROUP_WIDGET_CONFIG,
+} from "widgets/SwitchGroupWidget";
+
 import log from "loglevel";
 
 export const registerWidgets = () => {
@@ -135,5 +139,6 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(SwitchGroupWidget, SWITCH_GROUP_WIDGET_CONFIG);
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
