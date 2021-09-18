@@ -100,7 +100,7 @@
     "path-to-regexp": "^6.2.0",
     "popper.js": "^1.15.0",
     "prettier": "^1.18.2",
-    "prismjs": "^1.24.0",
+    "prismjs": "^1.25.0",
     "rc-pagination": "^3.1.3",
     "rc-select": "^12.1.10",
     "rc-tree-select": "^4.4.0-alpha.2",
