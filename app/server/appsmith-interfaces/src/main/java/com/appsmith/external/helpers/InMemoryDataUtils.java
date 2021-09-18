@@ -73,6 +73,11 @@ public class InMemoryDataUtils {
                 // Other data types are unhandled. We would not filter on the basis of those conditions
                 // Either error out here or don't do filtering
                 // TODO !!
+
+                // Since this is a simple AND, if passesCondition is false, don't check other conditions
+                if (!passesCondition) {
+                    break;
+                }
             }
             if (passesCondition) {
                 postFilteredList.add(item);

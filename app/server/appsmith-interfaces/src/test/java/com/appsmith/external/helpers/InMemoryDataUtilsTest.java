@@ -12,13 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+
 @Slf4j
 public class InMemoryDataUtilsTest{
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void testFilter() {
+    public void testFilterSingleCondition() {
         String data = "[\n" +
                 "  {\n" +
                 "    \"id\": 2381224,\n" +
@@ -47,9 +49,56 @@ public class InMemoryDataUtilsTest{
                 "]";
 
         try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
-            JSONArray itemArray = new JSONArray(data);
+            List<Object> conditionList = new ArrayList<>();
 
+            Map<String, String> condition = new HashMap<>();
+            condition.put("path", "orderAmount");
+            condition.put("operator", "LT");
+            condition.put("value", "15");
+            conditionList.add(condition);
+
+            ArrayNode filteredData = InMemoryDataUtils.filter(items, conditionList);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterMultipleConditions() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
             List<Object> conditionList = new ArrayList<>();
@@ -67,8 +116,8 @@ public class InMemoryDataUtilsTest{
             conditionList.add(condition1);
 
             ArrayNode filteredData = InMemoryDataUtils.filter(items, conditionList);
-            log.debug("filtered data : {}", filteredData);
 
+            assertEquals(filteredData.size(), 1);
 
 
         } catch (IOException e) {
