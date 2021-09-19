@@ -35,6 +35,8 @@ import static com.appsmith.external.models.Condition.addValueDataType;
 @Slf4j
 public class QueryDataService {
 
+    private static QueryDataService single_instance = null;
+
     private static String JDBC_DRIVER = "org.h2.Driver";
     private static String url = "jdbc:h2:mem:filterDb";
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -61,7 +63,7 @@ public class QueryDataService {
 
     private static Connection connection;
 
-    public QueryDataService() {
+    private QueryDataService() {
         try {
             connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
@@ -70,7 +72,16 @@ public class QueryDataService {
         }
     }
 
-    public static ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
+    public static QueryDataService getInstance() {
+
+        if (single_instance == null) {
+            single_instance = new QueryDataService();
+        }
+
+        return single_instance;
+    }
+
+    public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
 
         if (items == null || items.size() == 0) {
             return items;
@@ -103,7 +114,7 @@ public class QueryDataService {
         return finalResultsNode;
     }
 
-    public static List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
+    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
         String whereClause = generateWhereClause(conditions);
@@ -142,7 +153,7 @@ public class QueryDataService {
         return rowsList;
     }
 
-    private static String generateWhereClause(List<Condition> conditions) {
+    private String generateWhereClause(List<Condition> conditions) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -210,7 +221,7 @@ public class QueryDataService {
     }
 
     // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
-    public static void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+    public void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
@@ -282,7 +293,7 @@ public class QueryDataService {
         }
     }
 
-    private static void executeDbQuery(String query) {
+    private void executeDbQuery(String query) {
 
         Connection connection = checkAndGetConnection();
 
@@ -295,7 +306,7 @@ public class QueryDataService {
         }
     }
 
-    private static String finalInsertQueryString(String partialInsertQuery, StringBuilder valuesBuilder) {
+    private String finalInsertQueryString(String partialInsertQuery, StringBuilder valuesBuilder) {
 
         StringBuilder insertQueryBuilder = new StringBuilder(partialInsertQuery);
 
@@ -307,7 +318,7 @@ public class QueryDataService {
         return finalInsertQuery;
     }
 
-    private static Connection checkAndGetConnection() {
+    private Connection checkAndGetConnection() {
         try {
             if (connection == null || connection.isClosed() || !connection.isValid(5)) {
                 connection = DriverManager.getConnection(url);
@@ -319,7 +330,7 @@ public class QueryDataService {
         return connection;
     }
 
-    public static String generateTable(Map<String, DataType> schema) {
+    public String generateTable(Map<String, DataType> schema) {
 
         // Generate table name
         String generateUniqueId = new ObjectId().toString().toUpperCase();
@@ -367,7 +378,7 @@ public class QueryDataService {
 
     }
 
-    public static void dropTable(String tableName) {
+    public void dropTable(String tableName) {
 
         String dropTableQuery = "DROP TABLE " + tableName + ";";
 
@@ -375,7 +386,7 @@ public class QueryDataService {
     }
 
 
-    private static Map<String, DataType> generateSchema(JsonNode jsonNode) {
+    private Map<String, DataType> generateSchema(JsonNode jsonNode) {
 
         Iterator<String> fieldNamesIterator = jsonNode.fieldNames();
         /*
@@ -408,7 +419,7 @@ public class QueryDataService {
     }
 
 
-    public static boolean validConditionList(List<Condition> conditionList) {
+    public boolean validConditionList(List<Condition> conditionList) {
 
         return conditionList
                 .stream()
