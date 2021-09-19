@@ -231,7 +231,7 @@ public class QueryDataService {
 
             // If the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
-            if (counter == 999) {
+            if (counter == 1000) {
                 String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
                 executeDbQuery(insertQueryString);
 
