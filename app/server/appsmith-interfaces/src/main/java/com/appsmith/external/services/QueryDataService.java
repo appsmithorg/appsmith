@@ -65,7 +65,7 @@ public class QueryDataService {
         try {
             connection = DriverManager.getConnection(url);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
         }
     }
@@ -77,7 +77,7 @@ public class QueryDataService {
         }
 
         if (!validConditionList(conditionList)) {
-            return items; // or throw an exception
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
         }
 
         List<Condition> conditions = addValueDataType(conditionList);
@@ -116,7 +116,7 @@ public class QueryDataService {
 
         List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
-        checkAndSetConnection();
+        Connection connection = checkAndGetConnection();
 
         try {
             Statement statement = connection.createStatement();
@@ -132,11 +132,10 @@ public class QueryDataService {
                 }
                 rowsList.add(row);
             }
-            System.out.println(rowsList);
 
         } catch (SQLException e) {
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            e.printStackTrace();
+            log.error(e.getMessage());
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
@@ -165,7 +164,8 @@ public class QueryDataService {
 
             String sqlOp = SQL_OPERATOR_MAP.get(operator);
             if (sqlOp == null) {
-                // Operator not supported. Handle the same // TODO
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        operator.toString() + " is not supported currently for filtering.");
             }
 
             sb.append(path);
@@ -186,9 +186,10 @@ public class QueryDataService {
                         String finalValues = String.join(",", updatedStringValues);
                         valueBuilder.append(finalValues);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        log.error(e.getMessage());
                     }
                 } else {
+                    // Removes the outer square brackets from the string to leave behind just the values separated by comma
                     String trimmedValue = value.replaceAll("^\\[|]$", "");
                     valueBuilder.append(trimmedValue);
                 }
@@ -225,41 +226,54 @@ public class QueryDataService {
 
         StringBuilder valuesMasterBuilder = new StringBuilder();
 
-        int iterator = 0;
+        int counter = 0;
         for (JsonNode item : items) {
 
-            // In the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
-            // rows, execute the insert for rows so far and start afresh.
-            if (iterator == 1000) {
+            // If the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
+            // rows, execute the insert for rows so far and start afresh for the rest of the rows
+            if (counter == 999) {
                 String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
                 executeDbQuery(insertQueryString);
 
-                // Reset the values builder and iterator for new insert queries.
+                // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
-                iterator = 0;
+                counter = 0;
             }
 
-            StringBuilder valuesBuilder = new StringBuilder("(");
+            StringBuilder valuesBuilder = new StringBuilder();
 
+            if (counter != 0) {
+                // If not the first row, add a separator between rows
+                valuesBuilder.append(",");
+            }
+
+            // Start the row
+            valuesBuilder.append("(");
+
+            Boolean firstEntry = true;
             for (String columnName : columnNames) {
+
+                if (!firstEntry) {
+                    // Add a separator before adding a new entry
+                    valuesBuilder.append(",");
+                } else {
+                    // For future iterations, set flag to false
+                    firstEntry = false;
+                }
+
                 JsonNode fieldNode = item.get(columnName);
                 if (fieldNode != null) {
                     valuesBuilder.append("'");
                     valuesBuilder.append(fieldNode.asText());
                     valuesBuilder.append("'");
                 }
-                valuesBuilder.append(",");
             }
 
-            // All the columns have been read
-            // Trim the trailing comma
-            int i = valuesBuilder.lastIndexOf(",");
-            valuesBuilder.deleteCharAt(i);
-
-            valuesBuilder.append("),");
+            // End the row
+            valuesBuilder.append(")");
 
             valuesMasterBuilder.append(valuesBuilder);
-            iterator++;
+            counter++;
         }
 
         if (valuesMasterBuilder.length() > 0) {
@@ -269,12 +283,14 @@ public class QueryDataService {
     }
 
     private static void executeDbQuery(String query) {
-        checkAndSetConnection();
+
+        Connection connection = checkAndGetConnection();
+
         try {
             connection.createStatement().execute(query);
         } catch (SQLException e) {
+            log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            e.printStackTrace();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen during insertion of data : " + e.getMessage());
         }
     }
@@ -283,20 +299,15 @@ public class QueryDataService {
 
         StringBuilder insertQueryBuilder = new StringBuilder(partialInsertQuery);
 
-        if (valuesBuilder.lastIndexOf(",") == valuesBuilder.length() - 1) {
-            valuesBuilder.deleteCharAt(valuesBuilder.length() - 1);
-        }
-
         insertQueryBuilder.append(valuesBuilder);
         insertQueryBuilder.append(";");
 
         String finalInsertQuery = insertQueryBuilder.toString();
-        System.out.println(finalInsertQuery);
 
         return finalInsertQuery;
     }
 
-    private static void checkAndSetConnection() {
+    private static Connection checkAndGetConnection() {
         try {
             if (connection == null || connection.isClosed() || !connection.isValid(5)) {
                 connection = DriverManager.getConnection(url);
@@ -304,11 +315,11 @@ public class QueryDataService {
         } catch (SQLException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
         }
+
+        return connection;
     }
 
     public static String generateTable(Map<String, DataType> schema) {
-
-        checkAndSetConnection();
 
         // Generate table name
         String generateUniqueId = new ObjectId().toString().toUpperCase();
@@ -325,6 +336,12 @@ public class QueryDataService {
 
         Boolean columnsAdded = false;
         for (Map.Entry<String, DataType> entry : schema.entrySet()) {
+
+            if (columnsAdded) {
+                // If columns have been added before, add a separator
+                sb.append(",");
+            }
+
             String fieldName = entry.getKey();
             DataType dataType = entry.getValue();
 
@@ -338,19 +355,11 @@ public class QueryDataService {
             sb.append(fieldName);
             sb.append(" ");
             sb.append(sqlDataType);
-            sb.append(",");
-        }
-
-        // Delete trailing comma
-        if (columnsAdded) {
-            int i = sb.lastIndexOf(",");
-            sb.deleteCharAt(i);
         }
 
         sb.append(");");
 
         String createTableQuery = sb.toString();
-        System.out.println(createTableQuery);
 
         executeDbQuery(createTableQuery);
 
@@ -359,8 +368,6 @@ public class QueryDataService {
     }
 
     public static void dropTable(String tableName) {
-
-        checkAndSetConnection();
 
         String dropTableQuery = "DROP TABLE " + tableName + ";";
 
@@ -371,7 +378,7 @@ public class QueryDataService {
     private static Map<String, DataType> generateSchema(JsonNode jsonNode) {
 
         Iterator<String> fieldNamesIterator = jsonNode.fieldNames();
-        /**
+        /*
          * For an object of the following type :
          * {
          *      "field1" : "stringValue",
