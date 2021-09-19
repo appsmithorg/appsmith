@@ -1,14 +1,13 @@
 package com.appsmith.external.services;
 
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +21,12 @@ public class InMemoryDatabaseTest {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void testGenerateTable() throws SQLException {
+    public void testInvalidConditions() {
+
+    }
+
+    @Test
+    public void testGenerateTable() {
         Map<String, DataType> schema = Map.of(
                 "id", DataType.INTEGER,
                 "name", DataType.STRING,
@@ -66,12 +70,9 @@ public class InMemoryDatabaseTest {
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
-            List<Object> conditionList = new ArrayList<>();
+            List<Condition> conditionList = new ArrayList<>();
 
-            Map<String, String> condition = new HashMap<>();
-            condition.put("path", "orderAmount");
-            condition.put("operator", "LT");
-            condition.put("value", "15");
+            Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
             ArrayNode filteredData = filterData(items, conditionList);
@@ -79,7 +80,7 @@ public class InMemoryDatabaseTest {
             assertEquals(filteredData.size(), 2);
 
 
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -116,18 +117,12 @@ public class InMemoryDatabaseTest {
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
-            List<Object> conditionList = new ArrayList<>();
+            List<Condition> conditionList = new ArrayList<>();
 
-            Map<String, String> condition = new HashMap<>();
-            condition.put("path", "orderAmount");
-            condition.put("operator", "LT");
-            condition.put("value", "15");
+            Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
-            Map<String, String> condition1 = new HashMap<>();
-            condition1.put("path", "orderStatus");
-            condition1.put("operator", "EQ");
-            condition1.put("value", "READY");
+            Condition condition1 = new Condition("orderStatus", "EQ", "READY");
             conditionList.add(condition1);
 
             ArrayNode filteredData = filterData(items, conditionList);
@@ -135,7 +130,7 @@ public class InMemoryDatabaseTest {
             assertEquals(filteredData.size(), 1);
 
 
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -172,18 +167,12 @@ public class InMemoryDatabaseTest {
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
-            List<Object> conditionList = new ArrayList<>();
+            List<Condition> conditionList = new ArrayList<>();
 
-            Map<String, String> condition = new HashMap<>();
-            condition.put("path", "orderAmount");
-            condition.put("operator", "LT");
-            condition.put("value", "15");
+            Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
-            Map<String, String> condition1 = new HashMap<>();
-            condition1.put("path", "orderStatus");
-            condition1.put("operator", "IN");
-            condition1.put("value", "[\"READY\", \"NOT READY\"]");
+            Condition condition1 = new Condition("orderStatus", "IN", "[\"READY\", \"NOT READY\"]");
             conditionList.add(condition1);
 
             ArrayNode filteredData = filterData(items, conditionList);
@@ -191,7 +180,7 @@ public class InMemoryDatabaseTest {
             assertEquals(filteredData.size(), 2);
 
 
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -228,18 +217,12 @@ public class InMemoryDatabaseTest {
         try {
             ArrayNode items = (ArrayNode) objectMapper.readTree(data);
 
-            List<Object> conditionList = new ArrayList<>();
+            List<Condition> conditionList = new ArrayList<>();
 
-            Map<String, String> condition = new HashMap<>();
-            condition.put("path", "orderAmount");
-            condition.put("operator", "LT");
-            condition.put("value", "15");
+            Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
-            Map<String, String> condition1 = new HashMap<>();
-            condition1.put("path", "orderAmount");
-            condition1.put("operator", "IN");
-            condition1.put("value", "[4.99, 19.99]");
+            Condition condition1 = new Condition("orderAmount", "IN", "[4.99, 19.99]");
             conditionList.add(condition1);
 
             ArrayNode filteredData = filterData(items, conditionList);
@@ -247,7 +230,7 @@ public class InMemoryDatabaseTest {
             assertEquals(filteredData.size(), 1);
 
 
-        } catch (IOException | SQLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
