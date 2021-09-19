@@ -61,7 +61,7 @@ public class QueryDataService {
             ConditionalOperator.NOT_IN, "NOT IN"
     );
 
-    private static Connection connection;
+    private Connection connection;
 
     private QueryDataService() {
         try {
@@ -127,10 +127,10 @@ public class QueryDataService {
 
         List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
-        Connection connection = checkAndGetConnection();
+        Connection conn = checkAndGetConnection();
 
         try {
-            Statement statement = connection.createStatement();
+            Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery(selectQuery);
 
             ResultSetMetaData metaData = resultSet.getMetaData();
@@ -295,10 +295,10 @@ public class QueryDataService {
 
     private void executeDbQuery(String query) {
 
-        Connection connection = checkAndGetConnection();
+        Connection conn = checkAndGetConnection();
 
         try {
-            connection.createStatement().execute(query);
+            conn.createStatement().execute(query);
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
