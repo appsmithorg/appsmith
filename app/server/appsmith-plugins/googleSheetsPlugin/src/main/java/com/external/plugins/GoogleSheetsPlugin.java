@@ -276,7 +276,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                                                  DatasourceConfiguration datasourceConfiguration) {
             ActionConfiguration actionConfiguration = new ActionConfiguration();
             actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-            return execute(null, datasourceConfiguration, actionConfiguration);
+            return executeCommon(null, datasourceConfiguration, actionConfiguration);
         }
 
         @Override
