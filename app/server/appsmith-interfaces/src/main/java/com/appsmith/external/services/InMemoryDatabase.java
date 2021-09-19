@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -52,7 +53,9 @@ public class InMemoryDatabase {
             ConditionalOperator.EQ, "=",
             ConditionalOperator.NOT_EQ, "<>",
             ConditionalOperator.GT, ">",
-            ConditionalOperator.GTE, ">="
+            ConditionalOperator.GTE, ">=",
+            ConditionalOperator.IN, "IN",
+            ConditionalOperator.NOT_IN, "NOT IN"
     );
 
     private static Connection connection;
@@ -117,9 +120,38 @@ public class InMemoryDatabase {
             sb.append(" ");
             sb.append(sqlOp);
             sb.append(" ");
-            sb.append("'");
-            sb.append(value);
-            sb.append("'");
+
+            // These are array operations. Convert value into appropriate format and then append
+            if (operator == ConditionalOperator.IN || operator == ConditionalOperator.NOT_IN) {
+
+                StringBuilder valueBuilder = new StringBuilder("(");
+
+                // The array could be an array of Strings
+                if (value.contains("\"")) {
+                    try {
+                        List<String> stringValues = objectMapper.readValue(value, List.class);
+                        List<String> updatedStringValues = stringValues.stream().map(stringValue -> "\'" + stringValue + "\'").collect(Collectors.toList());
+                        String finalValues = String.join(",", updatedStringValues);
+                        valueBuilder.append(finalValues);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    String trimmedValue = value.replaceAll("^\\[|]$", "");
+                    valueBuilder.append(trimmedValue);
+                }
+
+                valueBuilder.append(")");
+                value = valueBuilder.toString();
+                sb.append(value);
+
+            } else {
+                // Since the value is not an array, surround the same with single quotes and append
+                sb.append("'");
+                sb.append(value);
+                sb.append("'");
+            }
+
             iterator++;
         }
 
@@ -318,7 +350,7 @@ public class InMemoryDatabase {
          *      "field3" : "12"
          * }
          *
-         * The scheme generated would be a Map as follows :
+         * The schema generated would be a Map as follows :
          * {
          *      field1 : DataType.STRING
          *      field2 : DataType.BOOLEAN

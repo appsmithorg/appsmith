@@ -139,4 +139,116 @@ public class InMemoryDatabaseTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testFilterInConditionForStrings() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Object> conditionList = new ArrayList<>();
+
+            Map<String, String> condition = new HashMap<>();
+            condition.put("path", "orderAmount");
+            condition.put("operator", "LT");
+            condition.put("value", "15");
+            conditionList.add(condition);
+
+            Map<String, String> condition1 = new HashMap<>();
+            condition1.put("path", "orderStatus");
+            condition1.put("operator", "IN");
+            condition1.put("value", "[\"READY\", \"NOT READY\"]");
+            conditionList.add(condition1);
+
+            ArrayNode filteredData = filterData(items, conditionList);
+
+            assertEquals(filteredData.size(), 2);
+
+
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFilterInConditionForNumbers() {
+        String data = "[\n" +
+                "  {\n" +
+                "    \"id\": 2381224,\n" +
+                "    \"email\": \"michael.lawson@reqres.in\",\n" +
+                "    \"userName\": \"Michael Lawson\",\n" +
+                "    \"productName\": \"Chicken Sandwich\",\n" +
+                "    \"orderAmount\": 4.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 2736212,\n" +
+                "    \"email\": \"lindsay.ferguson@reqres.in\",\n" +
+                "    \"userName\": \"Lindsay Ferguson\",\n" +
+                "    \"productName\": \"Tuna Salad\",\n" +
+                "    \"orderAmount\": 9.99,\n" +
+                "    \"orderStatus\": \"NOT READY\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"id\": 6788734,\n" +
+                "    \"email\": \"tobias.funke@reqres.in\",\n" +
+                "    \"userName\": \"Tobias Funke\",\n" +
+                "    \"productName\": \"Beef steak\",\n" +
+                "    \"orderAmount\": 19.99,\n" +
+                "    \"orderStatus\": \"READY\"\n" +
+                "  }\n" +
+                "]";
+
+        try {
+            ArrayNode items = (ArrayNode) objectMapper.readTree(data);
+
+            List<Object> conditionList = new ArrayList<>();
+
+            Map<String, String> condition = new HashMap<>();
+            condition.put("path", "orderAmount");
+            condition.put("operator", "LT");
+            condition.put("value", "15");
+            conditionList.add(condition);
+
+            Map<String, String> condition1 = new HashMap<>();
+            condition1.put("path", "orderAmount");
+            condition1.put("operator", "IN");
+            condition1.put("value", "[4.99, 19.99]");
+            conditionList.add(condition1);
+
+            ArrayNode filteredData = filterData(items, conditionList);
+
+            assertEquals(filteredData.size(), 1);
+
+
+        } catch (IOException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
