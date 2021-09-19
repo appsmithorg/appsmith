@@ -11,19 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.services.InMemoryDatabase.filterData;
-import static com.appsmith.external.services.InMemoryDatabase.generateTable;
+import static com.appsmith.external.services.QueryDataService.filterData;
+import static com.appsmith.external.services.QueryDataService.generateTable;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class InMemoryDatabaseTest {
+public class QueryDataServiceTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Test
-    public void testInvalidConditions() {
-
-    }
 
     @Test
     public void testGenerateTable() {

@@ -8,6 +8,7 @@ import com.appsmith.external.models.Condition;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +32,8 @@ import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDat
 import static com.appsmith.external.models.Condition.addValueDataType;
 
 @Component
-public class InMemoryDatabase {
+@Slf4j
+public class QueryDataService {
 
     private static String JDBC_DRIVER = "org.h2.Driver";
     private static String url = "jdbc:h2:mem:filterDb";
@@ -59,8 +61,13 @@ public class InMemoryDatabase {
 
     private static Connection connection;
 
-    public InMemoryDatabase() throws SQLException {
-        connection = DriverManager.getConnection(url);
+    public QueryDataService() {
+        try {
+            connection = DriverManager.getConnection(url);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
+        }
     }
 
     public static ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
@@ -97,7 +104,7 @@ public class InMemoryDatabase {
     }
 
     public static List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
-        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
+        StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
         String whereClause = generateWhereClause(conditions);
         sb.append(whereClause);
@@ -105,7 +112,7 @@ public class InMemoryDatabase {
         sb.append(";");
 
         String selectQuery = sb.toString();
-        System.out.println(selectQuery);
+        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
         List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
@@ -128,7 +135,9 @@ public class InMemoryDatabase {
             System.out.println(rowsList);
 
         } catch (SQLException e) {
+            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
             e.printStackTrace();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
         return rowsList;
@@ -140,6 +149,16 @@ public class InMemoryDatabase {
 
         Boolean firstCondition = true;
         for (Condition condition : conditions) {
+
+            if (firstCondition) {
+                // Append the WHERE keyword before adding the conditions
+                sb.append(" WHERE ");
+                firstCondition = false;
+            } else {
+                // This is not the first condition. Append an `AND` before adding the next condition
+                sb.append(" AND ");
+            }
+
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
             String value = condition.getValue();
@@ -147,11 +166,6 @@ public class InMemoryDatabase {
             String sqlOp = SQL_OPERATOR_MAP.get(operator);
             if (sqlOp == null) {
                 // Operator not supported. Handle the same // TODO
-            }
-
-            if (!firstCondition) {
-                // This is not the first condition. Append an `AND` before adding the next condition
-                sb.append(" AND ");
             }
 
             sb.append(path);
@@ -189,8 +203,6 @@ public class InMemoryDatabase {
                 sb.append(value);
                 sb.append("'");
             }
-
-            firstCondition = false;
         }
 
         return sb.toString();
@@ -261,7 +273,9 @@ public class InMemoryDatabase {
         try {
             connection.createStatement().execute(query);
         } catch (SQLException e) {
+            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
             e.printStackTrace();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen during insertion of data : " + e.getMessage());
         }
     }
 
@@ -288,7 +302,7 @@ public class InMemoryDatabase {
                 connection = DriverManager.getConnection(url);
             }
         } catch (SQLException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to connect to the in memory database. Unable to perform filtering");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
         }
     }
 
@@ -338,11 +352,7 @@ public class InMemoryDatabase {
         String createTableQuery = sb.toString();
         System.out.println(createTableQuery);
 
-        try {
-            connection.createStatement().execute(createTableQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        executeDbQuery(createTableQuery);
 
         return tableName;
 
@@ -352,13 +362,9 @@ public class InMemoryDatabase {
 
         checkAndSetConnection();
 
-        String dropTableQuery = "DROP TABLE " + tableName;
+        String dropTableQuery = "DROP TABLE " + tableName + ";";
 
-        try {
-            connection.createStatement().execute(dropTableQuery);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        executeDbQuery(dropTableQuery);
     }
 
 
@@ -400,18 +406,6 @@ public class InMemoryDatabase {
         return conditionList
                 .stream()
                 .allMatch(condition -> Condition.isValid(condition));
-
-//        for (Object condition : conditionList) {
-//            String path = ((Map<String, String>) condition).get("path");
-//            String operatorString = ((Map<String, String>) condition).get("operator");
-//            String value = ((Map<String, String>) condition).get("value");
-//
-//            if (StringUtils.isEmpty(path) || StringUtils.isEmpty(operatorString) || StringUtils.isEmpty(value)) {
-//                return false;
-//            }
-//        }
-//
-//        return true;
     }
 
 }
