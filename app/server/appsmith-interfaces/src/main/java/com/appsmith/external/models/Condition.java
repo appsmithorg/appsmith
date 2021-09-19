@@ -9,7 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
@@ -57,5 +59,20 @@ public class Condition {
         }
 
         return true;
+    }
+
+    public static List<Condition> generateFromConfiguration(List<Object> configurationList) {
+        List<Condition> conditionList = new ArrayList<>();
+
+        for(Object config : configurationList) {
+            Map<String, String> condition = (Map<String, String>) config;
+            conditionList.add(new Condition(
+                    condition.get("path"),
+                    condition.get("operator"),
+                    condition.get("value")
+            ));
+        }
+
+        return conditionList;
     }
 }
