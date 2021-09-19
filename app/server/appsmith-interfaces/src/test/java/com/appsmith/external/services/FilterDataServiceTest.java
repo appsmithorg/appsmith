@@ -14,10 +14,10 @@ import java.util.Map;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 
-public class QueryDataServiceTest {
+public class FilterDataServiceTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final QueryDataService queryDataService = QueryDataService.getInstance();
+    private final FilterDataService filterDataService = FilterDataService.getInstance();
 
     @Test
     public void testGenerateTable() {
@@ -27,7 +27,7 @@ public class QueryDataServiceTest {
                 "status", DataType.BOOLEAN
         );
 
-        String table = queryDataService.generateTable(schema);
+        String table = filterDataService.generateTable(schema);
 
         assertThat(table).isNotNull();
     }
@@ -69,7 +69,7 @@ public class QueryDataServiceTest {
             Condition condition = new Condition("orderAmount", "LT", "15");
             conditionList.add(condition);
 
-            ArrayNode filteredData = queryDataService.filterData(items, conditionList);
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 2);
 
@@ -119,7 +119,7 @@ public class QueryDataServiceTest {
             Condition condition1 = new Condition("orderStatus", "EQ", "READY");
             conditionList.add(condition1);
 
-            ArrayNode filteredData = queryDataService.filterData(items, conditionList);
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 1);
 
@@ -169,7 +169,7 @@ public class QueryDataServiceTest {
             Condition condition1 = new Condition("orderStatus", "IN", "[\"READY\", \"NOT READY\"]");
             conditionList.add(condition1);
 
-            ArrayNode filteredData = queryDataService.filterData(items, conditionList);
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 2);
 
@@ -219,7 +219,7 @@ public class QueryDataServiceTest {
             Condition condition1 = new Condition("orderAmount", "IN", "[4.99, 19.99]");
             conditionList.add(condition1);
 
-            ArrayNode filteredData = queryDataService.filterData(items, conditionList);
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 1);
 
@@ -269,7 +269,7 @@ public class QueryDataServiceTest {
             Condition condition1 = new Condition("orderAmount", "NOT_IN", "[5.99, 19.00]");
             conditionList.add(condition1);
 
-            ArrayNode filteredData = queryDataService.filterData(items, conditionList);
+            ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 2);
 

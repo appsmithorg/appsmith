@@ -33,13 +33,13 @@ import static com.appsmith.external.models.Condition.addValueDataType;
 
 @Component
 @Slf4j
-public class QueryDataService {
+public class FilterDataService {
 
-    private static QueryDataService single_instance = null;
+    private static FilterDataService instance = null;
+    private ObjectMapper objectMapper;
+    private Connection connection;
 
-    private static String JDBC_DRIVER = "org.h2.Driver";
-    private static String url = "jdbc:h2:mem:filterDb";
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final String URL = "jdbc:h2:mem:filterDb";
 
     private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
             DataType.INTEGER, "INT",
@@ -61,24 +61,25 @@ public class QueryDataService {
             ConditionalOperator.NOT_IN, "NOT IN"
     );
 
-    private Connection connection;
+    private FilterDataService() {
 
-    private QueryDataService() {
+        objectMapper = new ObjectMapper();
+
         try {
-            connection = DriverManager.getConnection(url);
+            connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
             log.error(e.getMessage());
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
         }
     }
 
-    public static QueryDataService getInstance() {
+    public static FilterDataService getInstance() {
 
-        if (single_instance == null) {
-            single_instance = new QueryDataService();
+        if (instance == null) {
+            instance = new FilterDataService();
         }
 
-        return single_instance;
+        return instance;
     }
 
     public ArrayNode filterData(ArrayNode items, List<Condition> conditionList) {
@@ -321,7 +322,7 @@ public class QueryDataService {
     private Connection checkAndGetConnection() {
         try {
             if (connection == null || connection.isClosed() || !connection.isValid(5)) {
-                connection = DriverManager.getConnection(url);
+                connection = DriverManager.getConnection(URL);
             }
         } catch (SQLException e) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
