@@ -19,12 +19,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.DataTypeStringUtils.stringToKnownDataTypeConverter;
 import static com.appsmith.external.services.InMemoryDatabase.Condition.generateConditionList;
@@ -36,7 +37,7 @@ public class InMemoryDatabase {
     private static String url = "jdbc:h2:mem:filterDb";
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    private static Map<DataType, String> sqlDataTypeMap = Map.of(
+    private static final Map<DataType, String> SQL_DATATYPE_MAP = Map.of(
             DataType.INTEGER, "INT",
             DataType.LONG, "BIGINT",
             DataType.FLOAT, "REAL",
@@ -45,7 +46,7 @@ public class InMemoryDatabase {
             DataType.STRING, "VARCHAR"
     );
 
-    private static Map<ConditionalOperator, String> sqlOperatorMapping = Map.of(
+    private static final Map<ConditionalOperator, String> SQL_OPERATOR_MAP = Map.of(
             ConditionalOperator.LT, "<",
             ConditionalOperator.LTE, "<=",
             ConditionalOperator.EQ, "=",
@@ -83,24 +84,33 @@ public class InMemoryDatabase {
         insertData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = selectQuery(tableName, conditions);
+        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions);
+
+        // Drop the table
+        dropTable(tableName);
 
         ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
 
         return finalResultsNode;
     }
 
-    public static List<Map<String, Object>> selectQuery(String tableName, List<Condition> conditions) {
+    public static List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
 
+        int iterator = 0;
         for (Condition condition : conditions) {
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
             String value = condition.getValue();
 
-            String sqlOp = sqlOperatorMapping.get(operator);
+            String sqlOp = SQL_OPERATOR_MAP.get(operator);
             if (sqlOp == null) {
                 // Operator not supported. Handle the same // TODO
+            }
+
+            if (iterator > 0) {
+                // This is not the first condition. Append an `AND` before adding the next condition
+                sb.append(" AND ");
             }
 
             sb.append(path);
@@ -109,12 +119,8 @@ public class InMemoryDatabase {
             sb.append(" ");
             sb.append("'");
             sb.append(value);
-            sb.append("' AND ");
-        }
-
-        if (!conditions.isEmpty()) {
-            // Trim the last " AND " aka last 5 characters
-            sb.setLength(sb.length() - 5);
+            sb.append("'");
+            iterator++;
         }
 
         sb.append(";");
@@ -147,56 +153,36 @@ public class InMemoryDatabase {
         return rowsList;
     }
 
-    public static void fetchAll(String tableName) {
-        String query = "SELECT * FROM " + tableName + ";";
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int colCount = metaData.getColumnCount();
-            List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
-            while (resultSet.next()) {
-                Map<String, Object> row = new LinkedHashMap<>(colCount);
-                for (int i = 1; i <= colCount; i++) {
-                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
-                }
-                rowsList.add(row);
-            }
-            System.out.println(rowsList);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
     public static void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
-        StringBuilder mainBuilder = new StringBuilder("INSERT INTO ");
-        mainBuilder.append(tableName);
+        StringBuilder insertQueryBuilder = new StringBuilder("INSERT INTO ");
+        insertQueryBuilder.append(tableName);
 
         StringBuilder columnNamesBuilder = new StringBuilder("(");
-
-        for (String columnName : columnNames) {
-            columnNamesBuilder.append(columnName);
-            columnNamesBuilder.append(",");
-        }
-
-        // Trim the trailing comma
-        int i = columnNamesBuilder.lastIndexOf(",");
-        columnNamesBuilder.deleteCharAt(i);
-
+        columnNamesBuilder.append(String.join(", ", columnNames));
         columnNamesBuilder.append(")");
 
-        mainBuilder.append(columnNamesBuilder);
-        mainBuilder.append(" VALUES ");
+        insertQueryBuilder.append(columnNamesBuilder);
+        insertQueryBuilder.append(" VALUES ");
 
+        StringBuilder valuesMasterBuilder = new StringBuilder();
+
+        int iterator = 0;
         for (JsonNode item : items) {
+
+            // In the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
+            // rows, execute the insert for rows so far and start afresh.
+            if (iterator == 1000) {
+                String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
+                executeDbQuery(insertQueryString);
+
+                // Reset the values builder and iterator for new insert queries.
+                valuesMasterBuilder = new StringBuilder();
+                iterator = 0;
+            }
 
             StringBuilder valuesBuilder = new StringBuilder("(");
 
@@ -212,27 +198,44 @@ public class InMemoryDatabase {
 
             // All the columns have been read
             // Trim the trailing comma
-            i = valuesBuilder.lastIndexOf(",");
+            int i = valuesBuilder.lastIndexOf(",");
             valuesBuilder.deleteCharAt(i);
 
             valuesBuilder.append("),");
 
-            mainBuilder.append(valuesBuilder);
+            valuesMasterBuilder.append(valuesBuilder);
+            iterator++;
         }
 
-        // Trim the trailing comma
-        i = mainBuilder.lastIndexOf(",");
-        mainBuilder.deleteCharAt(i);
+        if (valuesMasterBuilder.length() > 0) {
+            String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
+            executeDbQuery(insertQueryString);
+        }
+    }
 
-        String insertQuery = mainBuilder.toString();
-        System.out.println(insertQuery);
-
+    private static void executeDbQuery(String query) {
         try {
-            connection.createStatement().execute(insertQuery);
+            connection.createStatement().execute(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    private static String finalInsertQueryString(String partialInsertQuery, StringBuilder valuesBuilder) {
+
+        StringBuilder insertQueryBuilder = new StringBuilder(partialInsertQuery);
+
+        if (valuesBuilder.lastIndexOf(",") == valuesBuilder.length() - 1) {
+            valuesBuilder.deleteCharAt(valuesBuilder.length() - 1);
+        }
+
+        insertQueryBuilder.append(valuesBuilder);
+        insertQueryBuilder.append(";");
+
+        String finalInsertQuery = insertQueryBuilder.toString();
+        System.out.println(finalInsertQuery);
+
+        return finalInsertQuery;
     }
 
     public static String generateTable(Map<String, DataType> schema) throws SQLException {
@@ -242,7 +245,10 @@ public class InMemoryDatabase {
         }
 
         // Generate table name
-        String generateUniqueId = new ObjectId().toString().toUpperCase(Locale.ROOT);
+        String generateUniqueId = new ObjectId().toString().toUpperCase();
+
+        // Appending tbl_ before the generated unique id since using the string directly was throwing a SQL error
+        // which I couldnt solve. Just appending a string to it though works perfectly.
         String tableName = new StringBuilder("tbl_").append(generateUniqueId).toString();
 
         StringBuilder sb = new StringBuilder("CREATE TABLE ");
@@ -256,10 +262,11 @@ public class InMemoryDatabase {
             String fieldName = entry.getKey();
             DataType dataType = entry.getValue();
 
-            String sqlDataType = sqlDataTypeMap.get(dataType);
+            String sqlDataType = SQL_DATATYPE_MAP.get(dataType);
             if (sqlDataType == null) {
-                // or throw an error for unsupported data type
-                continue;
+                // the data type recognized does not have a native support in appsmith right now
+                // default to String
+                sqlDataType = SQL_DATATYPE_MAP.get(DataType.STRING);
             }
             columnsAdded = true;
             sb.append(fieldName);
@@ -289,16 +296,45 @@ public class InMemoryDatabase {
 
     }
 
+    public static void dropTable(String tableName) {
+        String dropTableQuery = "DROP TABLE " + tableName;
+
+        try {
+            connection.createStatement().execute(dropTableQuery);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private static Map<String, DataType> generateSchema(JsonNode jsonNode) {
-        Map<String, DataType> schema = new HashMap<>();
 
-        jsonNode.fieldNames().forEachRemaining(name -> {
-            String value = jsonNode.get(name).asText();
-            DataType dataType = stringToKnownDataTypeConverter(value);
-
-            schema.put(name, dataType);
-        });
+        Iterator<String> fieldNamesIterator = jsonNode.fieldNames();
+        /**
+         * For an object of the following type :
+         * {
+         *      "field1" : "stringValue",
+         *      "field2" : "true",
+         *      "field3" : "12"
+         * }
+         *
+         * The scheme generated would be a Map as follows :
+         * {
+         *      field1 : DataType.STRING
+         *      field2 : DataType.BOOLEAN
+         *      field3 : DataType.INTEGER
+         * }
+         */
+        Map<String, DataType> schema = Stream.generate(() -> null)
+                .takeWhile(x -> fieldNamesIterator.hasNext())
+                .map(n -> fieldNamesIterator.next())
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        name -> {
+                            String value = jsonNode.get(name).asText();
+                            DataType dataType = stringToKnownDataTypeConverter(value);
+                            return dataType;
+                        }));
 
         return schema;
     }

@@ -12,10 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.services.InMemoryDatabase.fetchAll;
 import static com.appsmith.external.services.InMemoryDatabase.filterData;
 import static com.appsmith.external.services.InMemoryDatabase.generateTable;
-import static com.appsmith.external.services.InMemoryDatabase.insertData;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -32,44 +30,6 @@ public class InMemoryDatabaseTest {
         );
 
         String table = generateTable(schema);
-
-        assertThat(table).isNotNull();
-    }
-
-    @Test
-    public void testInsertDataIntoTable() throws SQLException, IOException {
-
-        String data = "[\n" +
-                "  {\n" +
-                "    \"id\": 2381224,\n" +
-                "    \"userName\": \"Michael Lawson\",\n" +
-                "    \"orderAmount\": 4.99\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 2736212,\n" +
-                "    \"userName\": \"Lindsay Ferguson\",\n" +
-                "    \"orderAmount\": 9.99\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"id\": 6788734,\n" +
-                "    \"userName\": \"Tobias Funke\",\n" +
-                "    \"orderAmount\": 19.99\n" +
-                "  }\n" +
-                "]";
-
-        ArrayNode items = (ArrayNode) objectMapper.readTree(data);
-
-        Map<String, DataType> schema = Map.of(
-                "id", DataType.INTEGER,
-                "userName", DataType.STRING,
-                "orderAmount", DataType.FLOAT
-        );
-
-        String table = generateTable(schema);
-
-        insertData(table, items, schema);
-
-        fetchAll(table);
 
         assertThat(table).isNotNull();
     }
