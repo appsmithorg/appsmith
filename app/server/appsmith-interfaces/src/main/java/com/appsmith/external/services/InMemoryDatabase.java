@@ -2,6 +2,8 @@ package com.appsmith.external.services;
 
 import com.appsmith.external.constants.ConditionalOperator;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,7 +66,7 @@ public class InMemoryDatabase {
         connection = DriverManager.getConnection(url);
     }
 
-    public static ArrayNode filterData(ArrayNode items, List<Object> conditionList) throws SQLException {
+    public static ArrayNode filterData(ArrayNode items, List<Object> conditionList) {
 
         if (items == null || items.size() == 0) {
             return items;
@@ -89,7 +91,7 @@ public class InMemoryDatabase {
         // Filter the data
         List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions);
 
-        // Drop the table
+        // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
 
         ArrayNode finalResultsNode = objectMapper.valueToTree(finalResults);
@@ -100,7 +102,46 @@ public class InMemoryDatabase {
     public static List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
 
-        int iterator = 0;
+        String whereClause = generateWhereClause(conditions);
+        sb.append(whereClause);
+
+        sb.append(";");
+
+        String selectQuery = sb.toString();
+        System.out.println(selectQuery);
+
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
+        checkAndSetConnection();
+
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(selectQuery);
+
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int colCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new LinkedHashMap<>(colCount);
+                for (int i = 1; i <= colCount; i++) {
+                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                }
+                rowsList.add(row);
+            }
+            System.out.println(rowsList);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return rowsList;
+    }
+
+    private static String generateWhereClause(List<Condition> conditions) {
+
+        StringBuilder sb = new StringBuilder();
+
+        Boolean firstCondition = true;
         for (Condition condition : conditions) {
             String path = condition.getPath();
             ConditionalOperator operator = condition.getOperator();
@@ -111,7 +152,7 @@ public class InMemoryDatabase {
                 // Operator not supported. Handle the same // TODO
             }
 
-            if (iterator > 0) {
+            if (!firstCondition) {
                 // This is not the first condition. Append an `AND` before adding the next condition
                 sb.append(" AND ");
             }
@@ -152,37 +193,10 @@ public class InMemoryDatabase {
                 sb.append("'");
             }
 
-            iterator++;
+            firstCondition = false;
         }
 
-        sb.append(";");
-
-        String selectQuery = sb.toString();
-        System.out.println(selectQuery);
-
-        List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectQuery);
-
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int colCount = metaData.getColumnCount();
-
-            while (resultSet.next()) {
-                Map<String, Object> row = new LinkedHashMap<>(colCount);
-                for (int i = 1; i <= colCount; i++) {
-                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
-                }
-                rowsList.add(row);
-            }
-            System.out.println(rowsList);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return rowsList;
+        return sb.toString();
     }
 
     // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
@@ -246,6 +260,7 @@ public class InMemoryDatabase {
     }
 
     private static void executeDbQuery(String query) {
+        checkAndSetConnection();
         try {
             connection.createStatement().execute(query);
         } catch (SQLException e) {
@@ -270,11 +285,19 @@ public class InMemoryDatabase {
         return finalInsertQuery;
     }
 
-    public static String generateTable(Map<String, DataType> schema) throws SQLException {
-
-        if (connection == null || connection.isClosed() || !connection.isValid(5)) {
-            connection = DriverManager.getConnection(url);
+    private static void checkAndSetConnection() {
+        try {
+            if (connection == null || connection.isClosed() || !connection.isValid(5)) {
+                connection = DriverManager.getConnection(url);
+            }
+        } catch (SQLException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unable to connect to the in memory database. Unable to perform filtering");
         }
+    }
+
+    public static String generateTable(Map<String, DataType> schema) {
+
+        checkAndSetConnection();
 
         // Generate table name
         String generateUniqueId = new ObjectId().toString().toUpperCase();
@@ -329,6 +352,9 @@ public class InMemoryDatabase {
     }
 
     public static void dropTable(String tableName) {
+
+        checkAndSetConnection();
+
         String dropTableQuery = "DROP TABLE " + tableName;
 
         try {
