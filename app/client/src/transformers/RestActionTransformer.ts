@@ -52,7 +52,6 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
   action.actionConfiguration.queryParameters = removeEmptyPairs(
     action.actionConfiguration.queryParameters,
   );
-
   return action;
 };
 
