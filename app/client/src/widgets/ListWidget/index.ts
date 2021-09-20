@@ -141,7 +141,7 @@ export const CONFIG = {
                                 {
                                   type: "IMAGE_WIDGET",
                                   size: {
-                                    rows: 2.3 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 2.1 * GRID_DENSITY_MIGRATION_V1,
                                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                                   },
                                   position: { top: 0, left: 0 },

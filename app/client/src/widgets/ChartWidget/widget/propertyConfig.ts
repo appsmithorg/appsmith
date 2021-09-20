@@ -68,10 +68,7 @@ export default [
       },
       {
         helpText: "Configure a Custom FusionChart see docs.appsmith.com",
-        placeholderText: `{ 
-          "type": "bar2d",
-          "dataSource": {}
-        }`,
+        placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
         label: "Custom Fusion Chart Configuration",
         controlType: "INPUT_TEXT",
