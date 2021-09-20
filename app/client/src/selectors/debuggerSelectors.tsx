@@ -11,3 +11,14 @@ export const getFilteredErrors = createSelector(
     return errors;
   },
 );
+export const getCurrentDebuggerTab = (state: AppState) =>
+  state.ui.debugger.currentTab;
+
+export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
+  const errorKeys = Object.keys(errors);
+  const warningsCount = errorKeys.filter((key: string) =>
+    key.includes("warning"),
+  ).length;
+  const errorsCount = errorKeys.length - warningsCount;
+  return { errors: errorsCount, warnings: warningsCount };
+});

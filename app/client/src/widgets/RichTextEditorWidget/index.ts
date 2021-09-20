@@ -10,7 +10,7 @@ export const CONFIG = {
   defaults: {
     defaultText: "This is the initial <b>content</b> of the editor",
     rows: 5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     isDisabled: false,
     isVisible: true,
     isRequired: false,

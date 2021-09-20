@@ -35,6 +35,9 @@ export const initialState: any = {
     theme: {
       theme: {
         colors: {
+          applications: {
+            iconColor: "#f2f2f2",
+          },
           success: {
             main: "#e2e2e2",
           },
