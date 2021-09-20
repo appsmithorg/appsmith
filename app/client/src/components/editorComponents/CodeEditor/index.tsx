@@ -591,10 +591,6 @@ class CodeEditor extends Component<Props, State> {
       this.lintCode(this.editor);
     }
 
-    if (getFeatureFlags().LINTING) {
-      this.lintCode();
-    }
-
     const showEvaluatedValue =
       this.state.isFocused &&
       !hideEvaluatedValue &&
