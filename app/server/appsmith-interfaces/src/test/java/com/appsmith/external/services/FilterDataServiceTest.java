@@ -8,8 +8,12 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -319,6 +323,15 @@ public class FilterDataServiceTest {
             ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 2);
+
+            Iterator<String> fieldNamesIterator = filteredData.get(0).fieldNames();
+
+            Set<String> columnNames = Stream.generate(() -> null)
+                    .takeWhile(x -> fieldNamesIterator.hasNext())
+                    .map(n -> fieldNamesIterator.next())
+                    .collect(Collectors.toSet());
+
+            assertThat(columnNames.containsAll(Set.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
 
 
         } catch (IOException e) {

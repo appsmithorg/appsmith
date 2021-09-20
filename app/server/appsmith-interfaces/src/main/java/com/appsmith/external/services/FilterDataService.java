@@ -300,7 +300,6 @@ public class FilterDataService {
 
         Connection conn = checkAndGetConnection();
 
-        log.debug("{}", query);
         try {
             conn.createStatement().execute(query);
         } catch (SQLException e) {
@@ -370,6 +369,7 @@ public class FilterDataService {
             sb.append("\"" + fieldName + "\"");
             sb.append(" ");
             sb.append(sqlDataType);
+
         }
 
         sb.append(");");
@@ -411,6 +411,13 @@ public class FilterDataService {
         Map<String, DataType> schema = Stream.generate(() -> null)
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
+                .map(name -> {
+                    if (name.contains("\"") || name.contains("\'")) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
+                    }
+                    return name;
+                })
                 .collect(Collectors.toMap(
                             Function.identity(),
                             name -> {
@@ -419,6 +426,7 @@ public class FilterDataService {
                                 return dataType;
                             },
                             (u, v) -> {
+                                // This is not possible.
                                 throw new IllegalStateException(String.format("Duplicate key %s", u));
                             },
                             LinkedHashMap::new
