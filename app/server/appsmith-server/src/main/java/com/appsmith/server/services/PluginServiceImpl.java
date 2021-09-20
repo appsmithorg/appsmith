@@ -675,17 +675,17 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .map(plugin -> {
-                    if (resourcePath.equals("editor.json")) {
+                    if ("editor.json".equals(resourcePath)) {
                         // UI config will be available if this plugin is sourced from the cloud
                         if (plugin.getActionUiConfig() != null) {
                             return plugin.getActionUiConfig();
                         }
                         // For UQI, use another format of loading the config
-                        if (plugin.getUiComponent().equals(UQI_DB_EDITOR_FORM)) {
+                        if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
                             return loadEditorPluginResourceUqi(plugin);
                         }
                     }
-                    if (resourcePath.equals("form.json")) {
+                    if ("form.json".equals(resourcePath)) {
                         // UI config will be available if this plugin is sourced from the cloud
                         if (plugin.getDatasourceUiConfig() != null) {
                             return plugin.getDatasourceUiConfig();

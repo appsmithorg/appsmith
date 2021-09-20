@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -1059,7 +1060,7 @@ public class NewActionServiceImpl extends BaseService<NewActionRepository, NewAc
                     executePluginDTO.setInstallationKey(instanceId);
                     executePluginDTO.setPluginName(plugin.getPluginName());
                     executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(datasource);
+                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
                     datasourceContext.setConnection(executePluginDTO);
 
                     return datasourceContext;

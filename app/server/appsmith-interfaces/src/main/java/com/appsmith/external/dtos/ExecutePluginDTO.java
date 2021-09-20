@@ -1,7 +1,6 @@
 package com.appsmith.external.dtos;
 
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.Datasource;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,7 @@ public class ExecutePluginDTO {
     String pluginVersion;
     String actionTemplateName;
     String datasourceTemplateName;
-    Datasource datasource;
+    DatasourceDTO datasource;
     ActionConfiguration actionConfiguration;
     ExecuteActionDTO executeActionDTO;
 }
