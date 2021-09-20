@@ -111,7 +111,10 @@ function TagInputComponent(props: TagInputProps) {
       e.key === " " ||
       e.key === "Tab"
     ) {
-      const newValues = [...values, e.target.value];
+      const newValues = [...values];
+      if (e.target.value) {
+        newValues.push(e.target.value);
+      }
       commitValues(newValues);
       setCurrentValue("");
       e.preventDefault();
