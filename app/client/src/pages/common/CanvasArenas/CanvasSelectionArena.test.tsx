@@ -1,5 +1,4 @@
 import { act, fireEvent, render } from "test/testUtils";
-import Canvas from "pages/Editor/Canvas";
 import React from "react";
 import {
   buildChildren,
@@ -8,13 +7,9 @@ import {
 import {
   MockApplication,
   mockGetCanvasWidgetDsl,
-  MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
-import {
-  LATEST_PAGE_VERSION,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import store from "store";
 import { sagasToRunForTests } from "test/sagas";
