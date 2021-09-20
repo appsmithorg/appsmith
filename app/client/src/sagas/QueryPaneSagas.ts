@@ -182,8 +182,9 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
 
 function* handleDatasourceCreatedSaga(actionPayload: ReduxAction<Datasource>) {
   const plugin = yield select(getPlugin, actionPayload.payload.pluginId);
+  debugger;
   // Only look at db plugins
-  if (plugin.type !== PluginType.DB || plugin.type !== PluginType.REMOTE)
+  if (plugin.type !== PluginType.DB && plugin.type !== PluginType.REMOTE)
     return;
 
   const applicationId = yield select(getCurrentApplicationId);
