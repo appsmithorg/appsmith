@@ -57,6 +57,11 @@ public class RestApiPluginTest {
         public int getMaxResponseSize() {
             return 10000;
         }
+
+        @Override
+        public String getRemoteExecutionUrl() {
+            return "";
+        }
     }
 
     RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());

@@ -38,6 +38,8 @@ public class DatasourceConfiguration implements AppsmithDomain {
 
     List<Property> headers;
 
+    String command;
+
     public boolean isSshProxyEnabled() {
         return sshProxyEnabled == null ? false : sshProxyEnabled;
     }

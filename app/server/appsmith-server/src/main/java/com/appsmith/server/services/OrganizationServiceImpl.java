@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
@@ -36,7 +35,6 @@ import javax.validation.Validator;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -338,6 +336,11 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(organization));
                 });
+    }
+
+    @Override
+    public Flux<Organization> getAll() {
+        return repository.findAll();
     }
 
 }
