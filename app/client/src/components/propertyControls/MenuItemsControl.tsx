@@ -156,6 +156,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
         <StyledPropertyPaneButtonWrapper>
           <AddMenuItemButton
             category={Category.tertiary}
+            className="t--add-menu-item-btn"
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}

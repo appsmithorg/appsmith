@@ -622,6 +622,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.ICON_BUTTON,
+                      ColumnTypes.MENU_BUTTON,
                     ]);
                   },
 
@@ -639,6 +640,31 @@ export default [
                     type: ValidationTypes.TEXT,
                     params: {
                       default: "plus",
+                    },
+                  },
+                },
+                {
+                  propertyName: "iconAlign",
+                  label: "Icon Alignment",
+                  helpText: "Sets the icon alignment of the menu button",
+                  controlType: "ICON_ALIGN",
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  hidden: (props: TableWidgetProps, propertyPath: string) => {
+                    return hideByColumnType(props, propertyPath, [
+                      ColumnTypes.MENU_BUTTON,
+                    ]);
+                  },
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                  validation: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      allowedValues: ["center", "left", "right"],
                     },
                   },
                 },
@@ -1169,54 +1195,7 @@ export default [
                     },
                   },
                 },
-                {
-                  propertyName: "iconName",
-                  label: "Icon",
-                  helpText: "Sets the icon to be used for the menu button",
-                  controlType: "ICON_SELECT",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                      ColumnTypes.ICON_BUTTON,
-                    ]);
-                  },
-                  updateHook: updateIconAlignment,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                  },
-                },
-                {
-                  propertyName: "iconAlign",
-                  label: "Icon Alignment",
-                  helpText: "Sets the icon alignment of the menu button",
-                  controlType: "ICON_ALIGN",
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  updateHook: updateDerivedColumnsHook,
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.MENU_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      allowedValues: ["center", "left", "right"],
-                    },
-                  },
-                },
+
                 {
                   helpText: "Triggers an action when the button is clicked",
                   propertyName: "onClick",
