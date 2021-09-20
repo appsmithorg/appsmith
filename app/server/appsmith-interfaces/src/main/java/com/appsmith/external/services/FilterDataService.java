@@ -412,12 +412,18 @@ public class FilterDataService {
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
                 .collect(Collectors.toMap(
-                        Function.identity(),
-                        name -> {
-                            String value = jsonNode.get(name).asText();
-                            DataType dataType = stringToKnownDataTypeConverter(value);
-                            return dataType;
-                        }));
+                            Function.identity(),
+                            name -> {
+                                String value = jsonNode.get(name).asText();
+                                DataType dataType = stringToKnownDataTypeConverter(value);
+                                return dataType;
+                            },
+                            (u, v) -> {
+                                throw new IllegalStateException(String.format("Duplicate key %s", u));
+                            },
+                            LinkedHashMap::new
+                        )
+                );
 
         return schema;
     }
