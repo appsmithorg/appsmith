@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Mono;
 
 import java.io.BufferedWriter;
@@ -257,6 +258,15 @@ public class FileUtilsImpl implements FileInterface {
         FileUtils.writeStringToFile(file, data, "UTF-8", false);
 
         return Mono.just(baseRepoSuffix);
+    }
+
+    @Override
+    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
+        File file = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile();
+        while (file.exists()) {
+            FileSystemUtils.deleteRecursively(file);
+        }
+        return Mono.just(Boolean.TRUE);
     }
 
     /**

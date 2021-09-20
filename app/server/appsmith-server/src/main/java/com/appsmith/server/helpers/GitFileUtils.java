@@ -160,4 +160,8 @@ public class GitFileUtils {
                                         String baseUrlOfApplication) throws IOException {
         return fileUtils.initializeGitRepo(baseRepoSuffix,defaultPageId, applicationId,baseUrlOfApplication);
     }
+
+    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
+        return fileUtils.detachRemote(baseRepoSuffix);
+    }
 }

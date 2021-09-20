@@ -449,13 +449,16 @@ public class GitServiceImpl implements GitService {
     public Mono<Application> detachRemote(String applicationId) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
-                    Application application1 = new Application();
-                    GitMetadata gitMetadata = new GitMetadata();
-                    if(isInValidGitApplicationMetadata(gitMetadata)) {
-                        return Mono.just(application1);
-                    }
-                    application1.setGitMetadata(gitMetadata);
-                    return applicationService.update(applicationId, application1);
+
+                    //Remove the git contents from file system
+                    GitMetadata gitMetadata = application.getGitMetadata();
+                    String repoName = gitMetadata.getRepoName();
+                    Path repoPath = Paths.get(application.getOrganizationId(), gitMetadata.getDefaultApplicationId(), repoName);
+                    fileUtils.detachRemote(repoPath);
+
+                    //Remove the git metadata from the db
+                    application.setGitMetadata(null);
+                    return applicationService.update(applicationId, application);
                 });
     }
 

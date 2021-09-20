@@ -60,4 +60,11 @@ public interface FileInterface {
                                  String defaultPageId,
                                  String applicationId,
                                  String baseUrlOfApplication) throws IOException;
+
+    /**
+     * When the user clicks on detach remote, we need to remove the repo from the file system
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @return success on remove of file system
+     */
+    Mono<Boolean> detachRemote(Path baseRepoSuffix);
 }
