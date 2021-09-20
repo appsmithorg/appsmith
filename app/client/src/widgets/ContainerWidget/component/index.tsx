@@ -5,7 +5,12 @@ import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpdateHook";
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
+import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -16,12 +21,6 @@ const StyledContainerComponent = styled.div<
     ref: RefObject<HTMLDivElement>;
   }
 >`
-  ${(props) =>
-    props.containerStyle !== "none"
-      ? `
-  box-shadow: 0px 0px 0px 1px #E7E7E7;
-  border-radius: 0;`
-      : ""}
   height: 100%;
   width: 100%;
   background: ${(props) => props.backgroundColor};
@@ -52,10 +51,9 @@ const StyledContainerComponent = styled.div<
   }
 }`;
 
-function ContainerComponent(props: ContainerComponentProps) {
+function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
   useEffect(() => {
     if (!props.shouldScrollContents) {
       const supportsNativeSmoothScroll =
@@ -85,10 +83,32 @@ function ContainerComponent(props: ContainerComponentProps) {
   );
 }
 
+function ContainerComponent(props: ContainerComponentProps) {
+  useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);
+  return props.widgetId === MAIN_CONTAINER_WIDGET_ID ? (
+    <ContainerComponentWrapper {...props} />
+  ) : (
+    <WidgetStyleContainer
+      {...pick(props, [
+        "widgetId",
+        "containerStyle",
+        "borderColor",
+        "borderWidth",
+        "borderRadius",
+        "boxShadow",
+        "boxShadowColor",
+      ])}
+    >
+      <ContainerComponentWrapper {...props} />
+    </WidgetStyleContainer>
+  );
+}
+
 export type ContainerStyle = "border" | "card" | "rounded-border" | "none";
 
-export interface ContainerComponentProps extends ComponentProps {
-  containerStyle?: ContainerStyle;
+export interface ContainerComponentProps
+  extends ComponentProps,
+    WidgetStyleContainerProps {
   children?: ReactNode;
   className?: string;
   backgroundColor?: Color;

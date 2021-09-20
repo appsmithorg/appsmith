@@ -3,12 +3,20 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 export const ReduxSagaChannels: { [key: string]: string } = {
   WEBSOCKET_WRITE_CHANNEL: "WEBSOCKET_WRITE_CHANNEL",
 };
 
 export const ReduxActionTypes = {
+  SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
+  FETCH_GLOBAL_GIT_CONFIG_INIT: "FETCH_GLOBAL_GIT_CONFIG_INIT",
+  FETCH_GLOBAL_GIT_CONFIG_SUCCESS: "FETCH_GLOBAL_GIT_CONFIG_SUCCESS",
+  UPDATE_GIT_CONFIG_INIT: "UPDATE_GIT_CONFIG_INIT",
+  UPDATE_GIT_CONFIG_SUCCESS: "UPDATE_GIT_CONFIG_SUCCESS",
+  SHOW_CREATE_GIT_BRANCH_POPUP: "SHOW_CREATE_GIT_BRANCH_POPUP",
+  SHOW_ERROR_POPUP: "SHOW_ERROR_POPUP",
   CONNECT_TO_GIT_INIT: "CONNECT_TO_GIT_INIT",
   CONNECT_TO_GIT_SUCCESS: "CONNECT_TO_GIT_SUCCESS",
   CREATE_NEW_BRANCH_INIT: "CREATE_NEW_BRANCH_INIT",
@@ -574,6 +582,8 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  UPDATE_GLOBAL_GIT_CONFIG_ERROR: "UPDATE_GLOBAL_GIT_CONFIG_ERROR",
+  FETCH_GLOBAL_GIT_CONFIG_ERROR: "FETCH_GLOBAL_GIT_CONFIG_ERROR",
   CONNECT_TO_GIT_ERROR: "CONNECT_TO_GIT_ERROR",
   COMMIT_TO_GIT_REPO_ERROR: "COMMIT_TO_GIT_REPO_ERROR",
   FETCH_FEATURE_FLAGS_ERROR: "FETCH_FEATURE_FLAGS_ERROR",
@@ -803,12 +813,6 @@ export interface ClonePageSuccessPayload {
 }
 
 export type PageListPayload = Array<Page>;
-
-export type GitApplicationMetadata = {
-  gitAuth?: {
-    publicKey?: string;
-  };
-};
 
 export type ApplicationPayload = {
   id: string;
