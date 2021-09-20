@@ -6,6 +6,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { RadioOption } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isArray } from "lodash";
 
 class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -26,6 +27,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
               type: ValidationTypes.ARRAY,
               unique: ["value"],
               params: {
+                default: [],
                 children: {
                   type: ValidationTypes.OBJECT,
                   params: {
@@ -143,7 +145,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
         key={this.props.widgetId}
         label={`${this.props.label}`}
         onRadioSelectionChange={this.onRadioSelectionChange}
-        options={this.props.options || []}
+        options={isArray(this.props.options) ? this.props.options : []}
         selectedOptionValue={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
       />
@@ -167,7 +169,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
 export interface RadioGroupWidgetProps extends WidgetProps {
   label: string;
-  options?: RadioOption[];
+  options: RadioOption[];
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;
