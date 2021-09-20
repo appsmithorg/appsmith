@@ -451,6 +451,9 @@ export type Theme = {
   actionSidePane: {
     width: number;
   };
+  onboarding: {
+    statusBarHeight: number;
+  };
 };
 
 type IconSizeType = {
@@ -3005,6 +3008,9 @@ export const theme: Theme = {
   },
   actionSidePane: {
     width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
   },
 };
 
