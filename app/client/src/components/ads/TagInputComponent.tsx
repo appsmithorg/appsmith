@@ -106,15 +106,13 @@ function TagInputComponent(props: TagInputProps) {
   const onKeyDown = (e: any) => {
     // Add new values to the tags on comma, return key, space and Tab press.
     if (
-      e.key === "," ||
-      e.key === "Enter" ||
-      e.key === " " ||
-      e.key === "Tab"
+      (e.key === "," ||
+        e.key === "Enter" ||
+        e.key === " " ||
+        e.key === "Tab") &&
+      e.target.value
     ) {
-      const newValues = [...values];
-      if (e.target.value) {
-        newValues.push(e.target.value);
-      }
+      const newValues = [...values, e.target.value];
       commitValues(newValues);
       setCurrentValue("");
       e.preventDefault();
