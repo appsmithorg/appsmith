@@ -8,8 +8,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 import { previewModeSelector } from "selectors/editorSelectors";
+import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
 
 export const PropertyPaneSidebar = memo(() => {
   const sidebarRef = useRef<HTMLDivElement>(null);
