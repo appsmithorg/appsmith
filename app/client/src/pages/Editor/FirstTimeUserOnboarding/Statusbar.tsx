@@ -43,7 +43,7 @@ const Wrapper = styled.div<{ active: boolean }>`
   background-color: ${(props) =>
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
-  height: 83px;
+  height: ${(props) => props.theme.onboarding.statusBarHeight}px;
   padding: 10px 16px;
   transition: background-color 0.3s ease;
 
