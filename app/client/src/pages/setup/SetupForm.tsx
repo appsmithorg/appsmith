@@ -25,6 +25,10 @@ const PageWrapper = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
+  height: 100vh;
+  overflow: auto;
+  position: relative;
+  z-index: 100;
 `;
 
 const SetupFormContainer = styled.div`
