@@ -114,7 +114,6 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
     }
   `}
 
-
   border-radius: ${({ borderRadius }) =>
     borderRadius === ButtonBorderRadiusTypes.ROUNDED ? "5px" : 0};
 
@@ -182,7 +181,6 @@ const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
 
 const StyledMenu = styled(Menu)`
   padding: 0;
-  background: none;
 `;
 
 export interface PopoverContentProps {
