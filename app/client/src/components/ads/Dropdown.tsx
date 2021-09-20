@@ -69,6 +69,11 @@ export type DropdownProps = CommonComponentProps &
     isLoading?: boolean;
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     helperText?: string;
+    /**
+     * if fillOptions is true,
+     * dropdown popover width will be same as dropdown width
+     * @type {boolean}
+     */
     fillOptions?: boolean;
     dontUsePortal?: boolean;
   };
