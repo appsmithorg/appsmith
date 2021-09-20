@@ -10,7 +10,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { snapToGrid } from "utils/helpers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getWidget } from "./selectors";
+import { getWidget } from "../selectors";
 
 interface StartingSelectionState {
   lastSelectedWidgets: string[];
