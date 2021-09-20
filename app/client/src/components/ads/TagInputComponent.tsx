@@ -104,7 +104,8 @@ function TagInputComponent(props: TagInputProps) {
   };
 
   const onKeyDown = (e: any) => {
-    // Add new values to the tags on comma, return key, space and Tab press.
+    // Add new values to the tags on comma, return key, space and Tab press
+    // only if user has typed something on input
     if (
       (e.key === "," ||
         e.key === "Enter" ||
