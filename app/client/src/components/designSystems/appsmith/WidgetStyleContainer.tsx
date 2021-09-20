@@ -38,25 +38,20 @@ const getBoxShadow = ({
 }) => {
   switch (boxShadow) {
     case BoxShadowTypes.VARIANT1:
-      return `0px 0px 4px 3px ${
-        boxShadowColor || theme.colors.button.boxShadow.default.variant1
-      }`;
+      return `0px 0px 4px 3px ${boxShadowColor ||
+        theme.colors.button.boxShadow.default.variant1}`;
     case BoxShadowTypes.VARIANT2:
-      return `3px 3px 4px ${
-        boxShadowColor || theme.colors.button.boxShadow.default.variant2
-      }`;
+      return `3px 3px 4px ${boxShadowColor ||
+        theme.colors.button.boxShadow.default.variant2}`;
     case BoxShadowTypes.VARIANT3:
-      return `0px 1px 3px ${
-        boxShadowColor || theme.colors.button.boxShadow.default.variant3
-      }`;
+      return `0px 1px 3px ${boxShadowColor ||
+        theme.colors.button.boxShadow.default.variant3}`;
     case BoxShadowTypes.VARIANT4:
-      return `2px 2px 0px ${
-        boxShadowColor || theme.colors.button.boxShadow.default.variant4
-      }`;
+      return `2px 2px 0px ${boxShadowColor ||
+        theme.colors.button.boxShadow.default.variant4}`;
     case BoxShadowTypes.VARIANT5:
-      return `-2px -2px 0px ${
-        boxShadowColor || theme.colors.button.boxShadow.default.variant5
-      }`;
+      return `-2px -2px 0px ${boxShadowColor ||
+        theme.colors.button.boxShadow.default.variant5}`;
     default:
       return "none";
   }

@@ -436,11 +436,13 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
           canvasWidgets: widgets,
         });
-        const correctedWidgets =
-          migrateIncorrectDynamicBindingPathLists(denormalizedWidgets);
+        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
+          denormalizedWidgets,
+        );
         // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets =
-          CanvasWidgetsNormalizer.normalize(correctedWidgets);
+        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
+          correctedWidgets,
+        );
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),

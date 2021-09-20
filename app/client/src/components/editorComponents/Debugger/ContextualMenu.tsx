@@ -244,9 +244,8 @@ const MenuWrapper = styled.div<{ width: string }>`
   width: ${(props) => props.width};
   background: ${(props) => props.theme.colors.menu.background};
   box-shadow: ${(props) =>
-    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${
-      props.theme.spaces[12] - 2
-    }px ${props.theme.colors.menu.shadow}`};
+    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${props.theme
+      .spaces[12] - 2}px ${props.theme.colors.menu.shadow}`};
 `;
 
 export default function ContextualMenu(props: ContextualMenuProps) {

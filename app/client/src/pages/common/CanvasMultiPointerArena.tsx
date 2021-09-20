@@ -83,8 +83,9 @@ function CanvasMultiPointerArena({
 }) {
   let pointerData: PointerDataType = {};
   const animationStepIdRef = useRef<number>(0);
-  const [isPageEditSocketConnected, setIsPageEditSocketConnected] =
-    useState<boolean>(pageEditSocket.connected);
+  const [isPageEditSocketConnected, setIsPageEditSocketConnected] = useState<
+    boolean
+  >(pageEditSocket.connected);
   let selectionCanvas: any;
 
   // Setup for painting on canvas

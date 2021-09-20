@@ -237,14 +237,16 @@ export default function OnboardingChecklist() {
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
     return <Redirect to={BUILDER_PAGE_URL(applicationId, pageId)} />;
   }
-  const { completedTasks, suggestedNextAction } =
-    getSuggestedNextActionAndCompletedTasks(
-      datasources,
-      actions,
-      widgets,
-      isConnectionPresent,
-      isDeployed,
-    );
+  const {
+    completedTasks,
+    suggestedNextAction,
+  } = getSuggestedNextActionAndCompletedTasks(
+    datasources,
+    actions,
+    widgets,
+    isConnectionPresent,
+    isDeployed,
+  );
   const onconnectYourWidget = () => {
     const action = actions[0];
     if (action && applicationId && pageId) {

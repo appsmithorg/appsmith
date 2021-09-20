@@ -150,7 +150,7 @@ const SnippetContainer = styled.div`
 
 const removeDynamicBinding = (value: string) => {
   const regex = /{{(.*?)}}/g;
-  return value.replace(regex, function (match, capture) {
+  return value.replace(regex, function(match, capture) {
     return capture;
   });
 };
@@ -161,7 +161,7 @@ export const getSnippet = (
   replaceWithDynamicBinding = false,
 ) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
-  return snippet.replace(templateSubstitutionRegex, function (match, capture) {
+  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
     const substitution = removeDynamicBinding(args[capture] || "");
     return replaceWithDynamicBinding
       ? `{{${capture}}}`

@@ -447,12 +447,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           // Update column types using types from the table before migration
           if (
-            (
-              columnTypeMap as Record<
-                string,
-                { type: ColumnTypes; inputFormat?: string; format?: string }
-              >
-            )[i]
+            (columnTypeMap as Record<
+              string,
+              { type: ColumnTypes; inputFormat?: string; format?: string }
+            >)[i]
           ) {
             columnProperties.columnType = columnTypeMap[i].type;
             columnProperties.inputFormat = columnTypeMap[i].inputFormat;
@@ -667,8 +665,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getSelectedRowIndices = () => {
-    let selectedRowIndices: number[] | undefined =
-      this.props.selectedRowIndices;
+    let selectedRowIndices: number[] | undefined = this.props
+      .selectedRowIndices;
     if (!this.props.multiRowSelection) selectedRowIndices = undefined;
     else {
       if (!Array.isArray(selectedRowIndices)) {

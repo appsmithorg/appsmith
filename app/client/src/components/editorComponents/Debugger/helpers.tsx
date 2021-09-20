@@ -66,14 +66,20 @@ export function getDependenciesFromInverseDependencies(
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     (dependencies as any).map((dependency: any) => {
       if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant.split(".").slice(0, 1).join("");
+        const entity = dependant
+          .split(".")
+          .slice(0, 1)
+          .join("");
 
         directDependencies.add(entity);
       } else if (
         dependant.includes(entityName) &&
         !dependency.includes(entityName)
       ) {
-        const entity = dependency.split(".").slice(0, 1).join("");
+        const entity = dependency
+          .split(".")
+          .slice(0, 1)
+          .join("");
 
         inverseDependencies.add(entity);
       }

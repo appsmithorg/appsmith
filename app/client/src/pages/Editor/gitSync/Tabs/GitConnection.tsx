@@ -149,8 +149,9 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
   const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
   // const [isValidRemoteUrl, setIsValidRemoteUrl] = useState(true);
 
-  const { applicationId: currentApplicationId } =
-    useParams<ExplorerURLParams>();
+  const { applicationId: currentApplicationId } = useParams<
+    ExplorerURLParams
+  >();
 
   const currentUser = useSelector(getCurrentUser);
 
@@ -171,8 +172,11 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
     sshKeyPair,
   } = useSSHKeyPair();
 
-  const { connectToGit, failedConnectingToGit, isConnectingToGit } =
-    useGitConnect({ onSuccess });
+  const {
+    connectToGit,
+    failedConnectingToGit,
+    isConnectingToGit,
+  } = useGitConnect({ onSuccess });
 
   const copyToClipboard = () => {
     if (sshKeyPair) {

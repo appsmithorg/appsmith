@@ -54,7 +54,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 
 abstract class BaseWidget<
   T extends WidgetProps,
-  K extends WidgetState,
+  K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
 
@@ -510,7 +510,6 @@ export const WidgetOperations = {
   ADD_CHILDREN: "ADD_CHILDREN",
 };
 
-export type WidgetOperation =
-  typeof WidgetOperations[keyof typeof WidgetOperations];
+export type WidgetOperation = typeof WidgetOperations[keyof typeof WidgetOperations];
 
 export default BaseWidget;

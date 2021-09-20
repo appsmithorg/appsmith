@@ -23,8 +23,9 @@ const branches = [
 export default function BranchDropdown(props: {
   setShowCreateNewBranchForm?: (flag: boolean) => void;
 }) {
-  const [showCreateBranchForm, setShowCreateNewBranchFormInState] =
-    useState(false);
+  const [showCreateBranchForm, setShowCreateNewBranchFormInState] = useState(
+    false,
+  );
   const setShowCreateNewBranchForm = (flag: boolean) => {
     setShowCreateNewBranchFormInState(flag);
     if (typeof props.setShowCreateNewBranchForm === "function") {

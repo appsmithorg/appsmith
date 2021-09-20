@@ -82,8 +82,12 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const { currentTheme, featureFlagsFetched, safeCrash, safeCrashCode } =
-      this.props;
+    const {
+      currentTheme,
+      featureFlagsFetched,
+      safeCrash,
+      safeCrashCode,
+    } = this.props;
 
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);

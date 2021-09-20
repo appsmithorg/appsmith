@@ -60,8 +60,13 @@ export function InputText(props: {
 // This is a custom control that is used for dynamic input text fields in the forms for datsources and queries
 class DynamicInputTextControl extends BaseControl<DynamicInputControlProps> {
   render() {
-    const { actionName, configProperty, inputType, label, placeholderText } =
-      this.props;
+    const {
+      actionName,
+      configProperty,
+      inputType,
+      label,
+      placeholderText,
+    } = this.props;
 
     let inputTypeProp = inputType;
     if (!inputType) {

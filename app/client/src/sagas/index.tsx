@@ -86,7 +86,7 @@ const sagas = [
 export function* rootSaga(sagasToRun = sagas) {
   yield all(
     sagasToRun.map((saga) =>
-      spawn(function* () {
+      spawn(function*() {
         while (true) {
           try {
             yield call(saga);
