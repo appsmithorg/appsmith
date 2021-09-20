@@ -180,7 +180,7 @@ public class FilterDataService {
                         operator.toString() + " is not supported currently for filtering.");
             }
 
-            sb.append(path);
+            sb.append("\"" + path + "\"");
             sb.append(" ");
             sb.append(sqlOp);
             sb.append(" ");
@@ -226,11 +226,13 @@ public class FilterDataService {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
+        List<String> quotedColumnNames = columnNames.stream().map(name -> "\"" + name + "\"").collect(Collectors.toList());
+
         StringBuilder insertQueryBuilder = new StringBuilder("INSERT INTO ");
         insertQueryBuilder.append(tableName);
 
         StringBuilder columnNamesBuilder = new StringBuilder("(");
-        columnNamesBuilder.append(String.join(", ", columnNames));
+        columnNamesBuilder.append(String.join(", ", quotedColumnNames));
         columnNamesBuilder.append(")");
 
         insertQueryBuilder.append(columnNamesBuilder);
@@ -364,9 +366,10 @@ public class FilterDataService {
                 sqlDataType = SQL_DATATYPE_MAP.get(DataType.STRING);
             }
             columnsAdded = true;
-            sb.append(fieldName);
+            sb.append("\"" + fieldName + "\"");
             sb.append(" ");
             sb.append(sqlDataType);
+
         }
 
         sb.append(");");
@@ -408,13 +411,27 @@ public class FilterDataService {
         Map<String, DataType> schema = Stream.generate(() -> null)
                 .takeWhile(x -> fieldNamesIterator.hasNext())
                 .map(n -> fieldNamesIterator.next())
+                .map(name -> {
+                    if (name.contains("\"") || name.contains("\'")) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "\' or \" are unsupported symbols in column names for filtering. Caused by column name : " + name);
+                    }
+                    return name;
+                })
                 .collect(Collectors.toMap(
-                        Function.identity(),
-                        name -> {
-                            String value = jsonNode.get(name).asText();
-                            DataType dataType = stringToKnownDataTypeConverter(value);
-                            return dataType;
-                        }));
+                            Function.identity(),
+                            name -> {
+                                String value = jsonNode.get(name).asText();
+                                DataType dataType = stringToKnownDataTypeConverter(value);
+                                return dataType;
+                            },
+                            (u, v) -> {
+                                // This is not possible.
+                                throw new IllegalStateException(String.format("Duplicate key %s", u));
+                            },
+                            LinkedHashMap::new
+                        )
+                );
 
         return schema;
     }
