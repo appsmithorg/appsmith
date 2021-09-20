@@ -22,6 +22,11 @@ on:
       - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/client
+
 jobs:
   buildClient:
     # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
@@ -123,7 +128,7 @@ jobs:
       - name: Upload react build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: client-build
+          name: build
           path: app/client/build/
 
   buildServer:
@@ -197,20 +202,15 @@ jobs:
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: "false"
-          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
+          APPSMITH_IS_SELF_HOSTED: false
         run: |
-          mvn --batch-mode versions:set \
-            -DnewVersion=${{ steps.vars.outputs.version }} \
-            -DgenerateBackupPoms=false \
-            -DprocessAllModules=true
-          mvn --batch-mode package
+            ./build.sh -DskipTests
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: server-build
+          name: build
           path: app/server/dist/
 
   buildRts:
@@ -258,7 +258,7 @@ jobs:
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: rts-build
+          name: build
           path: app/rts/dist/
 
   ui-test:
@@ -310,7 +310,7 @@ jobs:
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: server-build
+          name: build
           path: app/server/dist
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
@@ -401,7 +401,7 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: client-build
+          name: build
           path: app/client/build
 
       - name: Installing Yarn serve
@@ -492,6 +492,9 @@ jobs:
   package:
     needs: ui-test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
     if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
 
@@ -510,19 +513,19 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: client-build
+          name: build
           path: app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: server-build
+          name: build
           path: app/server/dist
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: rts-build
+          name: build
           path: app/rts/dist
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
