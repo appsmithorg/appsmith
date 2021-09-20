@@ -119,23 +119,7 @@ export interface CellLayoutProperties {
   iconButtonStyle: ButtonStyleType;
   isCellVisible: boolean;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: MenuItems;
   menuStyle?: ButtonStyleTypes;
   prevMenuStyle?: ButtonStyleTypes;
   menuVariant?: ButtonVariant;
@@ -144,6 +128,24 @@ export interface CellLayoutProperties {
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
 }
+
+export type MenuItems = Record<
+  string,
+  {
+    widgetId: string;
+    id: string;
+    index: number;
+    isVisible?: boolean;
+    isDisabled?: boolean;
+    label?: string;
+    backgroundColor?: string;
+    textColor?: string;
+    iconName?: IconName;
+    iconColor?: string;
+    iconAlign?: Alignment;
+    onClick?: string;
+  }
+>;
 
 export interface TableColumnMetaProps {
   isHidden: boolean;

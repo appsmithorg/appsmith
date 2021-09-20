@@ -22,6 +22,7 @@ import {
   ColumnProperties,
   CellLayoutProperties,
   TableStyles,
+  MenuItems,
 } from "./Constants";
 import { isString, isEmpty, findIndex } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
@@ -280,23 +281,7 @@ export interface RenderMenuButtonProps {
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: MenuItems;
   menuStyle?: ButtonStyleTypes;
   prevMenuStyle?: ButtonStyleTypes;
   menuVariant?: ButtonVariant;

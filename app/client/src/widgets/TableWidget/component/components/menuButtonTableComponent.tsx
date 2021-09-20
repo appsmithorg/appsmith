@@ -16,6 +16,7 @@ import {
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
+import { MenuItems } from "../Constants";
 
 const getCustomTextColor = (
   theme: Theme,
@@ -343,23 +344,7 @@ const StyledMenu = styled(Menu)`
 `;
 
 interface PopoverContentProps {
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: MenuItems;
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
 }
@@ -384,27 +369,27 @@ function PopoverContent(props: PopoverContentProps) {
       onClick,
       textColor,
     } = menuItem;
-    if (iconAlign === Alignment.RIGHT) {
-      return (
-        <BaseMenuItem
-          backgroundColor={backgroundColor}
-          disabled={isDisabled}
-          isCompact={isCompact}
-          key={id}
-          labelElement={<Icon color={iconColor} icon={iconName} />}
-          onClick={() => onItemClicked(onClick)}
-          text={label}
-          textColor={textColor}
-        />
-      );
-    }
+
     return (
       <BaseMenuItem
         backgroundColor={backgroundColor}
         disabled={isDisabled}
-        icon={<Icon color={iconColor} icon={iconName} />}
+        icon={
+          iconAlign !== Alignment.RIGHT ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : (
+            undefined
+          )
+        }
         isCompact={isCompact}
         key={id}
+        labelElement={
+          iconAlign === Alignment.RIGHT ? (
+            <Icon color={iconColor} icon={iconName} />
+          ) : (
+            undefined
+          )
+        }
         onClick={() => onItemClicked(onClick)}
         text={label}
         textColor={textColor}
@@ -444,28 +429,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
     prevButtonStyle,
   } = props;
 
-  if (iconAlign === Alignment.RIGHT) {
-    return (
-      <BaseButton
-        alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor}
-        buttonStyle={buttonStyle}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        prevButtonStyle={prevButtonStyle}
-        rightIcon={iconName}
-        text={label}
-      />
-    );
-  }
-
   return (
     <BaseButton
-      alignText={iconName ? Alignment.RIGHT : Alignment.CENTER}
+      alignText={iconName ? Alignment.LEFT : Alignment.CENTER}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       boxShadowColor={boxShadowColor}
@@ -474,8 +440,9 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
       buttonVariant={buttonVariant}
       disabled={isDisabled}
       fill
-      icon={iconName}
+      icon={iconAlign !== Alignment.RIGHT ? iconName : undefined}
       prevButtonStyle={prevButtonStyle}
+      rightIcon={iconAlign === Alignment.RIGHT ? iconName : undefined}
       text={label}
     />
   );
@@ -486,23 +453,7 @@ export interface MenuButtonComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   isCompact?: boolean;
-  menuItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      backgroundColor?: string;
-      textColor?: string;
-      iconName?: IconName;
-      iconColor?: string;
-      iconAlign?: Alignment;
-      onClick?: string;
-    }
-  >;
+  menuItems: MenuItems;
   menuStyle?: ButtonStyleTypes;
   prevMenuStyle?: ButtonStyleTypes;
   menuVariant?: ButtonVariant;
