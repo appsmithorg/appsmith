@@ -81,8 +81,9 @@ export const CONFIG = {
                     cols: 3 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
-                    text: "Cancel",
-                    buttonStyle: "SECONDARY_BUTTON",
+                    text: "Close",
+                    buttonStyle: "PRIMARY",
+                    buttonVariant: "OUTLINE",
                     version: 1,
                   },
                 },
@@ -140,7 +141,7 @@ export const CONFIG = {
                       widget.children.find(
                         (child) =>
                           child.type === "BUTTON_WIDGET" &&
-                          child.text === "Cancel",
+                          child.text === "Close",
                       );
 
                     if (cancelBtnChild && parent) {
