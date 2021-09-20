@@ -648,8 +648,8 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     }
 
     @Override
-    public Flux<Plugin> getAllPlugins() {
-        return repository.findAll();
+    public Flux<Plugin> getAllRemotePlugins() {
+        return repository.findByType(PluginType.REMOTE);
     }
 
     private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {

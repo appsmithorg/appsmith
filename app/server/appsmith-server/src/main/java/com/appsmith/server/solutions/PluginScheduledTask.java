@@ -51,7 +51,7 @@ public class PluginScheduledTask {
         // Get all plugins on this instance
         final Mono<Map<PluginIdentifier, Plugin>> availablePluginsMono =
                 pluginService
-                        .getAllPlugins()
+                        .getAllRemotePlugins()
                         .collect(Collectors.toMap(
                                 plugin -> new PluginIdentifier(plugin.getPluginName(), plugin.getVersion()),
                                 plugin -> plugin

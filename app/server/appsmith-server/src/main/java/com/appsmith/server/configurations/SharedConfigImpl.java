@@ -30,6 +30,6 @@ public class SharedConfigImpl implements SharedConfig {
 
     @Override
     public String getRemoteExecutionUrl() {
-        return cloudServicesBaseUrl + "/api/v1/plugins/execute";
+        return cloudServicesBaseUrl + "/api/v1/actions/execute";
     }
 }

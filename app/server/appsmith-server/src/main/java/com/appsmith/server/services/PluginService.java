@@ -33,6 +33,8 @@ public interface PluginService extends CrudService<Plugin, String> {
 
     Mono<Map> getFormConfig(String pluginId);
 
+    Flux<Plugin> getAllRemotePlugins();
+
     Mono<Map> loadPluginResource(String pluginId, String resourcePath);
 
     Mono<Map> getEditorConfigLabelMap(String pluginId);
@@ -40,6 +42,4 @@ public interface PluginService extends CrudService<Plugin, String> {
     Map loadEditorPluginResourceUqi(Plugin plugin);
 
     Flux<Plugin> saveAll(Iterable<Plugin> plugins);
-
-    Flux<Plugin> getAllPlugins();
 }
