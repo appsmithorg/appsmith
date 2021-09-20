@@ -116,8 +116,8 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
         Update updateObj = new Update();
         gitAuth.setGeneratedAt(Instant.now());
-        String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
-                        fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
+        String path = String.format("%s.%s", fieldName(QApplication.application.gitMetadata),
+                        fieldName(QApplication.application.gitMetadata.gitAuth)
         );
 
         updateObj.set(path, gitAuth);
