@@ -625,7 +625,7 @@ export default [
                       ColumnTypes.MENU_BUTTON,
                     ]);
                   },
-
+                  updateHook: updateIconAlignment,
                   dependencies: [
                     "primaryColumns",
                     "derivedColumns",
