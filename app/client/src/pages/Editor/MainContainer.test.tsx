@@ -90,7 +90,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("div-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -185,7 +185,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("div-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -287,7 +287,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("div-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -387,7 +387,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("div-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     const dropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
     )[0];
@@ -493,7 +493,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(containerButton);
     });
 
-    const mainCanvas: any = component.queryByTestId("div-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
