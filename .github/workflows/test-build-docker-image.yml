@@ -29,6 +29,13 @@ defaults:
 
 jobs:
   buildClient:
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -196,6 +203,7 @@ jobs:
           APPSMITH_ENCRYPTION_PASSWORD: "password"
           APPSMITH_ENCRYPTION_SALT: "salt"
           APPSMITH_IS_SELF_HOSTED: false
+        working-directory: app/server
         run: |
             ./build.sh -DskipTests
 
