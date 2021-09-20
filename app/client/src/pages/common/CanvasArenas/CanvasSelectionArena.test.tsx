@@ -11,7 +11,10 @@ import {
   MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  LATEST_PAGE_VERSION,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { generateReactKey } from "utils/generators";
 import store from "store";
 import { sagasToRunForTests } from "test/sagas";
@@ -239,12 +242,20 @@ describe("Canvas selection test cases", () => {
         type: "CHECKBOX_WIDGET",
         parentColumnSpace: 10,
         parentRowSpace: 10,
+        topRow: 1,
+        bottomRow: 2,
+        rightColumn: 1,
+        leftColumn: 0,
         parentId: canvasId,
       },
       {
         type: "BUTTON_WIDGET",
         parentColumnSpace: 10,
         parentRowSpace: 10,
+        topRow: 1,
+        bottomRow: 3,
+        rightColumn: 2,
+        leftColumn: 1,
         parentId: canvasId,
       },
     ]);
@@ -406,6 +417,8 @@ describe("Canvas selection test cases", () => {
     act(() => {
       fireEvent.dragStart(widgetEditor);
     });
+    fireEvent.mouseEnter(selectionDiv);
+
     fireEvent(
       selectionDiv,
       syntheticTestMouseEvent(
