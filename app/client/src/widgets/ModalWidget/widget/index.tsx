@@ -11,7 +11,6 @@ import ModalComponent from "../component";
 import {
   RenderMode,
   MAIN_CONTAINER_WIDGET_ID,
-  GridDefaults,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
