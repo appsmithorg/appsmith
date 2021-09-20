@@ -191,7 +191,9 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
     },
   );
   const { errors, evalTree, result } = workerResponse;
-  yield put(setEvaluatedTree(evalTree, []));
+  const dataTree = yield select(getDataTree);
+  const updates = diff(dataTree, evalTree) || [];
+  yield put(setEvaluatedTree(evalTree, updates));
   yield call(evalErrorHandler, errors, evalTree, [path]);
   return result;
 }
