@@ -41,14 +41,6 @@ const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
   width: 12px;
   height: 12px;
   display: none;
-  && svg {
-    width: 12px;
-    height: 12px;
-    path {
-      fill: transparent;
-      stroke: ${(props) => props.color};
-    }
-  }
 `;
 
 const StyledDocumentIcon = styled(DocumentIcon)`
@@ -128,6 +120,8 @@ function DefaultHelpMenuItem(props: {
           <StyledOpenLinkIcon
             className="t--docOpenLink open-link"
             color={"#4b4848"}
+            height={12}
+            width={12}
           />
         </div>
       </div>
@@ -321,17 +315,17 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />,
+    icon: <StyledDocumentIcon color="#4b4848" height={14} width={14} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon color="#4b4848" height={14} width={11.2} />,
+    icon: <StyledGithubIcon color="#4b4848" height={14} width={14} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledDiscordIcon color="#4b4848" height={16} width={16} />,
+    icon: <StyledDiscordIcon color="#4b4848" height={14} width={14} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -339,7 +333,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
-    icon: <StyledChatIcon color="#4b4848" height={14} width={11.2} />,
+    icon: <StyledChatIcon color="#4b4848" height={14} width={14} />,
     label: "Chat with us",
     id: "intercom-trigger",
   });

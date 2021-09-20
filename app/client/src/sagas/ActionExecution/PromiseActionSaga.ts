@@ -6,8 +6,6 @@ import {
 import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 
 export class TriggerFailureError extends Error {
   error?: Error;
@@ -29,6 +27,8 @@ export default function* executePromiseSaga(
   trigger: AppsmithPromisePayload,
   eventType: EventType,
 ): any {
+  let error: unknown;
+
   try {
     const responses = yield all(
       trigger.executor.map((executionTrigger) =>
@@ -54,13 +54,7 @@ export default function* executePromiseSaga(
     }
   } catch (e) {
     log.error(e);
-    if (!trigger.catch) {
-      Toaster.show({
-        text: e.message || "There was an error while executing",
-        variant: Variant.danger,
-        showDebugButton: true,
-      });
-    }
+    error = e;
     if (trigger.catch) {
       let responseData = [e.message];
       if (e instanceof PluginTriggerFailureError) {
@@ -75,8 +69,6 @@ export default function* executePromiseSaga(
         },
         responseData: catchArguments,
       });
-    } else {
-      throw new TriggerFailureError("Uncaught promise rejection", e);
     }
   }
 
@@ -87,5 +79,11 @@ export default function* executePromiseSaga(
         type: eventType,
       },
     });
+  }
+
+  // Throwing any errors present, which can then be used by the caller
+  // to be show in a toast(or debugger etc.)
+  if (error) {
+    throw error;
   }
 }

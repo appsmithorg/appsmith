@@ -58,6 +58,7 @@ import { GenericApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { CreateJSCollectionRequest } from "api/JSActionAPI";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -78,7 +79,7 @@ export function* fetchJSCollectionsSaga(
 }
 
 export function* createJSCollectionSaga(
-  actionPayload: ReduxAction<Partial<JSCollection>>,
+  actionPayload: ReduxAction<CreateJSCollectionRequest>,
 ) {
   try {
     const payload = actionPayload.payload;
@@ -138,7 +139,7 @@ function* copyJSCollectionSaga(
       });
       copyJSCollection.actions = newJSSubActions;
     }
-    const response = yield JSActionAPI.createJSCollection(copyJSCollection);
+    const response = yield JSActionAPI.copyJSCollection(copyJSCollection);
 
     const isValidResponse = yield validateResponse(response);
     const pageName = yield select(getPageNameByPageId, response.data.pageId);

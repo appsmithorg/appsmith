@@ -89,13 +89,19 @@ import StatboxWidget, {
 } from "widgets/StatboxWidget";
 import FilePickerWidgetV2, {
   CONFIG as FILEPICKER_WIDGET_V2_CONFIG,
-} from "widgets/FilePickerWidgetV2Widget";
+} from "widgets/FilePickerWidgetV2";
 
 import AudioRecorderWidget, {
   CONFIG as AUDIO_RECORDER_WIDGET_CONFIG,
 } from "widgets/AudioRecorderWidget";
 
 import log from "loglevel";
+import SingleSelectTreeWidget, {
+  CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/SingleSelectTreeWidget";
+import MultiSelectTreeWidget, {
+  CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/MultiSelectTreeWidget";
 
 export const registerWidgets = () => {
   const start = performance.now();
@@ -135,5 +141,8 @@ export const registerWidgets = () => {
   registerWidget(FilePickerWidgetV2, FILEPICKER_WIDGET_V2_CONFIG);
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
+  registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
+
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };

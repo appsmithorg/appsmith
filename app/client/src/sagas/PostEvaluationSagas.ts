@@ -130,10 +130,12 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            return {
+            const formattedError = {
               message: e.errorMessage,
               type: e.errorType,
             };
+
+            return formattedError;
           });
 
           const analyticsData = isWidget(entity)
@@ -240,14 +242,6 @@ export function* evalErrorHandler(
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
         log.error(error);
         const message = createMessage(ERROR_EVAL_TRIGGER, error.message);
-        Toaster.show({
-          text: message,
-          variant: Variant.danger,
-          showDebugButton: true,
-        });
-        AppsmithConsole.error({
-          text: message,
-        });
         throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {

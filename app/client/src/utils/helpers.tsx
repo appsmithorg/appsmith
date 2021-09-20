@@ -491,3 +491,21 @@ export const howMuchTimeBeforeText = (date: string) => {
   else if (minutes > 0) return `${minutes} minute${minutes > 1 ? "s" : ""}`;
   else return `${seconds} second${seconds > 1 ? "s" : ""}`;
 };
+
+/**
+ *
+ * Truncate string and append given string in the end
+ * eg: Flint Lockwood Diatonic Super Mutating Dynamic Food Replicator
+ * -> Flint...
+ *
+ */
+export const truncateString = (
+  str: string,
+  limit: number,
+  appendStr = "...",
+) => {
+  if (str.length <= limit) return str;
+  let _subString = str.substring(0, limit);
+  _subString = _subString.trim() + appendStr;
+  return _subString;
+};

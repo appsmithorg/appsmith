@@ -24,6 +24,15 @@ export interface ApplicationPagePayload {
   isDefault: boolean;
 }
 
+export type GitApplicationMetadata = {
+  branchName: string;
+  gitAuth?: {
+    publicKey: string;
+  };
+  remoteUrl: string;
+  repoName: string;
+};
+
 export interface ApplicationResponsePayload {
   id: string;
   name: string;
@@ -32,11 +41,7 @@ export interface ApplicationResponsePayload {
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
   unreadCommentThreads?: number;
-  gitApplicationMetadata?: {
-    gitAuth?: {
-      publicKey?: string;
-    };
-  };
+  gitApplicationMetadata?: GitApplicationMetadata;
 }
 
 export interface FetchApplicationResponse extends ApiResponse {

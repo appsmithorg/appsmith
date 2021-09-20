@@ -1200,10 +1200,14 @@ type ColorType = {
     warning: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     error: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     jsonIcon: string;
     message: string;
@@ -1350,7 +1354,7 @@ const comments = {
   appCommentsPlaceholderText: lightShades[8],
   activeModeIcon: "#F0F0F0",
   modeIcon: "#6D6D6D",
-  cardHoverBackground: "#FAFAFA",
+  cardHoverBackground: "#FBEED0",
   modeIconCircleStroke: "#222222",
   activeModeIconCircleStroke: "#090707",
 };
@@ -1366,7 +1370,7 @@ const auth: any = {
   placeholder: lightShades[8],
   socialBtnText: "#000",
   socialBtnBorder: lightShades[13],
-  socialBtnHighlight: darkShades[1],
+  socialBtnHighlight: lightShades[2],
 };
 
 const helpModal = {
@@ -2045,10 +2049,14 @@ export const dark: ColorType = {
       borderBottom: "black",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "black",
       backgroundColor: "#291B1D",
     },
@@ -2223,10 +2231,10 @@ export const light: ColorType = {
     },
   },
   tertiary: {
-    main: "#716E6E",
+    main: "#606065",
     light: "#090707",
     dark: "#FAFAFA",
-    darker: "#E8E8E8",
+    darker: "#EDEDED",
     darkest: "#A9A7A7",
   },
   info: {
@@ -2670,10 +2678,14 @@ export const light: ColorType = {
       borderBottom: "rgba(0, 0, 0, 0.05)",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "white",
       backgroundColor: "rgba(254, 184, 17, 0.1)",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
