@@ -91,6 +91,13 @@ const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Space",
 ];
 
+const AUTOCOMPLETE_CLOSE_KEY_CODES_WITH_SHIFT_KEY_PRESSED = [
+  "Digit0",
+  "Digit9",
+  "BracketLeft",
+  "BracketRight",
+];
+
 interface ReduxStateProps {
   dynamicData: DataTree;
   datasources: any;
@@ -461,7 +468,13 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleAutocompleteHide = (cm: any, event: KeyboardEvent) => {
-    if (AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code)) {
+    if (
+      AUTOCOMPLETE_CLOSE_KEY_CODES.includes(event.code) ||
+      (event.shiftKey &&
+        AUTOCOMPLETE_CLOSE_KEY_CODES_WITH_SHIFT_KEY_PRESSED.includes(
+          event.code,
+        ))
+    ) {
       cm.closeHint();
     }
   };
