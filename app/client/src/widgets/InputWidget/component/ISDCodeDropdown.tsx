@@ -14,8 +14,8 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  height: ${(props) => (props.disabled ? 32 : 19)}px;
-  line-height: ${(props) => (props.disabled ? 32 : 19)}px;
+  height: ${(props) => (props.disabled ? 32 : 18)}px;
+  line-height: ${(props) => (props.disabled ? 32 : 18)}px;
   letter-spacing: -0.24px;
   color: #090707;
   position: ${(props) => props.disabled && "absolute"};
