@@ -364,7 +364,7 @@ public class ImportExportApplicationService {
         List<NewPage> importedNewPageList = importedDoc.getPageList();
         List<NewAction> importedNewActionList = importedDoc.getActionList();
 
-        Mono<User> currUserMono = sessionUserService.getCurrentUser();
+        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache();
         final Flux<Datasource> existingDatasourceFlux = datasourceRepository
             .findAllByOrganizationId(organizationId, AclPermission.MANAGE_DATASOURCES)
             .cache();
@@ -450,6 +450,12 @@ public class ImportExportApplicationService {
                 // 2. Check for possible duplicate names,
                 // 3. Save the updated application
                 applicationPageService.setApplicationPolicies(currUserMono, organizationId, importedApplication)
+                        .zipWith(currUserMono)
+                        .map(objects -> {
+                            Application application = objects.getT1();
+                            application.setModifiedBy(objects.getT2().getUsername());
+                            return application;
+                        })
                     .flatMap(application -> {
                         if (applicationId != null) {
                             return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
