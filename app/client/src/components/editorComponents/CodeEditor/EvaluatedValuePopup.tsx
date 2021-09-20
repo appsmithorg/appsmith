@@ -10,10 +10,12 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
+import { Toaster } from "components/ads/Toast";
 import { Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { IPopoverSharedProps } from "@blueprintjs/core";
+import copy from "copy-to-clipboard";
 
 import {
   EvaluationError,
@@ -23,6 +25,7 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Layers } from "constants/Layers";
+import { Variant } from "components/ads/common";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -81,10 +84,20 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
+  min-height: 1rem;
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+`;
+
+const CopyIconWrapper = styled(Icon)<{ colorTheme: EditorTheme }>`
+  color: ${(props) => THEMES[props.colorTheme].textColor};
+  position: absolute;
+  right: ${(props) => props.theme.spaces[2]}px;
+  top: ${(props) => props.theme.spaces[2]}px;
+  cursor: pointer;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -143,6 +156,14 @@ function CollapseToggle(props: { isOpen: boolean }) {
       icon={IconNames.CHEVRON_RIGHT}
     />
   );
+}
+
+function copyContent(content: any) {
+  copy(content);
+  Toaster.show({
+    text: `Evaluated value copied to clipboard`,
+    variant: Variant.success,
+  });
 }
 
 interface Props {
@@ -302,6 +323,13 @@ export const CurrentValueViewer = memo(
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper colorTheme={props.theme}>
             {content}
+            {props.evaluatedValue && (
+              <CopyIconWrapper
+                colorTheme={props.theme}
+                icon="duplicate"
+                onClick={() => copyContent(props.evaluatedValue)}
+              />
+            )}
           </CurrentValueWrapper>
         </Collapse>
       </>
@@ -327,14 +355,8 @@ function PopoverContent(props: PopoverContentProps) {
   const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const {
-    errors,
-    expected,
-    hasError,
-    onMouseEnter,
-    onMouseLeave,
-    theme,
-  } = props;
+  const { errors, expected, hasError, onMouseEnter, onMouseLeave, theme } =
+    props;
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];

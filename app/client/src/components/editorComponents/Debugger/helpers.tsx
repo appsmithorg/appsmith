@@ -54,12 +54,6 @@ export const SeverityIcon: Record<Severity, string> = {
   [Severity.WARNING]: "warning",
 };
 
-export const SeverityIconColor: Record<Severity, string> = {
-  [Severity.INFO]: "#03B365",
-  [Severity.ERROR]: "#F22B2B",
-  [Severity.WARNING]: "rgb(224, 179, 14)",
-};
-
 export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
@@ -72,20 +66,14 @@ export function getDependenciesFromInverseDependencies(
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     (dependencies as any).map((dependency: any) => {
       if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
+        const entity = dependant.split(".").slice(0, 1).join("");
 
         directDependencies.add(entity);
       } else if (
         dependant.includes(entityName) &&
         !dependency.includes(entityName)
       ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
+        const entity = dependency.split(".").slice(0, 1).join("");
 
         inverseDependencies.add(entity);
       }

@@ -129,11 +129,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         columnProperties: columnProperties,
         Cell: (props: any) => {
-          let rowIndex: number = props.cell.row.index;
+          const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+          const originalIndex = data?.__originalIndex__ || rowIndex;
 
-          const cellProperties = getCellProperties(columnProperties, rowIndex);
+          // cellProperties order or size does not change when filter/sorting/grouping is applied
+          // on the data thus original index is need to identify the column's cell property.
+          const cellProperties = getCellProperties(
+            columnProperties,
+            originalIndex,
+          );
+
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
@@ -441,10 +447,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           // Update column types using types from the table before migration
           if (
-            (columnTypeMap as Record<
-              string,
-              { type: ColumnTypes; inputFormat?: string; format?: string }
-            >)[i]
+            (
+              columnTypeMap as Record<
+                string,
+                { type: ColumnTypes; inputFormat?: string; format?: string }
+              >
+            )[i]
           ) {
             columnProperties.columnType = columnTypeMap[i].type;
             columnProperties.inputFormat = columnTypeMap[i].inputFormat;
@@ -659,8 +667,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   getSelectedRowIndices = () => {
-    let selectedRowIndices: number[] | undefined = this.props
-      .selectedRowIndices;
+    let selectedRowIndices: number[] | undefined =
+      this.props.selectedRowIndices;
     if (!this.props.multiRowSelection) selectedRowIndices = undefined;
     else {
       if (!Array.isArray(selectedRowIndices)) {

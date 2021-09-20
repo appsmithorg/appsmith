@@ -27,7 +27,7 @@ const Canvas = styled.canvas`
   position: absolute;
   top: 0;
   left: 0;
-  height: calc(100% + ${(props) => props.theme.canvasBottomPadding}px);
+  height: 100%;
   width: 100%;
   overflow-y: auto;
   z-index: 1;
@@ -83,9 +83,8 @@ function CanvasMultiPointerArena({
 }) {
   let pointerData: PointerDataType = {};
   const animationStepIdRef = useRef<number>(0);
-  const [isPageEditSocketConnected, setIsPageEditSocketConnected] = useState<
-    boolean
-  >(pageEditSocket.connected);
+  const [isPageEditSocketConnected, setIsPageEditSocketConnected] =
+    useState<boolean>(pageEditSocket.connected);
   let selectionCanvas: any;
 
   // Setup for painting on canvas

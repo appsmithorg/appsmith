@@ -170,7 +170,15 @@ export type EventName =
   | "SNIPPET_EXECUTE"
   | "SNIPPET_FILTER"
   | "SNIPPET_COPIED"
-  | "SNIPPET_CATEGORY_CLICK";
+  | "SNIPPET_CATEGORY_CLICK"
+  | "SIGNPOSTING_SKIP"
+  | "SIGNPOSTING_CREATE_DATASOURCE_CLICK"
+  | "SIGNPOSTING_CREATE_QUERY_CLICK"
+  | "SIGNPOSTING_ADD_WIDGET_CLICK"
+  | "SIGNPOSTING_CONNECT_WIDGET_CLICK"
+  | "SIGNPOSTING_PUBLISH_CLICK"
+  | "SIGNPOSTING_BUILD_APP_CLICK"
+  | "SIGNPOSTING_WELCOME_TOUR_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -218,8 +226,8 @@ class AnalyticsUtil {
             "off",
             "on",
           ];
-          analytics.factory = function(t: any) {
-            return function() {
+          analytics.factory = function (t: any) {
+            return function () {
               const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
               e.unshift(t);
               analytics.push(e);
@@ -231,7 +239,7 @@ class AnalyticsUtil {
           const e = analytics.methods[t];
           analytics[e] = analytics.factory(e);
         }
-        analytics.load = function(t: any, e: any) {
+        analytics.load = function (t: any, e: any) {
           const n = document.createElement("script");
           n.type = "text/javascript";
           n.async = !0;
@@ -326,7 +334,7 @@ class AnalyticsUtil {
         );
       }
     }
-    Sentry.configureScope(function(scope) {
+    Sentry.configureScope(function (scope) {
       scope.setUser({
         id: userId,
         username: userData.username,

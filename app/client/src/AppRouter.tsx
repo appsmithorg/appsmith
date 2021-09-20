@@ -82,12 +82,8 @@ class AppRouter extends React.Component<any, any> {
   }
 
   render() {
-    const {
-      currentTheme,
-      featureFlagsFetched,
-      safeCrash,
-      safeCrashCode,
-    } = this.props;
+    const { currentTheme, featureFlagsFetched, safeCrash, safeCrashCode } =
+      this.props;
 
     // This is needed for the theme switch.
     changeAppBackground(currentTheme);
@@ -134,7 +130,7 @@ class AppRouter extends React.Component<any, any> {
                   component={UnsubscribeEmail}
                   path={UNSUBSCRIBE_EMAIL_URL}
                 />
-                <SentryRoute component={Setup} path={SETUP} />
+                <SentryRoute component={Setup} exact path={SETUP} />
                 <SentryRoute component={PageNotFound} />
               </Switch>
             </>

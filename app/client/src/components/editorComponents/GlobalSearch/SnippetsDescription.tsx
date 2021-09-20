@@ -150,7 +150,7 @@ const SnippetContainer = styled.div`
 
 const removeDynamicBinding = (value: string) => {
   const regex = /{{(.*?)}}/g;
-  return value.replace(regex, function(match, capture) {
+  return value.replace(regex, function (match, capture) {
     return capture;
   });
 };
@@ -161,7 +161,7 @@ export const getSnippet = (
   replaceWithDynamicBinding = false,
 ) => {
   const templateSubstitutionRegex = /%%(.*?)%%/g;
-  return snippet.replace(templateSubstitutionRegex, function(match, capture) {
+  return snippet.replace(templateSubstitutionRegex, function (match, capture) {
     const substitution = removeDynamicBinding(args[capture] || "");
     return replaceWithDynamicBinding
       ? `{{${capture}}}`
@@ -236,7 +236,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     );
     dispatch(
       evaluateSnippet({
-        expression: getSnippet(template, selectedArgs),
+        expression: removeDynamicBinding(getSnippet(template, selectedArgs)),
         dataType: dataType,
         isTrigger,
       }),
@@ -335,15 +335,17 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 </div>
               ))}
               <div className="actions-container">
-                <Button
-                  className="t--apiFormRunBtn"
-                  disabled={executionInProgress}
-                  onClick={handleRun}
-                  size={Size.medium}
-                  tag="button"
-                  text="Run"
-                  type="button"
-                />
+                {language === "javascript" && (
+                  <Button
+                    className="t--apiFormRunBtn"
+                    disabled={executionInProgress}
+                    onClick={handleRun}
+                    size={Size.medium}
+                    tag="button"
+                    text="Run"
+                    type="button"
+                  />
+                )}
               </div>
               <div id="snippet-evaluator">
                 {evaluatedSnippet && (

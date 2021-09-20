@@ -11,17 +11,17 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
-import { SeverityIconColor } from "./helpers";
 import { Colors } from "constants/Colors";
 
 const EVDebugButton = styled.button`
   ${(props) => getTypographyByKey(props, "btnSmall")};
   display: flex;
   padding: ${(props) => props.theme.spaces[1]}px;
-  border: 1px solid ${SeverityIconColor.error};
+  border: 1px solid
+    ${(props) => props.theme.colors.debugger.error.hoverIconColor};
   width: fit-content;
   background-color: transparent;
-  color: ${SeverityIconColor.error};
+  color: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -59,7 +59,13 @@ export function EvaluatedValueDebugButton(props: {
         error={props.error}
         modifiers={{
           offset: {
-            offset: "0, 0",
+            enabled: true,
+            options: {
+              offset: [0, 5],
+            },
+          },
+          arrow: {
+            enabled: false,
           },
         }}
         position={Position.BOTTOM_RIGHT}
@@ -79,20 +85,20 @@ export function EvaluatedValueDebugButton(props: {
 }
 
 const StyledButton = styled(Button)`
- && {
-  width: fit-content;
-  margin-top: 4px;
-  text-transform: none;
-  ${(props) => getTypographyByKey(props, "p2")}
-  .${Classes.ICON} {
-    margin-right: 5px;
-  }
-  &:hover {
+  && {
+    width: fit-content;
+    margin-top: 4px;
+    text-transform: none;
+    ${(props) => getTypographyByKey(props, "p2")}
     .${Classes.ICON} {
       margin-right: 5px;
     }
+    &:hover {
+      .${Classes.ICON} {
+        margin-right: 5px;
+      }
+    }
   }
- }
 `;
 
 type DebugCTAProps = {

@@ -9,8 +9,8 @@ import { isHidden } from "components/formControls/utils";
 import log from "loglevel";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getType, Types } from "utils/TypeHelpers";
+import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 
 export const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -75,7 +75,7 @@ export interface JSONtoFormProps {
 export class JSONtoForm<
   P = unknown,
   S = unknown,
-  SS = any
+  SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   requiredFields: Record<string, any> = {};
   configDetails: Record<string, any> = {};

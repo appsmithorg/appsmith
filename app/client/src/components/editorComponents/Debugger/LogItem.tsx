@@ -1,4 +1,6 @@
 import { Collapse, Position } from "@blueprintjs/core";
+import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
+import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
@@ -6,13 +8,12 @@ import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
-import { SeverityIcon, SeverityIconColor } from "./helpers";
+import { SeverityIcon } from "./helpers";
 import Text, { TextType } from "components/ads/Text";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import TooltipComponent from "components/ads/Tooltip";
 import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { isString } from "lodash";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   padding: 9px 30px;
@@ -28,6 +29,25 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.error.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.error.borderBottom};
+
+    .${Classes.ICON}.search-menu {
+      path {
+        fill: ${(props) => props.theme.colors.debugger.error.iconColor};
+      }
+      &:hover {
+        path {
+          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
+        }
+      }
+    }
+
+    .${BPPopover2Classes.POPOVER2_OPEN} {
+      .${Classes.ICON}.search-menu {
+        path {
+          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
+        }
+      }
+    }
   }
 
   &.${Severity.WARNING} {
@@ -35,6 +55,26 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
+    .${Classes.ICON}.search-menu {
+      path {
+        fill: ${(props) => props.theme.colors.debugger.warning.iconColor};
+      }
+      &:hover {
+        path {
+          fill: ${(props) =>
+            props.theme.colors.debugger.warning.hoverIconColor};
+        }
+      }
+    }
+
+    .${BPPopover2Classes.POPOVER2_OPEN} {
+      .${Classes.ICON}.search-menu {
+        path {
+          fill: ${(props) =>
+            props.theme.colors.debugger.warning.hoverIconColor};
+        }
+      }
+    }
   }
 
   .bp3-popover-target {
@@ -126,12 +166,6 @@ const StyledSearchIcon = styled(Icon)`
   && {
     margin-left: 10px;
     vertical-align: middle;
-
-    &:hover {
-      path {
-        fill: ${(props) => props.fillColor};
-      }
-    }
   }
 `;
 
@@ -142,7 +176,6 @@ const MessageWrapper = styled.div`
 export const getLogItemProps = (e: Log) => {
   return {
     icon: SeverityIcon[e.severity] as IconName,
-    iconColor: SeverityIconColor[e.severity],
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -157,7 +190,6 @@ export const getLogItemProps = (e: Log) => {
 
 type LogItemProps = {
   icon: IconName;
-  iconColor: string;
   timestamp: string;
   label: string;
   timeTaken: string;
@@ -230,13 +262,11 @@ function LogItem(props: LogItemProps) {
                   {createMessage(TROUBLESHOOT_ISSUE)}
                 </Text>
               }
-              hoverOpenDelay={1000}
               minimal
               position={Position.BOTTOM_LEFT}
             >
               <StyledSearchIcon
-                className={Classes.ICON}
-                fillColor={props.iconColor}
+                className={`${Classes.ICON} search-menu`}
                 name={"wand"}
                 size={IconSize.MEDIUM}
               />

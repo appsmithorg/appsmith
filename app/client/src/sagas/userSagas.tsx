@@ -54,6 +54,11 @@ import log from "loglevel";
 
 import { getCurrentUser } from "selectors/usersSelectors";
 import { initSocketConnection } from "actions/websocketActions";
+import {
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
+  getFirstTimeUserOnboardingIntroModalVisibility,
+} from "utils/storage";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -417,6 +422,28 @@ function* fetchFeatureFlags() {
   }
 }
 
+function* updateFirstTimeUserOnboardingSage() {
+  const enable = yield getEnableFirstTimeUserOnboarding();
+
+  if (enable) {
+    const applicationId = yield getFirstTimeUserOnboardingApplicationId() || "";
+    const introModalVisibility =
+      yield getFirstTimeUserOnboardingIntroModalVisibility();
+    yield put({
+      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      payload: true,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      payload: applicationId,
+    });
+    yield put({
+      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
+      payload: introModalVisibility,
+    });
+  }
+}
+
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -442,6 +469,10 @@ export default function* userSagas() {
     takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
     takeLatest(ReduxActionTypes.LEAVE_ORG_INIT, leaveOrgSaga),
     takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
+    takeLatest(
+      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
+      updateFirstTimeUserOnboardingSage,
+    ),
   ]);
 }
 

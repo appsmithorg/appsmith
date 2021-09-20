@@ -100,6 +100,10 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  getFirstTimeUserOnboardingApplicationId,
+} from "selectors/onboardingSelectors";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -432,13 +436,11 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         const denormalizedWidgets = CanvasWidgetsNormalizer.denormalize("0", {
           canvasWidgets: widgets,
         });
-        const correctedWidgets = migrateIncorrectDynamicBindingPathLists(
-          denormalizedWidgets,
-        );
+        const correctedWidgets =
+          migrateIncorrectDynamicBindingPathLists(denormalizedWidgets);
         // Normalize the widgets because the save page needs it in the flat structure
-        const normalizedWidgets = CanvasWidgetsNormalizer.normalize(
-          correctedWidgets,
-        );
+        const normalizedWidgets =
+          CanvasWidgetsNormalizer.normalize(correctedWidgets);
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),
@@ -509,12 +511,31 @@ export function* createPageSaga(
       });
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          getGenerateTemplateURL(
-            createPageAction.payload.applicationId,
-            response.data.id,
-          ),
+        const firstTimeUserOnboardingApplicationId = yield select(
+          getFirstTimeUserOnboardingApplicationId,
         );
+        const isFirstTimeUserOnboardingEnabled = yield select(
+          getIsFirstTimeUserOnboardingEnabled,
+        );
+        if (
+          firstTimeUserOnboardingApplicationId ==
+            createPageAction.payload.applicationId &&
+          isFirstTimeUserOnboardingEnabled
+        ) {
+          history.push(
+            BUILDER_PAGE_URL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        } else {
+          history.push(
+            getGenerateTemplateURL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        }
       }
     }
   } catch (error) {

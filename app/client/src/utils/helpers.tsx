@@ -58,7 +58,7 @@ export const Directions: { [id: string]: string } = {
 export type Direction = typeof Directions[keyof typeof Directions];
 const SCROLL_THRESHOLD = 20;
 
-export const getScrollByPixels = function(
+export const getScrollByPixels = function (
   elem: {
     top: number;
     height: number;
@@ -185,7 +185,8 @@ export const flashElementsById = (id: string | string[], timeout = 0) => {
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed
   // while allowing all utf-8 characters
-  const removeSpecialCharsRegex = /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
+  const removeSpecialCharsRegex =
+    /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
   const duplicateSpaceRegex = /\s+/;
   return value
     .split(removeSpecialCharsRegex)
@@ -289,6 +290,25 @@ export const removeFalsyEntries = (arr: any[]): any[] => {
  */
 export const isString = (str: any) => {
   return typeof str === "string" || str instanceof String;
+};
+
+/**
+ * Returns substring between two set of strings
+ * eg ->
+ * getSubstringBetweenTwoWords("abcdefgh", "abc", "fgh") -> de
+ */
+
+export const getSubstringBetweenTwoWords = (
+  str: string,
+  startWord: string,
+  endWord: string,
+) => {
+  const endIndexOfStartWord = str.indexOf(startWord) + startWord.length;
+  const startIndexOfEndWord = str.lastIndexOf(endWord);
+
+  if (startIndexOfEndWord < endIndexOfStartWord) return "";
+
+  return str.substring(startIndexOfEndWord, endIndexOfStartWord);
 };
 
 export const playOnboardingAnimation = () => {

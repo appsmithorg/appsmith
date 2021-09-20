@@ -13,6 +13,7 @@ import {
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
+import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
@@ -79,9 +80,7 @@ export function InputText(props: {
   );
 }
 
-class ComputeTablePropertyControl extends BaseControl<
-  ComputeTablePropertyControlProps
-> {
+class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyControlProps> {
   render() {
     const {
       dataTreePath,
@@ -134,6 +133,9 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
+    if (stringToEvaluate === "") {
+      return stringToEvaluate;
+    }
     return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
@@ -144,7 +146,7 @@ class ComputeTablePropertyControl extends BaseControl<
     } else {
       value = event;
     }
-    if (value) {
+    if (isString(value)) {
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,
