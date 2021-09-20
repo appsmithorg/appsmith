@@ -80,6 +80,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { createOrganizationSubmitHandler } from "../organization/helpers";
 import UserApi from "api/UserApi";
 import ImportApplicationModal from "./ImportApplicationModal";
+import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
 import {
   BUILDER_PAGE_URL,
   extractAppIdAndPageIdFromUrl,
@@ -98,6 +99,8 @@ import {
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
+import getFeatureFlags from "utils/featureFlags";
+import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 
 const OrgDropDown = styled.div`
   display: flex;
@@ -724,6 +727,21 @@ function ApplicationsSection(props: any) {
                           text="Import Application"
                         />
                       )}
+                      {getFeatureFlags().GIT && (
+                        <MenuItem
+                          cypressSelector="t--org-import-app-git"
+                          icon="upload"
+                          onSelect={() =>
+                            dispatch(
+                              setIsImportAppViaGitModalOpen({
+                                isOpen: true,
+                                organizationId: organization.id,
+                              }),
+                            )
+                          }
+                          text="Import Via GIT"
+                        />
+                      )}
                       <MenuItem
                         icon="share"
                         onSelect={() => setSelectedOrgId(organization.id)}
@@ -889,6 +907,7 @@ function ApplicationsSection(props: any) {
       {organizationsListComponent}
       <HelpModal page={"Applications"} />
       <WelcomeHelper />
+      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
     </ApplicationContainer>
   );
 }
