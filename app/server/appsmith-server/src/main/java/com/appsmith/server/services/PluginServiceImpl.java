@@ -187,7 +187,9 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
     @Override
     public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
-        final List<OrganizationPlugin> newOrganizationPlugins = plugins.stream()
+        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+                .stream()
+                .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
                 .map(plugin -> {
                     return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
                 })

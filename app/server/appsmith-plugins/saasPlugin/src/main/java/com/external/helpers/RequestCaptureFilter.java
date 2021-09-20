@@ -1,5 +1,6 @@
 package com.external.helpers;
 
+import com.appsmith.external.helpers.BodyReceiver;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.Property;
