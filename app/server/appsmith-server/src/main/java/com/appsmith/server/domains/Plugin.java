@@ -79,7 +79,6 @@ public class Plugin extends BaseDomain {
     // Stores the equivalent of form.json for remote plugins
     Map datasourceUiConfig;
 
-
     @Transient
     Map<String, String> templates;
 
