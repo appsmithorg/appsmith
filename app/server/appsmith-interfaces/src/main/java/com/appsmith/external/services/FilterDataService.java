@@ -180,7 +180,7 @@ public class FilterDataService {
                         operator.toString() + " is not supported currently for filtering.");
             }
 
-            sb.append(path);
+            sb.append("\"" + path + "\"");
             sb.append(" ");
             sb.append(sqlOp);
             sb.append(" ");
@@ -226,11 +226,13 @@ public class FilterDataService {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
+        List<String> quotedColumnNames = columnNames.stream().map(name -> "\"" + name + "\"").collect(Collectors.toList());
+
         StringBuilder insertQueryBuilder = new StringBuilder("INSERT INTO ");
         insertQueryBuilder.append(tableName);
 
         StringBuilder columnNamesBuilder = new StringBuilder("(");
-        columnNamesBuilder.append(String.join(", ", columnNames));
+        columnNamesBuilder.append(String.join(", ", quotedColumnNames));
         columnNamesBuilder.append(")");
 
         insertQueryBuilder.append(columnNamesBuilder);
@@ -298,6 +300,7 @@ public class FilterDataService {
 
         Connection conn = checkAndGetConnection();
 
+        log.debug("{}", query);
         try {
             conn.createStatement().execute(query);
         } catch (SQLException e) {
@@ -364,7 +367,7 @@ public class FilterDataService {
                 sqlDataType = SQL_DATATYPE_MAP.get(DataType.STRING);
             }
             columnsAdded = true;
-            sb.append(fieldName);
+            sb.append("\"" + fieldName + "\"");
             sb.append(" ");
             sb.append(sqlDataType);
         }
