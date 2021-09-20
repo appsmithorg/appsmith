@@ -53,6 +53,8 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
+  SNIPPET_TOOLTIP,
+  USE_SNIPPET,
 } from "constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
@@ -69,6 +71,7 @@ import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -149,11 +152,13 @@ const DocumentationLink = styled.a`
   right: 23px;
   top: -6px;
   color: black;
+  display: flex;
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
   span {
     display: flex;
+    margin-left: 5px;
   }
   &:hover {
     color: black;
@@ -778,16 +783,18 @@ export function EditorJSONtoForm(props: Props) {
           <SecondaryWrapper>
             <TabContainerView>
               {documentationLink && (
-                <DocumentationLink
-                  className="t--datasource-documentation-link"
-                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-                >
+                <DocumentationLink>
                   <TooltipComponent
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span>
+                    <span
+                      className="t--datasource-documentation-link"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                    >
                       <AdsIcon
                         keepColors
                         name="book-line"
@@ -795,6 +802,34 @@ export function EditorJSONtoForm(props: Props) {
                       />
                       &nbsp;
                       {createMessage(DOCUMENTATION)}
+                    </span>
+                  </TooltipComponent>
+                  <TooltipComponent
+                    content={createMessage(SNIPPET_TOOLTIP)}
+                    hoverOpenDelay={50}
+                    position="left-bottom"
+                  >
+                    <span
+                      onClick={() =>
+                        dispatch({
+                          type: "EXECUTE_COMMAND",
+                          payload: {
+                            actionType: "NEW_SNIPPET",
+                            args: {
+                              entityId: currentActionConfig?.id,
+                              entityType: ENTITY_TYPE.ACTION,
+                            },
+                          },
+                        })
+                      }
+                    >
+                      <AdsIcon
+                        keepColors
+                        name="book-line"
+                        size={IconSize.XXXL}
+                      />
+                      &nbsp;
+                      {createMessage(USE_SNIPPET)}
                     </span>
                   </TooltipComponent>
                 </DocumentationLink>

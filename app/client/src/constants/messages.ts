@@ -650,3 +650,6 @@ export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+
+export const USE_SNIPPET = () => "Use Snippet";
+export const SNIPPET_TOOLTIP = () => "Look up snippets in Omnibar";

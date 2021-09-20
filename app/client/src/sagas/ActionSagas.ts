@@ -843,8 +843,12 @@ function* executeCommand(
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
-      let { entityId, entityType } = get(actionPayload, "payload.args");
-      const { expectedType, propertyPath } = get(actionPayload, "payload.args");
+      let { entityId, entityType } = get(actionPayload, "payload.args", {});
+      const { expectedType, propertyPath } = get(
+        actionPayload,
+        "payload.args",
+        {},
+      );
       // Entity is derived using the dataTreePath property.
       // Fallback to find current entity when dataTreePath property value is empty (Eg. trigger fields)
       if (!entityId) {
