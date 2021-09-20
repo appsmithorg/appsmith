@@ -426,7 +426,7 @@ export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
-  "Linting Errors: Please remove linting errors for better experience";
+  "Linting Errors: Please resolve linting errors before using these functions";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";

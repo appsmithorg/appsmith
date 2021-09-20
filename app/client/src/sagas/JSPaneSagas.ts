@@ -260,14 +260,14 @@ function* handleJSObjectNameChangeSuccessSaga(
 function* handleExecuteJSFunctionSaga(
   data: ReduxAction<{ collectionName: string; action: JSAction }>,
 ): any {
-  const { action } = data.payload;
+  const { action, collectionName } = data.payload;
   const collectionId = action.collectionId;
   const actionId = action.id;
   try {
     const { result, triggers } = yield call(
       executeFunction,
-      data.payload.collectionName,
-      data.payload.action,
+      collectionName,
+      action,
     );
 
     if (triggers && triggers.length) {
