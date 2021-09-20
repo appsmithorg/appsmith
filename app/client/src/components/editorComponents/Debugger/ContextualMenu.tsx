@@ -1,14 +1,10 @@
 import React from "react";
 import copy from "copy-to-clipboard";
 import styled from "styled-components";
-import {
-  Classes as BPClasses,
-  PopperModifiers,
-  Position,
-} from "@blueprintjs/core";
+import { Classes as BPClasses, Position } from "@blueprintjs/core";
+import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import Menu from "components/ads/Menu";
 import Text, { FontWeight, TextType } from "components/ads/Text";
 import { Message } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
@@ -116,7 +112,7 @@ type ContextualMenuProps = {
   error: Message;
   children: JSX.Element;
   position?: Position;
-  modifiers?: PopperModifiers;
+  modifiers?: IPopover2Props["modifiers"];
   entityName?: string;
 };
 
@@ -244,6 +240,14 @@ const MenuItem = styled.a`
   }
 `;
 
+const MenuWrapper = styled.div<{ width: string }>`
+  width: ${(props) => props.width};
+  background: ${(props) => props.theme.colors.menu.background};
+  box-shadow: ${(props) =>
+    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${props.theme
+      .spaces[12] - 2}px ${props.theme.colors.menu.shadow}`};
+`;
+
 export default function ContextualMenu(props: ContextualMenuProps) {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
@@ -251,47 +255,56 @@ export default function ContextualMenu(props: ContextualMenuProps) {
   const entityInfo = getEntityInfo();
 
   return (
-    <Menu
+    <Popover2
       className="t--debugger-contextual-error-menu"
-      menuItemWrapperWidth={"175px"}
+      content={
+        <MenuWrapper width={"175px"}>
+          {options.map((e) => {
+            const menuProps = searchAction[e];
+            const onSelect = () => {
+              menuProps.onSelect(props.error, dispatch, entityInfo?.entityType);
+            };
+
+            if (
+              e === CONTEXT_MENU_ACTIONS.INTERCOM &&
+              !(intercomAppID && window.Intercom)
+            ) {
+              return null;
+            }
+
+            return (
+              <MenuItem
+                className={`${BPClasses.POPOVER_DISMISS} t--debugger-contextual-menuitem`}
+                key={e}
+                onClick={onSelect}
+              >
+                <IconContainer>
+                  <Icon name={menuProps.icon} size={IconSize.XS} />
+                  <Text type={TextType.P3} weight={FontWeight.NORMAL}>
+                    {menuProps.text}
+                  </Text>
+                </IconContainer>
+              </MenuItem>
+            );
+          })}
+        </MenuWrapper>
+      }
       modifiers={
         props.modifiers || {
           offset: {
-            offset: "25px, 5px",
+            enabled: true,
+            options: {
+              offset: [25, 5],
+            },
+          },
+          arrow: {
+            enabled: false,
           },
         }
       }
       position={props.position || Position.RIGHT}
-      target={props.children}
     >
-      {options.map((e) => {
-        const menuProps = searchAction[e];
-        const onSelect = () => {
-          menuProps.onSelect(props.error, dispatch, entityInfo?.entityType);
-        };
-
-        if (
-          e === CONTEXT_MENU_ACTIONS.INTERCOM &&
-          !(intercomAppID && window.Intercom)
-        ) {
-          return null;
-        }
-
-        return (
-          <MenuItem
-            className={`${BPClasses.POPOVER_DISMISS} t--debugger-contextual-menuitem`}
-            key={e}
-            onClick={onSelect}
-          >
-            <IconContainer>
-              <Icon name={menuProps.icon} size={IconSize.XS} />
-              <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                {menuProps.text}
-              </Text>
-            </IconContainer>
-          </MenuItem>
-        );
-      })}
-    </Menu>
+      {props.children}
+    </Popover2>
   );
 }
