@@ -10,10 +10,8 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.GitService;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.lib.Ref;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,7 +50,7 @@ public class GitController {
                                                                         @RequestBody GitProfile gitProfile) {
         //Add to the userData object - git config data
         return service.updateOrCreateGitProfileForCurrentUser(gitProfile, Boolean.FALSE, defaultApplicationId)
-                .map(response -> new ResponseDTO<>(HttpStatus.OK.value(), response, null));
+                .map(response -> new ResponseDTO<>(HttpStatus.ACCEPTED.value(), response, null));
     }
 
     @GetMapping("/config")
@@ -87,7 +85,7 @@ public class GitController {
     public Mono<ResponseDTO<List<GitLogDTO>>> getCommitHistory(@PathVariable String applicationId) {
         log.debug("Fetching commit-history for application {}", applicationId);
         return service.getCommitHistory(applicationId)
-                .map(logs -> new ResponseDTO<>(HttpStatus.CREATED.value(), logs, null));
+                .map(logs -> new ResponseDTO<>(HttpStatus.OK.value(), logs, null));
     }
 
     @PostMapping("/push/{applicationId}")
@@ -100,11 +98,19 @@ public class GitController {
 
     @PostMapping("/create-branch/{srcApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Application>> createBranch(@RequestBody GitBranchDTO branchDTO,
-                                                       @PathVariable String srcApplicationId) {
-        log.debug("Going to push application {}", srcApplicationId);
+    public Mono<ResponseDTO<Application>> createBranch(@PathVariable String srcApplicationId,
+                                                       @RequestBody GitBranchDTO branchDTO) {
+        log.debug("Going to create a branch from application {}", srcApplicationId);
         return service.createBranch(srcApplicationId, branchDTO)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
+    }
+
+    @GetMapping("/checkout-branch/{defaultApplicationId}/{branchName}")
+    public Mono<ResponseDTO<Application>> checkoutBranch(@PathVariable String defaultApplicationId,
+                                                         @PathVariable String branchName) {
+        log.debug("Going to push application {}", defaultApplicationId);
+        return service.checkoutBranch(defaultApplicationId, branchName)
+            .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
     @PostMapping("/disconnect/{applicationId}")

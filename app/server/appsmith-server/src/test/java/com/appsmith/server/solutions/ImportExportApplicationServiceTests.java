@@ -12,7 +12,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.GitMetadata;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -154,7 +154,7 @@ public class ImportExportApplicationServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitMetadata(new GitMetadata());
+        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
 
         Application savedApplication = applicationPageService.createApplication(testApplication, orgId).block();
         testAppId = savedApplication.getId();
@@ -206,7 +206,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(exportedApplication.getModifiedBy()).isNull();
                     assertThat(exportedApplication.getLastUpdateTime()).isNull();
                     assertThat(exportedApplication.getLastDeployedAt()).isNull();
-                    assertThat(exportedApplication.getGitMetadata()).isNull();
+                    assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                 })
                 .verifyComplete();
     }

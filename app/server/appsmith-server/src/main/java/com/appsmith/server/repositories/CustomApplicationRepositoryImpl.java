@@ -116,11 +116,21 @@ public class CustomApplicationRepositoryImpl extends BaseAppsmithRepositoryImpl<
     public Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission) {
         Update updateObj = new Update();
         gitAuth.setGeneratedAt(Instant.now());
-        String path = String.format("%s.%s", fieldName(QApplication.application.gitMetadata),
-                        fieldName(QApplication.application.gitMetadata.gitAuth)
+        String path = String.format("%s.%s", fieldName(QApplication.application.gitApplicationMetadata),
+                        fieldName(QApplication.application.gitApplicationMetadata.gitAuth)
         );
 
         updateObj.set(path, gitAuth);
         return this.updateById(applicationId, updateObj, aclPermission);
+    }
+
+    @Override
+    public Mono<Application> getApplicationByGitBranchAndDefaultApp(String defaultApplicationId, String branchName, AclPermission aclPermission) {
+
+        String gitApplicationMetadata = fieldName(QApplication.application.gitApplicationMetadata);
+
+        Criteria defaultAppCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId);
+        Criteria branchNameCriteria = where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName)).is(branchName);
+        return queryOne(List.of(defaultAppCriteria, branchNameCriteria), aclPermission);
     }
 }

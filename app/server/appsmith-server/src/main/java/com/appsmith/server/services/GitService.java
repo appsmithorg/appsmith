@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitMetadata;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -24,7 +24,7 @@ public interface GitService {
 
     Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO, String origin);
 
-    Mono<GitMetadata> updateGitMetadata(String applicationId, GitMetadata gitMetadata);
+    Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId);
 
@@ -37,6 +37,8 @@ public interface GitService {
     Mono<Application> detachRemote(String applicationId);
 
     Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO);
+
+    Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
     Mono<String> pullForApplication(String applicationId, String branchName);
 

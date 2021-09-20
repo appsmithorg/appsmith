@@ -152,7 +152,7 @@ public class ImportExportApplicationService {
                 application.setModifiedBy(null);
                 application.setUpdatedAt(null);
                 application.setLastDeployedAt(null);
-                application.setGitMetadata(null);
+                application.setGitApplicationMetadata(null);
                 examplesOrganizationCloner.makePristine(application);
                 applicationJson.setExportedApplication(application);
                 return newPageRepository.findByApplicationId(applicationId, AclPermission.MANAGE_PAGES)
@@ -424,12 +424,14 @@ public class ImportExportApplicationService {
 
                             //Since the resource is already present in DB, just update resource
                             Datasource existingDatasource = savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId());
-                            datasource.setId(savedDatasourcesGitIdToDatasourceMap.get(datasource.getGitSyncId()).getId());
+                            datasource.setId(null);
                             // Don't update datasource config as the saved datasource is already configured as per user
                             // for this instance
                             datasource.setDatasourceConfiguration(null);
+                            datasource.setPluginId(null);
                             BeanCopyUtils.copyNewFieldValuesIntoOldObject(datasource, existingDatasource);
-                            return datasourceService.update(datasource.getId(), existingDatasource);
+                            existingDatasource.setStructure(null);
+                            return datasourceService.update(existingDatasource.getId(), existingDatasource);
                         }
 
                         datasource.setPluginId(pluginMap.get(datasource.getPluginId()));
@@ -464,9 +466,9 @@ public class ImportExportApplicationService {
                         })
                     .flatMap(application -> {
                         if (applicationId != null) {
-                            return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
+                            return applicationService.findById(applicationId)
                                 .switchIfEmpty(
-                                    Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
+                                    Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                                 )
                                 .flatMap(existingApplication -> {
                                     importedApplication.setId(existingApplication.getId());
@@ -476,7 +478,7 @@ public class ImportExportApplicationService {
                                     // rehydrate the application. We are now rehydrating the application with/without
                                     // the changes from remote
 
-                                    return applicationService.update(applicationId, existingApplication);
+                                    return applicationService.save(existingApplication);
                                 });
                         }
                         return applicationService

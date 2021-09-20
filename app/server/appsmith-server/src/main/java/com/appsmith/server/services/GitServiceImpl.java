@@ -8,7 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
-import com.appsmith.server.domains.GitMetadata;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.UserData;
@@ -157,17 +157,17 @@ public class GitServiceImpl implements GitService {
 
         return publishAndOrGetApplication(applicationId, commitDTO.getDoPush())
             .flatMap(application -> {
-                GitMetadata gitMetadata = application.getGitMetadata();
-                if (gitMetadata == null) {
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                if (gitApplicationMetadata == null) {
                     throw new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find the git " +
                             "configuration, please configure the your application to use version control service");
                 }
                 String errorEntity = "";
-                if (StringUtils.isEmptyOrNull(gitMetadata.getBranchName())) {
+                if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getBranchName())) {
                     errorEntity = "branch name";
-                } else if (StringUtils.isEmptyOrNull(gitMetadata.getDefaultApplicationId())) {
+                } else if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultApplicationId())) {
                     errorEntity = "default application";
-                } else if (StringUtils.isEmptyOrNull(gitMetadata.getRepoName())) {
+                } else if (StringUtils.isEmptyOrNull(gitApplicationMetadata.getRepoName())) {
                     errorEntity = "repository name";
                 }
 
@@ -182,7 +182,7 @@ public class GitServiceImpl implements GitService {
             .flatMap(tuple -> {
                 ApplicationJson applicationJson = tuple.getT1();
                 Application application = tuple.getT2();
-                GitMetadata gitData = application.getGitMetadata();
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 // For default branch we are storing the application in root directory and for children apps we are
                 // going to create a worktrees which will create a separate sibling directories inside the root directory
                 Path baseRepoSuffix =
@@ -193,7 +193,7 @@ public class GitServiceImpl implements GitService {
                     return Mono.zip(
                             fileUtils.saveApplicationToLocalRepo(baseRepoSuffix, applicationJson, gitData.getBranchName()),
                             currentUserMono,
-                            Mono.just(application.getGitMetadata())
+                            Mono.just(application.getGitApplicationMetadata())
                     );
                 } catch (IOException | GitAPIException e) {
                     log.error("Unable to open git directory, with error : ", e);
@@ -202,7 +202,7 @@ public class GitServiceImpl implements GitService {
             })
             .map(tuple -> {
                 Path branchRepoPath = tuple.getT1();
-                GitMetadata gitApplicationData = tuple.getT3();
+                GitApplicationMetadata gitApplicationData = tuple.getT3();
                 GitProfile authorProfile =
                         tuple.getT2().getDefaultOrAppSpecificGitProfiles(gitApplicationData.getDefaultApplicationId());
 
@@ -254,15 +254,15 @@ public class GitServiceImpl implements GitService {
 
         return getApplicationById(applicationId)
                 .map(application -> {
-                    if (isInValidGitApplicationMetadata(application.getGitMetadata())
-                            || StringUtils.isEmptyOrNull(application.getGitMetadata().getBranchName())) {
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())
+                            || StringUtils.isEmptyOrNull(application.getGitApplicationMetadata().getBranchName())) {
 
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "branch name is not available. Please reconfigure the application to connect to git repo"
                         );
                     }
-                    GitMetadata gitData = application.getGitMetadata();
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     try {
                         Path baseRepoSuffix = Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
                         // Checkout the branch
@@ -304,8 +304,8 @@ public class GitServiceImpl implements GitService {
                 gitConnectDTO.getGitProfile(), gitConnectDTO.isDefaultProfile(), defaultApplicationId)
                 .then(getApplicationById(defaultApplicationId)
                         .flatMap(application -> {
-                            GitMetadata gitMetadata = application.getGitMetadata();
-                            if (isInValidGitApplicationMetadata(gitMetadata)) {
+                            GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                            if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
                                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                                         "SSH Key is empty. Please reach out to Appsmith support"));
                             } else {
@@ -316,8 +316,8 @@ public class GitServiceImpl implements GitService {
                                     defaultBranch = gitExecutor.connectApplication(
                                             repoPath,
                                             gitConnectDTO.getRemoteUrl(),
-                                            gitMetadata.getGitAuth().getPrivateKey(),
-                                            gitMetadata.getGitAuth().getPublicKey()
+                                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                            gitApplicationMetadata.getGitAuth().getPublicKey()
                                     );
                                 } catch (GitAPIException e) {
                                     if (e instanceof TransportException) {
@@ -341,11 +341,11 @@ public class GitServiceImpl implements GitService {
                                     log.error("Error while accessing the file system, {}", e.getMessage());
                                     return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
                                 }
-                                gitMetadata.setDefaultApplicationId(application.getId());
-                                gitMetadata.setBranchName(defaultBranch);
-                                gitMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
-                                gitMetadata.setRepoName(repoName);
-                                application.setGitMetadata(gitMetadata);
+                                gitApplicationMetadata.setDefaultApplicationId(application.getId());
+                                gitApplicationMetadata.setBranchName(defaultBranch);
+                                gitApplicationMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
+                                gitApplicationMetadata.setRepoName(repoName);
+                                application.setGitApplicationMetadata(gitApplicationMetadata);
                                 return applicationService.save(application);
                             }
                         })
@@ -405,15 +405,15 @@ public class GitServiceImpl implements GitService {
 
         return publishAndOrGetApplication(applicationId, doPublish)
                 .zipWhen(application -> {
-                    if (applicationId.equals(application.getGitMetadata().getDefaultApplicationId())) {
+                    if (applicationId.equals(application.getGitApplicationMetadata().getDefaultApplicationId())) {
                         return Mono.just(application);
                     }
-                    return applicationService.findById(application.getGitMetadata().getDefaultApplicationId());
+                    return applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId());
                 })
                 .map(tuple -> {
                     Application application = tuple.getT1();
                     // tuple.getT2() => default application fetched for private and public keys
-                    GitMetadata gitData = tuple.getT2().getGitMetadata();
+                    GitApplicationMetadata gitData = tuple.getT2().getGitApplicationMetadata();
 
                     if (gitData == null
                             || StringUtils.isEmptyOrNull(gitData.getBranchName())
@@ -451,29 +451,27 @@ public class GitServiceImpl implements GitService {
                 .flatMap(application -> {
 
                     //Remove the git contents from file system
-                    GitMetadata gitMetadata = application.getGitMetadata();
-                    String repoName = gitMetadata.getRepoName();
-                    Path repoPath = Paths.get(application.getOrganizationId(), gitMetadata.getDefaultApplicationId(), repoName);
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    String repoName = gitApplicationMetadata.getRepoName();
+                    Path repoPath = Paths.get(application.getOrganizationId(), gitApplicationMetadata.getDefaultApplicationId(), repoName);
                     fileUtils.detachRemote(repoPath);
 
                     //Remove the git metadata from the db
-                    application.setGitMetadata(null);
-                    return applicationService.update(applicationId, application);
+                    return updateGitMetadata(applicationId, null);
                 });
     }
 
     @Override
-    public Mono<GitMetadata> updateGitMetadata(String applicationId, GitMetadata gitMetadata){
+    public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata){
 
         // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
         // @Encrypted annotation used for private SSH keys
         return applicationService.findById(applicationId, AclPermission.MANAGE_APPLICATIONS)
                 .flatMap(application -> {
-                    application.setGitMetadata(gitMetadata);
+                    application.setGitApplicationMetadata(gitApplicationMetadata);
                     return applicationService.save(application);
                 })
-                .flatMap(applicationService::setTransientFields)
-                .map(Application::getGitMetadata);
+                .flatMap(applicationService::setTransientFields);
     }
 
     public Mono<Application> createBranch(String srcApplicationId, GitBranchDTO branchDTO) {
@@ -485,7 +483,7 @@ public class GitServiceImpl implements GitService {
          */
         return getApplicationById(srcApplicationId)
             .flatMap(application -> {
-                GitMetadata gitData = application.getGitMetadata();
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                 if (gitData == null || gitData.getDefaultApplicationId() == null || gitData.getRepoName() == null) {
                     throw new AppsmithException(
                             AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -501,9 +499,9 @@ public class GitServiceImpl implements GitService {
                     application.setId(null);
                     application.setPages(null);
                     application.setPublishedPages(null);
-                    application.setGitMetadata(gitData);
+                    application.setGitApplicationMetadata(gitData);
                     return Mono.zip(
-                        applicationService.save(new Application(application)),
+                        applicationService.save(application),
                         importExportApplicationService.exportApplicationById(srcApplicationId, SerialiseApplicationObjective.VERSION_CONTROL)
                     );
                 } catch (IOException | GitAPIException e) {
@@ -520,7 +518,22 @@ public class GitServiceImpl implements GitService {
             });
     }
 
-    Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
+    public Mono<Application> checkoutBranch(String defaultApplicationId, String branchName) {
+
+        return getApplicationById(defaultApplicationId)
+            .flatMap(application -> {
+                if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                    throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                }
+                return applicationService.getApplicationByBranchNameAndDefaultApplication(
+                    branchName, defaultApplicationId, AclPermission.MANAGE_APPLICATIONS
+                ).switchIfEmpty(Mono.error(
+                    new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName)
+                ));
+            });
+    }
+
+    private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
         if (Boolean.TRUE.equals(publish)) {
             return applicationPageService.publish(applicationId, true);
         }
@@ -542,22 +555,22 @@ public class GitServiceImpl implements GitService {
     public Mono<String> pullForApplication(String applicationId, String branchName) {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
-                    GitMetadata gitMetadata = application.getGitMetadata();
-                    if (isInValidGitApplicationMetadata(gitMetadata)) {
+                    GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                    if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                                 "SSH Key is empty. Please reach out to Appsmith support"));
                     }
                     Path repoPath = Paths.get(application.getOrganizationId(),
-                            gitMetadata.getDefaultApplicationId(),
-                            gitMetadata.getRepoName());
+                            gitApplicationMetadata.getDefaultApplicationId(),
+                            gitApplicationMetadata.getRepoName());
                     //TODO handle the condition for the non default branch as the file path varies
                     try {
                         return Mono.just(gitExecutor.pullApplication(
                                 repoPath,
-                                gitMetadata.getRemoteUrl(),
-                                gitMetadata.getBranchName(),
-                                gitMetadata.getGitAuth().getPrivateKey(),
-                                gitMetadata.getGitAuth().getPublicKey()));
+                                gitApplicationMetadata.getRemoteUrl(),
+                                gitApplicationMetadata.getBranchName(),
+                                gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                                gitApplicationMetadata.getGitAuth().getPublicKey()));
                     } catch (IOException | GitAPIException e) {
                         if (e.getMessage().contains("Nothing to fetch.")) {
                             return Mono.just("Nothing to fetch from remote. All changes are upto date.");
@@ -572,14 +585,14 @@ public class GitServiceImpl implements GitService {
     public Mono<List<String>> listBranchForApplication(String applicationId) {
         return getApplicationById(applicationId)
             .flatMap(application -> {
-                GitMetadata gitMetadata = application.getGitMetadata();
-                if (isInValidGitApplicationMetadata(gitMetadata)) {
+                GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
+                if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
                     return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
                             "SSH Key is empty. Please reach out to Appsmith support"));
                 }
                 Path repoPath = Paths.get(application.getOrganizationId(),
-                        gitMetadata.getDefaultApplicationId(),
-                        gitMetadata.getRepoName());
+                        gitApplicationMetadata.getDefaultApplicationId(),
+                        gitApplicationMetadata.getRepoName());
                 try {
                     return Mono.just(gitExecutor.getBranchForApplication(repoPath));
                 } catch (IOException | GitAPIException e) {
@@ -591,11 +604,11 @@ public class GitServiceImpl implements GitService {
             });
     }
 
-    private boolean  isInValidGitApplicationMetadata(GitMetadata gitMetadata) {
-        if (Optional.ofNullable(gitMetadata).isEmpty()
-                || Optional.ofNullable(gitMetadata.getGitAuth()).isEmpty()
-                || StringUtils.isEmptyOrNull(gitMetadata.getGitAuth().getPrivateKey())
-                || StringUtils.isEmptyOrNull(gitMetadata.getGitAuth().getPublicKey())) {
+    private boolean isInvalidDefaultApplicationGitMetadata(GitApplicationMetadata gitApplicationMetadata) {
+        if (Optional.ofNullable(gitApplicationMetadata).isEmpty()
+                || Optional.ofNullable(gitApplicationMetadata.getGitAuth()).isEmpty()
+                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPrivateKey())
+                || StringUtils.isEmptyOrNull(gitApplicationMetadata.getGitAuth().getPublicKey())) {
             return true;
         }
         return false;

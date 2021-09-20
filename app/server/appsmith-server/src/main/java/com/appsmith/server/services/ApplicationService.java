@@ -40,4 +40,8 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<GitAuth> createOrUpdateSshKeyPair(String applicationId);
 
     Mono<GitAuth> getSshKey(String applicationId);
+
+    Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
+                                                                      String defaultApplicationId,
+                                                                      AclPermission aclPermission);
 }

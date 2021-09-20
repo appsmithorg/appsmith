@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitMetadata;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Organization;
@@ -143,11 +143,11 @@ public class GitServiceTest {
     public void connectApplicationToGit_validGitMetadata_Success() {
         GitProfile gitProfile = getConfigRequest("test@appsmith.com", "Test 1");
         Application testApplication = new Application();
-        GitMetadata gitMetadata = new GitMetadata();
+        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
         GitAuth gitAuth = new GitAuth();
         gitAuth.setPublicKey("testkey");
-        gitMetadata.setGitAuth(gitAuth);
-        testApplication.setGitMetadata(gitMetadata);
+        gitApplicationMetadata.setGitAuth(gitAuth);
+        testApplication.setGitApplicationMetadata(gitApplicationMetadata);
         testApplication.setName("ValidTest TestApp");
         Application application1 = applicationService.createDefault(testApplication).block();
 
@@ -157,9 +157,9 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .assertNext(application -> {
-                    GitMetadata gitMetadata1 = application.getGitMetadata();
-                    assertThat(gitMetadata1.getBranchName()).isEqualTo("master");
-                    assertThat(gitMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
+                    GitApplicationMetadata gitApplicationMetadata1 = application.getGitApplicationMetadata();
+                    assertThat(gitApplicationMetadata1.getBranchName()).isEqualTo("master");
+                    assertThat(gitApplicationMetadata1.getRemoteUrl()).isEqualTo(gitConnectDTO.getRemoteUrl());
                 });
     }
 

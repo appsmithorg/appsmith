@@ -10,7 +10,6 @@ import com.appsmith.server.domains.ApplicationJson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -32,10 +31,8 @@ import java.util.stream.Collectors;
 @Import({FileUtilsImpl.class})
 public class GitFileUtils {
 
-    @Autowired
-    FileInterface fileUtils;
-
-    GitExecutor gitExecutor;
+    private final FileInterface fileUtils;
+    private final GitExecutor gitExecutor;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields

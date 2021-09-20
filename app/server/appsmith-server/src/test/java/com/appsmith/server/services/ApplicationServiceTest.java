@@ -8,7 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Datasource;
-import com.appsmith.server.domains.GitMetadata;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
@@ -1275,8 +1275,8 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setOrganizationId(orgId);
-        unsavedApplication.setGitMetadata(new GitMetadata());
-        unsavedApplication.getGitMetadata().setRemoteUrl("sample-remote-url");
+        unsavedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        unsavedApplication.getGitApplicationMetadata().setRemoteUrl("sample-remote-url");
         Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
         unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
@@ -1288,11 +1288,11 @@ public class ApplicationServiceTest {
 
         StepVerifier.create(applicationMono)
                 .assertNext(testApplication -> {
-                    GitAuth gitAuth = testApplication.getGitMetadata().getGitAuth();
+                    GitAuth gitAuth = testApplication.getGitApplicationMetadata().getGitAuth();
                     assertThat(gitAuth.getPublicKey()).isNotNull();
                     assertThat(gitAuth.getPrivateKey()).isNotNull();
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
-                    assertThat(testApplication.getGitMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
+                    assertThat(testApplication.getGitApplicationMetadata().getRemoteUrl()).isEqualTo("sample-remote-url");
                 })
                 .verifyComplete();
     }
@@ -1312,8 +1312,8 @@ public class ApplicationServiceTest {
         Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
-                    unsavedChildApp.setGitMetadata(new GitMetadata());
-                    unsavedChildApp.getGitMetadata().setDefaultApplicationId(savedMainApp.getId());
+                    unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
+                    unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
                     unsavedChildApp.setPolicies(policies);
                     unsavedChildApp.setName("ssh-key-child-app");
                     unsavedChildApp.setOrganizationId(orgId);
@@ -1324,7 +1324,7 @@ public class ApplicationServiceTest {
                 )
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
-                    String mainApplicationId = savedChildApp.getGitMetadata().getDefaultApplicationId();
+                    String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
                     Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), perm);
                     Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, perm);
                     return Mono.zip(childAppMono, mainAppMono);
@@ -1336,13 +1336,13 @@ public class ApplicationServiceTest {
                     Application mainApp = applicationTuple2.getT2();
 
                     // main app should have the generated keys
-                    GitAuth gitAuth = mainApp.getGitMetadata().getGitAuth();
+                    GitAuth gitAuth = mainApp.getGitApplicationMetadata().getGitAuth();
                     assertThat(gitAuth.getPublicKey()).isNotNull();
                     assertThat(gitAuth.getPrivateKey()).isNotNull();
                     assertThat(gitAuth.getGeneratedAt()).isNotNull();
 
                     // child app should have null as GitAuth inside the metadata
-                    GitMetadata metadata = childApp.getGitMetadata();
+                    GitApplicationMetadata metadata = childApp.getGitApplicationMetadata();
                     assertThat(metadata.getDefaultApplicationId()).isEqualTo(mainApp.getId());
                     assertThat(metadata.getGitAuth()).isNull();
                 })
