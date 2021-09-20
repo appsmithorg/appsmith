@@ -89,7 +89,7 @@ public class MethodConfig {
                         this.rowObjects = propertyValue;
                         break;
                     case "where":
-                        if (property.getValue() != null) {
+                        if (property.getValue() != null && !((List<Object>) property.getValue()).isEmpty()) {
                             this.whereConditions = Condition.generateFromConfiguration((List<Object>) property.getValue());
                         }
                         break;
