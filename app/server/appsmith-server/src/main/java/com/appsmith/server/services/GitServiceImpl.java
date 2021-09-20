@@ -586,9 +586,10 @@ public class GitServiceImpl implements GitService {
         return getApplicationById(applicationId)
             .flatMap(application -> {
                 GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
-                    return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
-                            "SSH Key is empty. Please reach out to Appsmith support"));
+                if (gitApplicationMetadata == null || gitApplicationMetadata.getDefaultApplicationId() == null) {
+                    return Mono.error(new AppsmithException(
+                        AppsmithError.INVALID_GIT_CONFIGURATION,
+                        "Can't find root application. Please configure the application with git"));
                 }
                 Path repoPath = Paths.get(application.getOrganizationId(),
                         gitApplicationMetadata.getDefaultApplicationId(),
@@ -598,7 +599,7 @@ public class GitServiceImpl implements GitService {
                 } catch (IOException | GitAPIException e) {
                     return Mono.error(new AppsmithException(
                         AppsmithError.GIT_ACTION_FAILED,
-                        "list branch",
+                        "branch --list",
                         "Error while accessing the file system. Details :" + e.getMessage()));
                 }
             });
