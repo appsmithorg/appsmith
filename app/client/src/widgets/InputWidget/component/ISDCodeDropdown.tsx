@@ -9,7 +9,6 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   padding: 9px 0px 9px 12px;
   width: 85px;
   min-width: 85px;
-  opacity: ${(props) => props.disabled && "0.6"};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,6 +23,7 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
     pointer-events: none;
   }
   .icon-dropdown {
+    opacity: ${(props) => props.disabled && "0.6"};
     display: flex;
     width: 30px;
     justify-content: space-between;

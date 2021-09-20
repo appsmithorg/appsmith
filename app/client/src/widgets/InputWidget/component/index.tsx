@@ -178,7 +178,9 @@ const StyledNumericInput = styled(NumericInput)`
       &:first-child:not(input) {
         position: static;
         background: ${(props) =>
-          props.disabled ? "rgba(206, 217, 224, 0.5)" : "#fff"};
+          props.disabled ? Colors.INPUT_DISABLED : "#fff"};
+        color: ${(props) =>
+          props.disabled ? Colors.INPUT_TEXT_DISABLED : "#000"};
         border: 1px solid #e7e7e7;
         border-right: 0;
       }
