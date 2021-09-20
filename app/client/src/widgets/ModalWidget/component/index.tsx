@@ -3,21 +3,21 @@ import React, { ReactNode, RefObject, useRef, useEffect, useMemo } from "react";
 import { Overlay, Classes } from "@blueprintjs/core";
 import { get, omit } from "lodash";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
-import { Layers } from "constants/Layers";
-import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
-import Resizable from "resizable";
-import { getCanvasClassName } from "utils/generators";
 import {
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
   BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
+import { Layers } from "constants/Layers";
+import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
+import Resizable from "resizable";
+import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useSelector } from "store";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div<{
