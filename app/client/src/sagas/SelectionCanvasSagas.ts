@@ -62,12 +62,28 @@ function* selectAllWidgetsInAreaSaga(
     selectionArena.left + selectionArena.width,
     selectionArena.top + selectionArena.height,
   );
+  // console.log(mainContainer, {
+  //   widgetOccupiedSpaces:
+  //     widgetOccupiedSpaces && widgetOccupiedSpaces[mainContainer.widgetId],
+  //   bottomRightCorner,
+  //   topLeftCorner,
+  // });
 
   if (widgetOccupiedSpaces && mainContainer) {
     const mainContainerWidgets = widgetOccupiedSpaces[mainContainer.widgetId];
     const widgets = Object.values(mainContainerWidgets || {});
     const widgetsToBeSelected = widgets.filter((eachWidget) => {
       const { bottom, left, right, top } = eachWidget;
+      // console.log(
+      //   { bottom, left, right, top },
+      //   {
+      //     bottom: bottomRightCorner[1],
+      //     right: bottomRightCorner[0],
+      //     top: topLeftCorner[1],
+      //     left: topLeftCorner[0],
+      //   },
+      // );
+
       return areIntersecting(
         { bottom, left, right, top },
         {
