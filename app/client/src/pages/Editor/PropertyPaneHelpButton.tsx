@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { withTheme } from "styled-components";
-import { Icon } from "@blueprintjs/core";
+import { ControlIcons } from "icons/ControlIcons";
 
 import {
   setGlobalSearchQuery,
@@ -11,6 +11,8 @@ import { getSelectedWidget } from "sagas/selectors";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import WidgetFactory from "utils/WidgetFactory";
+
+const QuestionIcon = ControlIcons.QUESTION;
 
 type Props = {
   theme: Theme;
@@ -31,14 +33,7 @@ const PropertyPaneHelpButton = withTheme(({ theme }: Props) => {
     });
   }, [selectedWidgetType]);
 
-  return (
-    <Icon
-      color={theme.colors.paneSectionLabel}
-      icon="help"
-      iconSize={16}
-      onClick={openHelpModal}
-    />
-  );
+  return <QuestionIcon height={16} onClick={openHelpModal} width={16} />;
 });
 
 export default PropertyPaneHelpButton;

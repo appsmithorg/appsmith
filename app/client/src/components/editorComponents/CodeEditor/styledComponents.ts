@@ -112,7 +112,7 @@ export const EditorWrapper = styled.div<{
           ? `border: 0px`
           : props.border === "bottom-side"
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
-          : `border: 1px solid ${Colors.MERCURY}`};
+          : `border: 1px solid ${Colors.GREY_5}`};
       background: ${Colors.WHITE};
       color: ${Colors.CHARCOAL};
       & {

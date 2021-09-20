@@ -35,7 +35,6 @@ import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-ali
 import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
-import { ReactComponent as CopyIcon } from "assets/icons/control/copy.svg";
 import { ReactComponent as Copy2Icon } from "assets/icons/control/copy2.svg";
 import { ReactComponent as CutIcon } from "assets/icons/control/cut.svg";
 import { ReactComponent as GroupIcon } from "assets/icons/control/group.svg";
@@ -61,6 +60,8 @@ import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
 import PlayIcon from "assets/icons/control/play-icon.png";
+import CopyIcon from "remixicon-react/FileCopyLineIcon";
+import QuestionIcon from "remixicon-react/QuestionLineIcon";
 
 /* eslint-disable react/display-name */
 
@@ -374,6 +375,11 @@ export const ControlIcons: {
   BOX_SHADOW_VARIANT5: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
+    </IconWrapper>
+  ),
+  QUESTION: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <QuestionIcon />
     </IconWrapper>
   ),
 };

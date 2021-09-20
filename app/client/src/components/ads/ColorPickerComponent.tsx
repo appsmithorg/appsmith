@@ -9,6 +9,7 @@ import {
 } from "@blueprintjs/core";
 import { ReactComponent as CheckedIcon } from "assets/icons/control/checkmark.svg";
 import { debounce } from "lodash";
+import { Colors } from "constants/Colors";
 
 const ColorIcon = styled.div<{ color: string }>`
   width: 24px;
@@ -16,8 +17,8 @@ const ColorIcon = styled.div<{ color: string }>`
   border: 3px solid ${(props) => props.theme.colors.propertyPane.bg};
   position: absolute;
   z-index: 1;
-  top: 3px;
-  left: 3px;
+  top: 6px;
+  left: 6px;
   background: ${(props) => (props.color ? props.color : "transparent")};
 `;
 
@@ -32,6 +33,8 @@ const StyledInputGroup = styled(InputGroup)`
   }
   &&& input {
     padding-left: 36px;
+    height: 36px;
+    border: 1px solid ${Colors.GREY_5};
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
@@ -120,8 +123,8 @@ function ColorBoard(props: ColorBoardProps) {
 const NoColorIconWrapper = styled.div`
   position: absolute;
   z-index: 1;
-  top: 3px;
-  left: 3px;
+  top: 6px;
+  left: 6px;
   width: 24px;
   height: 24px;
   .line {

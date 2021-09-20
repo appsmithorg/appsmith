@@ -25,6 +25,7 @@ import { showDebugger } from "actions/debuggerActions";
 import { setActionTabsInitialIndex } from "actions/pluginActionActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Colors } from "constants/Colors";
 
 const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
@@ -33,12 +34,12 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  border-bottom: 0.5px solid #e0dede;
+  background-color: ${Colors.GREY_1};
 
   .connection-dropdown {
     box-shadow: none;
-    background-color: ${(props) => props.theme.colors.propertyPane.bg};
     border: none;
+    background-color: ${Colors.GREY_1};
   }
   .error {
     border: 1px solid

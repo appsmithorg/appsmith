@@ -39,6 +39,7 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-bottom: 2px;
   width: 100%;
   padding-left: 30px;
+  background: inherit;
   &&& {
     input {
       border: none;

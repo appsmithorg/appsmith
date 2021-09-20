@@ -99,9 +99,9 @@ export const StyledDropDownContainer = styled.div`
 `;
 
 export const StyledDropDown = styled(Dropdown)`
-  height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+  height: 36px;
   border: 1px solid ${Colors.GREY_5};
 `;
 

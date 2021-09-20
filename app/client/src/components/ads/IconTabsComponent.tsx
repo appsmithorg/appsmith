@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { ControlIcons, ControlIconName } from "icons/ControlIcons";
+import { Colors } from "constants/Colors";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   width: auto;
@@ -11,7 +12,7 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
   justify-content: center;
   background: ${(props) =>
     props.selected
-      ? props.theme.colors.propertyPane.activeButtonText
+      ? Colors.GREY_10
       : props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
   cursor: pointer;
   &&& svg {

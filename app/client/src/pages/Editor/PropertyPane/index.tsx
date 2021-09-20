@@ -143,9 +143,9 @@ function PropertyPaneView(
         icon: (
           <CopyIcon
             className="t--copy-widget"
-            height={14}
+            height={16}
             onClick={handleCopy}
-            width={14}
+            width={16}
           />
         ),
       },
