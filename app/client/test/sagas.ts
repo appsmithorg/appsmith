@@ -28,8 +28,8 @@ import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "../src/sagas/JSActionSagas";
 import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
-import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
-import draggingCanvasSagas from "../src/sagas/DraggingCanvasSagas";
+import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [

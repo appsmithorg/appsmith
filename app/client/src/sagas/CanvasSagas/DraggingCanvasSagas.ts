@@ -11,7 +11,7 @@ import {
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { updateWidgetPosition } from "utils/WidgetPropsUtils";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../selectors";
 import log from "loglevel";
 import { cloneDeep } from "lodash";
 import { updateAndSaveLayout } from "actions/pageActions";
