@@ -1,6 +1,7 @@
 package com.appsmith.external.git;
 
 import com.appsmith.external.models.ApplicationGitReference;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -12,7 +13,6 @@ public interface FileInterface {
      * ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @param applicationGitReference application reference object from which entire application can be rehydrated
-     * @param branchName git branch for current application in context, we will be mapping each branch with separate application in DB
      * @return Path to where the application is stored
      *
      *   Application will be stored in the following structure :
@@ -30,8 +30,7 @@ public interface FileInterface {
      */
     Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
                                         ApplicationGitReference applicationGitReference,
-                                        String branchName,
-                                        boolean isDefault) throws IOException;
+                                        String branchName) throws IOException, GitAPIException;
 
     /**
      * This method will reconstruct the application from the repo
@@ -42,7 +41,7 @@ public interface FileInterface {
      */
     ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
                                                               String defaultApplicationId,
-                                                              String branchName);
+                                                              String branchName) throws GitAPIException, IOException;
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

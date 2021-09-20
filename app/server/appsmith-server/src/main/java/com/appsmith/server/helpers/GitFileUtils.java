@@ -1,18 +1,22 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.BeanCopyUtils;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +27,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 @Import({FileUtilsImpl.class})
 public class GitFileUtils {
 
     @Autowired
     FileInterface fileUtils;
+
+    GitExecutor gitExecutor;
 
     // Only include the application helper fields in metadata object
     private static final Set<String> blockedMetadataFields
@@ -44,21 +51,20 @@ public class GitFileUtils {
      */
     public Mono<Path> saveApplicationToLocalRepo(Path baseRepoSuffix,
                                                  ApplicationJson applicationJson,
-                                                 String branchName,
-                                                 boolean isDefault) throws IOException {
+                                                 String branchName) throws IOException, GitAPIException {
 
         /*
             1. Create application reference for appsmith-git module
             2. Save application to git repo
          */
         ApplicationGitReference applicationReference = new ApplicationGitReference();
-
+        gitExecutor.checkoutToBranch(baseRepoSuffix, branchName);
         // Pass application reference
         applicationReference.setApplication(applicationJson.getExportedApplication());
 
         // Pass metadata
         Iterable<String> keys = Arrays.stream(applicationJson.getClass().getDeclaredFields())
-            .map(key -> key.getName())
+            .map(Field::getName)
             .filter(name -> !blockedMetadataFields.contains(name))
             .collect(Collectors.toList());
 
@@ -101,7 +107,7 @@ public class GitFileUtils {
 
 
         // Save application to git repo
-        return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName, isDefault);
+        return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, applicationReference, branchName);
     }
 
     /**
@@ -113,12 +119,7 @@ public class GitFileUtils {
      */
     public ApplicationJson reconstructApplicationFromGitRepo(String organisationId,
                                                              String defaultApplicationId,
-                                                             String branchName) {
-
-        // For implementing a branching model we are using worktree structure so each branch will have the separate
-        // directory, this decision has been taken considering multiple users can checkout different branches at same
-        // time
-        // API reference for worktree : https://git-scm.com/docs/git-worktree
+                                                             String branchName) throws GitAPIException, IOException {
 
         ApplicationJson applicationJson = new ApplicationJson();
 

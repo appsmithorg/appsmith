@@ -2,12 +2,11 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
-import org.eclipse.jgit.lib.Ref;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public interface GitService {
 
     Mono<Application> connectApplicationToGit(String defaultApplicationId, GitConnectDTO gitConnectDTO, String origin);
 
-    Mono<GitApplicationMetadata> updateGitMetadata(String applicationId, GitApplicationMetadata gitMetadata);
+    Mono<GitMetadata> updateGitMetadata(String applicationId, GitMetadata gitMetadata);
 
     Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId);
 

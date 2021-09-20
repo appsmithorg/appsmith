@@ -1,6 +1,7 @@
 package com.appsmith.git.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
@@ -11,7 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -46,6 +47,7 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 public class FileUtilsImpl implements FileInterface {
 
     private final GitServiceConfig gitServiceConfig;
+    private final GitExecutor gitExecutor;
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -54,26 +56,18 @@ public class FileUtilsImpl implements FileInterface {
      * Path to repo will be : ./container-volumes/git-repo/organizationId/defaultApplicationId/branchName/{application_data}
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
      * @param applicationGitReference application reference object from which entire application can be rehydrated
-     * @param branchName name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToGitRepo(Path baseRepoSuffix,
                                                ApplicationGitReference applicationGitReference,
-                                               String branchName,
-                                               boolean isDefault) throws IOException {
+                                               String branchName) throws IOException, GitAPIException {
+
+        // Repo path for branches will be like:
+        // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
+        // Checkout to mentioned branch if not already checked-out
+        gitExecutor.checkoutToBranch(baseRepoSuffix, branchName);
 
         Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-
-        // As we are using the worktree path for branches will be like:
-        // Children branches : baseRepo/branchName/applicationData
-        // Default branch : baseRepo/applicationData
-        // baseRepo : root/orgId/defaultAppId/repoName
-        Path baseRepoBranchPath = isDefault ? baseRepo : baseRepo.resolve(branchName);
-
-        // Check if this is a valid repo and only then proceed to update the files. We are using the worktrees for each
-        // branch present in the local repo so each branch directory will have .git
-        Git git = Git.open(baseRepo.toFile());
-
         Gson gson = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
         Set<String> validFileNames = new HashSet<>();
 
@@ -93,41 +87,41 @@ public class FileUtilsImpl implements FileInterface {
          */
 
         // Save application
-        saveFile(applicationGitReference.getApplication(), baseRepoBranchPath.resolve("application.json"), gson);
+        saveFile(applicationGitReference.getApplication(), baseRepo.resolve("application.json"), gson);
 
         // Save application metadata
-        saveFile(applicationGitReference.getMetadata(), baseRepoBranchPath.resolve("metadata.json"), gson);
+        saveFile(applicationGitReference.getMetadata(), baseRepo.resolve("metadata.json"), gson);
 
         // Save pages
         for (Map.Entry<String, Object> resource : applicationGitReference.getPages().entrySet()) {
-            saveFile(resource.getValue(), baseRepoBranchPath.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepo.resolve(PAGE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
-        scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(PAGE_DIRECTORY));
+        scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(PAGE_DIRECTORY));
         validFileNames.clear();
 
         // Save actions
         for (Map.Entry<String, Object> resource : applicationGitReference.getActions().entrySet()) {
-            saveFile(resource.getValue(), baseRepoBranchPath.resolve(ACTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepo.resolve(ACTION_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan actions directory and delete if any unwanted file if present
         if (!applicationGitReference.getActions().isEmpty()) {
-            scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(ACTION_DIRECTORY));
+            scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(ACTION_DIRECTORY));
             validFileNames.clear();
         }
 
         // Save datasources ref
         for (Map.Entry<String, Object> resource : applicationGitReference.getDatasources().entrySet()) {
-            saveFile(resource.getValue(), baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
+            saveFile(resource.getValue(), baseRepo.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + ".json"), gson);
             validFileNames.add(resource.getKey() + ".json");
         }
         // Scan page directory and delete if any unwanted file if present
         if (!applicationGitReference.getDatasources().isEmpty()) {
-            scanAndDeleteFileForDeletedResources(validFileNames, baseRepoBranchPath.resolve(DATASOURCE_DIRECTORY));
+            scanAndDeleteFileForDeletedResources(validFileNames, baseRepo.resolve(DATASOURCE_DIRECTORY));
         }
-        return Mono.just(baseRepoBranchPath);
+        return Mono.just(baseRepo);
     }
 
     /**
@@ -199,16 +193,21 @@ public class FileUtilsImpl implements FileInterface {
      */
     public ApplicationGitReference reconstructApplicationFromGitRepo(String organisationId,
                                                                      String defaultApplicationId,
-                                                                     String branchName) {
+                                                                     String branchName) throws GitAPIException, IOException {
 
         // For implementing a branching model we are using worktree structure so each branch will have the separate
         // directory, this decision has been taken considering multiple users can checkout different branches at same
         // time
         // API reference for worktree : https://git-scm.com/docs/git-worktree
 
-        Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath(), organisationId, defaultApplicationId, branchName);
+        Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId);
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
 
+
+        // Checkout to mentioned branch if not already checked-out
+        gitExecutor.checkoutToBranch(baseRepoSuffix, branchName);
+
+        Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
         // Instance creator is required while de-serialising using Gson as key instance can't be invoked with
         // no-args constructor
@@ -217,9 +216,7 @@ public class FileUtilsImpl implements FileInterface {
             .create();
 
         // Extract application data from the json
-        applicationGitReference.setApplication(
-            readFile( baseRepoPath.resolve("application.json"), gson)
-        );
+        applicationGitReference.setApplication(readFile(baseRepoPath.resolve("application.json"), gson));
 
         // Extract application metadata from the json
         applicationGitReference.setMetadata(readFile(baseRepoPath.resolve("metadata.json"), gson));

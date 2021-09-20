@@ -85,7 +85,14 @@ public interface GitExecutor {
      * @param branchName
      * @return
      */
-    String createWorktree(Path repoSuffix, String branchName) throws IOException, GitAPIException;
+    String createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
+
+    /**
+     *
+     * @param repoSuffix
+     * @param branchName
+     */
+    boolean checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException;
 
     /**
      * Pull changes from remote branch and merge the changes

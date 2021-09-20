@@ -65,7 +65,7 @@ public class Application extends BaseDomain {
     @JsonIgnore
     AppLayout publishedAppLayout;
 
-    GitApplicationMetadata gitApplicationMetadata;
+    GitMetadata gitMetadata;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     Instant lastDeployedAt; // when this application was last deployed

@@ -7,15 +7,16 @@ import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
-import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.NotSupportedException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 
@@ -211,15 +212,38 @@ public class GitExecutorImpl implements GitExecutor {
     }
 
     @Override
-    public String createWorktree(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+    public String createAndCheckoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
         Path baseRepoPath = createRepoPath(repoSuffix);
         Git git = Git.open(baseRepoPath.toFile());
+        // Create and checkout to new branch
+        git.checkout()
+            .setCreateBranch(Boolean.TRUE)
+            .setName(branchName)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .call();
 
-        Ref ref = git.branchCreate().setName(branchName).call();
-        git.close();
-        return ref.getName();
+        return git.getRepository().getBranch();
+    }
+
+    @Override
+    public boolean checkoutToBranch(Path repoSuffix, String branchName) throws IOException, GitAPIException {
+        // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
+        // open the repo
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        Git git = Git.open(baseRepoPath.toFile());
+        if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
+            return Boolean.TRUE;
+        }
+        // Create and checkout to new branch
+        String checkedOutBranch =  git.checkout()
+            .setCreateBranch(Boolean.FALSE)
+            .setName(branchName)
+            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            .call()
+            .getName();
+        return StringUtils.equalsIgnoreCase(checkedOutBranch, branchName);
     }
 
     @Override
@@ -254,8 +278,8 @@ public class GitExecutorImpl implements GitExecutor {
 
     @Override
     public List<String> getBranchForApplication(Path repoSuffix) throws GitAPIException, IOException {
-
-        Git git = Git.open(Paths.get(gitServiceConfig.getGitRootPath()).resolve(repoSuffix).toFile());
+        Path baseRepoPath = createRepoPath(repoSuffix);
+        Git git = Git.open(baseRepoPath.toFile());
         List<Ref> refList = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call();
         List<String> branchList = new ArrayList<>();
 
@@ -265,7 +289,7 @@ public class GitExecutorImpl implements GitExecutor {
             for(Ref ref : refList) {
                 branchList.add(ref.getName()
                         .replace("refs/heads/","")
-                        .replace("refs/remotes/",""));
+                        .replace("refs/remotes/","remotes/"));
             }
         }
         git.close();

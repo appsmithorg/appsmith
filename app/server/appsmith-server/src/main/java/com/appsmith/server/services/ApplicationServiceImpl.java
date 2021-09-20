@@ -7,7 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.GitConstants;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -164,7 +164,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         application.setIsPublic(null);
         // We are using @Encrypted for GitAuth field so updating git metadata is possible with save method only to
         // handle the encryption under the hood. Use createOrupdateSshKeyPair to generate and update SSH keys.
-        application.setGitApplicationMetadata(null);
+        application.setGitMetadata(null);
         return repository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
             .onErrorResume(error -> {
                 if (error instanceof DuplicateKeyException) {
@@ -350,7 +350,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)
                 ))
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitMetadata gitData = application.getGitMetadata();
                     // Check if the current application is the root application
 
                     if( gitData != null
@@ -361,10 +361,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                         return save(application);
                     } else if(gitData == null) {
                         // This is a root application with generate SSH key request
-                        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                        gitApplicationMetadata.setDefaultApplicationId(applicationId);
-                        gitApplicationMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitApplicationMetadata);
+                        GitMetadata gitMetadata = new GitMetadata();
+                        gitMetadata.setDefaultApplicationId(applicationId);
+                        gitMetadata.setGitAuth(gitAuth);
+                        application.setGitMetadata(gitMetadata);
                         return save(application);
                     }
                     // Children application with update SSH key request for root application
@@ -375,10 +375,10 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     }
                     return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                         .flatMap(defaultApplication -> {
-                            GitApplicationMetadata gitMetadata = defaultApplication.getGitApplicationMetadata();
+                            GitMetadata gitMetadata = defaultApplication.getGitMetadata();
                             gitMetadata.setDefaultApplicationId(defaultApplication.getId());
                             gitMetadata.setGitAuth(gitAuth);
-                            defaultApplication.setGitApplicationMetadata(gitMetadata);
+                            defaultApplication.setGitMetadata(gitMetadata);
                             return save(defaultApplication);
                         });
                 })
@@ -397,7 +397,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
             )
             .flatMap(application -> {
-                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                GitMetadata gitData = application.getGitMetadata();
                 if (gitData == null) {
                     return Mono.error(new AppsmithException(
                         AppsmithError.INVALID_GIT_CONFIGURATION,
@@ -417,7 +417,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 }
                 return repository.findById(gitData.getDefaultApplicationId(), MANAGE_APPLICATIONS)
                     .map(rootApplication -> {
-                        GitAuth gitAuth = rootApplication.getGitApplicationMetadata().getGitAuth();
+                        GitAuth gitAuth = rootApplication.getGitMetadata().getGitAuth();
                         gitAuth.setDocUrl(GitConstants.DEPLOY_KEY_DOC_URL);
                         return gitAuth;
                     });
