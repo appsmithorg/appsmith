@@ -1,7 +1,7 @@
 import React, { ReactNode, RefObject, useRef, useEffect, useMemo } from "react";
 
 import { Overlay, Classes } from "@blueprintjs/core";
-import { get, noop, omit } from "lodash";
+import { get, omit } from "lodash";
 import styled from "styled-components";
 
 import { UIElementSize } from "components/editorComponents/ResizableUtils";
@@ -15,6 +15,10 @@ import {
   TopHandleStyles,
   BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
+import { AppState } from "reducers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { useSelector } from "store";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div<{
   width?: number;
@@ -109,6 +113,7 @@ export type ModalComponentProps = {
   resizeModal?: (dimensions: UIElementSize) => void;
   maxWidth?: number;
   minSize?: number;
+  widgetName: string;
 };
 
 /* eslint-disable react/display-name */
@@ -118,6 +123,11 @@ export default function ModalComponent(props: ModalComponentProps) {
   );
   const { enableResize = false } = props;
   const resizeRef = React.useRef<HTMLDivElement>(null);
+
+  const { setIsResizing } = useWidgetDragResize();
+  const isResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+  );
 
   const handles = useMemo(() => {
     const allHandles = {
@@ -136,6 +146,23 @@ export default function ModalComponent(props: ModalComponentProps) {
     }
   }, [props.scrollContents]);
 
+  const onResizeStop = (dimensions: UIElementSize) => {
+    props.resizeModal && props.resizeModal(dimensions);
+    // Tell the Canvas that we've stopped resizing
+    // Put it later in the stack so that other updates like click, are not propagated to the parent container
+    setTimeout(() => {
+      setIsResizing && setIsResizing(false);
+    }, 0);
+  };
+
+  const onResizeStart = () => {
+    setIsResizing && !isResizing && setIsResizing(true);
+    AnalyticsUtil.logEvent("WIDGET_RESIZE_START", {
+      widgetName: props.widgetName,
+      widgetType: "MODAL_WIDGET",
+    });
+  };
+
   const getResizableContent = () => {
     return (
       <Resizable
@@ -145,7 +172,7 @@ export default function ModalComponent(props: ModalComponentProps) {
         enable={enableResize}
         handles={handles}
         isColliding={() => false}
-        onStart={noop}
+        onStart={onResizeStart}
         onStop={onResizeStop}
         ref={resizeRef}
         resizeDualSides
@@ -161,10 +188,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         </Content>
       </Resizable>
     );
-  };
-
-  const onResizeStop = (dimensions: UIElementSize) => {
-    props.resizeModal && props.resizeModal(dimensions);
   };
 
   return (

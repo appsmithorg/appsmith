@@ -191,6 +191,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
         usePortal={false}
+        widgetName={this.props.widgetName}
         width={this.getModalWidth(this.props.width)}
       >
         {content}
