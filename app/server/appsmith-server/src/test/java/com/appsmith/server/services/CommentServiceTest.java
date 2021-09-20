@@ -525,4 +525,32 @@ public class CommentServiceTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void create_WhenUserHasProfilePhoto_PhotoIdIsSetToComment() {
+        // mock the user data so that bot comment is not created
+        UserData userData = new UserData();
+        userData.setProfilePhotoAssetId("test-photo-id");
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        // create a thread first with resolved=true
+        Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
+                Set.of(AclPermission.COMMENT_ON_THREAD),
+                "api_user"
+        ).values();
+        CommentThread commentThread = new CommentThread();
+        commentThread.setPolicies(Set.copyOf(threadPolicies));
+
+        Mono<Comment> commentMono = commentThreadRepository.save(commentThread)
+                .flatMap(savedThread -> {
+                    Comment comment = makePlainTextComment("Test comment");
+                    comment.setThreadId(savedThread.getId());
+                    return commentService.create(savedThread.getId(), comment, null);
+                });
+
+        StepVerifier.create(commentMono).assertNext(comment -> {
+            assertThat(comment.getAuthorPhotoId()).isEqualTo("test-photo-id");
+        }).verifyComplete();
+    }
 }
