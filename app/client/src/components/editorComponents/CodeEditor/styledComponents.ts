@@ -90,13 +90,7 @@ export const EditorWrapper = styled.div<{
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: 0px;
-        background: ${
-          !props.isNotHover
-            ? Colors.Gallery
-            : props.isFocused
-            ? Colors.MERCURY
-            : Colors.WHITE
-        };
+        background: ${Colors.GREY_1};
       }
     }
   }`
@@ -111,6 +105,7 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
+      padding: 0 6px;
       border-radius: 0px;
       ${(props) =>
         props.border === "none"
@@ -118,8 +113,7 @@ export const EditorWrapper = styled.div<{
           : props.border === "bottom-side"
           ? `border-bottom: 1px solid ${Colors.MERCURY}`
           : `border: 1px solid ${Colors.MERCURY}`};
-      background: ${(props) =>
-        props.isFocused || props.fill ? Colors.MERCURY : "#FAFAFA"};
+      background: ${Colors.WHITE};
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
@@ -220,7 +214,7 @@ export const EditorWrapper = styled.div<{
       border-right: 1px dotted #ccc;
     }
   `}
-  
+
   .bp3-popover-target {
     padding-right: 10px;
     padding-top: 5px;
@@ -292,7 +286,14 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   height: 100%;
   flex: 1;
   position: relative;
-  border: 1px solid ${(props) => (!props.isError ? "transparent" : "red")};
+  box-sizing: border-box;
+  border: 1px solid
+    ${(props) =>
+      !props.isError
+        ? props.isActive
+          ? Colors.PRIMARY_ORANGE
+          : Colors.GREY_5
+        : "red"};
   > span:first-of-type {
     width: 30px;
     position: absolute;

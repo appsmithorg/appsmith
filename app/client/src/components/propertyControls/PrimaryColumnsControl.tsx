@@ -41,16 +41,15 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   padding-left: 30px;
   padding-right: 60px;
   text-overflow: ellipsis;
+  background: inherit;
   &&& {
     input {
       padding-left: 24px;
       border: none;
       color: ${(props) => props.theme.colors.textOnDarkBG};
-      background: ${(props) => props.theme.colors.paneInputBG};
       &:focus {
         border: none;
         color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
       }
     }
   }

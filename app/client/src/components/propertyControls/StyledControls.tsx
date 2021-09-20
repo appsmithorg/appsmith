@@ -53,27 +53,20 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   margin: 4px;
   margin-top: 0px;
   cursor: pointer;
-  border-radius: 4px;
   height: auto;
   width: 28px;
   height: 16px;
-  border: 0.5px solid
-    ${(props) => props.theme.colors.propertyPane.activeButtonText};
+  border: 0.5px solid ${Colors.BLACK};
   background-color: ${(props) =>
-    props.active
-      ? props.theme.colors.propertyPane.activeButtonText
-      : props.theme.colors.propertyPane.buttonText};
+    props.active ? Colors.GREY_10 : Colors.GREY_2};
 
   &:hover {
     background-color: ${(props) =>
-      props.theme.colors.propertyPane.jsButtonHoverBG};
+      props.active ? Colors.GREY_9 : Colors.GREY_3};
 
     &&& svg {
       path {
-        fill: ${(props) =>
-          props.active
-            ? props.theme.colors.propertyPane.activeButtonText
-            : props.theme.colors.propertyPane.activeButtonText};
+        fill: ${(props) => (props.active ? Colors.GREY_2 : Colors.GREY_9)};
       }
     }
   }
@@ -87,7 +80,7 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
   &&& svg {
     width: 28px;
     height: 16px;
-    transform: scale(1.6);
+    transform: scale(1.4);
 
     rect {
       fill: transparent;
@@ -95,21 +88,21 @@ export const JSToggleButton = styled.span<{ active: boolean }>`
 
     path {
       fill: ${(props) =>
-        props.active
-          ? props.theme.colors.WHITE
-          : props.theme.colors.propertyPane.activeButtonText};
+        props.active ? props.theme.colors.GREY_2 : Colors.GREY_9};
     }
   }
 `;
 
 export const StyledDropDownContainer = styled.div`
   width: 100%;
+  height: 100%;
 `;
 
 export const StyledDropDown = styled(Dropdown)`
   height: auto;
   background-color: ${(props) => props.theme.colors.propertyPane.buttonText};
   box-shadow: none;
+  border: 1px solid ${Colors.GREY_5};
 `;
 
 export const StyledMultiSelectDropDown = styled(MultiSelectDropdown)`
@@ -341,21 +334,27 @@ export const StyledPropertyPaneButton = styled(Button)`
   margin-left: auto;
   display: flex;
   justify-content: flex-end;
+  border: 1px solid ${Colors.GREY_8};
 
   &,
-  &:active,
+  &:active {
+    border: 1px solid ${Colors.GREY_8};
+    color: ${Colors.GREY_8};
+    background-color: transparent;
+  }
+
   &:hover {
-    border-color: transparent;
-    color: ${(props) => props.theme.colors.propertyPane.buttonText};
-    background-color: ${(props) => props.theme.colors.propertyPane.buttonBg};
+    border: 1px solid ${Colors.GREY_8};
+    color: ${Colors.GREY_8};
+    background-color: ${Colors};
   }
 
   &&& svg {
     width: 14px;
     height: 14px;
     path {
-      fill: ${(props) => props.theme.colors.propertyPane.buttonText};
-      stroke: ${(props) => props.theme.colors.propertyPane.buttonText};
+      fill: ${Colors.GREY_8};
+      stroke: ${Colors.GREY_8};
     }
   }
 `;

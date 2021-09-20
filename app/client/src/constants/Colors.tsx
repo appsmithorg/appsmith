@@ -128,9 +128,14 @@ export const Colors = {
   SELECT_PLACEHOLDER: "#bfbfbf",
   SELECT_COLOR: "#182026",
 
+  GREY_1: "#FAFAFA",
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
+  GREY_5: "#E0DEDE",
   GREY_8: "#716E6E",
   GREY_9: "#4B4848",
+  GREY_10: "#090707",
+
+  PRIMARY_ORANGE: "#F86A2B",
 };
 export type Color = typeof Colors[keyof typeof Colors];
