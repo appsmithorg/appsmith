@@ -6,6 +6,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
+import com.jcraft.jsch.IO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -158,5 +159,9 @@ public class GitFileUtils {
                                         String applicationId,
                                         String baseUrlOfApplication) throws IOException {
         return fileUtils.initializeGitRepo(baseRepoSuffix,defaultPageId, applicationId,baseUrlOfApplication);
+    }
+
+    public Mono<Boolean> detachRemote(Path baseRepoSuffix) {
+        return fileUtils.detachRemote(baseRepoSuffix);
     }
 }
