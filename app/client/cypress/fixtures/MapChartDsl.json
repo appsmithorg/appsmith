@@ -1,0 +1,147 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 1206.35,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 670,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 39,
+    "minHeight": 680,
+    "parentColumnSpace": 1,
+    "dynamicTriggerPathList": [],
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "widgetName": "MapChart1",
+        "data": [
+          {
+            "id": "NA",
+            "value": "515"
+          },
+          {
+            "id": "SA",
+            "value": "373"
+          },
+          {
+            "id": "AS",
+            "value": "3875"
+          },
+          {
+            "id": "EU",
+            "value": "727"
+          },
+          {
+            "id": "AF",
+            "value": "885"
+          },
+          {
+            "id": "AU",
+            "value": "32"
+          }
+        ],
+        "isCanvas": false,
+        "displayName": "Map Chart",
+        "iconSVG": "/static/media/icon.ea6632b7.svg",
+        "topRow": 5,
+        "bottomRow": 37,
+        "parentRowSpace": 10,
+        "type": "MAP_CHART_WIDGET",
+        "hideCard": false,
+        "mapTitle": "Global Population",
+        "parentColumnSpace": 18.66171875,
+        "leftColumn": 3,
+        "key": "i5sggujhd5",
+        "rightColumn": 27,
+        "widgetId": "78mh0e91vw",
+        "mapType": "WORLD",
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "showLabels": true,
+        "customFusionMapConfig": {
+          "type": "maps/world",
+          "renderAt": "chart-container",
+          "width": "600",
+          "height": "400",
+          "dataFormat": "json",
+          "dataSource": {
+            "chart": {
+              "caption": "World's Two Most Populous Continents",
+              "theme": "fusion",
+              "formatNumberScale": "0",
+              "numberSuffix": "M",
+              "useSNameInLabels": "0"
+            },
+            "colorrange": {
+              "color": [
+                {
+                  "minvalue": "0",
+                  "maxvalue": "100",
+                  "code": "#D0DFA3",
+                  "displayValue": "< 100M"
+                },
+                {
+                  "minvalue": "100",
+                  "maxvalue": "500",
+                  "code": "#B0BF92",
+                  "displayValue": "100-500M"
+                },
+                {
+                  "minvalue": "500",
+                  "maxvalue": "1000",
+                  "code": "#91AF64",
+                  "displayValue": "500M-1B"
+                },
+                {
+                  "minvalue": "1000",
+                  "maxvalue": "5000",
+                  "code": "#A9FF8D",
+                  "displayValue": "> 1B"
+                }
+              ]
+            },
+            "data": [
+              {
+                "id": "NA",
+                "value": "515"
+              },
+              {
+                "id": "SA",
+                "value": "373"
+              },
+              {
+                "id": "AS",
+                "value": "3875",
+                "showLabel": "1"
+              },
+              {
+                "id": "EU",
+                "value": "727"
+              },
+              {
+                "id": "AF",
+                "value": "885",
+                "showLabel": "1"
+              },
+              {
+                "id": "AU",
+                "value": "32"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

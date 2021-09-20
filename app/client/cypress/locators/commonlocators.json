@@ -122,5 +122,6 @@
   "viewerPage": ".t--app-viewer-page",
   "dropDownOptSelected": "//span[@type='p1']",
   "generalChevran":".t--property-pane-section-collapse-general  [icon=chevron-right]",
-  "generalSection":".t--property-pane-section-general"
+  "generalSection":".t--property-pane-section-general",
+  "mapChartShowLabels": ".t--property-control-showlabels input"
 }

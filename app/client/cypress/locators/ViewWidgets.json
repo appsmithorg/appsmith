@@ -2,6 +2,7 @@
     "imageWidget": ".t--draggable-imagewidget",
     "chartWidget": ".t--draggable-chartwidget",
     "chartType": ".t--property-control-charttype .bp3-popover-target",
+    "mapType": ".t--property-control-maptype .bp3-popover-target",
     "destin": ".appsmith_widget_01ewdomru7",
     "mapWidget": ".t--draggable-mapwidget",
     "dropdownSelectButton": ".t--open-dropdown-Select",
@@ -30,5 +31,6 @@
     "defaultImage": ".t--property-control-defaultimage .CodeMirror textarea",
     "Chartlabel": ".t--draggable-chartwidget g:nth-child(5) text",
     "PieChartLabel": ".t--draggable-chartwidget g g:nth-child(1) g text",
-    "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']"
+    "pickMyLocation": ".t--draggable-mapwidget div[title='Pick My Location']",
+    "mapChartEntityLabels": ".t--draggable-mapchartwidget g[class*='-entityLabels'] text"
 }
