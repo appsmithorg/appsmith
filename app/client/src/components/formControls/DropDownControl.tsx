@@ -7,7 +7,6 @@ import DropdownField from "components/editorComponents/form/fields/DropdownField
 import { DropdownOption } from "components/constants";
 import { ControlType } from "constants/PropertyControlConstants";
 import { theme } from "constants/DefaultTheme";
-import FormLabel from "components/editorComponents/FormLabel";
 import { Colors } from "constants/Colors";
 
 const DropdownSelect = styled.div`
@@ -53,15 +52,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     return (
       <div>
-        <FormLabel>
-          {label} {isRequired && "*"}
-          {subtitle && (
-            <>
-              <br />
-              <StyledInfo>{subtitle}</StyledInfo>
-            </>
-          )}
-        </FormLabel>
         <DropdownSelect data-cy={configProperty}>
           <DropdownField
             customSelectStyles={customSelectStyles}

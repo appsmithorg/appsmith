@@ -42,18 +42,29 @@ export interface ControlProps extends ControlData, ControlFunctions {
 export interface ControlData {
   id: string;
   label: string;
+  showTooltip?: boolean;
+  tooltipText?: string;
   configProperty: string;
   controlType: ControlType;
+  description?: string;
   propertyValue?: any;
   isValid: boolean;
   validationMessage?: string;
   validationRegex?: string;
   dataType?: InputType;
+  info?: string;
   isRequired?: boolean;
   conditionals: string;
   hidden?: HiddenType;
   placeholderText?: string;
   schema?: any;
+  errorText?: string;
+  showError?: boolean;
+  showHelp?: boolean;
+  encrypted?: boolean;
+  subtitle?: string;
+  url?: string;
+  urlText?: string;
 }
 
 export interface ControlFunctions {

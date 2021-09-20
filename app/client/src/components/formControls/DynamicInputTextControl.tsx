@@ -1,7 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "reducers";
 import { formValueSelector } from "redux-form";
@@ -20,10 +19,7 @@ export function InputText(props: {
   const dataTreePath = actionPathFromName(actionName, name);
 
   return (
-    <div style={{ width: "50vh", minHeight: "55px" }}>
-      <FormLabel>
-        {label} {isRequired && "*"}
-      </FormLabel>
+    <div style={{ width: "50vh", minHeight: "34px" }}>
       <DynamicTextField
         dataTreePath={dataTreePath}
         name={name}

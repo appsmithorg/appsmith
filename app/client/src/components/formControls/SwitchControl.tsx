@@ -47,16 +47,12 @@ export class SwitchField extends React.Component<Props, any> {
     return (
       <div>
         <SwitchWrapped data-cy={this.props.input.name}>
-          <StyledFormLabel>
-            {label} {isRequired && "*"}
-          </StyledFormLabel>
           <StyledSwitch
             checked={this.value}
             large
             onChange={(value) => input.onChange(value)}
           />
         </SwitchWrapped>
-        {info && <Info>{info}</Info>}
       </div>
     );
   }

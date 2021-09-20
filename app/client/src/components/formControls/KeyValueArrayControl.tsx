@@ -94,9 +94,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
         return (
           <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
             <div style={{ width: "50vh" }}>
-              <FormLabel>
-                {extraData && extraData[0].label} {isRequired && "*"}
-              </FormLabel>
               <TextField
                 name={`${field}.${keyName[1]}`}
                 placeholder={(extraData && extraData[0].placeholderText) || ""}
@@ -106,9 +103,6 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
             </div>
             {!props.actionConfig && (
               <div style={{ marginLeft: 16 }}>
-                <FormLabel>
-                  {extraData && extraData[1].label} {isRequired && "*"}
-                </FormLabel>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div style={{ marginRight: 14, width: 72 }}>
                     <StyledTextField
