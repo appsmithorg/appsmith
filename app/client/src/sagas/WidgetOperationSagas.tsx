@@ -583,9 +583,13 @@ function* updateCanvasSize(
     // Check this out when non canvas widgets are updating snapRows
     // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
     yield put(
-      batchUpdateWidgetProperty(canvasWidgetId, {
-        modify: { bottomRow: newBottomRow },
-      }),
+      batchUpdateWidgetProperty(
+        canvasWidgetId,
+        {
+          modify: { bottomRow: newBottomRow },
+        },
+        false,
+      ),
     );
   }
 }
