@@ -152,7 +152,10 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
             </StyledActionText>
           )}
           {props.variant === Variant.danger && props.showDebugButton ? (
-            <StyledDebugButton source={"TOAST"} />
+            <StyledDebugButton
+              className="t--toast-debug-button"
+              source={"TOAST"}
+            />
           ) : null}
         </ToastTextWrapper>
       </FlexContainer>

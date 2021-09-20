@@ -9,8 +9,8 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 13 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7 * GRID_DENSITY_MIGRATION_V1,
+    rows: 10 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Form",
     backgroundColor: "white",
     children: [],
@@ -47,7 +47,7 @@ export const CONFIG = {
                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
-                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
                     left: 11.6 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
@@ -66,7 +66,7 @@ export const CONFIG = {
                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: {
-                    top: 11.25 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8.25 * GRID_DENSITY_MIGRATION_V1,
                     left: 7.5 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {

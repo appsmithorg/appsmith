@@ -216,7 +216,6 @@ export const getEnableFirstTimeUserOnboarding = async () => {
     const enableFirstTimeUserOnboarding: any = await store.getItem(
       STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
-    enableFirstTimeUserOnboarding.toString();
     return enableFirstTimeUserOnboarding;
   } catch (error) {
     log.error(

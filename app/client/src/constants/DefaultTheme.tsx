@@ -451,6 +451,9 @@ export type Theme = {
   actionSidePane: {
     width: number;
   };
+  onboarding: {
+    statusBarHeight: number;
+  };
 };
 
 type IconSizeType = {
@@ -1172,10 +1175,14 @@ type ColorType = {
     warning: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     error: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     jsonIcon: string;
     message: string;
@@ -1999,10 +2006,14 @@ export const dark: ColorType = {
       borderBottom: "black",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "black",
       backgroundColor: "#291B1D",
     },
@@ -2590,10 +2601,14 @@ export const light: ColorType = {
       borderBottom: "rgba(0, 0, 0, 0.05)",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "white",
       backgroundColor: "rgba(254, 184, 17, 0.1)",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
@@ -2996,6 +3011,9 @@ export const theme: Theme = {
   },
   actionSidePane: {
     width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
   },
 };
 

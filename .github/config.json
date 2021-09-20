@@ -614,6 +614,11 @@
                 "value": true
               },
               {
+                "label": "MultiSelect Widget",
+                "type": "hasLabel",
+                "value": true
+              },
+              {
                 "label": "Map Widget",
                 "type": "hasLabel",
                 "value": true
