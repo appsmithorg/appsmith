@@ -62,6 +62,7 @@ export default function BranchDropdown(props: {
   ) : (
     <Dropdown
       dontUsePortal
+      fillOptions
       onSelect={handleSelect}
       options={branches}
       selected={{ label: "Master", value: "Master" }}

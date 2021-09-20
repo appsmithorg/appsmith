@@ -161,10 +161,10 @@ function WidgetsEditor() {
           onClick={handleWrapperClick}
           onDragStart={onDragStart}
         >
+          <MainContainerLayoutControl />
           <CanvasContainer className={getCanvasClassName()} key={currentPageId}>
             {node}
           </CanvasContainer>
-          <MainContainerLayoutControl />
           <Debugger />
           <CrudInfoModal />
         </EditorWrapper>

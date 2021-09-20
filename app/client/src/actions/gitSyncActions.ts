@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
-import { GitSyncModalTab } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -13,7 +13,7 @@ export const setIsGitSyncModalOpen = (payload: {
 
 export const commitToRepoInit = (payload: {
   commitMessage: string;
-  pushImmediately: boolean;
+  doPush: boolean;
 }) => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT,
   payload,
@@ -70,4 +70,31 @@ export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({
 
 export const showCreateBranchPopup = () => ({
   type: ReduxActionTypes.SHOW_CREATE_GIT_BRANCH_POPUP,
+});
+
+export const setIsImportAppViaGitModalOpen = (payload: {
+  isOpen: boolean;
+  organizationId?: string;
+}) => ({
+  type: ReduxActionTypes.SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN,
+  payload,
+});
+
+export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_GIT_CONFIG_INIT,
+  payload,
+});
+
+export const updateGlobalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const fetchGlobalGitConfigInit = () => ({
+  type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
+});
+
+export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS,
+  payload,
 });
