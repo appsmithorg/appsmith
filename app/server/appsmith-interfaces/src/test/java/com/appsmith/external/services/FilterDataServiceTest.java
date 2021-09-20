@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -326,12 +325,12 @@ public class FilterDataServiceTest {
 
             Iterator<String> fieldNamesIterator = filteredData.get(0).fieldNames();
 
-            Set<String> columnNames = Stream.generate(() -> null)
+            List<String> columnNames = Stream.generate(() -> null)
                     .takeWhile(x -> fieldNamesIterator.hasNext())
                     .map(n -> fieldNamesIterator.next())
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
 
-            assertThat(columnNames.containsAll(Set.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
+            assertThat(columnNames.containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
 
 
         } catch (IOException e) {
