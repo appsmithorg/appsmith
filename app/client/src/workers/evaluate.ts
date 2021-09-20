@@ -110,6 +110,7 @@ const getLintingErrors = (
     asi: true, // Tolerate Automatic Semicolon Insertion (no semicolons)
     boss: true, // Tolerate assignments where comparisons would be expected
     evil: false, // Use of eval not allowed
+    sub: true, // Don't force dot notation
     funcscope: true, // Tolerate variable definition inside control statements
     // environments
     browser: true,

@@ -11,10 +11,11 @@ import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
 import { Toaster } from "components/ads/Toast";
-import { Classes, Collapse, Icon } from "@blueprintjs/core";
+import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { IPopoverSharedProps } from "@blueprintjs/core";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import {
@@ -92,12 +93,13 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   position: relative;
 `;
 
-const CopyIconWrapper = styled(Icon)<{ colorTheme: EditorTheme }>`
+const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   color: ${(props) => THEMES[props.colorTheme].textColor};
   position: absolute;
-  right: ${(props) => props.theme.spaces[2]}px;
-  top: ${(props) => props.theme.spaces[2]}px;
+  right: 0;
+  top: 0;
   cursor: pointer;
+  padding: 0;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -326,9 +328,11 @@ export const CurrentValueViewer = memo(
             {props.evaluatedValue && (
               <CopyIconWrapper
                 colorTheme={props.theme}
-                icon="duplicate"
+                minimal
                 onClick={() => copyContent(props.evaluatedValue)}
-              />
+              >
+                <CopyIcon />
+              </CopyIconWrapper>
             )}
           </CurrentValueWrapper>
         </Collapse>
