@@ -16,11 +16,11 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeJSAction,
   DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -33,15 +33,15 @@ import {
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
+  isAction,
+  isDynamicLeaf,
+  isJSAction,
+  isWidget,
   makeParentsDependOnChildren,
   removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
-  isDynamicLeaf,
-  isWidget,
-  isAction,
-  isJSAction,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -52,9 +52,15 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import evaluate, { EvalResult } from "workers/evaluate";
+import evaluate, {
+  createGlobalData,
+  EvalResult,
+  EvaluationScriptType,
+  getScriptToEval,
+} from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
 import { Severity } from "entities/AppsmithConsole";
+import { getLintingErrors } from "workers/lint";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -445,12 +451,12 @@ export default class DataTreeEvaluator {
             isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
           let evalPropertyValue;
           const requiresEval =
-            (isABindingPath || isATriggerPath) &&
+            isABindingPath &&
+            !isATriggerPath &&
             isDynamicValue(unEvalPropertyValue);
           if (propertyPath) {
             _.set(currentTree, getEvalErrorPath(fullPropertyPath), []);
           }
-          debugger;
           if (requiresEval) {
             const evaluationSubstitutionType =
               entity.bindingPaths[propertyPath] ||
@@ -478,8 +484,7 @@ export default class DataTreeEvaluator {
           } else {
             evalPropertyValue = unEvalPropertyValue;
           }
-
-          if (isWidget(entity)) {
+          if (isWidget(entity) && !isATriggerPath) {
             const widgetEntity = entity;
             const defaultPropertyMap = this.widgetConfigMap[widgetEntity.type]
               .defaultProperties;
@@ -511,6 +516,10 @@ export default class DataTreeEvaluator {
               return _.set(currentTree, fullPropertyPath, parsedValue);
             }
             return _.set(currentTree, fullPropertyPath, evalPropertyValue);
+          } else if (isATriggerPath) {
+            const errors = this.lintTriggerPath(evalPropertyValue, entity);
+            addErrorToEntityProperty(errors, currentTree, fullPropertyPath);
+            return currentTree;
           } else if (isAction(entity)) {
             const safeEvaluatedValue = removeFunctions(evalPropertyValue);
             _.set(
@@ -637,17 +646,13 @@ export default class DataTreeEvaluator {
       entity,
     );
     if (returnTriggers) {
-      const { errors, result, triggers } = this.evaluateDynamicBoundValue(
+      return this.evaluateDynamicBoundValue(
         jsSnippets[0],
         data,
         resolvedFunctions,
         callBackData,
         returnTriggers,
       );
-      if (fullPropertyPath && errors.length) {
-        addErrorToEntityProperty(errors, data, fullPropertyPath);
-      }
-      return { triggers, errors, result };
     }
     if (stringSegments.length) {
       // Get the Data Tree value of those "binding "paths
@@ -1303,6 +1308,25 @@ export default class DataTreeEvaluator {
 
   clearLogs() {
     this.logs = [];
+  }
+
+  private lintTriggerPath(userScript: string, entity: DataTreeEntity) {
+    const { jsSnippets } = getDynamicBindings(userScript, entity);
+    const script = getScriptToEval(
+      jsSnippets[0],
+      EvaluationScriptType.TRIGGERS,
+    );
+    const GLOBAL_DATA = createGlobalData(
+      this.evalTree,
+      this.resolvedFunctions,
+      true,
+    );
+    return getLintingErrors(
+      script,
+      GLOBAL_DATA,
+      jsSnippets[0],
+      EvaluationScriptType.TRIGGERS,
+    );
   }
 }
 

@@ -80,7 +80,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import getFeatureFlags from "utils/featureFlags";
-import log from "loglevel";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -480,11 +479,7 @@ class CodeEditor extends Component<Props, State> {
       [],
     ) as EvaluationError[];
 
-    log.debug({ errors });
-
-    let annotations: Annotation[] = [];
-
-    annotations = getLintAnnotations(editor.getValue(), errors);
+    const annotations = getLintAnnotations(editor.getValue(), errors);
 
     this.updateLintingCallback(editor, annotations);
   }
@@ -598,14 +593,6 @@ class CodeEditor extends Component<Props, State> {
       !hideEvaluatedValue &&
       ("evaluatedValue" in this.props ||
         ("dataTreePath" in this.props && !!dataTreePath));
-
-    log.debug({
-      validations,
-      errors,
-      isInvalid,
-      hideEvaluatedValue,
-      dataTreePath,
-    });
 
     return (
       <DynamicAutocompleteInputWrapper
