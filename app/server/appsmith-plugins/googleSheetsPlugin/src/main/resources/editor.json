@@ -406,6 +406,7 @@
               }
             ]
           },
+          "initialValue": [],
           "schema": [
             {
               "label": "Column Name",

@@ -70,7 +70,7 @@ export default [
         helpText: "Configure a Custom FusionChart see docs.appsmith.com",
         placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
-        label: "Custom Fusion Chart Configuration",
+        label: "Custom Fusion Chart",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,

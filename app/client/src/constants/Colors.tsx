@@ -128,6 +128,9 @@ export const Colors = {
   SELECT_PLACEHOLDER: "#bfbfbf",
   SELECT_COLOR: "#182026",
 
+  INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
+  INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
+
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",
   GREY_8: "#716E6E",
