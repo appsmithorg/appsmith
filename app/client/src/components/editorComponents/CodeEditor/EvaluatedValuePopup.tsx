@@ -89,6 +89,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
   position: relative;
 `;
