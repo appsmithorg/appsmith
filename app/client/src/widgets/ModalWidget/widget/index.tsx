@@ -11,6 +11,8 @@ import ModalComponent from "../component";
 import {
   RenderMode,
   MAIN_CONTAINER_WIDGET_ID,
+  GridDefaults,
+  WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
@@ -83,7 +85,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.isVisible = this.props.isVisible;
     childWidgetData.containerStyle = "none";
     childWidgetData.minHeight = this.props.height;
-    childWidgetData.rightColumn = this.props.width;
+    childWidgetData.rightColumn =
+      this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -189,7 +192,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         resizeModal={this.onModalResize}
         scrollContents={!!this.props.shouldScrollContents}
         usePortal={false}
-        width={this.props.width}
+        width={this.getModalWidth(this.props.width)}
       >
         {content}
       </ModalComponent>

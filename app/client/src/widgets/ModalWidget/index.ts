@@ -94,7 +94,7 @@ export const CONFIG = {
                   },
                   size: {
                     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
                     text: "Confirm",
