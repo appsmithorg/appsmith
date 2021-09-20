@@ -26,6 +26,7 @@ public class Comment extends AbstractCommentDomain {
      */
     @JsonIgnore
     String authorId;
+    String authorPhotoId;
 
     Body body;
 

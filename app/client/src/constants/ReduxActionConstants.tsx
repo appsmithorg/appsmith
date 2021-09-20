@@ -3,12 +3,14 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 export const ReduxSagaChannels: { [key: string]: string } = {
   WEBSOCKET_WRITE_CHANNEL: "WEBSOCKET_WRITE_CHANNEL",
 };
 
 export const ReduxActionTypes = {
+  SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
   FETCH_GLOBAL_GIT_CONFIG_INIT: "FETCH_GLOBAL_GIT_CONFIG_INIT",
   FETCH_GLOBAL_GIT_CONFIG_SUCCESS: "FETCH_GLOBAL_GIT_CONFIG_SUCCESS",
   UPDATE_GIT_CONFIG_INIT: "UPDATE_GIT_CONFIG_INIT",
@@ -812,12 +814,6 @@ export interface ClonePageSuccessPayload {
 }
 
 export type PageListPayload = Array<Page>;
-
-export type GitApplicationMetadata = {
-  gitAuth?: {
-    publicKey?: string;
-  };
-};
 
 export type ApplicationPayload = {
   id: string;

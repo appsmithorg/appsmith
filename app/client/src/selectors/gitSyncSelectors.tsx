@@ -5,8 +5,6 @@ export const getIsGitSyncModalOpen = (state: AppState) =>
 
 export const getIsGitRepoSetup = () => true;
 
-export const getCurrentGitBranch = () => "master";
-
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
 
@@ -17,6 +15,12 @@ export const getIsGitErrorPopupVisible = (state: AppState) =>
   state.ui.gitSync.isErrorPopupVisible;
 
 export const getGitError = (state: AppState) => state.ui.gitSync.gitError;
+
+export const getIsImportAppViaGitModalOpen = (state: AppState) =>
+  state.ui.gitSync.isImportAppViaGitModalOpen;
+
+export const getOrganizationIdForImport = (state: AppState) =>
+  state.ui.gitSync.organizationIdForImport;
 
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;

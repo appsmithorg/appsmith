@@ -26,6 +26,7 @@
           "label": "Query",
           "configProperty": "actionConfiguration.formData.find.query",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
         },
@@ -33,6 +34,7 @@
           "label": "Sort",
           "configProperty": "actionConfiguration.formData.find.sort",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{name : 1}"
         },
@@ -40,6 +42,7 @@
           "label": "Projection",
           "configProperty": "actionConfiguration.formData.find.projection",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{name : 1}"
         },
