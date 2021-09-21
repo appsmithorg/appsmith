@@ -376,7 +376,7 @@ jobs:
       - name: "Exit if Server hasn't started"
         run: |
           lsof -i :8080 || true;
-          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+          if [[ `ps -ef | grep server | grep java |wc -l` == 0 ]]; then
             echo "Server Not Started";
             exit 1;
           else
