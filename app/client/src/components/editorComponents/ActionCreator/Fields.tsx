@@ -634,7 +634,7 @@ function renderField(props: {
       if (fieldType === FieldType.RESET_CHILDREN_FIELD) {
         label = "Reset Children";
         options = RESET_CHILDREN_OPTIONS;
-        defaultText = "false";
+        defaultText = "true";
       }
       if (fieldType === FieldType.WIDGET_NAME_FIELD) {
         label = "Widget";

@@ -157,7 +157,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
             helpText:
               "Sets the default date of the widget. The date is updated if the default date changes",
             controlType: "DATE_PICKER",
-            placeholderText: "Enter Default Date",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
