@@ -139,11 +139,11 @@ public class FilterDataService {
             PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
             Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
             Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
-            for (int i=0; iterator.hasNext(); i++) {
+            for (int i = 0; iterator.hasNext(); i++) {
                 Map.Entry<String, DataType> valueEntry = iterator.next();
                 String value = valueEntry.getKey();
                 DataType dataType = valueEntry.getValue();
-                setValueInStatement(preparedStatement, i+1, value, dataType);
+                setValueInStatement(preparedStatement, i + 1, value, dataType);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -158,7 +158,7 @@ public class FilterDataService {
                 rowsList.add(row);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
         return rowsList;
@@ -200,37 +200,28 @@ public class FilterDataService {
 
                 StringBuilder valueBuilder = new StringBuilder("(");
 
-                // The array could be an array of Strings
-//                if (value.contains("\"")) {
-                    try {
-                        List<Object> arrayValues = objectMapper.readValue(value, List.class);
-                        List<String> updatedStringValues = arrayValues
-                                .stream()
-                                .map(fieldValue -> {
-                                    values.put(String.valueOf(fieldValue), schema.get(path));
-                                    return "?";
-                                })
-                                .collect(Collectors.toList());
-                        String finalValues = String.join(",", updatedStringValues);
-                        valueBuilder.append(finalValues);
-                    } catch (IOException e) {
-                        log.error(e.getMessage());
-                    }
-//                } else {
-//                    // Removes the outer square brackets from the string to leave behind just the values separated by comma
-//                    String trimmedValue = value.replaceAll("^\\[|]$", "");
-//                    valueBuilder.append(trimmedValue);
-//                }
+                try {
+                    List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                    List<String> updatedStringValues = arrayValues
+                            .stream()
+                            .map(fieldValue -> {
+                                values.put(String.valueOf(fieldValue), schema.get(path));
+                                return "?";
+                            })
+                            .collect(Collectors.toList());
+                    String finalValues = String.join(",", updatedStringValues);
+                    valueBuilder.append(finalValues);
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        value + " could not parsed into an array");
+                }
 
                 valueBuilder.append(")");
                 value = valueBuilder.toString();
                 sb.append(value);
 
             } else {
-                // Since the value is not an array, surround the same with single quotes and append
-//                sb.append("'");
-//                sb.append(value);
-//                sb.append("'");
+                // Not an array. Simply add a placeholder
                 sb.append("?");
                 values.put(value, schema.get(path));
             }
@@ -239,7 +230,6 @@ public class FilterDataService {
         return sb.toString();
     }
 
-    // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
     public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
@@ -329,7 +319,7 @@ public class FilterDataService {
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen during insertion of data : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to apply filtering : " + e.getMessage());
         }
     }
 
