@@ -120,6 +120,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
   [PluginType.SAAS]: saasActionSettingsConfig,
+  [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
 };
 
@@ -127,6 +128,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
   [PluginType.SAAS]: [],
+  [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
 };
 
@@ -137,5 +139,6 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.API]: apiActionDependencyConfig,
   [PluginType.DB]: {},
   [PluginType.SAAS]: {},
+  [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
 };
