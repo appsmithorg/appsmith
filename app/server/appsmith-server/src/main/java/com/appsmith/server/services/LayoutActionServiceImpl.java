@@ -308,6 +308,8 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                  */
                 .flatMap(newAction1 -> {
                     final NewAction newAction = newAction1;
+                    // We need actionDTO to be populated with pluginType from NewAction
+                    // so that we can check for the JS path
                     Mono<ActionDTO> actionMono = newActionService.generateActionByViewMode(newAction, false);
                     return actionMono.flatMap(action -> {
                         newAction.setUnpublishedAction(action);
