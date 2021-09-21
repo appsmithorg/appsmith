@@ -1096,7 +1096,7 @@ Cypress.Commands.add("AddActionWithModal", () => {
   cy.get(commonlocators.editPropCrossButton).click({ force: true });
 });
 
-Cypress.Commands.add("createModal", (modalType, ModalName) => {
+Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(widgetsPage.actionSelect)
     .first()
     .click({ force: true });
@@ -1104,13 +1104,6 @@ Cypress.Commands.add("createModal", (modalType, ModalName) => {
   cy.get(modalWidgetPage.selectModal).click();
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
 
-  cy.get(modalWidgetPage.controlModalType)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(modalType)
-    .click();
   cy.assertPageSave();
 
   // changing the model name verify
@@ -1142,42 +1135,6 @@ Cypress.Commands.add("selectOnClickOption", (option) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("updateModal", (modalType, ModalName) => {
-  cy.get(widgetsPage.actionSelect)
-    .first()
-    .click({ force: true });
-  cy.selectOnClickOption("Open Modal");
-  cy.get(modalWidgetPage.selectModal).click();
-  cy.get(modalWidgetPage.createModalButton).click({ force: true });
-
-  cy.get(modalWidgetPage.controlModalType)
-    .last()
-    .click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(modalType)
-    .click();
-  cy.assertPageSave();
-
-  // changing the model name verify
-  cy.widgetText(
-    ModalName,
-    modalWidgetPage.modalName,
-    modalWidgetPage.modalName,
-  );
-  cy.get(commonlocators.editPropCrossButton).click({ force: true });
-
-  //changing the Model label
-  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
-    .first()
-    .trigger("mouseover");
-
-  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
-  cy.testCodeMirror(ModalName);
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
-  cy.assertPageSave();
-  cy.get(".bp3-overlay-backdrop").click({ force: true });
-});
 Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
@@ -1801,6 +1758,14 @@ Cypress.Commands.add("dropdownMultiSelectDynamic", (text) => {
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(".multi-select-dropdown")
+    .contains(text)
+    .click({ force: true })
+    .should("have.text", text);
+});
+Cypress.Commands.add("treeSelectDropdown", (text) => {
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(".tree-select-dropdown")
     .contains(text)
     .click({ force: true })
     .should("have.text", text);

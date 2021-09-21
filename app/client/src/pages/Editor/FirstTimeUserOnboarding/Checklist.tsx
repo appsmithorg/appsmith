@@ -549,7 +549,11 @@ export default function OnboardingChecklist() {
         <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
           {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
         </Text>
-        <Icon color={Colors.DIESEL} icon="chevron-right" iconSize={16} />
+        <Icon
+          color={theme.colors.applications.iconColor}
+          icon="chevron-right"
+          iconSize={16}
+        />
       </StyledFooter>
     </Wrapper>
   );
