@@ -356,6 +356,25 @@ function* updateCommentThreadUnreadCount(action: ReduxAction<unknown>) {
   yield put(fetchUnreadCommentThreadsCountSuccess(unreadCommentsCount));
 }
 
+// TODO: Make a server request to store the flag
+function* handleSetUserHasSeenCommentsIntroCarousel() {
+  try {
+    // yield CommentsApi.removeCommentReaction(commentId, {
+    //   emoji,
+    // });
+  } catch (error) {}
+}
+
+// TODO: FETCH the value of flag to know if user has already completed the comments tour.
+function* fetchHasUserSeenCommentsIntroCarousel() {
+  try {
+    // yield CommentsApi.removeCommentReaction(commentId, {
+    //   emoji,
+    // });
+    // if response is true - yield put(setUserHasSeenCommentsCarousel())
+  } catch (error) {}
+}
+
 function* handleSetCommentMode(action: ReduxAction<boolean>) {
   const { payload } = action;
   if (!payload) {
@@ -419,5 +438,13 @@ export default function* commentSagas() {
       updateCommentThreadUnreadCount,
     ),
     takeLatest(ReduxActionTypes.SET_COMMENT_MODE, handleSetCommentMode),
+    takeLatest(
+      ReduxActionTypes.SET_HAS_USER_SEEN_COMMENTS_INTRO_CAROUSEL,
+      handleSetUserHasSeenCommentsIntroCarousel,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_HAS_USER_SEEN_COMMENTS_INTRO_CAROUSEL,
+      fetchHasUserSeenCommentsIntroCarousel,
+    ),
   ]);
 }

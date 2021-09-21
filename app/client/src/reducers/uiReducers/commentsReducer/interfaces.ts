@@ -24,4 +24,5 @@ export interface CommentsReduxState {
   draftComments: Record<string, EditorState>;
   commentThreadsFetched: boolean;
   lastUpdatedCommentThreadId: string | null;
+  hasSeenCommentsIntroCarousel: boolean;
 }

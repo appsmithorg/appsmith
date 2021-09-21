@@ -13,9 +13,11 @@ import {
   setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
   showCommentsIntroCarousel,
+  fetchHasUserSeenCommentsCarousel,
 } from "actions/commentActions";
 import {
   commentModeSelector,
+  hasUserSeenCommentsIntroCarousel,
   showUnreadIndicator as showUnreadIndicatorSelector,
 } from "../../selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -26,7 +28,6 @@ import { TourType } from "entities/Tour";
 import useProceedToNextTourStep, {
   useIsTourStepActive,
 } from "utils/hooks/useProceedToNextTourStep";
-import { getCommentsIntroSeen } from "utils/storage";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { AppState } from "reducers";
 import { APP_MODE } from "entities/App";
@@ -119,7 +120,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isCommentMode = useSelector(commentModeSelector);
-
+  const isCommentsIntroSeen = useSelector(hasUserSeenCommentsIntroCarousel);
   const setCommentModeInStore = useCallback(
     (updatedIsCommentMode) =>
       dispatch(setCommentModeAction(updatedIsCommentMode)),
@@ -131,7 +132,6 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
     const searchParams = new URL(window.location.href).searchParams;
     const isCommentMode = searchParams.get("isCommentMode");
-    const isCommentsIntroSeen = await getCommentsIntroSeen();
     const updatedIsCommentMode = isCommentMode === "true";
 
     const notLoggedId = currentUser?.username === ANONYMOUS_USERNAME;
@@ -145,7 +145,11 @@ const useUpdateCommentMode = async (currentUser?: User) => {
 
       return;
     }
-
+    // eslint-disable-next-line no-console
+    console.log("TOGGLE MODE BUTTON : ", {
+      isCommentsIntroSeen,
+      updatedIsCommentMode,
+    });
     if (updatedIsCommentMode && !isCommentsIntroSeen) {
       AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
       dispatch(showCommentsIntroCarousel());
@@ -166,6 +170,7 @@ const useUpdateCommentMode = async (currentUser?: User) => {
   useEffect(() => {
     if (isCommentMode) {
       dispatch(fetchApplicationCommentsRequest());
+      dispatch(fetchHasUserSeenCommentsCarousel());
     }
   }, [isCommentMode]);
 };

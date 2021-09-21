@@ -19,8 +19,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 
 import { setActiveTour } from "actions/tourActions";
 import { TourType } from "entities/Tour";
-import { hideCommentsIntroCarousel } from "actions/commentActions";
-import { setCommentsIntroSeen } from "utils/storage";
+import {
+  hideCommentsIntroCarousel,
+  setUserHasSeenCommentsCarousel,
+} from "actions/commentActions";
 
 import { updateUserDetails } from "actions/userActions";
 
@@ -233,7 +235,7 @@ export default function CommentsShowcaseCarousel() {
       skipped: isSkipped,
     });
     dispatch(hideCommentsIntroCarousel());
-    await setCommentsIntroSeen(true);
+    dispatch(setUserHasSeenCommentsCarousel());
 
     if (!isSkipped) {
       const tourType = canManage
