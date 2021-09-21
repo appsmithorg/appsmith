@@ -43,6 +43,11 @@ describe("hint helpers", () => {
           cursor: { ch: 10, line: 1 },
           toCall: "showHint",
         },
+        {
+          value: '{ name: "{{{}}" }',
+          cursor: { ch: 12, line: 0 },
+          toCall: "closeHint",
+        },
       ];
 
       cases.forEach((testCase) => {
