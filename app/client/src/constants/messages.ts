@@ -411,11 +411,18 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+export const PARSING_ERROR = () =>
+  "Syntax Error: Unable to parse code, please check error logs to debug";
+export const PARSING_WARNING = () =>
+  "Linting Errors: Please resolve linting errors before using these functions";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";

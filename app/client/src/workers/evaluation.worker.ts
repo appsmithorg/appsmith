@@ -9,6 +9,7 @@ import {
   EvalErrorTypes,
   EvaluationError,
   PropertyEvaluationErrorType,
+  EVAL_ERROR_PATH,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -16,11 +17,13 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
-  getParams,
+  parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayDSL from "workers/ReplayDSL";
 import evaluate from "workers/evaluate";
+import { Severity } from "entities/AppsmithConsole";
+import _ from "lodash";
 
 const ctx: Worker = self as any;
 
@@ -229,54 +232,36 @@ ctx.addEventListener(
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
-        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
         if (!dataTreeEvaluator) {
           return true;
         }
         try {
-          const correctFormat = regex.test(body);
-          if (correctFormat) {
-            const toBeParsedBody = body.replace(/export default/g, "");
-            const parsed = body && eval("(" + toBeParsedBody + ")");
-            const parsedLength = Object.keys(parsed).length;
-            const actions = [];
-            const variables = [];
-            if (parsedLength > 0) {
-              for (const key in parsed) {
-                if (parsed.hasOwnProperty(key)) {
-                  if (typeof parsed[key] === "function") {
-                    const value = parsed[key];
-                    const params = getParams(value);
-                    actions.push({
-                      name: key,
-                      body: parsed[key].toString(),
-                      arguments: params,
-                    });
-                  } else {
-                    variables.push({
-                      name: key,
-                      value: parsed[key],
-                    });
-                  }
-                }
-              }
-            }
-            return {
-              actions: actions,
-              variables: variables,
-            };
-          } else {
-            throw new Error("syntax error");
-          }
+          const { errors, evalTree, result } = parseJSCollection(
+            body,
+            jsAction,
+            dataTreeEvaluator.evalTree,
+          );
+          return {
+            errors,
+            evalTree,
+            result,
+          };
         } catch (e) {
-          const errors = dataTreeEvaluator.errors;
-          errors.push({
-            type: EvalErrorTypes.PARSE_JS_ERROR,
-            message: e.message,
-            context: jsAction,
-          });
-          return errors;
+          const evalTree = dataTreeEvaluator.evalTree;
+          const errors = [
+            {
+              errorType: PropertyEvaluationErrorType.PARSE,
+              raw: "",
+              severity: Severity.ERROR,
+              errorMessage: e.message,
+            },
+          ];
+          _.set(evalTree, `${jsAction.name}.${EVAL_ERROR_PATH}.body`, errors);
+          return {
+            errors,
+            evalTree,
+          };
         }
       }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {
