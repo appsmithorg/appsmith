@@ -92,7 +92,7 @@ function KeyValueRow(props: KeyValueArrayProps & WrappedFieldArrayProps) {
           );
         }
         return (
-          <FormRowWithLabel key={index} style={{ marginTop: 16 }}>
+          <FormRowWithLabel key={index}>
             <div style={{ width: "50vh" }}>
               <TextField
                 name={`${field}.${keyName[1]}`}

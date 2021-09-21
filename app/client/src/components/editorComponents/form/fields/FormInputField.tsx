@@ -12,7 +12,6 @@ import { ControlProps } from "components/formControls/BaseControl";
 //Styled help text, intended to be used with Form Fields
 export const StyledFormInfo = styled.span`
   font-weight: normal;
-  line-height: normal;
   color: ${Colors.DOVE_GRAY};
   font-size: 12px;
   margin-left: 1px;
@@ -67,7 +66,7 @@ const StyledFormLabel = styled.label<{ config?: ControlProps }>`
   line-height: 19px;
   letter-spacing: 0.02em;
   color: #4b4848;
-  margin: 0 0px 8px 16px;
+  margin: 0px 0px 8px 16px;
   &:first-child {
     margin-left: 0px;
   }
@@ -105,29 +104,6 @@ const StyledInput = styled.input`
     border-color: #f0f0f0;
   }
 `;
-
-//required by Field component in Form Fields
-const renderComponent = (
-  componentProps: FormInputProps & {
-    meta: Partial<WrappedFieldMetaProps>;
-    input: Partial<WrappedFieldInputProps>;
-  },
-) => {
-  //Add error class when showError is enabled and there is error in field
-  const isError = componentProps.showError && componentProps.meta.error;
-  return (
-    <FormInput
-      autoFocus={componentProps.autoFocus}
-      className={isError ? "error" : ""}
-      {...componentProps.input}
-      disabled={componentProps.disabled}
-      name={componentProps.name}
-      placeholder={componentProps.placeholder}
-      type={componentProps.type || "text"}
-      value={componentProps.input.value}
-    />
-  );
-};
 
 export interface FormInputProps extends BaseFieldProps {
   autoFocus?: boolean;
