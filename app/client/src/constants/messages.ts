@@ -255,10 +255,6 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
 export const ERROR_EVAL_TRIGGER = (message: string) =>
   `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_DELETE = (widgetName: string) =>
-  `${widgetName} widget deleted`;
-export const WIDGET_BULK_DELETE = (widgetName: string) =>
-  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -430,6 +426,16 @@ export const PARSING_WARNING = () =>
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//undo redo
+export const WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} is removed`;
+export const WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} is added back`;
+export const BULK_WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} widgets are removed`;
+export const BULK_WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} widgets are added back`;
 
 // Generate page from DB Messages
 
