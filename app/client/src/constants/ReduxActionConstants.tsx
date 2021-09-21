@@ -10,6 +10,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  FETCH_BRANCHES_INIT: "FETCH_BRANCHES_INIT",
+  FETCH_BRANCHES_SUCCESS: "FETCH_BRANCHES_SUCCESS",
   SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
   FETCH_GLOBAL_GIT_CONFIG_INIT: "FETCH_GLOBAL_GIT_CONFIG_INIT",
   FETCH_GLOBAL_GIT_CONFIG_SUCCESS: "FETCH_GLOBAL_GIT_CONFIG_SUCCESS",
@@ -582,6 +584,9 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  CREATE_NEW_BRANCH_ERROR: "CREATE_NEW_BRANCH_ERROR",
+  CHECKOUT_BRANCH_ERROR: "CHECKOUT_BRANCH_ERROR",
+  FETCH_BRANCHES_ERROR: "FETCH_BRANCHES_ERROR",
   UPDATE_GLOBAL_GIT_CONFIG_ERROR: "UPDATE_GLOBAL_GIT_CONFIG_ERROR",
   FETCH_GLOBAL_GIT_CONFIG_ERROR: "FETCH_GLOBAL_GIT_CONFIG_ERROR",
   CONNECT_TO_GIT_ERROR: "CONNECT_TO_GIT_ERROR",
@@ -846,4 +851,5 @@ export interface LoadWidgetSidebarPayload {
 export type InitializeEditorPayload = {
   applicationId: string;
   pageId: string;
+  branchName?: string;
 };

@@ -61,7 +61,11 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 `;
 
 export type AppViewerProps = {
-  initializeAppViewer: (applicationId: string, pageId?: string) => void;
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branchName?: string;
+  }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
@@ -80,9 +84,9 @@ export type AppViewerProps = {
   lightTheme: Theme;
 } & RouteComponentProps<BuilderRouteParams>;
 
-class AppViewer extends Component<
-  AppViewerProps & RouteComponentProps<AppViewerRouteParams>
-> {
+type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
+
+class AppViewer extends Component<Props> {
   public state = {
     registered: false,
     isSideNavOpen: true,
@@ -91,10 +95,23 @@ class AppViewer extends Component<
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId, pageId } = this.props.match.params;
+    const { applicationId, branchName, pageId } = this.props.match.params;
     log.debug({ applicationId, pageId });
     if (applicationId) {
-      this.props.initializeAppViewer(applicationId, pageId);
+      this.props.initializeAppViewer({ applicationId, branchName, pageId });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const { applicationId, branchName, pageId } = this.props.match.params;
+    const { branchName: prevBranchName } = prevProps.match.params || {};
+    if (
+      branchName &&
+      branchName !== prevBranchName &&
+      applicationId &&
+      pageId
+    ) {
+      this.props.initializeAppViewer({ applicationId, pageId, branchName });
     }
   }
 
@@ -174,10 +191,14 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
-  initializeAppViewer: (applicationId: string, pageId?: string) => {
+  initializeAppViewer: (params: {
+    applicationId: string;
+    pageId?: string;
+    branchName?: string;
+  }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId, pageId },
+      payload: params,
     });
   },
 });

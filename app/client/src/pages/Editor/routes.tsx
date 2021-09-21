@@ -18,18 +18,21 @@ import ProviderTemplates from "./APIEditor/ProviderTemplates";
 import {
   API_EDITOR_ID_URL,
   QUERIES_EDITOR_ID_URL,
-  DATA_SOURCES_EDITOR_ID_URL,
   BUILDER_PAGE_URL,
   BuilderRouteParams,
   APIEditorRouteParams,
-  getCurlImportPageURL,
-  PAGE_LIST_EDITOR_URL,
   INTEGRATION_EDITOR_URL,
-  JS_COLLECTION_EDITOR_URL,
-  JS_COLLECTION_ID_URL,
-  getGenerateTemplateURL,
-  getProviderTemplatesURL,
-  getGenerateTemplateFormURL,
+  INTEGRATION_EDITOR_PATH,
+  API_EDITOR_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  JS_COLLECTION_EDITOR_PATH,
+  JS_COLLECTION_ID_PATH,
+  CURL_IMPORT_PAGE_PATH,
+  PAGE_LIST_EDITOR_PATH,
+  DATA_SOURCES_EDITOR_ID_PATH,
+  PROVIDER_TEMPLATE_PATH,
+  GENERATE_TEMPLATE_PATH,
+  GENERATE_TEMPLATE_FORM_PATH,
 } from "constants/routes";
 import styled from "styled-components";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
@@ -141,34 +144,33 @@ class EditorsRouter extends React.Component<
             <SentryRoute
               component={IntegrationEditor}
               exact
-              path={INTEGRATION_EDITOR_URL()}
+              path={INTEGRATION_EDITOR_PATH}
             />
             <SentryRoute
               component={ApiEditor}
               exact
-              path={API_EDITOR_ID_URL()}
+              path={API_EDITOR_ID_PATH}
             />
             <SentryRoute
               component={QueryEditor}
               exact
-              path={QUERIES_EDITOR_ID_URL()}
-            />
-
-            <SentryRoute
-              component={JSEditor}
-              exact
-              path={JS_COLLECTION_EDITOR_URL()}
+              path={QUERIES_EDITOR_ID_PATH}
             />
             <SentryRoute
               component={JSEditor}
               exact
-              path={JS_COLLECTION_ID_URL()}
+              path={JS_COLLECTION_EDITOR_PATH}
+            />
+            <SentryRoute
+              component={JSEditor}
+              exact
+              path={JS_COLLECTION_ID_PATH}
             />
 
             <SentryRoute
               component={CurlImportForm}
               exact
-              path={getCurlImportPageURL()}
+              path={CURL_IMPORT_PAGE_PATH}
             />
             {SaaSEditorRoutes.map((props) => (
               <SentryRoute exact key={props.path} {...props} />
@@ -176,27 +178,27 @@ class EditorsRouter extends React.Component<
             <SentryRoute
               component={PagesEditor}
               exact
-              path={PAGE_LIST_EDITOR_URL()}
+              path={PAGE_LIST_EDITOR_PATH}
             />
             <SentryRoute
               component={DataSourceEditor}
               exact
-              path={DATA_SOURCES_EDITOR_ID_URL()}
+              path={DATA_SOURCES_EDITOR_ID_PATH}
             />
             <SentryRoute
               component={ProviderTemplates}
               exact
-              path={getProviderTemplatesURL()}
+              path={PROVIDER_TEMPLATE_PATH}
             />
             <SentryRoute
               component={GeneratePage}
               exact
-              path={getGenerateTemplateURL()}
+              path={GENERATE_TEMPLATE_PATH}
             />
             <SentryRoute
               component={GeneratePage}
               exact
-              path={getGenerateTemplateFormURL()}
+              path={GENERATE_TEMPLATE_FORM_PATH}
             />
           </Switch>
         </PaneDrawer>

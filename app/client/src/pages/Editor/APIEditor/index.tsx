@@ -69,6 +69,11 @@ function getPageName(pages: any, pageId: string) {
   return page ? page.pageName : "";
 }
 
+function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
+  const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+  return plugin?.packageName;
+}
+
 type Props = ReduxActionProps &
   ReduxStateProps &
   RouteComponentProps<{ apiId: string; applicationId: string; pageId: string }>;
@@ -222,7 +227,10 @@ class ApiEditor extends React.Component<Props> {
             SAAS_EDITOR_API_ID_URL(
               this.props.match.params.applicationId,
               this.props.match.params.pageId,
-              this.props.plugins[this.props.pluginId]?.packageName ?? "",
+              getPackageNameFromPluginId(
+                this.props.pluginId,
+                this.props.plugins,
+              ) ?? "",
               this.props.match.params.apiId,
             ),
           )}

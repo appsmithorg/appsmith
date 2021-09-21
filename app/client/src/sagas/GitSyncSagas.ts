@@ -10,6 +10,8 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import {
   commitToRepoSuccess,
+  fetchBranchesInit,
+  fetchBranchesSuccess,
   fetchGlobalGitConfigSuccess,
   updateGlobalGitConfigSuccess,
 } from "actions/gitSyncActions";
@@ -25,6 +27,11 @@ import {
   createMessage,
   GIT_USER_UPDATED_SUCCESSFULLY,
 } from "constants/messages";
+import history from "utils/history";
+import {
+  addOrReplaceBranch,
+  extractBranchNameFromPath,
+} from "constants/routes";
 
 function* commitToGitRepoSaga(
   action: ReduxAction<{ commitMessage: string; doPush: boolean }>,
@@ -108,6 +115,70 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
+function* switchBranch(action: ReduxAction<string>) {
+  try {
+    const branchName = action.payload;
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.checkoutBranch(
+      applicationId,
+      branchName,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      const updatedPath = addOrReplaceBranch(
+        branchName,
+        window.location.pathname,
+      );
+      history.push(updatedPath);
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.CHECKOUT_BRANCH_ERROR,
+      payload: { error: e, logToSentry: true },
+    });
+  }
+}
+
+function* fetchBranches() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.fetchBranches(applicationId);
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(fetchBranchesSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_BRANCHES_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
+function* createNewBranch(action: ReduxAction<string>) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const currentBranchName = extractBranchNameFromPath();
+    const response: ApiResponse = yield GitSyncAPI.createNewBranch(
+      applicationId,
+      currentBranchName,
+      action.payload,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(fetchBranchesInit());
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.CREATE_NEW_BRANCH_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
@@ -117,5 +188,8 @@ export default function* gitSyncSagas() {
       fetchGlobalGitConfig,
     ),
     takeLatest(ReduxActionTypes.UPDATE_GIT_CONFIG_INIT, updateGlobalGitConfig),
+    takeLatest(ReduxActionTypes.SWITCH_GIT_BRANCH_INIT, switchBranch),
+    takeLatest(ReduxActionTypes.FETCH_BRANCHES_INIT, fetchBranches),
+    takeLatest(ReduxActionTypes.CREATE_NEW_BRANCH_INIT, createNewBranch),
   ]);
 }

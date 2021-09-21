@@ -168,12 +168,14 @@ class ApplicationApi extends Api {
 
   static fetchApplication(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
+    branchName: string,
   ): AxiosPromise<FetchApplicationResponse> {
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }

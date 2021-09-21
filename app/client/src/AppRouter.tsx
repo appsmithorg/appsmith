@@ -10,7 +10,6 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_URL,
-  getApplicationViewerPageURL,
   ORG_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
@@ -19,6 +18,7 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
+  VIEWER_URL,
 } from "constants/routes";
 import OrganizationLoader from "pages/organization/loader";
 import ApplicationListLoader from "pages/Applications/loader";
@@ -124,10 +124,7 @@ class AppRouter extends React.Component<any, any> {
                   path={SIGNUP_SUCCESS_URL}
                 />
                 <SentryRoute component={EditorLoader} path={BUILDER_URL} />
-                <SentryRoute
-                  component={AppViewerLoader}
-                  path={getApplicationViewerPageURL()}
-                />
+                <SentryRoute component={AppViewerLoader} path={VIEWER_URL} />
                 <SentryRoute component={UserProfile} exact path={PROFILE} />
                 <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
                 <SentryRoute

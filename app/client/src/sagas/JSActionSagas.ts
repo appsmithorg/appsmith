@@ -63,9 +63,12 @@ import { CreateJSCollectionRequest } from "api/JSActionAPI";
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   try {
-    const response = yield JSActionAPI.fetchJSCollections(applicationId);
+    const response = yield JSActionAPI.fetchJSCollections(
+      applicationId,
+      branchName,
+    );
     yield put({
       type: ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
       payload: response.data,
@@ -384,10 +387,11 @@ export function* fetchJSCollectionsForPageSaga(
 export function* fetchJSCollectionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   try {
     const response: GenericApiResponse<JSCollection[]> = yield JSActionAPI.fetchJSCollectionsForViewMode(
       applicationId,
+      branchName,
     );
     const resultJSCollections = response.data;
     const isValidResponse = yield validateResponse(response);

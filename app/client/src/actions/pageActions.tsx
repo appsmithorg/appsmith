@@ -18,6 +18,7 @@ import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
+  branchName?: string;
   mode: APP_MODE;
 }
 
@@ -34,20 +35,27 @@ export interface CreatePageActionPayload {
 }
 
 export const fetchPageList = (
-  applicationId: string,
+  {
+    applicationId,
+    branchName,
+  }: {
+    applicationId: string;
+    branchName?: string;
+  },
   mode: APP_MODE,
 ): ReduxAction<FetchPageListPayload> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
     payload: {
       applicationId,
+      branchName,
       mode,
     },
   };
 };
 
 export const fetchPage = (
-  pageId: string,
+  { pageId }: { pageId: string },
   isFirstLoad = false,
 ): ReduxAction<FetchPageRequest> => {
   return {

@@ -183,7 +183,7 @@ export function* createActionSaga(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
@@ -191,6 +191,7 @@ export function* fetchActionsSaga(
   try {
     const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
       applicationId,
+      branchName,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

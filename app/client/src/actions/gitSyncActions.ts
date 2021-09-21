@@ -98,3 +98,12 @@ export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS,
   payload,
 });
+
+export const fetchBranchesInit = () => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_INIT,
+});
+
+export const fetchBranchesSuccess = (payload: any) => ({
+  type: ReduxActionTypes.FETCH_BRANCHES_SUCCESS,
+  payload,
+});

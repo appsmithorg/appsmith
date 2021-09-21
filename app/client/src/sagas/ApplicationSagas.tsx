@@ -186,7 +186,7 @@ export function* getAllApplicationSaga() {
 
 export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
   try {
-    const { applicationId, mode } = action.payload;
+    const { applicationId, branchName, mode } = action.payload;
     // Get endpoint based on app mode
     const apiEndpoint =
       mode === APP_MODE.EDIT
@@ -196,6 +196,7 @@ export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
     const response: FetchApplicationResponse = yield call(
       apiEndpoint,
       applicationId,
+      branchName,
     );
 
     yield put({

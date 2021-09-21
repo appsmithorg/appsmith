@@ -7,11 +7,13 @@ import {
 export const initEditor = (
   applicationId: string,
   pageId: string,
+  branchName?: string,
 ): ReduxAction<InitializeEditorPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
   payload: {
     applicationId,
     pageId,
+    branchName,
   },
 });
 

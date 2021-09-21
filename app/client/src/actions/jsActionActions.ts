@@ -9,14 +9,19 @@ import { CreateJSCollectionRequest } from "api/JSActionAPI";
 
 export type FetchJSCollectionsPayload = {
   applicationId: string;
+  branchName?: string;
 };
 
-export const fetchJSCollections = (
-  applicationId: string,
-): EvaluationReduxAction<unknown> => {
+export const fetchJSCollections = ({
+  applicationId,
+  branchName,
+}: {
+  applicationId: string;
+  branchName?: string;
+}): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_INIT,
-    payload: { applicationId },
+    payload: { applicationId, branchName },
   };
 };
 
@@ -131,12 +136,16 @@ export const fetchJSCollectionsForPageSuccess = (actions: JSCollection[]) => {
   };
 };
 
-export const fetchJSCollectionsForView = (
-  applicationId: string,
-): ReduxAction<FetchJSCollectionsPayload> => {
+export const fetchJSCollectionsForView = ({
+  applicationId,
+  branchName,
+}: {
+  applicationId: string;
+  branchName?: string;
+}): ReduxAction<FetchJSCollectionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId },
+    payload: { applicationId, branchName },
   };
 };
 

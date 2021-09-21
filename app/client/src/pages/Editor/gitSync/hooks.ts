@@ -8,6 +8,7 @@ import { APP_MODE } from "entities/App";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
+import { extractBranchNameFromPath } from "constants/routes";
 
 export const useSSHKeyPair = () => {
   const dispatch = useDispatch();
@@ -31,9 +32,10 @@ export const useSSHKeyPair = () => {
   }, [setIsGeneratingSSHKey]);
 
   const dispatchFetchApplication = (applicationId: string) => {
+    const branchName = extractBranchNameFromPath();
     dispatch(
       fetchApplication({
-        payload: { applicationId, mode: APP_MODE.EDIT },
+        payload: { applicationId, branchName, mode: APP_MODE.EDIT },
         onSuccessCallback: onGenerateSSHKeySuccess,
         onErrorCallback: onGenerateSSHKeyFailure,
       }),

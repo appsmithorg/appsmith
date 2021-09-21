@@ -46,6 +46,29 @@ class GitSyncAPI extends Api {
   static setGlobalConfig(payload: GitConfig) {
     return Api.post(`${GitSyncAPI.baseURL}/config/save`, payload);
   }
+
+  static fetchBranches(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/branch/${applicationId}`);
+  }
+
+  static checkoutBranch(applicationId: string, branchName: string) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/checkout-branch/${applicationId}/${branchName}`,
+    );
+  }
+
+  static createNewBranch(
+    applicationId: string,
+    parentBranchName: string,
+    branchName: string,
+  ) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/create-branch/${applicationId}/${parentBranchName}`,
+      {
+        branchName,
+      },
+    );
+  }
 }
 
 export default GitSyncAPI;

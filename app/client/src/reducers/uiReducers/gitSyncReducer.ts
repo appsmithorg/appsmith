@@ -104,6 +104,13 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitConfig: false,
   }),
+  [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any[]>,
+  ) => ({
+    ...state,
+    branches: action.payload,
+  }),
 });
 
 export type GitSyncReducerState = {

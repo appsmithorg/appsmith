@@ -35,6 +35,7 @@ class JSActionAPI extends API {
 
   static fetchJSCollections(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
     return API.get(JSActionAPI.url, { applicationId });
   }
@@ -74,6 +75,7 @@ class JSActionAPI extends API {
 
   static fetchJSCollectionsForViewMode(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
     return API.get(`${JSActionAPI.url}/view`, { applicationId });
   }
