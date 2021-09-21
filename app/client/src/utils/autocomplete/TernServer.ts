@@ -21,6 +21,7 @@ import { FieldEntityInformation } from "components/editorComponents/CodeEditor/E
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
+import { getDataTreeFunctions } from "workers/Actions";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,
@@ -210,6 +211,8 @@ class TernServer {
       });
     }
 
+    completions = this.filterDataTreeFunctions(completions);
+
     completions = this.sortCompletions(
       completions,
       onlySingleBinding,
@@ -277,6 +280,20 @@ class TernServer {
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
     });
+  }
+
+  filterDataTreeFunctions(completions: Completion[]) {
+    let filteredCompletions = completions;
+    const functions = getDataTreeFunctions();
+    const { entityType } = this.fieldEntityInformation;
+
+    if (entityType && entityType !== ENTITY_TYPE.ACTION) {
+      filteredCompletions = completions.filter(
+        (completion) => !functions.includes(completion.text.replace("()", "")),
+      );
+    }
+
+    return filteredCompletions;
   }
 
   sortCompletions(
