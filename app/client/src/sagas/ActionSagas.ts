@@ -582,7 +582,6 @@ export function* refactorActionName(
       });
       if (currentPageId === pageId) {
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
-        yield put(fetchActionsForPage(pageId));
       } else {
         yield put(fetchActionsForPage(pageId));
       }

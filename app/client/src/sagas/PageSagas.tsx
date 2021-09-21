@@ -104,6 +104,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
+import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -765,7 +766,6 @@ export function* updateWidgetNameSaga(
         const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
-
           yield put(updateWidgetNameSuccess());
           // Add this to the page DSLs for entity explorer
           yield put({
@@ -815,6 +815,8 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
+  yield put(fetchActionsForPage(pageId));
+  yield put(fetchJSCollectionsForPage(pageId));
 }
 
 export function* setDataUrl() {
