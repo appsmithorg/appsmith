@@ -184,7 +184,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (this.props.serverSidePaginationEnabled) {
       if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
       // run onPageSizeChange if user resize widgets
-      if (this.props.pageSize !== prevProps.pageSize) {
+      if (
+        this.props.onPageSizeChange &&
+        this.props.pageSize !== prevProps.pageSize
+      ) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
