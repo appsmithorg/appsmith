@@ -13,8 +13,10 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -419,21 +421,60 @@ public class FilterDataService {
                     return name;
                 })
                 .collect(Collectors.toMap(
-                            Function.identity(),
-                            name -> {
-                                String value = jsonNode.get(name).asText();
-                                DataType dataType = stringToKnownDataTypeConverter(value);
-                                return dataType;
-                            },
-                            (u, v) -> {
-                                // This is not possible.
-                                throw new IllegalStateException(String.format("Duplicate key %s", u));
-                            },
-                            LinkedHashMap::new
+                                Function.identity(),
+                                name -> {
+                                    String value = jsonNode.get(name).asText();
+                                    DataType dataType = stringToKnownDataTypeConverter(value);
+                                    return dataType;
+                                },
+                                (u, v) -> {
+                                    // This is not possible.
+                                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                                },
+                                LinkedHashMap::new
                         )
                 );
 
         return schema;
+    }
+
+    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
+
+        try {
+            switch (dataType) {
+
+                case INTEGER: {
+                    preparedStatement.setInt(index, Integer.parseInt(value));
+                    break;
+                }
+                case LONG: {
+                    preparedStatement.setLong(index, Long.parseLong(value));
+                    break;
+                }
+                case FLOAT:
+                case DOUBLE: {
+                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                    break;
+                }
+                case BOOLEAN: {
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                    break;
+                }
+                case STRING: {
+                    preparedStatement.setString(index, value);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        } catch (SQLException | IllegalArgumentException e) {
+            // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
+            // an alarm and fix quickly!
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e);
+        }
+
+        return preparedStatement;
     }
 
 
