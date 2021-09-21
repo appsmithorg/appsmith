@@ -98,7 +98,7 @@ import {
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getCanvasSizeAfterWidgetMove } from "./DraggingCanvasSagas";
+import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
 import { getReflow } from "selectors/widgetReflowSelectors";
