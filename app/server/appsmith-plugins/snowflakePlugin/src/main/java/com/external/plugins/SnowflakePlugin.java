@@ -71,6 +71,7 @@ public class SnowflakePlugin extends BasePlugin {
             return Mono
                     .fromCallable(() -> {
                         try {
+                            // Connection staleness is checked as part of this method call.
                             return getRowsFromQueryResult(connection, query);
                         } catch (AppsmithPluginException | StaleConnectionException e) {
                             throw e;
@@ -202,7 +203,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(0) == null
                     || datasourceConfiguration.getProperties().get(0).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(0).getValue())))) {
-                invalids.add("Missing Warehouse name.");
+                invalids.add("Missing warehouse name.");
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -210,7 +211,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(1) == null
                     || datasourceConfiguration.getProperties().get(1).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(1).getValue())))) {
-                invalids.add("Missing Database name.");
+                invalids.add("Missing database name.");
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -218,7 +219,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(2) == null
                     || datasourceConfiguration.getProperties().get(2).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(2).getValue())))) {
-                invalids.add("Missing Schema name.");
+                invalids.add("Missing schema name.");
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
@@ -317,6 +318,7 @@ public class SnowflakePlugin extends BasePlugin {
             return Mono
                     .fromSupplier(() -> {
                         try {
+                            // Connection staleness is checked as part of this method call.
                             Set<String> invalids = validateWarehouseDatabaseSchema(connection);
                             if (!invalids.isEmpty()) {
                                 throw new AppsmithPluginException(

@@ -53,9 +53,9 @@ public class SnowflakePluginTest {
         assertTrue(output.contains("Missing username for authentication."));
         assertTrue(output.contains("Missing password for authentication."));
         assertTrue(output.contains("Missing Snowflake URL."));
-        assertTrue(output.contains("Missing Warehouse name."));
-        assertTrue(output.contains("Missing Database name."));
-        assertTrue(output.contains("Missing Schema name."));
+        assertTrue(output.contains("Missing warehouse name."));
+        assertTrue(output.contains("Missing database name."));
+        assertTrue(output.contains("Missing schema name."));
     }
 
     @Test
