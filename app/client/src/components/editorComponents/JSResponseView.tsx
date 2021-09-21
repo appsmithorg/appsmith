@@ -10,6 +10,8 @@ import {
   DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   EMPTY_JS_OBJECT,
+  PARSING_WARNING,
+  PARSING_ERROR,
 } from "constants/messages";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
@@ -28,6 +30,10 @@ import { sortBy } from "lodash";
 import { ReactComponent as JSFunction } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as RunFunction } from "assets/icons/menu/run.svg";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import Callout from "components/ads/Callout";
+import { Variant } from "components/ads/common";
+import { EvaluationError } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -47,6 +53,10 @@ const ResponseTabWrapper = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
+  &.disable * {
+    opacity: 0.8;
+    pointer-events: none;
+  }
 `;
 
 const ResponseTabActionsList = styled.ul`
@@ -114,6 +124,10 @@ const NoResponseContainer = styled.div`
     color: #090707;
   }
 `;
+const HelpSection = styled.div`
+  padding-bottom: 5px;
+  padding-top: 10px;
+`;
 
 interface ReduxStateProps {
   responses: Record<string, any>;
@@ -124,10 +138,11 @@ type Props = ReduxStateProps &
   RouteComponentProps<JSEditorRouteParams> & {
     theme?: EditorTheme;
     jsObject: JSCollection;
+    errors: Array<EvaluationError>;
   };
 
 function JSResponseView(props: Props) {
-  const { isExecuting, jsObject, responses } = props;
+  const { errors, isExecuting, jsObject, responses } = props;
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const [selectActionId, setSelectActionId] = useState("");
@@ -140,61 +155,90 @@ function JSResponseView(props: Props) {
       ? responses[selectActionId]
       : "";
   const isRunning = selectActionId && !!isExecuting[selectActionId];
+  const errorsList = errors.filter((er) => {
+    return er.severity === Severity.ERROR;
+  });
+  const warningsList = errors.filter((er) => {
+    return er.severity === Severity.WARNING;
+  });
   const tabs = [
     {
       key: "body",
       title: "Response",
       panelComponent: (
-        <ResponseTabWrapper>
-          {sortedActionList && !sortedActionList?.length ? (
-            <NoResponseContainer>
-              {createMessage(EMPTY_JS_OBJECT)}
-            </NoResponseContainer>
-          ) : (
-            <>
-              <ResponseTabActionsList>
-                {sortedActionList &&
-                  sortedActionList?.length > 0 &&
-                  sortedActionList.map((action) => {
-                    return (
-                      <ResponseTabAction
-                        className={action.id === selectActionId ? "active" : ""}
-                        key={action.id}
-                        onClick={() => {
-                          runAction(action);
-                        }}
-                      >
-                        <JSFunction />{" "}
-                        <div className="function-name">{action.name}</div>
-                        <RunFunction className="run-button" />
-                      </ResponseTabAction>
-                    );
-                  })}
-              </ResponseTabActionsList>
-              <ResponseViewer>
-                {isRunning ? (
-                  <LoadingOverlayScreen theme={props.theme}>
-                    {createMessage(EXECUTING_FUNCTION)}
-                  </LoadingOverlayScreen>
-                ) : !responses.hasOwnProperty(selectActionId) ? (
-                  <NoResponseContainer className="empty">
-                    <Text type={TextType.P1}>
-                      Click <RunFunction /> to get response
-                    </Text>
-                  </NoResponseContainer>
-                ) : (
-                  <ReadOnlyEditor
-                    folding
-                    height={"100%"}
-                    input={{
-                      value: response,
-                    }}
-                  />
-                )}
-              </ResponseViewer>
-            </>
-          )}
-        </ResponseTabWrapper>
+        <>
+          <HelpSection>
+            {errorsList.length > 0 ? (
+              <Callout
+                fill
+                key={"error"}
+                text={createMessage(PARSING_ERROR)}
+                variant={Variant.danger}
+              />
+            ) : warningsList.length > 0 ? (
+              <Callout
+                fill
+                key={"error"}
+                text={createMessage(PARSING_WARNING)}
+                variant={Variant.warning}
+              />
+            ) : (
+              ""
+            )}
+          </HelpSection>
+          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+            {sortedActionList && !sortedActionList?.length ? (
+              <NoResponseContainer>
+                {createMessage(EMPTY_JS_OBJECT)}
+              </NoResponseContainer>
+            ) : (
+              <>
+                <ResponseTabActionsList>
+                  {sortedActionList &&
+                    sortedActionList?.length > 0 &&
+                    sortedActionList.map((action) => {
+                      return (
+                        <ResponseTabAction
+                          className={
+                            action.id === selectActionId ? "active" : ""
+                          }
+                          key={action.id}
+                          onClick={() => {
+                            runAction(action);
+                          }}
+                        >
+                          <JSFunction />{" "}
+                          <div className="function-name">{action.name}</div>
+                          <RunFunction className="run-button" />
+                        </ResponseTabAction>
+                      );
+                    })}
+                </ResponseTabActionsList>
+                <ResponseViewer>
+                  {isRunning ? (
+                    <LoadingOverlayScreen theme={props.theme}>
+                      {createMessage(EXECUTING_FUNCTION)}
+                    </LoadingOverlayScreen>
+                  ) : !responses.hasOwnProperty(selectActionId) ? (
+                    <NoResponseContainer className="empty">
+                      <Text type={TextType.P1}>
+                        Click <RunFunction /> to get response
+                      </Text>
+                    </NoResponseContainer>
+                  ) : (
+                    <ReadOnlyEditor
+                      folding
+                      height={"100%"}
+                      input={{
+                        value: response,
+                      }}
+                    />
+                  )}
+                </ResponseViewer>
+              </>
+            )}
+          </ResponseTabWrapper>
+        </>
       ),
     },
     {
