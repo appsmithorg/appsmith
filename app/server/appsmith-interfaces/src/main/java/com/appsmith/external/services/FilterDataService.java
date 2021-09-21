@@ -20,12 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -104,10 +104,10 @@ public class FilterDataService {
         String tableName = generateTable(schema);
 
         // insert the data
-        insertData(tableName, items, schema);
+        insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions);
+        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions, schema);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -117,25 +117,36 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
+    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+        Connection conn = checkAndGetConnection();
+
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
-        String whereClause = generateWhereClause(conditions);
+        LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
+
+        String whereClause = generateWhereClause(conditions, values, schema);
+
         sb.append(whereClause);
 
         sb.append(";");
 
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
         String selectQuery = sb.toString();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
-        List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
-        Connection conn = checkAndGetConnection();
-
         try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectQuery);
+            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+            Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
+            Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
+            for (int i=0; iterator.hasNext(); i++) {
+                Map.Entry<String, DataType> valueEntry = iterator.next();
+                String value = valueEntry.getKey();
+                DataType dataType = valueEntry.getValue();
+                setValueInStatement(preparedStatement, i+1, value, dataType);
+            }
 
+            ResultSet resultSet = preparedStatement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int colCount = metaData.getColumnCount();
 
@@ -146,17 +157,14 @@ public class FilterDataService {
                 }
                 rowsList.add(row);
             }
-
         } catch (SQLException e) {
-            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
+            e.printStackTrace();
         }
 
         return rowsList;
     }
 
-    private String generateWhereClause(List<Condition> conditions) {
+    private String generateWhereClause(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -193,20 +201,26 @@ public class FilterDataService {
                 StringBuilder valueBuilder = new StringBuilder("(");
 
                 // The array could be an array of Strings
-                if (value.contains("\"")) {
+//                if (value.contains("\"")) {
                     try {
-                        List<String> stringValues = objectMapper.readValue(value, List.class);
-                        List<String> updatedStringValues = stringValues.stream().map(stringValue -> "\'" + stringValue + "\'").collect(Collectors.toList());
+                        List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                        List<String> updatedStringValues = arrayValues
+                                .stream()
+                                .map(fieldValue -> {
+                                    values.put(String.valueOf(fieldValue), schema.get(path));
+                                    return "?";
+                                })
+                                .collect(Collectors.toList());
                         String finalValues = String.join(",", updatedStringValues);
                         valueBuilder.append(finalValues);
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }
-                } else {
-                    // Removes the outer square brackets from the string to leave behind just the values separated by comma
-                    String trimmedValue = value.replaceAll("^\\[|]$", "");
-                    valueBuilder.append(trimmedValue);
-                }
+//                } else {
+//                    // Removes the outer square brackets from the string to leave behind just the values separated by comma
+//                    String trimmedValue = value.replaceAll("^\\[|]$", "");
+//                    valueBuilder.append(trimmedValue);
+//                }
 
                 valueBuilder.append(")");
                 value = valueBuilder.toString();
@@ -214,9 +228,11 @@ public class FilterDataService {
 
             } else {
                 // Since the value is not an array, surround the same with single quotes and append
-                sb.append("'");
-                sb.append(value);
-                sb.append("'");
+//                sb.append("'");
+//                sb.append(value);
+//                sb.append("'");
+                sb.append("?");
+                values.put(value, schema.get(path));
             }
         }
 
@@ -224,7 +240,7 @@ public class FilterDataService {
     }
 
     // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
-    public void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
@@ -237,23 +253,31 @@ public class FilterDataService {
         columnNamesBuilder.append(String.join(", ", quotedColumnNames));
         columnNamesBuilder.append(")");
 
+        // In order data types of all the columns
+        List<DataType> columnTypes = new ArrayList<>();
+        for (String columnName : columnNames) {
+            columnTypes.add(schema.get(columnName));
+        }
+
         insertQueryBuilder.append(columnNamesBuilder);
         insertQueryBuilder.append(" VALUES ");
 
         StringBuilder valuesMasterBuilder = new StringBuilder();
 
         int counter = 0;
+        List<String> inOrderValues = new ArrayList<>();
+
         for (JsonNode item : items) {
 
             // If the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
             if (counter == 1000) {
-                String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
-                executeDbQuery(insertQueryString);
 
+                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
                 // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
                 counter = 0;
+                inOrderValues = new ArrayList<>();
             }
 
             StringBuilder valuesBuilder = new StringBuilder();
@@ -279,9 +303,8 @@ public class FilterDataService {
 
                 JsonNode fieldNode = item.get(columnName);
                 if (fieldNode != null) {
-                    valuesBuilder.append("'");
-                    valuesBuilder.append(fieldNode.asText());
-                    valuesBuilder.append("'");
+                    valuesBuilder.append("?");
+                    inOrderValues.add(fieldNode.asText());
                 }
             }
 
@@ -293,8 +316,7 @@ public class FilterDataService {
         }
 
         if (valuesMasterBuilder.length() > 0) {
-            String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
-            executeDbQuery(insertQueryString);
+            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
         }
     }
 
@@ -311,16 +333,32 @@ public class FilterDataService {
         }
     }
 
-    private String finalInsertQueryString(String partialInsertQuery, StringBuilder valuesBuilder) {
+    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes) {
+
+        Connection conn = checkAndGetConnection();
 
         StringBuilder insertQueryBuilder = new StringBuilder(partialInsertQuery);
-
         insertQueryBuilder.append(valuesBuilder);
         insertQueryBuilder.append(";");
 
         String finalInsertQuery = insertQueryBuilder.toString();
 
-        return finalInsertQuery;
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery);
+
+            int valueCounter = 0;
+            while (valueCounter < inOrderValues.size()) {
+
+                for (int columnTypeCounter = 0; columnTypeCounter < columnTypes.size(); columnTypeCounter++, valueCounter++) {
+                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter));
+                }
+            }
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Failed to filter due to error in ingesting the raw data");
+        }
     }
 
     private Connection checkAndGetConnection() {
