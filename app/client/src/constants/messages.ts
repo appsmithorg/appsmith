@@ -501,8 +501,6 @@ export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const SHARE_APPLICATION = () => "Share Application";
-export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
