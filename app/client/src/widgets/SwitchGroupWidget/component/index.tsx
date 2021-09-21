@@ -1,27 +1,42 @@
-import React, { useCallback, useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Alignment, Switch } from "@blueprintjs/core";
+
+import { generateReactKey } from "utils/generators";
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 
-export interface SwitchGroupContainerProps {
-  inline?: boolean;
-  itemCount: number;
+export interface OptionProps {
+  label?: string;
+  value: string;
 }
 
-export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
+export interface SwitchGroupContainerProps {
+  inline?: boolean;
+  optionCount: number;
+  valid?: boolean;
+}
+
+export const SwitchGroupContainer = styled.div<
+  ThemeProp & SwitchGroupContainerProps
+>`
   display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
   ${({ inline }) => `
     flex-direction: ${inline ? "row" : "column"};
     align-items: ${inline ? "center" : "flex-start"};
     ${inline && "flex-wrap: wrap"};
   `}
-  justify-content: ${({ inline, itemCount }) =>
-    itemCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
+  justify-content: ${({ inline, optionCount }) =>
+    optionCount > 1 ? `space-between` : inline ? `flex-start` : `center`};
   width: 100%;
   height: 100%;
   overflow: auto;
   border: 1px solid transparent;
+  ${({ theme, valid }) =>
+    !valid &&
+    `
+    border: 1px solid ${theme.colors.error};
+  `}
   padding: 2px 4px;
 
   ${BlueprintControlTransform}
@@ -30,7 +45,7 @@ export const SwitchGroupContainer = styled.div<SwitchGroupContainerProps>`
 export interface StyledSwitchProps {
   disabled?: boolean;
   inline?: boolean;
-  itemCount: number;
+  optionCount: number;
   rowSpace: number;
 }
 
@@ -38,50 +53,42 @@ const StyledSwitch = styled(Switch)<ThemeProp & StyledSwitchProps>`
   height: ${({ rowSpace }) => rowSpace}px;
 
   &.bp3-control.bp3-switch {
-    margin-top: ${({ inline, itemCount }) =>
-      (inline || itemCount === 1) && `4px`};
+    margin-top: ${({ inline, optionCount }) =>
+      (inline || optionCount === 1) && `4px`};
   }
 `;
 
 function SwitchGroupComponent(props: SwitchGroupComponentProps) {
-  const { disabled, inline, items, onChange, rowSpace, selectedValues } = props;
-
-  const sortedItems = useMemo(() => {
-    const itemsArray: Item[] = Object.values(items || []);
-    return itemsArray.sort((a: Item, b: Item) => {
-      return a.index - b.index;
-    });
-  }, [items]);
-
-  const itemCount = sortedItems.length;
-
-  const handleChange = useCallback((id: string) => {
-    return (event: React.FormEvent<HTMLElement>) => {
-      const isChecked = (event.target as HTMLInputElement).checked;
-      onChange(id, isChecked);
-    };
-  }, []);
+  const {
+    disabled,
+    inline,
+    onChange,
+    options,
+    rowSpace,
+    selectedValues,
+    valid,
+  } = props;
 
   return (
-    <SwitchGroupContainer inline={inline} itemCount={itemCount}>
-      {sortedItems.map((item: Item) => {
-        return (
-          item.isVisible && (
-            <StyledSwitch
-              alignIndicator={item.alignIndicator}
-              checked={(selectedValues || []).includes(item.value)}
-              defaultChecked={item.defaultChecked}
-              disabled={disabled || item.isDisabled}
-              inline={inline}
-              itemCount={itemCount}
-              key={item.id}
-              label={item.label}
-              onChange={handleChange(item.id)}
-              rowSpace={rowSpace}
-            />
-          )
-        );
-      })}
+    <SwitchGroupContainer
+      inline={inline}
+      optionCount={options.length}
+      valid={valid}
+    >
+      {options &&
+        options.length > 0 &&
+        [...options].map((option: OptionProps) => (
+          <StyledSwitch
+            checked={(selectedValues || []).includes(option.value)}
+            disabled={disabled}
+            inline={inline}
+            key={generateReactKey()}
+            label={option.label}
+            onChange={onChange(option.value)}
+            optionCount={options.length}
+            rowSpace={rowSpace}
+          />
+        ))}
     </SwitchGroupContainer>
   );
 }
@@ -102,10 +109,12 @@ export interface Item {
 export interface SwitchGroupComponentProps {
   disabled?: boolean;
   inline?: boolean;
-  items?: Record<string, Item>;
+  options: OptionProps[];
+  onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
+  required?: boolean;
   rowSpace: number;
-  onChange: (id: string, value: boolean) => void;
   selectedValues: string[];
+  valid?: boolean;
 }
 
 export default SwitchGroupComponent;

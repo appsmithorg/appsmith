@@ -1,12 +1,65 @@
 import React from "react";
-import { Alignment } from "@blueprintjs/core";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  ValidationResponse,
+  ValidationTypes,
+} from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import SwitchGroupComponent from "../component";
+import SwitchGroupComponent, { OptionProps } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+function defaultSelectedValuesValidation(
+  value: unknown,
+  props: SwitchGroupWidgetProps,
+): ValidationResponse {
+  let isValid = true;
+  let values: string[] = [];
+  const messages: string[] = [];
+  const { options } = props;
+
+  const optionValues = options.map((option) => option.value);
+
+  if (typeof value === "string") {
+    try {
+      values = JSON.parse(value);
+      if (!Array.isArray(values)) {
+        throw new Error();
+      }
+    } catch {
+      values = value.length ? value.split(",") : [];
+      if (values.length > 0) {
+        values = values.map((_v: string) => _v.trim());
+      }
+    }
+  }
+  if (Array.isArray(value)) {
+    values = Array.from(new Set(value));
+  }
+
+  values.forEach((value, index) => {
+    if (!optionValues.includes(value)) {
+      isValid = false;
+      messages.push(`Mismatching value: ${value} at: ${index}`);
+    }
+  });
+
+  if (isValid) {
+    return {
+      isValid: true,
+      parsed: values,
+    };
+  }
+
+  return {
+    isValid: false,
+    parsed: values,
+    message: messages.join(" "),
+  };
+}
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -18,24 +71,62 @@ class SwitchGroupWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            propertyName: "isDisabled",
-            helpText: "Disables input to the widget",
-            label: "Disabled",
-            controlType: "SWITCH",
+            helpText:
+              "Displays a list of options for a user to select. Values must be unique",
+            propertyName: "options",
+            label: "Options",
+            controlType: "OPTION_INPUT",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    allowedKeys: [
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          unique: true,
+                        },
+                      },
+                      {
+                        name: "value",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          unique: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            evaluationSubstitutionType:
+              EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            propertyName: "isVisible",
-            helpText: "Controls the visibility of the widget",
-            label: "Visible",
-            controlType: "SWITCH",
-            isJSConvertible: true,
+            helpText: "Selects values of the options checked by default",
+            propertyName: "defaultSelectedValues",
+            label: "Default Selected Values",
+            placeholderText: "Enter option values",
+            controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultSelectedValuesValidation,
+                expected: {
+                  type: "Value or Array of values",
+                  example: `value1 | ['value1', 'value2']`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
           },
           {
             propertyName: "isInline",
@@ -48,107 +139,37 @@ class SwitchGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
-        ],
-      },
-      {
-        sectionName: "Group Items",
-        children: [
           {
-            helpText: "Group items",
-            propertyName: "groupItems",
-            controlType: "ITEMS",
-            label: "",
-            isBindProperty: false,
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            panelConfig: {
-              editableTitle: true,
-              titlePropertyName: "label",
-              panelIdPropertyName: "id",
-              updateHook: (
-                props: any,
-                propertyPath: string,
-                propertyValue: string,
-              ) => {
-                return [{ propertyPath, propertyValue }];
-              },
-              children: [
-                {
-                  sectionName: "General",
-                  children: [
-                    {
-                      propertyName: "isDisabled",
-                      helpText: "Disables input to the widget",
-                      label: "Disabled",
-                      controlType: "SWITCH",
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
-                    },
-                    {
-                      propertyName: "isVisible",
-                      helpText: "Controls the visibility of the widget",
-                      label: "Visible",
-                      controlType: "SWITCH",
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
-                    },
-                    {
-                      propertyName: "label",
-                      helpText: "Sets the label of an item",
-                      label: "Label",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: "Enter label",
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
-                    {
-                      propertyName: "value",
-                      helpText: "Sets the value of an item",
-                      label: "Value",
-                      controlType: "INPUT_TEXT",
-                      placeholderText: "Enter value",
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
-                    {
-                      propertyName: "alignIndicator",
-                      helpText: "Sets the alignment of the indicator",
-                      label: "Alignment",
-                      controlType: "DROP_DOWN",
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      options: [
-                        {
-                          label: "Left",
-                          value: Alignment.LEFT,
-                        },
-                        {
-                          label: "Right",
-                          value: Alignment.RIGHT,
-                        },
-                      ],
-                    },
-
-                    {
-                      propertyName: "defaultChecked",
-                      label: "Default State",
-                      helpText:
-                        "On / Off the Switch by default. Changes to the default selection update the widget state",
-                      controlType: "SWITCH",
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.BOOLEAN },
-                    },
-                  ],
-                },
-              ],
+            validation: {
+              type: ValidationTypes.BOOLEAN,
             },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -158,8 +179,8 @@ class SwitchGroupWidget extends BaseWidget<
           {
             helpText:
               "Triggers an action when a switch state inside the group is changed",
-            propertyName: "onChange",
-            label: "onChange",
+            propertyName: "onSelectionChange",
+            label: "onSelectionChange",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -170,37 +191,21 @@ class SwitchGroupWidget extends BaseWidget<
     ];
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      selectedValues: `{{
-        function() {
-          const itemsArray = Object.values(this.items);
-          return itemsArray.reduce((acc, item) => {
-            if ("checked" in item) {
-              if (item.checked) {
-                acc.push(item.value);
-              }
-              return acc;
-            }
-            if (item.defaultChecked) {
-              acc.push(item.value);
-            }
-            return acc;
-          }, []);
-        }()
-      }}`,
-    };
-  }
-
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      items: "groupItems",
+      selectedValues: "defaultSelectedValues",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      items: undefined,
+      selectedValues: undefined,
+    };
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {
+      isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
     };
   }
 
@@ -209,29 +214,41 @@ class SwitchGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps) {
-    const prevItems = prevProps.groupItems;
-    const items = { ...this.props.groupItems };
+    if (
+      Array.isArray(prevProps.options) &&
+      Array.isArray(this.props.options) &&
+      this.props.options.length !== prevProps.options.length
+    ) {
+      const prevOptions = prevProps.options.map(
+        (prevOption) => prevOption.value,
+      );
+      const options = this.props.options.map((option) => option.value);
 
-    let isStateChanged = false;
-    const itemsArray = Object.values(items);
+      const diffOptions = prevOptions.filter(
+        (prevOption) => !options.includes(prevOption),
+      );
 
-    isStateChanged = !itemsArray.every(
-      (item) => item.defaultChecked === prevItems[item.id].defaultChecked,
-    );
+      const selectedValues = this.props.selectedValues.filter(
+        (selectedValue: string) => !diffOptions.includes(selectedValue),
+      );
 
-    if (isStateChanged) {
-      for (const key in items) {
-        delete items[key].checked;
-      }
-      this.props.updateWidgetMetaProperty("items", items);
+      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+        triggerPropertyName: "onSelectionChange",
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
+        },
+      });
     }
   }
 
   getPageView() {
     const {
-      groupItems,
       isDisabled,
       isInline,
+      isRequired,
+      isValid,
+      options,
       parentRowSpace,
       selectedValues,
     } = this.props;
@@ -240,54 +257,46 @@ class SwitchGroupWidget extends BaseWidget<
       <SwitchGroupComponent
         disabled={isDisabled}
         inline={isInline}
-        items={groupItems}
         onChange={this.handleSwitchStateChange}
+        options={options}
+        required={isRequired}
         rowSpace={parentRowSpace}
         selectedValues={selectedValues}
+        valid={isValid}
       />
     );
   }
 
-  private handleSwitchStateChange = (id: string, value: boolean) => {
-    const { items } = this.props;
-    const updatedItems = {
-      ...items,
-      [id]: {
-        ...items[id],
-        checked: value,
-      },
-    };
+  private handleSwitchStateChange = (value: string) => {
+    return (event: React.FormEvent<HTMLElement>) => {
+      let { selectedValues } = this.props;
+      const isChecked = (event.target as HTMLInputElement).checked;
+      if (isChecked) {
+        selectedValues = [...selectedValues, value];
+      } else {
+        selectedValues = selectedValues.filter(
+          (item: string) => item !== value,
+        );
+      }
 
-    this.props.updateWidgetMetaProperty("items", updatedItems, {
-      triggerPropertyName: "onChange",
-      dynamicString: this.props.onChange,
-      event: {
-        type: EventType.ON_SWITCH_GROUP_CHANGE,
-      },
-    });
+      this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+        triggerPropertyName: "onSelectionChange",
+        dynamicString: this.props.onSelectionChange,
+        event: {
+          type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
+        },
+      });
+    };
   };
 }
 
 export interface SwitchGroupWidgetProps extends WidgetProps {
+  options: OptionProps[];
+  isInline: boolean;
+  isRequired?: boolean;
+  isValid?: boolean;
   isDisabled?: boolean;
-  isVisible?: boolean;
-  isInline?: boolean;
-  groupItems: Record<
-    string,
-    {
-      widgetId: string;
-      id: string;
-      index: number;
-      isVisible?: boolean;
-      isDisabled?: boolean;
-      label?: string;
-      value: string;
-      labelAlign?: Alignment;
-      defaultChecked?: boolean;
-      checked?: boolean;
-      onChange?: string;
-    }
-  >;
+  onSelectionChange?: boolean;
 }
 
 export default SwitchGroupWidget;

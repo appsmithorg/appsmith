@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { Alignment } from "@blueprintjs/core";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -13,40 +12,14 @@ export const CONFIG = {
     widgetName: "SwitchGroup",
     rows: 1.5 * GRID_DENSITY_MIGRATION_V1,
     columns: 4.5 * GRID_DENSITY_MIGRATION_V1,
-    groupItems: {
-      item1: {
-        id: "item1",
-        label: "Apple",
-        value: "apple",
-        alignIndicator: Alignment.LEFT,
-        defaultChecked: true,
-        widgetId: "",
-        isVisible: true,
-        isDisabled: false,
-        index: 0,
-      },
-      item2: {
-        id: "item2",
-        label: "Orange",
-        value: "orange",
-        alignIndicator: Alignment.LEFT,
-        widgetId: "",
-        isVisible: true,
-        isDisabled: false,
-        index: 1,
-      },
-      item3: {
-        id: "item3",
-        label: "Lemon",
-        value: "lemon",
-        alignIndicator: Alignment.LEFT,
-        widgetId: "",
-        isVisible: true,
-        isDisabled: false,
-        index: 2,
-      },
-    },
+    options: [
+      { label: "Blue", value: "BLUE" },
+      { label: "Green", value: "GREEN" },
+      { label: "Red", value: "RED" },
+    ],
+    defaultSelectedValues: "BLUE",
     isDisabled: false,
+    isRequired: false,
     isInline: true,
     isVisible: true,
     version: 1,

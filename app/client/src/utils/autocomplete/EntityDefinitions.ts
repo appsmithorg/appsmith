@@ -384,7 +384,7 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   SWITCH_GROUP_WIDGET: {
     "!doc":
-      "Switch group widget allows users to create a list of switch so that they can easily use them in a form.",
+      "Switch group widget allows users to create many switch components which can easily by used in a form",
     "!url": "https://docs.appsmith.com/widget-reference/switch-group",
     selectedValues: "[string]",
   },
