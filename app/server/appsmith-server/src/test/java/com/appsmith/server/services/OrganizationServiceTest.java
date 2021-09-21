@@ -1070,10 +1070,6 @@ public class OrganizationServiceTest {
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
-                    DataBuffer buffer = DataBufferUtils.join(dataBufferFlux).block(Duration.ofSeconds(3));
-                    byte[] res = new byte[buffer.readableByteCount()];
-                    buffer.read(res);
-                    assertThat(asset.getData()).isEqualTo(res);
                 })
                 .verifyComplete();
 

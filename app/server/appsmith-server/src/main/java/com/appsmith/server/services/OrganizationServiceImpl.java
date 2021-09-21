@@ -298,7 +298,7 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION, organizationId)));
 
         // We don't execute the upload Mono if we don't find the organization.
-        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB);
+        final Mono<Asset> uploadAssetMono = assetService.upload(filePart, Constraint.ORGANIZATION_LOGO_SIZE_KB, false);
 
         return findOrganizationMono
                 .flatMap(organization -> Mono.zip(Mono.just(organization), uploadAssetMono))
