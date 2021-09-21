@@ -244,6 +244,13 @@ export type WidgetResize = {
   bottomRow: number;
 };
 
+export type ModalWidgetResize = {
+  height: number;
+  width: number;
+  widgetId: string;
+  canvasWidgetId: string;
+};
+
 export type WidgetAddChildren = {
   widgetId: string;
   children: Array<{
