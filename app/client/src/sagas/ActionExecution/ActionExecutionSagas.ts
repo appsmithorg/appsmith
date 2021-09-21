@@ -29,6 +29,10 @@ import {
   openModalSaga,
 } from "sagas/ActionExecution/ModalSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
+import {
+  logActionExecutionError,
+  TriggerEvaluationError,
+} from "sagas/ActionExecution/errorUtils";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -107,11 +111,14 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  const triggers = yield call(
-    evaluateDynamicTrigger,
-    dynamicString,
-    responseData,
-  );
+  let triggers = [];
+  try {
+    triggers = yield call(evaluateDynamicTrigger, dynamicString, responseData);
+  } catch (e) {
+    if (e instanceof TriggerEvaluationError) {
+      logActionExecutionError(e.message, source, triggerPropertyName);
+    }
+  }
 
   log.debug({ triggers });
   if (triggers && triggers.length) {

@@ -41,7 +41,7 @@ import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
 import getFeatureFlags from "utils/featureFlags";
-import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -247,10 +247,9 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
         log.error(error);
-        logActionExecutionError(
+        throw new TriggerEvaluationError(
           createMessage(ERROR_EVAL_TRIGGER, error.message),
         );
-        break;
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);

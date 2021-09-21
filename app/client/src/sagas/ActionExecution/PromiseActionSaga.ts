@@ -37,6 +37,8 @@ export default function* executePromiseSaga(
               type: eventType,
             },
             responseData: thenArguments,
+            source: triggerMeta.source,
+            triggerPropertyName: triggerMeta.triggerPropertyName,
           });
         }
       }
@@ -57,6 +59,8 @@ export default function* executePromiseSaga(
           type: eventType,
         },
         responseData: catchArguments,
+        source: triggerMeta.source,
+        triggerPropertyName: triggerMeta.triggerPropertyName,
       });
     } else {
       log.error(e);
@@ -69,6 +73,9 @@ export default function* executePromiseSaga(
       event: {
         type: eventType,
       },
+      responseData: [{}],
+      source: triggerMeta.source,
+      triggerPropertyName: triggerMeta.triggerPropertyName,
     });
   }
 }

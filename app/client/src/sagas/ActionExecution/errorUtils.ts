@@ -32,7 +32,6 @@ export const logActionExecutionError = (
   triggerPropertyName?: string,
   errorType?: PropertyEvaluationErrorType,
 ) => {
-  debugger;
   AppsmithConsole.addError({
     id: `${source?.id}-${triggerPropertyName}`,
     logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
@@ -95,5 +94,11 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
   constructor() {
     super("User cancelled action execution", true);
     this.name = "UserCancelledActionExecutionError";
+  }
+}
+
+export class TriggerEvaluationError extends Error {
+  constructor(message: string) {
+    super(message);
   }
 }
