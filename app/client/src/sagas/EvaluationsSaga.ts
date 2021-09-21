@@ -181,7 +181,8 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const parsedObject = yield call(
+  const path = jsAction.name + ".body";
+  const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
@@ -189,7 +190,12 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  return parsedObject;
+  const { errors, evalTree, result } = workerResponse;
+  const dataTree = yield select(getDataTree);
+  const updates = diff(dataTree, evalTree) || [];
+  yield put(setEvaluatedTree(evalTree, updates));
+  yield call(evalErrorHandler, errors, evalTree, [path]);
+  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
