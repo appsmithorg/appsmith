@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "components/constants";
@@ -12,6 +12,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 
 export function InputText(props: {
   label: string;
@@ -35,6 +36,9 @@ export function InputText(props: {
     value,
   } = props;
 
+  //subscribing to context to help re-render component on Property section open or close
+  const isOpen = useContext(CollapseContext);
+
   return (
     <StyledDynamicInput>
       <CodeEditor
@@ -49,6 +53,7 @@ export function InputText(props: {
           value: value,
           onChange: onChange,
         }}
+        isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}

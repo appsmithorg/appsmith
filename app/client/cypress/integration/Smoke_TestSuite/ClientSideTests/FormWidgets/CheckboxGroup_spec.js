@@ -40,6 +40,7 @@ describe("Checkbox Group Widget Functionality", function() {
     cy.get(formWidgetsPage.deleteradiovalue)
       .eq(2)
       .click({ force: true });
+    cy.wait(200);
     cy.get(formWidgetsPage.labelCheckboxGroup).should(
       "not.have.value",
       "test4",
