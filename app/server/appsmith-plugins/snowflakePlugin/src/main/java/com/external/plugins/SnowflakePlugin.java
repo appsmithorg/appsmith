@@ -40,6 +40,13 @@ import java.util.Set;
 
 public class SnowflakePlugin extends BasePlugin {
 
+    private static String CURRENT_WAREHOUSE_QUERY = "select current_warehouse() as Warehouse";
+    private static String CURRENT_DATABASE_QUERY = "select current_database() as Database";
+    private static String CURRENT_SCHEMA_QUERY = "select current_schema() as Schema";
+    private static String WAREHOUSE_KEY = "WAREHOUSE";
+    private static String DATABASE_KEY = "DATABASE";
+    private static String SCHEMA_KEY = "SCHEMA";
+
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -63,47 +70,11 @@ public class SnowflakePlugin extends BasePlugin {
 
             return Mono
                     .fromCallable(() -> {
-                        ResultSet resultSet = null;
-                        List<Map<String, Object>> rowsList = new ArrayList<>(50);
                         try {
-                            // We do not use keep alive threads for our connections since these might become expensive
-                            // Instead for every execution, we check for connection validity,
-                            // and reset the connection if required
-                            if (!connection.isValid(30)) {
-                                throw new StaleConnectionException();
-                            }
-
-                            Statement statement = connection.createStatement();
-                            resultSet = statement.executeQuery(query);
-                            ResultSetMetaData metaData = resultSet.getMetaData();
-                            int colCount = metaData.getColumnCount();
-
-                            while (resultSet.next()) {
-                                // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                                Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                                for (int i = 1; i <= colCount; i++) {
-                                    Object value = resultSet.getObject(i);
-                                    row.put(metaData.getColumnName(i), value);
-                                }
-                                rowsList.add(row);
-                            }
-                        } catch (SQLException e) {
-                            if (e instanceof SnowflakeReauthenticationRequest) {
-                                throw new StaleConnectionException();
-                            }
-                            e.printStackTrace();
-                            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
-                        } finally {
-                            if (resultSet != null) {
-                                try {
-                                    resultSet.close();
-                                } catch (SQLException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                            return getRowsFromQueryResult(connection, query);
+                        } catch (AppsmithPluginException | StaleConnectionException e) {
+                            throw e;
                         }
-                        return rowsList;
                     })
                     .map(rowsList -> {
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -115,6 +86,62 @@ public class SnowflakePlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        /**
+         * Execute query and return the resulting table as a list of rows.
+         *
+         * @param connection - Connection object to execute query.
+         * @param query - Query string
+         * @return List of rows from the response table.
+         * @throws AppsmithPluginException
+         * @throws StaleConnectionException
+         */
+        public List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query) throws
+                AppsmithPluginException, StaleConnectionException {
+            List<Map<String, Object>> rowsList = new ArrayList<>();
+            ResultSet resultSet = null;
+            try {
+                // We do not use keep alive threads for our connections since these might become expensive
+                // Instead for every execution, we check for connection validity,
+                // and reset the connection if required
+                if (!connection.isValid(30)) {
+                    throw new StaleConnectionException();
+                }
+
+                Statement statement = connection.createStatement();
+                resultSet = statement.executeQuery(query);
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                int colCount = metaData.getColumnCount();
+
+                while (resultSet.next()) {
+                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
+                    Map<String, Object> row = new LinkedHashMap<>(colCount);
+
+                    for (int i = 1; i <= colCount; i++) {
+                        Object value = resultSet.getObject(i);
+                        row.put(metaData.getColumnName(i), value);
+                    }
+                    rowsList.add(row);
+                }
+            } catch (SQLException e) {
+                if (e instanceof SnowflakeReauthenticationRequest) {
+                    throw new StaleConnectionException();
+                }
+                e.printStackTrace();
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
+
+            }  finally {
+                if (resultSet != null) {
+                    try {
+                        resultSet.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            return rowsList;
         }
 
         @Override
@@ -131,6 +158,7 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("password", authentication.getPassword());
             properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
             properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+            properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
             properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
 
             return Mono
@@ -174,7 +202,7 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(0) == null
                     || datasourceConfiguration.getProperties().get(0).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(0).getValue())))) {
-                invalids.add("Missing warehouse name.");
+                invalids.add("Missing Warehouse name.");
             }
 
             if (datasourceConfiguration.getProperties() != null
@@ -182,7 +210,15 @@ public class SnowflakePlugin extends BasePlugin {
                     || datasourceConfiguration.getProperties().get(1) == null
                     || datasourceConfiguration.getProperties().get(1).getValue() == null
                     || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(1).getValue())))) {
-                invalids.add("Missing database name.");
+                invalids.add("Missing Database name.");
+            }
+
+            if (datasourceConfiguration.getProperties() != null
+                    && (datasourceConfiguration.getProperties().size() < 3
+                    || datasourceConfiguration.getProperties().get(2) == null
+                    || datasourceConfiguration.getProperties().get(2).getValue() == null
+                    || StringUtils.isEmpty(String.valueOf(datasourceConfiguration.getProperties().get(2).getValue())))) {
+                invalids.add("Missing Schema name.");
             }
 
             if (datasourceConfiguration.getAuthentication() == null) {
@@ -208,7 +244,7 @@ public class SnowflakePlugin extends BasePlugin {
                         if (connection != null) {
                             try {
                                 Set<String> invalids = validateWarehouseDatabaseSchema(connection);
-                                if (invalids.size() != 0) {
+                                if (!invalids.isEmpty()) {
                                     return Mono.error(
                                             new AppsmithPluginException(
                                                     AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -228,9 +264,48 @@ public class SnowflakePlugin extends BasePlugin {
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
         }
 
-        private Set<String> validateWarehouseDatabaseSchema(Connection connection) {
+        /**
+         * Run a query to get the current warehouse, database and schema name. If invalid names were provided when
+         * creating the connection object, then this query returns null / empty value against the corresponding
+         * column - i.e. warehouse / database / schema.
+         *
+         * @param connection - Connection object to execute query
+         * @return A set of error statements in case the query result contains any null / empty value.
+         */
+        private Set<String> validateWarehouseDatabaseSchema(Connection connection) throws StaleConnectionException,
+                AppsmithPluginException {
             Set<String> invalids = new HashSet<>();
 
+            // Check database validity.
+            List<Map<String, Object>>  rowsList = getRowsFromQueryResult(connection, CURRENT_DATABASE_QUERY);
+            if (StringUtils.isEmpty(rowsList.get(0).get(DATABASE_KEY))) {
+                invalids.add(getWarehouseDatabaseSchemaErrorMessage(DATABASE_KEY));
+                return invalids;
+            }
+
+            // Check warehouse validity.
+            rowsList = getRowsFromQueryResult(connection, CURRENT_WAREHOUSE_QUERY);
+            if (StringUtils.isEmpty(rowsList.get(0).get(WAREHOUSE_KEY))) {
+                invalids.add(getWarehouseDatabaseSchemaErrorMessage(WAREHOUSE_KEY));
+                return invalids;
+            }
+
+            // Check schema validity.
+            rowsList = getRowsFromQueryResult(connection, CURRENT_SCHEMA_QUERY);
+            if (StringUtils.isEmpty(rowsList.get(0).get(SCHEMA_KEY))) {
+                invalids.add(getWarehouseDatabaseSchemaErrorMessage(SCHEMA_KEY));
+                return invalids;
+            }
+
+            return invalids;
+        }
+
+        // Construct error message string.
+        private String getWarehouseDatabaseSchemaErrorMessage(String key) {
+            String fieldName = StringUtils.capitalize(key.toLowerCase());
+            return "Appsmith could not find any valid " + key.toLowerCase() + " configured for this datasource. " +
+                    "Please provide a valid " + key.toLowerCase() + " by editing the " + fieldName + " field in the " +
+                    "datasource configuration page.";
         }
 
         @Override
@@ -242,34 +317,37 @@ public class SnowflakePlugin extends BasePlugin {
             return Mono
                     .fromSupplier(() -> {
                         try {
-                            if (connection.isValid(30)) {
-                                Statement statement = connection.createStatement();
-                                final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
-                                        + datasourceConfiguration.getProperties().get(2).getValue() + "'";
-                                ResultSet resultSet = statement.executeQuery(columnsQuery);
+                            Set<String> invalids = validateWarehouseDatabaseSchema(connection);
+                            if (!invalids.isEmpty()) {
+                                throw new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                        invalids.toArray()[0]
+                                );
+                            }
+                            Statement statement = connection.createStatement();
+                            final String columnsQuery = SqlUtils.COLUMNS_QUERY + "'"
+                                    + datasourceConfiguration.getProperties().get(2).getValue() + "'";
+                            ResultSet resultSet = statement.executeQuery(columnsQuery);
 
-                                while (resultSet.next()) {
-                                    SqlUtils.getTableInfo(resultSet, tablesByName);
-                                }
+                            while (resultSet.next()) {
+                                SqlUtils.getTableInfo(resultSet, tablesByName);
+                            }
 
-                                resultSet = statement.executeQuery(SqlUtils.PRIMARY_KEYS_QUERY);
-                                while (resultSet.next()) {
-                                    SqlUtils.getPrimaryKeyInfo(resultSet, tablesByName, keyRegistry);
-                                }
+                            resultSet = statement.executeQuery(SqlUtils.PRIMARY_KEYS_QUERY);
+                            while (resultSet.next()) {
+                                SqlUtils.getPrimaryKeyInfo(resultSet, tablesByName, keyRegistry);
+                            }
 
-                                resultSet = statement.executeQuery(SqlUtils.FOREIGN_KEYS_QUERY);
-                                while (resultSet.next()) {
-                                    SqlUtils.getForeignKeyInfo(resultSet, tablesByName, keyRegistry);
-                                }
+                            resultSet = statement.executeQuery(SqlUtils.FOREIGN_KEYS_QUERY);
+                            while (resultSet.next()) {
+                                SqlUtils.getForeignKeyInfo(resultSet, tablesByName, keyRegistry);
+                            }
 
-                                /* Get templates for each table and put those in. */
-                                SqlUtils.getTemplates(tablesByName);
-                                structure.setTables(new ArrayList<>(tablesByName.values()));
-                                for (DatasourceStructure.Table table : structure.getTables()) {
-                                    table.getKeys().sort(Comparator.naturalOrder());
-                                }
-                            } else {
-                                throw new StaleConnectionException();
+                            /* Get templates for each table and put those in. */
+                            SqlUtils.getTemplates(tablesByName);
+                            structure.setTables(new ArrayList<>(tablesByName.values()));
+                            for (DatasourceStructure.Table table : structure.getTables()) {
+                                table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
                             throwable.printStackTrace();
