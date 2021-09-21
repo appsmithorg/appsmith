@@ -26,7 +26,8 @@ const ItemWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const FlexWrapper = styled.div`
-  display: flex;
+  display: inline-flex;
+  border: 1px solid ${Colors.GREY_5};
 `;
 
 export interface IconTabOption {

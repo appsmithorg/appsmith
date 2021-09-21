@@ -27,7 +27,6 @@ const StyledInputGroup = styled(InputGroup)`
     box-shadow: none;
     border-radius: 0;
     &:focus {
-      border: 1px solid ${(props) => props.theme.colors.info.main};
       box-shadow: none;
     }
   }
@@ -38,6 +37,10 @@ const StyledInputGroup = styled(InputGroup)`
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
+
+    &:focus {
+      border: 1px solid ${Colors.PRIMARY_ORANGE};
+    }
   }
 `;
 

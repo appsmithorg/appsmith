@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
 import TextInput from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
@@ -235,12 +236,13 @@ export const StyledEditIcon = styled(
   position: absolute;
   margin-left: 0;
   cursor: pointer;
-  right: 35px;
+  right: 40px;
+  display: flex;
+  align-items: center;
   && svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
     position: relative;
-    top: 2px;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
     }
@@ -268,17 +270,19 @@ export const StyledDragIcon = styled(
 `;
 
 export const StyledDeleteIcon = styled(
-  ControlIcons.DELETE_COLUMN as AnyStyledComponent,
+  FormIcons.DELETE_ICON as AnyStyledComponent,
 )`
   padding: 0;
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
+  display: flex;
+  align-items: center;
+
   && svg {
-    width: 24px;
-    height: 24px;
-    top: -2px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
@@ -297,11 +301,12 @@ export const StyledVisibleIcon = styled(
   position: absolute;
   margin-left: 15px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
   right: ${(props) => props.marginRight ?? 12}px;
   && svg {
-    width: 24px;
-    height: 24px;
-    top: -2px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
@@ -317,11 +322,11 @@ export const StyledHiddenIcon = styled(
   margin-left: 15px;
   cursor: pointer;
   right: ${(props) => props.marginRight ?? 12}px;
+  display: flex;
+  align-items: center;
   && svg {
-    width: 14px;
-    top: 3px;
-    height: 14px;
-    left: 3px;
+    width: 16px;
+    height: 16px;
     position: relative;
     path {
       fill: ${(props) => props.theme.colors.propertyPane.iconColor};
