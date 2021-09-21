@@ -18,18 +18,20 @@ import Checkbox, { LabelContainer } from "components/ads/Checkbox";
 
 import { DEFAULT_REMOTE } from "../constants";
 
-import { getIsCommittingInProgress } from "selectors/gitSyncSelectors";
+import {
+  getIsCommittingInProgress,
+  getIsPushingToGit,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { commitToRepoInit } from "actions/gitSyncActions";
 
 import { Space } from "../components/StyledComponents";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
-import OptionSelector from "../components/OptionSelector";
-import { noop } from "lodash";
 
 import { withTheme } from "styled-components";
-import { getCurrentAppGitMetaData } from "../../../../selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import { pushToRepoInit } from "../../../../actions/gitSyncActions";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -55,16 +57,11 @@ const Container = styled.div`
   }
 `;
 
-// mock data
-const options = [
-  { label: "Master", value: "master" },
-  { label: "Feature/new-feature", value: "Feature/new-feature" },
-];
-
 const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
   const [pushImmediately, setPushImmediately] = useState(true);
   const [commitMessage, setCommitMessage] = useState("Initial Commit");
   const isCommittingInProgress = useSelector(getIsCommittingInProgress);
+  const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const currentBranchName = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -73,6 +70,10 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
 
   const handleCommit = () => {
     dispatch(commitToRepoInit({ commitMessage, doPush: pushImmediately }));
+  };
+
+  const handlePushToGit = () => {
+    dispatch(pushToRepoInit());
   };
 
   const commitButtonText = commitDisabled
@@ -118,7 +119,9 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
         />
       </Section>
       {/** TODO: handle error cases and create new branch for push */}
+
       <Section>
+        <Space size={10} />
         <Row>
           {/** TODO: refactor dropdown component to avoid negative margins */}
           <SectionTitle
@@ -129,18 +132,14 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
             }}
           >
             {createMessage(PUSH_TO)}
+            <span className="branch">&nbsp;{currentBranchName}</span>
           </SectionTitle>
-          <OptionSelector
-            onSelect={noop}
-            options={options}
-            selected={{
-              label: "Feature/new-feature",
-              value: "Feature/new-feature",
-            }}
-          />
         </Row>
+        <Space size={3} />
         <Button
           category={Category.tertiary}
+          isLoading={isPushingToGit}
+          onClick={handlePushToGit}
           size={Size.medium}
           text={createMessage(PUSH_CHANGES)}
           width="max-content"

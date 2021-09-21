@@ -23,6 +23,14 @@ export const commitToRepoSuccess = () => ({
   type: ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS,
 });
 
+export const pushToRepoInit = () => ({
+  type: ReduxActionTypes.PUSH_TO_GIT_INIT,
+});
+
+export const pushToRepoSuccess = () => ({
+  type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
+});
+
 export type ConnectToGitResponse = any;
 
 type ConnectToGitRequestParams = {

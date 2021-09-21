@@ -38,6 +38,12 @@ import {
   setDefaultApplicationPageSuccess,
   resetCurrentApplication,
   generateSSHKeyPairSuccess,
+  generateSSHKeyPairError,
+  getSSHKeyPairSuccess,
+  getSSHKeyPairError,
+  GenerateSSHKeyPairReduxAction,
+  GetSSHKeyPairReduxAction,
+  FetchApplicationReduxAction,
 } from "actions/applicationActions";
 import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -63,12 +69,8 @@ import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
-import { generateSSHKeyPairRequest } from "../api/ApplicationApi";
-import {
-  generateSSHKeyPairError,
-  generateSSHKeyPairReduxAction,
-  FetchApplicationReduxAction,
-} from "../actions/applicationActions";
+import { GenerateSSHKeyPairRequest } from "../api/ApplicationApi";
+
 import {
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
@@ -607,9 +609,31 @@ export function* importApplicationSaga(
   }
 }
 
-export function* generateSSHKeyPairSaga(action: generateSSHKeyPairReduxAction) {
+export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
   try {
-    const request: generateSSHKeyPairRequest = action.payload;
+    const request: GenerateSSHKeyPairRequest = action.payload;
+    const response: ApiResponse = yield call(
+      ApplicationApi.getSSHKeyPair,
+      request,
+    );
+    const isValidResponse = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(getSSHKeyPairSuccess(response.data));
+      if (action.onSuccessCallback) {
+        action.onSuccessCallback(response);
+      }
+    }
+  } catch (error) {
+    yield put(getSSHKeyPairError(error));
+    if (action.onErrorCallback) {
+      action.onErrorCallback(error);
+    }
+  }
+}
+
+export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
+  try {
+    const request: GenerateSSHKeyPairRequest = action.payload;
     const response: ApiResponse = yield call(
       ApplicationApi.generateSSHKeyPair,
       request,
@@ -662,5 +686,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
       generateSSHKeyPairSaga,
     ),
+    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
   ]);
 }

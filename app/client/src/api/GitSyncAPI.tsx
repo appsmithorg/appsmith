@@ -9,6 +9,10 @@ export type CommitPayload = {
   doPush: boolean;
 };
 
+export type PushToGitPayload = {
+  applicationId: string;
+};
+
 export type ConnectToGitPayload = {
   applicationId: string;
   remoteUrl: string;
@@ -33,6 +37,10 @@ class GitSyncAPI extends Api {
       commitMessage,
       doPush,
     });
+  }
+
+  static push({ applicationId }: PushToGitPayload): AxiosPromise<ApiResponse> {
+    return Api.post(`${GitSyncAPI.baseURL}/push/${applicationId}`);
   }
 
   static connect(payload: ConnectToGitPayload) {

@@ -41,13 +41,13 @@ const BodyContainer = styled.div`
 
 const MenuContainer = styled.div`
   padding: ${(props) =>
-    `${props.theme.spaces[12]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
+    `${props.theme.spaces[10]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 30px;
+  top: 34px;
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }

@@ -1,29 +1,55 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   generateSSHKeyPair,
   fetchApplication,
+  getSSHKeyPair,
 } from "actions/applicationActions";
 import { APP_MODE } from "entities/App";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
+import { getCurrentApplication } from "selectors/applicationSelectors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const useSSHKeyPair = () => {
+  // As SSHKeyPair fetching and generation is only done only for GitConnection part,
+  // All the state are maintained here instead of redux state.
+
   const dispatch = useDispatch();
 
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const sshKeyPair = gitMetaData?.gitAuth?.publicKey;
+  const currentApplication = useSelector(getCurrentApplication);
 
-  const [generatingSSHKey, setIsGeneratingSSHKey] = useState<boolean>(false);
+  const SSHKeyPair = currentApplication?.SSHKeyPair;
+  const deployKeyDocUrl = currentApplication?.deployKeyDocUrl || DOCS_BASE_URL;
 
-  const [failedGeneratingSSHKey, setFailedGeneratingSSHKey] = useState<boolean>(
-    false,
+  const [generatingSSHKey, setIsGeneratingSSHKey] = useState(false);
+
+  const [fetchingSSHKeyPair, setIsFetchingSSHKeyPair] = useState(false);
+
+  const [failedGeneratingSSHKey, setFailedGeneratingSSHKey] = useState(false);
+
+  useEffect(() => {
+    // on change of sshKeyPair if it is defined, then stop the loading state.
+    if (SSHKeyPair) {
+      if (generatingSSHKey) setIsGeneratingSSHKey(false);
+      if (fetchingSSHKeyPair) setIsFetchingSSHKeyPair(false);
+    }
+  }, [SSHKeyPair]);
+
+  const fetchSSHKeyPair = useCallback(
+    (applicationId) => {
+      setIsFetchingSSHKeyPair(true);
+      dispatch(
+        getSSHKeyPair({
+          payload: { applicationId },
+          onErrorCallback: () => {
+            setIsFetchingSSHKeyPair(false);
+          },
+        }),
+      );
+    },
+    [setIsFetchingSSHKeyPair],
   );
-
-  const onGenerateSSHKeySuccess = useCallback(() => {
-    setIsGeneratingSSHKey(false);
-  }, [setIsGeneratingSSHKey]);
 
   const onGenerateSSHKeyFailure = useCallback(() => {
     setIsGeneratingSSHKey(false);
@@ -34,7 +60,6 @@ export const useSSHKeyPair = () => {
     dispatch(
       fetchApplication({
         payload: { applicationId, mode: APP_MODE.EDIT },
-        onSuccessCallback: onGenerateSSHKeySuccess,
         onErrorCallback: onGenerateSSHKeyFailure,
       }),
     );
@@ -58,28 +83,26 @@ export const useSSHKeyPair = () => {
         );
       }
     },
-    [onGenerateSSHKeySuccess, onGenerateSSHKeyFailure, setIsGeneratingSSHKey],
+    [onGenerateSSHKeyFailure, setIsGeneratingSSHKey],
   );
 
   return {
     generatingSSHKey,
     failedGeneratingSSHKey,
     generateSSHKey,
-    sshKeyPair,
+    SSHKeyPair,
+    deployKeyDocUrl,
+    fetchSSHKeyPair,
+    fetchingSSHKeyPair,
   };
 };
 
 export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
   const dispatch = useDispatch();
 
-  // const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  // const sshKeyPair = gitMetaData?.gitAuth?.publicKey;
+  const [isConnectingToGit, setIsConnectingToGit] = useState(false);
 
-  const [isConnectingToGit, setIsConnectingToGit] = useState<boolean>(false);
-
-  const [failedConnectingToGit, setFailedConnectingToGit] = useState<boolean>(
-    false,
-  );
+  const [failedConnectingToGit, setFailedConnectingToGit] = useState(false);
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
@@ -118,10 +141,9 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 export const useIsGitConnected = () => {
-  const { remoteUrl: remoteUrlInStore } =
-    useSelector(getCurrentAppGitMetaData) || ({} as any);
-
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const sshKeyPair = gitMetaData?.gitAuth?.publicKey;
+  const currentApplication = useSelector(getCurrentApplication);
+  const remoteUrlInStore =
+    currentApplication?.gitApplicationMetadata?.remoteUrl;
+  const sshKeyPair = currentApplication?.SSHKeyPair;
   return sshKeyPair && remoteUrlInStore;
 };

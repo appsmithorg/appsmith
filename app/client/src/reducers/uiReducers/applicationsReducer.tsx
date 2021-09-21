@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ApplicationPayload,
+  CurrentApplicationData,
 } from "constants/ReduxActionConstants";
 import { Organization } from "constants/orgConstants";
 import {
@@ -13,6 +14,7 @@ import {
 import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { GetSSHKeyResponseData } from "actions/applicationActions";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -362,6 +364,32 @@ const applicationsReducer = createReducer(initialState, {
     ...state,
     showAppInviteUsersDialog: action.payload,
   }),
+  [ReduxActionTypes.FETCH_SSH_KEY_PAIR_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<GetSSHKeyResponseData>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        SSHKeyPair: action.payload.publicKey,
+        deployKeyDocUrl: action.payload.docUrl,
+      },
+    };
+  },
+  [ReduxActionTypes.GENERATE_SSH_KEY_PAIR_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<GetSSHKeyResponseData>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        SSHKeyPair: action.payload.publicKey,
+        deployKeyDocUrl: action.payload.docUrl,
+      },
+    };
+  },
 });
 
 export type creatingApplicationMap = Record<string, boolean>;
@@ -379,7 +407,7 @@ export interface ApplicationsReduxState {
   deletingApplication: boolean;
   forkingApplication: boolean;
   duplicatingApplication: boolean;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   userOrgs: Organization[];
   isSavingOrgInfo: boolean;
   importingApplication: boolean;
