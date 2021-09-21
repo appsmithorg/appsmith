@@ -1,9 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   PanelConfig,
   PropertyPaneConfig,
@@ -72,15 +70,7 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const dispatch = useDispatch();
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
-  const hidePropertyPane = useCallback(() => {
-    AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-      widgetType: widgetProperties.type || "",
-      widgetId: widgetProperties.widgetId,
-    });
-    dispatch({ type: ReduxActionTypes.HIDE_PROPERTY_PANE });
-  }, [dispatch, widgetProperties.type, widgetProperties.widgetId]);
 
   const {
     closePanel,
@@ -169,7 +159,6 @@ export function PanelPropertiesEditor(
     <div className="relative flex flex-col w-full py-3 space-y-2">
       <PanelHeader
         closePanel={closePanel}
-        hidePropertyPane={hidePropertyPane}
         isEditable={panelConfig.editableTitle}
         propertyName={panelConfig.titlePropertyName}
         title={panelProps[panelConfig.titlePropertyName]}
@@ -202,7 +191,6 @@ interface PanelPropertiesEditorPanelProps {
 interface PanelHeaderProps {
   isEditable: boolean;
   widgetProperties?: WidgetProps;
-  hidePropertyPane: () => void;
   title: string;
   closePanel: () => void;
   propertyName: string;

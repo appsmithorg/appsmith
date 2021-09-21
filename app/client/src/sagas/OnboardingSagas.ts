@@ -720,7 +720,6 @@ function* addWidget(widgetConfig: any) {
       type: ReduxActionTypes.SELECT_WIDGET_INIT,
       payload: { widgetId: newWidget.newWidgetId },
     });
-    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {}
 }
 
@@ -838,7 +837,6 @@ function* addOnSubmitHandler() {
         type: ReduxActionTypes.SELECT_WIDGET_INIT,
         payload: { widgetId: inputWidget.widgetId },
       });
-      yield put(forceOpenPropertyPane(inputWidget.widgetId));
 
       yield put(
         updateWidgetPropertyRequest(

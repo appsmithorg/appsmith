@@ -51,7 +51,6 @@ export const useNavigateToWidget = () => {
       if (params.pageId === pageId) {
         flashElementsById(widgetId);
       }
-      dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };
 

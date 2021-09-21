@@ -1100,7 +1100,8 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       pageId,
       newWidget.newWidgetId,
     );
-    yield put(forceOpenPropertyPane(newWidget.newWidgetId));
+    // TODO(pawan): check if this is required
+    // yield put(forceOpenPropertyPane(newWidget.newWidgetId));
   } catch (error) {
     log.error(error);
   }
