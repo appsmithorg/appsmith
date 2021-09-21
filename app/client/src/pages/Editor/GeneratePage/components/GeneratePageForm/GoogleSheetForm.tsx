@@ -174,7 +174,7 @@ function GoogleSheetForm(props: Props) {
           if (keyConfig && valueConfig) {
             const key = keyConfig?.initialValue;
             const value = valueConfig?.initialValue;
-            if (key && value !== "undefined") requestObject[key] = value;
+            if (key && value !== undefined) requestObject[key] = value;
           }
         }
       }
