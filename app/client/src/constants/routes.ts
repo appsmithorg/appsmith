@@ -11,6 +11,8 @@ export const PROFILE = "/profile";
 export const USERS_URL = "/users";
 export const VIEWER_URL_REGEX = /applications\/.*?\/pages\/.*/;
 export const UNSUBSCRIBE_EMAIL_URL = "/unsubscribe/discussion/:threadId";
+export const SETUP = "/setup/welcome";
+export const BUILDER_CHECKLIST_URL = `${BUILDER_URL}/checklist`;
 
 export type BuilderRouteParams = {
   applicationId: string;
@@ -242,6 +244,11 @@ export const getGenerateTemplateFormURL = (
     pageId,
   )}${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`;
 
+export const getOnboardingCheckListUrl = (
+  applicationId = ":applicationId",
+  pageId = ":pageId",
+): string => `${BUILDER_PAGE_URL(applicationId, pageId)}/checklist`;
+
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
 export const BASE_SIGNUP_URL = `/signup`;
@@ -260,3 +267,19 @@ export const matchBuilderPath = match(BUILDER_URL);
 export const matchJSObjectPath = match(JS_COLLECTION_ID_URL());
 
 export const matchViewerPath = match(getApplicationViewerPageURL());
+
+export const BUILDER_URL_REGEX = /\/applications\/(.[^\/]*)\/pages\/(.[^\/]*)\//;
+export const extractAppIdAndPageIdFromUrl = (url = "") => {
+  const matched = url.match(BUILDER_URL_REGEX);
+  if (matched) {
+    return {
+      applicationId: matched[1],
+      pageId: matched[2],
+    };
+  }
+
+  return {
+    applicationId: "",
+    pageId: "",
+  };
+};

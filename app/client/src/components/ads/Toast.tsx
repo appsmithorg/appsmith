@@ -13,6 +13,7 @@ import DebugButton from "components/editorComponents/Debugger/DebugCTA";
 type ToastProps = ToastOptions &
   CommonComponentProps & {
     text: string;
+    actionElement?: JSX.Element;
     variant?: Variant;
     duration?: number;
     onUndo?: () => void;
@@ -109,10 +110,19 @@ const ToastBody = styled.div<{
 const FlexContainer = styled.div`
   display: flex;
   align-items: flex-start;
+  flex: 1;
+`;
+
+const ToastTextWrapper = styled.div`
+  flex: 1;
 `;
 
 const StyledDebugButton = styled(DebugButton)`
   margin-left: auto;
+`;
+
+const StyledActionText = styled(Text)`
+  color: ${(props) => props.theme.colors.toast.undoRedoColor} !important;
 `;
 
 function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
@@ -134,12 +144,20 @@ function ToastComponent(props: ToastProps & { undoAction?: () => void }) {
         {props.variant === Variant.danger ? (
           <Icon name="error" size={IconSize.XXL} />
         ) : null}
-        <div>
+        <ToastTextWrapper>
           <Text type={TextType.P1}>{props.text}</Text>
+          {props.actionElement && (
+            <StyledActionText type={TextType.P1}>
+              &nbsp;{props.actionElement}
+            </StyledActionText>
+          )}
           {props.variant === Variant.danger && props.showDebugButton ? (
-            <StyledDebugButton source={"TOAST"} />
+            <StyledDebugButton
+              className="t--toast-debug-button"
+              source={"TOAST"}
+            />
           ) : null}
-        </div>
+        </ToastTextWrapper>
       </FlexContainer>
       <div className="undo-section">
         {props.onUndo || props.dispatchableAction ? (

@@ -656,7 +656,12 @@ public class FirestorePlugin extends BasePlugin {
                         return Mono.just(query1);
                     })
                     // Apply limit, always provided, since without it we can inadvertently end up processing too much data.
-                    .map(query1 -> query1.limit(limit))
+                    .map(query1 -> {
+                        if (PaginationField.PREV.equals(paginationField) && !CollectionUtils.isEmpty(endBefore)) {
+                            return query1.limitToLast(limit);
+                        }
+                        return query1.limit(limit);
+                    })
                     // Run the Firestore query to get a Future of the results.
                     .map(Query::get)
                     // Consume the future to get the actual results.

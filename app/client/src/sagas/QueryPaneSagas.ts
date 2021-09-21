@@ -39,7 +39,12 @@ import { Datasource } from "entities/Datasource";
 import _ from "lodash";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "constants/messages";
 import get from "lodash/get";
+import {
+  initFormEvaluations,
+  startFormEvaluations,
+} from "actions/evaluationActions";
 
+// Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const { id } = actionPayload.payload;
   const state = yield select();
@@ -69,6 +74,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   const currentEditorConfig = editorConfigs[action.datasource.pluginId];
   const currentSettingConfig = settingConfigs[action.datasource.pluginId];
 
+  // Update the evaluations when the queryID is changed by changing the
+  // URL or selecting new query from the query pane
+  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
+
   // If config exists
   if (currentEditorConfig) {
     // Get initial values
@@ -89,7 +98,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {
   // Merge the initial values and action.
   const formInitialValues = merge(configInitialValues, action);
 
+  // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
+  // Once the initial values are set, we can run the evaluations based on them.
+  yield put(startFormEvaluations(id, formInitialValues.actionConfiguration));
 }
 
 function* formValueChangeSaga(
