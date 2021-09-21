@@ -6,7 +6,7 @@ import { GitConfig } from "entities/GitSync";
 export type CommitPayload = {
   applicationId: string;
   commitMessage: string;
-  pushImmediately: boolean;
+  doPush: boolean;
 };
 
 export type ConnectToGitPayload = {
@@ -16,7 +16,9 @@ export type ConnectToGitPayload = {
     authorName: string;
     authorEmail: string;
   };
-  organizationId: string;
+  organizationId?: string;
+  isImport?: boolean;
+  isDefaultProfile?: boolean;
 };
 
 class GitSyncAPI extends Api {
@@ -25,9 +27,11 @@ class GitSyncAPI extends Api {
   static commit({
     applicationId,
     commitMessage,
+    doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
     return Api.post(`${GitSyncAPI.baseURL}/commit/${applicationId}`, {
       commitMessage,
+      doPush,
     });
   }
 
