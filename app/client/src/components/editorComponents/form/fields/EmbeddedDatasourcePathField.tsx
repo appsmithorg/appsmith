@@ -88,15 +88,16 @@ const datasourceNameStyles: React.CSSProperties = {
   whiteSpace: "nowrap",
 };
 const datasourceInfoStyles: React.CSSProperties = {
-  color: "#4B4848",
+  color: "#716262",
   fontWeight: 400,
-  fontSize: "12px",
+  fontSize: "14px",
   overflow: "hidden",
   textOverflow: "ellipsis",
   whiteSpace: "nowrap",
 };
 const italicInfoStyles = {
   ...datasourceInfoStyles,
+  color: "#000000",
   flexShrink: 0,
   fontStyle: "italic",
 };

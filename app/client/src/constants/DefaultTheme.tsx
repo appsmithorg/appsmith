@@ -2403,9 +2403,9 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[8],
-    icon: lightShades[15],
-    hover: lightShades[10],
+    normal: lightShades[15],
+    icon: lightShades[10],
+    hover: lightShades[8],
     border: lightShades[3],
     countBg: lightShades[3],
     selected: Colors.CRUSTA,
@@ -2529,8 +2529,8 @@ export const light: ColorType = {
   apiPane: {
     bg: lightShades[0],
     tabBg: lightShades[11],
-    text: lightShades[15],
-    dividerBg: lightShades[3],
+    text: lightShades[16],
+    dividerBg: lightShades[13],
     iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
@@ -2550,13 +2550,13 @@ export const light: ColorType = {
       bg: lightShades[11],
     },
     codeEditor: {
-      placeholderColor: lightShades[5],
+      placeholderColor: lightShades[15],
     },
     body: {
       text: "#A9A7A7",
     },
     settings: {
-      textColor: "#090707",
+      textColor: lightShades[10],
     },
     pagination: {
       label: lightShades[8],
