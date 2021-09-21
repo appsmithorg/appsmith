@@ -72,6 +72,7 @@ import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -763,6 +764,11 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <OnboardingIndicator
               step={OnboardingStep.EXAMPLE_DATABASE}
               width={75}
@@ -802,34 +808,6 @@ export function EditorJSONtoForm(props: Props) {
                       />
                       &nbsp;
                       {createMessage(DOCUMENTATION)}
-                    </span>
-                  </TooltipComponent>
-                  <TooltipComponent
-                    content={createMessage(SNIPPET_TOOLTIP)}
-                    hoverOpenDelay={50}
-                    position="left-bottom"
-                  >
-                    <span
-                      onClick={() =>
-                        dispatch({
-                          type: "EXECUTE_COMMAND",
-                          payload: {
-                            actionType: "NEW_SNIPPET",
-                            args: {
-                              entityId: currentActionConfig?.id,
-                              entityType: ENTITY_TYPE.ACTION,
-                            },
-                          },
-                        })
-                      }
-                    >
-                      <AdsIcon
-                        keepColors
-                        name="book-line"
-                        size={IconSize.XXXL}
-                      />
-                      &nbsp;
-                      {createMessage(USE_SNIPPET)}
                     </span>
                   </TooltipComponent>
                 </DocumentationLink>

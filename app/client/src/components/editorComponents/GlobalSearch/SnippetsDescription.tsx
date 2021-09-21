@@ -30,13 +30,18 @@ import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
 import { Snippet, SnippetArgument } from "./utils";
-import { createMessage, SEARCH_ITEM_SELECT } from "constants/messages";
+import {
+  createMessage,
+  SNIPPET_COPY,
+  SNIPPET_INSERT,
+} from "constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
+import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -189,8 +194,8 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       (state: AppState) =>
         state.ui.globalSearch.filterContext.evaluatedArguments,
     ),
-    shouldInsertSnippet = useSelector(
-      (state: AppState) => state.ui.globalSearch.filterContext.insertSnippet,
+    onEnter = useSelector(
+      (state: AppState) => state.ui.globalSearch.filterContext.onEnter,
     );
 
   const handleArgsValidation = useCallback(
@@ -218,14 +223,17 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     dispatch(unsetEvaluatedArgument());
   }, [title]);
 
-  const handleCopy = useCallback((value) => {
-    copy(value);
-    Toaster.show({
-      text: "Snippet copied to clipboard",
-      variant: Variant.success,
-    });
-    AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet: value, title });
-  }, []);
+  const handleCopy = useCallback(
+    (value) => {
+      copy(value);
+      Toaster.show({
+        text: "Snippet copied to clipboard",
+        variant: Variant.success,
+      });
+      AnalyticsUtil.logEvent("SNIPPET_COPIED", { snippet: value, title });
+    },
+    [title],
+  );
 
   const handleRun = useCallback(() => {
     if (executionInProgress) return;
@@ -373,9 +381,11 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     <SnippetContainer>
       <div className="snippet-title">
         <span>{title}</span>
-        {shouldInsertSnippet && (
+        {selectedIndex === 0 && (
           <span className="action-msg">
-            {createMessage(SEARCH_ITEM_SELECT)}
+            {createMessage(
+              onEnter === SnippetAction.INSERT ? SNIPPET_INSERT : SNIPPET_COPY,
+            )}
           </span>
         )}
       </div>

@@ -113,6 +113,7 @@ import {
 } from "components/editorComponents/Debugger/helpers";
 import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
@@ -840,6 +841,7 @@ function* executeCommand(
 ) {
   const pageId: string = yield select(getCurrentPageId);
   const applicationId: string = yield select(getCurrentApplicationId);
+  const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
     case "NEW_SNIPPET":
@@ -878,7 +880,10 @@ function* executeCommand(
       );
       yield put(
         setGlobalSearchFilterContext({
-          insertSnippet: true,
+          onEnter:
+            typeof callback === "function"
+              ? SnippetAction.INSERT
+              : SnippetAction.COPY, //Set insertSnippet to true only if values
         }),
       );
       const effectRaceResult = yield race({
@@ -886,7 +891,7 @@ function* executeCommand(
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });
       if (effectRaceResult.failure) return;
-      actionPayload.payload.callback(effectRaceResult.success.payload);
+      if (callback) callback(effectRaceResult.success.payload);
       break;
     case "NEW_INTEGRATION":
       history.push(
