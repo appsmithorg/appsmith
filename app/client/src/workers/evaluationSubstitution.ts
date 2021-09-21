@@ -113,6 +113,10 @@ export const templateSubstituteDynamicValues = (
     } catch (e) {
       // do nothing
     }
+
+    // When replacing the binding with the evaluated value, we need to stringify the value
+    if (b.includes("{{")) value = JSON.stringify(value);
+
     finalValue = finalValue.replace(b, `${value}`);
   });
   return finalValue;
