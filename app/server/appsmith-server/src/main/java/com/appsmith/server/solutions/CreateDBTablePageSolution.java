@@ -573,6 +573,7 @@ public class CreateDBTablePageSolution {
                     && pluginSpecificTemplateParams.get(property.getKey()) != null){
                     property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
                 } else {
+                    // Recursively replace the column names from template table with user provided table using mappedColumns
                     if (property.getValue() instanceof String) {
                         final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
                         property.setValue(matcher.replaceAll(key ->
@@ -924,15 +925,21 @@ public class CreateDBTablePageSolution {
         }
 
         if (actionConfiguration.getFormData() != null) {
-            removeColumnRefFromFormData(actionConfiguration.getFormData(), regex);
+            removeUnwantedFieldRefFromFormData(actionConfiguration.getFormData(), regex);
         }
 
         return actionConfiguration;
     }
 
 
-    private void removeColumnRefFromFormData(Map<String, Object> formData,
-                                             String regex) {
+    /**
+     * This method removes the unwanted fields like column names and widget names from formData.
+     * @param formData where updates required as per user db table
+     * @param regex to replace the unwanted field this will be useful when the connected datasource have less number of
+     *              columns than template datasource
+     */
+    private void removeUnwantedFieldRefFromFormData(Map<String, Object> formData,
+                                                    String regex) {
         for (Map.Entry<String,Object> property : formData.entrySet()) {
             if (property.getValue() != null) {
                 if (property.getValue() instanceof String) {
@@ -944,7 +951,7 @@ public class CreateDBTablePageSolution {
                     }
                 }
                 if (property.getValue() instanceof Map) {
-                    removeColumnRefFromFormData((Map<String, Object>) property.getValue(), regex);
+                    removeUnwantedFieldRefFromFormData((Map<String, Object>) property.getValue(), regex);
                 }
             }
         }
