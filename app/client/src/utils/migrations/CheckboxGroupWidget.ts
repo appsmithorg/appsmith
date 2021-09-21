@@ -8,6 +8,7 @@ export const migrateCheckboxGroupWidgetInlineProperty = (
     if (child.type === "CHECKBOX_GROUP_WIDGET") {
       if (!("isInline" in child)) {
         child.isInline = true;
+        child.version = 2;
       }
     } else if (child.children && child.children.length > 0) {
       child = migrateCheckboxGroupWidgetInlineProperty(child);
