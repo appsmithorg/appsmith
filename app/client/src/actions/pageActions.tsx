@@ -14,7 +14,10 @@ import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { GenerateTemplatePageRequest } from "../api/PageApi";
-import { WidgetReduxActionTypes } from "../constants/ReduxActionConstants";
+import {
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+} from "../constants/ReduxActionConstants";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -126,10 +129,11 @@ export const deletePageSuccess = () => {
 export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
   isRetry?: boolean,
+  shouldReplay?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
-    payload: { widgets, isRetry },
+    payload: { widgets, isRetry, shouldReplay },
   };
 };
 
@@ -238,6 +242,7 @@ export type MultipleWidgetDeletePayload = {
 
 export type WidgetResize = {
   widgetId: string;
+  parentId: string;
   leftColumn: number;
   rightColumn: number;
   topRow: number;
@@ -376,6 +381,23 @@ export const generateTemplateToUpdatePage = ({
   };
 };
 
+export function undoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayReduxActionTypes.UNDO,
+    },
+  };
+}
+
+export function redoAction() {
+  return {
+    type: ReduxActionTypes.UNDO_REDO_OPERATION,
+    payload: {
+      operation: ReplayReduxActionTypes.REDO,
+    },
+  };
+}
 /**
  * action for delete page
  *
