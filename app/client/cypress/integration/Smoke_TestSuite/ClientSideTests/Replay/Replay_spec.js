@@ -205,6 +205,9 @@ describe("Undo/Redo functionality", function() {
       .first()
       .blur();
 
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(200);
+
     cy.get("body").type(`{${modifierKey}}z`);
     cy.get(widgetsPage.RadioInput)
       .first()
