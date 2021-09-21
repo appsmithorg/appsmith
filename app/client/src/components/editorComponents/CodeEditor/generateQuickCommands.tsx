@@ -12,7 +12,7 @@ import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Function } from "assets/icons/menu/js-function.svg";
+import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import getFeatureFlags from "utils/featureFlags";
 
@@ -86,7 +86,7 @@ const generateCreateNewCommand = ({
 const iconsByType = {
   [Shortcuts.BINDING]: <Binding />,
   [Shortcuts.PLUS]: <NewPlus />,
-  [Shortcuts.FUNCTION]: <Function />,
+  [Shortcuts.FUNCTION]: <Snippet className="snippet-icon" />,
 };
 
 function Command(props: {

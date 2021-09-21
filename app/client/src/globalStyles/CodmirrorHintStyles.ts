@@ -91,6 +91,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         width: 12px;
         margin-right: 7px;
       }
+      svg.snippet-icon {
+        height: 16px;
+        width: 16px;
+        margin-right: 3px;
+      }
     }
     .shortcut {
       font-style: italic;
