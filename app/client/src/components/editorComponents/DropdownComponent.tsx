@@ -49,6 +49,7 @@ const StyledMenuItem = styled(MenuItem)`
   }
 `;
 
+// Check if dropdown is of type 'FormDropdownComponentProps'
 const isFormDropdown = (
   props: DropdownComponentProps | FormDropdownComponentProps,
 ): props is FormDropdownComponentProps => {
@@ -218,6 +219,8 @@ export interface BaseDropdownComponentProps {
   toggle?: ReactNode;
   width?: string;
 }
+// Dropdown can either be connected to a redux-form
+// or be a stand-alone component
 export interface DropdownComponentProps extends BaseDropdownComponentProps {
   selectHandler: (selectedValue: string) => void;
   selected: DropdownOption | undefined;
