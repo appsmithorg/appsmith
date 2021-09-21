@@ -40,7 +40,6 @@ describe("Tab widget test", function() {
       .should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(300);
-    cy.openPropertyPane("tabswidget");
     /**
      * @param{toggleButton Css} Assert to be checked
      */

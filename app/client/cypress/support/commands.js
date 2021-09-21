@@ -1855,7 +1855,8 @@ Cypress.Commands.add("radioInput", (index, text) => {
     .eq(index)
     .click()
     .clear()
-    .type(text);
+    .type(text)
+    .wait(200);
 });
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
@@ -2458,7 +2459,6 @@ Cypress.Commands.add("deleteWidget", (widget) => {
   cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.wait(5000);
   cy.wait("@updateLayout");
-  cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {

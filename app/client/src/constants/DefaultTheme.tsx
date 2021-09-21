@@ -913,6 +913,7 @@ type ColorType = {
   };
   toast: {
     undo: string;
+    undoRedoColor: string;
     warningColor: string;
     dangerColor: string;
     textColor: string;
@@ -1851,6 +1852,7 @@ export const dark: ColorType = {
   },
   toast: {
     undo: "#CB4810",
+    undoRedoColor: "#F8682B",
     warningColor: "#E0B30E",
     dangerColor: "#E22C2C",
     textColor: "#090707",
@@ -2444,6 +2446,7 @@ export const light: ColorType = {
   },
   toast: {
     undo: "#F86A2B",
+    undoRedoColor: "#F8682B",
     warningColor: "#DCAD00",
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
