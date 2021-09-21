@@ -206,7 +206,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
@@ -623,11 +623,11 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
-  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
 export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
 export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
   "Next: Connect data to Widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>

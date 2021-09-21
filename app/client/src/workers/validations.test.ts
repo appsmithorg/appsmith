@@ -373,6 +373,7 @@ describe("Validate Validators", () => {
       '{ "key": "value" }',
       ["a", "b", "a", "c"],
       "",
+      "[]",
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -454,6 +455,11 @@ describe("Validate Validators", () => {
         parsed: [],
         message:
           "This property is required for the widget to function correctly",
+      },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
       },
     ];
     inputs.forEach((input, index) => {
@@ -891,6 +897,26 @@ describe("Validate Validators", () => {
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates array when default is given", () => {
+    const inputs = [undefined, null, ""];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        unique: true,
+        default: [],
+      },
+    };
+    const expected = {
+      isValid: true,
+      parsed: [],
+    };
+    inputs.forEach((input) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected);
     });
   });
 });
