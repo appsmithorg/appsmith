@@ -4,6 +4,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/Widgets.json");
 
 describe("Widget error state", function() {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
   before(() => {
     cy.addDsl(dsl);
   });
@@ -60,9 +62,7 @@ describe("Widget error state", function() {
   it("Undoing widget deletion should show errors if present", function() {
     cy.deleteWidget();
     cy.get(debuggerLocators.errorMessage).should("not.exist");
-    cy.get(commonlocators.toastAction)
-      .contains("UNDO")
-      .click({ force: true });
+    cy.get("body").type(`{${modifierKey}}z`);
     cy.get(debuggerLocators.errorMessage)
       .should("be.visible")
       .should("have.length", 2);
