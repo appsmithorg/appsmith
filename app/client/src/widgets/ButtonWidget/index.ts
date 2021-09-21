@@ -13,7 +13,7 @@ export const CONFIG = {
     buttonColor: Colors.GREEN,
     buttonVariant: "SOLID",
     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 2 * GRID_DENSITY_MIGRATION_V1,
+    columns: 4 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Button",
     isDisabled: false,
     isVisible: true,

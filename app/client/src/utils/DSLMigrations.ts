@@ -36,6 +36,7 @@ import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
 import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
 import { Colors } from "../constants/Colors";
+import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -919,6 +920,10 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
   }
 
   if (currentDSL.version === 38) {
+    currentDSL = migrateResizableModalWidgetProperties(currentDSL);
+  }
+
+  if (currentDSL.version === 39) {
     currentDSL = revertButtonStyleToButtonColor(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }

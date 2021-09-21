@@ -1,7 +1,7 @@
 {
     "NoApiMsg": "p:contains('No APIs yet.')",
     "NoQueryMsg": "p:contains('No DB Queries yet.')",
-    "NoWidgetsMsg": "p:contains('No widgets yet.')",
+    "NoWidgetsMsg": "p:contains('icon above to add widgets')",
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
     "entityWidget": ".t--entity-name:contains('Widgets')",

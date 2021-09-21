@@ -104,6 +104,7 @@ function Command(props: {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
             SAAS: <DataSourcesColoredIcon />,
+            REMOTE: <DataSourcesColoredIcon />,
             JS: <JsIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
