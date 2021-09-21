@@ -77,7 +77,6 @@ const TabsWrapper = styled.div<{
 `;
 
 export const TabTitle = styled.span`
-  color: ${(props) => props.theme.colors.tabs.normal};
   font-size: ${(props) => props.theme.typography.h5.fontSize}px;
   font-weight: ${(props) => props.theme.typography.h5.fontWeight};
   line-height: ${(props) => props.theme.typography.h5.lineHeight - 3}px;
@@ -107,11 +106,16 @@ const TabTitleWrapper = styled.div<{
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)}
     ${(props) => props.theme.spaces[4] - 1}px
     ${(props) => (props.vertical ? `${props.theme.spaces[4] - 1}px` : 0)};
-
+  color: ${(props) => props.theme.colors.tabs.normal};
   &:hover {
     color: ${(props) => props.theme.colors.tabs.hover};
-    path {
-      fill: ${(props) => props.theme.colors.tabs.hover};
+    .${Classes.ICON} {
+      svg {
+        fill: ${(props) => props.theme.colors.tabs.hover};
+        path {
+          fill: ${(props) => props.theme.colors.tabs.hover};
+        }
+      }
     }
   }
 
@@ -123,6 +127,10 @@ const TabTitleWrapper = styled.div<{
     background: #dfdfdf;
     svg {
       margin: auto;
+      fill: ${(props) => props.theme.colors.tabs.normal};
+      path {
+        fill: ${(props) => props.theme.colors.tabs.normal};
+      }
     }
   }
 
@@ -130,8 +138,14 @@ const TabTitleWrapper = styled.div<{
     props.selected
       ? `
   background-color: transparent;
-  path {
-    fill: ${props.theme.colors.tabs.hover};
+  color: ${props.theme.colors.tabs.hover};
+  .${Classes.ICON} {
+    svg {
+      fill: ${props.theme.colors.tabs.icon};
+      path {
+        fill: ${props.theme.colors.tabs.icon};
+      }
+    }
   }
 
   .tab-title {
