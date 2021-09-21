@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import { InputType } from "components/constants";
@@ -6,11 +6,13 @@ import CodeEditor, {
   CodeEditorExpected,
 } from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 
 export function InputText(props: {
   label: string;
@@ -34,18 +36,24 @@ export function InputText(props: {
     value,
   } = props;
 
+  //subscribing to context to help re-render component on Property section open or close
+  const isOpen = useContext(CollapseContext);
+
   return (
     <StyledDynamicInput>
       <CodeEditor
         additionalDynamicData={props.additionalAutocomplete}
+        border={CodeEditorBorder.NONE}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}
         hideEvaluatedValue={hideEvaluatedValue}
+        hoverInteraction
         input={{
           value: value,
           onChange: onChange,
         }}
+        isEditorHidden={!isOpen}
         mode={EditorModes.TEXT_WITH_BINDING}
         placeholder={placeholder}
         size={EditorSize.EXTENDED}

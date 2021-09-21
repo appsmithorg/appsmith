@@ -1,4 +1,12 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
+import React, {
+  EventHandler,
+  FocusEvent,
+  forwardRef,
+  Ref,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
 import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
@@ -56,6 +64,8 @@ export type TextInputProps = CommonComponentProps & {
   height?: string;
   noBorder?: boolean;
   noCaret?: boolean;
+  onBlur?: EventHandler<FocusEvent<any>>;
+  onFocus?: EventHandler<FocusEvent<any>>;
 };
 
 type boxReturnType = {

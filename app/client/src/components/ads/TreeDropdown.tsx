@@ -11,6 +11,7 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import styled from "styled-components";
+import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/icons";
 import { DropdownOption } from "components/constants";
 
@@ -68,11 +69,10 @@ const StyledMenu = styled(Menu)`
     }
 
     &:hover {
-      background-color: ${(props) =>
-        props.theme.colors.treeDropdown.menuBg.hover};
-      color: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+      background-color: ${Colors.GREY_3};
+      color: ${Colors.GREY_10};
       .${Classes.ICON} > svg:not([fill]) {
-        fill: ${(props) => props.theme.colors.treeDropdown.menuText.hover};
+        fill: ${Colors.GREY_10};
       }
     }
 
@@ -99,6 +99,8 @@ const DropdownTarget = styled.div`
     width: 100%;
     box-shadow: none;
     border-radius: 0px;
+    border: 1px solid ${Colors.GREY_5};
+    height: 36px;
     background-color: ${(props) => props.theme.colors.treeDropdown.targetBg};
     color: ${(props) => props.theme.colors.treeDropdown.menuText.normal};
     background-image: none;

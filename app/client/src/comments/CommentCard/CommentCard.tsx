@@ -32,7 +32,7 @@ import history from "utils/history";
 import { getAppMode } from "selectors/applicationSelectors";
 import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
-import { USER_PHOTO_URL } from "constants/userConstants";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
 import { getCommentThreadURL } from "../utils";
 
@@ -279,7 +279,7 @@ function CommentCard({
   const [isHovered, setIsHovered] = useState(false);
   const [cardMode, setCardMode] = useState(CommentCardModes.VIEW);
   const dispatch = useDispatch();
-  const { authorName, authorUsername, body, id: commentId } = comment;
+  const { authorName, authorPhotoId, body, id: commentId } = comment;
   const contentState = convertFromRaw(body as RawDraftContentState);
   const editorState = EditorState.createWithContent(contentState, decorator);
   const commentThread = useSelector(commentThreadsSelector(commentThreadId));
@@ -414,6 +414,9 @@ function CommentCard({
     (showOptions || !!resolved) && isParentComment && toggleResolved;
 
   const hasReactions = !!reactions && Object.keys(reactions).length > 0;
+  const profilePhotoUrl = authorPhotoId
+    ? `/api/${USER_PHOTO_ASSET_URL}/${authorPhotoId}`
+    : "";
 
   return (
     <StyledContainer
@@ -443,7 +446,7 @@ function CommentCard({
         <HeaderSection>
           <ProfileImage
             side={25}
-            source={`/api/${USER_PHOTO_URL}/${authorUsername}`}
+            source={profilePhotoUrl}
             userName={authorName || ""}
           />
           <UserName>{authorName}</UserName>
