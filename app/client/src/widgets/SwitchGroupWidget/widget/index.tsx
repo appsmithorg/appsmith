@@ -109,7 +109,8 @@ class SwitchGroupWidget extends BaseWidget<
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Selects values of the options checked by default",
+            helpText:
+              "Selects values of the options checked by default. Enter comma separated values for multiple selected",
             propertyName: "defaultSelectedValues",
             label: "Default Selected Values",
             placeholderText: "Enter option values",
