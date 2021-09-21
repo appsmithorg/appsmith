@@ -47,6 +47,7 @@ function messageEventListener(
       });
     } catch (e) {
       console.error(e);
+      const { dataTree, ...rest } = requestData;
       ctx.postMessage({
         requestId,
         responseData: {
@@ -54,7 +55,7 @@ function messageEventListener(
             {
               type: EvalErrorTypes.CLONE_ERROR,
               message: e,
-              context: requestData,
+              context: JSON.stringify(rest),
             },
           ],
         },
