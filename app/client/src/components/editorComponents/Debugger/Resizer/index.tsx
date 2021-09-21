@@ -3,7 +3,7 @@ import React, { useState, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 
 export const ResizerCSS = css`
-  width: calc(100vw - ${(props) => props.theme.sidebarWidth});
+  width: 100%;
   z-index: ${Layers.debugger};
   position: relative;
 `;

@@ -20,7 +20,6 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
 import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";

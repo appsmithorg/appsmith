@@ -3161,7 +3161,7 @@ public class DatabaseChangelog {
         );
 
         for (NewAction mongoAction : mongoActions) {
-            if (mongoAction.getUnpublishedAction() == null && mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
+            if (mongoAction.getUnpublishedAction() == null || mongoAction.getUnpublishedAction().getActionConfiguration() == null) {
                 // No migrations required
                 continue;
             }

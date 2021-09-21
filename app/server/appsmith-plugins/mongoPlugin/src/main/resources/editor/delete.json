@@ -26,6 +26,7 @@
           "label": "Query",
           "configProperty": "actionConfiguration.formData.delete.query",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText" : "{rating : {$gte : 9}}"
         },

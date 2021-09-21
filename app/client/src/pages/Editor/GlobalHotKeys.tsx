@@ -33,6 +33,7 @@ import {
   SearchCategory,
   SEARCH_CATEGORY_ID,
 } from "components/editorComponents/GlobalSearch/utils";
+import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -61,6 +62,8 @@ type Props = {
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
   children: React.ReactNode;
+  undo: () => void;
+  redo: () => void;
   appMode?: APP_MODE;
   isCommentMode: boolean;
   setPreviewMode: (shouldSet: boolean) => void;
@@ -291,6 +294,22 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
+          combo="mod + z"
+          global
+          label="Undo change in canvas"
+          onKeyDown={this.props.undo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
+          combo="mod + shift + z"
+          global
+          label="Redo change in canvas"
+          onKeyDown={this.props.redo}
+          preventDefault
+          stopPropagation
+        />
+        <Hotkey
           combo="mod + g"
           global
           group="Canvas"
@@ -347,6 +366,8 @@ const mapDispatchToProps = (dispatch: any) => {
     selectAllWidgetsInit: () => dispatch(selectAllWidgetsInCanvasInitAction()),
     deselectAllWidgets: () => dispatch(deselectAllInitAction()),
     executeAction: () => dispatch(runActionViaShortcut()),
+    undo: () => dispatch(undoAction()),
+    redo: () => dispatch(redoAction()),
     setPreviewMode: (shouldSet: boolean) => dispatch(setPreviewMode(shouldSet)),
   };
 };

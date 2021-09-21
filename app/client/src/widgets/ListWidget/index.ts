@@ -23,7 +23,7 @@ export const CONFIG = {
     backgroundColor: "transparent",
     itemBackgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     gridType: "vertical",
     template: {},
     enhancements: {
@@ -77,40 +77,19 @@ export const CONFIG = {
     gridGap: 0,
     listData: [
       {
-        id: 1,
-        num: "001",
+        id: "001",
         name: "Bulbasaur",
         img: "http://www.serebii.net/pokemongo/pokemon/001.png",
       },
       {
-        id: 2,
-        num: "002",
+        id: "002",
         name: "Ivysaur",
         img: "http://www.serebii.net/pokemongo/pokemon/002.png",
       },
       {
-        id: 3,
-        num: "003",
+        id: "003",
         name: "Venusaur",
         img: "http://www.serebii.net/pokemongo/pokemon/003.png",
-      },
-      {
-        id: 4,
-        num: "004",
-        name: "Charmander",
-        img: "http://www.serebii.net/pokemongo/pokemon/004.png",
-      },
-      {
-        id: 5,
-        num: "005",
-        name: "Charmeleon",
-        img: "http://www.serebii.net/pokemongo/pokemon/005.png",
-      },
-      {
-        id: 6,
-        num: "006",
-        name: "Charizard",
-        img: "http://www.serebii.net/pokemongo/pokemon/006.png",
       },
     ],
     widgetName: "List",
@@ -133,7 +112,7 @@ export const CONFIG = {
                 {
                   type: "CONTAINER_WIDGET",
                   size: {
-                    rows: 4 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 3 * GRID_DENSITY_MIGRATION_V1,
                     cols: 16 * GRID_DENSITY_MIGRATION_V1,
                   },
                   position: { top: 0, left: 0 },
@@ -162,13 +141,13 @@ export const CONFIG = {
                                 {
                                   type: "IMAGE_WIDGET",
                                   size: {
-                                    rows: 3 * GRID_DENSITY_MIGRATION_V1,
+                                    rows: 2.1 * GRID_DENSITY_MIGRATION_V1,
                                     cols: 4 * GRID_DENSITY_MIGRATION_V1,
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
                                     defaultImage:
-                                      "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                      "https://assets.appsmith.com/widgets/default.png",
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
@@ -184,7 +163,7 @@ export const CONFIG = {
                                   type: "TEXT_WIDGET",
                                   size: {
                                     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
                                   },
                                   position: {
                                     top: 0,
@@ -206,14 +185,14 @@ export const CONFIG = {
                                   type: "TEXT_WIDGET",
                                   size: {
                                     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                                    cols: 6 * GRID_DENSITY_MIGRATION_V1,
+                                    cols: 2 * GRID_DENSITY_MIGRATION_V1,
                                   },
                                   position: {
                                     top: 1 * GRID_DENSITY_MIGRATION_V1,
                                     left: 4 * GRID_DENSITY_MIGRATION_V1,
                                   },
                                   props: {
-                                    text: "{{currentItem.num}}",
+                                    text: "{{currentItem.id}}",
                                     textStyle: "BODY",
                                     textAlign: "LEFT",
                                     dynamicBindingPathList: [

@@ -28,6 +28,8 @@ import { ReactComponent as PinIcon } from "assets/icons/comments/pin_3.svg";
 import { ReactComponent as UnPinIcon } from "assets/icons/comments/unpin.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinned } from "actions/explorerActions";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -68,6 +70,9 @@ function EntityExplorer(props: IPanelProps) {
   const pinned = useSelector(getExplorerPinned);
   const jsActions = useJSCollections(searchKeyword);
   const datasources = useFilteredDatasources(searchKeyword);
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   let noResults = false;
   if (searchKeyword) {
@@ -90,8 +95,11 @@ function EntityExplorer(props: IPanelProps) {
     (pageId: string) => {
       history.push(BUILDER_PAGE_URL(applicationId, pageId));
       openPanel({ component: WidgetSidebar });
+      if (isFirstTimeUserOnboardingEnabled) {
+        dispatch(toggleInOnboardingWidgetSelection(true));
+      }
     },
-    [openPanel, applicationId],
+    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   /**

@@ -549,16 +549,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
     if (value === undefined || value === null || value === "") {
-      if (config.params && config.params.required) {
+      if (
+        config.params &&
+        config.params.required &&
+        !isArray(config.params.default)
+      ) {
         invalidResponse.message =
           "This property is required for the widget to function correctly";
         return invalidResponse;
       }
-
       if (value === "") {
         return {
           isValid: true,
           parsed: config.params?.default || [],
+        };
+      }
+      if (config.params && isArray(config.params.default)) {
+        return {
+          isValid: true,
+          parsed: config.params?.default,
         };
       }
 

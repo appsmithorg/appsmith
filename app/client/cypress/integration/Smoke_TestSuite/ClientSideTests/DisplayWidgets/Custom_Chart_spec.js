@@ -73,7 +73,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.UpdateChartType("Custom Chart");
 
     cy.testJsontext(
-      "customfusionchartconfiguration",
+      "customfusionchart",
       `{{${JSON.stringify(this.data.ChartCustomConfig)}}}`,
     );
 
