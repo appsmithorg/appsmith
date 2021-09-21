@@ -1,4 +1,4 @@
-package com.appsmith.external.helpers;
+package com.external.helpers;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
