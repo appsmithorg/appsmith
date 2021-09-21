@@ -40,7 +40,7 @@ export default function SearchSnippets(props: Props) {
   }
 
   return props.showIconOnly ? (
-    <AdsIcon name="snippet" onClick={handleClick} size={IconSize.XXXL} />
+    <AdsIcon name="snippet" onClick={handleClick} size={IconSize.XL} />
   ) : (
     <TooltipComponent
       content={createMessage(SNIPPET_TOOLTIP)}
