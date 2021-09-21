@@ -171,6 +171,49 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testOnPageLoadActionsAfterActionDelete() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("query1");
+        action.setFullyQualifiedName(action.getName());
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<PageDTO> resultMono = layoutActionService
+                .createSingleAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+
+                    // Configure action to execute on page load.
+                    updates.setExecuteOnLoad(true);
+
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
+
+                    // Save updated configuration and re-compute on page load actions.
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(page -> {
+                    assertThat(page.getLayouts()).hasSize(1);
+
+                    // Verify that no action is marked to run on page load.
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(0);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
