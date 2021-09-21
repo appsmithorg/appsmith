@@ -321,6 +321,7 @@ export function* evaluateSnippetSaga(action: any) {
         executeActionTriggers,
         triggers[0],
         EventType.ON_SNIPPET_EXECUTE,
+        {},
       );
     } else {
       yield put(
