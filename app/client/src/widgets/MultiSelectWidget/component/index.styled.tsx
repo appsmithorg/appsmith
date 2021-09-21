@@ -40,8 +40,13 @@ export const DropdownStyles = createGlobalStyle`
 .rc-select-item-option {
 	position: relative;
 	display: flex;
-  
+  border-radius: 4px;
 	flex-direction: row-reverse;
+  :not(:first-child) {
+    margin-top: -4px;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
 	.rc-select-item-option-state {
 		pointer-events: all;
 		margin-right: 10px;
@@ -54,6 +59,7 @@ export const DropdownStyles = createGlobalStyle`
 	flex: 1 1 0;
   overflow-wrap: break-word;
   overflow: hidden;
+  color: ${Colors.CHARCOAL}
 }
 .rc-select-item-option-active {
 	background: rgb(233, 250, 243);
@@ -146,8 +152,9 @@ export const DropdownStyles = createGlobalStyle`
 	background: white;
 	box-shadow: rgb(0 0 0 / 20%) 0px 0px 2px !important;
     &&&& .${Classes.ALIGN_LEFT} {
-        font-size: 16px;
+        font-size: 14px;
         padding-bottom: 10px;
+        color: ${Colors.CODE_GRAY};
         margin-left: 16px ;
       .${Classes.CONTROL_INDICATOR} {
         margin-right: 20px;

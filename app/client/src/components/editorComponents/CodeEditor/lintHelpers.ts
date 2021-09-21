@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { last, isNumber } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
@@ -44,7 +44,7 @@ export const getKeyPositionInString = (
     for (const index of indices) {
       const substr = str.substr(0, index);
       const substrLines = substr.split("\n");
-      const ch = _.last(substrLines)?.length || 0;
+      const ch = last(substrLines)?.length || 0;
       const line = substrLines.length - 1;
 
       positions.push({ line, ch });
@@ -63,68 +63,65 @@ export const getLintAnnotations = (
   const lintErrors = errors.filter(
     (error) => error.errorType === PropertyEvaluationErrorType.LINT,
   );
-
+  const lines = value.split("\n");
   lintErrors.forEach((error) => {
-    const { errorMessage, originalBinding, severity, variables } = error;
+    const {
+      ch,
+      errorMessage,
+      line,
+      originalBinding,
+      severity,
+      variables,
+    } = error;
 
     if (!originalBinding) {
       return annotations;
     }
 
-    // We find the location of binding in the editor value and then
-    // we find locations of jshint variables (a, b, c, d) in the binding and highlight them
+    let variableLength = 1;
+    // Find the variable with minimal length
+    if (variables) {
+      for (const variable of variables) {
+        if (variable) {
+          variableLength =
+            variableLength === 1
+              ? variable.length
+              : Math.min(variable.length, variableLength);
+        }
+      }
+    }
+
     const bindingPositions = getKeyPositionInString(value, originalBinding);
 
-    for (const bindingLocation of bindingPositions) {
-      if (variables?.filter((v) => v).length) {
-        for (let variable of variables) {
-          if (typeof variable === "number") {
-            variable = variable.toString();
-          }
-          if (variable && originalBinding.includes(variable)) {
-            const variableLocations = getKeyPositionInString(
-              originalBinding,
-              variable,
-            );
+    if (isNumber(line) && isNumber(ch)) {
+      for (const bindingLocation of bindingPositions) {
+        const currentLine = bindingLocation.line + line;
+        const lineContent = lines[currentLine] || "";
+        const currentCh = originalBinding.includes("\n")
+          ? ch
+          : bindingLocation.ch + ch;
+        // Jshint counts \t as two characters and codemirror counts it as 1.
+        // So we need to subtract number of tabs to get accurate position
+        const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
 
-            for (const variableLocation of variableLocations) {
-              const from = {
-                line: bindingLocation.line + variableLocation.line,
-                // if the binding is a multiline function we need to
-                // use jshint variable position as the starting point
-                ch:
-                  variableLocation.line > 0
-                    ? variableLocation.ch
-                    : variableLocation.ch + bindingLocation.ch,
-              };
-
-              const to = {
-                line: from.line,
-                ch: from.ch + variable.length,
-              };
-
-              const annotation = {
-                from,
-                to,
-                message: errorMessage,
-                severity,
-              };
-
-              annotations.push(annotation);
-            }
-          }
-        }
-      } else {
-        const from = bindingLocation;
-        const to = { line: from.line, ch: from.ch + 3 };
-        const annotation = {
+        const from = {
+          line: currentLine,
+          ch: currentCh - tabs - 1,
+        };
+        const to = {
+          line: from.line,
+          ch: from.ch + variableLength,
+        };
+        annotations.push({
           from,
           to,
           message: errorMessage,
           severity,
-        };
-        annotations.push(annotation);
+        });
       }
+    } else {
+      // Don't show linting errors if code has parsing errors
+      return [];
     }
   });
   return annotations;

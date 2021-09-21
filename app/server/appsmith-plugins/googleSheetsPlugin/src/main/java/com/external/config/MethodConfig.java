@@ -2,6 +2,7 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.Property;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +36,7 @@ public class MethodConfig {
     String rowObject;
     String rowObjects;
     Object body;
+    List<Condition> whereConditions = new ArrayList<>();
     Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?.*");
 
     public MethodConfig(List<Property> propertyList) {
@@ -84,6 +87,11 @@ public class MethodConfig {
                         break;
                     case "rowObjects":
                         this.rowObjects = propertyValue;
+                        break;
+                    case "where":
+                        if (property.getValue() != null && !((List<Object>) property.getValue()).isEmpty()) {
+                            this.whereConditions = Condition.generateFromConfiguration((List<Object>) property.getValue());
+                        }
                         break;
                 }
             }

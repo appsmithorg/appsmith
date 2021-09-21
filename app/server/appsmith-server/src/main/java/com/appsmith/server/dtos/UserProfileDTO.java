@@ -26,6 +26,9 @@ public class UserProfileDTO {
 
     boolean isEmptyInstance = false;
 
+    @JsonProperty("isSuperUser")
+    boolean isSuperUser = false;
+
     public boolean isAccountNonExpired() {
         return this.isEnabled;
     }

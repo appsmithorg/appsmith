@@ -1,11 +1,12 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
+import { GitConfig } from "entities/GitSync";
 
 export type CommitPayload = {
   applicationId: string;
   commitMessage: string;
-  pushImmediately: boolean;
+  doPush: boolean;
 };
 
 export type ConnectToGitPayload = {
@@ -15,7 +16,9 @@ export type ConnectToGitPayload = {
     authorName: string;
     authorEmail: string;
   };
-  organizationId: string;
+  organizationId?: string;
+  isImport?: boolean;
+  isDefaultProfile?: boolean;
 };
 
 class GitSyncAPI extends Api {
@@ -24,14 +27,24 @@ class GitSyncAPI extends Api {
   static commit({
     applicationId,
     commitMessage,
+    doPush,
   }: CommitPayload): AxiosPromise<ApiResponse> {
     return Api.post(`${GitSyncAPI.baseURL}/commit/${applicationId}`, {
       commitMessage,
+      doPush,
     });
   }
 
   static connect(payload: ConnectToGitPayload) {
     return Api.post(`${GitSyncAPI.baseURL}/connect/`, payload);
+  }
+
+  static getGlobalConfig() {
+    return Api.get(`${GitSyncAPI.baseURL}/config`);
+  }
+
+  static setGlobalConfig(payload: GitConfig) {
+    return Api.post(`${GitSyncAPI.baseURL}/config/save`, payload);
   }
 }
 
