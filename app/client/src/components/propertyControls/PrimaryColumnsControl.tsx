@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -93,6 +93,12 @@ const getOriginalColumn = (
 
 function ColumnControlComponent(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && props.item && props.item.label)
+      setValue(props.item.label);
+  }, [props.item?.label, isEditing]);
 
   const {
     deleteOption,
@@ -111,16 +117,22 @@ function ColumnControlComponent(props: RenderComponentProps) {
     },
     [updateOption],
   );
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={value}
+        onBlur={onBlur}
         onChange={(value: string) => {
           onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Column Title"
+        value={value}
       />
       <StyledEditIcon
         className="t--edit-column-btn"
