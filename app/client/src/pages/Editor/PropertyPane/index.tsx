@@ -172,7 +172,7 @@ function PropertyPaneView(
         icon: <PropertyPaneHelpButton />,
       },
       {
-        tooltipContent: <span>Search related Snippets</span>,
+        tooltipContent: <span>Search related snippets</span>,
         icon: (
           <SearchSnippets
             entityId={widgetProperties.widgetId}
