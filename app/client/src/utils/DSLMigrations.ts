@@ -965,7 +965,7 @@ export const revertButtonStyleToButtonColor = (
           currentDSL.buttonColor = Colors.GREEN;
           break;
         case ButtonStyleTypes.WARNING:
-          currentDSL.buttonColor = Colors.SUNGLOW;
+          currentDSL.buttonColor = Colors.WARNING_SOLID;
           break;
         case ButtonStyleTypes.INFO:
           currentDSL.buttonColor = Colors.INFO_SOLID;
@@ -984,7 +984,7 @@ export const revertButtonStyleToButtonColor = (
           currentDSL.buttonColor = Colors.DANGER_SOLID;
           break;
         default:
-          currentDSL.buttonColor = Colors.GREEN;
+          if (!currentDSL.buttonColor) currentDSL.buttonColor = Colors.GREEN;
           break;
       }
       delete currentDSL.buttonStyle;
@@ -1000,7 +1000,7 @@ export const revertButtonStyleToButtonColor = (
           currentDSL.menuColor = Colors.GREEN;
           break;
         case ButtonStyleTypes.WARNING:
-          currentDSL.menuColor = Colors.SUNGLOW;
+          currentDSL.menuColor = Colors.WARNING_SOLID;
           break;
         case ButtonStyleTypes.INFO:
           currentDSL.menuColor = Colors.INFO_SOLID;
@@ -1009,7 +1009,7 @@ export const revertButtonStyleToButtonColor = (
           currentDSL.menuColor = Colors.GRAY;
           break;
         default:
-          currentDSL.menuColor = Colors.GREEN;
+          if (!currentDSL.menuColor) currentDSL.menuColor = Colors.GREEN;
           break;
       }
       delete currentDSL.menuStyle;
