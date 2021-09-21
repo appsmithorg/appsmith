@@ -2,6 +2,8 @@ package com.external.config;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.Condition;
+import com.appsmith.external.services.FilterDataService;
 import com.external.domains.RowObject;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,9 +29,11 @@ import java.util.regex.Pattern;
 public class GetValuesMethod implements Method {
 
     ObjectMapper objectMapper;
+    FilterDataService filterDataService;
 
     public GetValuesMethod(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        this.filterDataService = FilterDataService.getInstance();
     }
 
     // Used to capture the range of columns in this request. The handling for this regex makes sure that
@@ -201,7 +205,13 @@ public class GetValuesMethod implements Method {
             collectedCells.add(rowObject.getValueMap());
         }
 
-        return this.objectMapper.valueToTree(collectedCells);
+        ArrayNode preFilteringResponse = this.objectMapper.valueToTree(collectedCells);
+
+        if (isWhereConditionConfigured(methodConfig)) {
+            return filterDataService.filterData(preFilteringResponse, methodConfig.getWhereConditions());
+        }
+
+        return preFilteringResponse;
     }
 
     private Set<String> sanitizeHeaders(ArrayNode headers, int valueSize) {
@@ -231,5 +241,17 @@ public class GetValuesMethod implements Method {
         }
 
         return headerSet;
+    }
+
+    private Boolean isWhereConditionConfigured(MethodConfig methodConfig) {
+        List<Condition> whereConditions = methodConfig.getWhereConditions();
+
+        if (whereConditions == null || whereConditions.size() == 0) {
+            return false;
+        }
+
+        // At least 1 condition exists
+        return true;
+
     }
 }

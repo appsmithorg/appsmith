@@ -11,6 +11,8 @@ export const getFilteredErrors = createSelector(
     return errors;
   },
 );
+export const getCurrentDebuggerTab = (state: AppState) =>
+  state.ui.debugger.currentTab;
 
 export const getMessageCount = createSelector(getFilteredErrors, (errors) => {
   const errorKeys = Object.keys(errors);

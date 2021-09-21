@@ -1,0 +1,43 @@
+{
+  "command" : {
+    "label": "Commands",
+    "description": "Choose method you would like to use to query the database",
+    "configProperty": "actionConfiguration.formData.command",
+    "controlType": "DROP_DOWN",
+    "initialValue": "FIND",
+    "options": [
+      {
+        "label": "Find Document(s)",
+        "fileName" : "find.json"
+      },
+      {
+        "label": "Insert Document(s)",
+        "fileName" : "insert.json"
+      },
+      {
+        "label": "Update Document(s)",
+        "fileName" : "update.json"
+      },
+      {
+        "label": "Delete Document(s)",
+        "fileName" : "delete.json"
+      },
+      {
+        "label": "Count",
+        "fileName" : "count.json"
+      },
+      {
+        "label": "Distinct",
+        "fileName" : "distinct.json"
+      },
+      {
+        "label": "Aggregate",
+        "fileName" : "aggregate.json"
+      },
+      {
+        "label": "Raw",
+        "fileName" : "raw.json"
+      }
+    ]
+  }
+}

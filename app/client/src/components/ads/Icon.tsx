@@ -65,6 +65,7 @@ import { ReactComponent as ColumnIcon } from "assets/icons/ads/column.svg";
 import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
+import { ReactComponent as GitBranch } from "assets/icons/ads/git-branch.svg";
 
 import styled from "styled-components";
 import { CommonComponentProps, Classes } from "./common";
@@ -195,6 +196,7 @@ export const IconCollection = [
   "fork",
   "gear",
   "general",
+  "git-branch",
   "guide",
   "help",
   "invite-user",
@@ -427,6 +429,9 @@ const Icon = forwardRef(
         break;
       case "general":
         returnIcon = <GeneralIcon />;
+        break;
+      case "git-branch":
+        returnIcon = <GitBranch />;
         break;
       case "guide":
         returnIcon = <GuideIcon />;

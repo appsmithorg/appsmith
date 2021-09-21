@@ -208,7 +208,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
@@ -485,6 +485,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
 export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+
 // Git sync
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
@@ -523,19 +524,27 @@ export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const DEPLOY_KEY_TITLE = () => "Deployed Key";
+export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
+  "Copy this deploy key to your Git Repository setting.";
+
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
+export const SUBMIT = () => "SUBMIT";
+export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
+  "Git user updated successfully";
 
+// Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
   `Find answers through appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
-export const MERGE_CHANGES = () => "Merge Changes";
-export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 
@@ -616,11 +625,11 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
-  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
 export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
 export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
   "Next: Connect data to Widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
