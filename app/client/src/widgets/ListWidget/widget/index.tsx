@@ -13,7 +13,8 @@ import {
   floor,
   isEmpty,
 } from "lodash";
-
+import memoizeOne from "memoize-one";
+import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -559,35 +560,48 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * renders children
    */
   renderChildren = () => {
-    const numberOfItemsInGrid = this.props.listData?.length ?? 0;
-    if (this.props.children && this.props.children.length > 0) {
+    if (
+      this.props.children &&
+      this.props.children.length > 0 &&
+      this.props.listData
+    ) {
+      const { page } = this.state;
       const children = removeFalsyEntries(this.props.children);
       const childCanvas = children[0];
-      let canvasChildren = childCanvas.children;
 
-      try {
-        // here we are duplicating the template for each items in the data array
-        // first item of the canvasChildren acts as a template
-        const template = canvasChildren.slice(0, 1).shift();
+      const canvasChildren = childCanvas.children;
+      const template = canvasChildren.slice(0, 1).shift();
 
-        for (let i = 0; i < numberOfItemsInGrid; i++) {
-          canvasChildren[i] = JSON.parse(JSON.stringify(template));
-        }
-
-        // TODO(pawan): This is recalculated everytime for not much reason
-        // We should either use https://reactjs.org/docs/react-component.html#static-getderivedstatefromprops
-        // Or use memoization https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html#what-about-memoization
-        // In particular useNewValues can be memoized, if others can't.
-        canvasChildren = this.updateGridChildrenProps(canvasChildren);
-
-        childCanvas.children = canvasChildren;
-      } catch (e) {
-        log.error(e);
-      }
-
+      childCanvas.children = this.getCanvasChildren(
+        template,
+        this.props.listData,
+        this.props.template,
+        page,
+      );
       return this.renderChild(childCanvas);
     }
   };
+
+  getCanvasChildren = memoizeOne(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (template: any, listData: any, staticTemplate: any, page: number) => {
+      let canvasChildren = [];
+      for (let i = 0; i < listData.length; i++) {
+        canvasChildren[i] = JSON.parse(JSON.stringify(template));
+      }
+
+      canvasChildren = this.updateGridChildrenProps(canvasChildren);
+
+      return canvasChildren;
+    },
+    (prev: any, next: any) => {
+      return (
+        shallowEqual(prev[1], next[1]) &&
+        shallowEqual(prev[2], next[2]) &&
+        prev[3] === next[3]
+      );
+    },
+  );
 
   /**
    * 400
