@@ -208,7 +208,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>

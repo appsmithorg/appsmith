@@ -4,7 +4,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Multi Select Tree",
+  name: "Multi TreeSelect",
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {

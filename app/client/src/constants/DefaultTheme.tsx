@@ -452,6 +452,9 @@ export type Theme = {
   actionSidePane: {
     width: number;
   };
+  onboarding: {
+    statusBarHeight: number;
+  };
 };
 
 type IconSizeType = {
@@ -2899,6 +2902,7 @@ export const theme: Theme = {
     builderBodyBG: Colors.WHITE,
     widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
+    widgetLightBorder: Colors.WHITE_SMOKE,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
@@ -3090,6 +3094,9 @@ export const theme: Theme = {
   },
   actionSidePane: {
     width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
   },
 };
 
