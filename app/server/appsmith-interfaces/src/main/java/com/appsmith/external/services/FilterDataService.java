@@ -89,17 +89,17 @@ public class FilterDataService {
         if (items == null || items.size() == 0) {
             return items;
         }
+        // Generate the schema of the table using the first object
+        JsonNode jsonNode = items.get(0);
 
-        if (!validConditionList(conditionList)) {
+        Map<String, DataType> schema = generateSchema(jsonNode);
+
+        if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
         }
 
         List<Condition> conditions = addValueDataType(conditionList);
 
-        // Generate the schema of the table using the first object
-        JsonNode jsonNode = items.get(0);
-
-        Map<String, DataType> schema = generateSchema(jsonNode);
 
         String tableName = generateTable(schema);
 
@@ -478,11 +478,30 @@ public class FilterDataService {
     }
 
 
-    public boolean validConditionList(List<Condition> conditionList) {
+    public boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema) {
 
-        return conditionList
+        conditionList
                 .stream()
-                .allMatch(condition -> Condition.isValid(condition));
+                .map(condition -> {
+                    if (!Condition.isValid(condition)) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "Condition for filtering were incomplete or incorrect. : " + condition);
+                    }
+
+                    String path = condition.getPath();
+
+                    if (!schema.containsKey(path)) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                path + " not found in the known column names :" + schema.keySet());
+                    }
+
+                    return condition;
+                })
+                .collect(Collectors.toList());
+
+        // All the conditions were iterated over and checked. In case an error was found, an exception has already been
+        // thrown. If reached here, everything is hunky-dory.
+        return true;
     }
 
 }
