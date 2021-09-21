@@ -55,7 +55,7 @@ export type ActionGroupConfig = {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB],
+    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
@@ -72,7 +72,10 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
           plugin.packageName,
           id,
         )}`;
-      } else if (pluginType === PluginType.DB) {
+      } else if (
+        pluginType === PluginType.DB ||
+        pluginType === PluginType.REMOTE
+      ) {
         return `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`;
       } else {
         return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
@@ -163,6 +166,9 @@ export const getPluginGroups = (
           ),
           ...entries.filter(
             (entry: any) => entry.config.pluginType === PluginType.DB,
+          ),
+          ...entries.filter(
+            (entry: any) => entry.config.pluginType === PluginType.REMOTE,
           ),
         ]
       : entries;
