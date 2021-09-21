@@ -31,6 +31,7 @@ import Toggle from "components/ads/Toggle";
 import Text, { TextType } from "components/ads/Text";
 import { getGlobalGitConfig } from "selectors/gitSyncSelectors";
 import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
+import DirectDeploy from "../components/DirectDeploy";
 
 export const UrlOptionContainer = styled.div`
   display: flex;
@@ -133,6 +134,13 @@ const LintText = styled.a`
   color: ${Colors.CRUSTA};
   cursor: pointer;
 `;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Section = styled.div``;
 
 // v1 only support SSH
 const selectedAuthType = AUTH_TYPE_OPTIONS[0];
@@ -265,95 +273,102 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
     }
   }, [isGlobalConfigDefined]);
 
-  return (
-    <>
-      <Title>{createMessage(CONNECT_TO_GIT)}</Title>
-      <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
-      <UrlOptionContainer>
-        <span>{createMessage(REMOTE_URL_VIA)}</span>
-        <span className="primary">&nbsp;{selectedAuthType.label}</span>
-      </UrlOptionContainer>
-      <UrlContainer>
-        <UrlInputContainer>
-          <TextInput
-            disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
-            fill
-            onChange={remoteUrlChangeHandler}
-            placeholder={placeholderText}
-            validator={(value) => ({
-              isValid: true,
-              message: remoteUrlIsValid(value)
-                ? "Please paste SSH URL of your repository"
-                : "",
-            })}
-            value={remoteUrl}
-          />
-        </UrlInputContainer>
-        <Icon
-          color={Colors.DARK_GRAY}
-          hoverColor={Colors.GRAY2}
-          onClick={() => setRemoteUrl("")}
-          size="22px"
-        >
-          <LinkSvg />
-        </Icon>
-      </UrlContainer>
-      {!SSHKeyPair ? (
-        <ButtonContainer topMargin={10}>
-          <Button
-            category={Category.secondary}
-            disabled={!remoteUrl}
-            isLoading={generatingSSHKey || fetchingSSHKeyPair}
-            onClick={() => generateSSHKey(currentApplicationId)}
-            size={Size.medium}
-            tag="button"
-            text="Generate SSH Key"
-          />
-        </ButtonContainer>
-      ) : (
-        <>
-          <FlexRow>
-            <DeployedKeyContainer>
-              <FlexRow>
-                <Flex>
-                  <KeySvg />
-                </Flex>
+  const showDirectDeployOption = !SSHKeyPair && !remoteUrl;
 
-                <FlexColumn>
-                  <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
-                  <KeyText>{SSHKeyPair}</KeyText>
-                </FlexColumn>
-              </FlexRow>
-            </DeployedKeyContainer>
-            {showCopied ? (
-              <Icon
-                color={Colors.GREEN}
-                hoverColor={Colors.GREEN}
-                marginOffset={4}
-                size="16px"
-              >
-                <TickSvg />
-              </Icon>
-            ) : (
-              <Icon
-                color={Colors.DARK_GRAY}
-                hoverColor={Colors.GRAY2}
-                marginOffset={3}
-                onClick={copyToClipboard}
-                size="22px"
-              >
-                <CopySvg />
-              </Icon>
-            )}
-          </FlexRow>
-          <span>
-            {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
-            <LintText href={deployKeyDocUrl} target="_blank">
-              &nbsp;Learn More
-            </LintText>
-          </span>
-        </>
-      )}
+  return (
+    <Container>
+      <Section>
+        <Title>{createMessage(CONNECT_TO_GIT)}</Title>
+        <Subtitle>{createMessage(CONNECT_TO_GIT_SUBTITLE)}</Subtitle>
+        <UrlOptionContainer>
+          <span>{createMessage(REMOTE_URL_VIA)}</span>
+          <span className="primary">&nbsp;{selectedAuthType.label}</span>
+        </UrlOptionContainer>
+        <UrlContainer>
+          <UrlInputContainer>
+            <TextInput
+              disabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+              fill
+              onChange={remoteUrlChangeHandler}
+              placeholder={placeholderText}
+              validator={(value) => ({
+                isValid: true,
+                message: remoteUrlIsValid(value)
+                  ? "Please paste SSH URL of your repository"
+                  : "",
+              })}
+              value={remoteUrl}
+            />
+          </UrlInputContainer>
+          <Icon
+            color={Colors.DARK_GRAY}
+            hoverColor={Colors.GRAY2}
+            onClick={() => setRemoteUrl("")}
+            size="22px"
+          >
+            <LinkSvg />
+          </Icon>
+        </UrlContainer>
+
+        {!SSHKeyPair ? (
+          remoteUrl && (
+            <ButtonContainer topMargin={10}>
+              <Button
+                category={Category.secondary}
+                disabled={!remoteUrl}
+                isLoading={generatingSSHKey || fetchingSSHKeyPair}
+                onClick={() => generateSSHKey(currentApplicationId)}
+                size={Size.medium}
+                tag="button"
+                text="Generate SSH Key"
+              />
+            </ButtonContainer>
+          )
+        ) : (
+          <>
+            <FlexRow>
+              <DeployedKeyContainer>
+                <FlexRow>
+                  <Flex>
+                    <KeySvg />
+                  </Flex>
+
+                  <FlexColumn>
+                    <LabelText>{createMessage(DEPLOY_KEY_TITLE)}</LabelText>
+                    <KeyText>{SSHKeyPair}</KeyText>
+                  </FlexColumn>
+                </FlexRow>
+              </DeployedKeyContainer>
+              {showCopied ? (
+                <Icon
+                  color={Colors.GREEN}
+                  hoverColor={Colors.GREEN}
+                  marginOffset={4}
+                  size="16px"
+                >
+                  <TickSvg />
+                </Icon>
+              ) : (
+                <Icon
+                  color={Colors.DARK_GRAY}
+                  hoverColor={Colors.GRAY2}
+                  marginOffset={3}
+                  onClick={copyToClipboard}
+                  size="22px"
+                >
+                  <CopySvg />
+                </Icon>
+              )}
+            </FlexRow>
+            <span>
+              {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
+              <LintText href={deployKeyDocUrl} target="_blank">
+                &nbsp;Learn More
+              </LintText>
+            </span>
+          </>
+        )}
+      </Section>
 
       {SSHKeyPair && remoteUrl ? (
         <>
@@ -395,8 +410,10 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
             </Text> */}
           </ButtonContainer>
         </>
-      ) : null}
-    </>
+      ) : (
+        showDirectDeployOption && <DirectDeploy />
+      )}
+    </Container>
   );
 }
 

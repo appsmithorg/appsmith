@@ -518,9 +518,6 @@ export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
-export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
-export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
 export const CONNECT = () => "Connect";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
