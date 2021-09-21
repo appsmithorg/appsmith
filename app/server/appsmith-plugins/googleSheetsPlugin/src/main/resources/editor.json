@@ -79,7 +79,8 @@
               "LIST"
             ]
           },
-          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0"
+          "placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+          "initialValue": ""
         },
         {
           "label": "Spreadsheet Name Key",
