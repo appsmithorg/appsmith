@@ -53,8 +53,6 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
-  SNIPPET_TOOLTIP,
-  USE_SNIPPET,
 } from "constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
