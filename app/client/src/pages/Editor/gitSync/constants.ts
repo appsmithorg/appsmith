@@ -1,4 +1,3 @@
-import { TabProp } from "components/ads/Tabs";
 import {
   createMessage,
   GIT_CONNECTION,
@@ -16,28 +15,16 @@ export enum MENU_ITEM {
   // SETTINGS = "SETTINGS",
 }
 
-export const MENU_ITEMS: TabProp[] = [
-  {
+export const MENU_ITEMS_MAP = {
+  [MENU_ITEM.GIT_CONNECTION]: {
     key: MENU_ITEM.GIT_CONNECTION,
     title: createMessage(GIT_CONNECTION),
   },
-  {
-    key: MENU_ITEM.DEPLOY,
-    title: createMessage(DEPLOY),
-  },
-  {
-    key: MENU_ITEM.MERGE,
-    title: createMessage(MERGE),
-  },
-  // {
-  //   key: MENU_ITEM.SHARE_APPLICATION,
-  //   title: createMessage(SHARE_APPLICATION),
-  // },
-  // {
-  //   key: MENU_ITEM.SETTINGS,
-  //   title: createMessage(SETTINGS),
-  // },
-];
+  [MENU_ITEM.DEPLOY]: { key: MENU_ITEM.DEPLOY, title: createMessage(DEPLOY) },
+  [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
+  // [MENU_ITEM.SHARE_APPLICATION]:  createMessage(SHARE_APPLICATION),
+  // [MENU_ITEM.SETTINGS]: createMessage(SETTINGS),
+};
 
 export enum AUTH_TYPE {
   SSH = "SSH",

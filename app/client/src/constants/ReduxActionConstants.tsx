@@ -3,12 +3,14 @@ import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
 import { Org } from "./orgConstants";
 import { ERROR_CODES } from "constants/ApiConstants";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 export const ReduxSagaChannels: { [key: string]: string } = {
   WEBSOCKET_WRITE_CHANNEL: "WEBSOCKET_WRITE_CHANNEL",
 };
 
 export const ReduxActionTypes = {
+  SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
   FETCH_GLOBAL_GIT_CONFIG_INIT: "FETCH_GLOBAL_GIT_CONFIG_INIT",
   FETCH_GLOBAL_GIT_CONFIG_SUCCESS: "FETCH_GLOBAL_GIT_CONFIG_SUCCESS",
   UPDATE_GIT_CONFIG_INIT: "UPDATE_GIT_CONFIG_INIT",
@@ -166,6 +168,7 @@ export const ReduxActionTypes = {
   CLEAR_DEBUGGER_LOGS: "CLEAR_DEBUGGER_LOGS",
   SHOW_DEBUGGER: "SHOW_DEBUGGER",
   HIDE_DEBUGGER_ERRORS: "HIDE_DEBUGGER_ERRORS",
+  SET_CURRENT_DEBUGGER_TAB: "SET_CURRENT_DEBUGGER_TAB",
   SET_ACTION_TABS_INITIAL_INDEX: "SET_ACTION_TABS_INITIAL_INDEX",
   SET_THEME: "SET_THEME",
   FETCH_WIDGET_CARDS: "FETCH_WIDGET_CARDS",
@@ -734,6 +737,7 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_CHILD_ADDED: "WIDGET_CHILD_ADDED",
   WIDGET_REMOVE_CHILD: "WIDGET_REMOVE_CHILD",
   WIDGET_RESIZE: "WIDGET_RESIZE",
+  WIDGET_MODAL_RESIZE: "WIDGET_MODAL_RESIZE",
   WIDGET_DELETE: "WIDGET_DELETE",
   WIDGET_BULK_DELETE: "WIDGET_BULK_DELETE",
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
@@ -811,12 +815,6 @@ export interface ClonePageSuccessPayload {
 }
 
 export type PageListPayload = Array<Page>;
-
-export type GitApplicationMetadata = {
-  gitAuth?: {
-    publicKey?: string;
-  };
-};
 
 export type ApplicationPayload = {
   id: string;
