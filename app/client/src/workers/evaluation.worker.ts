@@ -206,16 +206,12 @@ ctx.addEventListener(
         );
       }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
-        const { body, jsAction } = requestData;
-
-        if (!dataTreeEvaluator) {
-          return true;
-        }
+        const { body, dataTree, jsAction } = requestData;
         try {
           const { errors, evalTree, result } = parseJSCollection(
             body,
             jsAction,
-            dataTreeEvaluator.evalTree,
+            dataTree,
           );
           return {
             errors,
@@ -223,8 +219,7 @@ ctx.addEventListener(
             result,
           };
         } catch (e) {
-          const evalTree = dataTreeEvaluator.evalTree;
-          const errors = [
+          const errorsList = [
             {
               errorType: PropertyEvaluationErrorType.PARSE,
               raw: "",
@@ -232,10 +227,14 @@ ctx.addEventListener(
               errorMessage: e.message,
             },
           ];
-          _.set(evalTree, `${jsAction.name}.${EVAL_ERROR_PATH}.body`, errors);
+          _.set(
+            dataTree,
+            `${jsAction.name}.${EVAL_ERROR_PATH}.body`,
+            errorsList,
+          );
           return {
-            errors,
-            evalTree,
+            errors: errorsList,
+            evalTree: dataTree,
           };
         }
       }

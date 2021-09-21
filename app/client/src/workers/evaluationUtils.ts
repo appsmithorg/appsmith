@@ -548,7 +548,7 @@ export const parseJSCollection = (
       undefined,
       true,
     );
-    const errorsList = errors && errors.length ? errors : [];
+    const errorsList = errors && errors.length > 0 ? errors : [];
     _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errorsList);
     const parsedLength = Object.keys(result).length;
     const actions = [];
@@ -582,7 +582,7 @@ export const parseJSCollection = (
       errors: errorsList,
     };
   } else {
-    const errors = [
+    const errorsList = [
       {
         errorType: PropertyEvaluationErrorType.PARSE,
         raw: "",
@@ -590,10 +590,10 @@ export const parseJSCollection = (
         errorMessage: "Start object with export default",
       },
     ];
-    _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errors);
+    _.set(evalTree, `${jsCollection.name}.${EVAL_ERROR_PATH}.body`, errorsList);
     return {
       evalTree,
-      errors: errors,
+      errors: errorsList,
     };
   }
 };
