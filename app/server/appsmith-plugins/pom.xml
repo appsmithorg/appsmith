@@ -29,7 +29,6 @@
         <module>googleSheetsPlugin</module>
         <module>snowflakePlugin</module>
         <module>arangoDBPlugin</module>
-        <module>mongoPluginUqi</module>
         <module>jsPlugin</module>
     </modules>
 </project>

@@ -5,6 +5,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.AssetRepository;
+import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.solutions.UserChangedHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,24 +14,27 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.time.Duration;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,7 +48,16 @@ public class UserDataServiceTest {
     private UserDataService userDataService;
 
     @Autowired
+    private UserDataRepository userDataRepository;
+
+    @Autowired
     private AssetRepository assetRepository;
+
+    @MockBean
+    private UserChangedHandler userChangedHandler;
+
+    @Autowired
+    private AssetService assetService;
 
     private Mono<User> userMono;
 
@@ -95,23 +109,21 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUploadAndDeleteProfilePhoto_validImage() {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
-        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
-                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096)
-                .cache();
-
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
-
+        FilePart filepart = createMockFilePart();
         Mono<Tuple2<UserData, Asset>> loadProfileImageMono = userDataService.getForUserEmail("api_user")
-                .flatMap(userData -> Mono.zip(
-                        Mono.just(userData),
-                        assetRepository.findById(userData.getProfilePhotoAssetId())
-                ));
+                .flatMap(userData -> {
+                    Mono<UserData> userDataMono = Mono.just(userData);
+                    if(StringUtils.isEmpty(userData.getProfilePhotoAssetId())) {
+                        return userDataMono.zipWith(Mono.just(new Asset()));
+                    } else {
+                        return userDataMono.zipWith(assetRepository.findById(userData.getProfilePhotoAssetId()));
+                    }
+                });
 
         final Mono<UserData> saveMono = userDataService.saveProfilePhoto(filepart).cache();
         final Mono<Tuple2<UserData, Asset>> saveAndGetMono = saveMono.then(loadProfileImageMono);
-        final Mono<Tuple2<UserData, Asset>> deleteAndGetMono = saveMono.then(userDataService.deleteProfilePhoto()).then(loadProfileImageMono);
+        final Mono<Tuple2<UserData, Asset>> deleteAndGetMono = saveMono.then(userDataService.deleteProfilePhoto())
+                .then(loadProfileImageMono);
 
         StepVerifier.create(saveAndGetMono)
                 .assertNext(tuple -> {
@@ -120,14 +132,14 @@ public class UserDataServiceTest {
 
                     final Asset asset = tuple.getT2();
                     assertThat(asset).isNotNull();
-                    DataBuffer buffer = DataBufferUtils.join(dataBufferFlux).block(Duration.ofSeconds(3));
-                    byte[] res = new byte[buffer.readableByteCount()];
-                    buffer.read(res);
-                    assertThat(asset.getData()).isEqualTo(res);
                 })
                 .verifyComplete();
 
         StepVerifier.create(deleteAndGetMono)
+                .assertNext(objects -> {
+                    assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
+                    assertThat(objects.getT2().getId()).isNull();
+                })
                 // Should be empty since the profile photo has been deleted.
                 .verifyComplete();
     }
@@ -183,20 +195,69 @@ public class UserDataServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testUpdateLastUsedOrgList_WhenListIsNotEmpty_orgIdPrepended() {
-        // Set an initial list of org ids to the current user.
-        UserData changes = new UserData();
-        changes.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
-
-        final Mono<UserData> resultMono = userDataService.updateForCurrentUser(changes)
-                .flatMap(userData -> {
-                    // Now check whether a new org id is put at first.
-                    String sampleOrgId = "sample-org-id";
-                    return userDataService.updateLastUsedOrgList(sampleOrgId);
-                });
+        final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
+            // Set an initial list of org ids to the current user.
+            userData.setRecentlyUsedOrgIds(Arrays.asList("123", "456"));
+            return userDataRepository.save(userData);
+        }).flatMap(userData -> {
+            // Now check whether a new org id is put at first.
+            String sampleOrgId = "sample-org-id";
+            return userDataService.updateLastUsedOrgList(sampleOrgId);
+        });
 
         StepVerifier.create(resultMono).assertNext(userData -> {
             Assert.assertEquals(3, userData.getRecentlyUsedOrgIds().size());
             Assert.assertEquals("sample-org-id", userData.getRecentlyUsedOrgIds().get(0));
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void deleteProfilePhotot_WhenExists_RemovedFromAssetAndUserData() {
+        // create an asset first
+        Mono<Tuple2<UserData, Asset>> tuple2Mono = assetRepository.save(new Asset(MediaType.IMAGE_PNG, new byte[10]))
+                .flatMap(savedAsset ->
+                        userDataService.getForCurrentUser().flatMap(userData -> {
+                            userData.setProfilePhotoAssetId(savedAsset.getId());
+                            return userDataRepository.save(userData);
+                        }))
+                .flatMap(userData -> {
+                    String assetId = userData.getProfilePhotoAssetId();
+                    return userDataService.deleteProfilePhoto().thenReturn(assetId);
+                })
+                .flatMap(assetId -> {
+                    Mono<UserData> forCurrentUser = userDataService.getForCurrentUser();
+                    return forCurrentUser.zipWith(assetRepository.findById(assetId).defaultIfEmpty(new Asset()));
+                });
+
+        StepVerifier.create(tuple2Mono)
+                .assertNext(objects -> {
+                    assertThat(objects.getT1().getProfilePhotoAssetId()).isNull();
+                    assertThat(objects.getT2().getId()).isNull();
+                    Mockito.verify(userChangedHandler, Mockito.times(1)).publish(
+                            objects.getT1().getUserId(), null
+                    );
+                })
+                .verifyComplete();
+    }
+
+    private FilePart createMockFilePart() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/OrganizationServiceTest/my_organization_logo.png"), new DefaultDataBufferFactory(), 4096).cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+        return filepart;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveProfilePhoto_WhenPhotoUploaded_PhotoChangedEventTriggered() {
+        Part mockFilePart = createMockFilePart();
+        Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mockFilePart);
+        StepVerifier.create(userDataMono).assertNext(userData -> {
+            assertThat(userData.getProfilePhotoAssetId()).isNotNull();
+            Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
         }).verifyComplete();
     }
 }

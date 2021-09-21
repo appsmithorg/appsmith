@@ -3,3 +3,8 @@ export enum GitSyncModalTab {
   DEPLOY,
   MERGE,
 }
+
+export type GitConfig = {
+  authorName: string;
+  authorEmail: string;
+};

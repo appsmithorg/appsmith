@@ -48,16 +48,16 @@ export function BlankState(props: {
   );
 }
 
+export enum DEBUGGER_TAB_KEYS {
+  ERROR_TAB = "ERROR",
+  LOGS_TAB = "LOGS_TAB",
+  INSPECT_TAB = "INSPECT_TAB",
+}
+
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",
   [Severity.WARNING]: "warning",
-};
-
-export const SeverityIconColor: Record<Severity, string> = {
-  [Severity.INFO]: "#03B365",
-  [Severity.ERROR]: "#F22B2B",
-  [Severity.WARNING]: "rgb(224, 179, 14)",
 };
 
 export function getDependenciesFromInverseDependencies(

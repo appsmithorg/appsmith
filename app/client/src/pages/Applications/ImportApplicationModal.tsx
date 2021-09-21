@@ -20,6 +20,7 @@ const ImportButton = styled(Button)<{ disabled?: boolean }>`
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
+  margin-top: ${(props) => props.theme.spaces[6]}px;
 `;
 
 const FilePickerWrapper = styled.div`

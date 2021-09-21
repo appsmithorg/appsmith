@@ -10,7 +10,7 @@ import {
 } from "constants/ReduxActionConstants";
 import Fuse from "fuse.js";
 import { Organization } from "constants/orgConstants";
-import { GitApplicationMetadata } from "../constants/ReduxActionConstants";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "organization.name"],

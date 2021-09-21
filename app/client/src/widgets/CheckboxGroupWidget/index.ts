@@ -9,13 +9,13 @@ export const CONFIG = {
   needsMeta: true,
   defaults: {
     rows: 2 * GRID_DENSITY_MIGRATION_V1,
-    columns: 1.5 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     options: [
-      { label: "Apple", value: "apple" },
-      { label: "Orange", value: "orange" },
-      { label: "Lemon", value: "lemon" },
+      { label: "Blue", value: "BLUE" },
+      { label: "Green", value: "GREEN" },
+      { label: "Red", value: "RED" },
     ],
-    defaultSelectedValues: "apple",
+    defaultSelectedValues: "BLUE",
     isDisabled: false,
     isRequired: false,
     isVisible: true,
