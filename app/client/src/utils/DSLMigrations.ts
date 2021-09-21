@@ -923,7 +923,7 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     currentDSL.version = 39;
   }
 
-  if (currentDSL.version === 38) {
+  if (currentDSL.version === 39) {
     currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
