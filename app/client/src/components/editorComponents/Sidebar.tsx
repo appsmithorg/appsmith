@@ -20,7 +20,7 @@ const SidebarWrapper = styled.div`
   padding: 0;
   width: ${(props) => props.theme.sidebarWidth};
   z-index: ${Layers.sideBar};
-
+  box-shadow: 1px 0px 0px ${Colors.MERCURY_1};
   color: ${(props) => props.theme.colors.textOnWhiteBG};
   overflow-y: auto;
   & .${Classes.PANEL_STACK} {

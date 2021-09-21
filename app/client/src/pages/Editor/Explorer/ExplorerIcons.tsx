@@ -15,12 +15,12 @@ import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";
 
-const ENTITY_ICON_SIZE = 14;
+const ENTITY_ICON_SIZE = 16;
 
 const PagesIcon = MenuIcons.PAGES_ICON;
 export const pageGroupIcon = (
   <PagesIcon
-    color={Colors.ALTO}
+    color={Colors.CHARCOAL}
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -29,21 +29,21 @@ export const pageGroupIcon = (
 const PageIcon = MenuIcons.PAGE_ICON;
 export const pageIcon = (
   <PageIcon
-    color={Colors.ALTO}
+    color={Colors.CHARCOAL}
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
 );
 
 export const homePageIcon = (
-  <Icon color={Colors.JUNGLE_GREEN} icon="home" iconSize={ENTITY_ICON_SIZE} />
+  <Icon color={Colors.CHARCOAL} icon="home" iconSize={ENTITY_ICON_SIZE} />
 );
 
 export const hiddenPageIcon = (
-  <Icon color={Colors.ALTO} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
+  <Icon color={Colors.CHARCOAL} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
 );
 
-const WidgetIcon = MenuIcons.WIDGETS_COLORED_ICON;
+const WidgetIcon = MenuIcons.WIDGETS_ICON;
 export const widgetIcon = (
   <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
@@ -53,12 +53,12 @@ export const apiIcon = (
   <ApiIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
-const DBQueryIcon = MenuIcons.DATASOURCES_COLORED_ICON;
+const DBQueryIcon = MenuIcons.DATASOURCE_ICON_v2;
 export const dbQueryIcon = (
   <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
-const JSIcon = MenuIcons.JS_ICON;
+const JSIcon = MenuIcons.JS_ICON_V2;
 export const jsIcon = (
   <JSIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
@@ -79,7 +79,7 @@ export const jsFunctionIcon = (
 
 const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 export const settingsIcon = (
-  <SettingsIcon color={Colors.ALTO} height={12} width={12} />
+  <SettingsIcon color={Colors.GRAY} height={16} width={16} />
 );
 
 const QueryIconWrapper = styled.div`

@@ -123,7 +123,7 @@ function EntityExplorer(props: IPanelProps) {
 
   return (
     <Wrapper ref={explorerRef}>
-      <Search clear={clearSearch} isHidden={false} ref={searchInputRef} />
+      <Search clear={clearSearch} isHidden ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}
         datasources={datasources}

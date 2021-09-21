@@ -16,7 +16,7 @@ import { ReactComponent as AddCircleIcon } from "assets/icons/control/add-circle
 import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 import { ReactComponent as CollapseIcon } from "assets/icons/control/collapse.svg";
 import { ReactComponent as PickMyLocationSelectedIcon } from "assets/icons/control/pick-location-selected.svg";
-import { ReactComponent as SettingsIcon } from "assets/icons/control/settings.svg";
+import SettingsIcon from "remixicon-react/Settings5LineIcon";
 import { ReactComponent as RemoveIcon } from "assets/icons/control/remove.svg";
 import { ReactComponent as DragIcon } from "assets/icons/control/drag.svg";
 import { ReactComponent as SortIcon } from "assets/icons/control/sort-icon.svg";
@@ -60,6 +60,7 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
+import IncreaseV2Icon from "remixicon-react/AddCircleLineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
 
 /* eslint-disable react/display-name */
@@ -374,6 +375,11 @@ export const ControlIcons: {
   BOX_SHADOW_VARIANT5: (props: IconProps) => (
     <IconWrapper {...props}>
       <BoxShadowVariant5Icon />
+    </IconWrapper>
+  ),
+  INCREASE_CONTROL_V2: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <IncreaseV2Icon />
     </IconWrapper>
   ),
 };
