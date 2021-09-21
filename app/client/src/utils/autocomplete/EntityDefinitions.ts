@@ -317,17 +317,17 @@ export const entityDefinitions: Record<string, unknown> = {
   //TODO: fix this after development
   SINGLE_SELECT_TREE_WIDGET: {
     "!doc":
-      "Single Select Tree is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+      "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
     "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValue: {
       "!type": "string",
-      "!doc": "The value selected in a tree select dropdown",
+      "!doc": "The value selected in a treeselect dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     selectedOptionLabel: {
       "!type": "string",
-      "!doc": "The selected option label in a tree select dropdown",
+      "!doc": "The selected option label in a treeselect dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",
@@ -336,17 +336,17 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   MULTI_SELECT_TREE_WIDGET: {
     "!doc":
-      "Multi Select Tree is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A Tree Select can capture a single choice as well as multiple choices",
+      "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
     "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     isVisible: isVisible,
     selectedOptionValues: {
       "!type": "[string]",
-      "!doc": "The array of values selected in a tree select dropdown",
+      "!doc": "The array of values selected in a treeselect dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     selectedOptionLabels: {
       "!type": "[string]",
-      "!doc": "The array of selected option labels in a tree select dropdown",
+      "!doc": "The array of selected option labels in a treeselect dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/treeselect",
     },
     isDisabled: "bool",

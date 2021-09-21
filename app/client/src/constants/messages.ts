@@ -206,7 +206,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
@@ -255,10 +255,6 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
 export const ERROR_EVAL_TRIGGER = (message: string) =>
   `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_DELETE = (widgetName: string) =>
-  `${widgetName} widget deleted`;
-export const WIDGET_BULK_DELETE = (widgetName: string) =>
-  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -415,14 +411,31 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+export const PARSING_ERROR = () =>
+  "Syntax Error: Unable to parse code, please check error logs to debug";
+export const PARSING_WARNING = () =>
+  "Linting Errors: Please resolve linting errors before using these functions";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//undo redo
+export const WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} is removed`;
+export const WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} is added back`;
+export const BULK_WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} widgets are removed`;
+export const BULK_WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} widgets are added back`;
 
 // Generate page from DB Messages
 
@@ -623,11 +636,11 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
-  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
 export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
 export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
   "Next: Connect data to Widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>

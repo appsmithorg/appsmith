@@ -309,6 +309,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             set(widget, path, evaluatedValue);
             set(widget, `validationMessages.${path}`, "");
             set(widget, `invalidProps.${path}`, "");
+          } else if (
+            validationPath?.type === ValidationTypes.ARRAY ||
+            validationPath?.type === ValidationTypes.OBJECT_ARRAY
+          ) {
+            const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
+            set(widget, path, value);
           } else {
             set(widget, path, toString(evaluatedValue));
           }

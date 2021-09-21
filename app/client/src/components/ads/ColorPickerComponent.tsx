@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import {
   Popover,
@@ -161,6 +161,15 @@ function ColorPickerComponent(props: ColorPickerProps) {
     debouncedOnChange(value);
     setColor(value);
   };
+
+  // if props.color changes and state color is different,
+  // sets the state color to props color
+  useEffect(() => {
+    if (props.color !== color) {
+      setColor(props.color);
+    }
+  }, [props.color]);
+
   return (
     <Popover
       enforceFocus={false}
@@ -188,7 +197,7 @@ function ColorPickerComponent(props: ColorPickerProps) {
         }
         onChange={handleChangeColor}
         placeholder="enter color name or hex"
-        value={color}
+        value={color || ""}
       />
       <ColorBoard
         selectColor={(color) => {
