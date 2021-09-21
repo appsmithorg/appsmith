@@ -90,7 +90,7 @@ export const Colors = {
   FAIR_PINK: "#FFE9E9",
   OPAQ_BLUE: "rgba(106, 134, 206, 0.1)",
   RATE_ACTIVE: "#FFCB45",
-  RATE_INACTIVE: "#F2F2F2",
+  RATE_INACTIVE: "#D6D6D6",
   MALIBU: "#7DBCFF",
   ALABASTER_ALT: "#FAFAFA",
   THUNDER_ALT: "#1D1C1D",
@@ -127,6 +127,9 @@ export const Colors = {
   SELECT_DISABLED: "#ced9e080",
   SELECT_PLACEHOLDER: "#bfbfbf",
   SELECT_COLOR: "#182026",
+
+  INPUT_TEXT_DISABLED: "rgba(92, 112, 128, 0.6)",
+  INPUT_DISABLED: "rgba(206, 217, 224, 0.5)",
 
   GREY_2: "#F0F0F0",
   GREY_3: "#EBEBEB",

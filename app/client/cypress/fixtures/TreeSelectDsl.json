@@ -22,7 +22,7 @@
       "children":[
          {
             "widgetName":"MultiSelectTree1",
-            "displayName":"Multi Select Tree",
+            "displayName":"Multi TreeSelect",
             "iconSVG":"/static/media/icon.f264210c.svg",
             "labelText":"Label",
             "topRow":38,
@@ -74,7 +74,7 @@
          },
          {
             "widgetName":"SingleSelectTree1",
-            "displayName":"Single Select Tree",
+            "displayName":"TreeSelect",
             "iconSVG":"/static/media/icon.f815ebe3.svg",
             "labelText":"Label",
             "topRow":58,

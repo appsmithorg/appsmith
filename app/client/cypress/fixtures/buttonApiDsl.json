@@ -1,0 +1,51 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 966,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 360,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 38,
+        "minHeight": 370,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "text": "Submit",
+                "buttonStyle": "PRIMARY",
+                "buttonVariant": "SOLID",
+                "widgetName": "Button1",
+                "isDisabled": false,
+                "isDefaultClickDisabled": true,
+                "recaptchaV2": false,
+                "version": 1,
+                "type": "BUTTON_WIDGET",
+                "hideCard": false,
+                "displayName": "Button",
+                "key": "s0e87p33u7",
+                "iconSVG": "/static/media/icon.c8f649ed.svg",
+                "widgetId": "ut5ew4t3wa",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 14.90625,
+                "parentRowSpace": 10,
+                "leftColumn": 18,
+                "rightColumn": 26,
+                "topRow": 24,
+                "bottomRow": 28,
+                "parentId": "0"
+            }
+        ]
+    }
+}

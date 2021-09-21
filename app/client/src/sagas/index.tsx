@@ -36,6 +36,7 @@ import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
+import replaySaga from "./ReplaySaga";
 import gitSyncSagas from "./GitSyncSagas";
 
 import log from "loglevel";
@@ -79,6 +80,7 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  replaySaga,
   draggingCanvasSagas,
   gitSyncSagas,
 ];
