@@ -70,15 +70,11 @@ export function getDependenciesFromInverseDependencies(
   const inverseDependencies = new Set<string>();
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
-    const entity = dependant
-      .split(".")
-      .slice(0, 1)
-      .join("");
+    const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
     (dependencies as any).map((dependency: any) => {
-      const entityDependency = dependency
-        .split(".")
-        .slice(0, 1)
-        .join("");
+      const { entityName: entityDependency } = getEntityNameAndPropertyPath(
+        dependency,
+      );
       if (entity !== entityName && entityDependency === entityName) {
         directDependencies.add(entity);
       } else if (entity === entityName && entityDependency !== entityName) {
