@@ -185,7 +185,8 @@
     "postinstall": "patch-package"
   },
   "resolution": {
-    "jest": "24.8.0"
+    "jest": "24.8.0",
+    "babel-loader": "8.1.0"
   },
   "eslintConfig": {
     "extends": "react-app",
