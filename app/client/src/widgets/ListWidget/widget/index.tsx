@@ -12,7 +12,6 @@ import {
   omit,
   floor,
   isEmpty,
-  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
