@@ -350,7 +350,7 @@ public class FilterDataServiceTest {
                 "    \"orderStatus\": \"READY\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"id\": 2736212,\n" +
+                "    \"id\": \"\",\n" +
                 "    \"email id\": \"\",\n" +
                 "    \"userName\": \"Lindsay Ferguson\",\n" +
                 "    \"productName\": \"Tuna Salad\",\n" +
@@ -358,7 +358,7 @@ public class FilterDataServiceTest {
                 "    \"orderStatus\": \"READY\"\n" +
                 "  },\n" +
                 "  {\n" +
-                "    \"id\": 6788734,\n" +
+                "    \"id\": \"\",\n" +
                 "    \"email id\": \"\",\n" +
                 "    \"userName\": \"Tobias Funke\",\n" +
                 "    \"productName\": \"Beef steak\",\n" +
@@ -378,15 +378,6 @@ public class FilterDataServiceTest {
             ArrayNode filteredData = filterDataService.filterData(items, conditionList);
 
             assertEquals(filteredData.size(), 2);
-
-            Iterator<String> fieldNamesIterator = filteredData.get(0).fieldNames();
-
-            List<String> columnNames = Stream.generate(() -> null)
-                    .takeWhile(x -> fieldNamesIterator.hasNext())
-                    .map(n -> fieldNamesIterator.next())
-                    .collect(Collectors.toList());
-
-            assertThat(columnNames.containsAll(List.of("id", "email id", "userName", "productName", "orderAmount", "orderStatus")));
 
 
         } catch (IOException e) {
