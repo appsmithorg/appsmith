@@ -129,7 +129,9 @@ class ActionAPI extends API {
     applicationId: string,
     branchName?: string,
   ): AxiosPromise<GenericApiResponse<Action[]>> {
-    return API.get(ActionAPI.url, { applicationId, branchName });
+    const queryParams = { applicationId } as any;
+    if (branchName) queryParams.branchName = branchName;
+    return API.get(ActionAPI.url, queryParams);
   }
 
   static fetchActionsForViewMode(
