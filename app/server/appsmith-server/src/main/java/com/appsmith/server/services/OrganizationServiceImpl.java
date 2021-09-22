@@ -338,4 +338,9 @@ public class OrganizationServiceImpl extends BaseService<OrganizationRepository,
                 });
     }
 
+    @Override
+    public Flux<Organization> getAll() {
+        return repository.findAll();
+    }
+
 }
