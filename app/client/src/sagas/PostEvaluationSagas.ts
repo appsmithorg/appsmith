@@ -76,12 +76,11 @@ function logLatestEvalPropertyErrors(
         getEvalErrorPath(evaluatedPath, false),
         [],
       );
-      // If linting flag is not own, filter out all lint errors
-      if (!getFeatureFlags().LINTING) {
-        allEvalErrors = allEvalErrors.filter(
-          (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-        );
-      }
+
+      allEvalErrors = allEvalErrors.filter(
+        (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+      );
+
       const evaluatedValue = get(
         entity,
         getEvalValuePath(evaluatedPath, false),

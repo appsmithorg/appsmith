@@ -269,9 +269,8 @@ class CodeEditor extends Component<Props, State> {
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
-        if (getFeatureFlags().LINTING) {
-          this.lintCode(editor);
-        }
+
+        this.lintCode(editor);
       };
 
       // Finally create the Codemirror editor
@@ -591,9 +590,7 @@ class CodeEditor extends Component<Props, State> {
     }
     /*  Evaluation results for snippet snippets */
 
-    if (getFeatureFlags().LINTING) {
-      this.lintCode(this.editor);
-    }
+    this.lintCode(this.editor);
 
     const showEvaluatedValue =
       this.state.isFocused &&
