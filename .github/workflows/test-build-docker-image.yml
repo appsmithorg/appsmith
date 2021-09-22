@@ -34,8 +34,7 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -138,9 +137,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -205,7 +204,11 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
         working-directory: app/server
         run: |
-            ./build.sh -DskipTests
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -221,9 +224,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
 
     steps:
       # Checkout the code
@@ -373,7 +376,7 @@ jobs:
       - name: "Exit if Server hasn't started"
         run: |
           lsof -i :8080 || true;
-          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+          if [[ `ps -ef | grep server | grep java |wc -l` == 0 ]]; then
             echo "Server Not Started";
             exit 1;
           else
