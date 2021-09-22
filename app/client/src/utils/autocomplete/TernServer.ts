@@ -287,7 +287,10 @@ class TernServer {
     const functions = getDataTreeFunctions();
     const { entityType } = this.fieldEntityInformation;
 
-    if (entityType && entityType !== ENTITY_TYPE.ACTION) {
+    if (
+      entityType &&
+      [ENTITY_TYPE.APPSMITH, ENTITY_TYPE.WIDGET].includes(entityType)
+    ) {
       filteredCompletions = completions.filter(
         (completion) => !functions.includes(completion.text.replace("()", "")),
       );
