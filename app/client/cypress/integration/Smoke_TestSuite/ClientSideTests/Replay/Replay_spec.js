@@ -29,50 +29,50 @@ describe("Undo/Redo functionality", function() {
     cy.get(widgetsPage.checkboxWidget).should("exist");
   });
 
-  it("checks moving of widgets", function() {
-    cy.document().then((doc) => {
-      const initialPosition = doc
-        .querySelector(widgetsPage.checkboxWidget)
-        .getBoundingClientRect();
+  // it("checks moving of widgets", function() {
+  //   cy.document().then((doc) => {
+  //     const initialPosition = doc
+  //       .querySelector(widgetsPage.checkboxWidget)
+  //       .getBoundingClientRect();
 
-      cy.get(commonlocators.editIcon)
-        .trigger("mousedown", { which: 1 })
-        .trigger("dragstart", { force: true });
+  //     cy.get(commonlocators.editIcon)
+  //       .trigger("mousedown", { which: 1 })
+  //       .trigger("dragstart", { force: true });
 
-      cy.get(explorer.dropHere)
-        .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
-        .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
-        .trigger("mouseup", 200, 300, { eventConstructor: "MouseEvent" });
+  //     cy.get(explorer.dropHere)
+  //       .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
+  //       .trigger("mousemove", 200, 300, { eventConstructor: "MouseEvent" })
+  //       .trigger("mouseup", 200, 300, { eventConstructor: "MouseEvent" });
 
-      cy.wait(1000).then(() => {
-        const positionAfterChange = doc
-          .querySelector(widgetsPage.checkboxWidget)
-          .getBoundingClientRect();
+  //     cy.wait(1000).then(() => {
+  //       const positionAfterChange = doc
+  //         .querySelector(widgetsPage.checkboxWidget)
+  //         .getBoundingClientRect();
 
-        expect(positionAfterChange.top).to.not.equal(initialPosition.top);
-      });
+  //       expect(positionAfterChange.top).to.not.equal(initialPosition.top);
+  //     });
 
-      cy.get("body").type(`{${modifierKey}}z`);
+  //     cy.get("body").type(`{${modifierKey}}z`);
 
-      cy.wait(1000).then(() => {
-        const positionAfterUndo = doc
-          .querySelector(widgetsPage.checkboxWidget)
-          .getBoundingClientRect();
+  //     cy.wait(1000).then(() => {
+  //       const positionAfterUndo = doc
+  //         .querySelector(widgetsPage.checkboxWidget)
+  //         .getBoundingClientRect();
 
-        expect(positionAfterUndo.top).to.equal(initialPosition.top);
-      });
+  //       expect(positionAfterUndo.top).to.equal(initialPosition.top);
+  //     });
 
-      cy.get("body").type(`{${modifierKey}}{shift}z`);
+  //     cy.get("body").type(`{${modifierKey}}{shift}z`);
 
-      cy.wait(1000).then(() => {
-        const positionAfterRedo = doc
-          .querySelector(widgetsPage.checkboxWidget)
-          .getBoundingClientRect();
+  //     cy.wait(1000).then(() => {
+  //       const positionAfterRedo = doc
+  //         .querySelector(widgetsPage.checkboxWidget)
+  //         .getBoundingClientRect();
 
-        expect(positionAfterRedo.top).to.equal(initialPosition.top);
-      });
-    });
-  });
+  //       expect(positionAfterRedo.top).to.equal(initialPosition.top);
+  //     });
+  //   });
+  // });
 
   it("checks undo/redo for toggle control in property pane", function() {
     cy.openPropertyPane("checkboxwidget");
