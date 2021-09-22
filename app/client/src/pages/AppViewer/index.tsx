@@ -17,7 +17,6 @@ import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -176,12 +175,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetPropertyRequest(
-        widgetId,
-        propertyName,
-        propertyValue,
-        RenderModes.PAGE,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
     ),
   updateWidgetMetaProperty: (
     widgetId: string,

@@ -178,6 +178,13 @@ const createDragHandler = (
   return dragElement;
 };
 
+// Function to access nested property in an object
+const getNestedValue = (obj: Record<string, any>, path = "") => {
+  return path.split(".").reduce((prev, cur) => {
+    return prev && prev[cur];
+  }, obj);
+};
+
 export const useIsWidgetActionConnectionPresent = (
   widgets: any,
   actions: any,
@@ -200,7 +207,8 @@ export const useIsWidgetActionConnectionPresent = (
         widget.dynamicTriggerPathList &&
         !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
           return !!actionLables.find((label: string) => {
-            return widget[path.key].indexOf(`${label}.run`) > -1;
+            const snippet = getNestedValue(widget, path.key);
+            return snippet ? snippet.indexOf(`${label}.run`) > -1 : false;
           });
         })
       );

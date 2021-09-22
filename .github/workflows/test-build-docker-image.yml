@@ -1,4 +1,4 @@
-name: Appsmith Test Workflow
+name: Test, build and push Docker Image
 
 on:
   # This line enables manual triggering of this workflow.
@@ -10,6 +10,7 @@ on:
     paths:
       - "app/client/**"
       - "app/server/**"
+      - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
   # trigger for pushes to release and master
@@ -18,6 +19,7 @@ on:
     paths:
       - "app/client/**"
       - "app/server/**"
+      - "app/rts/**"
       - "!app/client/cypress/manual_TestSuite/**"
 
 # Change the working directory for all the jobs in this workflow
@@ -32,20 +34,19 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app/client
         shell: bash
 
-    steps:    
+    steps:
       # Checkout the code
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
- 
+
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
@@ -121,12 +122,13 @@ jobs:
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             REACT_APP_IS_APPSMITH_CLOUD=${{ secrets.IS_APPSMITH_CLOUD }} \
             yarn build
+          ls -l build
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build/
 
   buildServer:
@@ -136,9 +138,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository || 
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -193,8 +195,8 @@ jobs:
           echo "next_version = $next_version"
           echo ::set-output name=version::$next_version-SNAPSHOT
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
-          
-      - name: Build package
+
+      - name: Test and Build package
         env:
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
@@ -203,19 +205,81 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
         working-directory: app/server
         run: |
-            ./build.sh -DskipTests
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
+          ls -l dist
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
         uses: actions/upload-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist/
 
+  buildRts:
+    defaults:
+      run:
+        working-directory: app/rts
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 14.15.4
+        uses: actions/setup-node@v1
+        with:
+          node-version: "14.15.4"
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+
+      - name: Build
+        run: |
+          ./build.sh
+          ls -l dist
+
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist/
+
   ui-test:
-    needs: [buildClient, buildServer]
+    needs: [buildClient, buildServer, buildRts]
     # Only run if the build step is successful
-    if: success()
+    # If the build has been triggered manually via workflow_dispatch or via a push to protected branches
+    # then we don't check for the PR approved state
+    if: |
+      success() &&
+      (github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request_review' &&
+      github.event.review.state == 'approved'))
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -225,7 +289,7 @@ jobs:
       fail-fast: false
       matrix:
         job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        
+
     # Service containers to run with this job. Required for running tests
     services:
       # Label used to access the service container
@@ -250,7 +314,7 @@ jobs:
 
       - name: Checkout the head commit of the branch
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/checkout@v2   
+        uses: actions/checkout@v2
 
       # Setup Java
       - name: Set up JDK 1.11
@@ -261,7 +325,7 @@ jobs:
       - name: Download the server build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
@@ -292,7 +356,7 @@ jobs:
           echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Start server
-      - name: start server
+      - name: Start server
         working-directory: app/server
         env:
           APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
@@ -304,22 +368,20 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
         run: |
-            ls -l
-            ls -l scripts/
-            ls -l dist/
-            nohup ./scripts/start-dev-server.sh 2>&1 &
+          ls -l
+          ls -l scripts/
+          ls -l dist/
+          nohup ./scripts/start-dev-server.sh 2>&1 &
 
-      - name: Wait for 30 seconds for server to start
+      - name: Wait for 30s and check if server is running
         run: |
-            sleep 30s 
-            
-      - name: Exit if Server hasnt started
-        run: |
-         if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-            echo "Server Not Started";
-            exit 1;
+          sleep 30s
+          if lsof -i :8080; then
+            echo "Server Found"
           else
-            echo "Server Found";
+            echo "Server Not Started. Printing logs from server process"
+            cat app/server/nohup.out
+            exit 1
           fi
 
       - name: Use Node.js 14.15.4
@@ -351,7 +413,7 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Installing Yarn serve
@@ -418,7 +480,6 @@ jobs:
 
   ui-test-result:
     needs: ui-test
-    # Only run if the ui-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
     defaults:
@@ -464,37 +525,104 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist
 
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
       - name: Get the version to tag the Docker image
-        id: branch_name
+        id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Build release Docker image and push to Docker Hub
-      - name: Push release image to Docker Hub
+      - name: Push client release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
-
-      # Build release-frozen Docker image and push to Docker Hub
-      - name: Push release-frozen image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release-frozen' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
+      - name: Push client master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        working-directory: app/client
         run: |
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push server release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/server
+        run: |
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push server master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/server
+        run: |
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push RTS release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+
+      # Build master Docker image and push to Docker Hub
+      - name: Push RTS master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master'
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+
+      - name: Build and push release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          docker build \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}} \
+            .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+
+      - name: Build and push master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          docker build \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly \
+            .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce

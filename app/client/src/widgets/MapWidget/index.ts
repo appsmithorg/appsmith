@@ -8,8 +8,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 12 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8 * GRID_DENSITY_MIGRATION_V1,
+    rows: 10 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     isDisabled: false,
     isVisible: true,
     widgetName: "Map",
@@ -18,7 +18,7 @@ export const CONFIG = {
     enablePickLocation: true,
     allowZoom: true,
     mapCenter: { lat: 25.122, long: 50.132 },
-    defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Test A" }],
+    defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Location1" }],
     version: 1,
   },
   properties: {

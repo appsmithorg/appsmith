@@ -62,7 +62,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     height: 25px;
     font-family: ${(props) => props.theme.fonts.text};
     ${(props) => getTypographyByKey(props, "p3")}
-    &:hover, &.CodeMirror-hint-active {
+    &.CodeMirror-hint-active {
       svg {
         path {
           fill: #ffffff;

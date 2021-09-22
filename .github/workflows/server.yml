@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository || 
+      github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch'
 
@@ -93,7 +93,7 @@ jobs:
             -DnewVersion=${{ steps.vars.outputs.version }} \
             -DgenerateBackupPoms=false \
             -DprocessAllModules=true
-          mvn --batch-mode package
+          ./build.sh
 
       # Build release Docker image and push to Docker Hub
       - name: Push release image to Docker Hub

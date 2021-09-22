@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Documentation;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.AddItemToPageDTO;

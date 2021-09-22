@@ -8,8 +8,8 @@ VOLUME /tmp
 
 EXPOSE 8080
 
-ARG JAR_FILE=./appsmith-server/target/server-*.jar
-ARG PLUGIN_JARS=./appsmith-plugins/*/target/*.jar
+ARG JAR_FILE=./dist/server-*.jar
+ARG PLUGIN_JARS=./dist/plugins/*.jar
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 
