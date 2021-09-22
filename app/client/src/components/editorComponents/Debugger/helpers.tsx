@@ -64,6 +64,8 @@ export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
 ) {
+  // eslint-disable-next-line no-console
+  console.log("DEPENDENCY", deps);
   if (!entityName) return null;
 
   const directDependencies = new Set<string>();
