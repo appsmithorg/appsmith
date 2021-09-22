@@ -152,10 +152,9 @@ public class GitFileUtils {
     }
 
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String defaultPageId,
-                                        String applicationId,
-                                        String baseUrlOfApplication) throws IOException {
-        return fileUtils.initializeGitRepo(baseRepoSuffix,defaultPageId, applicationId,baseUrlOfApplication);
+                                        String viewModelUrl,
+                                        String editModeUrl) throws IOException {
+        return fileUtils.initializeGitRepo(baseRepoSuffix,viewModelUrl, editModeUrl);
     }
 
     public Mono<Boolean> detachRemote(Path baseRepoSuffix) {

@@ -4,8 +4,10 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -350,24 +352,33 @@ public class GitServiceImpl implements GitService {
                             }
                         })
                         .flatMap(application -> {
-                            /*String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                            String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                            String defaultPageId = "";
+                            if(application.getPages().isEmpty()) {
+                                defaultPageId = application.getPages()
+                                        .stream()
+                                        .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
+                                        .collect(Collectors.toList())
+                                        .get(0)
+                                        .getId();
+                            } else {
+                                // TODO either throw error message saying invalid application or have a default value
+                                defaultPageId = "defaultPage";
+                            }
+                            String viewModeUrl = Paths.get("/", application.getId(),
+                                    Entity.APPLICATIONS, Entity.PAGES, defaultPageId).toString();
+                            String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
                             //Initialize the repo with readme file
                             try {
                                 fileUtils.initializeGitRepo(
                                         Paths.get(application.getOrganizationId(), defaultApplicationId, repoName, "README.md"),
-                                        application.getPages()
-                                                .stream()
-                                                .filter(applicationPage -> applicationPage.getIsDefault().equals(Boolean.TRUE))
-                                                .collect(Collectors.toList())
-                                                .get(0)
-                                                .getId(),
-                                        application.getId(),
-                                        originHeader
+                                        originHeader + viewModeUrl,
+                                        originHeader + editModeUrl
                                 );
                             } catch (IOException e) {
                                 log.error("Error while cloning the remote repo, {}", e.getMessage());
                                 return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            }*/
+                            }
                             return Mono.just(application);
                         })
                 );

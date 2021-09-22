@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
@@ -48,7 +51,12 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 public class FileUtilsImpl implements FileInterface {
 
     private final GitServiceConfig gitServiceConfig;
+
     private final GitExecutor gitExecutor;
+
+    private final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
+
+    private final String VIEW_MODE_URL_TEMPLATE = "{{viewModeUrl}}";
 
     /**
      * This method will save the complete application in the local repo directory. We are going to use the worktree
@@ -234,27 +242,27 @@ public class FileUtilsImpl implements FileInterface {
         return applicationGitReference;
     }
 
-    /** This is used to initialize repo with Readme file when the application is connected to remote repo
-     * @param baseRepoSuffix       path suffix used to create a branch repo path as per worktree implementation
-     * @param defaultPageId        Used to construct the url of the published app
-     * @param applicationId        Used to construct the url of the published app
-     * @param baseUrlOfApplication Used to construct the url of the published app
+    /**
+     * This is used to initialize repo with Readme file when the application is connected to remote repo
+     *
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @param viewModeUrl    URL to deployed version of the application view only mode
+     * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path to the base repo
      * @throws IOException
      */
     @Override
     public Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                        String defaultPageId,
-                                        String applicationId,
-                                        String baseUrlOfApplication) throws IOException {
+                                        String viewModeUrl,
+                                        String editModeUrl) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(gitServiceConfig.getInitialTemplatePath()).getFile());
-        String viewModeUrl = Paths.get(baseUrlOfApplication, applicationId, "application", "pages", defaultPageId).toString();
-        String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
-        String data = FileUtils.readFileToString(file, "UTF-8").replace("{{viewModeUrl}}", viewModeUrl);
-        data = data.replace("{{editModeUrl}}", editModeUrl);
+        InputStream inputStream = classLoader.getResourceAsStream(gitServiceConfig.getInitialTemplatePath());
 
-        file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
+        StringWriter stringWriter = new StringWriter();
+        IOUtils.copy(inputStream, stringWriter, "UTF-8");
+        String data = stringWriter.toString().replace(EDIT_MODE_URL_TEMPLATE, editModeUrl).replace(VIEW_MODE_URL_TEMPLATE, viewModeUrl);
+
+        File file = new File(Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix).toFile().toString());
         FileUtils.writeStringToFile(file, data, "UTF-8", false);
 
         return Mono.just(baseRepoSuffix);

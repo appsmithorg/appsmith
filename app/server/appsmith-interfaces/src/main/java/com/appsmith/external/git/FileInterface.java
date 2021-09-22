@@ -50,16 +50,14 @@ public interface FileInterface {
      * Link to appsmith documentation for Git related operations
      * Welcome message
      *
-     * @param baseRepoSuffix       path suffix used to create a branch repo path as per worktree implementation
-     * @param defaultPageId        Used to construct the url of the published app
-     * @param applicationId        Used to construct the url of the published app
-     * @param baseUrlOfApplication Used to construct the url of the published app
+     * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
+     * @param viewModeUrl    URL to deployed version of the application view only mode
+     * @param editModeUrl    URL to deployed version of the application edit mode
      * @return Path where the Application is stored
      */
     Mono<Path> initializeGitRepo(Path baseRepoSuffix,
-                                 String defaultPageId,
-                                 String applicationId,
-                                 String baseUrlOfApplication) throws IOException;
+                                 String viewModeUrl,
+                                 String editModeUrl) throws IOException;
 
     /**
      * When the user clicks on detach remote, we need to remove the repo from the file system
