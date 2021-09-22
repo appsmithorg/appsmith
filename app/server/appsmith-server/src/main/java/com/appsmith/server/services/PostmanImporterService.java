@@ -5,7 +5,7 @@ import com.appsmith.external.models.ApiTemplate;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.TemplateCollection;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.dtos.ActionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;

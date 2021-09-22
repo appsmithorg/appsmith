@@ -40,6 +40,7 @@
   "invalidValue": "invalid",
   "Put": "PUT",
   "Get": "GET",
+  "buttonName": "TestNew",
   "next": "?page=2&pageSize=10",
   "prev": "?page=1&pageSize=10",
   "apiFormDataBodyType": "x-www-form-urlencoded",
