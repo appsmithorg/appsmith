@@ -12,6 +12,7 @@ import {
   getGitBranches,
   getFetchingBranches,
 } from "selectors/gitSyncSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const useBranches = () => {
   const branches = useSelector(getGitBranches);
@@ -30,7 +31,7 @@ const useBranches = () => {
         icon: "plus" as IconName,
         data: { isCreateNewOption: true },
       },
-      branches.map((branch: string) => ({
+      ...branches.map((branch: string) => ({
         label: branch,
         value: branch,
       })),
@@ -86,6 +87,8 @@ export default function BranchDropdown(props: {
     );
   };
 
+  const gitMetadata = useSelector(getCurrentAppGitMetaData);
+
   return showCreateBranchForm ? (
     <CreateNewBranchForm
       onCancel={() => setShowCreateNewBranchForm(false)}
@@ -97,7 +100,10 @@ export default function BranchDropdown(props: {
       fillOptions
       onSelect={handleSelect}
       options={branches as DropdownOption[]}
-      selected={{ label: "master", value: "master" }} // todo use current branch here
+      selected={{
+        label: gitMetadata?.branchName,
+        value: gitMetadata?.branchName,
+      }} // todo use current branch here
       showLabelOnly
     />
   );

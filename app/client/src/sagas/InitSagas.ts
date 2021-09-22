@@ -211,7 +211,9 @@ export function* initializeAppViewerSaga(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
   yield put(setAppMode(APP_MODE.PUBLISHED));
-  yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
+  yield put(
+    updateAppPersistentStore(getPersistentAppStore(applicationId, branchName)),
+  );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions

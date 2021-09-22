@@ -66,6 +66,16 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       if (action.onSuccessCallback) {
         action.onSuccessCallback(response);
       }
+      const currentBranchName = extractBranchNameFromPath();
+      const branchName = response?.data?.gitApplicationMetadata?.branchName;
+
+      if (currentBranchName !== branchName) {
+        const updatedPath = addOrReplaceBranch(
+          branchName,
+          window.location.pathname,
+        );
+        history.push(updatedPath);
+      }
     }
   } catch (error) {
     if (action.onErrorCallback) {

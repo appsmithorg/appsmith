@@ -219,7 +219,7 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, branchName } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
@@ -227,6 +227,7 @@ export function* fetchActionsForViewModeSaga(
   try {
     const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
+      branchName,
     );
     const correctFormatResponse = response.data.map((action) => {
       return {
