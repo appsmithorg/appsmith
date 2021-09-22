@@ -3,7 +3,10 @@ import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  EditorTheme,
+  FieldEntityInformation,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
@@ -178,12 +181,12 @@ interface Props {
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
-  entityName?: string;
+  entity?: FieldEntityInformation;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
-  entityName?: string;
+  entity?: FieldEntityInformation;
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
@@ -383,7 +386,7 @@ function PopoverContent(props: PopoverContentProps) {
               : error.errorMessage}
           </span>
           <EvaluatedValueDebugButton
-            entityName={props.entityName}
+            entity={props.entity}
             error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
@@ -455,7 +458,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
-          entityName={props.entityName}
+          entity={props.entity}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}

@@ -782,7 +782,9 @@ function* buildMetaForSnippets(
   expectedType: string,
   propertyPath: string,
 ) {
-  const refinements: any = {};
+  const refinements: any = {
+    entities: [entityType],
+  };
   const fieldMeta: { dataType: string; fields?: string; entities?: string } = {
     dataType: expectedType,
   };
@@ -827,11 +829,11 @@ function* getCurrentEntity(
   ) {
     const id = params.apiId || params.queryId;
     const action: Action = yield select(getAction, id);
-    entityId = action.id;
+    entityId = action?.id;
     entityType = ENTITY_TYPE.ACTION;
   } else {
     const widget: FlattenedWidgetProps = yield select(getSelectedWidget);
-    entityId = widget.widgetId;
+    entityId = widget?.widgetId;
     entityType = ENTITY_TYPE.WIDGET;
   }
   return { entityId, entityType };
