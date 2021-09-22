@@ -3,12 +3,8 @@ import { useState, useCallback, useEffect } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import {
-  getCurrentAppGitMetaData,
-  getCurrentApplication,
-} from "selectors/applicationSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { debug } from "loglevel";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
