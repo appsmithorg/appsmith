@@ -172,13 +172,10 @@ const useUserSuggestions = (
   const canManage = getCanCreateApplications(currentOrg);
 
   useEffect(() => {
-    const result = [] as Array<MentionData>;
-    users.forEach((user) => {
-      result.push({
-        name: user.name || user.username,
-        user,
-      });
-    });
+    const result: Array<MentionData> = users.map((user) => ({
+      name: user.name || user.username,
+      user,
+    }));
 
     result.sort(sortMentionData());
 
