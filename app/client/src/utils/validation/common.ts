@@ -44,7 +44,6 @@ export function getExpectedValue(
         example: "abc",
         autocompleteDataType: AutocompleteDataType.STRING,
       };
-
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result.type = result.type + ` ( ${allowed} )`;
