@@ -534,7 +534,7 @@ jobs:
           name: server-build
           path: app/server/dist
 
-      - name: Download the server build artifact
+      - name: Download the rts build artifact
         uses: actions/download-artifact@v2
         with:
           name: rts-build
