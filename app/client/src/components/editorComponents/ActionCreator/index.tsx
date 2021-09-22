@@ -391,7 +391,8 @@ function getIntegrationOptionsWithChildren(
   const apis = actions.filter(
     (action) =>
       action.config.pluginType === PluginType.API ||
-      action.config.pluginType === PluginType.SAAS,
+      action.config.pluginType === PluginType.SAAS ||
+      action.config.pluginType === PluginType.REMOTE,
   );
   const option = options.find(
     (option) => option.value === ActionType.integration,

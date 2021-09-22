@@ -8,7 +8,7 @@ mvn clean package "$@"
 
 if [ $? -eq 0 ]
 then
-  echo "mvn Successfull"
+  echo "mvn Successful"
 else
   echo "mvn Failed"
   exit 1
