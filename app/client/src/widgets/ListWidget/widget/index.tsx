@@ -12,6 +12,7 @@ import {
   omit,
   floor,
   isEmpty,
+  isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
 import shallowEqual from "shallowequal";
@@ -646,15 +647,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
-
-      childCanvas.children = this.getCanvasChildren(
-        template,
-        this.props.listData,
-        this.props.template,
-        page,
-        this.props.gridGap,
-        this.props.itemBackgroundColor,
-      );
+      try {
+        childCanvas.children = this.getCanvasChildren(
+          template,
+          this.props.listData,
+          this.props.template,
+          page,
+          this.props.gridGap,
+          this.props.itemBackgroundColor,
+          this.props.children,
+        );
+      } catch (e) {
+        log.error(e);
+      }
       return this.renderChild(childCanvas);
     }
   };
@@ -671,6 +676,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       gridGap,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      children,
     ) => {
       let canvasChildren = [];
       for (let i = 0; i < listData.length; i++) {
@@ -685,6 +692,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return (
         shallowEqual(prev[1], next[1]) &&
         shallowEqual(prev[2], next[2]) &&
+        shallowEqual(prev[6], next[6]) &&
         prev[3] === next[3] &&
         prev[4] === next[4] &&
         prev[5] === next[5]
