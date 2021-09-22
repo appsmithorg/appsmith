@@ -374,7 +374,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
         <>
           {isGlobalConfigDefined ? (
             <>
-              <Space size={12} />
+              <Space size={7} />
               <FlexRow>
                 <Text className="" type={TextType.P1}>
                   Use Default Config
@@ -388,7 +388,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
             </>
           ) : null}
 
-          <Space size={12} />
+          <Space size={7} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
             authorInfo={authorInfo}
