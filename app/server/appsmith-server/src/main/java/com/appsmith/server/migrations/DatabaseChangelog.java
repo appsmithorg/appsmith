@@ -3242,7 +3242,7 @@ public class DatabaseChangelog {
     }
 
     @ChangeSet(order = "089", id = "migrate-old-app-color-to-new-colors", author = "")
-    public void migrateOldAppColorsToNewColors(MongoTemplate mongoTemplate) {
+    public void migrateOldAppColorsToNewColors(MongockTemplate mongoTemplate) {
         String[] oldColors = {
                 "#FF6786", "#FFAD5E", "#FCD43E", "#B0E968", "#5CE7EF", "#69B5FF", "#9177FF", "#FF76FE",
                 "#61DF48", "#FF597B", "#6698FF", "#F8C356", "#6C4CF1", "#C5CD90", "#6272C8", "#4F70FD",
