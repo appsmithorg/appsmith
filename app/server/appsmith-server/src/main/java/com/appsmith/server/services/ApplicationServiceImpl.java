@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.git.helpers.StringOutputStream;
 import com.appsmith.server.acl.AclPermission;
@@ -215,6 +216,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
     @Override
     public Flux<Application> findAllApplicationsByOrganizationId(String organizationId) {
         return repository.findByOrganizationId(organizationId);
+    }
+
+    @Override
+    public Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return getApplicationInViewMode(defaultApplicationId);
+        }
+        return getChildApplicationId(branchName, defaultApplicationId, READ_APPLICATIONS)
+            .flatMap(this::getApplicationInViewMode);
     }
 
     @Override
@@ -440,5 +450,16 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
           by the updateById method of the BaseAppsmithRepositoryImpl
          */
         return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
+    }
+
+    public Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {
+        if (StringUtils.isEmpty(branchName)) {
+            return Mono.just(defaultApplicationId);
+        }
+        return repository.getApplicationByGitBranchAndDefaultApp(branchName, defaultApplicationId, permission)
+            .switchIfEmpty(Mono.error(
+                new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
+            )
+            .map(BaseDomain::getId);
     }
 }

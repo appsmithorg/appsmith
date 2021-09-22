@@ -43,6 +43,7 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
 
     private final NewActionService newActionService;
     private final PolicyGenerator policyGenerator;
+    private final ApplicationService applicationService;
 
     @Autowired
     public ActionCollectionServiceImpl(Scheduler scheduler,
@@ -52,10 +53,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
                                        ActionCollectionRepository repository,
                                        AnalyticsService analyticsService,
                                        NewActionService newActionService,
-                                       PolicyGenerator policyGenerator) {
+                                       PolicyGenerator policyGenerator,
+                                       ApplicationService applicationService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
+        this.applicationService = applicationService;
     }
 
     @Override
@@ -154,10 +157,12 @@ public class ActionCollectionServiceImpl extends BaseService<ActionCollectionRep
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return repository
-                    .findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), viewMode, READ_ACTIONS)
-                    .flatMap(actionCollection ->
-                            generateActionCollectionByViewMode(actionCollection, viewMode));
+            return applicationService
+                .getChildApplicationId(params.getFirst(FieldName.BRANCH_NAME), params.getFirst(FieldName.APPLICATION_ID), READ_ACTIONS)
+                .flatMapMany(childApplicationId ->
+                    repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), viewMode, READ_ACTIONS)
+                )
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
         }
 
         String name = null;

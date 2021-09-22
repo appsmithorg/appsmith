@@ -27,6 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(Url.PAGE_URL)
@@ -74,15 +75,17 @@ public class PageController {
     }
 
     @Deprecated
-    @GetMapping("/application/{applicationId}")
-    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId) {
-        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, false)
+    @GetMapping({"/application/{applicationId}", "/application/{applicationId}/branch/{branchName}"})
+    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(@PathVariable String applicationId,
+                                                                              @PathVariable Optional<String> branchName) {
+        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, branchName.orElse(null), false)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
-    @GetMapping("/view/application/{applicationId}")
-    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId) {
-        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, true)
+    @GetMapping({"/view/application/{applicationId}", "view/application/{applicationId}/branch/{branchName}"})
+    public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(@PathVariable String applicationId,
+                                                                                        @PathVariable Optional<String> branchName) {
+        return newPageService.findApplicationPagesByApplicationIdAndViewMode(applicationId, branchName.orElse(null), true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

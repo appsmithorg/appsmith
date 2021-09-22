@@ -33,6 +33,8 @@ public interface ApplicationService extends CrudService<Application, String> {
 
     Mono<Application> getApplicationInViewMode(String applicationId);
 
+    Mono<Application> getApplicationInViewMode(String defaultApplicationId, String branchName);
+
     Mono<Application> saveLastEditInformation(String applicationId);
 
     Mono<Application> setTransientFields(Application application);
@@ -44,4 +46,6 @@ public interface ApplicationService extends CrudService<Application, String> {
     Mono<Application> getApplicationByBranchNameAndDefaultApplication(String branchName,
                                                                       String defaultApplicationId,
                                                                       AclPermission aclPermission);
+
+    Mono<String> getChildApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 }
