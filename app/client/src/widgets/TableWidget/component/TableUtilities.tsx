@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
@@ -746,6 +746,17 @@ export function SelectCell(props: {
     props.options,
     (option) => option.value === props.value,
   );
+  const handleOptionChange = useCallback(
+    (optionSelected) => {
+      props.onOptionChange(
+        props.columnId,
+        props.rowIndex,
+        props.action,
+        optionSelected,
+      );
+    },
+    [props.columnId, props.rowIndex, props.action],
+  );
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
@@ -759,14 +770,7 @@ export function SelectCell(props: {
           isFilterable={false}
           isLoading={false}
           onFilterChange={noop}
-          onOptionSelected={(optionSelected) => {
-            props.onOptionChange(
-              props.columnId,
-              props.rowIndex,
-              props.action,
-              optionSelected,
-            );
-          }}
+          onOptionSelected={handleOptionChange}
           options={props.options}
           placeholder={props.placeholderText}
           selectedIndex={selectedIndex}
@@ -799,6 +803,17 @@ export function SwitchCell(props: {
   widgetId: string;
   rowIndex: number;
 }) {
+  const handleChange = useCallback(
+    (isSwitchedOn: boolean) => {
+      props.onChange(
+        props.columnId,
+        props.rowIndex,
+        props.action,
+        isSwitchedOn,
+      );
+    },
+    [props.columnId, props.rowIndex, props.action],
+  );
   let isSwitchOn;
   try {
     isSwitchOn = JSON.parse(props.value);
@@ -818,14 +833,7 @@ export function SwitchCell(props: {
         isSwitchedOn={isSwitchOn}
         key={props.widgetId}
         label={props.label || "Label"}
-        onChange={(isSwitchedOn: boolean) => {
-          props.onChange(
-            props.columnId,
-            props.rowIndex,
-            props.action,
-            isSwitchedOn,
-          );
-        }}
+        onChange={handleChange}
         widgetId={props.widgetId}
       />
     </SwitchCellWrapper>
@@ -854,16 +862,26 @@ export function RatingCell(props: {
   rowIndex: number;
 }) {
   const showRating = props.value || props.value === 0;
+  const handleWrapperClick = useCallback(
+    (e) => {
+      if (showRating) {
+        e.stopPropagation();
+      }
+    },
+    [showRating],
+  );
+  const handleChange = useCallback(
+    (newValue: number) => {
+      props.onChange(props.columnId, props.rowIndex, props.action, newValue);
+    },
+    [props.columnId, props.rowIndex, props.action],
+  );
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
-      onClick={(e) => {
-        if (showRating) {
-          e.stopPropagation();
-        }
-      }}
+      onClick={handleWrapperClick}
     >
       {showRating && (
         <RateComponent
@@ -881,14 +899,7 @@ export function RatingCell(props: {
           isLoading={false}
           key={props.widgetId}
           maxCount={props.maxCount}
-          onValueChanged={(newValue: number) => {
-            props.onChange(
-              props.columnId,
-              props.rowIndex,
-              props.action,
-              newValue,
-            );
-          }}
+          onValueChanged={handleChange}
           readonly={props.isDisabled}
           size="MEDIUM"
           value={props.value}
