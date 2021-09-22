@@ -1,6 +1,7 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 import { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import { getCurrentAppGitMetaData } from "./applicationSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -10,7 +11,10 @@ export const getIsGitSyncModalOpen = createSelector(
   (gitSync) => gitSync.isGitSyncModalOpen,
 );
 
-export const getIsGitRepoSetup = () => true;
+export const getIsGitRepoSetup = (state: AppState) => {
+  const gitMetadata = getCurrentAppGitMetaData(state);
+  return gitMetadata?.remoteUrl;
+};
 
 export const getIsCommittingInProgress = (state: AppState) =>
   state.ui.gitSync.isCommitting;
