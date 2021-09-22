@@ -463,7 +463,10 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
     }
   }
   .t--right-icon {
-    margin-left: 7.6px;
+    margin-left: ${(props) => props.theme.spaces[3] - 1.33}px;
+  }
+  .t--left-icon {
+    margin-right: ${(props) => props.theme.spaces[3] - 1.33}px;
   }
 `;
 
@@ -505,7 +508,7 @@ const getIconContent = (props: ButtonProps, rightPosFlag = false) =>
       <IconLoadingState {...props} />
     ) : (
       <Icon
-        className={rightPosFlag ? "t--right-icon" : ""}
+        className={rightPosFlag ? "t--right-icon" : "t--left-icon"}
         name={props.icon}
         size={IconSizeProp(props.size)}
       />
