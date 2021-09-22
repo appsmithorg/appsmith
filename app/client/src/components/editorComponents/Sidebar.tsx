@@ -93,7 +93,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   return (
     <div
       className={classNames({
-        "transform transition flex h-full z-3 duration-300": true,
+        "js-entity-explorer transform transition flex h-full z-3 duration-300": true,
         "relative ": pinned && !isPreviewMode,
         "-translate-x-full": (!pinned && !active) || isPreviewMode,
         fixed: !pinned || isPreviewMode,

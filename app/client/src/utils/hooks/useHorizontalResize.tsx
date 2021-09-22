@@ -11,7 +11,7 @@ import { unFocus } from "utils/helpers";
 const useHorizontalResize = (
   ref: MutableRefObject<HTMLElement | null>,
   onSizeChange: (newWidth: number) => void,
-  inverse = false,
+  onDragFinished?: () => void,
 ) => {
   let MIN_WIDTH = 0;
   let MAX_WIDTH = 0;
@@ -74,9 +74,14 @@ const useHorizontalResize = (
 
   /**
    * sets resizing false on mouse up
+   * also calls onDragFinished if any
    */
   const onMouseUp = () => {
     if (resizing) {
+      if (typeof onDragFinished === "function") {
+        onDragFinished();
+      }
+
       setResizing(false);
       document.body.classList.remove("cursor-ew-resize");
     }
@@ -109,7 +114,7 @@ const useHorizontalResize = (
         const width = ref.current.getBoundingClientRect().width;
         const current = event.touches[0].clientX;
         const positionDelta = position - current;
-        const widthDelta = inverse ? -positionDelta : positionDelta;
+        const widthDelta = positionDelta;
         let newWidth = width - widthDelta;
         const newPosition = position - positionDelta;
 
