@@ -280,6 +280,8 @@ export const entityDefinitions: Record<string, unknown> = {
     selectedItem: generateTypeDef(widget.selectedItem),
     items: generateTypeDef(widget.items),
     listData: generateTypeDef(widget.listData),
+    pageNo: generateTypeDef(widget.pageNo),
+    pageSize: generateTypeDef(widget.pageSize),
   }),
   RATE_WIDGET: {
     "!doc": "Rating widget is used to display ratings in your app.",
