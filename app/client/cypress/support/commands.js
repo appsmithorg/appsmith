@@ -2869,11 +2869,12 @@ Cypress.Commands.add("createAmazonS3Datasource", () => {
 
 Cypress.Commands.add("createJSObject", (JSCode) => {
   cy.NavigateToJSEditor();
+  cy.wait(1000);
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
     .type("{downarrow}{downarrow}{downarrow}  ")
     .type(JSCode);
-  cy.wait(1500);
+  cy.wait(1000);
   cy.get(jsEditorLocators.runButton).click();
 });
