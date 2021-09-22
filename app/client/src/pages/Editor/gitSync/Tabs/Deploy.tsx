@@ -34,9 +34,7 @@ import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 
 import { withTheme } from "styled-components";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
-import { pushToRepoInit } from "../../../../actions/gitSyncActions";
-import { COMMITTED_AND_PUSHED_SUCCESSFULLY } from "../../../../constants/messages";
-import DirectDeploy from "../components/DirectDeploy";
+import { pushToRepoInit } from "actions/gitSyncActions";
 import DeployPreview from "../components/DeployPreview";
 
 const Section = styled.div`

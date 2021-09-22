@@ -3,12 +3,6 @@ import {
   Subtitle,
   Title,
 } from "pages/Editor/gitSync/components/StyledComponents";
-import {
-  createMessage,
-  CONNECT,
-  DEPLOY_WITHOUT_GIT,
-  DEPLOY_TO_CLOUD,
-} from "constants/messages";
 import styled from "styled-components";
 import Button, { Category, Size } from "components/ads/Button";
 
@@ -21,6 +15,7 @@ import {
   CHECK_DP,
   LATEST_DP_TITLE,
   LATEST_DP_SUBTITLE,
+  createMessage,
 } from "constants/messages";
 
 const Container = styled.div`
