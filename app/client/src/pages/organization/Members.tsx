@@ -64,6 +64,9 @@ const ButtonWrapper = styled.div`
       fill: #ffffff;
     }
   }
+  button {
+    padding: 6px 8px;
+  }
 `;
 
 const UserCardContainer = styled.div`
@@ -100,6 +103,18 @@ const UserCard = styled(Card)`
 
   .approve-btn {
     background: #f86a2b;
+  }
+`;
+
+const TableWrapper = styled(Table)`
+  tbody {
+    tr:hover {
+      .t--deleteUser {
+        path {
+          fill: #ff6786;
+        }
+      }
+    }
   }
 `;
 
@@ -246,9 +261,10 @@ export default function MemberSettings(props: PageProps) {
       Cell: function DeleteCell(cellProps: any) {
         return (
           <Icon
+            className="t--deleteUser"
             cypressSelector="t--deleteUser"
             fillColor="#FF6786"
-            hoverFillColor="#FF0000"
+            hoverFillColor="#FF6786"
             isLoading={
               deletingUserInfo &&
               deletingUserInfo.username === cellProps.cell.row.values.username
@@ -297,6 +313,7 @@ export default function MemberSettings(props: PageProps) {
                 cypressSelector="t--invite-users"
                 icon="plus"
                 size={Size.medium}
+                tag="button"
                 text="Invite Users"
                 variant={Variant.info}
               />
@@ -308,7 +325,7 @@ export default function MemberSettings(props: PageProps) {
         <Loader className={Classes.SKELETON} />
       ) : (
         <>
-          {!isMobile && <Table columns={columns} data={userTableData} />}
+          {!isMobile && <TableWrapper columns={columns} data={userTableData} />}
           {isMobile && (
             <UserCardContainer>
               {allUsers.map((user, index) => {
