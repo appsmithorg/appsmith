@@ -13,6 +13,8 @@ import {
   fetchGlobalGitConfigSuccess,
   updateGlobalGitConfigSuccess,
   pushToRepoSuccess,
+  fetchLocalGitConfigSuccess,
+  updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -84,7 +86,7 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
 function* fetchGlobalGitConfig() {
   try {
     const response: ApiResponse = yield GitSyncAPI.getGlobalConfig();
-    const isValidResponse: boolean = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response, false);
 
     if (isValidResponse) {
       yield put(fetchGlobalGitConfigSuccess(response.data));
@@ -114,6 +116,49 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_GLOBAL_GIT_CONFIG_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
+function* fetchLocalGitConfig() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.getLocalConfig(
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response, false);
+
+    if (isValidResponse) {
+      yield put(fetchLocalGitConfigSuccess(response.data));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_LOCAL_GIT_CONFIG_ERROR,
+      payload: { error, logToSentry: true, show: false },
+    });
+  }
+}
+
+function* updateLocalGitConfig(action: ReduxAction<GitConfig>) {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.setLocalConfig(
+      action.payload,
+      applicationId,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(updateLocalGitConfigSuccess(response.data));
+      Toaster.show({
+        text: createMessage(GIT_USER_UPDATED_SUCCESSFULLY),
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_LOCAL_GIT_CONFIG_ERROR,
       payload: { error, logToSentry: true },
     });
   }
@@ -151,6 +196,17 @@ export default function* gitSyncSagas() {
       ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
       fetchGlobalGitConfig,
     ),
-    takeLatest(ReduxActionTypes.UPDATE_GIT_CONFIG_INIT, updateGlobalGitConfig),
+    takeLatest(
+      ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT,
+      updateGlobalGitConfig,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
+      fetchLocalGitConfig,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
+      updateLocalGitConfig,
+    ),
   ]);
 }
