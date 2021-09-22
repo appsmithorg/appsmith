@@ -7,8 +7,7 @@ export const CONFIG = {
   name: "Image",
   iconSVG: IconSVG,
   defaults: {
-    defaultImage:
-      "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+    defaultImage: "https://assets.appsmith.com/widgets/default.png",
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -16,7 +15,7 @@ export const CONFIG = {
     objectFit: "contain",
     image: "",
     rows: 3 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    columns: 3 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Image",
     version: 1,
   },

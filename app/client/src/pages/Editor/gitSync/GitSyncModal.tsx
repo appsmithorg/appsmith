@@ -1,18 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Dialog from "components/ads/DialogComponent";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import {
+  getActiveGitSyncModalTab,
+  getIsGitSyncModalOpen,
+} from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import styled from "styled-components";
 import Menu from "./Menu";
-import { MENU_ITEM, MENU_ITEMS } from "./constants";
-import GitConnection from "./GitConnection";
-import Deploy from "./Deploy/Deploy";
-import Merge from "./Merge";
+import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
+import Deploy from "./Tabs/Deploy";
+import Merge from "./Tabs/Merge";
+import GitConnection from "./Tabs/GitConnection";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
+import { useIsGitConnected } from "./hooks";
+
+import GitErrorPopup from "./components/GitErrorPopup";
+import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -60,39 +67,78 @@ const ComponentsByTab = {
   // [MENU_ITEM.SETTINGS]: NoopComponent,
 };
 
+const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+
 function GitSyncModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
   const handleClose = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(false));
+    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const BodyComponent =
-    ComponentsByTab[MENU_ITEMS[activeTabIndex].key as MENU_ITEM];
+  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+  const setActiveTabIndex = (index: number) =>
+    dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
+  const isGitConnected = useIsGitConnected();
+  let initialTabIndex = 0;
+  let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
+  if (!isGitConnected) {
+    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
+  } else {
+    menuOptions = allMenuOptions;
+    // when git is connected directly open deploy tab
+    initialTabIndex = menuOptions.findIndex(
+      (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
+    );
+  }
 
+  const initializeTabIndex = () => {
+    if (initialTabIndex !== activeTabIndex) {
+      setActiveTabIndex(initialTabIndex);
+    }
+  };
+
+  useEffect(() => {
+    initializeTabIndex();
+  }, []);
+
+  const orgId = useSelector(getCurrentOrgId);
+
+  const activeMenuItemKey = menuOptions[activeTabIndex]
+    ? menuOptions[activeTabIndex].key
+    : MENU_ITEMS_MAP.GIT_CONNECTION.key;
+  const BodyComponent = ComponentsByTab[activeMenuItemKey];
+
+  const showDeployTab = () => setActiveTabIndex(1);
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      className={Classes.GIT_SYNC_MODAL}
-      isOpen={isModalOpen}
-      maxWidth={"900px"}
-      onClose={handleClose}
-      width={"550px"}
-    >
-      <Container>
-        <MenuContainer>
-          <Menu activeTabIndex={activeTabIndex} onSelect={setActiveTabIndex} />
-        </MenuContainer>
-        <BodyContainer>
-          <BodyComponent setActiveMenuIndex={setActiveTabIndex} />
-        </BodyContainer>
-        <CloseBtnContainer onClick={handleClose}>
-          <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
-        </CloseBtnContainer>
-      </Container>
-    </Dialog>
+    <>
+      <Dialog
+        canEscapeKeyClose
+        canOutsideClickClose
+        className={Classes.GIT_SYNC_MODAL}
+        isOpen={isModalOpen}
+        maxWidth={"900px"}
+        onClose={handleClose}
+        width={"550px"}
+      >
+        <Container>
+          <MenuContainer>
+            <Menu
+              activeTabIndex={activeTabIndex}
+              onSelect={setActiveTabIndex}
+              options={menuOptions}
+            />
+          </MenuContainer>
+          <BodyContainer>
+            <BodyComponent onSuccess={showDeployTab} organizationId={orgId} />
+          </BodyContainer>
+          <CloseBtnContainer onClick={handleClose}>
+            <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
+          </CloseBtnContainer>
+        </Container>
+      </Dialog>
+      <GitErrorPopup />
+    </>
   );
 }
 

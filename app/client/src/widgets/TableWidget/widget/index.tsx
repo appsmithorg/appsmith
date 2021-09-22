@@ -232,14 +232,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         columnProperties: columnProperties,
         Cell: (props: any) => {
-          let rowIndex: number = props.cell.row.index;
+          const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+          const originalIndex = data?.__originalIndex__ || rowIndex;
 
+          // cellProperties order or size does not change when filter/sorting/grouping is applied
+          // on the data thus original index is need to identify the column's cell property.
           const cellProperties = this.getCellProperties(
             columnProperties,
-            rowIndex,
+            originalIndex,
           );
+
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
@@ -604,7 +607,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToUpdate.remove = pathsToDelete;
         }
 
-        super.batchUpdateWidgetProperty(propertiesToUpdate);
+        super.batchUpdateWidgetProperty(propertiesToUpdate, false);
       }
     }
   };
@@ -898,16 +901,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
-
-      super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: modifiedAction,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: onComplete,
-        },
-        responseData: rowData,
-      });
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: modifiedAction,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: onComplete,
+          },
+          responseData: rowData,
+        });
+      } else {
+        onComplete();
+      }
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
