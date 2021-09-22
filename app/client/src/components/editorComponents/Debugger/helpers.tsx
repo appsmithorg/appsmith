@@ -70,24 +70,19 @@ export function getDependenciesFromInverseDependencies(
   const inverseDependencies = new Set<string>();
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
+    const entity = dependant
+      .split(".")
+      .slice(0, 1)
+      .join("");
     (dependencies as any).map((dependency: any) => {
-      if (!dependant.includes(entityName) && dependency.includes(entityName)) {
-        const entity = dependant
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
+      const entityDependency = dependency
+        .split(".")
+        .slice(0, 1)
+        .join("");
+      if (entity !== entityName && entityDependency === entityName) {
         directDependencies.add(entity);
-      } else if (
-        dependant.includes(entityName) &&
-        !dependency.includes(entityName)
-      ) {
-        const entity = dependency
-          .split(".")
-          .slice(0, 1)
-          .join("");
-
-        inverseDependencies.add(entity);
+      } else if (entity === entityName && entityDependency !== entityName) {
+        inverseDependencies.add(entityDependency);
       }
     });
   });
