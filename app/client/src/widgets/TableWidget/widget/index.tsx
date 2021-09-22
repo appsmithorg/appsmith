@@ -888,24 +888,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
-      const { jsSnippets } = getDynamicBindings(action);
-      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
-        return prev + `{{(currentRow) => { ${next} }}} `;
-      }, "");
-
-      super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: modifiedAction,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: onComplete,
-        },
-        responseData: rowData,
-      });
       this.props.updateWidgetMetaProperty(
         "triggeredRowIndex",
         this.props.filteredTableData[rowIndex].__originalIndex__,
       );
+      const { jsSnippets } = getDynamicBindings(action);
+      const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
+        return prev + `{{(currentRow) => { ${next} }}} `;
+      }, "");
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: modifiedAction,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: onComplete,
+          },
+          responseData: rowData,
+        });
+      } else {
+        onComplete();
+      }
     } catch (error) {
       log.debug("Error parsing row action", error);
     }

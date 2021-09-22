@@ -80,6 +80,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
   );
+  const isCurrentWidgetFocused = focusedWidget === props.widgetId;
   const isCurrentWidgetSelected = selectedWidgets.includes(props.widgetId);
 
   // This state tells us whether a `ResizableComponent` is resizing
@@ -107,7 +108,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const handleMouseOver = (e: any) => {
     focusWidget &&
       !isResizingOrDragging &&
-      focusedWidget !== props.widgetId &&
+      !isCurrentWidgetFocused &&
       !props.resizeDisabled &&
       focusWidget(props.widgetId);
     e.stopPropagation();
@@ -147,7 +148,11 @@ function DraggableComponent(props: DraggableComponentProps) {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+    // allowDrag check is added as react jest test simulation is not respecting default behaviour
+    // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
+    if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
+      if (!isCurrentWidgetFocused) return;
+
       if (!isCurrentWidgetSelected) {
         selectWidget(props.widgetId);
       }
