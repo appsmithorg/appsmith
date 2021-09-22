@@ -1,6 +1,5 @@
 import React from "react";
 import { TabComponent } from "components/ads/Tabs";
-import { MENU_ITEMS } from "./constants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import TabItem from "./components/TabItem";
@@ -8,6 +7,7 @@ import TabItem from "./components/TabItem";
 type Props = {
   activeTabIndex: number;
   onSelect: (index: number) => void;
+  options: Array<{ key: string; title: string }>;
 };
 
 const TabWrapper = styled.div`
@@ -27,7 +27,7 @@ export default function Menu(props: Props) {
         onSelect={props.onSelect}
         selectedIndex={props.activeTabIndex || 0}
         tabItemComponent={TabItem}
-        tabs={MENU_ITEMS}
+        tabs={props.options}
       />
     </TabWrapper>
   );

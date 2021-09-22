@@ -55,6 +55,19 @@ export interface UpdateUserRequest {
   email?: string;
 }
 
+export interface CreateSuperUserRequest {
+  email: string;
+  name: string;
+  source: "FORM";
+  state: "ACTIVATED";
+  isEnabled: boolean;
+  password: string;
+  role: "Developer";
+  companyName: string;
+  allowCollectingAnonymousData: boolean;
+  signupForNewsletter: boolean;
+}
+
 class UserApi extends Api {
   static usersURL = "v1/users";
   static forgotPasswordURL = `${UserApi.usersURL}/forgotPassword`;
@@ -69,6 +82,7 @@ class UserApi extends Api {
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
+  static superUserURL = "v1/users/super";
 
   static createUser(
     request: CreateUserRequest,
@@ -149,6 +163,12 @@ class UserApi extends Api {
 
   static fetchFeatureFlags(): AxiosPromise<ApiResponse> {
     return Api.get(UserApi.featureFlagsURL);
+  }
+
+  static createSuperUser(
+    request: CreateSuperUserRequest,
+  ): AxiosPromise<CreateUserResponse> {
+    return Api.post(UserApi.superUserURL, request);
   }
 }
 

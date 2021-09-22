@@ -1,13 +1,13 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { connect } from "react-redux";
+import { Link, Redirect, useLocation } from "react-router-dom";
+import { connect, useSelector } from "react-redux";
 import { InjectedFormProps, reduxForm, formValueSelector } from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "constants/forms";
-import { FORGOT_PASSWORD_URL, SIGN_UP_URL } from "constants/routes";
+import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
   LOGIN_PAGE_TITLE,
   LOGIN_PAGE_EMAIL_INPUT_LABEL,
@@ -49,6 +49,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
+import { getCurrentUser } from "selectors/usersSelectors";
 const { enableGithubOAuth, enableGoogleOAuth } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues) => {
@@ -87,6 +88,10 @@ export function Login(props: LoginFormProps) {
 
   const queryParams = new URLSearchParams(location.search);
   let showError = false;
+  const currentUser = useSelector(getCurrentUser);
+  if (currentUser?.emptyInstance) {
+    return <Redirect to={SETUP} />;
+  }
   if (queryParams.get("error")) {
     showError = true;
   }

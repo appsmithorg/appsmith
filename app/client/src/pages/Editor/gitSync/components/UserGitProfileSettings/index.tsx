@@ -7,12 +7,10 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import { getTypographyByKey } from "constants/DefaultTheme";
 import TextInput from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 
 const LabelContainer = styled.div`
-  ${(props) => getTypographyByKey(props, "h6")};
   display: flex;
   align-items: center;
   margin-bottom: 8px;
@@ -34,15 +32,53 @@ const TitleWrapper = styled.div`
   }
 `;
 
+const MainContainer = styled.div`
+  width: calc(100% - 30px);
+`;
+
+type AuthorInfo = { authorName: string; authorEmail: string };
+
+const AUTHOR_INFO_LABEL = {
+  EMAIL: "authorEmail",
+  NAME: "authorName",
+};
+
 // Component
 type UserGitProfileSettingsProps = {
   authType: string;
+  authorInfo: AuthorInfo;
+  setAuthorInfo: (authorInfo: AuthorInfo) => void;
+  disabled: boolean;
 };
 
-function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
+function UserGitProfileSettings({
+  authorInfo,
+  disabled,
+  setAuthorInfo,
+}: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
+
+  const setAuthorState = (label: string, value: string) => {
+    switch (label) {
+      case AUTHOR_INFO_LABEL.NAME:
+        setAuthorInfo({
+          authorEmail: authorInfo.authorEmail,
+          authorName: value,
+        });
+        break;
+      case AUTHOR_INFO_LABEL.EMAIL:
+        setAuthorInfo({
+          authorEmail: value,
+          authorName: authorInfo.authorName,
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <>
+    <MainContainer>
       <TitleWrapper>
         <span className="label">
           {createMessage(USER_PROFILE_SETTINGS_TITLE)}
@@ -55,8 +91,17 @@ function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
           <LabelContainer>
             <span className="label">{createMessage(AUTHOR_NAME)}</span>
           </LabelContainer>
+
           <InputContainer>
-            <TextInput fill />
+            <TextInput
+              dataType="text"
+              disabled={disabled}
+              fill
+              onChange={(value) =>
+                setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
+              }
+              value={authorInfo.authorName}
+            />
           </InputContainer>
 
           <Space size={7} />
@@ -65,11 +110,19 @@ function UserGitProfileSettings({}: UserGitProfileSettingsProps) {
             <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
           </LabelContainer>
           <InputContainer>
-            <TextInput fill />
+            <TextInput
+              dataType="email"
+              disabled={disabled}
+              fill
+              onChange={(value) =>
+                setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)
+              }
+              value={authorInfo.authorEmail}
+            />
           </InputContainer>
         </>
       ) : null}
-    </>
+    </MainContainer>
   );
 }
 

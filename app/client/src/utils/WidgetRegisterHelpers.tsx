@@ -48,7 +48,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.type,
     {
       buildWidget(widgetData: any): JSX.Element {
-        return <ProfiledWidget key={widgetData.widgetId} {...widgetData} />;
+        return <ProfiledWidget {...widgetData} key={widgetData.widgetId} />;
       },
     },
     config.properties.derived,

@@ -45,10 +45,12 @@ export const useNavigateToWidget = () => {
     selectWidget(widgetId, false);
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
 
-    flashElementsById(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
+      if (params.pageId === pageId) {
+        flashElementsById(widgetId);
+      }
       dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };

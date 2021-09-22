@@ -150,16 +150,10 @@ export const EditorWrapper = styled.div<{
       background: ${Colors.SHARK2};
     }
     .binding-brackets {
-      ${(props) =>
-        props.hasError
-          ? `
-      color: ${props.theme.colors.error};
-      `
-          : `color: ${
-              props.editorTheme === EditorTheme.DARK
-                ? props.theme.colors.bindingTextDark
-                : props.theme.colors.bindingText
-            };`}
+      color: ${(props) =>
+        props.editorTheme === EditorTheme.DARK
+          ? props.theme.colors.bindingTextDark
+          : props.theme.colors.bindingText};
       font-weight: 700;
     }
     .CodeMirror-matchingbracket {
@@ -256,7 +250,7 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "32px";
+        height = props.height || "35px";
       }
       return `height: ${height}`;
     }}

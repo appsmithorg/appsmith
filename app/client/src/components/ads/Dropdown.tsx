@@ -69,7 +69,13 @@ export type DropdownProps = CommonComponentProps &
     isLoading?: boolean;
     errorMsg?: string; // If errorMsg is defined, we show dropDown's error state with the message.
     helperText?: string;
+    /**
+     * if fillOptions is true,
+     * dropdown popover width will be same as dropdown width
+     * @type {boolean}
+     */
     fillOptions?: boolean;
+    dontUsePortal?: boolean;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption;
@@ -100,7 +106,12 @@ const DropdownTriggerWrapper = styled.div<{
   justify-content: space-between;
   cursor: pointer;
   ${(props) =>
-    props.isOpen && !props.disabled ? "box-sizing: border-box" : null};
+    props.isOpen && !props.disabled
+      ? `
+      box-sizing: border-box;
+      border: 1px solid #80bdff;
+    `
+      : null};
   .${Classes.TEXT} {
     ${(props) =>
       props.disabled
@@ -608,6 +619,7 @@ export default function Dropdown(props: DropdownProps) {
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={props.className}
         position={Position.BOTTOM_LEFT}
+        usePortal={!props.dontUsePortal}
       >
         {dropdownTrigger}
         <RenderDropdownOptions

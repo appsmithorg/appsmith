@@ -12,7 +12,7 @@ import { ReactComponent as JsIcon } from "assets/icons/menu/js-group.svg";
 import { ReactComponent as DataSourcesColoredIcon } from "assets/icons/menu/datasource-colored.svg";
 import { ReactComponent as NewPlus } from "assets/icons/menu/new-plus.svg";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Function } from "assets/icons/menu/function.svg";
+import { ReactComponent as Function } from "assets/icons/menu/js-function.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import getFeatureFlags from "utils/featureFlags";
 
@@ -104,6 +104,7 @@ function Command(props: {
             DB: <DataSourcesColoredIcon />,
             API: <ApisIcon />,
             SAAS: <DataSourcesColoredIcon />,
+            REMOTE: <DataSourcesColoredIcon />,
             JS: <JsIcon />,
           }[props.pluginType]}
         {props.imgSrc && <img src={props.imgSrc} />}
