@@ -7,6 +7,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonBorderRadiusTypes } from "components/constants";
+import { CurrencyDropdownOptions } from "widgets/InputWidget/component/CurrencyCodeDropdown";
 
 enum ColumnTypes {
   TEXT = "text",
@@ -19,6 +20,7 @@ enum ColumnTypes {
   ICON_BUTTON = "iconButton",
   SELECT = "select",
   SWITCH = "switch",
+  CURRENCY = "currency",
 }
 
 function defaultSelectedRowValidation(
@@ -359,6 +361,10 @@ export default [
                     {
                       label: "Switch",
                       value: "switch",
+                    },
+                    {
+                      label: "Currency",
+                      value: "currency",
                     },
                   ],
                   updateHook: updateDerivedColumnsHook,
@@ -1439,6 +1445,76 @@ export default [
                   ],
                   isBindProperty: true,
                   isTriggerProperty: true,
+                },
+              ],
+            },
+            {
+              sectionName: "Currency Properties",
+              hidden: (props: TableWidgetProps, propertyPath: string) => {
+                return hideByColumnType(
+                  props,
+                  propertyPath,
+                  [ColumnTypes.CURRENCY],
+                  true,
+                );
+              },
+              children: [
+                {
+                  helpText: "Changes the type of currency",
+                  propertyName: "currencyCountryCode",
+                  label: "Currency",
+                  enableSearch: true,
+                  dropdownHeight: "195px",
+                  controlType: "DROP_DOWN",
+                  placeholderText: "Search by code or name",
+                  options: CurrencyDropdownOptions,
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  helpText: "No. of decimals in currency input",
+                  propertyName: "decimalsInCurrency",
+                  label: "Decimals",
+                  controlType: "DROP_DOWN",
+                  options: [
+                    {
+                      label: "1",
+                      value: 1,
+                    },
+                    {
+                      label: "2",
+                      value: 2,
+                    },
+                  ],
+                  isBindProperty: false,
+                  isTriggerProperty: false,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
+                },
+                {
+                  helpText: "Triggers an action when the text is changed",
+                  propertyName: "onTextChanged",
+                  label: "onTextChanged",
+                  controlType: "ACTION_SELECTOR",
+                  isJSConvertible: true,
+                  isBindProperty: true,
+                  isTriggerProperty: true,
+                  updateHook: updateDerivedColumnsHook,
+                  dependencies: [
+                    "primaryColumns",
+                    "derivedColumns",
+                    "columnOrder",
+                  ],
                 },
               ],
             },

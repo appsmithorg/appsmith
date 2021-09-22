@@ -26,6 +26,7 @@ import {
   SelectCell,
   renderIconButton,
   SwitchCell,
+  CurrencyCell,
 } from "../component/TableUtilities";
 import { getAllTableColumnKeys } from "../component/TableHelpers";
 import Skeleton from "components/utils/Skeleton";
@@ -249,6 +250,26 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
   };
 
+  handleCurrencyValueChange = (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    newValue: string,
+  ) => {
+    const editedColumnData = { ...this.props.editedColumnData };
+    setWith(editedColumnData, [columnId, rowIndex], newValue, Object);
+
+    this.props.updateWidgetMetaProperty("editedColumnData", editedColumnData, {
+      triggerPropertyName: "onTextChanged",
+      dynamicString: action,
+      event: {
+        type: EventType.ON_TEXT_CHANGE,
+      },
+    });
+
+    this.props.updateWidgetMetaProperty("editedRowIndex", rowIndex);
+  };
+
   getTableColumns = () => {
     let columns: ReactTableColumnProps[] = [];
     const hiddenColumns: ReactTableColumnProps[] = [];
@@ -386,6 +407,24 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 isHidden={isHidden}
                 label={columnProperties.switchLabel}
                 onChange={this.handleSwitchChange}
+                rowIndex={rowIndex}
+                value={props.cell.value}
+                widgetId={this.props.widgetId}
+              />
+            );
+          } else if (columnProperties.columnType === "currency") {
+            const isCellVisible = cellProperties.isCellVisible ?? true;
+            return (
+              <CurrencyCell
+                action={columnProperties.onTextChanged}
+                cellProperties={cellProperties}
+                columnId={accessor}
+                currencyCountryCode={columnProperties.currencyCountryCode}
+                decimalsInCurrency={columnProperties.decimalsInCurrency}
+                isCellVisible={isCellVisible}
+                isHidden={isHidden}
+                key={accessor + rowIndex}
+                onChange={this.handleCurrencyValueChange}
                 rowIndex={rowIndex}
                 value={props.cell.value}
                 widgetId={this.props.widgetId}
@@ -883,8 +922,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             Object,
           );
         } else {
-          // clean column data if column type change
-          delete editedColumnData[column.id];
+          if (column.columnType !== "currency") {
+            // clean column data if column type change
+            delete editedColumnData[column.id];
+          }
         }
       }
       // clean column data if column is deleted

@@ -592,3 +592,9 @@ export const SwitchCellWrapper = styled(CellWrapper)`
     height: 100%;
   }
 `;
+
+export const CurrencyCellWrapper = styled(CellWrapper)`
+  & > .bp3-control-group {
+    height: initial !important;
+  }
+`;

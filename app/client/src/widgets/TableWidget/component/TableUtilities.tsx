@@ -8,6 +8,7 @@ import {
   SortIconWrapper,
   DraggableHeaderWrapper,
   SwitchCellWrapper,
+  CurrencyCellWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -40,11 +41,13 @@ import {
   ButtonVariant,
   ButtonBoxShadow,
   ButtonBorderRadius,
+  InputTypes,
 } from "components/constants";
 
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import DropDownComponent from "widgets/DropdownWidget/component";
+import InputComponent from "widgets/InputWidget/component";
 
 export const renderCell = (
   value: any,
@@ -828,5 +831,70 @@ export function SwitchCell(props: {
         widgetId={props.widgetId}
       />
     </SwitchCellWrapper>
+  );
+}
+
+// check value is number or not
+export function isNumberValidator(value: string) {
+  const isValid =
+    (/^\d+\.?\d*$/.test(value) && Number(value) > 0) || value === "";
+  return {
+    isValid: isValid,
+    message: !isValid ? "Only numeric value allowed" : "",
+  };
+}
+
+export function CurrencyCell(props: {
+  value: any;
+  currencyCountryCode?: string;
+  decimalsInCurrency?: number;
+  action: string;
+  columnId: string;
+  isHidden: boolean;
+  onChange: (
+    columnId: string,
+    rowIndex: number,
+    action: string,
+    newValue: string,
+  ) => void;
+  cellProperties: CellLayoutProperties;
+  isCellVisible: boolean;
+  widgetId: string;
+  rowIndex: number;
+}) {
+  const [value, setValue] = useState(props.value);
+  const handleValueChange = (value: string) => {
+    setValue(value);
+    props.onChange(props.columnId, props.rowIndex, props.action, value);
+  };
+  const { isValid, message } = isNumberValidator(value);
+  return (
+    <CurrencyCellWrapper
+      cellProperties={props.cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={props.isHidden}
+      key={props.columnId + props.rowIndex}
+    >
+      <InputComponent
+        autoFocus
+        compactMode={false}
+        currencyCountryCode={props.currencyCountryCode}
+        decimalsInCurrency={props.decimalsInCurrency}
+        errorMessage={message}
+        inputType={InputTypes.CURRENCY}
+        isInvalid={!isValid}
+        isLoading={false}
+        key={props.columnId + props.rowIndex}
+        label=""
+        multiline={false}
+        onCurrencyTypeChange={noop}
+        onFocusChange={noop}
+        onISDCodeChange={noop}
+        onValueChange={handleValueChange}
+        showError={false}
+        value={value}
+        widgetId={`input-${props.widgetId}`}
+      />
+    </CurrencyCellWrapper>
   );
 }
