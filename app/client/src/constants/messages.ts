@@ -494,7 +494,8 @@ export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
 export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
-export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
+export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
@@ -672,3 +673,6 @@ export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+
+export const USE_SNIPPET = () => "Snippet";
+export const SNIPPET_TOOLTIP = () => "Search Snippets";

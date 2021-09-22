@@ -6,11 +6,10 @@ import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
 import Text, { FontWeight, TextType } from "components/ads/Text";
-import { Message } from "entities/AppsmithConsole";
+import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  setGlobalSearchFilterContext,
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
@@ -28,11 +27,13 @@ import {
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
-import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommand } from "entities/Action";
+import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
-  COPY = "COPU",
+  COPY = "COPY",
   DOCS = "DOCS",
   SNIPPET = "SNIPPET",
   GOOGLE = "GOOGLE",
@@ -108,12 +109,35 @@ const getOptions = (type?: string, subType?: string) => {
   }
 };
 
+const isFieldEntityInformation = (
+  entity: FieldEntityInformation | SourceEntity,
+): entity is FieldEntityInformation => {
+  return entity.hasOwnProperty("entityType");
+};
+
+const getSnippetArgs = function(
+  entity?: FieldEntityInformation | SourceEntity,
+) {
+  if (!entity) return {};
+  if (isFieldEntityInformation(entity)) {
+    return {
+      entityId: entity.entityId,
+      entityType: entity.entityType,
+    };
+  } else {
+    return {
+      entityId: entity.id,
+      entityType: entity.type,
+    };
+  }
+};
+
 type ContextualMenuProps = {
   error: Message;
   children: JSX.Element;
   position?: Position;
   modifiers?: IPopover2Props["modifiers"];
-  entityName?: string;
+  entity?: FieldEntityInformation | SourceEntity;
 };
 
 const searchAction: Record<
@@ -121,7 +145,11 @@ const searchAction: Record<
   {
     icon: IconName;
     text: string;
-    onSelect: (error: Message, dispatch: Dispatch, entityType?: string) => void;
+    onSelect: (
+      error: Message,
+      dispatch: Dispatch,
+      entity?: FieldEntityInformation | SourceEntity,
+    ) => void;
   }
 > = {
   [CONTEXT_MENU_ACTIONS.COPY]: {
@@ -170,7 +198,7 @@ const searchAction: Record<
   [CONTEXT_MENU_ACTIONS.SNIPPET]: {
     icon: "play",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
-    onSelect: (error: Message, dispatch: Dispatch, entityType) => {
+    onSelect: (error: Message, dispatch: Dispatch, entity) => {
       /// Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",
@@ -179,20 +207,11 @@ const searchAction: Record<
       });
       dispatch(setGlobalSearchQuery(""));
       dispatch(
-        toggleShowGlobalSearchModal(
-          filterCategories[SEARCH_CATEGORY_ID.SNIPPETS],
-        ),
+        executeCommandAction({
+          actionType: SlashCommand.NEW_SNIPPET,
+          args: getSnippetArgs(entity),
+        }),
       );
-
-      if (entityType) {
-        dispatch(
-          setGlobalSearchFilterContext({
-            refinements: {
-              entities: [entityType],
-            },
-          }),
-        );
-      }
     },
   },
 };
@@ -251,8 +270,6 @@ const MenuWrapper = styled.div<{ width: string }>`
 export default function ContextualMenu(props: ContextualMenuProps) {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
-  const getEntityInfo = useGetEntityInfo(props?.entityName ?? "");
-  const entityInfo = getEntityInfo();
 
   return (
     <Popover2
@@ -262,7 +279,7 @@ export default function ContextualMenu(props: ContextualMenuProps) {
           {options.map((e) => {
             const menuProps = searchAction[e];
             const onSelect = () => {
-              menuProps.onSelect(props.error, dispatch, entityInfo?.entityType);
+              menuProps.onSelect(props.error, dispatch, props.entity);
             };
 
             if (
