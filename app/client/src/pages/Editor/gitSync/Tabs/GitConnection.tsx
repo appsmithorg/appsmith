@@ -15,8 +15,6 @@ import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
 import Button, { Category, Size } from "components/ads/Button";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 import { ReactComponent as KeySvg } from "assets/icons/ads/key-2-line.svg";
 import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
@@ -149,19 +147,14 @@ const HTTP_LITERAL = "https";
 type Props = {
   onSuccess: () => void;
   isImport?: boolean;
-  organizationId?: string;
 };
 
-function GitConnection({ isImport, onSuccess, organizationId }: Props) {
+function GitConnection({ isImport, onSuccess }: Props) {
   const { remoteUrl: remoteUrlInStore } =
     useSelector(getCurrentAppGitMetaData) || ({} as any);
 
   const [remoteUrl, setRemoteUrl] = useState<string>(remoteUrlInStore);
   // const [isValidRemoteUrl, setIsValidRemoteUrl] = useState(true);
-
-  const { applicationId: currentApplicationId } = useParams<
-    ExplorerURLParams
-  >();
 
   const currentUser = useSelector(getCurrentUser);
 
@@ -228,10 +221,8 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
 
   const gitConnectionRequest = () => {
     connectToGit({
-      applicationId: currentApplicationId,
       remoteUrl,
-      gitConfig: authorInfo,
-      organizationId,
+      gitProfile: authorInfo,
       isImport,
       isDefaultProfile: useGlobalConfig,
     });
@@ -240,7 +231,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
   useEffect(() => {
     // On mount check SSHKeyPair is defined, if not fetchSSHKeyPair
     if (!SSHKeyPair) {
-      fetchSSHKeyPair(currentApplicationId);
+      fetchSSHKeyPair();
     }
   }, [SSHKeyPair]);
 
@@ -317,7 +308,7 @@ function GitConnection({ isImport, onSuccess, organizationId }: Props) {
                 category={Category.secondary}
                 disabled={!remoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
-                onClick={() => generateSSHKey(currentApplicationId)}
+                onClick={() => generateSSHKey()}
                 size={Size.medium}
                 tag="button"
                 text="Generate SSH Key"

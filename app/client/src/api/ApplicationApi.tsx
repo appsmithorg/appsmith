@@ -134,14 +134,6 @@ export interface ImportApplicationRequest {
   onSuccessCallback?: () => void;
 }
 
-export interface GetSSHKeyPairRequest {
-  applicationId: string;
-}
-
-export interface GenerateSSHKeyPairRequest {
-  applicationId: string;
-}
-
 class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
@@ -251,20 +243,12 @@ class ApplicationApi extends Api {
     });
   }
 
-  static getSSHKeyPair(
-    request: GetSSHKeyPairRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.get(
-      ApplicationApi.baseURL + "ssh-keypair/" + request.applicationId,
-    );
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 
-  static generateSSHKeyPair(
-    request: GenerateSSHKeyPairRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.post(
-      ApplicationApi.baseURL + "ssh-keypair/" + request.applicationId,
-    );
+  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 }
 

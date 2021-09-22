@@ -69,7 +69,6 @@ import { deleteRecentAppEntities } from "utils/storage";
 import { reconnectWebsocket as reconnectWebsocketAction } from "actions/websocketActions";
 import { getCurrentOrg } from "selectors/organizationSelectors";
 import { Org } from "constants/orgConstants";
-import { GenerateSSHKeyPairRequest } from "../api/ApplicationApi";
 
 import {
   getEnableFirstTimeUserOnboarding,
@@ -611,10 +610,10 @@ export function* importApplicationSaga(
 
 export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
   try {
-    const request: GenerateSSHKeyPairRequest = action.payload;
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield call(
       ApplicationApi.getSSHKeyPair,
-      request,
+      applicationId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {
@@ -624,7 +623,7 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       }
     }
   } catch (error) {
-    yield put(getSSHKeyPairError(error));
+    yield put(getSSHKeyPairError({ error, show: false }));
     if (action.onErrorCallback) {
       action.onErrorCallback(error);
     }
@@ -633,10 +632,10 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
 
 export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   try {
-    const request: GenerateSSHKeyPairRequest = action.payload;
+    const applicationId: string = yield select(getCurrentApplicationId);
     const response: ApiResponse = yield call(
       ApplicationApi.generateSSHKeyPair,
-      request,
+      applicationId,
     );
     const isValidResponse = yield validateResponse(response);
     if (isValidResponse) {

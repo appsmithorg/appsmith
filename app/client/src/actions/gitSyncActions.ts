@@ -2,6 +2,7 @@ import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
 import { ReduxActionWithCallbacks } from "../constants/ReduxActionConstants";
 import { GitSyncModalTab, GitConfig } from "entities/GitSync";
+import { GitApplicationMetadata } from "../api/ApplicationApi";
 
 export const setIsGitSyncModalOpen = (payload: {
   isOpen: boolean;
@@ -31,7 +32,9 @@ export const pushToRepoSuccess = () => ({
   type: ReduxActionTypes.PUSH_TO_GIT_SUCCESS,
 });
 
-export type ConnectToGitResponse = any;
+export type ConnectToGitResponse = {
+  gitApplicationMetaData: GitApplicationMetadata;
+};
 
 type ConnectToGitRequestParams = {
   payload: ConnectToGitPayload;

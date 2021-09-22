@@ -149,6 +149,11 @@ export const getCurrentAppGitMetaData = createSelector(
     currentApplication?.gitApplicationMetadata,
 );
 
+export const getCurrentAppSSHKeyPair = createSelector(
+  getCurrentApplication,
+  (currentApplication): string | undefined => currentApplication?.SSHKeyPair,
+);
+
 export const getIsSavingOrgInfo = (state: AppState) =>
   state.ui.applications.isSavingOrgInfo;
 

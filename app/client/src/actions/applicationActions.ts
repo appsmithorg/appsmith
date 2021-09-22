@@ -4,11 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionWithCallbacks,
 } from "../constants/ReduxActionConstants";
-import {
-  FetchApplicationResponse,
-  GenerateSSHKeyPairRequest,
-  GetSSHKeyPairRequest,
-} from "../api/ApplicationApi";
+import { FetchApplicationResponse } from "../api/ApplicationApi";
 import { ResponseMeta } from "../api/ApiResponses";
 import {
   UpdateApplicationPayload,
@@ -136,7 +132,7 @@ export type GenerateSSHKeyPairResponsePayload<T> = {
 };
 
 export type GenerateSSHKeyPairReduxAction = ReduxActionWithCallbacks<
-  GenerateSSHKeyPairRequest,
+  undefined,
   GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ErrorPayload
 >;
@@ -146,7 +142,7 @@ export type GenerateKeyParams = {
   onSuccessCallback?: (
     payload: GenerateSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ) => void;
-  payload: GenerateSSHKeyPairRequest;
+  payload?: undefined;
 };
 
 export const generateSSHKeyPair = ({
@@ -184,7 +180,7 @@ export type GetSSHKeyPairResponsePayload<T> = {
 };
 
 export type GetSSHKeyPairReduxAction = ReduxActionWithCallbacks<
-  GetSSHKeyPairRequest,
+  undefined,
   GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ErrorPayload
 >;
@@ -194,7 +190,7 @@ export type GetKeyParams = {
   onSuccessCallback?: (
     payload: GetSSHKeyPairResponsePayload<GetSSHKeyResponseData>,
   ) => void;
-  payload: GetSSHKeyPairRequest;
+  payload?: undefined;
 };
 
 export const getSSHKeyPair = ({
@@ -219,9 +215,12 @@ export const getSSHKeyPairSuccess = (
   };
 };
 
-export const getSSHKeyPairError = (error: string) => {
+export const getSSHKeyPairError = (payload: {
+  error: string;
+  show?: boolean;
+}) => {
   return {
     type: ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR,
-    error,
+    payload,
   };
 };

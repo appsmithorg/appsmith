@@ -14,13 +14,11 @@ export type PushToGitPayload = {
 };
 
 export type ConnectToGitPayload = {
-  applicationId: string;
   remoteUrl: string;
-  gitConfig: {
+  gitProfile: {
     authorName: string;
     authorEmail: string;
   };
-  organizationId?: string;
   isImport?: boolean;
   isDefaultProfile?: boolean;
 };
@@ -43,8 +41,8 @@ class GitSyncAPI extends Api {
     return Api.post(`${GitSyncAPI.baseURL}/push/${applicationId}`);
   }
 
-  static connect(payload: ConnectToGitPayload) {
-    return Api.post(`${GitSyncAPI.baseURL}/connect/`, payload);
+  static connect(payload: ConnectToGitPayload, applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
   static getGlobalConfig() {

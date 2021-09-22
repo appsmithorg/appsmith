@@ -57,13 +57,17 @@ function* commitToGitRepoSaga(
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
   try {
-    const response: ApiResponse = yield GitSyncAPI.connect(action.payload);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.connect(
+      action.payload,
+      applicationId,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(connectToGitSuccess(response.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response.data);
       }
     }
   } catch (error) {
@@ -88,7 +92,7 @@ function* fetchGlobalGitConfig() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_GLOBAL_GIT_CONFIG_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { error, logToSentry: true, show: false },
     });
   }
 }

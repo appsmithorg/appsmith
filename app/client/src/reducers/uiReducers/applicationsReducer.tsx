@@ -15,6 +15,7 @@ import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { GetSSHKeyResponseData } from "actions/applicationActions";
+import { ConnectToGitResponse } from "actions/gitSyncActions";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -387,6 +388,18 @@ const applicationsReducer = createReducer(initialState, {
         ...state.currentApplication,
         SSHKeyPair: action.payload.publicKey,
         deployKeyDocUrl: action.payload.docUrl,
+      },
+    };
+  },
+  [ReduxActionTypes.CONNECT_TO_GIT_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ConnectToGitResponse>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        gitApplicationMetaData: action.payload.gitApplicationMetaData,
       },
     };
   },

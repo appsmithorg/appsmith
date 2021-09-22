@@ -1,14 +1,13 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useCallback, useEffect } from "react";
-import {
-  generateSSHKeyPair,
-  fetchApplication,
-  getSSHKeyPair,
-} from "actions/applicationActions";
-import { APP_MODE } from "entities/App";
+import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import { getCurrentApplication } from "selectors/applicationSelectors";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+  getCurrentAppSSHKeyPair,
+} from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const useSSHKeyPair = () => {
@@ -36,55 +35,35 @@ export const useSSHKeyPair = () => {
     }
   }, [SSHKeyPair]);
 
-  const fetchSSHKeyPair = useCallback(
-    (applicationId) => {
-      setIsFetchingSSHKeyPair(true);
-      dispatch(
-        getSSHKeyPair({
-          payload: { applicationId },
-          onErrorCallback: () => {
-            setIsFetchingSSHKeyPair(false);
-          },
-        }),
-      );
-    },
-    [setIsFetchingSSHKeyPair],
-  );
+  const fetchSSHKeyPair = useCallback(() => {
+    setIsFetchingSSHKeyPair(true);
+    dispatch(
+      getSSHKeyPair({
+        onErrorCallback: () => {
+          setIsFetchingSSHKeyPair(false);
+        },
+      }),
+    );
+  }, [setIsFetchingSSHKeyPair]);
 
   const onGenerateSSHKeyFailure = useCallback(() => {
     setIsGeneratingSSHKey(false);
     setFailedGeneratingSSHKey(true);
   }, [setIsGeneratingSSHKey]);
 
-  const dispatchFetchApplication = (applicationId: string) => {
-    dispatch(
-      fetchApplication({
-        payload: { applicationId, mode: APP_MODE.EDIT },
-        onErrorCallback: onGenerateSSHKeyFailure,
-      }),
-    );
-  };
+  const generateSSHKey = useCallback(() => {
+    if (currentApplication?.id) {
+      setIsGeneratingSSHKey(true);
+      setFailedGeneratingSSHKey(false);
 
-  const generateSSHKey = useCallback(
-    (applicationId) => {
-      if (applicationId) {
-        setIsGeneratingSSHKey(true);
-        setFailedGeneratingSSHKey(false);
-
-        // Here after the ssh key pair generation, we fetch the application data again and on success of it
-        dispatch(
-          generateSSHKeyPair({
-            payload: { applicationId },
-            onErrorCallback: onGenerateSSHKeyFailure,
-            onSuccessCallback: () => {
-              dispatchFetchApplication(applicationId);
-            },
-          }),
-        );
-      }
-    },
-    [onGenerateSSHKeyFailure, setIsGeneratingSSHKey],
-  );
+      // Here after the ssh key pair generation, we fetch the application data again and on success of it
+      dispatch(
+        generateSSHKeyPair({
+          onErrorCallback: onGenerateSSHKeyFailure,
+        }),
+      );
+    }
+  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey, currentApplication?.id]);
 
   return {
     generatingSSHKey,
@@ -106,6 +85,7 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
+
     onSuccess();
   }, [setIsConnectingToGit]);
 
@@ -116,19 +96,17 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const connectToGit = useCallback(
     (payload: ConnectToGitPayload) => {
-      if (payload.applicationId) {
-        setIsConnectingToGit(true);
-        setFailedConnectingToGit(false);
+      setIsConnectingToGit(true);
+      setFailedConnectingToGit(false);
 
-        // Here after the ssh key pair generation, we fetch the application data again and on success of it
-        dispatch(
-          connectToGitInit({
-            payload,
-            onSuccessCallback: onGitConnectSuccess,
-            onErrorCallback: onGitConnectFailure,
-          }),
-        );
-      }
+      // Here after the ssh key pair generation, we fetch the application data again and on success of it
+      dispatch(
+        connectToGitInit({
+          payload,
+          onSuccessCallback: onGitConnectSuccess,
+          onErrorCallback: onGitConnectFailure,
+        }),
+      );
     },
     [onGitConnectSuccess, onGitConnectFailure, setIsConnectingToGit],
   );
@@ -141,9 +119,8 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 export const useIsGitConnected = () => {
-  const currentApplication = useSelector(getCurrentApplication);
-  const remoteUrlInStore =
-    currentApplication?.gitApplicationMetadata?.remoteUrl;
-  const sshKeyPair = currentApplication?.SSHKeyPair;
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const remoteUrlInStore = gitMetaData?.remoteUrl;
+  const sshKeyPair = useSelector(getCurrentAppSSHKeyPair);
   return sshKeyPair && remoteUrlInStore;
 };
