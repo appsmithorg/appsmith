@@ -167,6 +167,8 @@ public class FilterDataService {
                 rowsList.add(row);
             }
         } catch (SQLException e) {
+            // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
+            log.error(e.getMessage());
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
@@ -355,6 +357,7 @@ public class FilterDataService {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Failed to filter due to error in ingesting the raw data");
         }
     }
