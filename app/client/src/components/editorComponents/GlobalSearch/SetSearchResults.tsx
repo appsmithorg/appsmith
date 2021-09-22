@@ -16,6 +16,7 @@ type Props = {
 function SearchResults({ category, hits, setSearchResults }: Props) {
   const debouncedSetter = useCallback(debounce(setSearchResults, 100), []);
   useEffect(() => {
+    //Need to filter here to remove nodes other than snippets and documentation
     const filteredHits = hits.filter(
       (hit) => !hit.kind || hit.kind === SEARCH_ITEM_TYPES.document,
     );
