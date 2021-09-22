@@ -43,22 +43,22 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} text ( abc | 123 | mno | test )`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} text ( abc | 123 | mno | test )`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "{}",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} text ( abc | 123 | mno | test )`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
         parsed: "[]",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} text ( abc | 123 | mno | test )`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: true,
@@ -71,16 +71,17 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates string", () => {
+  it("correctly validates strict text", () => {
     const validation = {
-      type: ValidationTypes.STRING,
+      type: ValidationTypes.TEXT,
       params: {
         required: true,
         default: "abc",
         allowedValues: ["abc", "123", "mno", "test"],
+        strict: true,
       },
     };
-    const inputs = ["abc", "xyz", undefined, null, {}, [], 123];
+    const inputs = ["abc", "xyz", 123];
     const expected = [
       {
         isValid: true,
@@ -90,26 +91,6 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: "abc",
         message: "Value is not allowed",
-      },
-      {
-        isValid: false,
-        parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
-      },
-      {
-        isValid: false,
-        parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
-      },
-      {
-        isValid: false,
-        parsed: "{}",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
-      },
-      {
-        isValid: false,
-        parsed: "[]",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
       {
         isValid: false,
@@ -382,12 +363,12 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"text ( abc | mnop )\" }`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
       },
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"text ( abc | mnop )\" }`,
+        message: `${WIDGET_TYPE_VALIDATION_ERROR}: { \"key1\": \"number Required\", \"key2\": \"string ( abc | mnop )\" }`,
       },
       {
         isValid: false,
@@ -397,7 +378,7 @@ describe("Validate Validators", () => {
       {
         isValid: false,
         parsed: { key1: 120, key2: "abc" },
-        message: `Value of key: key2 is invalid: This value does not evaluate to type text ( abc | mnop )`,
+        message: `Value of key: key2 is invalid: This value does not evaluate to type string ( abc | mnop )`,
       },
       {
         isValid: false,
@@ -466,7 +447,7 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message:
-          "This value does not evaluate to type Array<text ( a | b | c | n | m | p | r )>",
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: false,
@@ -484,7 +465,7 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message:
-          "This value does not evaluate to type Array<text ( a | b | c | n | m | p | r )>",
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: true,
@@ -495,7 +476,7 @@ describe("Validate Validators", () => {
         isValid: false,
         parsed: [],
         message:
-          "This value does not evaluate to type Array<text ( a | b | c | n | m | p | r )>",
+          "This value does not evaluate to type Array<string ( a | b | c | n | m | p | r )>",
       },
       {
         isValid: false,

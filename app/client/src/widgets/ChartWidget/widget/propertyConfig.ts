@@ -99,7 +99,10 @@ export default [
                         allowedKeys: [
                           {
                             name: "paletteColors",
-                            type: ValidationTypes.STRING,
+                            type: ValidationTypes.TEXT,
+                            params: {
+                              strict: true,
+                            },
                           },
                         ],
                         default: {},

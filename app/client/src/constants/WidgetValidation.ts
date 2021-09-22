@@ -4,7 +4,6 @@ import { ValidationConfig } from "./PropertyControlConstants";
 // Always add a validator function in ./worker/validation for these types
 export enum ValidationTypes {
   TEXT = "TEXT",
-  STRING = "STRING",
   REGEX = "REGEX",
   NUMBER = "NUMBER",
   BOOLEAN = "BOOLEAN",
