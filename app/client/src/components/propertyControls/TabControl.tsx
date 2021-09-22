@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import {
   StyledInputGroup,
@@ -10,10 +10,12 @@ import {
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce } from "lodash";
+import { getNextEntityName, noop } from "utils/AppsmithUtils";
+import _, { debounce, orderBy } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Category, Size } from "components/ads/Button";
+import { useDispatch } from "react-redux";
+import { ReduxActionTypes } from "constants/ReduxActionConstants";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -38,7 +40,8 @@ const StyledOptionControlInputGroup = styled(StyledInputGroup)`
   margin-right: 2px;
   margin-bottom: 2px;
   width: 100%;
-  padding-left: 30px;
+  padding-left: 10px;
+  background: inherit;
   &&& {
     input {
       border: none;
@@ -65,30 +68,82 @@ type RenderComponentProps = {
   onEdit?: (props: any) => void;
 };
 
+function AddTabButtonComponent({ widgetId }: any) {
+  const dispatch = useDispatch();
+  const addOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
+      payload: {
+        widgetId,
+      },
+    });
+  };
+  return (
+    <StyledPropertyPaneButtonWrapper>
+      <StyledPropertyPaneButton
+        category={Category.tertiary}
+        icon="plus"
+        onClick={addOption}
+        size={Size.medium}
+        tag="button"
+        text="Add a Tab"
+        type="button"
+      />
+    </StyledPropertyPaneButtonWrapper>
+  );
+}
+
 function TabControlComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
+  const { index, item, updateOption } = props;
+  const dispatch = useDispatch();
+  const deleteOption = () => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
+      payload: { ...item, index },
+    });
+  };
+
+  const [value, setValue] = useState(item.label);
+  const [isEditing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing && item && item.label) setValue(item.label);
+  }, [item?.label, isEditing]);
+
   const debouncedUpdate = debounce(updateOption, 1000);
   const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
     index,
   ]);
+
+  const onChange = useCallback(
+    (index: number, value: string) => {
+      setValue(value);
+      debouncedUpdate(index, value);
+    },
+    [updateOption],
+  );
+
+  const onFocus = () => setEditing(true);
+  const onBlur = () => setEditing(false);
+
   return (
     <ItemWrapper>
       <StyledDragIcon height={20} width={20} />
       <StyledOptionControlInputGroup
         dataType="text"
-        defaultValue={item.label}
+        onBlur={onBlur}
         onChange={(value: string) => {
-          debouncedUpdate(index, value);
+          onChange(index, value);
         }}
+        onFocus={onFocus}
         placeholder="Tab Title"
+        value={value}
       />
       <StyledDeleteIcon
         className="t--delete-tab-btn"
         height={20}
         marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
+        onClick={deleteOption}
         width={20}
       />
       <StyledEditIcon
@@ -156,7 +211,6 @@ class TabControl extends BaseControl<ControlProps> {
       propPaneId: this.props.widgetProperties.widgetId,
     });
   };
-
   render() {
     const tabs: Array<{
       id: string;
@@ -164,29 +218,22 @@ class TabControl extends BaseControl<ControlProps> {
     }> = _.isString(this.props.propertyValue)
       ? []
       : Object.values(this.props.propertyValue);
+
     return (
       <TabsWrapper>
         <DroppableComponent
-          deleteOption={this.deleteOption}
+          deleteOption={noop}
           itemHeight={45}
-          items={tabs}
+          items={orderBy(tabs, ["index"], ["asc"])}
           onEdit={this.onEdit}
           renderComponent={TabControlComponent}
           toggleVisibility={this.toggleVisibility}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
-          <StyledPropertyPaneButton
-            category={Category.tertiary}
-            icon="plus"
-            onClick={this.addOption}
-            size={Size.medium}
-            tag="button"
-            text="Add a Tab"
-            type="button"
-          />
-        </StyledPropertyPaneButtonWrapper>
+        <AddTabButtonComponent
+          widgetId={this.props.widgetProperties.widgetId}
+        />
       </TabsWrapper>
     );
   }
@@ -211,30 +258,9 @@ class TabControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
-  deleteOption = (index: number) => {
-    const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
-    if (tabsArray && tabsArray.length === 1) return;
-    const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
-      return i !== index;
-    });
-    const updatedObj = updatedArray.reduce(
-      (obj: any, each: any, index: number) => {
-        obj[each.id] = {
-          ...each,
-          index,
-        };
-        return obj;
-      },
-      {},
-    );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
-    this.updateProperty(this.props.propertyName, updatedObj);
-  };
-
   updateOption = (index: number, updatedLabel: string) => {
     const tabsArray: any = Object.values(this.props.propertyValue);
-    const itemId = tabsArray[index].id;
+    const { id: itemId } = tabsArray[index];
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,

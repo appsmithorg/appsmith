@@ -1,6 +1,5 @@
 import React, { forwardRef, Ref } from "react";
-import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
-import BookIcon from "remixicon-react/BookOpenLineIcon";
+// import { ReactComponent as DeleteIcon } from "assets/icons/ads/delete.svg";
 import { ReactComponent as BookLineIcon } from "assets/icons/ads/book-open-line.svg";
 import { ReactComponent as BugIcon } from "assets/icons/ads/bug.svg";
 import { ReactComponent as CancelIcon } from "assets/icons/ads/cancel.svg";
@@ -10,21 +9,13 @@ import { ReactComponent as OpenIcon } from "assets/icons/ads/open.svg";
 import { ReactComponent as UserIcon } from "assets/icons/ads/user.svg";
 import { ReactComponent as GeneralIcon } from "assets/icons/ads/general.svg";
 import { ReactComponent as BillingIcon } from "assets/icons/ads/billing.svg";
-import EditIcon from "remixicon-react/PencilFillIcon";
-import GuideIcon from "remixicon-react/GuideFillIcon";
-import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import { ReactComponent as ErrorIcon } from "assets/icons/ads/error.svg";
 import { ReactComponent as ShineIcon } from "assets/icons/ads/shine.svg";
 import { ReactComponent as SuccessIcon } from "assets/icons/ads/success.svg";
 import SearchIcon from "remixicon-react/SearchLineIcon";
 import { ReactComponent as CloseIcon } from "assets/icons/ads/close.svg";
-import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
+// import { ReactComponent as WarningIcon } from "assets/icons/ads/warning.svg";
 import { ReactComponent as WarningTriangleIcon } from "assets/icons/ads/warning-triangle.svg";
-import ShareIcon from "remixicon-react/ShareForwardFillIcon";
-import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
-import RocketIcon from "remixicon-react/RocketLineIcon";
-import WorkspaceIcon from "remixicon-react/Building3FillIcon";
-import CreateNewIcon from "remixicon-react/AddLineIcon";
 import { ReactComponent as ShareIcon2 } from "assets/icons/ads/share-2.svg";
 import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.svg";
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
@@ -38,14 +29,13 @@ import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
-import HelpIcon from "remixicon-react/QuestionMarkIcon";
-import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
+// import { ReactComponent as CloseModalIcon } from "assets/icons/ads/close-modal.svg";
 import { ReactComponent as NoResponseIcon } from "assets/icons/ads/no-response.svg";
 import { ReactComponent as LightningIcon } from "assets/icons/ads/lightning.svg";
-import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
-import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
+// import { ReactComponent as AddMoreIcon } from "assets/icons/ads/add-more.svg";
+// import { ReactComponent as RightArrowIcon } from "assets/icons/ads/right-arrow.svg";
 import { ReactComponent as TrendingFlat } from "assets/icons/ads/trending-flat.svg";
-import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
+// import { ReactComponent as DatasourceIcon } from "assets/icons/ads/datasource.svg";
 import { ReactComponent as PlayIcon } from "assets/icons/ads/play.svg";
 import { ReactComponent as DesktopIcon } from "assets/icons/ads/desktop.svg";
 import { ReactComponent as WandIcon } from "assets/icons/ads/wand.svg";
@@ -54,27 +44,16 @@ import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
 import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
 import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
-import Emoji from "remixicon-react/EmotionLineIcon";
 import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
-import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
-import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
-import ContextMenu from "remixicon-react/MoreFillIcon";
-import Trash from "remixicon-react/DeleteBin7FillIcon";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
 import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
 import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-import Link2 from "remixicon-react/LinkIcon";
-import CommentContextMenu from "remixicon-react/More2FillIcon";
 import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
-import Filter from "remixicon-react/Filter2FillIcon";
 import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
-import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
-import UpArrow from "remixicon-react/ArrowUpSFillIcon";
-import DownArrow from "remixicon-react/ArrowDownSFillIcon";
 import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
@@ -94,6 +73,35 @@ import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
 import Spinner from "./Spinner";
 import { ControlIcons } from "icons/ControlIcons";
+
+// remix icons
+import AddMoreIcon from "remixicon-react/AddCircleLineIcon";
+import BookIcon from "remixicon-react/BookOpenLineIcon";
+import CloseLineIcon from "remixicon-react/CloseLineIcon";
+import CommentContextMenu from "remixicon-react/More2FillIcon";
+import CreateNewIcon from "remixicon-react/AddLineIcon";
+import DatasourceIcon from "remixicon-react/CloudFillIcon";
+import DiscordIcon from "remixicon-react/DiscordLineIcon";
+import DownArrow from "remixicon-react/ArrowDownSFillIcon";
+import EditIcon from "remixicon-react/PencilFillIcon";
+import Emoji from "remixicon-react/EmotionLineIcon";
+import EyeOn from "remixicon-react/EyeLineIcon";
+import EyeOff from "remixicon-react/EyeOffLineIcon";
+import Filter from "remixicon-react/Filter2FillIcon";
+import GuideIcon from "remixicon-react/GuideFillIcon";
+import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import Link2 from "remixicon-react/LinkIcon";
+import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
+import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
+import Pin3 from "remixicon-react/Pushpin2FillIcon";
+import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
+import RocketIcon from "remixicon-react/RocketLineIcon";
+import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
+import ShareIcon from "remixicon-react/ShareForwardFillIcon";
+import Trash from "remixicon-react/DeleteBinLineIcon";
+import UpArrow from "remixicon-react/ArrowUpSFillIcon";
+import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
+import WorkspaceIcon from "remixicon-react/Building3FillIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -141,101 +149,103 @@ export const sizeHandler = (size?: IconSize) => {
 };
 
 export const IconCollection = [
-  "upload",
-  "download",
+  "HEADING_ONE",
+  "HEADING_THREE",
+  "HEADING_TWO",
+  "PARAGRAPH",
+  "PARAGRAPH_TWO",
+  "add-more",
+  "arrow-forward",
+  "arrow-left",
+  "billing",
   "book",
   "book-line",
   "bug",
   "cancel",
-  "cross",
-  "delete",
-  "expand-more",
-  "open",
-  "user",
-  "general",
-  "billing",
-  "edit",
-  "error",
-  "shine",
-  "danger",
-  "success",
-  "search",
-  "close",
-  "share",
-  "share-2",
-  "rocket",
-  "workspace",
-  "plus",
-  "invite-user",
-  "view-all",
-  "view-less",
-  "warning",
-  "warning-triangle",
-  "downArrow",
-  "upArrow",
-  "context-menu",
-  "duplicate",
-  "logout",
-  "manage",
-  "arrow-left",
-  "fork",
+  "cap-dot",
+  "cap-solid",
+  "card-context-menu",
+  "chat",
   "chevron-left",
   "chevron-right",
-  "link",
-  "help",
+  "close",
   "close-modal",
-  "no-response",
-  "lightning",
-  "add-more",
-  "right-arrow",
-  "trending-flat",
+  "close-x",
+  "column",
+  "comment-context-menu",
+  "context-menu",
+  "context-menu",
+  "cross",
+  "danger",
   "datasource",
-  "play",
+  "delete",
   "desktop",
-  "wand",
-  "mobile",
-  "tablet",
-  "fluid",
-  "card-context-menu",
-  "send-button",
+  "discord",
+  "down-arrow-2",
+  "downArrow",
+  "download",
+  "duplicate",
+  "edit",
   "emoji",
-  "pin",
+  "error",
+  "expand-more",
+  "eye-on",
+  "eye-off",
+  "filter",
+  "fluid",
+  "fork",
+  "gear",
+  "general",
+  "git-branch",
+  "guide",
+  "help",
+  "invite-user",
+  "lightning",
+  "line-dashed",
+  "line-dotted",
+  "link",
+  "link-2",
+  "logout",
+  "manage",
+  "mobile",
+  "no-response",
+  "open",
   "oval-check",
   "oval-check-fill",
-  "HEADING_ONE",
-  "HEADING_TWO",
-  "HEADING_THREE",
-  "PARAGRAPH",
-  "PARAGRAPH_TWO",
-  "context-menu",
-  "trash",
-  "trash-outline",
-  "link-2",
-  "close-x",
-  "comment-context-menu",
-  "down-arrow-2",
-  "read-pin",
-  "unread-pin",
-  "filter",
-  "chat",
+  "pin",
   "pin-3",
-  "unpin",
+  "play",
+  "plus",
   "reaction",
   "reaction-2",
-  "arrow-forward",
-  "cap-solid",
-  "cap-dot",
-  "line-dotted",
-  "line-dashed",
-  "tables",
-  "column",
-  "guide",
-  "discord",
-  "gear",
-  "user-2",
-  "support",
+  "read-pin",
+  "right-arrow",
+  "rocket",
+  "search",
+  "send-button",
+  "share",
+  "share-2",
   "share-box",
-  "git-branch",
+  "shine",
+  "success",
+  "support",
+  "tables",
+  "tablet",
+  "trash",
+  "trash-outline",
+  "trending-flat",
+  "unpin",
+  "unread-pin",
+  "upArrow",
+  "upload",
+  "user",
+  "user-2",
+  "view-all",
+  "view-less",
+  "wand",
+  "warning",
+  "warning-triangle",
+  "workspace",
 ] as const;
 
 export type IconName = typeof IconCollection[number];
@@ -291,6 +301,26 @@ const Icon = forwardRef(
   (props: IconProps & CommonComponentProps, ref: Ref<HTMLSpanElement>) => {
     let returnIcon;
     switch (props.name) {
+      case "HEADING_ONE":
+      case "HEADING_TWO":
+      case "HEADING_THREE":
+      case "PARAGRAPH":
+      case "PARAGRAPH_TWO":
+        const ControlIcon = ControlIcons[props.name];
+        returnIcon = <ControlIcon height={24} width={24} />;
+        break;
+      case "add-more":
+        returnIcon = <AddMoreIcon />;
+        break;
+      case "arrow-forward":
+        returnIcon = <ArrowForwardIcon />;
+        break;
+      case "arrow-left":
+        returnIcon = <ArrowLeft />;
+        break;
+      case "billing":
+        returnIcon = <BillingIcon />;
+        break;
       case "book":
         returnIcon = <BookIcon />;
         break;
@@ -303,107 +333,17 @@ const Icon = forwardRef(
       case "cancel":
         returnIcon = <CancelIcon />;
         break;
-      case "cross":
-        returnIcon = <CrossIcon />;
+      case "cap-dot":
+        returnIcon = <CapDotIcon />;
         break;
-      case "delete":
-        returnIcon = <DeleteIcon />;
+      case "cap-solid":
+        returnIcon = <CapSolidIcon />;
         break;
-      case "expand-more":
-        returnIcon = <ExpandMore />;
+      case "card-context-menu":
+        returnIcon = <CardContextMenu />;
         break;
-      case "open":
-        returnIcon = <OpenIcon />;
-        break;
-      case "share-box":
-        returnIcon = <ShareBoxFillIcon />;
-        break;
-      case "user":
-        returnIcon = <UserIcon />;
-        break;
-      case "general":
-        returnIcon = <GeneralIcon />;
-        break;
-      case "billing":
-        returnIcon = <BillingIcon />;
-        break;
-      case "edit":
-        returnIcon = <EditIcon />;
-        break;
-      case "error":
-        returnIcon = <ErrorIcon />;
-        break;
-      case "danger":
-        returnIcon = <ErrorIcon />;
-        break;
-      case "shine":
-        returnIcon = <ShineIcon />;
-        break;
-      case "success":
-        returnIcon = <SuccessIcon />;
-        break;
-      case "search":
-        returnIcon = <SearchIcon />;
-        break;
-      case "close":
-        returnIcon = <CloseIcon />;
-        break;
-      case "downArrow":
-        returnIcon = <DownArrow />;
-        break;
-      case "upArrow":
-        returnIcon = <UpArrow />;
-        break;
-      case "share":
-        returnIcon = <ShareIcon />;
-        break;
-      case "share-2":
-        returnIcon = <ShareIcon2 />;
-        break;
-      case "rocket":
-        returnIcon = <RocketIcon />;
-        break;
-      case "wand":
-        returnIcon = <WandIcon />;
-        break;
-      case "workspace":
-        returnIcon = <WorkspaceIcon />;
-        break;
-      case "plus":
-        returnIcon = <CreateNewIcon />;
-        break;
-      case "invite-user":
-        returnIcon = <InviteUserIcon />;
-        break;
-      case "view-all":
-        returnIcon = <ViewAllIcon />;
-        break;
-      case "view-less":
-        returnIcon = <ViewLessIcon />;
-        break;
-      case "context-menu":
-        returnIcon = <ContextMenuIcon />;
-        break;
-      case "duplicate":
-        returnIcon = <DuplicateIcon />;
-        break;
-      case "logout":
-        returnIcon = <LogoutIcon />;
-        break;
-      case "manage":
-        returnIcon = <ManageIcon />;
-        break;
-      case "warning":
-        returnIcon = <WarningIcon />;
-        break;
-      case "warning-triangle":
-        returnIcon = <WarningTriangleIcon />;
-        break;
-      case "arrow-left":
-        returnIcon = <ArrowLeft />;
-        break;
-      case "fork":
-        returnIcon = <Fork />;
+      case "chat":
+        returnIcon = <Chat />;
         break;
       case "chevron-left":
         returnIcon = <ChevronLeft />;
@@ -411,60 +351,126 @@ const Icon = forwardRef(
       case "chevron-right":
         returnIcon = <ChevronRight />;
         break;
-      case "link":
-        returnIcon = <LinkIcon />;
-        break;
-      case "help":
-        returnIcon = <HelpIcon />;
+      case "close":
+        returnIcon = <CloseIcon />;
         break;
       case "close-modal":
       case "close-x":
-        returnIcon = <CloseModalIcon />;
+        returnIcon = <CloseLineIcon />;
         break;
-      case "no-response":
-        returnIcon = <NoResponseIcon />;
+      case "column":
+        returnIcon = <ColumnIcon />;
         break;
-      case "lightning":
-        returnIcon = <LightningIcon />;
+      case "comment-context-menu":
+        returnIcon = <CommentContextMenu />;
         break;
-      case "add-more":
-        returnIcon = <AddMoreIcon />;
+      case "context-menu":
+        returnIcon = <ContextMenuIcon />;
         break;
-      case "right-arrow":
-        returnIcon = <RightArrowIcon />;
+      case "cross":
+        returnIcon = <CrossIcon />;
         break;
-      case "trending-flat":
-        returnIcon = <TrendingFlat />;
+      case "danger":
+        returnIcon = <ErrorIcon />;
         break;
       case "datasource":
         returnIcon = <DatasourceIcon />;
         break;
-      case "play":
-        returnIcon = <PlayIcon />;
+      case "delete":
+        returnIcon = <Trash />;
         break;
       case "desktop":
         returnIcon = <DesktopIcon />;
         break;
-      case "mobile":
-        returnIcon = <MobileIcon />;
+      case "discord":
+        returnIcon = <DiscordIcon />;
         break;
-      case "tablet":
-        returnIcon = <TabletIcon />;
+      case "down-arrow-2":
+        returnIcon = <DownArrow2 />;
         break;
-      case "fluid":
-        returnIcon = <FluidIcon />;
+      case "downArrow":
+        returnIcon = <DownArrow />;
         break;
-      case "card-context-menu":
-        returnIcon = <CardContextMenu />;
+      case "download":
+        returnIcon = <Download />;
         break;
-      case "send-button":
-        returnIcon = <SendButton />;
+      case "duplicate":
+        returnIcon = <DuplicateIcon />;
+        break;
+      case "edit":
+        returnIcon = <EditIcon />;
         break;
       case "emoji":
         returnIcon = <Emoji />;
         break;
-      case "pin":
-        returnIcon = <Pin />;
+      case "error":
+        returnIcon = <ErrorIcon />;
+        break;
+      case "expand-more":
+        returnIcon = <ExpandMore />;
+        break;
+      case "eye-on":
+        returnIcon = <EyeOn />;
+        break;
+      case "eye-off":
+        returnIcon = <EyeOff />;
+        break;
+      case "filter":
+        returnIcon = <Filter />;
+        break;
+      case "fluid":
+        returnIcon = <FluidIcon />;
+        break;
+      case "fork":
+        returnIcon = <Fork />;
+        break;
+      case "gear":
+        returnIcon = <GearIcon />;
+        break;
+      case "general":
+        returnIcon = <GeneralIcon />;
+        break;
+      case "git-branch":
+        returnIcon = <GitBranch />;
+        break;
+      case "guide":
+        returnIcon = <GuideIcon />;
+        break;
+      case "help":
+        returnIcon = <HelpIcon />;
+        break;
+      case "invite-user":
+        returnIcon = <InviteUserIcon />;
+        break;
+      case "lightning":
+        returnIcon = <LightningIcon />;
+        break;
+      case "line-dashed":
+        returnIcon = <LineDashedIcon />;
+        break;
+      case "line-dotted":
+        returnIcon = <LineDottedIcon />;
+        break;
+      case "link":
+        returnIcon = <LinkIcon />;
+        break;
+      case "link-2":
+        returnIcon = <Link2 />;
+        break;
+      case "logout":
+        returnIcon = <LogoutIcon />;
+        break;
+      case "manage":
+        returnIcon = <ManageIcon />;
+        break;
+      case "mobile":
+        returnIcon = <MobileIcon />;
+        break;
+      case "no-response":
+        returnIcon = <NoResponseIcon />;
+        break;
+      case "open":
+        returnIcon = <OpenIcon />;
         break;
       case "oval-check":
         returnIcon = <OvalCheck />;
@@ -472,132 +478,108 @@ const Icon = forwardRef(
       case "oval-check-fill":
         returnIcon = <OvalCheckFill />;
         break;
-
-      case "HEADING_ONE":
-      case "HEADING_TWO":
-      case "HEADING_THREE":
-      case "PARAGRAPH":
-      case "PARAGRAPH_TWO":
-        const ControlIcon = ControlIcons[props.name];
-        returnIcon = <ControlIcon height={24} width={24} />;
+      case "pin":
+        returnIcon = <Pin />;
         break;
-
-      case "context-menu":
-        returnIcon = <ContextMenu />;
-        break;
-
-      case "read-pin":
-        returnIcon = <ReadPin />;
-        break;
-
-      case "unread-pin":
-        returnIcon = <UnreadPin />;
-        break;
-
-      case "link-2":
-        returnIcon = <Link2 />;
-        break;
-
-      case "trash":
-        returnIcon = <Trash />;
-        break;
-
-      case "trash-outline":
-        returnIcon = <TrashOutline />;
-        break;
-
-      case "comment-context-menu":
-        returnIcon = <CommentContextMenu />;
-        break;
-
-      case "down-arrow-2":
-        returnIcon = <DownArrow2 />;
-        break;
-
-      case "filter":
-        returnIcon = <Filter />;
-        break;
-
-      case "chat":
-        returnIcon = <Chat />;
-        break;
-
       case "pin-3":
         returnIcon = <Pin3 />;
         break;
-
-      case "unpin":
-        returnIcon = <Unpin />;
+      case "play":
+        returnIcon = <PlayIcon />;
         break;
-
+      case "plus":
+        returnIcon = <CreateNewIcon />;
+        break;
       case "reaction":
         returnIcon = <Reaction />;
         break;
-
       case "reaction-2":
         returnIcon = <Reaction2 />;
         break;
-
-      case "upload":
-        returnIcon = <Upload />;
+      case "read-pin":
+        returnIcon = <ReadPin />;
         break;
-
-      case "download":
-        returnIcon = <Download />;
+      case "right-arrow":
+        returnIcon = <RightArrowIcon />;
         break;
-
-      case "arrow-forward":
-        returnIcon = <ArrowForwardIcon />;
+      case "rocket":
+        returnIcon = <RocketIcon />;
         break;
-
-      case "cap-solid":
-        returnIcon = <CapSolidIcon />;
+      case "search":
+        returnIcon = <SearchIcon />;
         break;
-
-      case "cap-dot":
-        returnIcon = <CapDotIcon />;
+      case "send-button":
+        returnIcon = <SendButton />;
         break;
-
-      case "line-dotted":
-        returnIcon = <LineDottedIcon />;
+      case "share":
+        returnIcon = <ShareIcon />;
         break;
-
-      case "line-dashed":
-        returnIcon = <LineDashedIcon />;
+      case "share-2":
+        returnIcon = <ShareIcon2 />;
         break;
-
-      case "tables":
-        returnIcon = <TableIcon />;
+      case "share-box":
+        returnIcon = <ShareBoxFillIcon />;
         break;
-
-      case "column":
-        returnIcon = <ColumnIcon />;
+      case "shine":
+        returnIcon = <ShineIcon />;
         break;
-
-      case "guide":
-        returnIcon = <GuideIcon />;
+      case "success":
+        returnIcon = <SuccessIcon />;
         break;
-
-      case "discord":
-        returnIcon = <DiscordIcon />;
-        break;
-
-      case "user-2":
-        returnIcon = <UserV2Icon />;
-        break;
-
-      case "gear":
-        returnIcon = <GearIcon />;
-        break;
-
       case "support":
         returnIcon = <SupportIcon />;
         break;
-
-      case "git-branch":
-        returnIcon = <GitBranch />;
+      case "tables":
+        returnIcon = <TableIcon />;
         break;
-
+      case "tablet":
+        returnIcon = <TabletIcon />;
+        break;
+      case "trash":
+        returnIcon = <Trash />;
+        break;
+      case "trash-outline":
+        returnIcon = <TrashOutline />;
+        break;
+      case "trending-flat":
+        returnIcon = <TrendingFlat />;
+        break;
+      case "unpin":
+        returnIcon = <Unpin />;
+        break;
+      case "unread-pin":
+        returnIcon = <UnreadPin />;
+        break;
+      case "upArrow":
+        returnIcon = <UpArrow />;
+        break;
+      case "upload":
+        returnIcon = <Upload />;
+        break;
+      case "user":
+        returnIcon = <UserIcon />;
+        break;
+      case "user-2":
+        returnIcon = <UserV2Icon />;
+        break;
+      case "view-all":
+        returnIcon = <ViewAllIcon />;
+        break;
+      case "view-less":
+        returnIcon = <ViewLessIcon />;
+        break;
+      case "wand":
+        returnIcon = <WandIcon />;
+        break;
+      case "warning":
+        returnIcon = <WarningIcon />;
+        break;
+      case "warning-triangle":
+        returnIcon = <WarningTriangleIcon />;
+        break;
+      case "workspace":
+        returnIcon = <WorkspaceIcon />;
+        break;
       default:
         returnIcon = null;
         break;

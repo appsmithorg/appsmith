@@ -452,6 +452,9 @@ export type Theme = {
   actionSidePane: {
     width: number;
   };
+  onboarding: {
+    statusBarHeight: number;
+  };
 };
 
 type IconSizeType = {
@@ -938,6 +941,7 @@ type ColorType = {
   };
   toast: {
     undo: string;
+    undoRedoColor: string;
     warningColor: string;
     dangerColor: string;
     textColor: string;
@@ -1895,6 +1899,7 @@ export const dark: ColorType = {
   },
   toast: {
     undo: "#CB4810",
+    undoRedoColor: "#F8682B",
     warningColor: "#E0B30E",
     dangerColor: "#E22C2C",
     textColor: "#090707",
@@ -2411,9 +2416,9 @@ export const light: ColorType = {
     shadow: "rgba(0, 0, 0, 0.32)",
   },
   tabs: {
-    normal: lightShades[8],
-    icon: lightShades[15],
-    hover: lightShades[10],
+    normal: lightShades[15],
+    icon: lightShades[10],
+    hover: lightShades[8],
     border: lightShades[3],
     countBg: lightShades[3],
     selected: Colors.CRUSTA,
@@ -2523,6 +2528,7 @@ export const light: ColorType = {
   },
   toast: {
     undo: "#F86A2B",
+    undoRedoColor: "#F8682B",
     warningColor: "#DCAD00",
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
@@ -2537,8 +2543,8 @@ export const light: ColorType = {
   apiPane: {
     bg: lightShades[0],
     tabBg: lightShades[11],
-    text: lightShades[15],
-    dividerBg: lightShades[3],
+    text: lightShades[16],
+    dividerBg: lightShades[13],
     iconHoverBg: lightShades[1],
     requestTree: {
       bg: lightShades[11],
@@ -2558,13 +2564,13 @@ export const light: ColorType = {
       bg: lightShades[11],
     },
     codeEditor: {
-      placeholderColor: lightShades[5],
+      placeholderColor: lightShades[15],
     },
     body: {
       text: "#A9A7A7",
     },
     settings: {
-      textColor: "#090707",
+      textColor: lightShades[10],
     },
     pagination: {
       label: lightShades[8],
@@ -2900,6 +2906,7 @@ export const theme: Theme = {
     builderBodyBG: Colors.WHITE,
     widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
+    widgetLightBorder: Colors.WHITE_SMOKE,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
@@ -3091,6 +3098,9 @@ export const theme: Theme = {
   },
   actionSidePane: {
     width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
   },
 };
 

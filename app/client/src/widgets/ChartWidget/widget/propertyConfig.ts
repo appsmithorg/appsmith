@@ -68,12 +68,9 @@ export default [
       },
       {
         helpText: "Configure a Custom FusionChart see docs.appsmith.com",
-        placeholderText: `{ 
-          "type": "bar2d",
-          "dataSource": {}
-        }`,
+        placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
-        label: "Custom Fusion Chart Configuration",
+        label: "Custom Fusion Chart",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -245,24 +242,6 @@ export default [
         validation: { type: ValidationTypes.TEXT },
         hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
         dependencies: ["chartType"],
-      },
-      {
-        propertyName: "setAdaptiveYMin",
-        label: "Adaptive Axis",
-        helpText: "Define the minimum scale for X/Y axis",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "setAdaptiveYMin",
-        label: "Adaptive Axis",
-        helpText: "Define the minimum scale for X/Y axis",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "Changes the x-axis label orientation",

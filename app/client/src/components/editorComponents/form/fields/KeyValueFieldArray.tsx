@@ -56,8 +56,11 @@ const AddMoreAction = styled.div`
     margin-left: 8px;
     color: #858282;
   }
-  svg path {
-    stroke: ${(props) => props.theme.colors.apiPane.bg};
+  svg {
+    fill: #858282;
+    path {
+      fill: unset;
+    }
   }
 `;
 
@@ -256,11 +259,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <AddMoreAction onClick={() => props.fields.push({ key: "", value: "" })}>
-        <Icon
-          className="t--addApiHeader"
-          name="add-more"
-          size={IconSize.LARGE}
-        />
+        <Icon className="t--addApiHeader" name="add-more" size={IconSize.XXL} />
         <Text case={Case.UPPERCASE} type={TextType.H5}>
           Add more
         </Text>

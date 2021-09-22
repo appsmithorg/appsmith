@@ -9,13 +9,12 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
   padding: 9px 0px 9px 12px;
   width: 85px;
   min-width: 85px;
-  opacity: ${(props) => props.disabled && "0.6"};
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 14px;
-  height: ${(props) => (props.disabled ? 32 : 19)}px;
-  line-height: ${(props) => (props.disabled ? 32 : 19)}px;
+  height: 32px;
+  line-height: ${(props) => (props.disabled ? 32 : 18)}px;
   letter-spacing: -0.24px;
   color: #090707;
   position: ${(props) => props.disabled && "absolute"};
@@ -24,6 +23,7 @@ const DropdownTriggerIconWrapper = styled.div<{ disabled?: boolean }>`
     pointer-events: none;
   }
   .icon-dropdown {
+    opacity: ${(props) => props.disabled && "0.6"};
     display: flex;
     width: 30px;
     justify-content: space-between;

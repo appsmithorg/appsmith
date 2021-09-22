@@ -48,6 +48,12 @@ export function BlankState(props: {
   );
 }
 
+export enum DEBUGGER_TAB_KEYS {
+  ERROR_TAB = "ERROR",
+  LOGS_TAB = "LOGS_TAB",
+  INSPECT_TAB = "INSPECT_TAB",
+}
+
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",
