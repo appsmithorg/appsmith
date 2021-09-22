@@ -83,6 +83,7 @@ export enum EventType {
   ON_SNIPPET_EXECUTE = "ON_SNIPPET_EXECUTE",
   ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
+  ON_LIST_PAGE_CHANGE = "ON_LIST_PAGE_CHANGE",
   ON_RECORDING_START = "ON_RECORDING_START",
   ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
 }
@@ -121,6 +122,7 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
   [PluginType.SAAS]: saasActionSettingsConfig,
+  [PluginType.REMOTE]: saasActionSettingsConfig,
   [PluginType.JS]: [],
 };
 
@@ -128,6 +130,7 @@ export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],
   [PluginType.SAAS]: [],
+  [PluginType.REMOTE]: [],
   [PluginType.JS]: [],
 };
 
@@ -138,5 +141,6 @@ export const defaultActionDependenciesConfig: Record<
   [PluginType.API]: apiActionDependencyConfig,
   [PluginType.DB]: {},
   [PluginType.SAAS]: {},
+  [PluginType.REMOTE]: {},
   [PluginType.JS]: {},
 };
