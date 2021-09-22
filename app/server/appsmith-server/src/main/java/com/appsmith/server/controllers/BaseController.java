@@ -60,6 +60,13 @@ public abstract class BaseController<S extends CrudService<T, ID>, T extends Bas
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
+    @GetMapping("/{id}/branch/{branchName}")
+    public Mono<ResponseDTO<T>> getByIdAndBranchName(@PathVariable ID id, @PathVariable String branchName) {
+        log.debug("Going to get resource for id: {}", id);
+        return service.getByIdAndBranchName(id, branchName)
+            .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
     @PutMapping("/{id}")
     public Mono<ResponseDTO<T>> update(@PathVariable ID id, @RequestBody T resource) {
         log.debug("Going to update resource with id: {}", id);

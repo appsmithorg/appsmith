@@ -98,6 +98,15 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                 });
     }
 
+    @Override
+    public Mono<Application> getByIdAndBranchName(String id, String branchName) {
+        if (StringUtils.isEmpty(branchName)) {
+            return this.getById(id);
+        }
+        return this.getChildApplicationId(branchName, id, READ_APPLICATIONS)
+            .flatMap(this::getById);
+    }
+
     private Mono<Application> setUnreadCommentCount(Application application, User user) {
         if(!user.isAnonymous()) {
             return commentThreadRepository.countUnreadThreads(application.getId(), user.getUsername())
@@ -456,7 +465,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
         if (StringUtils.isEmpty(branchName)) {
             return Mono.just(defaultApplicationId);
         }
-        return repository.getApplicationByGitBranchAndDefaultApp(branchName, defaultApplicationId, permission)
+        return repository.getApplicationByGitBranchAndDefaultApp(defaultApplicationId, branchName, permission)
             .switchIfEmpty(Mono.error(
                 new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.BRANCH_NAME, branchName))
             )
