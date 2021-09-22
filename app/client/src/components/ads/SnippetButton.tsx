@@ -7,6 +7,8 @@ import { useDispatch } from "react-redux";
 import { Category, Size } from "./Button";
 import TooltipComponent from "./Tooltip";
 import AdsIcon, { IconSize } from "components/ads/Icon";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommand } from "entities/Action";
 
 type Props = {
   entityId?: string;
@@ -27,16 +29,15 @@ export default function SearchSnippets(props: Props) {
   const dispatch = useDispatch();
   const className = props.className || "";
   function handleClick() {
-    dispatch({
-      type: "EXECUTE_COMMAND",
-      payload: {
-        actionType: "NEW_SNIPPET",
+    dispatch(
+      executeCommandAction({
+        actionType: SlashCommand.NEW_SNIPPET,
         args: {
           entityId: props.entityId,
           entityType: props.entityType,
         },
-      },
-    });
+      }),
+    );
   }
 
   return props.showIconOnly ? (

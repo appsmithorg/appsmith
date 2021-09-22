@@ -49,7 +49,13 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Action, ActionViewMode, PluginType } from "entities/Action";
+import {
+  Action,
+  ActionViewMode,
+  PluginType,
+  SlashCommand,
+  SlashCommandPayload,
+} from "entities/Action";
 import {
   ActionData,
   ActionDataState,
@@ -831,19 +837,13 @@ function* getCurrentEntity(
   return { entityId, entityType };
 }
 
-function* executeCommand(
-  actionPayload: ReduxAction<{
-    actionType: string;
-    callback: (binding: string) => void;
-    args: any;
-  }>,
-) {
+function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const callback = get(actionPayload, "payload.callback");
   const params = getQueryParams();
   switch (actionPayload.payload.actionType) {
-    case "NEW_SNIPPET":
+    case SlashCommand.NEW_SNIPPET:
       let { entityId, entityType } = get(actionPayload, "payload.args", {});
       const { expectedType, propertyPath } = get(
         actionPayload,
@@ -892,12 +892,12 @@ function* executeCommand(
       if (effectRaceResult.failure) return;
       if (callback) callback(effectRaceResult.success.payload);
       break;
-    case "NEW_INTEGRATION":
+    case SlashCommand.NEW_INTEGRATION:
       history.push(
         INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
       );
       break;
-    case "NEW_QUERY":
+    case SlashCommand.NEW_QUERY:
       const datasource = get(actionPayload, "payload.args.datasource");
       const pluginId = get(datasource, "pluginId");
       const plugin: Plugin = yield select(getPlugin, pluginId);
@@ -930,12 +930,12 @@ function* executeCommand(
       }
       yield put(createActionRequest(nextPayload));
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-      actionPayload.payload.callback(`{{${QUERY.payload.name}.data}}`);
+      if (callback) callback(`{{${QUERY.payload.name}.data}}`);
       break;
-    case "NEW_API":
+    case SlashCommand.NEW_API:
       yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
-      actionPayload.payload.callback(`{{${API.payload.name}.data}}`);
+      if (callback) callback(`{{${API.payload.name}.data}}`);
       break;
   }
 }
@@ -967,6 +967,6 @@ export function* watchActionSagas() {
       ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
       toggleActionExecuteOnLoadSaga,
     ),
-    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommand),
+    takeLatest(ReduxActionTypes.EXECUTE_COMMAND, executeCommandSaga),
   ]);
 }

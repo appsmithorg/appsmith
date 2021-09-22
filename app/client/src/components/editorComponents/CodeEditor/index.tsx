@@ -80,6 +80,8 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import getFeatureFlags from "utils/featureFlags";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommandPayload } from "entities/Action";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -704,7 +706,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
+  executeCommand: (payload: SlashCommandPayload) =>
+    dispatch(executeCommandAction(payload)),
 });
 
 export default Sentry.withProfiler(
