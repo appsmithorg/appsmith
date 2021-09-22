@@ -300,81 +300,78 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       ),
     },
   ];
-  if (template) {
+  if (template && args && args.length > 0) {
     tabs.push({
       key: "Customize",
       title: "Customize",
-      panelComponent:
-        args && args.length > 0 ? (
-          <>
-            <div className="snippet-container">
-              <SyntaxHighlighter language={language} style={prism}>
-                {getSnippet(template, selectedArgs)}
-              </SyntaxHighlighter>
-              <div className="action-icons">
-                <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
-              </div>
+      panelComponent: (
+        <>
+          <div className="snippet-container">
+            <SyntaxHighlighter language={language} style={prism}>
+              {getSnippet(template, selectedArgs)}
+            </SyntaxHighlighter>
+            <div className="action-icons">
+              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
             </div>
-            <div className="snippet-group">
-              {args.map((arg: SnippetArgument) => (
-                <div
-                  className="argument"
-                  key={arg.name}
-                  onKeyDown={(e) => e.stopPropagation()}
-                >
-                  <span>{arg.name}</span>
-                  <CodeEditor
-                    errors={evaluatedArguments[arg.name]?.errors}
-                    evaluatedValue={evaluatedArguments[arg.name]?.value}
-                    expected={getExpectedValue({ type: arg.type })}
-                    input={{
-                      value: selectedArgs[arg.name],
-                      onChange: (value: any) => handleArgChange(value, arg),
-                    }}
-                    isInvalid={evaluatedArguments[arg.name]?.isInvalid}
-                    mode={EditorModes.TEXT_WITH_BINDING}
-                    popperPlacement="right-start"
-                    showLightningMenu={false}
-                    size={EditorSize.EXTENDED}
-                    tabBehaviour={TabBehaviour.INDENT}
-                    theme={EditorTheme.LIGHT}
-                    useValidationMessage
-                  />
-                </div>
-              ))}
-              <div className="actions-container">
-                {language === "javascript" && (
-                  <Button
-                    className="t--apiFormRunBtn"
-                    disabled={executionInProgress}
-                    onClick={handleRun}
-                    size={Size.medium}
-                    tag="button"
-                    text="Run"
-                    type="button"
-                  />
-                )}
+          </div>
+          <div className="snippet-group">
+            {args.map((arg: SnippetArgument) => (
+              <div
+                className="argument"
+                key={arg.name}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <span>{arg.name}</span>
+                <CodeEditor
+                  errors={evaluatedArguments[arg.name]?.errors}
+                  evaluatedValue={evaluatedArguments[arg.name]?.value}
+                  expected={getExpectedValue({ type: arg.type })}
+                  input={{
+                    value: selectedArgs[arg.name],
+                    onChange: (value: any) => handleArgChange(value, arg),
+                  }}
+                  isInvalid={evaluatedArguments[arg.name]?.isInvalid}
+                  mode={EditorModes.TEXT_WITH_BINDING}
+                  popperPlacement="right-start"
+                  showLightningMenu={false}
+                  size={EditorSize.EXTENDED}
+                  tabBehaviour={TabBehaviour.INDENT}
+                  theme={EditorTheme.LIGHT}
+                  useValidationMessage
+                />
               </div>
-              <div id="snippet-evaluator">
-                {evaluatedSnippet && (
-                  <div className="snippet-group">
-                    <div className="header">Evaluated Snippet</div>
-                    <div className="content">
-                      <ReadOnlyEditor
-                        folding
-                        height="300px"
-                        input={{ value: evaluatedSnippet }}
-                        showLineNumbers={false}
-                      />
-                    </div>
+            ))}
+            <div className="actions-container">
+              {language === "javascript" && (
+                <Button
+                  className="t--apiFormRunBtn"
+                  disabled={executionInProgress}
+                  onClick={handleRun}
+                  size={Size.medium}
+                  tag="button"
+                  text="Run"
+                  type="button"
+                />
+              )}
+            </div>
+            <div id="snippet-evaluator">
+              {evaluatedSnippet && (
+                <div className="snippet-group">
+                  <div className="header">Evaluated Snippet</div>
+                  <div className="content">
+                    <ReadOnlyEditor
+                      folding
+                      height="300px"
+                      input={{ value: evaluatedSnippet }}
+                      showLineNumbers={false}
+                    />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
-          </>
-        ) : (
-          <div />
-        ),
+          </div>
+        </>
+      ),
     });
   }
   return (
