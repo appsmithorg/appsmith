@@ -17,6 +17,8 @@ const initialState: GitSyncReducerState = {
   `,
   isImportAppViaGitModalOpen: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
+  branches: [],
+  fetchingBranches: false,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -104,12 +106,23 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitConfig: false,
   }),
+  [ReduxActionTypes.FETCH_BRANCHES_INIT]: (state: GitSyncReducerState) => ({
+    ...state,
+    fetchingBranches: true,
+  }),
   [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<any[]>,
   ) => ({
     ...state,
     branches: action.payload,
+    fetchingBranches: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_BRANCHES_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    fetchingBranches: false,
   }),
 });
 
@@ -123,6 +136,8 @@ export type GitSyncReducerState = {
   gitError?: string;
   globalGitConfig: GitConfig;
   isFetchingGitConfig?: boolean;
+  branches: string[];
+  fetchingBranches: boolean;
 };
 
 export default gitSyncReducer;

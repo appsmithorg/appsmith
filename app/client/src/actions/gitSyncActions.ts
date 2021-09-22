@@ -58,9 +58,19 @@ export const switchGitBranchInit = (branchName: string) => ({
   payload: branchName,
 });
 
-export const createNewBranchInit = (branchName: string) => ({
+export const createNewBranchInit = ({
+  branchName,
+  onErrorCallback,
+  onSuccessCallback,
+}: {
+  branchName: string;
+  onSuccessCallback: () => void;
+  onErrorCallback: () => void;
+}) => ({
   type: ReduxActionTypes.CREATE_NEW_BRANCH_INIT,
   payload: branchName,
+  onErrorCallback,
+  onSuccessCallback,
 });
 
 export const setIsGitErrorPopupVisible = (payload: { isVisible: boolean }) => ({

@@ -214,6 +214,10 @@ class PageApi extends Api {
     applicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
+    if (branchName)
+      return Api.get(
+        `${PageApi.url}/application/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(PageApi.url + "/application/" + applicationId);
   }
 
@@ -221,6 +225,10 @@ class PageApi extends Api {
     applicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
+    if (branchName)
+      return Api.get(
+        `${PageApi.url}/view/application/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(PageApi.url + "/view/application/" + applicationId);
   }
 

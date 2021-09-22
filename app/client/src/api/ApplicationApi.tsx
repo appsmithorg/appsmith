@@ -170,6 +170,10 @@ class ApplicationApi extends Api {
     applicationId: string,
     branchName?: string,
   ): AxiosPromise<FetchApplicationResponse> {
+    if (branchName)
+      return Api.get(
+        `${ApplicationApi.baseURL}/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
@@ -177,6 +181,10 @@ class ApplicationApi extends Api {
     applicationId: string,
     branchName: string,
   ): AxiosPromise<FetchApplicationResponse> {
+    if (branchName)
+      return Api.get(
+        `${ApplicationApi.baseURL}/view/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 

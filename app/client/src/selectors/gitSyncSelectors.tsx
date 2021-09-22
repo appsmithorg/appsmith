@@ -27,3 +27,7 @@ export const getGlobalGitConfig = (state: AppState) =>
 
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
+
+export const getGitBranches = (state: AppState) => state.ui.gitSync.branches;
+export const getFetchingBranches = (state: AppState) =>
+  state.ui.gitSync.fetchingBranches;

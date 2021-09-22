@@ -129,7 +129,7 @@ class ActionAPI extends API {
     applicationId: string,
     branchName?: string,
   ): AxiosPromise<GenericApiResponse<Action[]>> {
-    return API.get(ActionAPI.url, { applicationId });
+    return API.get(ActionAPI.url, { applicationId, branchName });
   }
 
   static fetchActionsForViewMode(

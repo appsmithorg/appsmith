@@ -2,8 +2,9 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  ReduxActionWithCallbacks,
 } from "constants/ReduxActionConstants";
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest, call } from "redux-saga/effects";
 
 import GitSyncAPI from "api/GitSyncAPI";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -157,25 +158,32 @@ function* fetchBranches() {
   }
 }
 
-function* createNewBranch(action: ReduxAction<string>) {
+function* createNewBranch(
+  action: ReduxActionWithCallbacks<string, null, null>,
+) {
+  const { onErrorCallback, onSuccessCallback, payload } = action;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentBranchName = extractBranchNameFromPath();
     const response: ApiResponse = yield GitSyncAPI.createNewBranch(
       applicationId,
       currentBranchName,
-      action.payload,
+      payload,
     );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(fetchBranchesInit());
+      if (typeof onSuccessCallback === "function")
+        yield call(onSuccessCallback, null);
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.CREATE_NEW_BRANCH_ERROR,
       payload: { error, logToSentry: true },
     });
+    if (typeof onErrorCallback === "function")
+      yield call(onErrorCallback, null);
   }
 }
 
