@@ -65,9 +65,8 @@ describe("Validate Validators", () => {
         parsed: "123",
       },
       {
-        isValid: false,
-        parsed: "abc",
-        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
+        isValid: true,
+        parsed: "",
       },
     ];
     inputs.forEach((input, index) => {
@@ -88,7 +87,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "abc",
+        parsed: "",
       },
     ];
     inputs.forEach((input, index) => {

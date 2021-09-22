@@ -277,7 +277,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     value: unknown,
     props: Record<string, unknown>,
   ): ValidationResponse => {
-    if (value === undefined || value === null || value === "") {
+    if (value === undefined || value === null) {
       if (config.params && config.params.required) {
         return {
           isValid: false,
@@ -285,6 +285,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
         };
       }
+
       return {
         isValid: true,
         parsed: config.params?.default || "",
@@ -312,7 +313,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         };
       }
     }
-    if (config.params?.allowedValues) {
+    // If the value is an empty string we skip
+    // as we do not mark the field as an error
+    if (config.params?.allowedValues && value !== "") {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {
           parsed: config.params?.default || "",
