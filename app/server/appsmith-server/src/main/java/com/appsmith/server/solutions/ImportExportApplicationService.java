@@ -6,6 +6,7 @@ import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BasicAuth;
 import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
@@ -15,10 +16,8 @@ import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -231,16 +230,12 @@ public class ImportExportApplicationService {
                             newAction.setPolicies(null);
                             newAction.setApplicationId(null);
                             //Collect Datasource names to filter only required datasources
-                            if (PluginType.DB.equals(newAction.getPluginType())
-                                || PluginType.API.equals(newAction.getPluginType())
-                                || PluginType.SAAS.equals(newAction.getPluginType())) {
-                                concernedDBNames.add(
-                                    sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
-                                );
-                                concernedDBNames.add(
-                                    sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null)
-                                );
-                            }
+                            concernedDBNames.add(
+                                sanitizeDatasourceInActionDTO(newAction.getPublishedAction(), datasourceIdToNameMap, pluginMap, null)
+                            );
+                            concernedDBNames.add(
+                                sanitizeDatasourceInActionDTO(newAction.getUnpublishedAction(), datasourceIdToNameMap, pluginMap, null)
+                            );
                             if (newAction.getUnpublishedAction() != null) {
                                 ActionDTO actionDTO = newAction.getUnpublishedAction();
                                 actionDTO.setPageId(pageIdToNameMap.get(actionDTO.getPageId() + PublishType.UNPUBLISHED));
