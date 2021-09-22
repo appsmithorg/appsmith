@@ -821,6 +821,30 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("correctly validates object array when required is false", () => {
+    const inputs = [[]];
+
+    const config = {
+      type: ValidationTypes.OBJECT_ARRAY,
+      params: {
+        required: false,
+        default: [{ id: 1, name: "alpha" }],
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: [{ id: 1, name: "alpha" }],
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
   it("correctly validates safe URL", () => {
     const config = {
       type: ValidationTypes.SAFE_URL,
