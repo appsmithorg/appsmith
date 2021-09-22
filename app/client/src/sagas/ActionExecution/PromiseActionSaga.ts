@@ -9,6 +9,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
 import {
   PluginTriggerFailureError,
+  UncaughtAppsmithPromiseError,
   UserCancelledActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
 
@@ -64,6 +65,7 @@ export default function* executePromiseSaga(
       });
     } else {
       log.error(e);
+      throw new UncaughtAppsmithPromiseError(e.message, triggerMeta, e);
     }
   }
 

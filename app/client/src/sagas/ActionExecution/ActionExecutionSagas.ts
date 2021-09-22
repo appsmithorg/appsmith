@@ -111,14 +111,11 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  let triggers = [];
-  try {
-    triggers = yield call(evaluateDynamicTrigger, dynamicString, responseData);
-  } catch (e) {
-    if (e instanceof TriggerEvaluationError) {
-      logActionExecutionError(e.message, source, triggerPropertyName);
-    }
-  }
+  const triggers = yield call(
+    evaluateDynamicTrigger,
+    dynamicString,
+    responseData,
+  );
 
   log.debug({ triggers });
   if (triggers && triggers.length) {
@@ -146,6 +143,9 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
+    if (e instanceof TriggerEvaluationError) {
+      logActionExecutionError(e.message, source, triggerPropertyName);
+    }
     // handle errors here
     if (event.callback) {
       event.callback({ success: false });

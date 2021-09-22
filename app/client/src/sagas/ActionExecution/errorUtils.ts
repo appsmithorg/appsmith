@@ -102,3 +102,9 @@ export class TriggerEvaluationError extends Error {
     super(message);
   }
 }
+
+export class UncaughtAppsmithPromiseError extends TriggerFailureError {
+  constructor(message: string, triggerMeta: TriggerMeta, error: Error) {
+    super(message, triggerMeta, error);
+  }
+}
