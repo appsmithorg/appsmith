@@ -175,7 +175,6 @@ type EditorHeaderProps = {
 };
 
 const GlobalSearch = lazy(() => {
-  debugger;
   return retryPromise(() => import("components/editorComponents/GlobalSearch"));
 });
 
