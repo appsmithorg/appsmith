@@ -79,7 +79,6 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           required: true,
-                          unique: true,
                         },
                       },
                     ],
