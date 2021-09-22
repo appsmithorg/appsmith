@@ -823,4 +823,222 @@ describe("Validates Derived Properties", () => {
     let result = getFilteredTableData(input, moment, _);
     expect(result).toStrictEqual(expected);
   });
+
+  it("validates generated sanitized table data updated correctly after changed option in dropdown for column type - select", () => {
+    const { getSanitizedTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {
+        name: {
+          1: "Naruto Uzumaki",
+        },
+      },
+    };
+    const expected = [
+      { id: 123, name: "John Doe" },
+      { id: 234, name: "Naruto Uzumaki" },
+    ];
+
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validates generated sanitized table data updated correctly after changed set default selected option for column type - select", () => {
+    const { getSanitizedTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {
+        name: {
+          defaultOptionValue: "Naruto Uzumaki",
+        },
+      },
+    };
+    const expected = [
+      { id: 123, name: "Naruto Uzumaki" },
+      { id: 234, name: "Naruto Uzumaki" },
+    ];
+
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validates generated filtered table data and selectedRow updated correctly after adding derivedColumn and changed option in dropdown for column type - select", () => {
+    const { getFilteredTableData, getSelectedRow } = derivedProperty;
+    let input = {
+      sanitizedTableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {
+        customColumn1: {
+          1: "GREEN",
+        },
+      },
+      primaryColumns: {
+        id: {
+          index: 0,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+          computedValue: [123, 234],
+        },
+        name: {
+          index: 1,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+          computedValue: ["John Doe", "Jane Doe"],
+        },
+        customColumn1: {
+          index: 2,
+          width: 150,
+          id: "customColumn1",
+          columnType: "select",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDisabled: false,
+          isCellVisible: true,
+          isDerived: true,
+          label: "color",
+          buttonStyle: "rgb(3, 179, 101)",
+          buttonLabelColor: "#FFFFFF",
+          computedValue: [null, null],
+          options: [
+            { label: "Blue", value: "BLUE" },
+            { label: "Green", value: "GREEN" },
+            { label: "Red", value: "RED" },
+          ],
+        },
+      },
+      selectedRowIndex: 0,
+    };
+    const expected = [
+      { id: 123, name: "John Doe", customColumn1: null, __originalIndex__: 0 },
+      {
+        id: 234,
+        name: "Jane Doe",
+        customColumn1: "GREEN",
+        __originalIndex__: 1,
+      },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+
+    // added filteredTableData into input data
+    input.filteredTableData = result;
+    input.selectedRowIndex = 0;
+    // check 1st selected row
+    let row = getSelectedRow(input, moment, _);
+    expect(row).toStrictEqual({
+      id: 123,
+      name: "John Doe",
+      customColumn1: null,
+      __originalIndex__: 0,
+    });
+
+    input.selectedRowIndex = 1;
+    // check 2nd selected row
+    let row = getSelectedRow(input, moment, _);
+    expect(row).toStrictEqual({
+      id: 234,
+      name: "Jane Doe",
+      customColumn1: "GREEN",
+      __originalIndex__: 1,
+    });
+  });
+
+  it("validates generated sanitized table data should not update for empty edited ColumnData", () => {
+    const { getSanitizedTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 123, name: "John Doe" },
+        { id: 234, name: "Jane Doe" },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {},
+    };
+    const expected = [
+      { id: 123, name: "John Doe" },
+      { id: 234, name: "Jane Doe" },
+    ];
+
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("validates generated sanitized table data updated correctly after changed rating for column type - rating", () => {
+    const { getSanitizedTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 123, name: "John Doe", rating: 0 },
+        { id: 234, name: "Jane Doe", rating: 0 },
+      ],
+      sortOrder: {
+        column: "",
+        order: null,
+      },
+      columnOrder: ["id", "name"],
+      editedColumnData: {
+        rating: {
+          0: 3,
+        },
+      },
+    };
+    const expected = [
+      { id: 123, name: "John Doe", rating: 3 },
+      { id: 234, name: "Jane Doe", rating: 0 },
+    ];
+
+    let result = getSanitizedTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
 });
