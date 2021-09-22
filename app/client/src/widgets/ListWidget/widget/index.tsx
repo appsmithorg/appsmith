@@ -577,14 +577,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         this.props.listData,
         this.props.template,
         page,
+        this.props.gridGap,
+        this.props.itemBackgroundColor,
       );
       return this.renderChild(childCanvas);
     }
   };
 
   getCanvasChildren = memoizeOne(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (template: any, listData: any, staticTemplate: any, page: number) => {
+    (
+      template: any,
+      listData: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      staticTemplate: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      page: number,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      gridGap,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      itemBackgroundColor,
+    ) => {
       let canvasChildren = [];
       for (let i = 0; i < listData.length; i++) {
         canvasChildren[i] = JSON.parse(JSON.stringify(template));
@@ -598,7 +610,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       return (
         shallowEqual(prev[1], next[1]) &&
         shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3]
+        prev[3] === next[3] &&
+        prev[4] === next[4] &&
+        prev[5] === next[5]
       );
     },
   );
