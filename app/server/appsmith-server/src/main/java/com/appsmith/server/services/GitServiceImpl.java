@@ -350,7 +350,7 @@ public class GitServiceImpl implements GitService {
                             }
                         })
                         .flatMap(application -> {
-                            String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
+                            /*String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
                             //Initialize the repo with readme file
                             try {
                                 fileUtils.initializeGitRepo(
@@ -367,7 +367,7 @@ public class GitServiceImpl implements GitService {
                             } catch (IOException e) {
                                 log.error("Error while cloning the remote repo, {}", e.getMessage());
                                 return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            }
+                            }*/
                             return Mono.just(application);
                         })
                 );
