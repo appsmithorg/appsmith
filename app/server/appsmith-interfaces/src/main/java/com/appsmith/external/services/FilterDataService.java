@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -153,7 +155,14 @@ public class FilterDataService {
             while (resultSet.next()) {
                 Map<String, Object> row = new LinkedHashMap<>(colCount);
                 for (int i = 1; i <= colCount; i++) {
-                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    Object resultValue = resultSet.getObject(i);
+
+                    // Set null values to empty strings
+                    if (null == resultValue) {
+                        resultValue = "";
+                    }
+
+                    row.put(metaData.getColumnName(i), resultValue);
                 }
                 rowsList.add(row);
             }
@@ -226,7 +235,6 @@ public class FilterDataService {
                 values.put(value, schema.get(path));
             }
         }
-
         return sb.toString();
     }
 
@@ -468,9 +476,17 @@ public class FilterDataService {
 
     private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
 
+        // Override datatype to null for empty values
+        if (StringUtils.isEmpty(value)) {
+            dataType = DataType.NULL;
+        }
+
         try {
             switch (dataType) {
-
+                case NULL: {
+                    preparedStatement.setNull(index, Types.NULL);
+                    break;
+                }
                 case INTEGER: {
                     preparedStatement.setInt(index, Integer.parseInt(value));
                     break;
