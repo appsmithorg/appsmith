@@ -316,6 +316,45 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     label: "string",
   },
+  //TODO: fix this after development
+  SINGLE_SELECT_TREE_WIDGET: {
+    "!doc":
+      "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_TREE_WIDGET: {
+    "!doc":
+      "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
+    "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    isVisible: isVisible,
+    selectedOptionValues: {
+      "!type": "[string]",
+      "!doc": "The array of values selected in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    selectedOptionLabels: {
+      "!type": "[string]",
+      "!doc": "The array of selected option labels in a treeselect dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+    },
+    isDisabled: "bool",
+    isValid: "bool",
+    options: "[dropdownOption]",
+  },
   ICON_BUTTON_WIDGET: {
     "!doc":
       "Icon button widget is just an icon, along with all other button properties.",

@@ -5,6 +5,7 @@ import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isAction,
+  isJSAction,
   isWidget,
 } from "workers/evaluationUtils";
 import {
@@ -31,7 +32,6 @@ import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
   ERROR_EVAL_TRIGGER,
-  PARSE_JS_FUNCTION_ERROR,
   VALUE_IS_INVALID,
 } from "constants/messages";
 import log from "loglevel";
@@ -67,8 +67,8 @@ function logLatestEvalPropertyErrors(
       evaluatedPath,
     );
     const entity = dataTree[entityName];
-    if (isWidget(entity) || isAction(entity)) {
-      if (propertyPath in entity.logBlackList) {
+    if (isWidget(entity) || isAction(entity) || isJSAction(entity)) {
+      if (entity.logBlackList && propertyPath in entity.logBlackList) {
         continue;
       }
       let allEvalErrors: EvaluationError[] = get(
@@ -90,11 +90,15 @@ function logLatestEvalPropertyErrors(
       const evalWarnings: EvaluationError[] = [];
 
       for (const err of allEvalErrors) {
-        if (
-          err.severity === Severity.WARNING &&
-          !errorCodesToIgnoreInDebugger.includes(err.code || "")
-        ) {
-          evalWarnings.push(err);
+        if (err.severity === Severity.WARNING) {
+          if (
+            !isJSAction(entity) &&
+            !errorCodesToIgnoreInDebugger.includes(err.code || "")
+          ) {
+            evalWarnings.push(err);
+          } else {
+            evalWarnings.push(err);
+          }
         }
         if (err.severity === Severity.ERROR) {
           evalErrors.push(err);
@@ -105,7 +109,9 @@ function logLatestEvalPropertyErrors(
       const nameField = isWidget(entity) ? entity.widgetName : entity.name;
       const entityType = isWidget(entity)
         ? ENTITY_TYPE.WIDGET
-        : ENTITY_TYPE.ACTION;
+        : isAction(entity)
+        ? ENTITY_TYPE.ACTION
+        : ENTITY_TYPE.JSACTION;
       const debuggerKeys = [
         {
           key: `${idField}-${propertyPath}`,
@@ -130,10 +136,12 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            return {
+            const formattedError = {
               message: e.errorMessage,
               type: e.errorType,
             };
+
+            return formattedError;
           });
 
           const analyticsData = isWidget(entity)
@@ -240,29 +248,16 @@ export function* evalErrorHandler(
       case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
         log.error(error);
         const message = createMessage(ERROR_EVAL_TRIGGER, error.message);
-        Toaster.show({
-          text: message,
-          variant: Variant.danger,
-          showDebugButton: true,
-        });
-        AppsmithConsole.error({
-          text: message,
-        });
         throw new TriggerEvaluationError(message);
       }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
         break;
       }
-      case EvalErrorTypes.PARSE_JS_ERROR: {
-        AppsmithConsole.addError({
-          id: error?.context?.id,
-          logType: LOG_TYPE.JS_PARSE_ERROR,
-          text: createMessage(PARSE_JS_FUNCTION_ERROR, error.message),
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: error?.context?.name,
-            id: error?.context?.id,
+      case EvalErrorTypes.CLONE_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: {
+            request: error.context,
           },
         });
         break;

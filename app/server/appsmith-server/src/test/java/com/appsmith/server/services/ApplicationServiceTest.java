@@ -7,7 +7,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
@@ -166,6 +166,8 @@ public class ApplicationServiceTest {
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -625,7 +627,7 @@ public class ApplicationServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createCloneApplication() {
+    public void cloneApplicationTest() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
 
@@ -658,7 +660,7 @@ public class ApplicationServiceTest {
         StepVerifier
                 .create(Mono.zip(applicationMono, pageListMono))
                 .assertNext(tuple -> {
-                    Application application = tuple.getT1();
+                    Application application = tuple.getT1(); // cloned application
                     List<PageDTO> pageList = tuple.getT2();
                     assertThat(application).isNotNull();
                     assertThat(application.isAppIsExample()).isFalse();
@@ -666,6 +668,8 @@ public class ApplicationServiceTest {
                     assertThat(application.getName().equals("ApplicationServiceTest Clone Source TestApp Copy"));
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getOrganizationId().equals(orgId));
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
                     Set<String> pageIdsFromDb = pageList.stream().map(page -> page.getId()).collect(Collectors.toSet());

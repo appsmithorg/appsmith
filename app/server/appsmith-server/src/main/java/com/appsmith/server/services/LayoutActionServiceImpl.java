@@ -8,7 +8,7 @@ import com.appsmith.external.models.DynamicBinding;
 import com.appsmith.server.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -632,6 +632,20 @@ public class LayoutActionServiceImpl implements LayoutActionService {
                             .flatMap(savedAction -> updatePageLayoutsGivenAction(savedAction.getUnpublishedAction().getPageId())
                                     .then(newActionService.generateActionByViewMode(savedAction, false)));
 
+                });
+    }
+
+    /**
+     * - Delete action.
+     * - Update page layout since a deleted action cannot be marked as on page load.
+     */
+    public Mono<ActionDTO> deleteUnpublishedAction(String id) {
+        return newActionService.deleteUnpublishedAction(id)
+                .flatMap(actionDTO -> Mono.zip(Mono.just(actionDTO),
+                        updatePageLayoutsGivenAction(actionDTO.getPageId())))
+                .flatMap(tuple -> {
+                    ActionDTO actionDTO = tuple.getT1();
+                    return Mono.just(actionDTO);
                 });
     }
 

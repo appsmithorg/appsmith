@@ -22,7 +22,7 @@ import "codemirror/addon/lint/lint.css";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { WrappedFieldInputProps } from "redux-form";
-import _ from "lodash";
+import _, { isString } from "lodash";
 import {
   DataTree,
   ENTITY_TYPE,
@@ -140,6 +140,7 @@ export type EditorProps = EditorStyleProps &
     hideEvaluatedValue?: boolean;
     errors?: any;
     isInvalid?: boolean;
+    isEditorHidden?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -268,6 +269,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.showLightningMenu,
           this.props.additionalDynamicData,
         );
+        if (getFeatureFlags().LINTING) {
+          this.lintCode(editor);
+        }
       };
 
       // Finally create the Codemirror editor
@@ -285,8 +289,12 @@ class CodeEditor extends Component<Props, State> {
         // Safe update of value of the editor when value updated outside the editor
         const inputValue = getInputValue(this.props.input.value);
         if (!!inputValue || inputValue === "") {
-          if (inputValue !== editorValue) {
+          if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
+          } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
+            // Even if Editor is updated with new value, it cannot update without layour calcs.
+            //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
+            this.editor.refresh();
           }
         }
         CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -463,10 +471,10 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  lintCode() {
+  lintCode(editor: CodeMirror.Editor) {
     const { dataTreePath, dynamicData } = this.props;
 
-    if (!dataTreePath || !this.updateLintingCallback) {
+    if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
 
@@ -478,11 +486,9 @@ class CodeEditor extends Component<Props, State> {
 
     let annotations: Annotation[] = [];
 
-    if (this.editor) {
-      annotations = getLintAnnotations(this.editor.getValue(), errors);
-    }
+    annotations = getLintAnnotations(editor.getValue(), errors);
 
-    this.updateLintingCallback(this.editor, annotations);
+    this.updateLintingCallback(editor, annotations);
   }
 
   static updateMarkings = (
@@ -586,7 +592,7 @@ class CodeEditor extends Component<Props, State> {
     /*  Evaluation results for snippet snippets */
 
     if (getFeatureFlags().LINTING) {
-      this.lintCode();
+      this.lintCode(this.editor);
     }
 
     const showEvaluatedValue =

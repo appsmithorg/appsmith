@@ -49,6 +49,7 @@ const handleNewCommentThreadEvent = (
 
   return {
     ...state,
+    lastUpdatedCommentThreadId: thread.id,
     showUnreadIndicator,
   };
 };

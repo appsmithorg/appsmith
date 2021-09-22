@@ -581,7 +581,6 @@ export function* refactorActionName(
       });
       if (currentPageId === pageId) {
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
-        yield put(fetchActionsForPage(pageId));
       } else {
         yield put(fetchActionsForPage(pageId));
       }
@@ -777,7 +776,7 @@ function* buildMetaForSnippets(
   propertyPath: string,
 ) {
   const refinements: any = {};
-  const fieldMeta: { dataType: string; fields?: string } = {
+  const fieldMeta: { dataType: string; fields?: string; entities?: string } = {
     dataType: expectedType,
   };
   if (propertyPath) {
@@ -793,7 +792,8 @@ function* buildMetaForSnippets(
     });
     const plugin: Plugin = yield select(getPlugin, currentEntity.pluginId);
     const type: string = plugin.packageName || "";
-    refinements.entities = [entityType, type];
+    refinements.entities = [type, entityType];
+    fieldMeta.entities = type;
   }
   if (entityType === ENTITY_TYPE.WIDGET && entityId) {
     const currentEntity: FlattenedWidgetProps = yield select(
@@ -801,7 +801,8 @@ function* buildMetaForSnippets(
       entityId,
     );
     const type: string = currentEntity.type || "";
-    refinements.entities = [entityType, type];
+    refinements.entities = [type, entityType];
+    fieldMeta.entities = type;
   }
   return { refinements, fieldMeta };
 }
@@ -880,9 +881,7 @@ function* executeCommand(
         success: take(ReduxActionTypes.INSERT_SNIPPET),
       });
       if (effectRaceResult.failure) return;
-      actionPayload.payload.callback(
-        `{{ ${effectRaceResult.success.payload} }}`,
-      );
+      actionPayload.payload.callback(effectRaceResult.success.payload);
       break;
     case "NEW_INTEGRATION":
       history.push(

@@ -59,9 +59,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const occupiedSpaces = useSelector(getOccupiedSpaces);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const { persistDropTargetRows, updateDropTargetRows } = useContext(
-    DropTargetContext,
-  );
+  const { updateDropTargetRows } = useContext(DropTargetContext);
 
   const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -248,10 +246,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     );
 
     if (newRowCols) {
-      persistDropTargetRows &&
-        persistDropTargetRows(props.widgetId, newRowCols.bottomRow);
       updateWidget &&
-        updateWidget(WidgetOperations.RESIZE, props.widgetId, newRowCols);
+        updateWidget(WidgetOperations.RESIZE, props.widgetId, {
+          ...newRowCols,
+          parentId: props.parentId,
+        });
     }
     // Tell the Canvas that we've stopped resizing
     // Put it later in the stack so that other updates like click, are not propagated to the parent container

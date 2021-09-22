@@ -137,12 +137,15 @@ export default {
     }
   },
   //
+  // this is just a patch for #7520
   getChildAutoComplete: (props, moment, _) => {
+    const data = [...props.listData];
+
     const structure =
-      Array.isArray(props.listData) && props.listData.length > 0
+      Array.isArray(data) && data.length > 0
         ? Object.assign(
             {},
-            ...Object.keys(props.listData[0]).map((key) => ({
+            ...Object.keys(data[0]).map((key) => ({
               [key]: "",
             })),
           )
