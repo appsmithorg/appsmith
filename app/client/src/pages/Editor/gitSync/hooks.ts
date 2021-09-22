@@ -8,6 +8,7 @@ import {
   getCurrentApplication,
 } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { debug } from "loglevel";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,
@@ -84,7 +85,6 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
-
     onSuccess();
   }, [setIsConnectingToGit]);
 
@@ -115,11 +115,4 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
     failedConnectingToGit,
     connectToGit,
   };
-};
-
-export const useIsGitConnected = () => {
-  // if remoteUrl is stored in gitApplicationMetaData it means application was connected to git successfully
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const remoteUrlInStore = gitMetaData?.remoteUrl;
-  return !!remoteUrlInStore;
 };

@@ -16,9 +16,10 @@ import GitConnection from "./Tabs/GitConnection";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
-import { useIsGitConnected } from "./hooks";
 
 import GitErrorPopup from "./components/GitErrorPopup";
+import { debug } from "loglevel";
+import { getCurrentAppGitMetaData } from "../../../selectors/applicationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -78,10 +79,13 @@ function GitSyncModal() {
   const activeTabIndex = useSelector(getActiveGitSyncModalTab);
   const setActiveTabIndex = (index: number) =>
     dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
-  const isGitConnected = useIsGitConnected();
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const remoteUrlInStore = gitMetaData?.remoteUrl;
   let initialTabIndex = 0;
   let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
-  if (!isGitConnected) {
+
+  debug({ gitMetaData });
+  if (!remoteUrlInStore) {
     menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
   } else {
     menuOptions = allMenuOptions;
@@ -106,7 +110,9 @@ function GitSyncModal() {
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
-  const showDeployTab = () => setActiveTabIndex(1);
+  const showDeployTab = () => {
+    setActiveTabIndex(1);
+  };
   return (
     <>
       <Dialog

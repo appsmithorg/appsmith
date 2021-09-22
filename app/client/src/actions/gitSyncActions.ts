@@ -33,7 +33,7 @@ export const pushToRepoSuccess = () => ({
 });
 
 export type ConnectToGitResponse = {
-  gitApplicationMetaData: GitApplicationMetadata;
+  gitApplicationMetadata: GitApplicationMetadata;
 };
 
 type ConnectToGitRequestParams = {
