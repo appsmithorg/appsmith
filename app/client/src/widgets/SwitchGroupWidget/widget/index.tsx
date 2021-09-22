@@ -262,7 +262,7 @@ class SwitchGroupWidget extends BaseWidget<
         options={options}
         required={isRequired}
         rowSpace={parentRowSpace}
-        selectedValues={selectedValues}
+        selected={selectedValues}
         valid={isValid}
       />
     );

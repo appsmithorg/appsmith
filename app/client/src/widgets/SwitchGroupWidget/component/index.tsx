@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { Alignment, Switch } from "@blueprintjs/core";
 
-import { generateReactKey } from "utils/generators";
 import { ThemeProp } from "components/ads/common";
 import { BlueprintControlTransform } from "constants/DefaultTheme";
 
@@ -65,7 +64,7 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     onChange,
     options,
     rowSpace,
-    selectedValues,
+    selected,
     valid,
   } = props;
 
@@ -77,12 +76,12 @@ function SwitchGroupComponent(props: SwitchGroupComponentProps) {
     >
       {options &&
         options.length > 0 &&
-        [...options].map((option: OptionProps) => (
+        options.map((option: OptionProps) => (
           <StyledSwitch
-            checked={(selectedValues || []).includes(option.value)}
+            checked={selected.includes(option.value)}
             disabled={disabled}
             inline={inline}
-            key={generateReactKey()}
+            key={option.value}
             label={option.label}
             onChange={onChange(option.value)}
             optionCount={options.length}
@@ -113,7 +112,7 @@ export interface SwitchGroupComponentProps {
   onChange: (value: string) => React.FormEventHandler<HTMLInputElement>;
   required?: boolean;
   rowSpace: number;
-  selectedValues: string[];
+  selected: string[];
   valid?: boolean;
 }
 
