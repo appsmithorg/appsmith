@@ -34,8 +34,7 @@ jobs:
     if: |
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' &&
-      github.event.review.state == 'approved')
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -138,9 +137,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -205,7 +204,11 @@ jobs:
           APPSMITH_IS_SELF_HOSTED: false
         working-directory: app/server
         run: |
-            ./build.sh -DskipTests
+          mvn --batch-mode versions:set \
+            -DnewVersion=${{ steps.vars.outputs.version }} \
+            -DgenerateBackupPoms=false \
+            -DprocessAllModules=true
+          ./build.sh -DskipTests
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
@@ -221,9 +224,9 @@ jobs:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
-      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'workflow_dispatch' ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
 
     steps:
       # Checkout the code
@@ -373,7 +376,7 @@ jobs:
       - name: "Exit if Server hasn't started"
         run: |
           lsof -i :8080 || true;
-          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
+          if [[ `ps -ef | grep server | grep java |wc -l` == 0 ]]; then
             echo "Server Not Started";
             exit 1;
           else
@@ -539,7 +542,7 @@ jobs:
       # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
       # first 11 characters. This can be used to build images for several branches
       - name: Get the version to tag the Docker image
-        id: branch_name
+        id: vars
         run: echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Build release Docker image and push to Docker Hub
@@ -547,9 +550,9 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: app/client
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.branch_name.outputs.tag}}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
@@ -607,7 +610,7 @@ jobs:
         run: |
           docker build \
             --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.branch_name.outputs.tag}} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}} \
             .
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce

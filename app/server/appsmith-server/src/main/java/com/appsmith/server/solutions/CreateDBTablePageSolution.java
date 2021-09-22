@@ -13,7 +13,7 @@ import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Resources;
 import com.appsmith.server.domains.ApplicationJson;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -525,7 +525,7 @@ public class CreateDBTablePageSolution {
                     }
                 }
 
-                log.debug("Cloning plugin specified templates for action {}", actionDTO.getId());
+                log.debug("Cloning plugin specified templates for action ");
                 if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                     pluginSpecifiedTemplates.forEach(property -> {
                         if (property != null && property.getValue() instanceof String) {
@@ -546,9 +546,46 @@ public class CreateDBTablePageSolution {
                     });
                 }
 
+
+                log.debug("Cloning form data for action ");
+                Map<String, Object> formData = actionConfiguration.getFormData();
+                if (!CollectionUtils.isEmpty(formData)) {
+                    // using for-each loop for iteration over Map.entrySet()
+                    updateFormData(formData, mappedColumns, pluginSpecificTemplateParams);
+                }
                 actionDTO.setActionConfiguration(deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                 return layoutActionService.createSingleAction(actionDTO);
             });
+    }
+
+    /**
+     * This method will recursively replace the column names from template table to user provided table
+     * @param formData form data from action configuration object
+     * @param mappedColumns column name map from template table to user defined table
+     * @param pluginSpecificTemplateParams plugin specified fields like S3 bucket name etc
+     */
+    private void updateFormData(Map<String, Object> formData,
+                                Map<String, String> mappedColumns,
+                                Map<String, String> pluginSpecificTemplateParams) {
+        for (Map.Entry<String,Object> property : formData.entrySet()) {
+            if (property.getValue() != null) {
+                if (property.getKey() != null && !CollectionUtils.isEmpty(pluginSpecificTemplateParams)
+                    && pluginSpecificTemplateParams.get(property.getKey()) != null){
+                    property.setValue(pluginSpecificTemplateParams.get(property.getKey()));
+                } else {
+                    // Recursively replace the column names from template table with user provided table using mappedColumns
+                    if (property.getValue() instanceof String) {
+                        final Matcher matcher = WORD_PATTERN.matcher(property.getValue().toString());
+                        property.setValue(matcher.replaceAll(key ->
+                            mappedColumns.get(key.group()) == null ? key.group() : mappedColumns.get(key.group()))
+                        );
+                    }
+                    if (property.getValue() instanceof Map) {
+                        updateFormData((Map<String, Object>)property.getValue(), mappedColumns, pluginSpecificTemplateParams);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -838,8 +875,7 @@ public class CreateDBTablePageSolution {
      * @param deletedWidgetNames widgets for which references to be removed from the actionConfiguration
      * @return updated ActionConfiguration with deleteWidgets ref removed
      */
-    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(
-                                                                        ActionConfiguration actionConfiguration,
+    private ActionConfiguration deleteUnwantedWidgetReferenceInActions(ActionConfiguration actionConfiguration,
                                                                         Set<String> deletedWidgetNames) {
 
 
@@ -875,7 +911,7 @@ public class CreateDBTablePageSolution {
             }
         }
 
-        if ( actionConfiguration.getPluginSpecifiedTemplates() != null) {
+        if (actionConfiguration.getPluginSpecifiedTemplates() != null) {
             actionConfiguration.getPluginSpecifiedTemplates().forEach(property -> {
                 if (property != null && property.getValue() instanceof String) {
                     property.setValue(property.getValue().toString().replaceAll(regex, ""));
@@ -887,7 +923,38 @@ public class CreateDBTablePageSolution {
                 }
             });
         }
+
+        if (actionConfiguration.getFormData() != null) {
+            removeUnwantedFieldRefFromFormData(actionConfiguration.getFormData(), regex);
+        }
+
         return actionConfiguration;
+    }
+
+
+    /**
+     * This method removes the unwanted fields like column names and widget names from formData.
+     * @param formData where updates required as per user db table
+     * @param regex to replace the unwanted field this will be useful when the connected datasource have less number of
+     *              columns than template datasource
+     */
+    private void removeUnwantedFieldRefFromFormData(Map<String, Object> formData,
+                                                    String regex) {
+        for (Map.Entry<String,Object> property : formData.entrySet()) {
+            if (property.getValue() != null) {
+                if (property.getValue() instanceof String) {
+                    property.setValue(property.getValue().toString().replaceAll(regex, ""));
+                    // This will remove the unwanted comma after fields deletion if present at the end of body
+                    // "field1\","field2\",\n\t\"field3" \n,{non-word-characters})\n
+                    if (property.getValue().toString().matches("(?s).*,[\\W]*?}.*")) {
+                        property.setValue(property.getValue().toString().replaceAll(",[\\W]*?}", "\n}"));
+                    }
+                }
+                if (property.getValue() instanceof Map) {
+                    removeUnwantedFieldRefFromFormData((Map<String, Object>) property.getValue(), regex);
+                }
+            }
+        }
     }
 
     private String createSuccessMessage(Plugin plugin) {
