@@ -2,7 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
