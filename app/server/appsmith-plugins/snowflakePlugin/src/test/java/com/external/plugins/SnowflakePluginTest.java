@@ -9,9 +9,15 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
+import com.external.utils.ExecutionUtils;
 import lombok.extern.log4j.Log4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -35,8 +41,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @Log4j
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ExecutionUtils.class)
 public class SnowflakePluginTest {
 
     SnowflakePlugin.SnowflakePluginExecutor pluginExecutor = new SnowflakePlugin.SnowflakePluginExecutor();
@@ -102,7 +111,8 @@ public class SnowflakePluginTest {
         Map<String, Object> row = new HashMap<>();
         row.put("DATABASE", null);
         rowList.add(row);
-        doReturn(rowList).when(spyPluginExecutor).getRowsFromQueryResult(any(), anyString());
+        mockStatic(ExecutionUtils.class);
+        when(ExecutionUtils.getRowsFromQueryResult(any(), anyString())).thenAnswer((Answer<List>) invocation -> rowList);
 
         Mono<DatasourceTestResult> dsTestResult = spyPluginExecutor.testDatasource(new DatasourceConfiguration());
         StepVerifier.create(dsTestResult)
@@ -140,7 +150,8 @@ public class SnowflakePluginTest {
         Map<String, Object> row = new HashMap<>();
         row.put("DATABASE", null);
         rowList.add(row);
-        doReturn(rowList).when(spyPluginExecutor).getRowsFromQueryResult(any(), anyString());
+        mockStatic(ExecutionUtils.class);
+        when(ExecutionUtils.getRowsFromQueryResult(any(), anyString())).thenAnswer((Answer<List>) invocation -> rowList);
 
         Mono<DatasourceStructure> structure = spyPluginExecutor.getStructure(mockConnection, new DatasourceConfiguration());
         StepVerifier.create(structure)

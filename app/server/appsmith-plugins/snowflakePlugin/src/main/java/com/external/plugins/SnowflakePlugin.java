@@ -38,14 +38,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-public class SnowflakePlugin extends BasePlugin {
+import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
+import static com.external.utils.ValidationUtils.validateWarehouseDatabaseSchema;
 
-    private static String CURRENT_WAREHOUSE_QUERY = "select current_warehouse() as Warehouse";
-    private static String CURRENT_DATABASE_QUERY = "select current_database() as Database";
-    private static String CURRENT_SCHEMA_QUERY = "select current_schema() as Schema";
-    private static String WAREHOUSE_KEY = "WAREHOUSE";
-    private static String DATABASE_KEY = "DATABASE";
-    private static String SCHEMA_KEY = "SCHEMA";
+public class SnowflakePlugin extends BasePlugin {
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -87,62 +83,6 @@ public class SnowflakePlugin extends BasePlugin {
                         return result;
                     })
                     .subscribeOn(scheduler);
-        }
-
-        /**
-         * Execute query and return the resulting table as a list of rows.
-         *
-         * @param connection - Connection object to execute query.
-         * @param query - Query string
-         * @return List of rows from the response table.
-         * @throws AppsmithPluginException
-         * @throws StaleConnectionException
-         */
-        public List<Map<String, Object>> getRowsFromQueryResult(Connection connection, String query) throws
-                AppsmithPluginException, StaleConnectionException {
-            List<Map<String, Object>> rowsList = new ArrayList<>();
-            ResultSet resultSet = null;
-            try {
-                // We do not use keep alive threads for our connections since these might become expensive
-                // Instead for every execution, we check for connection validity,
-                // and reset the connection if required
-                if (!connection.isValid(30)) {
-                    throw new StaleConnectionException();
-                }
-
-                Statement statement = connection.createStatement();
-                resultSet = statement.executeQuery(query);
-                ResultSetMetaData metaData = resultSet.getMetaData();
-                int colCount = metaData.getColumnCount();
-
-                while (resultSet.next()) {
-                    // Use `LinkedHashMap` here so that the column ordering is preserved in the response.
-                    Map<String, Object> row = new LinkedHashMap<>(colCount);
-
-                    for (int i = 1; i <= colCount; i++) {
-                        Object value = resultSet.getObject(i);
-                        row.put(metaData.getColumnName(i), value);
-                    }
-                    rowsList.add(row);
-                }
-            } catch (SQLException e) {
-                if (e instanceof SnowflakeReauthenticationRequest) {
-                    throw new StaleConnectionException();
-                }
-                e.printStackTrace();
-                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
-
-            }  finally {
-                if (resultSet != null) {
-                    try {
-                        resultSet.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            return rowsList;
         }
 
         @Override
@@ -263,50 +203,6 @@ public class SnowflakePlugin extends BasePlugin {
                         return Mono.just(new DatasourceTestResult());
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())));
-        }
-
-        /**
-         * Run a query to get the current warehouse, database and schema name. If invalid names were provided when
-         * creating the connection object, then this query returns null / empty value against the corresponding
-         * column - i.e. warehouse / database / schema.
-         *
-         * @param connection - Connection object to execute query
-         * @return A set of error statements in case the query result contains any null / empty value.
-         */
-        private Set<String> validateWarehouseDatabaseSchema(Connection connection) throws StaleConnectionException,
-                AppsmithPluginException {
-            Set<String> invalids = new HashSet<>();
-
-            // Check database validity.
-            List<Map<String, Object>>  rowsList = getRowsFromQueryResult(connection, CURRENT_DATABASE_QUERY);
-            if (StringUtils.isEmpty(rowsList.get(0).get(DATABASE_KEY))) {
-                invalids.add(getWarehouseDatabaseSchemaErrorMessage(DATABASE_KEY));
-                return invalids;
-            }
-
-            // Check warehouse validity.
-            rowsList = getRowsFromQueryResult(connection, CURRENT_WAREHOUSE_QUERY);
-            if (StringUtils.isEmpty(rowsList.get(0).get(WAREHOUSE_KEY))) {
-                invalids.add(getWarehouseDatabaseSchemaErrorMessage(WAREHOUSE_KEY));
-                return invalids;
-            }
-
-            // Check schema validity.
-            rowsList = getRowsFromQueryResult(connection, CURRENT_SCHEMA_QUERY);
-            if (StringUtils.isEmpty(rowsList.get(0).get(SCHEMA_KEY))) {
-                invalids.add(getWarehouseDatabaseSchemaErrorMessage(SCHEMA_KEY));
-                return invalids;
-            }
-
-            return invalids;
-        }
-
-        // Construct error message string.
-        private String getWarehouseDatabaseSchemaErrorMessage(String key) {
-            String fieldName = StringUtils.capitalize(key.toLowerCase());
-            return "Appsmith could not find any valid " + key.toLowerCase() + " configured for this datasource. " +
-                    "Please provide a valid " + key.toLowerCase() + " by editing the " + fieldName + " field in the " +
-                    "datasource configuration page.";
         }
 
         @Override
