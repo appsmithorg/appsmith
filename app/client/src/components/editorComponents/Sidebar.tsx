@@ -90,9 +90,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     }
   }, [active, setActive, pinned, resizer.resizing]);
 
-  // eslint-disable-next-line
-  console.log({ isPreviewMode, pinned });
-
   return (
     <div
       className={classNames({
@@ -105,14 +102,14 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     >
       {/* SIDEBAR */}
       <div
-        className="h-full p-0 overflow-y-auto text-white t--sidebar bg-trueGray-800 min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
+        className="flex flex-col p-0 overflow-y-auto text-white t--sidebar bg-trueGray-800 min-w-48 max-w-96 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400"
         ref={sidebarRef}
         style={{ width: props.width }}
       >
         {(enableFirstTimeUserOnboarding ||
           isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         <PanelStack
-          className="h-full"
+          className="flex-grow"
           initialPanel={{
             component: Explorer,
           }}

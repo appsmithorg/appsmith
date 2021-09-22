@@ -91,7 +91,7 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
         history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
       }
       alwaysShowRightIcon
-      className="group pages"
+      className="mt-0 group pages"
       disabled
       entityId="Pages"
       icon={pageGroupIcon}

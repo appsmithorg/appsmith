@@ -14,7 +14,11 @@
 * custom css
 * ---------------------------------------------------------------------------------------------------
 */
-/* width */
+
+* {
+  scrollbar-width: thin;
+}
+
 *::-webkit-scrollbar {
   height: 6px;
   width: 6px;
@@ -27,10 +31,10 @@
 
 /* Handle */
 *::-webkit-scrollbar-thumb {
-  @apply bg-gray-300;
+  @apply bg-gray-400 bg-opacity-40;
 }
 
 /* Handle on hover */
 *::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400
+  @apply bg-gray-500
 }

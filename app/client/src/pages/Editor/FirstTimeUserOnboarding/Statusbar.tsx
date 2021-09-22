@@ -38,7 +38,6 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 
 const Wrapper = styled.div<{ active: boolean }>`
-  position: relative;
   width: 100%;
   background-color: ${(props) =>
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
@@ -219,6 +218,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   return (
     <Wrapper
       active={isChecklistPage}
+      className="sticky top-0"
       data-testid="statusbar-container"
       onClick={() => {
         history.push(getOnboardingCheckListUrl(applicationId, pageId));

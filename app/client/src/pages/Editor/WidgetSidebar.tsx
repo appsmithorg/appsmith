@@ -110,20 +110,20 @@ function WidgetSidebar(props: IPanelProps) {
 
   return (
     <div className="py-3 space-y-2 scrollbar-thumb-red-300 hover:scrollbar-thumb-red-400">
-      <div className="px-3 flex items-center space-x-2">
+      <div className="flex items-center px-3 space-x-2">
         <button
-          className="hover:bg-warmGray-700 p-1"
+          className="p-1 hover:bg-warmGray-700"
           onClick={closeWidgetPanel}
         >
-          <BackIcon className="h-4 w-4" />
+          <BackIcon className="w-4 h-4" />
         </button>
-        <h3 className="text-lg font-semibold flex-grow">Widgets</h3>
+        <h3 className="flex-grow text-lg font-semibold">Widgets</h3>
         <div className="flex items-center">
-          <button className="hover:bg-warmGray-700 p-1 group" onClick={onPin}>
+          <button className="p-1 hover:bg-warmGray-700 group" onClick={onPin}>
             {pinned ? (
-              <PinIcon className="h-4 w-4 text-gray-500" />
+              <PinIcon className="w-4 h-4 text-gray-500" />
             ) : (
-              <UnPinIcon className="h-4 w-4 text-gray-500" />
+              <UnPinIcon className="w-4 h-4 text-gray-500" />
             )}
           </button>
         </div>
@@ -138,7 +138,7 @@ function WidgetSidebar(props: IPanelProps) {
         />
       </Boxed>
 
-      <p className="text-xs px-3 text-trueGray-400 leading-relaxed">
+      <p className="px-3 text-xs leading-relaxed text-trueGray-400">
         {createMessage(WIDGET_SIDEBAR_CAPTION)}
       </p>
 
