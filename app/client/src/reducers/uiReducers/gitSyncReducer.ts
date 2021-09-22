@@ -10,6 +10,8 @@ const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
   isPushingToGit: false,
+  isCommitSuccessful: false,
+  isPushSuccessful: false,
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
   gitError: `
@@ -39,12 +41,14 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isCommitting: true,
+    isCommitSuccessful: false,
   }),
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_SUCCESS]: (
     state: GitSyncReducerState,
   ) => ({
     ...state,
     isCommitting: false,
+    isCommitSuccessful: true,
   }),
   [ReduxActionErrorTypes.COMMIT_TO_GIT_REPO_ERROR]: (
     state: GitSyncReducerState,
@@ -55,10 +59,12 @@ const gitSyncReducer = createReducer(initialState, {
   [ReduxActionTypes.PUSH_TO_GIT_INIT]: (state: GitSyncReducerState) => ({
     ...state,
     isPushingToGit: true,
+    isPushSuccessful: false,
   }),
   [ReduxActionTypes.PUSH_TO_GIT_SUCCESS]: (state: GitSyncReducerState) => ({
     ...state,
     isPushingToGit: false,
+    isPushSuccessful: true,
   }),
   [ReduxActionErrorTypes.PUSH_TO_GIT_ERROR]: (state: GitSyncReducerState) => ({
     ...state,
@@ -122,6 +128,8 @@ const gitSyncReducer = createReducer(initialState, {
 export type GitSyncReducerState = {
   isGitSyncModalOpen?: boolean;
   isCommitting?: boolean;
+  isCommitSuccessful: boolean;
+  isPushSuccessful: boolean;
   isPushingToGit?: boolean;
   activeGitSyncModalTab: GitSyncModalTab;
   isImportAppViaGitModalOpen: boolean;

@@ -6,7 +6,6 @@ import { ConnectToGitPayload } from "api/GitSyncAPI";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-  getCurrentAppSSHKeyPair,
 } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
@@ -119,8 +118,8 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 };
 
 export const useIsGitConnected = () => {
+  // if remoteUrl is stored in gitApplicationMetaData it means application was connected to git successfully
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
   const remoteUrlInStore = gitMetaData?.remoteUrl;
-  const sshKeyPair = useSelector(getCurrentAppSSHKeyPair);
-  return sshKeyPair && remoteUrlInStore;
+  return !!remoteUrlInStore;
 };

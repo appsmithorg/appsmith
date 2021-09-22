@@ -20,6 +20,16 @@ export const getIsPushingToGit = createSelector(
   (gitSync) => gitSync.isPushingToGit,
 );
 
+export const getIsCommitSuccessful = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isCommitSuccessful,
+);
+
+export const getIsPushSuccessful = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.isPushSuccessful,
+);
+
 export const getActiveGitSyncModalTab = (state: AppState) =>
   state.ui.gitSync.activeGitSyncModalTab;
 
