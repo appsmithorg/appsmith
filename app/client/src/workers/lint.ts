@@ -40,6 +40,7 @@ export const getLintingErrors = (
     boss: true, // Tolerate assignments where comparisons would be expected
     evil: false, // Use of eval not allowed
     funcscope: true, // Tolerate variable definition inside control statements
+    sub: true, // Don't force dot notation
     // environments
     browser: true,
     worker: true,
