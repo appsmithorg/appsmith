@@ -6,11 +6,11 @@ const dsl = require("../../../../fixtures/lintErrorDsl.json");
 const formWidgetDsl = require("../../../../fixtures/formWidgetdsl.json");
 const pages = require("../../../../locators/Pages.json");
 
-describe("Linting warning validation with Checkbox widget", function() {
+describe("Linting warning validation with button widget", function() {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Linting warning validation", function() {
+  it("Linting Error validation on mouseover and errorlog tab", function() {
     cy.openPropertyPane("buttonwidget");
     /**
      * @param{Text} Random Text
