@@ -105,7 +105,6 @@ export function getStore(step: number) {
       state.ui.applications.currentApplication.lastDeployedAt = Math.random();
       state.ui.onBoarding.firstTimeUserOnboardingComplete = true;
       break;
-    case 6:
   }
   return mockStore(state);
 }
