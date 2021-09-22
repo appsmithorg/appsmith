@@ -1,6 +1,6 @@
 import React from "react";
 import Pagination from "rc-pagination";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const locale = {
   // Options.jsx
@@ -17,9 +17,7 @@ const locale = {
   next_3: "Next 3 Pages",
 };
 
-const StyledPagination = styled(Pagination)<{
-  disabled?: boolean;
-}>`
+const paginatorCss = css`
   margin: 0 auto;
   padding: 0;
   font-size: 14px;
@@ -30,9 +28,6 @@ const StyledPagination = styled(Pagination)<{
   left: 0;
   right: 0;
   z-index: 3;
-  pointer-events: ${(props) => (props.disabled ? "none" : "all")};
-  opacity: ${(props) => (props.disabled ? "0.4" : "1")};
-
   .rc-pagination::after {
     display: block;
     clear: both;
@@ -303,6 +298,14 @@ const StyledPagination = styled(Pagination)<{
   }
 `;
 
+const StyledPagination = styled(Pagination)<{
+  disabled?: boolean;
+}>`
+  ${paginatorCss}
+  pointer-events: ${(props) => (props.disabled ? "none" : "all")};
+  opacity: ${(props) => (props.disabled ? "0.4" : "1")};
+`;
+
 interface ListPaginationProps {
   current: number;
   total: number;
@@ -321,6 +324,52 @@ function ListPagination(props: ListPaginationProps) {
       pageSize={props.perPage}
       total={props.total}
     />
+  );
+}
+
+const PaginationWrapper = styled.ul`
+  ${paginatorCss}
+  pointer-events: "all";
+  opacity: "1";
+`;
+
+export function ServerSideListPagination(props: any) {
+  return (
+    <PaginationWrapper>
+      <li
+        className={`t--list-widget-prev-page rc-pagination-prev ${props.pageNo ===
+          1 && "rc-pagination-disabled"}`}
+        title="Previous Page"
+      >
+        <button
+          area-label="prev page"
+          className="rc-pagination-item-link"
+          onClick={() => {
+            if (props.pageNo > 1) props.prevPageClick();
+          }}
+          type="button"
+        />
+      </li>
+      <li
+        className="rc-pagination-item rc-pagination-item-0 rc-pagination-item-active"
+        title={props.pageNo}
+      >
+        <a rel="nofollow">{props.pageNo}</a>
+      </li>
+      <li
+        className="t--list-widget-next-page rc-pagination-next"
+        title="Next Page"
+      >
+        <button
+          area-label="next page"
+          className="rc-pagination-item-link"
+          onClick={() => {
+            props.nextPageClick();
+          }}
+          type="button"
+        />
+      </li>
+    </PaginationWrapper>
   );
 }
 
