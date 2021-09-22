@@ -65,11 +65,11 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      if (!!plugin && pluginType === PluginType.SAAS) {
+      if (pluginType === PluginType.SAAS) {
         return `${SAAS_EDITOR_API_ID_URL(
           applicationId,
           pageId,
-          plugin.packageName,
+          !!plugin ? plugin.packageName : "",
           id,
         )}`;
       } else if (
