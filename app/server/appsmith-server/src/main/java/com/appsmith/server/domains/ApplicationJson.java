@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import lombok.Getter;
 import lombok.Setter;
