@@ -114,6 +114,7 @@ export function getExpectedValue(
         autocompleteDataType: AutocompleteDataType.OBJECT,
       };
     case ValidationTypes.ARRAY:
+    case ValidationTypes.NESTED_OBJECT_ARRAY:
       if (config.params?.allowedValues) {
         const allowed = config.params?.allowedValues.join("' | '");
         return {

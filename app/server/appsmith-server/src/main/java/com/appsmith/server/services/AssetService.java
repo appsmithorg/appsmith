@@ -9,7 +9,7 @@ public interface AssetService {
 
     Mono<Asset> getById(String id);
 
-    Mono<Asset> upload(Part filePart, int i);
+    Mono<Asset> upload(Part filePart, int i, boolean isThumbnail);
 
     Mono<Void> remove(String assetId);
 

@@ -181,6 +181,13 @@ export const getDBPlugins = createSelector(getPlugins, (plugins) =>
   plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
+export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter(
+    (plugin) =>
+      plugin.type === PluginType.DB || plugin.type === PluginType.REMOTE,
+  ),
+);
+
 export const getDatasourceByPluginId = (state: AppState, pluginId: string) =>
   state.entities.datasources.list.filter((d) => d.pluginId === pluginId);
 
@@ -193,6 +200,19 @@ export const getDBDatasources = createSelector(
 
     return datasources.filter((datasource) =>
       dbPluginIds.includes(datasource.pluginId),
+    );
+  },
+);
+
+export const getDBAndRemoteDatasources = createSelector(
+  getDBAndRemotePlugins,
+  getEntities,
+  (plugins, entities) => {
+    const datasources = entities.datasources.list;
+    const pluginIds = plugins.map((plugin) => plugin.id);
+
+    return datasources.filter((datasource) =>
+      pluginIds.includes(datasource.pluginId),
     );
   },
 );
@@ -494,4 +514,22 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
   return appMode === APP_MODE.EDIT
     ? getAllWidgetsMap(state)
     : getCanvasWidgetsWithParentId(state);
+};
+
+export const getIsOnboardingTasksView = createSelector(
+  getCanvasWidgets,
+  (widgets) => {
+    return Object.keys(widgets).length == 1;
+  },
+);
+
+export const getIsOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getPageActions = (pageId = "") => {
+  return (state: AppState) => {
+    return state.entities.actions.filter((action) => {
+      return action.config.pageId == pageId;
+    });
+  };
 };

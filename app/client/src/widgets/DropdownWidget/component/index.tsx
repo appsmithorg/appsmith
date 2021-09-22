@@ -40,7 +40,7 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     width: 100%;
     position: relative;
   }
-  .${Classes.BUTTON} {
+  &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
     align-items: center;
@@ -49,6 +49,18 @@ const StyledSingleDropDown = styled(SingleDropDown)<{ isSelected: boolean }>`
     background: white;
     min-height: 32px;
     border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+    &:focus {
+      border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
+      border-color: #80bdff;
+      outline: 0;
+      box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
+    }
+  }
+
+  &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
   }
   &&&&& .${Classes.DISABLED} {
     background-color: ${Colors.SELECT_DISABLED};
@@ -105,6 +117,9 @@ const DropdownStyles = createGlobalStyle`
     &&&& .${Classes.MENU_ITEM} {
       border-radius: ${(props) => props.theme.radii[1]}px;
       &:hover{
+        background: ${Colors.POLAR};
+      }
+      &.is-focused{
         background: ${Colors.POLAR};
       }
       &.${Classes.ACTIVE} {
@@ -245,12 +260,15 @@ class DropDownComponent extends React.Component<DropDownComponentProps> {
       return null;
     }
     const isSelected: boolean = this.isOptionSelected(option);
+    // For tabbable menuItems
+    const isFocused = itemProps.modifiers.active;
     return (
       <MenuItem
         active={isSelected}
-        className="single-select"
+        className={`single-select ${isFocused && "is-focused"}`}
         key={option.value}
         onClick={itemProps.handleClick}
+        tabIndex={0}
         text={option.label}
       />
     );
