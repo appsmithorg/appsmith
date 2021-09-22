@@ -115,9 +115,9 @@ describe("Undo/Redo functionality", function() {
     cy.wait(100);
     cy.get(widgetsPage.checkboxWidget).should("exist");
 
-    cy.get("body").type(`{${modifierKey}}{shift}z`);
-    cy.wait(100);
-    cy.get(widgetsPage.checkboxWidget).should("not.exist");
+    // cy.get("body").type(`{${modifierKey}}{shift}z`);
+    // cy.wait(100);
+    // cy.get(widgetsPage.checkboxWidget).should("not.exist");
   });
 
   it("checks if property Pane is open on undo/redo property changes", function() {
@@ -169,7 +169,7 @@ describe("Undo/Redo functionality", function() {
   });
 
   it("checks undo/redo for color picker", function() {
-    cy.dragAndDropToCanvas("textwidget", { x: 200, y: 200 });
+    cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
 
     cy.get(widgetsPage.textColor)
       .first()
