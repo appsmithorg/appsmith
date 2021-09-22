@@ -2,6 +2,7 @@ import { HTTP_METHODS } from "constants/ApiEditorConstants";
 import { ApiAction } from "entities/Action";
 import cloneDeep from "lodash/cloneDeep";
 import isEmpty from "lodash/isEmpty";
+import isString from "lodash/isString";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);
@@ -32,7 +33,7 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       body = action.actionConfiguration.body || undefined;
     }
 
-    if (!_.isString(body)) body = JSON.stringify(body);
+    if (!isString(body)) body = JSON.stringify(body);
     action = {
       ...action,
       actionConfiguration: {
