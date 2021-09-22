@@ -213,13 +213,21 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
     case ValidationTypes.FUNCTION:
       return config.params?.expected?.type || "unknown";
     case ValidationTypes.TEXT:
-      let result = "string";
+      let result = "text";
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result = result + ` ( ${allowed} )`;
       }
       if (config.params?.expected?.type) result = config.params?.expected.type;
       return result;
+    case ValidationTypes.STRING:
+      let stringResult = "string";
+      if (config.params?.allowedValues) {
+        const allowed = config.params.allowedValues.join(" | ");
+        stringResult = stringResult + ` ( ${allowed} )`;
+      }
+      if (config.params?.expected?.type) result = config.params?.expected.type;
+      return stringResult;
     case ValidationTypes.REGEX:
       return "regExp";
     case ValidationTypes.DATE_ISO_STRING:
@@ -312,6 +320,69 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         };
       }
     }
+    if (config.params?.allowedValues) {
+      if (!config.params?.allowedValues.includes((parsed as string).trim())) {
+        return {
+          parsed: config.params?.default || "",
+          message: "Value is not allowed",
+          isValid: false,
+        };
+      }
+    }
+
+    if (
+      config.params?.regex &&
+      isString(config.params?.regex) &&
+      !config.params?.regex.test(parsed as string)
+    ) {
+      return {
+        parsed: config.params?.default || "",
+        message: `Value does not match expected regex: ${config.params?.regex.source}`,
+        isValid: false,
+      };
+    }
+
+    return {
+      isValid: true,
+      parsed,
+    };
+  },
+  [ValidationTypes.STRING]: (
+    config: ValidationConfig,
+    value: unknown,
+    props: Record<string, unknown>,
+  ): ValidationResponse => {
+    if (value === undefined || value === null) {
+      if (config.params && config.params.required) {
+        return {
+          isValid: false,
+          parsed: config.params?.default || "",
+          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+        };
+      }
+      return {
+        isValid: true,
+        parsed: config.params?.default || "",
+      };
+    }
+    const parsed = value;
+
+    if (isObject(value)) {
+      return {
+        isValid: false,
+        parsed: JSON.stringify(value, null, 2),
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+      };
+    }
+
+    if (!isString(parsed)) {
+      return {
+        isValid: false,
+        parsed: config.params?.default || "",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+      };
+    }
+
     if (config.params?.allowedValues) {
       if (!config.params?.allowedValues.includes((parsed as string).trim())) {
         return {

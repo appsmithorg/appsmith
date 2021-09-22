@@ -96,6 +96,12 @@ export default [
                       name: "chart",
                       type: ValidationTypes.OBJECT,
                       params: {
+                        allowedKeys: [
+                          {
+                            name: "paletteColors",
+                            type: ValidationTypes.STRING,
+                          },
+                        ],
                         default: {},
                       },
                     },

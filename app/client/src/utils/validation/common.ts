@@ -40,7 +40,7 @@ export function getExpectedValue(
       };
     case ValidationTypes.TEXT:
       const result: CodeEditorExpected = {
-        type: "string",
+        type: "text",
         example: "abc",
         autocompleteDataType: AutocompleteDataType.STRING,
       };
@@ -53,6 +53,21 @@ export function getExpectedValue(
       if (config.params?.expected?.example)
         result.example = config.params?.expected.example;
       return result;
+    case ValidationTypes.STRING:
+      const stringResult: CodeEditorExpected = {
+        type: "string",
+        example: "abc",
+        autocompleteDataType: AutocompleteDataType.STRING,
+      };
+      if (config.params?.allowedValues) {
+        const allowed = config.params.allowedValues.join(" | ");
+        stringResult.type = stringResult.type + ` ( ${allowed} )`;
+      }
+      if (config.params?.expected?.type)
+        stringResult.type = config.params?.expected.type;
+      if (config.params?.expected?.example)
+        stringResult.example = config.params?.expected.example;
+      return stringResult;
     case ValidationTypes.REGEX:
       return {
         type: "regExp",
