@@ -904,6 +904,161 @@ describe("Validate Validators", () => {
       expect(result).toStrictEqual(expected);
     });
   });
+  it("correctly validates objects", () => {
+    const inputs = [
+      {
+        label: true,
+        value: "true",
+      },
+      {
+        label: true,
+        value: "true",
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: {
+          label: "true",
+          value: "true",
+        },
+      },
+      {
+        isValid: true,
+        parsed: { label: true, value: "true" },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly validates objects to fail", () => {
+    const inputs = [
+      {
+        labels: true,
+        values: "true",
+      },
+      {
+        label: true,
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: false,
+        parsed: {
+          labels: true,
+          values: "true",
+        },
+        message: "Missing required key: label Missing required key: value",
+      },
+      {
+        isValid: false,
+        message: "Missing required key: value",
+        parsed: { label: true },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
 });
 
 // describe("Color Picker Text validator", () => {
