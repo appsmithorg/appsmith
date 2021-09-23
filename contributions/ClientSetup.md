@@ -133,6 +133,32 @@ or Alternatively by,
 
 After this You can continue Setting up from [here](#pre-requisites).
 
+### Running Tests for CLient
+
+1. In order to run the Cypress integration tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
+
+   ```json
+   {
+     "USERNAME": "Enter username",
+     "PASSWORD": "Enter password"
+   }
+   ```
+
+1. run:
+```bash
+  cd app/client
+  yarn run test
+```
+
+Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
+
+
+2. In order to run the Jest unit tests, run:
+```bash
+  cd app/client
+  yarn run test:unit
+```
+
 ### Troubleshooting
 
 #### I am on WSL and can't reach dev.appsmith.com
