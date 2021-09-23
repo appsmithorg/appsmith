@@ -19,7 +19,6 @@ import { Classes } from "./constants";
 import { useIsGitConnected } from "./hooks";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -41,13 +40,13 @@ const BodyContainer = styled.div`
 
 const MenuContainer = styled.div`
   padding: ${(props) =>
-    `${props.theme.spaces[12]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
+    `${props.theme.spaces[10]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 30px;
+  top: 34px;
   &:hover {
     background-color: ${(props) => props.theme.colors.modal.hoverState};
   }
@@ -102,8 +101,6 @@ function GitSyncModal() {
     initializeTabIndex();
   }, []);
 
-  const orgId = useSelector(getCurrentOrgId);
-
   const activeMenuItemKey = menuOptions[activeTabIndex]
     ? menuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
@@ -130,7 +127,7 @@ function GitSyncModal() {
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent onSuccess={showDeployTab} organizationId={orgId} />
+            <BodyComponent onSuccess={showDeployTab} />
           </BodyContainer>
           <CloseBtnContainer onClick={handleClose}>
             <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />

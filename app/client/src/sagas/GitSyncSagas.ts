@@ -12,6 +12,7 @@ import {
   commitToRepoSuccess,
   fetchGlobalGitConfigSuccess,
   updateGlobalGitConfigSuccess,
+  pushToRepoSuccess,
 } from "actions/gitSyncActions";
 import {
   connectToGitSuccess,
@@ -39,6 +40,12 @@ function* commitToGitRepoSaga(
 
     if (isValidResponse) {
       yield put(commitToRepoSuccess());
+      Toaster.show({
+        text: action.payload.doPush
+          ? "Commited and pushed Successfully"
+          : "Commited Successfully",
+        variant: Variant.success,
+      });
     }
   } catch (error) {
     yield put({
@@ -50,13 +57,17 @@ function* commitToGitRepoSaga(
 
 function* connectToGitSaga(action: ConnectToGitReduxAction) {
   try {
-    const response: ApiResponse = yield GitSyncAPI.connect(action.payload);
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.connect(
+      action.payload,
+      applicationId,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put(connectToGitSuccess(response.data));
       if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
+        action.onSuccessCallback(response.data);
       }
     }
   } catch (error) {
@@ -81,7 +92,7 @@ function* fetchGlobalGitConfig() {
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_GLOBAL_GIT_CONFIG_ERROR,
-      payload: { error, logToSentry: true },
+      payload: { error, logToSentry: true, show: false },
     });
   }
 }
@@ -108,10 +119,34 @@ function* updateGlobalGitConfig(action: ReduxAction<GitConfig>) {
   }
 }
 
+function* pushToGitRepoSaga() {
+  try {
+    const applicationId: string = yield select(getCurrentApplicationId);
+    const response: ApiResponse = yield GitSyncAPI.push({
+      applicationId,
+    });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put(pushToRepoSuccess());
+      Toaster.show({
+        text: "Pushed Successfully",
+        variant: Variant.success,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.PUSH_TO_GIT_ERROR,
+      payload: { error, logToSentry: true },
+    });
+  }
+}
+
 export default function* gitSyncSagas() {
   yield all([
     takeLatest(ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT, commitToGitRepoSaga),
     takeLatest(ReduxActionTypes.CONNECT_TO_GIT_INIT, connectToGitSaga),
+    takeLatest(ReduxActionTypes.PUSH_TO_GIT_INIT, pushToGitRepoSaga),
     takeLatest(
       ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT,
       fetchGlobalGitConfig,
