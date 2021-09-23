@@ -14,6 +14,8 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.constants.FieldName.DEFAULT_GIT_PROFILE;
+
 /**
  * This model is intended to hold any user-specific information that is not directly about the user's authentication.
  */
@@ -23,8 +25,6 @@ import java.util.Map;
 @Document
 @NoArgsConstructor
 public class UserData extends BaseDomain {
-
-    private static final String DEFAULT_GIT_PROFILE = "default";
 
     @JsonIgnore
     String userId;

@@ -7,7 +7,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
-import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationJson;
 import com.appsmith.server.domains.GitApplicationMetadata;
@@ -38,6 +37,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -307,9 +307,8 @@ public class GitServiceImpl implements GitService {
                 .then(getApplicationById(defaultApplicationId)
                         .flatMap(application -> {
                             GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                            if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
-                                        "SSH Key is empty. Please reach out to Appsmith support"));
+                            if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                                throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                             } else {
                                 String defaultBranch;
                                 String repoName = getRepoName(gitConnectDTO.getRemoteUrl());
@@ -567,9 +566,8 @@ public class GitServiceImpl implements GitService {
         return getApplicationById(applicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
-                    if (isInvalidDefaultApplicationGitMetadata(gitApplicationMetadata)) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER,
-                                "SSH Key is empty. Please reach out to Appsmith support"));
+                    if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                        throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                     }
                     Path repoPath = Paths.get(application.getOrganizationId(),
                             gitApplicationMetadata.getDefaultApplicationId(),
@@ -613,6 +611,37 @@ public class GitServiceImpl implements GitService {
                         "branch --list",
                         "Error while accessing the file system. Details :" + e.getMessage()));
                 }
+            });
+    }
+
+    @Override
+    public Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId) {
+        return getApplicationById(defaultApplicationId)
+            .flatMap(application -> {
+                GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                if (gitData == null) {
+                    return Mono.empty();
+                }
+
+                if (!defaultApplicationId.equals(gitData.getDefaultApplicationId())) {
+                    throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "defaultApplicationId");
+                } else if (isInvalidDefaultApplicationGitMetadata(application.getGitApplicationMetadata())) {
+                    throw new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
+                }
+
+                return userDataService.getForCurrentUser()
+                    .map(userData -> {
+                        Map<String, GitProfile> gitProfiles = new HashMap<>();
+                        if (!CollectionUtils.isNullOrEmpty(userData.getGitProfiles())) {
+                            gitProfiles.put(FieldName.DEFAULT_GIT_PROFILE, userData.getDefaultOrAppSpecificGitProfiles(null));
+                            gitProfiles.put(defaultApplicationId, userData.getDefaultOrAppSpecificGitProfiles(defaultApplicationId));
+                        }
+                        gitData.setGitProfiles(gitProfiles);
+                        if (gitData.getGitAuth() != null) {
+                            gitData.setPublicKey(gitData.getGitAuth().getPublicKey());
+                        }
+                        return gitData;
+                    });
             });
     }
 

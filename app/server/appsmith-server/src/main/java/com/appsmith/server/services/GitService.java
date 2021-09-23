@@ -43,4 +43,6 @@ public interface GitService {
     Mono<String> pullForApplication(String applicationId, String branchName);
 
     Mono<List<String>> listBranchForApplication(String applicationId);
+
+    Mono<GitApplicationMetadata> getGitApplicationMetadata(String defaultApplicationId);
 }

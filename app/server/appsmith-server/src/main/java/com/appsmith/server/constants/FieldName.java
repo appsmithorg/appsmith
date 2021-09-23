@@ -91,4 +91,5 @@ public class FieldName {
     public static final String IS_REQUIRED = "isRequired";
     public static final String UNUSED_DATASOURCE = "UNUSED_DATASOURCE";
     public static final String BRANCH_NAME = "branchName";
+    public static final String DEFAULT_GIT_PROFILE = "default";
 }

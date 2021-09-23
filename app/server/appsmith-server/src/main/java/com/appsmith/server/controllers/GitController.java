@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
@@ -63,6 +64,12 @@ public class GitController {
     public Mono<ResponseDTO<GitProfile>> getGitConfigForUser(@PathVariable String defaultApplicationId) {
         return service.getGitProfileForUser(defaultApplicationId)
                 .map(gitConfigResponse -> new ResponseDTO<>(HttpStatus.OK.value(), gitConfigResponse, null));
+    }
+
+    @GetMapping("/metadata/{defaultApplicationId}")
+    public Mono<ResponseDTO<GitApplicationMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
+        return service.getGitApplicationMetadata(defaultApplicationId)
+            .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
     @PostMapping("/connect/{applicationId}")
