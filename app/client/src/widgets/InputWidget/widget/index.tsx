@@ -2,7 +2,7 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
-import { WidgetType, RenderModes, TextSize } from "constants/WidgetConstants";
+import { WidgetType, TextSize } from "constants/WidgetConstants";
 import InputComponent, { InputComponentProps } from "../component";
 import {
   EventType,
