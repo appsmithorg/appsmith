@@ -95,12 +95,12 @@ function UserGitProfileSettings({
           <InputContainer>
             <TextInput
               dataType="text"
+              defaultValue={authorInfo.authorName}
               disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
               }
-              value={authorInfo.authorName}
             />
           </InputContainer>
 

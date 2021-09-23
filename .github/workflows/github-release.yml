@@ -106,25 +106,6 @@ jobs:
         working-directory: app/server
 
     runs-on: ubuntu-latest
-    # Only run this workflow for internally triggered events
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
-
-    # Service containers to run with this job. Required for running tests
-    services:
-      # Label used to access the service container
-      redis:
-        # Docker Hub image for Redis
-        image: redis
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
 
     steps:
       - name: Checkout the code
@@ -148,22 +129,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build server without running any tests
-        working-directory: app/server
-        run: |
-          mvn --batch-mode versions:set \
-            -DnewVersion=${{ needs.prelude.outputs.tag }} \
-            -DgenerateBackupPoms=false \
-            -DprocessAllModules=true
-          mvn --batch-mode package -DskipTests
-
       - name: Test and Build package
-        env:
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_IS_SELF_HOSTED: false
         working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
@@ -213,7 +179,7 @@ jobs:
           path: app/rts/dist/
 
   package:
-    needs: [buildClient, buildServer, buildRts]
+    needs: [prelude, buildClient, buildServer, buildRts]
 
     runs-on: ubuntu-latest
 

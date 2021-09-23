@@ -21,6 +21,7 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTablePrimaryColumnsComputedValue,
   migrateTableWidgetDelimiterProperties,
+  migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
@@ -919,6 +920,11 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 38) {
     currentDSL = migrateResizableModalWidgetProperties(currentDSL);
+    currentDSL.version = 39;
+  }
+
+  if (currentDSL.version === 39) {
+    currentDSL = migrateTableWidgetSelectedRowBindings(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
