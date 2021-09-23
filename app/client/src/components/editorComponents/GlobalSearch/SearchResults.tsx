@@ -7,7 +7,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { ReactComponent as Function } from "assets/icons/menu/js-function.svg";
+import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import {
   getItemType,
   getItemTitle,
@@ -405,12 +405,16 @@ const FlexWrapper = styled.div`
       fill: #716e6e !important;
     }
   }
+  && svg.snippet-icon {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 function SnippetItem({ item: { body } }: any) {
   return (
     <FlexWrapper>
-      <Function />
+      <Snippet className="snippet-icon" />
       <ItemTitle>
         <span>{body.shortTitle || body.title}</span>
       </ItemTitle>

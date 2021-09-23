@@ -1,4 +1,12 @@
-import React, { forwardRef, Ref, useCallback, useMemo, useState } from "react";
+import React, {
+  EventHandler,
+  FocusEvent,
+  forwardRef,
+  Ref,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
 import styled, { withTheme } from "styled-components";
 import Text, { TextType } from "./Text";
@@ -39,6 +47,7 @@ export function notEmptyValidator(value: string) {
 }
 
 export type TextInputProps = CommonComponentProps & {
+  autoFocus?: boolean;
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
@@ -49,6 +58,8 @@ export type TextInputProps = CommonComponentProps & {
   dataType?: string;
   theme?: any;
   rightSideComponent?: React.ReactNode;
+  onBlur?: EventHandler<FocusEvent<any>>;
+  onFocus?: EventHandler<FocusEvent<any>>;
 };
 
 type boxReturnType = {
@@ -96,6 +107,7 @@ const StyledInput = styled((props) => {
     "validator",
     "isValid",
     "cypressSelector",
+    "fill",
   ];
 
   return props.asyncControl ? (
@@ -238,6 +250,7 @@ const TextInput = forwardRef(
     return (
       <InputWrapper>
         <StyledInput
+          autoFocus={props.autoFocus}
           defaultValue={props.defaultValue}
           inputStyle={inputStyle}
           isValid={validation.isValid}

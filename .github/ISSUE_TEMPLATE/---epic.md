@@ -1,6 +1,6 @@
 ---
 name: "\U0001F4D3 Epic"
-about: Describe the problem, solution and related issues
+about: A large planned scope of work for the quarter
 title: "[Epic]"
 labels: Epic, Product Note
 assignees: Nikhil-Nandagopal
@@ -8,10 +8,7 @@ assignees: Nikhil-Nandagopal
 ---
 
 # Objective
-Here you fill in the objective of the feature/product that you are writing about.
-
-## Related issues
-[ ] #issue1
+Here you fill in the objective of the product/feature that you are writing about.
 
 # Success Metrics
 List of all metrics you are tracking and the desired goal.
@@ -19,13 +16,6 @@ List of all metrics you are tracking and the desired goal.
 | ------------- | ------------- |
 | e.g. Simplify user experience  | Customer satisfaction score increases  |
 | e.g. Simplify onboarding flow  | Decrease churn rate down to 30% |
-
-# Assumptions
-List any assumptions that you have about your users, technical constraints, or business goals (e.g., Most users will access this feature from tablet).
-
-- Assumption 1
-- Assumption 2
-- Assumption 3
 
 # Requirements
 | Requirement   | User Story | Importance | Notes |
@@ -42,8 +32,11 @@ List the things that are out of cope or might be revisited after the first relea
 # Developer Handoff Document in Figma
 Link to the developer Handoff Document: 
 
-# Questions
-| Question  | Answer | Date Answered |
-| ------------- | ------------- | ------------- |
-| e.g. How might we ensure that the comments section doesn't cover the canvas | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  |
+# RACI matrix
+
+| Label | Value | 
+| ------------- | ------------- |
+| Responsible |  |
+| Accountable |  |
+| Consulted | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
+| Informed |  |

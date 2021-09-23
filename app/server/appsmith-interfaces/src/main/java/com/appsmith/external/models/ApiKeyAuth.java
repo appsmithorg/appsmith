@@ -30,6 +30,8 @@ public class ApiKeyAuth extends AuthenticationDTO {
     Type addTo;
     String label;
 
+    String headerPrefix;
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Encrypted
     String value;

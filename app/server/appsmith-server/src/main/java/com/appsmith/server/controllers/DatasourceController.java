@@ -5,7 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.Url;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;

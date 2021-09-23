@@ -21,6 +21,8 @@ import {
   tableWidgetPropertyPaneMigrations,
   migrateTablePrimaryColumnsComputedValue,
   migrateTableWidgetDelimiterProperties,
+  migrateTableWidgetSelectedRowBindings,
+  migrateTableSanitizeColumnKeys,
 } from "./migrations/TableWidget";
 import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
@@ -33,6 +35,7 @@ import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
+import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
 
 /**
  * adds logBlackList key for all list widget children
@@ -907,6 +910,21 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 36) {
     currentDSL = revertTableDefaultSelectedRow(currentDSL);
+    currentDSL.version = 37;
+  }
+
+  if (currentDSL.version === 37) {
+    currentDSL = migrateTableSanitizeColumnKeys(currentDSL);
+    currentDSL.version = 38;
+  }
+
+  if (currentDSL.version === 38) {
+    currentDSL = migrateResizableModalWidgetProperties(currentDSL);
+    currentDSL.version = 39;
+  }
+
+  if (currentDSL.version === 39) {
+    currentDSL = migrateTableWidgetSelectedRowBindings(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 

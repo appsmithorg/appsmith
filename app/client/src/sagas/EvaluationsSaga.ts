@@ -17,6 +17,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
+import { getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "../utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -48,6 +49,14 @@ import { JSCollection, JSAction } from "entities/JSCollection";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import {
+  UndoRedoPayload,
+  openPropertyPaneSaga,
+  postUndoRedoSaga,
+} from "./ReplaySaga";
+
+import { updateAndSaveLayout } from "actions/pageActions";
+import { get } from "lodash";
+import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
   setGlobalSearchFilterContext,
@@ -64,14 +73,20 @@ import {
 import { validate } from "workers/validations";
 import { diff } from "deep-diff";
 
+import AnalyticsUtil from "../utils/AnalyticsUtil";
+import { commentModeSelector } from "selectors/commentsSelectors";
+import { snipingModeSelector } from "selectors/editorSelectors";
+
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
 const worker = new GracefulWorkerService(Worker);
 
 function* evaluateTreeSaga(
   postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  shouldReplay?: boolean,
 ) {
   const unevalTree = yield select(getUnevaluatedDataTree);
+  const widgets = yield select(getWidgets);
   log.debug({ unevalTree });
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.DATA_TREE_EVALUATION,
@@ -82,6 +97,8 @@ function* evaluateTreeSaga(
     {
       unevalTree,
       widgetTypeConfigMap,
+      widgets,
+      shouldReplay,
     },
   );
   const {
@@ -162,7 +179,9 @@ export function* evaluateDynamicTrigger(
   );
 
   const { errors, triggers } = workerResponse;
+
   yield call(evalErrorHandler, errors);
+
   return triggers;
 }
 
@@ -172,6 +191,55 @@ export function* clearEvalCache() {
   return true;
 }
 
+/**
+ * saga that listen for UNDO_REDO_OPERATION
+ * it won't do anything in case of sniping/comment mode
+ *
+ * @param action
+ * @returns
+ */
+export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
+  const isCommentMode: boolean = yield select(commentModeSelector);
+  const isSnipingMode: boolean = yield select(snipingModeSelector);
+
+  // if the app is in snipping or comments mode, don't do anything
+  if (isCommentMode || isSnipingMode) return;
+  try {
+    const workerResponse: any = yield call(
+      worker.request,
+      action.payload.operation,
+      {},
+    );
+
+    // if there is no change, then don't do anything
+    if (!workerResponse) return;
+
+    const {
+      event,
+      logs,
+      paths,
+      replay,
+      replayWidgetDSL,
+      timeTaken,
+    } = workerResponse;
+
+    logs && logs.forEach((evalLog: any) => log.debug(evalLog));
+
+    const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
+
+    AnalyticsUtil.logEvent(event, { paths, timeTaken });
+
+    if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
+
+    yield put(updateAndSaveLayout(replayWidgetDSL, false, false));
+
+    if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
 export function* clearEvalPropertyCache(propertyPath: string) {
   yield call(worker.request, EVAL_WORKER_ACTIONS.CLEAR_PROPERTY_CACHE, {
     propertyPath,
@@ -179,7 +247,8 @@ export function* clearEvalPropertyCache(propertyPath: string) {
 }
 
 export function* parseJSCollection(body: string, jsAction: JSCollection) {
-  const parsedObject = yield call(
+  const path = jsAction.name + ".body";
+  const workerResponse = yield call(
     worker.request,
     EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY,
     {
@@ -187,7 +256,12 @@ export function* parseJSCollection(body: string, jsAction: JSCollection) {
       jsAction,
     },
   );
-  return parsedObject;
+  const { errors, evalTree, result } = workerResponse;
+  const dataTree = yield select(getDataTree);
+  const updates = diff(dataTree, evalTree) || [];
+  yield put(setEvaluatedTree(evalTree, updates));
+  yield call(evalErrorHandler, errors, evalTree, [path]);
+  return result;
 }
 
 export function* executeFunction(collectionName: string, action: JSAction) {
@@ -292,7 +366,11 @@ function* evaluationChangeListenerSaga() {
       evtActionChannel,
     );
     if (shouldProcessBatchedAction(action)) {
-      yield call(evaluateTreeSaga, action.postEvalActions);
+      yield call(
+        evaluateTreeSaga,
+        action.postEvalActions,
+        get(action, "payload.shouldReplay"),
+      );
     }
   }
 }
@@ -319,6 +397,7 @@ export function* evaluateSnippetSaga(action: any) {
         executeActionTriggers,
         triggers[0],
         EventType.ON_SNIPPET_EXECUTE,
+        {},
       );
     } else {
       yield put(
