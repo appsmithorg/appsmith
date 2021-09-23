@@ -46,7 +46,7 @@ import {
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
@@ -54,7 +54,6 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -218,7 +217,7 @@ function* handleUpdateJSCollection(
           source: {
             type: ENTITY_TYPE.JSACTION,
             name: response?.data.name,
-            id: response?.data,
+            id: response?.data.id,
           },
         });
         yield put(updateJSCollectionSuccess({ data: response?.data }));
@@ -311,7 +310,7 @@ function* handleExecuteJSFunctionSaga(
       messages: [
         {
           message: e.message,
-          type: PropertyEvaluationErrorType.PARSE,
+          type: PLATFORM_ERROR.PLUGIN_EXECUTION,
         },
       ],
     });
