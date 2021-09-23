@@ -155,7 +155,7 @@ const SnippetContainer = styled.div`
 `;
 
 const removeDynamicBinding = (value: string) => {
-  const regex = /{{(.*?)}}/g;
+  const regex = /{{([\s\S]*?)}}/g;
   return value.replace(regex, function(match, capture) {
     return capture;
   });
