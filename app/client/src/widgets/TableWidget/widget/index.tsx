@@ -901,16 +901,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
-
-      super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: modifiedAction,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: onComplete,
-        },
-        responseData: rowData,
-      });
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: modifiedAction,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: onComplete,
+          },
+          responseData: rowData,
+        });
+      } else {
+        onComplete();
+      }
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
