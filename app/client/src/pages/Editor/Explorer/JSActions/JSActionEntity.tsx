@@ -29,7 +29,7 @@ export const ExplorerJSCollectionEntity = memo(
     const navigateToJSCollection = useCallback(() => {
       history.push(
         JS_COLLECTION_ID_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           props.pageId,
           props.action.config.id,
           {},

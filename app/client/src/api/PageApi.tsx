@@ -212,13 +212,23 @@ class PageApi extends Api {
 
   static fetchPageList(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
+    if (branchName)
+      return Api.get(
+        `${PageApi.url}/application/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(PageApi.url + "/application/" + applicationId);
   }
 
   static fetchPageListViewMode(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<FetchPageListResponse> {
+    if (branchName)
+      return Api.get(
+        `${PageApi.url}/view/application/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(PageApi.url + "/view/application/" + applicationId);
   }
 

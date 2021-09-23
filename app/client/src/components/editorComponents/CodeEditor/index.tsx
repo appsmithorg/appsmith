@@ -80,6 +80,8 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
 import getFeatureFlags from "utils/featureFlags";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { SlashCommandPayload } from "entities/Action";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -140,6 +142,7 @@ export type EditorProps = EditorStyleProps &
     hideEvaluatedValue?: boolean;
     errors?: any;
     isInvalid?: boolean;
+    isEditorHidden?: boolean;
   };
 
 type Props = ReduxStateProps &
@@ -290,6 +293,10 @@ class CodeEditor extends Component<Props, State> {
         if (!!inputValue || inputValue === "") {
           if (inputValue !== editorValue && isString(inputValue)) {
             this.editor.setValue(inputValue);
+          } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
+            // Even if Editor is updated with new value, it cannot update without layour calcs.
+            //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
+            this.editor.refresh();
           }
         }
         CodeEditor.updateMarkings(this.editor, this.props.marking);
@@ -576,7 +583,7 @@ class CodeEditor extends Component<Props, State> {
       evaluated = pathEvaluatedValue;
     }
 
-    const { entityName } = this.getEntityInformation();
+    const entityInformation = this.getEntityInformation();
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
       errors = this.props.errors;
@@ -618,7 +625,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
-          entityName={entityName}
+          entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
           evaluationSubstitutionType={evaluationSubstitutionType}
@@ -699,7 +706,8 @@ const mapStateToProps = (state: AppState): ReduxStateProps => ({
 });
 
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  executeCommand: (payload) => dispatch({ type: "EXECUTE_COMMAND", payload }),
+  executeCommand: (payload: SlashCommandPayload) =>
+    dispatch(executeCommandAction(payload)),
 });
 
 export default Sentry.withProfiler(

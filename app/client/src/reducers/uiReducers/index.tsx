@@ -37,6 +37,7 @@ import canvasSelectionReducer from "./canvasSelectionReducer";
 import actionTabsReducer from "./actionTabsReducer";
 import gitSyncReducer from "./gitSyncReducer";
 import crudInfoModalReducer from "./crudInfoModalReducer";
+import jsObjectNameReducer from "./jsObjectNameReducer";
 
 const uiReducer = combineReducers({
   actionTabs: actionTabsReducer,
@@ -72,6 +73,7 @@ const uiReducer = combineReducers({
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
+  jsObjectName: jsObjectNameReducer,
   notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,

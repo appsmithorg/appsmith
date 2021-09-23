@@ -20,7 +20,7 @@ export const ExplorerActionsGroup = memo((props: ExplorerActionsGroupProps) => {
     <>
       {props.actions.map((action: any) => {
         const url = props.config?.getURL(
-          params.applicationId,
+          params.defaultApplicationId,
           props.page.pageId,
           action.config.id,
           action.config.pluginType,

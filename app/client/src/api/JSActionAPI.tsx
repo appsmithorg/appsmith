@@ -35,8 +35,11 @@ class JSActionAPI extends API {
 
   static fetchJSCollections(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
-    return API.get(JSActionAPI.url, { applicationId });
+    const queryParams = { applicationId } as any;
+    if (branchName) queryParams.branchName = branchName;
+    return API.get(JSActionAPI.url, queryParams);
   }
 
   static createJSCollection(
@@ -74,8 +77,11 @@ class JSActionAPI extends API {
 
   static fetchJSCollectionsForViewMode(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<GenericApiResponse<JSCollection[]>> {
-    return API.get(`${JSActionAPI.url}/view`, { applicationId });
+    const queryParams = { applicationId } as any;
+    if (branchName) queryParams.branchName = branchName;
+    return API.get(`${JSActionAPI.url}/view`, queryParams);
   }
 
   static updateJSCollectionOrActionName(

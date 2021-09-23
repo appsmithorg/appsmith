@@ -26,6 +26,7 @@
           "label": "Array of Pipelines",
           "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText" : "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
         }

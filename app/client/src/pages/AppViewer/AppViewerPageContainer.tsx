@@ -65,7 +65,7 @@ class AppViewerPageContainer extends Component<AppViewerPageContainerProps> {
           Please add widgets to this page in the&nbsp;
           <Link
             to={BUILDER_PAGE_URL(
-              this.props.match.params.applicationId,
+              this.props.match.params.defaultApplicationId,
               this.props.match.params.pageId,
             )}
           >

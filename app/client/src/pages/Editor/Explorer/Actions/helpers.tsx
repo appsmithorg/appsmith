@@ -55,7 +55,7 @@ export type ActionGroupConfig = {
 export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
   {
     groupName: "Datasources",
-    types: [PluginType.API, PluginType.SAAS, PluginType.DB],
+    types: [PluginType.API, PluginType.SAAS, PluginType.DB, PluginType.REMOTE],
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
@@ -65,14 +65,17 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      if (!!plugin && pluginType === PluginType.SAAS) {
+      if (pluginType === PluginType.SAAS) {
         return `${SAAS_EDITOR_API_ID_URL(
           applicationId,
           pageId,
-          plugin.packageName,
+          !!plugin ? plugin.packageName : "",
           id,
         )}`;
-      } else if (pluginType === PluginType.DB) {
+      } else if (
+        pluginType === PluginType.DB ||
+        pluginType === PluginType.REMOTE
+      ) {
         return `${QUERIES_EDITOR_ID_URL(applicationId, pageId, id)}`;
       } else {
         return `${API_EDITOR_ID_URL(applicationId, pageId, id)}`;
@@ -91,42 +94,42 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     isGroupActive: (params: ExplorerURLParams, pageId: string) =>
       [
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           pageId,
           INTEGRATION_TABS.NEW,
         ),
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           pageId,
           INTEGRATION_TABS.ACTIVE,
         ),
-        API_EDITOR_URL(params.applicationId, pageId),
-        SAAS_BASE_URL(params.applicationId, pageId),
-        QUERIES_EDITOR_URL(params.applicationId, pageId),
+        API_EDITOR_URL(params.defaultApplicationId, pageId),
+        SAAS_BASE_URL(params.defaultApplicationId, pageId),
+        QUERIES_EDITOR_URL(params.defaultApplicationId, pageId),
       ].includes(window.location.pathname),
     isGroupExpanded: (params: ExplorerURLParams, pageId: string) =>
       window.location.pathname.indexOf(
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           pageId,
           INTEGRATION_TABS.NEW,
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           pageId,
           INTEGRATION_TABS.ACTIVE,
         ),
       ) > -1 ||
       window.location.pathname.indexOf(
-        API_EDITOR_URL(params.applicationId, pageId),
+        API_EDITOR_URL(params.defaultApplicationId, pageId),
       ) > -1 ||
       window.location.pathname.indexOf(
-        SAAS_BASE_URL(params.applicationId, pageId),
+        SAAS_BASE_URL(params.defaultApplicationId, pageId),
       ) > -1 ||
       window.location.pathname.indexOf(
-        QUERIES_EDITOR_URL(params.applicationId, pageId),
+        QUERIES_EDITOR_URL(params.defaultApplicationId, pageId),
       ) > -1,
   },
 ];
@@ -163,6 +166,9 @@ export const getPluginGroups = (
           ),
           ...entries.filter(
             (entry: any) => entry.config.pluginType === PluginType.DB,
+          ),
+          ...entries.filter(
+            (entry: any) => entry.config.pluginType === PluginType.REMOTE,
           ),
         ]
       : entries;

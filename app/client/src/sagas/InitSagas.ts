@@ -56,6 +56,8 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import history from "utils/history";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -94,39 +96,79 @@ function* failFastApiCalls(
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
-  const { applicationId, pageId } = initializeEditorAction.payload;
+  const {
+    branchName,
+    defaultApplicationId,
+    pageId,
+  } = initializeEditorAction.payload;
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
     );
     yield put(setAppMode(APP_MODE.EDIT));
-    yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
+    yield put(
+      updateAppPersistentStore(
+        getPersistentAppStore(defaultApplicationId, branchName),
+      ),
+    );
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
-        fetchPageList(applicationId, APP_MODE.EDIT),
-        fetchPage(pageId, true),
-        fetchApplication({ payload: { applicationId, mode: APP_MODE.EDIT } }),
+        fetchPageList(
+          { applicationId: defaultApplicationId, branchName },
+          APP_MODE.EDIT,
+        ),
+        fetchApplication({
+          payload: {
+            applicationId: defaultApplicationId,
+            branchName,
+            mode: APP_MODE.EDIT,
+          },
+        }),
       ],
       [
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        ReduxActionTypes.FETCH_PAGE_SUCCESS,
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        ReduxActionErrorTypes.FETCH_PAGE_ERROR,
         ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ],
     );
+
     if (!applicationAndLayoutCalls) return;
+
+    const defaultPageId = yield select(getDefaultPageId);
+    const toLoadPageId = pageId || defaultPageId;
+
+    if (!pageId) {
+      const pathname = BUILDER_PAGE_URL(
+        defaultApplicationId,
+        toLoadPageId,
+        {},
+        branchName,
+      );
+
+      history.replace({
+        ...window.location,
+        pathname,
+      });
+    }
+
+    if (!toLoadPageId) return;
+    const fetchPageCallResult = yield failFastApiCalls(
+      [fetchPage(toLoadPageId, true)],
+      [ReduxActionTypes.FETCH_PAGE_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
+    );
+    if (!fetchPageCallResult) return;
+
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections(applicationId)],
+      [fetchJSCollections({ applicationId: defaultApplicationId, branchName })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
-
     if (!jsActionsCall) return;
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
@@ -151,7 +193,11 @@ function* initializeEditorSaga(
     if (!pluginFormCall) return;
 
     const actionsCall = yield failFastApiCalls(
-      [fetchActions(applicationId, [executePageLoadActions()])],
+      [
+        fetchActions({ applicationId: defaultApplicationId, branchName }, [
+          executePageLoadActions(),
+        ]),
+      ],
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
@@ -163,7 +209,12 @@ function* initializeEditorSaga(
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
 
-    yield put(restoreRecentEntitiesRequest(applicationId));
+    yield put(
+      restoreRecentEntitiesRequest({
+        applicationId: defaultApplicationId,
+        branchName,
+      }),
+    );
 
     yield put(fetchCommentThreadsInit());
 
@@ -194,22 +245,41 @@ function* initializeEditorSaga(
 }
 
 export function* initializeAppViewerSaga(
-  action: ReduxAction<{ applicationId: string; pageId: string }>,
+  action: ReduxAction<{
+    defaultApplicationId: string;
+    branchName: string;
+    pageId: string;
+  }>,
 ) {
-  const { applicationId, pageId } = action.payload;
+  const { branchName, defaultApplicationId, pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
   yield put(setAppMode(APP_MODE.PUBLISHED));
-  yield put(updateAppPersistentStore(getPersistentAppStore(applicationId)));
+  yield put(
+    updateAppPersistentStore(
+      getPersistentAppStore(defaultApplicationId, branchName),
+    ),
+  );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions
-    put(fetchActionsForView(applicationId)),
-    put(fetchPageList(applicationId, APP_MODE.PUBLISHED)),
+    put(
+      fetchActionsForView({ applicationId: defaultApplicationId, branchName }),
+    ),
+    put(
+      fetchPageList(
+        { applicationId: defaultApplicationId, branchName },
+        APP_MODE.PUBLISHED,
+      ),
+    ),
     put(
       fetchApplication({
-        payload: { applicationId, mode: APP_MODE.PUBLISHED },
+        payload: {
+          applicationId: defaultApplicationId,
+          branchName,
+          mode: APP_MODE.PUBLISHED,
+        },
       }),
     ),
   ]);
@@ -267,7 +337,12 @@ export function* initializeAppViewerSaga(
     }
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollectionsForView(applicationId)],
+      [
+        fetchJSCollectionsForView({
+          applicationId: defaultApplicationId,
+          branchName,
+        }),
+      ],
       [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
     );

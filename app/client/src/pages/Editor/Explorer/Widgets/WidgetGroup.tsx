@@ -35,10 +35,12 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   const childNode = (
     <EntityPlaceholder step={props.step + 1}>
-      No widgets yet. Please{" "}
+      Please{" "}
       {params.pageId !== props.pageId ? (
         <>
-          <StyledLink to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}>
+          <StyledLink
+            to={BUILDER_PAGE_URL(params.defaultApplicationId, props.pageId)}
+          >
             switch to this page
           </StyledLink>
           ,&nbsp;then&nbsp;
@@ -46,8 +48,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
       ) : (
         "  "
       )}
-      click the <strong>+</strong> icon on the <strong>Widgets</strong> group to
-      drag and drop widgets
+      click the <strong>+</strong> icon above to add widgets
     </EntityPlaceholder>
   );
 

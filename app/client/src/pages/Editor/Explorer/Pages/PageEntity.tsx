@@ -20,6 +20,7 @@ import { Plugin } from "api/PluginApi";
 import ExplorerJSCollectionGroup from "../JSActions/JSActionGroup";
 import getFeatureFlags from "utils/featureFlags";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 type ExplorerPageEntityProps = {
   page: Page;
@@ -41,17 +42,21 @@ export function ExplorerPageEntity(props: ExplorerPageEntityProps) {
   });
   const isCurrentPage = currentPageId === props.page.pageId;
 
+  const currenApplicationId = useSelector(getCurrentApplicationId);
+
   const switchPage = useCallback(() => {
-    if (!!params.applicationId) {
-      history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
+    if (!!params.defaultApplicationId) {
+      history.push(
+        BUILDER_PAGE_URL(params.defaultApplicationId, props.page.pageId),
+      );
     }
-  }, [props.page.pageId, params.applicationId]);
+  }, [props.page.pageId, params.defaultApplicationId]);
 
   const isJSEditorEnabled = getFeatureFlags().JS_EDITOR;
 
   const contextMenu = (
     <PageContextMenu
-      applicationId={params.applicationId}
+      applicationId={currenApplicationId as string}
       className={EntityClassNames.CONTEXT_MENU}
       isDefaultPage={props.page.isDefault}
       isHidden={!!props.page.isHidden}

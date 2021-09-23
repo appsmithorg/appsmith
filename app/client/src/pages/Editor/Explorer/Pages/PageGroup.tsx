@@ -57,8 +57,8 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
     const defaultPageLayouts = [
       { dsl: extractCurrentDSL(), layoutOnLoadActions: [] },
     ];
-    dispatch(createPage(params.applicationId, name, defaultPageLayouts));
-  }, [dispatch, pages, params.applicationId]);
+    dispatch(createPage(params.defaultApplicationId, name, defaultPageLayouts));
+  }, [dispatch, pages, params.defaultApplicationId]);
 
   const pageEntities = pages.map((page) => {
     const pageWidgets = props.widgets && props.widgets[page.pageId];
@@ -88,7 +88,9 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
   return (
     <Entity
       action={() =>
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId))
+        history.push(
+          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
+        )
       }
       alwaysShowRightIcon
       className="group pages"
@@ -98,7 +100,9 @@ export const ExplorerPageGroup = memo((props: ExplorerPageGroupProps) => {
       isDefaultExpanded
       name="Pages"
       onClickRightIcon={() => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(
+          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
+        );
       }}
       onCreate={createPageCallback}
       rightIcon={settingsIcon}

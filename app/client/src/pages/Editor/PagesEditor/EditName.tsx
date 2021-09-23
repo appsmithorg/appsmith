@@ -75,10 +75,12 @@ function EditName(props: Props) {
   const enterEditMode = useCallback(() => setIsEditing(true), []);
 
   const switchPage = useCallback(() => {
-    if (!!params.applicationId && !isEditing) {
-      history.push(BUILDER_PAGE_URL(params.applicationId, props.page.pageId));
+    if (!!params.defaultApplicationId && !isEditing) {
+      history.push(
+        BUILDER_PAGE_URL(params.defaultApplicationId, props.page.pageId),
+      );
     }
-  }, [props.page.pageId, params.applicationId]);
+  }, [props.page.pageId, params.defaultApplicationId]);
 
   const handleClick = () => {
     if (!isEditing) enterEditMode();

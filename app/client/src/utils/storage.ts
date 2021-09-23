@@ -7,7 +7,6 @@ const STORAGE_KEYS: { [id: string]: string } = {
   ROUTE_BEFORE_LOGIN: "RedirectPath",
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
-  DELETED_WIDGET_PREFIX: "DeletedWidget-",
   ONBOARDING_STATE: "OnboardingState",
   ONBOARDING_WELCOME_STATE: "OnboardingWelcomeState",
   RECENT_ENTITIES: "RecentEntities",
@@ -68,46 +67,6 @@ export const getCopiedWidgets = async () => {
   }
 };
 
-export const saveDeletedWidgets = async (
-  widgets: any,
-  widgetId: string,
-): Promise<boolean> => {
-  try {
-    await store.setItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-      JSON.stringify(widgets),
-    );
-    return true;
-  } catch (error) {
-    log.error(
-      "An error occurred when temporarily storing delete widget: ",
-      error,
-    );
-    return false;
-  }
-};
-
-export const getDeletedWidgets = async (widgetId: string) => {
-  try {
-    const widgets: string | null = await store.getItem(
-      `${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`,
-    );
-    if (widgets && widgets.length > 0) {
-      return JSON.parse(widgets);
-    }
-  } catch (error) {
-    log.error("An error occurred when fetching deleted widget: ", error);
-  }
-};
-
-export const flushDeletedWidgets = async (widgetId: string) => {
-  try {
-    await store.removeItem(`${STORAGE_KEYS.DELETED_WIDGET_PREFIX}${widgetId}`);
-  } catch (error) {
-    log.error("An error occurred when flushing deleted widgets: ", error);
-  }
-};
-
 export const setOnboardingState = async (onboardingState: boolean) => {
   try {
     await store.setItem(STORAGE_KEYS.ONBOARDING_STATE, onboardingState);
@@ -165,12 +124,12 @@ export const setRecentAppEntities = async (entities: any, appId: string) => {
   }
 };
 
-export const fetchRecentAppEntities = async (appId: string) => {
+export const fetchRecentAppEntities = async (recentEntitiesKey: string) => {
   try {
     const recentEntities = (await store.getItem(
       STORAGE_KEYS.RECENT_ENTITIES,
     )) as Record<string, any>;
-    return (recentEntities && recentEntities[appId]) || [];
+    return (recentEntities && recentEntities[recentEntitiesKey]) || [];
   } catch (error) {
     log.error("An error occurred while fetching recent entities");
     log.error(error);
@@ -185,6 +144,7 @@ export const deleteRecentAppEntities = async (appId: string) => {
         any
       >) || {};
     if (typeof recentEntities === "object") {
+      // todo (rishabh s) purge recent entities across branches
       delete recentEntities[appId];
     }
     await store.setItem(STORAGE_KEYS.RECENT_ENTITIES, recentEntities);

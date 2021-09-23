@@ -42,7 +42,7 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
     if (props.plugin && props.plugin.type === PluginType.SAAS) {
       history.push(
         SAAS_EDITOR_DATASOURCE_ID_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           params.pageId,
           props.plugin.packageName,
           props.datasource.id,
@@ -57,14 +57,14 @@ export function ExplorerDatasourceEntity(props: ExplorerDatasourceEntityProps) {
       );
       history.push(
         DATA_SOURCES_EDITOR_ID_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           params.pageId,
           props.datasource.id,
           getQueryParams(),
         ),
       );
     }
-  }, [params.applicationId, params.pageId, props.datasource.id]);
+  }, [params.defaultApplicationId, params.pageId, props.datasource.id]);
 
   const queryId = getQueryIdFromURL();
   const queryAction = useSelector((state: AppState) =>

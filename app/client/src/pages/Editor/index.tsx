@@ -39,7 +39,11 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 type EditorProps = {
   currentApplicationId?: string;
   currentApplicationName?: string;
-  initEditor: (applicationId: string, pageId: string) => void;
+  initEditor: (
+    applicationId: string,
+    pageId: string,
+    branchName?: string,
+  ) => void;
   isPublishing: boolean;
   isEditorLoading: boolean;
   isEditorInitialized: boolean;
@@ -52,6 +56,7 @@ type EditorProps = {
   handlePathUpdated: (location: typeof window.location) => void;
   fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
+  handleBranchChange: (branchName: string) => void;
 };
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -67,9 +72,13 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId, pageId } = this.props.match.params;
-    if (applicationId && pageId) {
-      this.props.initEditor(applicationId, pageId);
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
+    if (defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branchName);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
@@ -79,6 +88,8 @@ class Editor extends Component<Props> {
     return (
       nextProps.currentApplicationName !== this.props.currentApplicationName ||
       nextProps.match?.params?.pageId !== this.props.match?.params?.pageId ||
+      nextProps.match?.params?.branchName !==
+        this.props.match?.params?.branchName ||
       nextProps.currentApplicationId !== this.props.currentApplicationId ||
       nextProps.isEditorInitialized !== this.props.isEditorInitialized ||
       nextProps.isPublishing !== this.props.isPublishing ||
@@ -93,11 +104,19 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { pageId } = this.props.match.params || {};
+    const { branchName, defaultApplicationId, pageId } =
+      this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
-    if (pageId && pageId !== prevPageId) {
-      this.props.updateCurrentPage(pageId);
-      this.props.fetchPage(pageId);
+
+    const { branchName: prevBranchName } = prevProps.match.params || {};
+    if (branchName && branchName !== prevBranchName && defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branchName);
+    } else {
+      // since the page is fetched in the init flow too
+      if (pageId && pageId !== prevPageId) {
+        this.props.updateCurrentPage(pageId);
+        this.props.fetchPage(pageId);
+      }
     }
   }
 
@@ -167,8 +186,8 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (applicationId: string, pageId: string) =>
-      dispatch(initEditor(applicationId, pageId)),
+    initEditor: (applicationId: string, pageId: string, branchName?: string) =>
+      dispatch(initEditor(applicationId, pageId, branchName)),
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),

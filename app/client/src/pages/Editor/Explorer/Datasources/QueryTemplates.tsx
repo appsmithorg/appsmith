@@ -71,7 +71,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       );
       history.push(
         INTEGRATION_EDITOR_URL(
-          params.applicationId,
+          params.defaultApplicationId,
           currentPageId,
           INTEGRATION_TABS.ACTIVE,
         ),
@@ -81,7 +81,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
       dispatch,
       actions,
       currentPageId,
-      params.applicationId,
+      params.defaultApplicationId,
       props.datasourceId,
       dataSource,
     ],

@@ -25,12 +25,10 @@ export interface ApplicationPagePayload {
 }
 
 export type GitApplicationMetadata = {
-  branchName: string;
-  gitAuth?: {
-    publicKey: string;
-  };
-  remoteUrl: string;
-  repoName: string;
+  branchName?: string;
+  remoteUrl?: string;
+  repoName?: string;
+  defaultApplicationId: string;
 };
 
 export interface ApplicationResponsePayload {
@@ -136,10 +134,6 @@ export interface ImportApplicationRequest {
   onSuccessCallback?: () => void;
 }
 
-export interface generateSSHKeyPairRequest {
-  applicationId: string;
-}
-
 class ApplicationApi extends Api {
   static baseURL = "v1/applications/";
   static publishURLPath = (applicationId: string) => `publish/${applicationId}`;
@@ -168,13 +162,23 @@ class ApplicationApi extends Api {
 
   static fetchApplication(
     applicationId: string,
+    branchName?: string,
   ): AxiosPromise<FetchApplicationResponse> {
+    if (branchName)
+      return Api.get(
+        `${ApplicationApi.baseURL}${applicationId}/branch/${branchName}`,
+      );
     return Api.get(ApplicationApi.baseURL + applicationId);
   }
 
   static fetchApplicationForViewMode(
     applicationId: string,
+    branchName: string,
   ): AxiosPromise<FetchApplicationResponse> {
+    if (branchName)
+      return Api.get(
+        `${ApplicationApi.baseURL}view/${applicationId}/branch/${branchName}`,
+      );
     return Api.get(ApplicationApi.baseURL + `view/${applicationId}`);
   }
 
@@ -249,12 +253,12 @@ class ApplicationApi extends Api {
     });
   }
 
-  static generateSSHKeyPair(
-    request: generateSSHKeyPairRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.post(
-      ApplicationApi.baseURL + "ssh-keypair/" + request.applicationId,
-    );
+  static getSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.get(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
+  }
+
+  static generateSSHKeyPair(applicationId: string): AxiosPromise<ApiResponse> {
+    return Api.post(ApplicationApi.baseURL + "ssh-keypair/" + applicationId);
   }
 }
 

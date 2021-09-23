@@ -40,6 +40,7 @@ function validatePlainObject(
   if (config.params?.allowedKeys) {
     let _valid = true;
     const _messages: string[] = [];
+    const parsedValue: Record<string, unknown> = value;
     config.params.allowedKeys.forEach((entry) => {
       if (value.hasOwnProperty(entry.name)) {
         const { isValid, message, parsed } = validate(
@@ -47,7 +48,7 @@ function validatePlainObject(
           value[entry.name],
           props,
         );
-
+        parsedValue[entry.name] = parsed;
         if (!isValid) {
           value[entry.name] = parsed;
           _valid = isValid;
@@ -64,7 +65,7 @@ function validatePlainObject(
     if (_valid) {
       return {
         isValid: true,
-        parsed: value,
+        parsed: parsedValue,
       };
     }
     return {
@@ -103,7 +104,7 @@ function validateArray(
     config.params?.children?.type === ValidationTypes.OBJECT &&
     (config.params.children.params?.allowedKeys || []).length > 0
   ) {
-    const allowedKeysCofigArray =
+    const allowedKeysConfigArray =
       config.params.children.params?.allowedKeys || [];
 
     const allowedKeys = (config.params.children.params?.allowedKeys || []).map(
@@ -115,7 +116,7 @@ function validateArray(
     };
 
     const valueWithType = value as ItemType[];
-    allowedKeysCofigArray.forEach((allowedKeyConfig) => {
+    allowedKeysConfigArray.forEach((allowedKeyConfig) => {
       if (allowedKeyConfig.params?.unique) {
         const allowedKeyValues = valueWithType.map(
           (item) => item[allowedKeyConfig.name],
@@ -333,7 +334,6 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
         isValid: false,
       };
     }
-
     return {
       isValid: true,
       parsed,
@@ -549,16 +549,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
     };
     if (value === undefined || value === null || value === "") {
-      if (config.params && config.params.required) {
+      if (
+        config.params &&
+        config.params.required &&
+        !isArray(config.params.default)
+      ) {
         invalidResponse.message =
           "This property is required for the widget to function correctly";
         return invalidResponse;
       }
-
       if (value === "") {
         return {
           isValid: true,
           parsed: config.params?.default || [],
+        };
+      }
+      if (config.params && isArray(config.params.default)) {
+        return {
+          isValid: true,
+          parsed: config.params?.default,
         };
       }
 
@@ -623,7 +632,16 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(parsed)) {
-      if (parsed.length === 0) return invalidResponse;
+      if (parsed.length === 0) {
+        if (config.params?.required) {
+          return invalidResponse;
+        } else {
+          return {
+            isValid: true,
+            parsed: config.params?.default || [{}],
+          };
+        }
+      }
 
       for (const [index, parsedEntry] of parsed.entries()) {
         if (!isPlainObject(parsedEntry)) {

@@ -62,7 +62,10 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
+import {
+  getDefaultApplicationId,
+  getUserApplicationsOrgs,
+} from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -231,7 +234,6 @@ function* listenForAddInputWidget() {
             inputWidget.widgetId,
             "widgetName",
             "Standup_Input",
-            RenderModes.CANVAS,
           ),
         );
         yield put(
@@ -284,7 +286,6 @@ function* listenForAddInputWidget() {
               inputWidget.widgetId,
               "onSubmit",
               "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-              RenderModes.CANVAS,
             ),
           );
           AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -706,12 +707,12 @@ function* addWidget(widgetConfig: any) {
       payload: newWidget,
     });
 
-    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
+    const defaultApplicationId = yield select(getDefaultApplicationId);
 
     navigateToCanvas(
       {
-        applicationId,
+        defaultApplicationId,
         pageId,
       },
       window.location.pathname,
@@ -824,12 +825,12 @@ function* addOnSubmitHandler() {
     if (inputWidget) {
       yield delay(1000);
 
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      const defaultApplicationId = yield select(getDefaultApplicationId);
 
       navigateToCanvas(
         {
-          applicationId,
+          defaultApplicationId,
           pageId,
         },
         window.location.pathname,
@@ -847,7 +848,6 @@ function* addOnSubmitHandler() {
           inputWidget.widgetId,
           "onSubmit",
           "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-          RenderModes.CANVAS,
         ),
       );
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -881,7 +881,6 @@ function* addBinding() {
         standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
-        RenderModes.CANVAS,
       ),
     );
 

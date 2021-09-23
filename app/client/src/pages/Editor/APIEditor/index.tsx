@@ -32,7 +32,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { CurrentApplicationData } from "constants/ReduxActionConstants";
 import { getPluginSettingConfigs } from "selectors/entitiesSelector";
 import { SAAS_EDITOR_API_ID_URL } from "../SaaSEditor/constants";
 import history from "utils/history";
@@ -47,7 +47,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isCreating: boolean;
   apiName: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   currentPageName: string | undefined;
   pages: any;
   plugins: Plugin[];
@@ -67,6 +67,11 @@ interface ReduxActionProps {
 function getPageName(pages: any, pageId: string) {
   const page = pages.find((page: any) => page.pageId === pageId);
   return page ? page.pageName : "";
+}
+
+function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
+  const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+  return plugin?.packageName;
 }
 
 type Props = ReduxActionProps &
@@ -222,7 +227,10 @@ class ApiEditor extends React.Component<Props> {
             SAAS_EDITOR_API_ID_URL(
               this.props.match.params.applicationId,
               this.props.match.params.pageId,
-              this.props.plugins[this.props.pluginId]?.packageName ?? "",
+              getPackageNameFromPluginId(
+                this.props.pluginId,
+                this.props.plugins,
+              ) ?? "",
               this.props.match.params.apiId,
             ),
           )}

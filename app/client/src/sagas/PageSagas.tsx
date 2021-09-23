@@ -104,6 +104,7 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
   getFirstTimeUserOnboardingApplicationId,
 } from "selectors/onboardingSelectors";
+import { fetchJSCollectionsForPage } from "actions/jsActionActions";
 
 import WidgetFactory from "utils/WidgetFactory";
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -118,12 +119,16 @@ export function* fetchPageListSaga(
     PerformanceTransactionName.FETCH_PAGE_LIST_API,
   );
   try {
-    const { applicationId, mode } = fetchPageListAction.payload;
+    const { applicationId, branchName, mode } = fetchPageListAction.payload;
     const apiCall =
       mode === APP_MODE.EDIT
         ? PageApi.fetchPageList
         : PageApi.fetchPageListViewMode;
-    const response: FetchPageListResponse = yield call(apiCall, applicationId);
+    const response: FetchPageListResponse = yield call(
+      apiCall,
+      applicationId,
+      branchName,
+    );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const orgId = response.data.organizationId;
@@ -765,7 +770,6 @@ export function* updateWidgetNameSaga(
         const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
-
           yield put(updateWidgetNameSuccess());
           // Add this to the page DSLs for entity explorer
           yield put({
@@ -815,6 +819,8 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
+  yield put(fetchActionsForPage(pageId));
+  yield put(fetchJSCollectionsForPage(pageId));
 }
 
 export function* setDataUrl() {

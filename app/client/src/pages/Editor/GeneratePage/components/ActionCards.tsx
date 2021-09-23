@@ -35,14 +35,19 @@ const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
 };
 
 function ActionCards() {
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { defaultApplicationId, pageId } = useParams<ExplorerURLParams>();
 
   return (
     <>
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
         className="t--BuildFromScratch"
-        onClick={() => routeToEmptyEditorFromGenPage({ applicationId, pageId })}
+        onClick={() =>
+          routeToEmptyEditorFromGenPage({
+            applicationId: defaultApplicationId,
+            pageId,
+          })
+        }
         subTitle={BUILD_FROM_SCRATCH_ACTION_SUBTITLE()}
         title={BUILD_FROM_SCRATCH_ACTION_TITLE()}
       />
@@ -57,7 +62,9 @@ function ActionCards() {
           />
         )}
         className="t--GenerateCRUDPage"
-        onClick={() => goToGenPageForm({ applicationId, pageId })}
+        onClick={() =>
+          goToGenPageForm({ applicationId: defaultApplicationId, pageId })
+        }
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
       />

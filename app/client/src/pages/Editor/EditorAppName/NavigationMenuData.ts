@@ -70,7 +70,9 @@ export const GetNavigationMenuData = ({
     {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(
+          PAGE_LIST_EDITOR_URL(params.defaultApplicationId, params.pageId),
+        );
       },
       type: MenuTypes.MENU,
       isVisible: true,

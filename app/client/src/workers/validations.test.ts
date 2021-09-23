@@ -373,6 +373,7 @@ describe("Validate Validators", () => {
       '{ "key": "value" }',
       ["a", "b", "a", "c"],
       "",
+      "[]",
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -454,6 +455,11 @@ describe("Validate Validators", () => {
         parsed: [],
         message:
           "This property is required for the widget to function correctly",
+      },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
       },
     ];
     inputs.forEach((input, index) => {
@@ -815,6 +821,30 @@ describe("Validate Validators", () => {
     });
   });
 
+  it("correctly validates object array when required is false", () => {
+    const inputs = [[]];
+
+    const config = {
+      type: ValidationTypes.OBJECT_ARRAY,
+      params: {
+        required: false,
+        default: [{ id: 1, name: "alpha" }],
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: [{ id: 1, name: "alpha" }],
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
   it("correctly validates safe URL", () => {
     const config = {
       type: ValidationTypes.SAFE_URL,
@@ -852,6 +882,180 @@ describe("Validate Validators", () => {
 
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly validates array when default is given", () => {
+    const inputs = [undefined, null, ""];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        unique: true,
+        default: [],
+      },
+    };
+    const expected = {
+      isValid: true,
+      parsed: [],
+    };
+    inputs.forEach((input) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected);
+    });
+  });
+  it("correctly validates objects", () => {
+    const inputs = [
+      {
+        label: true,
+        value: "true",
+      },
+      {
+        label: true,
+        value: "true",
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: {
+          label: "true",
+          value: "true",
+        },
+      },
+      {
+        isValid: true,
+        parsed: { label: true, value: "true" },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly validates objects to fail", () => {
+    const inputs = [
+      {
+        labels: true,
+        values: "true",
+      },
+      {
+        label: true,
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: false,
+        parsed: {
+          labels: true,
+          values: "true",
+        },
+        message: "Missing required key: label Missing required key: value",
+      },
+      {
+        isValid: false,
+        message: "Missing required key: value",
+        parsed: { label: true },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
     });
   });

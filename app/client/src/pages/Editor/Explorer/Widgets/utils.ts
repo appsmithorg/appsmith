@@ -9,7 +9,7 @@ export const navigateToCanvas = (
   widgetId: string,
 ) => {
   const canvasEditorURL = `${BUILDER_PAGE_URL(
-    params.applicationId,
+    params.defaultApplicationId,
     widgetPageId,
   )}`;
   if (currentPath !== canvasEditorURL) {

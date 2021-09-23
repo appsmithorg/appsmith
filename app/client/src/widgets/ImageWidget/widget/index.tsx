@@ -18,34 +18,55 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         sectionName: "General",
         children: [
           {
-            helpText: "Renders the url or Base64 in the widget",
+            helpText: "Sets the image to be displayed",
             propertyName: "image",
             label: "Image",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter URL / Base64",
+            placeholderText: "URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
-            helpText: "Renders the url or Base64 when no image is provided",
+            helpText: "Sets the default image to be displayed when load fails",
             propertyName: "defaultImage",
             label: "Default Image",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter URL / Base64",
+            placeholderText: "URL / Base64",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
-            helpText: "Controls the visibility of the widget",
-            propertyName: "isVisible",
-            label: "Visible",
-            controlType: "SWITCH",
+            helpText:
+              "Sets how the Image should be resized to fit its container.",
+            propertyName: "objectFit",
+            label: "Object Fit",
+            controlType: "DROP_DOWN",
+            defaultValue: "contain",
+            options: [
+              {
+                label: "Contain",
+                value: "contain",
+              },
+              {
+                label: "Cover",
+                value: "cover",
+              },
+              {
+                label: "Auto",
+                value: "auto",
+              },
+            ],
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["contain", "cover", "auto"],
+              },
+            },
           },
           {
             helpText: "Controls the max zoom of the widget",
@@ -83,35 +104,14 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             },
           },
           {
-            helpText:
-              "Sets how the Image should be resized to fit its container.",
-            propertyName: "objectFit",
-            label: "Object Fit",
-            controlType: "DROP_DOWN",
-            defaultValue: "contain",
-            options: [
-              {
-                label: "Contain",
-                value: "contain",
-              },
-              {
-                label: "Cover",
-                value: "cover",
-              },
-              {
-                label: "Auto",
-                value: "auto",
-              },
-            ],
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["contain", "cover", "auto"],
-              },
-            },
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             helpText: "Controls if the image is allowed to rotate",

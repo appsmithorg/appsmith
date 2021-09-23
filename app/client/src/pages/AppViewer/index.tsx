@@ -17,7 +17,6 @@ import { getIsInitialized } from "selectors/appViewSelectors";
 import { executeTrigger } from "actions/widgetActions";
 import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { updateWidgetPropertyRequest } from "actions/controlActions";
-import { RenderModes } from "constants/WidgetConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import {
@@ -61,7 +60,11 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 `;
 
 export type AppViewerProps = {
-  initializeAppViewer: (applicationId: string, pageId?: string) => void;
+  initializeAppViewer: (params: {
+    defaultApplicationId: string;
+    pageId?: string;
+    branchName?: string;
+  }) => void;
   isInitialized: boolean;
   isInitializeError: boolean;
   executeAction: (actionPayload: ExecuteTriggerPayload) => void;
@@ -80,9 +83,9 @@ export type AppViewerProps = {
   lightTheme: Theme;
 } & RouteComponentProps<BuilderRouteParams>;
 
-class AppViewer extends Component<
-  AppViewerProps & RouteComponentProps<AppViewerRouteParams>
-> {
+type Props = AppViewerProps & RouteComponentProps<AppViewerRouteParams>;
+
+class AppViewer extends Component<Props> {
   public state = {
     registered: false,
     isSideNavOpen: true,
@@ -91,10 +94,39 @@ class AppViewer extends Component<
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId, pageId } = this.props.match.params;
-    log.debug({ applicationId, pageId });
-    if (applicationId) {
-      this.props.initializeAppViewer(applicationId, pageId);
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
+    log.debug({ defaultApplicationId, pageId });
+    if (defaultApplicationId) {
+      this.props.initializeAppViewer({
+        branchName,
+        defaultApplicationId,
+        pageId,
+      });
+    }
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
+    const { branchName: prevBranchName } = prevProps.match.params || {};
+    if (
+      branchName &&
+      branchName !== prevBranchName &&
+      defaultApplicationId &&
+      pageId
+    ) {
+      this.props.initializeAppViewer({
+        defaultApplicationId,
+        pageId,
+        branchName,
+      });
     }
   }
 
@@ -159,12 +191,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     propertyValue: any,
   ) =>
     dispatch(
-      updateWidgetPropertyRequest(
-        widgetId,
-        propertyName,
-        propertyValue,
-        RenderModes.PAGE,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
     ),
   updateWidgetMetaProperty: (
     widgetId: string,
@@ -174,10 +201,14 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(updateWidgetMetaProperty(widgetId, propertyName, propertyValue)),
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
-  initializeAppViewer: (applicationId: string, pageId?: string) => {
+  initializeAppViewer: (params: {
+    defaultApplicationId: string;
+    pageId?: string;
+    branchName?: string;
+  }) => {
     dispatch({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
-      payload: { applicationId, pageId },
+      payload: params,
     });
   },
 });
