@@ -12,7 +12,7 @@ import SwitchGroupComponent, { OptionProps } from "../component";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
-function defaultSelectedValuesValidation(
+export function defaultSelectedValuesValidation(
   value: unknown,
   props: SwitchGroupWidgetProps,
 ): ValidationResponse {
