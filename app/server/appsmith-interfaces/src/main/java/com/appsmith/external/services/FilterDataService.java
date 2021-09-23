@@ -223,7 +223,7 @@ public class FilterDataService {
                     valueBuilder.append(finalValues);
                 } catch (IOException e) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                            value + " could not parsed into an array");
+                            value + " could not be parsed into an array");
                 }
 
                 valueBuilder.append(")");
@@ -563,8 +563,8 @@ public class FilterDataService {
                 .map(condition -> {
                     if (!Condition.isValid(condition)) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Condition for filtering was incomplete or incorrect : " + condition.getPath() +
-                                        condition.getOperator().toString() + condition.getValue());
+                                "Condition \" " + condition.getPath() + " " + condition.getOperator().toString() + " "
+                                        + condition.getValue() + " \" is incorrect and could not be parsed.");
                     }
 
                     String path = condition.getPath();
