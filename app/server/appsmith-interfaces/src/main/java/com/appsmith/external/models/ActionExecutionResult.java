@@ -2,6 +2,7 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public class ActionExecutionResult {
     String errorType;
     JsonNode headers;
     Object body;
+    String readableError;
     Boolean isExecutionSuccess = false;
 
     /*
@@ -36,7 +38,7 @@ public class ActionExecutionResult {
 
     List<WidgetSuggestionDTO> suggestedWidgets;
 
-    public void setErrorInfo(Throwable error) {
+    public void setErrorInfo(Throwable error, AppsmithPluginErrorUtils pluginErrorUtils) {
         this.body = error.getMessage();
 
         if (error instanceof AppsmithPluginException) {
@@ -47,5 +49,15 @@ public class ActionExecutionResult {
             this.statusCode = ((BaseException) error).getAppErrorCode().toString();
             this.title = ((BaseException) error).getTitle();
         }
+
+        if (pluginErrorUtils == null) {
+            return;
+        }
+
+        this.readableError = pluginErrorUtils.getReadableError(error);
+    }
+
+    public void setErrorInfo(Throwable error) {
+        this.setErrorInfo(error, null);
     }
 }

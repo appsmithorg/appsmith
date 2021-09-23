@@ -24,6 +24,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.utils.MongoErrorUtils;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoCommandException;
@@ -65,13 +66,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
-import static com.external.plugins.MongoPluginUtils.convertMongoFormInputToRawCommand;
-import static com.external.plugins.MongoPluginUtils.generateTemplatesAndStructureForACollection;
-import static com.external.plugins.MongoPluginUtils.getDatabaseName;
+import static com.external.plugins.utils.MongoPluginUtils.convertMongoFormInputToRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.generateTemplatesAndStructureForACollection;
+import static com.external.plugins.utils.MongoPluginUtils.getDatabaseName;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.MongoPluginUtils.isRawCommand;
+import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
-import static com.external.plugins.MongoPluginUtils.urlEncode;
+import static com.external.plugins.utils.MongoPluginUtils.urlEncode;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static com.external.plugins.constants.FieldName.AGGREGATE_PIPELINE;
 import static com.external.plugins.constants.FieldName.COUNT_QUERY;
@@ -275,10 +276,12 @@ public class MongoPlugin extends BasePlugin {
                     )
                     .onErrorMap(
                             MongoCommandException.class,
-                            error -> new AppsmithPluginException(
+                            error -> {
+                                MongoCommandException e = error;
+                                return new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
-                            )
+                            );}
                     )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
@@ -383,7 +386,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setIsExecutionSuccess(false);
-                        actionExecutionResult.setErrorInfo(error);
+                        actionExecutionResult.setErrorInfo(error, new MongoErrorUtils());
                         return Mono.just(actionExecutionResult);
                     })
                     // Now set the request in the result to be returned back to the server
