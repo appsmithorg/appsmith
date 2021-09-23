@@ -106,25 +106,6 @@ jobs:
         working-directory: app/server
 
     runs-on: ubuntu-latest
-    # Only run this workflow for internally triggered events
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request_review' && github.event.review.state == 'approved')
-
-    # Service containers to run with this job. Required for running tests
-    services:
-      # Label used to access the service container
-      redis:
-        # Docker Hub image for Redis
-        image: redis
-        ports:
-          # Opens tcp port 6379 on the host and service container
-          - 6379:6379
-      mongo:
-        image: mongo
-        ports:
-          - 27017:27017
 
     steps:
       - name: Checkout the code
