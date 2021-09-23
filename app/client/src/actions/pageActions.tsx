@@ -58,7 +58,7 @@ export const fetchPageList = (
 };
 
 export const fetchPage = (
-  { pageId }: { pageId: string },
+  pageId: string,
   isFirstLoad = false,
 ): ReduxAction<FetchPageRequest> => {
   return {

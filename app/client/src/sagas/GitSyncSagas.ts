@@ -31,8 +31,8 @@ import {
 } from "constants/messages";
 import history from "utils/history";
 import {
-  addOrReplaceBranch,
   extractBranchNameFromPath,
+  getDefaultPathForBranch,
 } from "constants/routes";
 
 function* commitToGitRepoSaga(
@@ -81,10 +81,10 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       const branchName = response?.data?.gitApplicationMetadata?.branchName;
 
       if (currentBranchName !== branchName) {
-        const updatedPath = addOrReplaceBranch(
+        const updatedPath = getDefaultPathForBranch({
+          applicationId,
           branchName,
-          window.location.pathname,
-        );
+        });
         history.push(updatedPath);
       }
     }
@@ -148,10 +148,10 @@ function* switchBranch(action: ReduxAction<string>) {
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const updatedPath = addOrReplaceBranch(
+      const updatedPath = getDefaultPathForBranch({
         branchName,
-        window.location.pathname,
-      );
+        applicationId,
+      });
       history.push(updatedPath);
     }
   } catch (e) {

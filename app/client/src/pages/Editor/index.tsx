@@ -54,7 +54,7 @@ type EditorProps = {
   lightTheme: Theme;
   resetEditorRequest: () => void;
   handlePathUpdated: (location: typeof window.location) => void;
-  fetchPage: (params: { pageId: string }) => void;
+  fetchPage: (pageId: string) => void;
   updateCurrentPage: (pageId: string) => void;
   handleBranchChange: (branchName: string) => void;
 };
@@ -73,7 +73,7 @@ class Editor extends Component<Props> {
       this.setState({ registered: true });
     });
     const { applicationId, branchName, pageId } = this.props.match.params;
-    if (applicationId && pageId) {
+    if (applicationId) {
       this.props.initEditor(applicationId, pageId, branchName);
     }
     this.props.handlePathUpdated(window.location);
@@ -104,18 +104,13 @@ class Editor extends Component<Props> {
     const { pageId: prevPageId } = prevProps.match.params || {};
 
     const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (
-      branchName &&
-      branchName !== prevBranchName &&
-      applicationId &&
-      pageId
-    ) {
+    if (branchName && branchName !== prevBranchName && applicationId) {
       this.props.initEditor(applicationId, pageId, branchName);
     } else {
       // since the page is fetched in the init flow too
       if (pageId && pageId !== prevPageId) {
         this.props.updateCurrentPage(pageId);
-        this.props.fetchPage({ pageId });
+        this.props.fetchPage(pageId);
       }
     }
   }
@@ -191,7 +186,7 @@ const mapDispatchToProps = (dispatch: any) => {
     resetEditorRequest: () => dispatch(resetEditorRequest()),
     handlePathUpdated: (location: typeof window.location) =>
       dispatch(handlePathUpdated(location)),
-    fetchPage: (params: { pageId: string }) => dispatch(fetchPage(params)),
+    fetchPage: (pageId: string) => dispatch(fetchPage(pageId)),
     updateCurrentPage: (pageId: string) => dispatch(updateCurrentPage(pageId)),
   };
 };

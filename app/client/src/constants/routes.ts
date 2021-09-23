@@ -1,4 +1,6 @@
-const { match } = require("path-to-regexp");
+import { APP_MODE } from "entities/App";
+
+const { compile, match } = require("path-to-regexp");
 
 export const BASE_URL = "/";
 export const ORG_URL = "/org";
@@ -7,7 +9,7 @@ export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
 
 export const BRANCH_PATH_PREFIX = `/(branch)?/:branchName(.*)?`;
-export const BUILDER_URL = `${BRANCH_PATH_PREFIX}/applications/:applicationId/pages/:pageId/edit`;
+export const BUILDER_URL = `${BRANCH_PATH_PREFIX}/applications/:applicationId/(pages)?/:pageId?/edit`;
 export const VIEWER_URL = `${BRANCH_PATH_PREFIX}/applications/:applicationId/pages/:pageId`;
 export const USER_AUTH_URL = "/user";
 export const PROFILE = "/profile";
@@ -31,9 +33,16 @@ export const GENERATE_TEMPLATE_PATH = `${BUILDER_URL}${GEN_TEMPLATE_URL}`;
 export const GEN_TEMPLATE_FORM_ROUTE = "/form";
 export const GENERATE_TEMPLATE_FORM_PATH = `${GENERATE_TEMPLATE_PATH}${GEN_TEMPLATE_FORM_ROUTE}`;
 
+export const compileBuilderUrl = compile(BUILDER_URL);
+
 export const addOrReplaceBranch = (branchName: string, currentPath: string) => {
   const regEx = /(.*)\/applications/;
   return currentPath.replace(regEx, `/branch/${branchName}/applications`);
+};
+
+// eslint-disable-next-line
+export const getDefaultPathForBranch = (params: any, mode?: APP_MODE) => {
+  return `/branch/${params.branchName}/applications/${params.applicationId}/edit`;
 };
 
 // for extracting branchName from the pathname
@@ -47,10 +56,12 @@ export const extractBranchNameFromPath = () => {
 
 export const addBranchPath = (path: string, branchName?: string) => {
   const branchNameFromPath = extractBranchNameFromPath();
-
-  return !(branchName || branchNameFromPath)
+  const calcBranchName = branchName || branchNameFromPath;
+  const includeSeparator = !path.startsWith("/");
+  const separator = includeSeparator ? "/" : "";
+  return !calcBranchName
     ? path
-    : `/branch/${branchName}/${path}`;
+    : `/branch/${calcBranchName}${separator}${path}`;
 };
 
 export type BuilderRouteParams = {
@@ -99,11 +110,13 @@ export const BUILDER_PAGE_URL = (
   applicationId?: string,
   pageId?: string,
   params?: Record<string, string>,
+  branchName?: string,
 ): string => {
   if (!pageId) return APPLICATIONS_URL;
   const queryString = convertToQueryParams(params);
   return addBranchPath(
     `${BUILDER_BASE_URL(applicationId)}/pages/${pageId}/edit` + queryString,
+    branchName,
   );
 };
 

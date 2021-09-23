@@ -56,6 +56,8 @@ import { getIsEditorInitialized } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
+import { BUILDER_PAGE_URL } from "constants/routes";
+import history from "utils/history";
 
 function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -110,29 +112,52 @@ function* initializeEditorSaga(
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
         fetchPageList({ applicationId, branchName }, APP_MODE.EDIT),
-        fetchPage({ pageId }, true),
         fetchApplication({
           payload: { applicationId, branchName, mode: APP_MODE.EDIT },
         }),
       ],
       [
         ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        ReduxActionTypes.FETCH_PAGE_SUCCESS,
         ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       ],
       [
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        ReduxActionErrorTypes.FETCH_PAGE_ERROR,
         ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
       ],
     );
+
     if (!applicationAndLayoutCalls) return;
+
+    const defaultPageId = yield select(getDefaultPageId);
+    const toLoadPageId = pageId || defaultPageId;
+
+    if (!pageId) {
+      const pathname = BUILDER_PAGE_URL(
+        applicationId,
+        toLoadPageId,
+        {},
+        branchName,
+      );
+
+      history.replace({
+        ...window.location,
+        pathname,
+      });
+    }
+
+    if (!toLoadPageId) return;
+    const fetchPageCallResult = yield failFastApiCalls(
+      [fetchPage(toLoadPageId, true)],
+      [ReduxActionTypes.FETCH_PAGE_SUCCESS],
+      [ReduxActionErrorTypes.FETCH_PAGE_ERROR],
+    );
+    if (!fetchPageCallResult) return;
+
     const jsActionsCall = yield failFastApiCalls(
       [fetchJSCollections({ applicationId, branchName })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
-
     if (!jsActionsCall) return;
     const pluginsAndDatasourcesCalls = yield failFastApiCalls(
       [fetchPlugins(), fetchDatasources(), fetchMockDatasources()],
