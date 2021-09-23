@@ -138,7 +138,7 @@ or Alternatively by,
 
 After this You can continue Setting up from [here](#pre-requisites).
 
-### Running Tests for Client
+### Running Tests on Client
 
 1. In order to run the Cypress integration tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
