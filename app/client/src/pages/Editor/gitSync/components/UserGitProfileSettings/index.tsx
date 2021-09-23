@@ -7,7 +7,7 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import TextInput from "components/ads/TextInput";
+import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 
 const LabelContainer = styled.div`
@@ -112,12 +112,13 @@ function UserGitProfileSettings({
           <InputContainer>
             <TextInput
               dataType="email"
+              defaultValue={authorInfo.authorEmail}
               disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)
               }
-              value={authorInfo.authorEmail}
+              validator={emailValidator}
             />
           </InputContainer>
         </>
