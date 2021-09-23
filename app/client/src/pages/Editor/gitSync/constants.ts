@@ -2,17 +2,13 @@ import {
   createMessage,
   GIT_CONNECTION,
   DEPLOY,
-  MERGE,
-  // SHARE_APPLICATION,
-  // SETTINGS,
+  // MERGE,
 } from "constants/messages";
 
 export enum MENU_ITEM {
   GIT_CONNECTION = "GIT_CONNECTION",
   DEPLOY = "DEPLOY",
   MERGE = "MERGE",
-  // SHARE_APPLICATION = "SHARE_APPLICATION",
-  // SETTINGS = "SETTINGS",
 }
 
 export const MENU_ITEMS_MAP = {
@@ -21,9 +17,8 @@ export const MENU_ITEMS_MAP = {
     title: createMessage(GIT_CONNECTION),
   },
   [MENU_ITEM.DEPLOY]: { key: MENU_ITEM.DEPLOY, title: createMessage(DEPLOY) },
-  [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
-  // [MENU_ITEM.SHARE_APPLICATION]:  createMessage(SHARE_APPLICATION),
-  // [MENU_ITEM.SETTINGS]: createMessage(SETTINGS),
+  // [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
+  // Hide Merge Tab till basic functionality is not ready
 };
 
 export enum AUTH_TYPE {
