@@ -103,6 +103,10 @@ import MultiSelectTreeWidget, {
   CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
 } from "widgets/MultiSelectTreeWidget";
 
+import CameraWidget, {
+  CONFIG as CAMERA_WIDGET_CONFIG,
+} from "widgets/CameraWidget";
+
 export const registerWidgets = () => {
   const start = performance.now();
   registerWidget(CanvasWidget, CANVAS_WIDGET_CONFIG);
@@ -143,6 +147,7 @@ export const registerWidgets = () => {
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
   registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
   registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(CameraWidget, CAMERA_WIDGET_CONFIG);
 
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };

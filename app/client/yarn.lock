@@ -15559,6 +15559,11 @@ react-virtuoso@^1.9.0:
     react-app-polyfill "^1.0.6"
     resize-observer-polyfill "^1.5.1"
 
+react-webcam@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/react-webcam/-/react-webcam-6.0.0.tgz#46dd9ba44cebe6bf3cc4ea2ff09d12243900abfa"
+  integrity sha512-pw7067WYnDHRjAXYXrsLeig9/AAxCFDnnaEJzZ5ep6UZoYMqF4UNRtVkeTk0LotpwqT/c8vHisn/+QodNbUsQA==
+
 react-window@^1.8.2:
   version "1.8.5"
   resolved "https://registry.npmjs.org/react-window/-/react-window-1.8.5.tgz"
