@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Datasource;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.OrganizationPlugin;
 import com.appsmith.server.domains.Plugin;
@@ -183,6 +183,22 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
 
         return storeOrganizationPlugin(pluginOrgDTO, pluginOrgDTO.getStatus())
                 .switchIfEmpty(Mono.empty());
+    }
+
+    @Override
+    public Flux<Organization> installDefaultPlugins(List<Plugin> plugins) {
+        final List<OrganizationPlugin> newOrganizationPlugins = plugins
+                .stream()
+                .filter(plugin -> Boolean.TRUE.equals(plugin.getDefaultInstall()))
+                .map(plugin -> {
+                    return new OrganizationPlugin(plugin.getId(), OrganizationPluginStatus.ACTIVATED);
+                })
+                .collect(Collectors.toList());
+        return organizationService.getAll()
+                .flatMap(organization -> {
+                    organization.getPlugins().addAll(newOrganizationPlugins);
+                    return organizationService.save(organization);
+                });
     }
 
     @Override
@@ -626,6 +642,16 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
         });
     }
 
+    @Override
+    public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
+        return repository.saveAll(plugins);
+    }
+
+    @Override
+    public Flux<Plugin> getAllRemotePlugins() {
+        return repository.findByType(PluginType.REMOTE);
+    }
+
     private Map loadPluginResourceGivenPlugin(Plugin plugin, String resourcePath) {
         InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
@@ -649,8 +675,21 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId)
                 .map(plugin -> {
-                    if (resourcePath.equals("editor.json") && plugin.getUiComponent().equals(UQI_DB_EDITOR_FORM)) {
-                        return loadEditorPluginResourceUqi(plugin);
+                    if ("editor.json".equals(resourcePath)) {
+                        // UI config will be available if this plugin is sourced from the cloud
+                        if (plugin.getActionUiConfig() != null) {
+                            return plugin.getActionUiConfig();
+                        }
+                        // For UQI, use another format of loading the config
+                        if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
+                            return loadEditorPluginResourceUqi(plugin);
+                        }
+                    }
+                    if ("form.json".equals(resourcePath)) {
+                        // UI config will be available if this plugin is sourced from the cloud
+                        if (plugin.getDatasourceUiConfig() != null) {
+                            return plugin.getDatasourceUiConfig();
+                        }
                     }
                     return loadPluginResourceGivenPlugin(plugin, resourcePath);
                 });

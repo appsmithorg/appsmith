@@ -71,7 +71,6 @@ class MultiSelectWidget extends BaseWidget<
                         name: "label",
                         type: ValidationTypes.TEXT,
                         params: {
-                          default: "",
                           required: true,
                         },
                       },
@@ -79,7 +78,6 @@ class MultiSelectWidget extends BaseWidget<
                         name: "value",
                         type: ValidationTypes.TEXT,
                         params: {
-                          default: "",
                           required: true,
                         },
                       },
