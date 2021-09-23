@@ -10,7 +10,7 @@ import {
 } from "constants/messages";
 import styled from "styled-components";
 import TextInput from "components/ads/TextInput";
-import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
+// import { ReactComponent as LinkSvg } from "assets/icons/ads/link_2.svg";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
@@ -34,8 +34,6 @@ import {
 } from "actions/gitSyncActions";
 import DirectDeploy from "../components/DirectDeploy";
 import TooltipComponent from "components/ads/Tooltip";
-// import { Classes } from "@blueprintjs/core";
-
 export const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
@@ -143,13 +141,11 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-// const TooltipWrapper = styled.div`
-//   &&&& .${Classes.POPOVER_WRAPPER} {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//   }
-// `;
+const TooltipWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 const Section = styled.div``;
 
@@ -260,10 +256,21 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const placeholderText = "Paste Your Git SSH URL";
 
+  const isAuthorInfoUpdated = () => {
+    return (
+      authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail &&
+      authorInfo.authorName !== initialAuthorInfoRef.current.authorName
+    );
+  };
+
+  const isRemoteUrlUpdated = () => {
+    return remoteUrl !== remoteUrlInStore;
+  };
+
   const onSubmit = () => {
     // Also check if isDefaultProfile switch is changed
     // For this we will need to store `isDefaultProfile` in backend
-    if (isGitConnected && remoteUrl === remoteUrlInStore) {
+    if (isGitConnected && isAuthorInfoUpdated() && !isRemoteUrlUpdated()) {
       // just update local config
     } else {
       connectToGit({
@@ -289,13 +296,16 @@ function GitConnection({ isImport, onSuccess }: Props) {
   const remoteUrlIsValid = (value: string) => value.startsWith(HTTP_LITERAL);
 
   const submitButtonDisabled =
-    !authorInfo.authorEmail || !authorInfo.authorName;
+    !authorInfo.authorEmail ||
+    !authorInfo.authorName ||
+    (isGitConnected && useGlobalConfig);
 
   const isGlobalConfigDefined = !!(
     globalGitConfig.authorEmail && globalGitConfig.authorName
   );
 
   useEffect(() => {
+    // OnMount fetch global and local config
     dispatch(fetchGlobalGitConfigInit());
     dispatch(fetchLocalGitConfigInit());
   }, []);
@@ -303,11 +313,6 @@ function GitConnection({ isImport, onSuccess }: Props) {
   const showDirectDeployOption = !SSHKeyPair && !remoteUrl;
 
   const toggleHandler = () => {
-    if (!useGlobalConfig) {
-      setAuthorInfo(globalGitConfig);
-    } else {
-      setAuthorInfo(localGitConfig);
-    }
     setUseGlobalConfig(!useGlobalConfig);
   };
 
@@ -336,7 +341,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
               value={remoteUrl}
             />
           </UrlInputContainer>
-          <TooltipComponent content="Unlink">
+          {/* <TooltipComponent content="Unlink">
             <Icon
               color={Colors.DARK_GRAY}
               hoverColor={Colors.GRAY2}
@@ -345,7 +350,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
             >
               <LinkSvg />
             </Icon>
-          </TooltipComponent>
+          </TooltipComponent> */}
         </UrlContainer>
 
         {!SSHKeyPair ? (
@@ -387,20 +392,20 @@ function GitConnection({ isImport, onSuccess }: Props) {
                   <TickSvg />
                 </Icon>
               ) : (
-                <Icon
-                  color={Colors.DARK_GRAY}
-                  hoverColor={Colors.GRAY2}
-                  marginOffset={3}
-                  onClick={copyToClipboard}
-                  size="22px"
-                >
-                  <CopySvg />
-                </Icon>
-              )}
-              {/* 
-              <TooltipComponent content="Copy Key"> 
+                <TooltipWrapper>
+                  <TooltipComponent content="Copy Key">
+                    <Icon
+                      color={Colors.DARK_GRAY}
+                      hoverColor={Colors.GRAY2}
+                      marginOffset={3}
+                      onClick={copyToClipboard}
+                      size="22px"
+                    >
+                      <CopySvg />
+                    </Icon>
                   </TooltipComponent>
-              */}
+                </TooltipWrapper>
+              )}
             </FlexRow>
             <span>
               {createMessage(DEPLOY_KEY_USAGE_GUIDE_MESSAGE)}
@@ -430,7 +435,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
           <Space size={7} />
           <UserGitProfileSettings
             authType={selectedAuthType.label || ""}
-            authorInfo={authorInfo}
+            authorInfo={useGlobalConfig ? globalGitConfig : authorInfo}
             disabled={useGlobalConfig}
             setAuthorInfo={setAuthorInfo}
           />
@@ -443,10 +448,6 @@ function GitConnection({ isImport, onSuccess }: Props) {
               tag="button"
               text={isGitConnected ? "UPDATE" : "CONNECT"}
             />
-            {/* <Text className="" type={TextType.P3}>
-             // Show message when user config if modified
-              User settings will be auto-saved.
-            </Text> */}
           </ButtonContainer>
         </>
       ) : (
