@@ -211,9 +211,7 @@ class TernServer {
       });
     }
 
-    completions = this.filterDataTreeFunctions(completions);
-
-    completions = this.sortCompletions(
+    completions = this.sortAndFilterCompletions(
       completions,
       onlySingleBinding,
       searchText,
@@ -282,24 +280,7 @@ class TernServer {
     });
   }
 
-  filterDataTreeFunctions(completions: Completion[]) {
-    let filteredCompletions = completions;
-    const functions = getDataTreeFunctions();
-    const { entityType } = this.fieldEntityInformation;
-
-    if (
-      entityType &&
-      [ENTITY_TYPE.APPSMITH, ENTITY_TYPE.WIDGET].includes(entityType)
-    ) {
-      filteredCompletions = completions.filter(
-        (completion) => !functions.includes(completion.text.replace("()", "")),
-      );
-    }
-
-    return filteredCompletions;
-  }
-
-  sortCompletions(
+  sortAndFilterCompletions(
     completions: Completion[],
     findBestMatch: boolean,
     bestMatchSearch: string,
@@ -335,14 +316,17 @@ class TernServer {
             if (completion.type === expectedType) {
               completionType.MATCHING_TYPE.push(completion);
             }
-          } else if (
-            completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS" &&
-            completion.type === expectedType
-          ) {
-            // Global functions should be in best match as well as DataTree
-            completionType.MATCHING_TYPE.push(completion);
-            completionType.DATA_TREE.push(completion);
-          } else {
+          } else if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS") {
+            // We only add function if the entity type is action
+            if (
+              entityType &&
+              [ENTITY_TYPE.WIDGET, ENTITY_TYPE.APPSMITH].includes(entityType)
+            ) {
+              // Global functions should be in best match as well as DataTree
+              completionType.MATCHING_TYPE.push(completion);
+              completionType.DATA_TREE.push(completion);
+            }
+          } else if (completion.type === expectedType) {
             // All top level entities are set in data tree
             completionType.DATA_TREE.push(completion);
           }
