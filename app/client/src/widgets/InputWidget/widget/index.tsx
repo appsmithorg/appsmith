@@ -167,7 +167,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           },
           {
             helpText: "Changes the type of currency",
-            propertyName: "defaultCurrencyCountryCode",
+            propertyName: "currencyCountryCode",
             label: "Currency",
             enableSearch: true,
             dropdownHeight: "195px",
@@ -565,7 +565,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         })()
       }}`,
       countryCode: `{{this.selectedPhoneNumberCountryCode ? this.selectedPhoneNumberCountryCode : this.phoneNumberCountryCode}}`,
-      currencyCountryCode: `{{this.selectedCurrencyCountryCode ? this.selectedCurrencyCountryCode : this.defaultCurrencyCountryCode}}`,
+      currencyCode: `{{this.selectedCurrencyCountryCode ? this.selectedCurrencyCountryCode : this.currencyCountryCode}}`,
       value: `{{this.text}}`,
     };
   }
@@ -600,30 +600,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   };
 
   onCurrencyTypeChange = (code?: string) => {
-    const currencyCountryCode = code;
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty(
-        "defaultCurrencyCountryCode",
-        currencyCountryCode,
-      );
-    } else {
-      this.props.updateWidgetMetaProperty(
-        "selectedCurrencyCountryCode",
-        currencyCountryCode,
-      );
-    }
+    this.props.updateWidgetMetaProperty("selectedCurrencyCountryCode", code);
   };
 
   onISDCodeChange = (code?: string) => {
-    const countryCode = code;
-    if (this.props.renderMode === RenderModes.CANVAS) {
-      super.updateWidgetProperty("phoneNumberCountryCode", countryCode);
-    } else {
-      this.props.updateWidgetMetaProperty(
-        "selectedPhoneNumberCountryCode",
-        countryCode,
-      );
-    }
+    this.props.updateWidgetMetaProperty("selectedPhoneNumberCountryCode", code);
   };
 
   handleFocusChange = (focusState: boolean) => {
@@ -677,12 +658,6 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     const value = this.props.text ?? "";
     let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const currencyCountryCode = this.props.selectedCurrencyCountryCode
-      ? this.props.selectedCurrencyCountryCode
-      : this.props.currencyCountryCode;
-    const phoneNumberCountryCode = this.props.selectedPhoneNumberCountryCode
-      ? this.props.selectedPhoneNumberCountryCode
-      : this.props.phoneNumberCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
@@ -722,7 +697,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
               1 && this.props.inputType === "TEXT"
           )
         }
-        currencyCountryCode={currencyCountryCode}
+        currencyCountryCode={this.props.currencyCode}
         decimalsInCurrency={this.props.decimalsInCurrency}
         defaultValue={this.props.defaultText}
         disableNewLineOnPressEnterKey={!!this.props.onSubmit}
@@ -746,7 +721,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         onISDCodeChange={this.onISDCodeChange}
         onKeyDown={this.handleKeyDown}
         onValueChange={this.onValueChange}
-        phoneNumberCountryCode={phoneNumberCountryCode}
+        phoneNumberCountryCode={this.props.countryCode}
         placeholder={this.props.placeholderText}
         showError={!!this.props.isFocused}
         stepSize={1}
@@ -774,7 +749,7 @@ export interface InputWidgetProps extends WidgetProps {
   allowCurrencyChange?: boolean;
   phoneNumberCountryCode?: string;
   countryCode?: string;
-  defaultCurrencyCountryCode?: string;
+  currencyCode?: string;
   decimalsInCurrency?: number;
   defaultText?: string | number;
   tooltip?: string;

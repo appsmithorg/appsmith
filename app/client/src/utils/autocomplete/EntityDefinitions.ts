@@ -66,9 +66,9 @@ export const entityDefinitions: Record<string, unknown> = {
       "!type": "string",
       "!doc": "Selected country code for Phone Number type input",
     },
-    currencyCountryCode: {
+    currencyCode: {
       "!type": "string",
-      "!doc": "Selected country code for Currency type input",
+      "!doc": "Selected currency code for Currency type input",
     },
   },
   TABLE_WIDGET: (widget: any) => ({
