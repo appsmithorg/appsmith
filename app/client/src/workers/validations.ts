@@ -303,16 +303,17 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     const isValid = isString(parsed);
+    const stringValidationError = {
+      isValid: false,
+      parsed: config.params?.default || "",
+      message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
+    };
     if (!isValid) {
       try {
         if (!config.params?.strict) parsed = toString(parsed);
-        else throw Error("");
+        else return stringValidationError;
       } catch (e) {
-        return {
-          isValid: false,
-          parsed: config.params?.default || "",
-          message: `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
-        };
+        return stringValidationError;
       }
     }
     // If the value is an empty string we skip
