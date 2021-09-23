@@ -360,7 +360,14 @@ function PopoverContent(props: PopoverContentProps) {
   const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const { errors, hasError, onMouseEnter, onMouseLeave, theme } = props;
+  const {
+    errors,
+    expected,
+    hasError,
+    onMouseEnter,
+    onMouseLeave,
+    theme,
+  } = props;
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
@@ -375,7 +382,11 @@ function PopoverContent(props: PopoverContentProps) {
     >
       {hasError && error && (
         <ErrorText>
-          <span className="t--evaluatedPopup-error">{error.errorMessage}</span>
+          <span className="t--evaluatedPopup-error">
+            {/* errorMessage could be an empty string */}
+            {error.errorMessage ||
+              `This value does not evaluate to type "${expected?.type}".`}
+          </span>
           <EvaluatedValueDebugButton
             entity={props.entity}
             error={{ type: error.errorType, message: error.errorMessage }}
