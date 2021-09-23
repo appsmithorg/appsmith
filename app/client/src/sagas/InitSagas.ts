@@ -96,7 +96,11 @@ function* failFastApiCalls(
 function* initializeEditorSaga(
   initializeEditorAction: ReduxAction<InitializeEditorPayload>,
 ) {
-  const { applicationId, branchName, pageId } = initializeEditorAction.payload;
+  const {
+    branchName,
+    defaultApplicationId,
+    pageId,
+  } = initializeEditorAction.payload;
   try {
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -104,16 +108,23 @@ function* initializeEditorSaga(
     yield put(setAppMode(APP_MODE.EDIT));
     yield put(
       updateAppPersistentStore(
-        getPersistentAppStore(applicationId, branchName),
+        getPersistentAppStore(defaultApplicationId, branchName),
       ),
     );
     yield put({ type: ReduxActionTypes.START_EVALUATION });
 
     const applicationAndLayoutCalls = yield failFastApiCalls(
       [
-        fetchPageList({ applicationId, branchName }, APP_MODE.EDIT),
+        fetchPageList(
+          { applicationId: defaultApplicationId, branchName },
+          APP_MODE.EDIT,
+        ),
         fetchApplication({
-          payload: { applicationId, branchName, mode: APP_MODE.EDIT },
+          payload: {
+            applicationId: defaultApplicationId,
+            branchName,
+            mode: APP_MODE.EDIT,
+          },
         }),
       ],
       [
@@ -133,7 +144,7 @@ function* initializeEditorSaga(
 
     if (!pageId) {
       const pathname = BUILDER_PAGE_URL(
-        applicationId,
+        defaultApplicationId,
         toLoadPageId,
         {},
         branchName,
@@ -154,7 +165,7 @@ function* initializeEditorSaga(
     if (!fetchPageCallResult) return;
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollections({ applicationId, branchName })],
+      [fetchJSCollections({ applicationId: defaultApplicationId, branchName })],
       [ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR],
     );
@@ -182,7 +193,11 @@ function* initializeEditorSaga(
     if (!pluginFormCall) return;
 
     const actionsCall = yield failFastApiCalls(
-      [fetchActions({ applicationId, branchName }, [executePageLoadActions()])],
+      [
+        fetchActions({ applicationId: defaultApplicationId, branchName }, [
+          executePageLoadActions(),
+        ]),
+      ],
       [ReduxActionTypes.FETCH_ACTIONS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_ACTIONS_ERROR],
     );
@@ -194,7 +209,12 @@ function* initializeEditorSaga(
     const appName = currentApplication ? currentApplication.name : "";
     const appId = currentApplication ? currentApplication.id : "";
 
-    yield put(restoreRecentEntitiesRequest({ applicationId, branchName }));
+    yield put(
+      restoreRecentEntitiesRequest({
+        applicationId: defaultApplicationId,
+        branchName,
+      }),
+    );
 
     yield put(fetchCommentThreadsInit());
 
@@ -226,27 +246,40 @@ function* initializeEditorSaga(
 
 export function* initializeAppViewerSaga(
   action: ReduxAction<{
-    applicationId: string;
+    defaultApplicationId: string;
     branchName: string;
     pageId: string;
   }>,
 ) {
-  const { applicationId, branchName, pageId } = action.payload;
+  const { branchName, defaultApplicationId, pageId } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );
   yield put(setAppMode(APP_MODE.PUBLISHED));
   yield put(
-    updateAppPersistentStore(getPersistentAppStore(applicationId, branchName)),
+    updateAppPersistentStore(
+      getPersistentAppStore(defaultApplicationId, branchName),
+    ),
   );
   yield put({ type: ReduxActionTypes.START_EVALUATION });
   yield all([
     // TODO (hetu) Remove spl view call for fetch actions
-    put(fetchActionsForView({ applicationId, branchName })),
-    put(fetchPageList({ applicationId, branchName }, APP_MODE.PUBLISHED)),
+    put(
+      fetchActionsForView({ applicationId: defaultApplicationId, branchName }),
+    ),
+    put(
+      fetchPageList(
+        { applicationId: defaultApplicationId, branchName },
+        APP_MODE.PUBLISHED,
+      ),
+    ),
     put(
       fetchApplication({
-        payload: { applicationId, branchName, mode: APP_MODE.PUBLISHED },
+        payload: {
+          applicationId: defaultApplicationId,
+          branchName,
+          mode: APP_MODE.PUBLISHED,
+        },
       }),
     ),
   ]);
@@ -304,7 +337,12 @@ export function* initializeAppViewerSaga(
     }
 
     const jsActionsCall = yield failFastApiCalls(
-      [fetchJSCollectionsForView({ applicationId, branchName })],
+      [
+        fetchJSCollectionsForView({
+          applicationId: defaultApplicationId,
+          branchName,
+        }),
+      ],
       [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS],
       [ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR],
     );

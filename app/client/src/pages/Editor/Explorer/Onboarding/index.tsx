@@ -21,12 +21,12 @@ function OnboardingExplorer(props: IPanelProps) {
   const wrapperRef = React.createRef<HTMLDivElement>();
 
   let node = <Loading />;
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { defaultApplicationId, pageId } = useParams<ExplorerURLParams>();
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(() => {
-    history.push(BUILDER_PAGE_URL(applicationId, pageId));
+    history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
     openPanel({ component: WidgetSidebar });
-  }, [openPanel, applicationId, pageId]);
+  }, [openPanel, defaultApplicationId, pageId]);
 
   const createdDBQuery = useSelector(
     (state: AppState) => state.ui.onBoarding.createdDBQuery,

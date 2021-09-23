@@ -27,7 +27,7 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
   const params = useParams<ExplorerURLParams>();
   const switchToCreateActionPage = useCallback(() => {
     const path = props.actionConfig?.generateCreatePageURL(
-      params?.applicationId,
+      params?.defaultApplicationId,
       props.page.pageId,
       INTEGRATION_TABS.NEW,
       INTEGRATION_EDITOR_MODES.AUTO,

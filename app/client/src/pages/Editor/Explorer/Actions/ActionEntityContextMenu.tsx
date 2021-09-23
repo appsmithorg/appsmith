@@ -109,7 +109,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           onSelect: () =>
             deleteActionFromPage(props.id, props.name, () => {
               history.push(
-                BUILDER_PAGE_URL(params.applicationId, params.pageId),
+                BUILDER_PAGE_URL(params.defaultApplicationId, params.pageId),
               );
             }),
         },

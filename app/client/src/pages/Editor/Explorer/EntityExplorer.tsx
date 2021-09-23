@@ -48,7 +48,7 @@ const StyledDivider = styled(Divider)`
 `;
 
 function EntityExplorer(props: IPanelProps) {
-  const { applicationId } = useParams<ExplorerURLParams>();
+  const { defaultApplicationId } = useParams<ExplorerURLParams>();
 
   const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
     null,
@@ -90,13 +90,13 @@ function EntityExplorer(props: IPanelProps) {
   const { openPanel } = props;
   const showWidgetsSidebar = useCallback(
     (pageId: string) => {
-      history.push(BUILDER_PAGE_URL(applicationId, pageId));
+      history.push(BUILDER_PAGE_URL(defaultApplicationId, pageId));
       openPanel({ component: WidgetSidebar });
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }
     },
-    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
+    [openPanel, defaultApplicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   return (

@@ -72,9 +72,13 @@ class Editor extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId, branchName, pageId } = this.props.match.params;
-    if (applicationId) {
-      this.props.initEditor(applicationId, pageId, branchName);
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
+    if (defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branchName);
     }
     this.props.handlePathUpdated(window.location);
     this.unlisten = history.listen(this.handleHistoryChange);
@@ -100,12 +104,13 @@ class Editor extends Component<Props> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { applicationId, branchName, pageId } = this.props.match.params || {};
+    const { branchName, defaultApplicationId, pageId } =
+      this.props.match.params || {};
     const { pageId: prevPageId } = prevProps.match.params || {};
 
     const { branchName: prevBranchName } = prevProps.match.params || {};
-    if (branchName && branchName !== prevBranchName && applicationId) {
-      this.props.initEditor(applicationId, pageId, branchName);
+    if (branchName && branchName !== prevBranchName && defaultApplicationId) {
+      this.props.initEditor(defaultApplicationId, pageId, branchName);
     } else {
       // since the page is fetched in the init flow too
       if (pageId && pageId !== prevPageId) {

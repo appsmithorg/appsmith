@@ -445,7 +445,7 @@ function GlobalSearch() {
     const { id, pageId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const url = actionConfig?.getURL(
-      params.applicationId,
+      params.defaultApplicationId,
       pageId,
       id,
       pluginType,
@@ -457,7 +457,7 @@ function GlobalSearch() {
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
     const { id, pageId } = config;
-    history.push(JS_COLLECTION_ID_URL(params.applicationId, pageId, id));
+    history.push(JS_COLLECTION_ID_URL(params.defaultApplicationId, pageId, id));
     toggleShow();
   };
 
@@ -465,7 +465,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       DATA_SOURCES_EDITOR_ID_URL(
-        params.applicationId,
+        params.defaultApplicationId,
         item.pageId,
         item.id,
         getQueryParams(),
@@ -475,7 +475,7 @@ function GlobalSearch() {
 
   const handlePageClick = (item: SearchItem) => {
     toggleShow();
-    history.push(BUILDER_PAGE_URL(params.applicationId, item.pageId));
+    history.push(BUILDER_PAGE_URL(params.defaultApplicationId, item.pageId));
   };
 
   const onEnterSnippet = useSelector(

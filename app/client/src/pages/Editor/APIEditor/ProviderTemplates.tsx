@@ -271,7 +271,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
       providerDetails,
       providerTemplates,
     } = this.props;
-    const { applicationId, pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
 
     let destinationPageId = new URLSearchParams(this.props.location.search).get(
       "importTo",
@@ -307,7 +307,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  defaultApplicationId,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),
@@ -319,7 +319,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             onClick={() =>
               history.push(
                 INTEGRATION_EDITOR_URL(
-                  applicationId,
+                  defaultApplicationId,
                   pageId,
                   INTEGRATION_TABS.ACTIVE,
                 ),

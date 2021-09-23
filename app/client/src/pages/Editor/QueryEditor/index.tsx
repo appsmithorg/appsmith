@@ -166,7 +166,7 @@ class QueryEditor extends React.Component<Props> {
       settingConfig,
       uiComponent,
     } = this.props;
-    const { applicationId, pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
 
     if (!pluginIds?.length) {
       return (
@@ -190,7 +190,11 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          defaultApplicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+        ),
       );
     };
     return (

@@ -26,7 +26,7 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 };
 
 export type ExplorerURLParams = {
-  applicationId: string;
+  defaultApplicationId: string;
   pageId: string;
 };
 

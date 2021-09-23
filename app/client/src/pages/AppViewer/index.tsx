@@ -61,7 +61,7 @@ const AppViewerBodyContainer = styled.div<{ width?: string }>`
 
 export type AppViewerProps = {
   initializeAppViewer: (params: {
-    applicationId: string;
+    defaultApplicationId: string;
     pageId?: string;
     branchName?: string;
   }) => void;
@@ -94,23 +94,39 @@ class AppViewer extends Component<Props> {
     editorInitializer().then(() => {
       this.setState({ registered: true });
     });
-    const { applicationId, branchName, pageId } = this.props.match.params;
-    log.debug({ applicationId, pageId });
-    if (applicationId) {
-      this.props.initializeAppViewer({ applicationId, branchName, pageId });
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
+    log.debug({ defaultApplicationId, pageId });
+    if (defaultApplicationId) {
+      this.props.initializeAppViewer({
+        branchName,
+        defaultApplicationId,
+        pageId,
+      });
     }
   }
 
   componentDidUpdate(prevProps: Props) {
-    const { applicationId, branchName, pageId } = this.props.match.params;
+    const {
+      branchName,
+      defaultApplicationId,
+      pageId,
+    } = this.props.match.params;
     const { branchName: prevBranchName } = prevProps.match.params || {};
     if (
       branchName &&
       branchName !== prevBranchName &&
-      applicationId &&
+      defaultApplicationId &&
       pageId
     ) {
-      this.props.initializeAppViewer({ applicationId, pageId, branchName });
+      this.props.initializeAppViewer({
+        defaultApplicationId,
+        pageId,
+        branchName,
+      });
     }
   }
 
@@ -186,7 +202,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   resetChildrenMetaProperty: (widgetId: string) =>
     dispatch(resetChildrenMetaProperty(widgetId)),
   initializeAppViewer: (params: {
-    applicationId: string;
+    defaultApplicationId: string;
     pageId?: string;
     branchName?: string;
   }) => {

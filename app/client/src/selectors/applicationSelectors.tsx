@@ -159,3 +159,8 @@ export const getIsSavingOrgInfo = (state: AppState) =>
 
 export const showAppInviteUsersDialogSelector = (state: AppState) =>
   state.ui.applications.showAppInviteUsersDialog;
+
+export const getDefaultApplicationId = (state: AppState) => {
+  const { defaultApplicationId, id } = getCurrentApplication(state) || {};
+  return defaultApplicationId || id;
+};

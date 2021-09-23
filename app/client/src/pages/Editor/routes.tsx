@@ -82,22 +82,22 @@ class EditorsRouter extends React.Component<
 > {
   constructor(props: RouteComponentProps<APIEditorRouteParams>) {
     super(props);
-    const { applicationId, pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     this.state = {
       isVisible:
         this.props.location.pathname !==
-        BUILDER_PAGE_URL(applicationId, pageId),
+        BUILDER_PAGE_URL(defaultApplicationId, pageId),
       isActionPath: this.isMatchPath(),
     };
   }
 
   componentDidUpdate(prevProps: Readonly<RouteComponentProps>): void {
     if (this.props.location.pathname !== prevProps.location.pathname) {
-      const { applicationId, pageId } = this.props.match.params;
+      const { defaultApplicationId, pageId } = this.props.match.params;
       this.setState({
         isVisible:
           this.props.location.pathname !==
-          BUILDER_PAGE_URL(applicationId, pageId),
+          BUILDER_PAGE_URL(defaultApplicationId, pageId),
         isActionPath: this.isMatchPath(),
       });
     }
@@ -121,11 +121,11 @@ class EditorsRouter extends React.Component<
       { path: this.props.location.pathname },
     );
     e.stopPropagation();
-    const { applicationId, pageId } = this.props.match.params;
+    const { defaultApplicationId, pageId } = this.props.match.params;
     this.setState({
       isVisible: false,
     });
-    this.props.history.replace(BUILDER_PAGE_URL(applicationId, pageId));
+    this.props.history.replace(BUILDER_PAGE_URL(defaultApplicationId, pageId));
   };
 
   preventClose = (e: React.MouseEvent) => {

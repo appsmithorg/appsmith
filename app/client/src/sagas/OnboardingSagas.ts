@@ -62,7 +62,10 @@ import {
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import { get } from "lodash";
 import { AppIconCollection } from "components/ads/AppIcon";
-import { getUserApplicationsOrgs } from "selectors/applicationSelectors";
+import {
+  getDefaultApplicationId,
+  getUserApplicationsOrgs,
+} from "selectors/applicationSelectors";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
 import {
   getRandomPaletteColor,
@@ -704,12 +707,12 @@ function* addWidget(widgetConfig: any) {
       payload: newWidget,
     });
 
-    const applicationId = yield select(getCurrentApplicationId);
     const pageId = yield select(getCurrentPageId);
+    const defaultApplicationId = yield select(getDefaultApplicationId);
 
     navigateToCanvas(
       {
-        applicationId,
+        defaultApplicationId,
         pageId,
       },
       window.location.pathname,
@@ -822,12 +825,12 @@ function* addOnSubmitHandler() {
     if (inputWidget) {
       yield delay(1000);
 
-      const applicationId = yield select(getCurrentApplicationId);
       const pageId = yield select(getCurrentPageId);
+      const defaultApplicationId = yield select(getDefaultApplicationId);
 
       navigateToCanvas(
         {
-          applicationId,
+          defaultApplicationId,
           pageId,
         },
         window.location.pathname,

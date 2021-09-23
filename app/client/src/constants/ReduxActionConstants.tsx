@@ -850,6 +850,7 @@ export interface ApplicationPayload {
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;
   lastDeployedAt?: string;
+  defaultApplicationId?: string;
 }
 
 export interface CurrentApplicationData extends ApplicationPayload {
@@ -871,7 +872,7 @@ export interface LoadWidgetSidebarPayload {
 }
 
 export type InitializeEditorPayload = {
-  applicationId: string;
+  defaultApplicationId: string;
   pageId: string;
   branchName?: string;
 };
