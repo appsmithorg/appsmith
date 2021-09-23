@@ -1853,8 +1853,8 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click()
-    .clear()
+    .click({ force: true })
+    .clear({ force: true })
     .type(text)
     .wait(200);
 });

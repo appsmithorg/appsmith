@@ -615,7 +615,7 @@ export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
       ApplicationApi.getSSHKeyPair,
       applicationId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse = yield validateResponse(response, false);
     if (isValidResponse) {
       yield put(getSSHKeyPairSuccess(response.data));
       if (action.onSuccessCallback) {

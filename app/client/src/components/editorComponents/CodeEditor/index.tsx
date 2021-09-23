@@ -82,6 +82,7 @@ import { getLintAnnotations } from "./lintHelpers";
 import getFeatureFlags from "utils/featureFlags";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommandPayload } from "entities/Action";
+import { Indices } from "constants/Layers";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
@@ -131,6 +132,7 @@ export type EditorStyleProps = {
   useValidationMessage?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  popperZIndex?: Indices;
 };
 
 export type EditorProps = EditorStyleProps &
@@ -634,6 +636,7 @@ class CodeEditor extends Component<Props, State> {
           hideEvaluatedValue={hideEvaluatedValue}
           isOpen={showEvaluatedValue}
           popperPlacement={this.props.popperPlacement}
+          popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
