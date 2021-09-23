@@ -507,8 +507,9 @@ jobs:
     defaults:
       run:
         working-directory: app/client
-    # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: (success() && github.ref == 'refs/heads/release') || github.ref == 'refs/heads/master'
+
+    # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
+    if: (success() && github.ref == 'refs/heads/master') || github.ref == 'refs/heads/release'
 
     steps:
       # Checkout the code

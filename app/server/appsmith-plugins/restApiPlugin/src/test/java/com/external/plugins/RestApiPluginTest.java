@@ -495,7 +495,7 @@ public class RestApiPluginTest {
     public void testRequestWithApiKeyHeader() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("https://postman-echo.com/post");
-        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "test");
+        AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
 
         ActionConfiguration actionConfig = new ActionConfiguration();
