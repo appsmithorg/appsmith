@@ -16,15 +16,17 @@ export type ExecutionResult = {
   success: boolean;
 };
 
+export type TriggerSource = {
+  id: string;
+  name: string;
+};
+
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
   triggerPropertyName?: string;
-  source?: {
-    id: string;
-    name: string;
-  };
+  source?: TriggerSource;
   widgetId?: string;
 };
 
@@ -81,6 +83,7 @@ export enum EventType {
   ON_SNIPPET_EXECUTE = "ON_SNIPPET_EXECUTE",
   ON_SORT = "ON_SORT",
   ON_CHECKBOX_GROUP_SELECTION_CHANGE = "ON_CHECKBOX_GROUP_SELECTION_CHANGE",
+  ON_LIST_PAGE_CHANGE = "ON_LIST_PAGE_CHANGE",
   ON_RECORDING_START = "ON_RECORDING_START",
   ON_RECORDING_COMPLETE = "ON_RECORDING_COMPLETE",
 }
