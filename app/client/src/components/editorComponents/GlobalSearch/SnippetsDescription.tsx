@@ -311,7 +311,9 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
               {getSnippet(template, selectedArgs)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon onClick={() => handleCopy(getSnippet(snippet, {}))} />
+              <CopyIcon
+                onClick={() => handleCopy(getSnippet(template, selectedArgs))}
+              />
             </div>
           </div>
           <div className="snippet-group">
