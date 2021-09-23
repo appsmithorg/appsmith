@@ -40,15 +40,11 @@ jobs:
             echo "::set-output name=is_beta::false"
           fi
 
-  build-client:
+  build:
     needs:
       - prelude
 
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: app/client
 
     steps:
       # Checkout the code
@@ -73,10 +69,12 @@ jobs:
             ${{ runner.OS }}-
 
         # Install all the dependencies
-      - name: Install dependencies
+      - name: Install client dependencies
+        working-directory: app/client
         run: yarn install
 
-      - name: Create the bundle
+      - name: Create client bundle
+        working-directory: app/client
         env:
           REACT_APP_ENVIRONMENT: 'PRODUCTION'
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
@@ -86,33 +84,6 @@ jobs:
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build
-
-      # Build Docker image and push to Docker Hub
-      - name: Push production image to Docker Hub with commit tag
-        run: |
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
-
-          # Only build & tag with latest if the tag doesn't contain beta
-          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
-          fi
-
-  build-server:
-    needs:
-      - prelude
-
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: app/server
-
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
 
       # Setup Java
       - name: Set up JDK 1.11
@@ -131,8 +102,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Build the code
-      - name: Build without running any tests
+      - name: Build server without running any tests
+        working-directory: app/server
         run: |
           mvn --batch-mode versions:set \
             -DnewVersion=${{ needs.prelude.outputs.tag }} \
@@ -140,8 +111,27 @@ jobs:
             -DprocessAllModules=true
           mvn --batch-mode package -DskipTests
 
-      # Build Docker image and push to Docker Hub
-      - name: Push image to Docker Hub
+      - name: Build RTS
+        working-directory: app/rts
+        run: |
+          ./build.sh
+          ls -l dist
+
+      - name: Build and push client image
+        working-directory: app/client
+        run: |
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{needs.prelude.outputs.tag}}
+
+          # Only build & tag with latest if the tag doesn't contain beta
+          if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
+            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:latest
+          fi
+
+      - name: Build and push server image
+        working-directory: app/server
         run: |
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{needs.prelude.outputs.tag}} .
@@ -153,3 +143,18 @@ jobs:
             docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:latest
           fi
 
+      - name: Build and push RTS image
+        working-directory: app/rts
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}} .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{needs.prelude.outputs.tag}}
+
+      - name: Build and push fat image
+        run: |
+          docker build \
+            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
+            --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{needs.prelude.outputs.tag}} \
+            .
+          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
