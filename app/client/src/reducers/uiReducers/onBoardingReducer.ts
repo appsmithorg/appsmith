@@ -27,6 +27,12 @@ const initialState: OnboardingState = {
     },
     allowMinimize: false,
   },
+  inOnboardingWidgetSelection: false,
+  enableFirstTimeUserOnboarding: false,
+  forceOpenWidgetPanel: false,
+  firstTimeUserOnboardingApplicationId: "",
+  firstTimeUserOnboardingComplete: false,
+  showFirstTimeUserOnboardingModal: false,
 };
 
 export interface OnboardingState {
@@ -41,6 +47,12 @@ export interface OnboardingState {
   showHelper: boolean;
   helperStepConfig: OnboardingHelperConfig;
   showingIndicator: OnboardingStep;
+  inOnboardingWidgetSelection: boolean;
+  enableFirstTimeUserOnboarding: boolean;
+  forceOpenWidgetPanel: boolean;
+  firstTimeUserOnboardingApplicationId: string;
+  firstTimeUserOnboardingComplete: boolean;
+  showFirstTimeUserOnboardingModal: boolean;
 }
 
 const onboardingReducer = createReducer(initialState, {
@@ -85,6 +97,10 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...initialState,
       inOnboarding: action.payload,
+      enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
+      firstTimeUserOnboardingApplicationId:
+        state.firstTimeUserOnboardingApplicationId,
+      showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
     };
   },
   [ReduxActionTypes.ADD_WIDGET_COMPLETE]: (state: OnboardingState) => {
@@ -142,7 +158,62 @@ const onboardingReducer = createReducer(initialState, {
     return {
       ...state,
       ...initialState,
+      enableFirstTimeUserOnboarding: state.enableFirstTimeUserOnboarding,
+      firstTimeUserOnboardingApplicationId:
+        state.firstTimeUserOnboardingApplicationId,
+      showFirstTimeUserOnboardingModal: state.showFirstTimeUserOnboardingModal,
     };
+  },
+  [ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      inOnboardingWidgetSelection: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      enableFirstTimeUserOnboarding: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID]: (
+    state: OnboardingState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      firstTimeUserOnboardingApplicationId: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      firstTimeUserOnboardingComplete: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return {
+      ...state,
+      showFirstTimeUserOnboardingModal: action.payload,
+    };
+  },
+  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
+    state: OnboardingState,
+    action: ReduxAction<boolean>,
+  ) => {
+    return { ...state, forceOpenWidgetPanel: action.payload };
   },
 });
 

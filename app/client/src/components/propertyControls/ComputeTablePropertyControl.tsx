@@ -10,9 +10,10 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ColumnProperties } from "components/designSystems/appsmith/TableComponent/Constants";
+import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
+import { isString } from "utils/helpers";
 import {
   JSToString,
   stringToJS,
@@ -134,6 +135,9 @@ class ComputeTablePropertyControl extends BaseControl<
 
   getComputedValue = (value: string, tableId: string) => {
     const stringToEvaluate = stringToJS(value);
+    if (stringToEvaluate === "") {
+      return stringToEvaluate;
+    }
     return `{{${tableId}.sanitizedTableData.map((currentRow) => ( ${stringToEvaluate}))}}`;
   };
 
@@ -144,7 +148,7 @@ class ComputeTablePropertyControl extends BaseControl<
     } else {
       value = event;
     }
-    if (value) {
+    if (isString(value)) {
       const output = this.getComputedValue(
         value,
         this.props.widgetProperties.widgetName,

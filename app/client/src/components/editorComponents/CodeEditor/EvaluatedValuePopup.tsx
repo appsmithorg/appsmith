@@ -3,17 +3,23 @@ import styled from "styled-components";
 import _ from "lodash";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  EditorTheme,
+  FieldEntityInformation,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import Tooltip from "components/ads/Tooltip";
-import { Classes, Collapse, Icon } from "@blueprintjs/core";
+import { Toaster } from "components/ads/Toast";
+import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
 import { IPopoverSharedProps } from "@blueprintjs/core";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+import copy from "copy-to-clipboard";
 
 import {
   EvaluationError,
@@ -23,6 +29,7 @@ import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
 import { Layers } from "constants/Layers";
+import { Variant } from "components/ads/common";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -81,10 +88,22 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   max-height: 300px;
+  min-height: 1rem;
   overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
   background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+`;
+
+const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
+  color: ${(props) => THEMES[props.colorTheme].textColor};
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  padding: 0;
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -145,6 +164,14 @@ function CollapseToggle(props: { isOpen: boolean }) {
   );
 }
 
+function copyContent(content: any) {
+  copy(content);
+  Toaster.show({
+    text: `Evaluated value copied to clipboard`,
+    variant: Variant.success,
+  });
+}
+
 interface Props {
   theme: EditorTheme;
   isOpen: boolean;
@@ -157,10 +184,12 @@ interface Props {
   hideEvaluatedValue?: boolean;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
+  entity?: FieldEntityInformation;
 }
 
 interface PopoverContentProps {
   hasError: boolean;
+  entity?: FieldEntityInformation;
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
@@ -300,6 +329,15 @@ export const CurrentValueViewer = memo(
         <Collapse isOpen={openEvaluatedValue}>
           <CurrentValueWrapper colorTheme={props.theme}>
             {content}
+            {props.evaluatedValue && (
+              <CopyIconWrapper
+                colorTheme={props.theme}
+                minimal
+                onClick={() => copyContent(props.evaluatedValue)}
+              >
+                <CopyIcon />
+              </CopyIconWrapper>
+            )}
           </CurrentValueWrapper>
         </Collapse>
       </>
@@ -353,6 +391,7 @@ function PopoverContent(props: PopoverContentProps) {
               : error.errorMessage}
           </span>
           <EvaluatedValueDebugButton
+            entity={props.entity}
             error={{ type: error.errorType, message: error.errorMessage }}
           />
         </ErrorText>
@@ -424,6 +463,7 @@ function EvaluatedValuePopup(props: Props) {
         zIndex={Layers.evaluationPopper}
       >
         <PopoverContent
+          entity={props.entity}
           errors={props.errors}
           evaluatedValue={props.evaluatedValue}
           expected={props.expected}

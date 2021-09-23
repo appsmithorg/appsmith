@@ -12,14 +12,18 @@ import {
   setWidgetDynamicProperty,
   updateWidgetPropertyRequest,
 } from "../actions/controlActions";
-import { RenderModes, WidgetTypes } from "../constants/WidgetConstants";
 import { Toaster } from "../components/ads/Toast";
 import { Variant } from "../components/ads/common";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
+
 import {
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "../constants/messages";
+
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -134,12 +138,7 @@ export function* bindDataToWidgetSaga(
     // set the property path to dynamic, i.e. enable JS mode
     yield put(setWidgetDynamicProperty(widgetId, propertyPath, true));
     yield put(
-      updateWidgetPropertyRequest(
-        widgetId,
-        propertyPath,
-        propertyValue,
-        RenderModes.CANVAS,
-      ),
+      updateWidgetPropertyRequest(widgetId, propertyPath, propertyValue),
     );
     yield put({
       type: ReduxActionTypes.SHOW_PROPERTY_PANE,

@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { WidgetTypes, WidgetType } from "constants/WidgetConstants";
+import { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementsById } from "utils/helpers";
@@ -12,6 +12,9 @@ import {
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
+import WidgetFactory from "utils/WidgetFactory";
+
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
@@ -42,10 +45,12 @@ export const useNavigateToWidget = () => {
     selectWidget(widgetId, false);
     navigateToCanvas(params, window.location.pathname, pageId, widgetId);
 
-    flashElementsById(widgetId);
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
+      if (params.pageId === pageId) {
+        flashElementsById(widgetId);
+      }
       dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };

@@ -20,9 +20,11 @@ import JSDependencies from "./JSDependencies";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getPlugins } from "selectors/entitiesSelector";
 import ScrollIndicator from "components/ads/ScrollIndicator";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -64,6 +66,10 @@ function EntityExplorer(props: IPanelProps) {
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
   const jsActions = useJSCollections(searchKeyword);
+  const dispatch = useDispatch();
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
 
   let noResults = false;
   if (searchKeyword) {
@@ -86,8 +92,11 @@ function EntityExplorer(props: IPanelProps) {
     (pageId: string) => {
       history.push(BUILDER_PAGE_URL(applicationId, pageId));
       openPanel({ component: WidgetSidebar });
+      if (isFirstTimeUserOnboardingEnabled) {
+        dispatch(toggleInOnboardingWidgetSelection(true));
+      }
     },
-    [openPanel, applicationId],
+    [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
   return (
@@ -119,9 +128,5 @@ function EntityExplorer(props: IPanelProps) {
 }
 
 EntityExplorer.displayName = "EntityExplorer";
-
-EntityExplorer.whyDidYouRender = {
-  logOnDifferentValues: false,
-};
 
 export default EntityExplorer;

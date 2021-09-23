@@ -37,8 +37,11 @@ import { getProppanePreference } from "selectors/usersSelectors";
 import { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { get } from "lodash";
 import { Layers } from "constants/Layers";
-import ConnectDataCTA, { actionsExist, excludeList } from "./ConnectDataCTA";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
+import SearchSnippets from "components/ads/SnippetButton";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
   themeMode?: EditorTheme;
@@ -97,6 +100,23 @@ export const PropertyPaneBodyWrapper = styled.div`
   overflow: auto;
 `;
 
+// TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
+// Widgets where we do not want to show the CTA
+export const excludeList: WidgetType[] = [
+  "CONTAINER_WIDGET",
+  "TABS_WIDGET",
+  "FORM_WIDGET",
+  "MODAL_WIDGET",
+  "DIVIDER_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "BUTTON_WIDGET",
+  "CANVAS_WIDGET",
+  "AUDIO_RECORDER_WIDGET",
+  "IFRAME_WIDGET",
+  "FILE_PICKER_WIDGET",
+  "FILE_PICKER_WIDGET_V2",
+];
+
 function PropertyPaneView(
   props: {
     hidePropertyPane: () => void;
@@ -112,7 +132,7 @@ function PropertyPaneView(
     }
 
     return true;
-  }, [widgetProperties?.type]);
+  }, [widgetProperties?.type, excludeList]);
 
   const dispatch = useDispatch();
   const handleDelete = useCallback(() => {
@@ -150,6 +170,16 @@ function PropertyPaneView(
       {
         tooltipContent: <span>Explore widget related docs</span>,
         icon: <PropertyPaneHelpButton />,
+      },
+      {
+        tooltipContent: <span>Search related snippets</span>,
+        icon: (
+          <SearchSnippets
+            entityId={widgetProperties.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            showIconOnly
+          />
+        ),
       },
       {
         tooltipContent: "Close",
@@ -215,6 +245,13 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
     return ThemeMode.LIGHT;
   }
 
+  onPositionChange = (position: any) => {
+    this.props.setPropPanePoistion(
+      position,
+      this.props.widgetProperties?.widgetId,
+    );
+  };
+
   render() {
     if (
       !get(this.props, "widgetProperties") ||
@@ -231,15 +268,11 @@ class PropertyPane extends Component<PropertyPaneProps, PropertyPaneState> {
       )[0];
       return (
         <Popper
+          cypressSelectorDragHandle="t--property-pane-drag-handle"
           disablePopperEvents={this.props?.propPanePreference?.isMoved}
           isDraggable
           isOpen
-          onPositionChange={(position: any) => {
-            this.props.setPropPanePoistion(
-              position,
-              this.props.widgetProperties?.widgetId,
-            );
-          }}
+          onPositionChange={this.onPositionChange}
           placement="right-start"
           position={this.props?.propPanePreference?.position}
           targetNode={el}

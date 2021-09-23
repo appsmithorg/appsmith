@@ -1,6 +1,5 @@
 import { call, all, spawn } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { fetchWidgetCardsSaga } from "./WidgetSidebarSagas";
 import { watchActionSagas } from "./ActionSagas";
 import { watchJSActionSagas } from "./JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
@@ -36,7 +35,9 @@ import debuggerSagas from "./DebuggerSagas";
 import tourSagas from "./TourSagas";
 import notificationsSagas from "./NotificationsSagas";
 import selectionCanvasSagas from "./SelectionCanvasSagas";
+import replaySaga from "./ReplaySaga";
 import draggingCanvasSagas from "./DraggingCanvasSagas";
+import gitSyncSagas from "./GitSyncSagas";
 
 import log from "loglevel";
 import * as sentry from "@sentry/react";
@@ -44,7 +45,6 @@ import formEvaluationChangeListener from "./FormEvaluationSaga";
 const sagas = [
   initSagas,
   pageSagas,
-  fetchWidgetCardsSaga,
   watchActionSagas,
   watchJSActionSagas,
   watchActionExecutionSagas,
@@ -80,7 +80,9 @@ const sagas = [
   tourSagas,
   notificationsSagas,
   selectionCanvasSagas,
+  replaySaga,
   draggingCanvasSagas,
+  gitSyncSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas) {

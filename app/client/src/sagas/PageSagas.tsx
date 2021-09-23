@@ -54,10 +54,8 @@ import {
 import history from "utils/history";
 import { BUILDER_PAGE_URL } from "constants/routes";
 import { isNameValid } from "utils/helpers";
-import {
-  checkIfMigrationIsNeeded,
-  extractCurrentDSL,
-} from "utils/WidgetPropsUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { checkIfMigrationIsNeeded } from "utils/DSLMigrations";
 import {
   getAllPageIds,
   getEditorConfigs,
@@ -86,7 +84,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import log from "loglevel";
-import { WidgetTypes } from "constants/WidgetConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
@@ -103,6 +100,14 @@ import {
 import { getAppMode } from "selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectMultipleWidgetsAction } from "actions/widgetSelectionActions";
+import {
+  getIsFirstTimeUserOnboardingEnabled,
+  getFirstTimeUserOnboardingApplicationId,
+} from "selectors/onboardingSelectors";
+import { fetchJSCollectionsForPage } from "actions/jsActionActions";
+
+import WidgetFactory from "utils/WidgetFactory";
+const WidgetTypes = WidgetFactory.widgetTypes;
 
 const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
@@ -509,12 +514,31 @@ export function* createPageSaga(
       });
       // route to generate template for new page created
       if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          getGenerateTemplateURL(
-            createPageAction.payload.applicationId,
-            response.data.id,
-          ),
+        const firstTimeUserOnboardingApplicationId = yield select(
+          getFirstTimeUserOnboardingApplicationId,
         );
+        const isFirstTimeUserOnboardingEnabled = yield select(
+          getIsFirstTimeUserOnboardingEnabled,
+        );
+        if (
+          firstTimeUserOnboardingApplicationId ==
+            createPageAction.payload.applicationId &&
+          isFirstTimeUserOnboardingEnabled
+        ) {
+          history.push(
+            BUILDER_PAGE_URL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        } else {
+          history.push(
+            getGenerateTemplateURL(
+              createPageAction.payload.applicationId,
+              response.data.id,
+            ),
+          );
+        }
       }
     }
   } catch (error) {
@@ -742,7 +766,6 @@ export function* updateWidgetNameSaga(
         const isValidResponse: boolean = yield validateResponse(response);
         if (isValidResponse) {
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
-
           yield put(updateWidgetNameSuccess());
           // Add this to the page DSLs for entity explorer
           yield put({
@@ -792,6 +815,8 @@ export function* updateCanvasWithDSL(
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
   yield put(initCanvasLayout(canvasWidgetsPayload));
+  yield put(fetchActionsForPage(pageId));
+  yield put(fetchJSCollectionsForPage(pageId));
 }
 
 export function* setDataUrl() {

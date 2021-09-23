@@ -4,14 +4,16 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Datasource;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
@@ -88,7 +90,7 @@ public class LayoutActionServiceTest {
     LayoutActionService layoutActionService;
 
     @Autowired
-    LayoutService layoutService;
+    LayoutCollectionService layoutCollectionService;
 
     @Autowired
     NewPageService newPageService;
@@ -96,11 +98,16 @@ public class LayoutActionServiceTest {
     @Autowired
     NewActionRepository actionRepository;
 
+    @Autowired
+    ActionCollectionService actionCollectionService;
+
     Application testApp = null;
 
     PageDTO testPage = null;
 
     Datasource datasource;
+
+    Datasource jsDatasource;
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -159,6 +166,13 @@ public class LayoutActionServiceTest {
         datasource.setOrganizationId(orgId);
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
+
+        jsDatasource = new Datasource();
+        jsDatasource.setName("Default JS Database");
+        jsDatasource.setOrganizationId(orgId);
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        assert installedJsPlugin != null;
+        jsDatasource.setPluginId(installedJsPlugin.getId());
     }
 
     @After
@@ -167,6 +181,49 @@ public class LayoutActionServiceTest {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
         testPage = null;
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testOnPageLoadActionsAfterActionDelete() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        ActionDTO action = new ActionDTO();
+        action.setName("query1");
+        action.setFullyQualifiedName(action.getName());
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(datasource);
+
+        Mono<PageDTO> resultMono = layoutActionService
+                .createSingleAction(action)
+                .flatMap(savedAction -> {
+                    ActionDTO updates = new ActionDTO();
+
+                    // Configure action to execute on page load.
+                    updates.setExecuteOnLoad(true);
+
+                    updates.setPolicies(null);
+                    updates.setUserPermissions(null);
+                    updates.setDatasource(datasource);
+
+                    // Save updated configuration and re-compute on page load actions.
+                    return layoutActionService.updateSingleAction(savedAction.getId(), updates);
+                })
+                .flatMap(savedAction -> layoutActionService.deleteUnpublishedAction(savedAction.getId())) // Delete action
+                .flatMap(savedAction -> newPageService.findPageById(testPage.getId(), READ_PAGES, false)); // Get page info
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(page -> {
+                    assertThat(page.getLayouts()).hasSize(1);
+
+                    // Verify that no action is marked to run on page load.
+                    assertThat(page.getLayouts().get(0).getLayoutOnLoadActions()).hasSize(0);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -772,6 +829,67 @@ public class LayoutActionServiceTest {
 
                     String widgetName = (String) updatedLayout.getDsl().get("widgetName");
                     assertThat(widgetName).isEqualTo("NewNameTable1");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        // Set up table widget in DSL
+        JSONObject dsl = new JSONObject();
+        dsl.put("widgetName", "Table1");
+        dsl.put("type", "TABLE_WIDGET");
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(dsl);
+
+        layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout).block();
+
+        // Create an action collection that refers to the table
+        ActionCollectionDTO actionCollectionDTO1 = new ActionCollectionDTO();
+        actionCollectionDTO1.setName("testCollection1");
+        actionCollectionDTO1.setPageId(testPage.getId());
+        actionCollectionDTO1.setApplicationId(testApp.getId());
+        actionCollectionDTO1.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO1.setPluginId(jsDatasource.getPluginId());
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("Table1");
+        actionCollectionDTO1.setBody("Table1");
+        actionCollectionDTO1.setActions(List.of(action1));
+        actionCollectionDTO1.setPluginType(PluginType.JS);
+
+        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService.createCollection(actionCollectionDTO1).block();
+
+        RefactorNameDTO refactorNameDTO = new RefactorNameDTO();
+        refactorNameDTO.setPageId(testPage.getId());
+        refactorNameDTO.setLayoutId(layout.getId());
+        refactorNameDTO.setOldName("Table1");
+        refactorNameDTO.setNewName("NewNameTable1");
+
+        LayoutDTO updatedLayout = layoutActionService.refactorWidgetName(refactorNameDTO).block();
+
+        assert createdActionCollectionDTO1 != null;
+        final Mono<ActionCollection> actionCollectionMono = actionCollectionService.getById(createdActionCollectionDTO1.getId());
+        final Optional<String> optional = createdActionCollectionDTO1.getActionIds().stream().findFirst();
+        assert optional.isPresent();
+        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
+
+        StepVerifier
+                .create(Mono.zip(actionCollectionMono, actionMono))
+                .assertNext(tuple -> {
+                    final ActionCollection actionCollection = tuple.getT1();
+                    final NewAction action = tuple.getT2();
+                    assertThat(actionCollection.getUnpublishedCollection().getBody()).isEqualTo("NewNameTable1");
+                    final ActionDTO unpublishedAction = action.getUnpublishedAction();
+                    assertThat(unpublishedAction.getJsonPathKeys().size()).isEqualTo(1);
+                    final Optional<String> first = unpublishedAction.getJsonPathKeys().stream().findFirst();
+                    assert first.isPresent();
+                    assertThat(first.get()).isEqualTo("NewNameTable1");
+                    assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
                 })
                 .verifyComplete();
     }

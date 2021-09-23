@@ -5,6 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "constants/ReduxActionConstants";
 import { JSCollection } from "entities/JSCollection";
+import { CreateJSCollectionRequest } from "api/JSActionAPI";
 
 export type FetchJSCollectionsPayload = {
   applicationId: string;
@@ -19,7 +20,9 @@ export const fetchJSCollections = (
   };
 };
 
-export const createJSCollectionRequest = (payload: Partial<JSCollection>) => {
+export const createJSCollectionRequest = (
+  payload: CreateJSCollectionRequest,
+) => {
   return {
     type: ReduxActionTypes.CREATE_JS_ACTION_INIT,
     payload,
