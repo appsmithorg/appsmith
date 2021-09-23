@@ -54,6 +54,7 @@ import { ActionDescription } from "entities/DataTree/actionTriggers";
 import { executeActionTriggers } from "sagas/ActionExecution/ActionExecutionSagas";
 export const JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
 function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
   const organizationId: string = yield select(getCurrentOrgId);
@@ -258,10 +259,13 @@ function* handleJSObjectNameChangeSuccessSaga(
 }
 
 function* handleExecuteJSFunctionSaga(
-  data: ReduxAction<{ collectionName: string; action: JSAction }>,
+  data: ReduxAction<{
+    collectionName: string;
+    action: JSAction;
+    collectionId: string;
+  }>,
 ): any {
-  const { action, collectionName } = data.payload;
-  const collectionId = action.collectionId;
+  const { action, collectionId, collectionName } = data.payload;
   const actionId = action.id;
   try {
     const { result, triggers } = yield call(
@@ -269,7 +273,6 @@ function* handleExecuteJSFunctionSaga(
       collectionName,
       action,
     );
-
     if (triggers && triggers.length) {
       yield all(
         triggers.map((trigger: ActionDescription) =>
@@ -286,7 +289,32 @@ function* handleExecuteJSFunctionSaga(
         actionId,
       },
     });
+    AppsmithConsole.info({
+      text: "Function executed successfully",
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      state: { response: result },
+    });
   } catch (e) {
+    AppsmithConsole.addError({
+      id: actionId,
+      logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+      text: `Function execution failed`,
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: collectionName + "." + action.name,
+        id: collectionId,
+      },
+      messages: [
+        {
+          message: e.message,
+          type: PropertyEvaluationErrorType.PARSE,
+        },
+      ],
+    });
     Toaster.show({
       text: e.message || "There was an error while executing function",
       variant: Variant.danger,

@@ -34,6 +34,7 @@ import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
+import { getJSCollectionIdFromURL } from "pages/Editor/Explorer/helpers";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -268,10 +269,12 @@ function JSResponseView(props: Props) {
 
   const runAction = (action: JSAction) => {
     setSelectActionId(action.id);
+    const collectionId = getJSCollectionIdFromURL();
     dispatch(
       executeJSFunction({
         collectionName: jsObject?.name || "",
         action: action,
+        collectionId: collectionId || "",
       }),
     );
   };
