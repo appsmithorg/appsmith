@@ -13,6 +13,8 @@ const LandingPageWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 100;
 `;
 
 const LandingPageContent = styled.div`

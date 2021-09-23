@@ -256,7 +256,7 @@ function Table(props: TableProps) {
         >
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
-              <div key={cellIndex} {...cell.getCellProps()} className="td">
+              <div {...cell.getCellProps()} className="td" key={cellIndex}>
                 <CellWrapper>{cell.render("Cell")}</CellWrapper>
               </div>
             );
@@ -278,16 +278,16 @@ function Table(props: TableProps) {
             <div>
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
-                  key={index}
                   {...headerGroup.getHeaderGroupProps()}
                   className="tr"
+                  key={index}
                 >
                   {headerGroup.headers.map(
                     (column: any, columnIndex: number) => (
                       <div
-                        key={columnIndex}
                         {...column.getHeaderProps()}
                         className="th header-reorder"
+                        key={columnIndex}
                       >
                         <div
                           className={

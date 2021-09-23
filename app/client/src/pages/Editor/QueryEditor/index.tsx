@@ -20,9 +20,9 @@ import {
   getPluginIdsOfPackageNames,
   getPlugins,
   getPluginImages,
-  getDBDatasources,
   getAction,
   getActionResponses,
+  getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, QueryActionConfig } from "entities/Action";
@@ -126,15 +126,10 @@ class QueryEditor extends React.Component<Props> {
         PerformanceTransactionName.RUN_QUERY_CLICK,
       );
     }
-    // Update the page and evaluations when the queryID is changed by changing the
+    // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     if (prevProps.match.params.queryId !== this.props.match.params.queryId) {
       this.props.changeQueryPage(this.props.match.params.queryId);
-      this.props.initFormEvaluation(
-        this.props.editorConfig,
-        this.props.settingConfig,
-        this.props.match.params.queryId,
-      );
     }
     // If statement to debounce and track changes in the formData to update evaluations
     if (
@@ -144,10 +139,7 @@ class QueryEditor extends React.Component<Props> {
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
           prevProps.formData.hasOwnProperty("actionConfiguration") &&
-          !!diff(
-            prevProps.formData.actionConfiguration,
-            this.props.formData.actionConfiguration,
-          )))
+          !!diff(prevProps.formData, this.props.formData)))
     ) {
       this.props.runFormEvaluation(
         this.props.formData.id,
@@ -256,7 +248,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDBDatasources(state),
+    dataSources: getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[props.match.params.queryId],
     isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],

@@ -174,6 +174,16 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign In`;
 
+// Homepage
+export const CREATE_NEW_APPLICATION = () => `Create New`;
+export const SEARCH_APPS = () => `Search for apps...`;
+export const GETTING_STARTED = () => `GETTING STARTED`;
+export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
+export const WELCOME_TOUR = () => `Welcome Tour`;
+export const NO_APPS_FOUND = () =>
+  `Whale! Whale! This name doesn't ring a bell!`;
+
+// Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
 export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a Query`;
 export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
@@ -196,7 +206,7 @@ export const SAVE_HOTKEY_TOASTER_MESSAGE = () =>
 
 export const WIDGET_SIDEBAR_TITLE = () => `Widgets`;
 export const WIDGET_SIDEBAR_CAPTION = () =>
-  `To add a widget, please drag and drop a widget on the canvas to the right`;
+  `Drag a widget and drop it on the canvas`;
 export const GOOGLE_RECAPTCHA_KEY_ERROR = () =>
   `Google Re-Captcha Token Generation failed! Please check the Re-captcha Site Key.`;
 export const GOOGLE_RECAPTCHA_DOMAIN_ERROR = () =>
@@ -245,10 +255,6 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
 export const ERROR_EVAL_TRIGGER = (message: string) =>
   `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_DELETE = (widgetName: string) =>
-  `${widgetName} widget deleted`;
-export const WIDGET_BULK_DELETE = (widgetName: string) =>
-  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -345,6 +351,8 @@ export const SKIP = () => "SKIP";
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
+export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
+  " to see more info in the debugger";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
@@ -360,6 +368,9 @@ export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
 export const INVALID_EMAIL = () => "Please enter a valid email";
 export const DEBUGGER_INTERCOM_TEXT = (text: string) =>
   `Hi, \nI'm facing the following error on appsmith, can you please help? \n\n${text}`;
+export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
+  `Error occurred while evaluating trigger ${propertyName}`;
+
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
 export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_COPY_MESSAGE = () => "Copy";
@@ -400,14 +411,31 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+export const PARSING_ERROR = () =>
+  "Syntax Error: Unable to parse code, please check error logs to debug";
+export const PARSING_WARNING = () =>
+  "Linting Errors: Please resolve linting errors before using these functions";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//undo redo
+export const WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} is removed`;
+export const WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} is added back`;
+export const BULK_WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} widgets are removed`;
+export const BULK_WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} widgets are added back`;
 
 // Generate page from DB Messages
 
@@ -466,48 +494,71 @@ export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
 export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
-export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
+export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
+
 // Git sync
-export const GIT_CONNECTION = () => "Git Connections";
+export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const SHARE_APPLICATION = () => "Share Application";
-export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
-export const REMOTE_URL_VIA = () => "REMOTE URL VIA";
+export const REMOTE_URL_VIA = () => "Remote URL via";
 
-export const USER_PROFILE_SETTINGS_TITLE = () => "USER SETTINGS";
+export const USER_PROFILE_SETTINGS_TITLE = () => "User Settings";
 
-export const AUTHOR_NAME = () => "AUTHOR NAME";
-export const AUTHOR_EMAIL = () => "AUTHOR EMAIL";
-export const USER_NAME = () => "USER NAME";
-export const USER_PASSWORD = () => "PASSWORD";
+export const AUTHOR_NAME = () => "Author Name";
+export const AUTHOR_EMAIL = () => "Author Email";
+
+export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
+export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
-export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
-export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
 export const CONNECT = () => "Connect";
+export const LATEST_DP_TITLE = () => "Latest Deployed Preview";
+export const LATEST_DP_SUBTITLE = () =>
+  "See your application in action after successful push";
+export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
 export const COMMIT = () => "COMMIT";
+export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
+export const PUSH_TO = () => "Push to";
+export const PUSH_CHANGES = () => "PUSH CHANGES";
+export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
+export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
+export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
+  "Committed and pushed Successfully";
+export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
+export const DEPLOY_KEY_TITLE = () => "Deployed Key";
+export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
+  "Copy this deploy key to your Git Repository setting.";
 
+export const MERGE_CHANGES = () => "Merge Changes";
+export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
+export const CONNECT_GIT = () => "Connect Git";
+export const RETRY = () => "RETRY";
+export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
+export const SUBMIT = () => "SUBMIT";
+export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
+  "Git user updated successfully";
+
+// Js Snippets
 export const SNIPPET_DESCRIPTION = () =>
   `Search and Insert code snippets to perform complex actions quickly.`;
 export const DOC_DESCRIPTION = () =>
   `Find answers through appsmith documentation.`;
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
-export const MERGE_CHANGES = () => "Merge Changes";
-export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 
 export const DOWNLOAD_FILE_NAME_ERROR = () => "File name was not provided";
 
@@ -588,11 +639,11 @@ export const ONBOARDING_INTRO_FOOTER = () =>
 export const BUILD_APP_TOGETHER = () => "build an app together.";
 
 //Statusbar
-export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Create a Datasource";
-export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () =>
-  "Next: Create a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST = () => "First: Add a Datasource";
+export const ONBOARDING_STATUS_STEPS_FIRST_ALT = () => "Next: Add a Datasource";
 export const ONBOARDING_STATUS_STEPS_SECOND = () => "Next: Create a Query";
 export const ONBOARDING_STATUS_STEPS_THIRD = () => "Next: Add a Widget";
+export const ONBOARDING_STATUS_STEPS_THIRD_ALT = () => "First: Add a Widget";
 export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
   "Next: Connect data to Widget";
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
@@ -624,3 +675,6 @@ export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+
+export const USE_SNIPPET = () => "Snippet";
+export const SNIPPET_TOOLTIP = () => "Search Snippets";

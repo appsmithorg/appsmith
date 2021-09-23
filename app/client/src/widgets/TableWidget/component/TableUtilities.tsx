@@ -47,6 +47,7 @@ import {
 import { StyledButton } from "widgets/IconButtonWidget/component";
 import DropDownComponent from "widgets/DropdownWidget/component";
 import CheckboxComponent from "widgets/CheckboxWidget/component";
+import { stopClickEventPropagation } from "utils/helpers";
 
 export const renderCell = (
   value: any,
@@ -328,11 +329,7 @@ function TableAction(props: {
     <ActionWrapper
       background={props.backgroundColor}
       buttonLabelColor={props.buttonLabelColor}
-      onClick={(e) => {
-        if (props.isSelected) {
-          e.stopPropagation();
-        }
-      }}
+      onClick={stopClickEventPropagation}
     >
       {props.isCellVisible ? (
         <Button
@@ -684,12 +681,7 @@ export const renderDropdown = (props: {
     );
   };
   return (
-    <div
-      onClick={(e: React.MouseEvent<HTMLElement>) => {
-        e.stopPropagation();
-      }}
-      style={{ height: "100%" }}
-    >
+    <div onClick={stopClickEventPropagation} style={{ height: "100%" }}>
       <StyledSingleDropDown
         filterable={false}
         itemRenderer={renderSingleSelectItem}

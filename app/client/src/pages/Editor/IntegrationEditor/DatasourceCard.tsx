@@ -37,6 +37,8 @@ import TooltipComponent from "components/ads/Tooltip";
 import { GenerateCRUDEnabledPluginMap, Plugin } from "../../../api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
+import Boxed from "components/editorComponents/Onboarding/Boxed";
+import { OnboardingStep } from "constants/OnboardingConstants";
 
 const Wrapper = styled.div`
   padding: 18px;
@@ -239,21 +241,23 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            <TooltipComponent
-              boundary={"viewport"}
-              content="Currently not supported for page generation"
-              disabled={!!supportTemplateGeneration}
-              hoverOpenDelay={200}
-              position={Position.BOTTOM}
-            >
-              <GenerateTemplateButton
-                category={Category.tertiary}
-                className="t--generate-template"
-                disabled={!supportTemplateGeneration}
-                onClick={routeToGeneratePage}
-                text="GENERATE NEW PAGE"
-              />
-            </TooltipComponent>
+            <Boxed step={OnboardingStep.FINISH}>
+              <TooltipComponent
+                boundary={"viewport"}
+                content="Currently not supported for page generation"
+                disabled={!!supportTemplateGeneration}
+                hoverOpenDelay={200}
+                position={Position.BOTTOM}
+              >
+                <GenerateTemplateButton
+                  category={Category.tertiary}
+                  className="t--generate-template"
+                  disabled={!supportTemplateGeneration}
+                  onClick={routeToGeneratePage}
+                  text="GENERATE NEW PAGE"
+                />
+              </TooltipComponent>
+            </Boxed>
 
             <NewActionButton
               datasource={datasource}

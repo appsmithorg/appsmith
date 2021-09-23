@@ -451,6 +451,9 @@ export type Theme = {
   actionSidePane: {
     width: number;
   };
+  onboarding: {
+    statusBarHeight: number;
+  };
 };
 
 type IconSizeType = {
@@ -910,6 +913,7 @@ type ColorType = {
   };
   toast: {
     undo: string;
+    undoRedoColor: string;
     warningColor: string;
     dangerColor: string;
     textColor: string;
@@ -1171,10 +1175,14 @@ type ColorType = {
     warning: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     error: {
       borderBottom: string;
       backgroundColor: string;
+      iconColor: string;
+      hoverIconColor: string;
     };
     jsonIcon: string;
     message: string;
@@ -1216,6 +1224,7 @@ type ColorType = {
   editorBottomBar: {
     background: string;
     buttonBackgroundHover: string;
+    branchBtnText: string;
   };
   link: string;
   welcomePage?: {
@@ -1226,6 +1235,7 @@ type ColorType = {
 const editorBottomBar = {
   background: Colors.WHITE,
   buttonBackgroundHover: Colors.Gallery,
+  branchBtnText: Colors.CHARCOAL,
 };
 
 const gitSyncModal = {
@@ -1842,6 +1852,7 @@ export const dark: ColorType = {
   },
   toast: {
     undo: "#CB4810",
+    undoRedoColor: "#F8682B",
     warningColor: "#E0B30E",
     dangerColor: "#E22C2C",
     textColor: "#090707",
@@ -1995,10 +2006,14 @@ export const dark: ColorType = {
       borderBottom: "black",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "black",
       backgroundColor: "#291B1D",
     },
@@ -2431,6 +2446,7 @@ export const light: ColorType = {
   },
   toast: {
     undo: "#F86A2B",
+    undoRedoColor: "#F8682B",
     warningColor: "#DCAD00",
     dangerColor: "#F22B2B",
     textColor: "#F7F7F7",
@@ -2585,10 +2601,14 @@ export const light: ColorType = {
       borderBottom: "rgba(0, 0, 0, 0.05)",
     },
     warning: {
+      iconColor: "#f3cc3e",
+      hoverIconColor: "#e0b30e",
       borderBottom: "white",
       backgroundColor: "rgba(254, 184, 17, 0.1)",
     },
     error: {
+      iconColor: "#f56060",
+      hoverIconColor: "#F22B2B",
       borderBottom: "white",
       backgroundColor: "rgba(242, 43, 43, 0.08)",
     },
@@ -2801,6 +2821,7 @@ export const theme: Theme = {
     builderBodyBG: Colors.WHITE,
     widgetMultiSelectBorder: Colors.MALIBU,
     widgetBorder: Colors.SLATE_GRAY,
+    widgetLightBorder: Colors.WHITE_SMOKE,
     widgetSecondaryBorder: Colors.MERCURY,
     messageBG: Colors.CONCRETE,
     paneIcon: Colors.TROUT,
@@ -2991,6 +3012,9 @@ export const theme: Theme = {
   },
   actionSidePane: {
     width: 265,
+  },
+  onboarding: {
+    statusBarHeight: 83,
   },
 };
 

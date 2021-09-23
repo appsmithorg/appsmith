@@ -1,6 +1,12 @@
 import { Classes, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import React, { memo, ReactNode, useState } from "react";
+import React, {
+  memo,
+  ReactNode,
+  useState,
+  Context,
+  createContext,
+} from "react";
 import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
@@ -52,6 +58,9 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
   return prev.id === next.id;
 };
 
+//Context is being provided to re-render anything that subscribes to this context on open and close
+export const CollapseContext: Context<boolean> = createContext<boolean>(false);
+
 export const PropertySection = memo((props: PropertySectionProps) => {
   const [isOpen, open] = useState(!!props.isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
@@ -82,7 +91,9 @@ export const PropertySection = memo((props: PropertySectionProps) => {
             className={`t--property-pane-section-${className}`}
             style={{ position: "relative", zIndex: 1 }}
           >
-            {props.children}
+            <CollapseContext.Provider value={isOpen}>
+              {props.children}
+            </CollapseContext.Provider>
           </div>
         </Collapse>
       )}
