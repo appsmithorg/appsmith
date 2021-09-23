@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import {
-  ApplicationPayload,
+  CurrentApplicationData,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
 import {
@@ -36,7 +36,6 @@ import EditorAppName from "./EditorAppName";
 import Boxed from "components/editorComponents/Onboarding/Boxed";
 import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { OnboardingStep } from "constants/OnboardingConstants";
-import GlobalSearch from "components/editorComponents/GlobalSearch";
 import EndOnboardingTour from "components/editorComponents/Onboarding/EndTour";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -58,6 +57,9 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
+import { getIsInOnboarding } from "selectors/onboardingSelectors";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "components/utils/Skeleton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -165,11 +167,16 @@ type EditorHeaderProps = {
   publishedTime?: string;
   orgId: string;
   applicationId?: string;
-  currentApplication?: ApplicationPayload;
+  currentApplication?: CurrentApplicationData;
   isSaving: boolean;
   publishApplication: (appId: string) => void;
   lastUpdatedTime?: number;
+  inOnboarding: boolean;
 };
+
+const GlobalSearch = lazy(() => {
+  return retryPromise(() => import("components/editorComponents/GlobalSearch"));
+});
 
 export function EditorHeader(props: EditorHeaderProps) {
   const {
@@ -223,7 +230,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   );
 
   const showGitSyncModal = useCallback(() => {
-    dispatch(setIsGitSyncModalOpen(true));
+    dispatch(setIsGitSyncModalOpen({ isOpen: true }));
   }, [dispatch, setIsGitSyncModalOpen]);
 
   const handleClickDeploy = useCallback(() => {
@@ -342,8 +349,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             </ProfileDropdownContainer>
           )}
         </HeaderSection>
-        <OnboardingHelper />
-        <GlobalSearch />
+        {props.inOnboarding && <OnboardingHelper />}
+        <Suspense fallback={<Skeleton />}>
+          <GlobalSearch />
+        </Suspense>
         {isSnipingMode && (
           <BindingBanner className="t--sniping-mode-banner">
             Select a widget to bind
@@ -363,6 +372,7 @@ const mapStateToProps = (state: AppState) => ({
   currentApplication: state.ui.applications.currentApplication,
   isPublishing: getIsPublishingApplication(state),
   pageId: getCurrentPageId(state),
+  inOnboarding: getIsInOnboarding(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -69,6 +69,8 @@ import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
 import TooltipComponent from "components/ads/Tooltip";
 import * as Sentry from "@sentry/react";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import SearchSnippets from "components/ads/SnippetButton";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -149,11 +151,13 @@ const DocumentationLink = styled.a`
   right: 23px;
   top: -6px;
   color: black;
+  display: flex;
   font-weight: 500;
   font-size: 12px;
   line-height: 14px;
   span {
     display: flex;
+    margin-left: 5px;
   }
   &:hover {
     color: black;
@@ -544,6 +548,12 @@ export function EditorJSONtoForm(props: Props) {
     ) {
       let allowToRender = true;
       if (
+        section.hasOwnProperty("propertyName") &&
+        props.formEvaluationState.hasOwnProperty(section.propertyName)
+      ) {
+        allowToRender =
+          props?.formEvaluationState[section.propertyName].visible;
+      } else if (
         section.hasOwnProperty("configProperty") &&
         props.formEvaluationState.hasOwnProperty(section.configProperty)
       ) {
@@ -752,6 +762,11 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <OnboardingIndicator
               step={OnboardingStep.EXAMPLE_DATABASE}
               width={75}
@@ -772,16 +787,18 @@ export function EditorJSONtoForm(props: Props) {
           <SecondaryWrapper>
             <TabContainerView>
               {documentationLink && (
-                <DocumentationLink
-                  className="t--datasource-documentation-link"
-                  onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-                >
+                <DocumentationLink>
                   <TooltipComponent
                     content={createMessage(DOCUMENTATION_TOOLTIP)}
                     hoverOpenDelay={50}
                     position="top"
                   >
-                    <span>
+                    <span
+                      className="t--datasource-documentation-link"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                    >
                       <AdsIcon
                         keepColors
                         name="book-line"

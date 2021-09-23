@@ -7,7 +7,7 @@ import {
   AUTHOR_EMAIL,
 } from "constants/messages";
 import styled from "styled-components";
-import TextInput from "components/ads/TextInput";
+import TextInput, { emailValidator } from "components/ads/TextInput";
 import { Classes as GitSyncClasses } from "../../constants";
 
 const LabelContainer = styled.div`
@@ -48,10 +48,12 @@ type UserGitProfileSettingsProps = {
   authType: string;
   authorInfo: AuthorInfo;
   setAuthorInfo: (authorInfo: AuthorInfo) => void;
+  disabled: boolean;
 };
 
 function UserGitProfileSettings({
   authorInfo,
+  disabled,
   setAuthorInfo,
 }: UserGitProfileSettingsProps) {
   const isValidRemoteURL = true;
@@ -89,9 +91,11 @@ function UserGitProfileSettings({
           <LabelContainer>
             <span className="label">{createMessage(AUTHOR_NAME)}</span>
           </LabelContainer>
+
           <InputContainer>
             <TextInput
               dataType="text"
+              disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.NAME, value)
@@ -108,11 +112,13 @@ function UserGitProfileSettings({
           <InputContainer>
             <TextInput
               dataType="email"
+              defaultValue={authorInfo.authorEmail}
+              disabled={disabled}
               fill
               onChange={(value) =>
                 setAuthorState(AUTHOR_INFO_LABEL.EMAIL, value)
               }
-              value={authorInfo.authorEmail}
+              validator={emailValidator}
             />
           </InputContainer>
         </>

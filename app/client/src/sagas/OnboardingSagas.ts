@@ -36,7 +36,7 @@ import {
   setOnboardingWelcomeState,
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
-import { getSelectedWidget, getWidgets } from "./selectors";
+import { getSelectedWidget, getWidgetByName, getWidgets } from "./selectors";
 import {
   endOnboarding,
   setCurrentStep,
@@ -231,7 +231,6 @@ function* listenForAddInputWidget() {
             inputWidget.widgetId,
             "widgetName",
             "Standup_Input",
-            RenderModes.CANVAS,
           ),
         );
         yield put(
@@ -284,7 +283,6 @@ function* listenForAddInputWidget() {
               inputWidget.widgetId,
               "onSubmit",
               "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-              RenderModes.CANVAS,
             ),
           );
           AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -688,6 +686,10 @@ function* executeQuery() {
 
 function* addWidget(widgetConfig: any) {
   try {
+    const widget = yield select(getWidgetByName, widgetConfig.widgetName ?? "");
+    // If widget already exists return
+    if (widget) return;
+
     const newWidget = {
       newWidgetId: generateReactKey(),
       widgetId: "0",
@@ -843,7 +845,6 @@ function* addOnSubmitHandler() {
           inputWidget.widgetId,
           "onSubmit",
           "{{add_standup_updates.run(() => fetch_standup_updates.run(), () => {})}}",
-          RenderModes.CANVAS,
         ),
       );
       AnalyticsUtil.logEvent("ONBOARDING_ONSUBMIT_SUCCESS");
@@ -877,7 +878,6 @@ function* addBinding() {
         standupTable.widgetId,
         "tableData",
         "{{fetch_standup_updates.data}}",
-        RenderModes.CANVAS,
       ),
     );
 

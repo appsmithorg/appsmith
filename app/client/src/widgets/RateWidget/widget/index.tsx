@@ -19,6 +19,13 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         parsed = Number(value);
         isValid = true;
       } else {
+        if (value === "") {
+          return {
+            isValid: true,
+            parsed: 0,
+          };
+        }
+
         return {
           isValid: false,
           parsed: 0,
@@ -67,10 +74,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "maxCount",
-            helpText: "Sets the maximum limit of the number of stars",
-            label: "Max count",
+            helpText: "Sets the maximum allowed rating",
+            label: "Max Rating",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter max count",
+            placeholderText: "5",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -80,10 +87,10 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           },
           {
             propertyName: "defaultRate",
-            helpText: "Sets the default number of stars",
-            label: "Default rate",
+            helpText: "Sets the default rating",
+            label: "Default Rating",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter default value",
+            placeholderText: "2.5",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -118,7 +125,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             helpText: "Sets the tooltip contents of stars",
             label: "Tooltips",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter tooltips array",
+            placeholderText: '["Bad", "Neutral", "Good"]',
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -228,11 +235,11 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
-          key={this.props.widgetId}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
           value={this.props.rate}
           {...this.props}
+          key={this.props.widgetId}
         />
       )
     );

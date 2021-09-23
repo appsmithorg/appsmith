@@ -1,4 +1,8 @@
 import React from "react";
+import { pick } from "lodash";
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
 
 import { TextSize } from "constants/WidgetConstants";
 
@@ -19,7 +23,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Sets the text of the widget",
             label: "Text",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter text",
+            placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -51,6 +55,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "backgroundColor",
             label: "Cell Background",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -67,6 +72,27 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 regex: /^(?![<|{{]).+/,
               },
             },
+          },
+          {
+            helpText: "Use a html color name, HEX, RGB or RGBA value",
+            placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
+            propertyName: "borderColor",
+            label: "Border Colour",
+            controlType: "COLOR_PICKER",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText:
+              "Enter value for border width which can also use as margin",
+            propertyName: "borderWidth",
+            label: "Border Width",
+            placeholderText: "Enter value in px",
+            controlType: "INPUT_TEXT",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
             propertyName: "fontSize",
@@ -104,6 +130,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 icon: "PARAGRAPH_TWO",
               },
             ],
+            isJSConvertible: true,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -157,18 +184,27 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <TextComponent
-        backgroundColor={this.props.backgroundColor}
-        fontSize={this.props.fontSize}
-        fontStyle={this.props.fontStyle}
-        isLoading={this.props.isLoading}
-        key={this.props.widgetId}
-        shouldScroll={this.props.shouldScroll}
-        text={this.props.text}
-        textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
-        textColor={this.props.textColor}
-        widgetId={this.props.widgetId}
-      />
+      <WidgetStyleContainer
+        {...pick(this.props, [
+          "widgetId",
+          "containerStyle",
+          "borderColor",
+          "borderWidth",
+        ])}
+      >
+        <TextComponent
+          backgroundColor={this.props.backgroundColor}
+          fontSize={this.props.fontSize}
+          fontStyle={this.props.fontStyle}
+          isLoading={this.props.isLoading}
+          key={this.props.widgetId}
+          shouldScroll={this.props.shouldScroll}
+          text={this.props.text}
+          textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
+          textColor={this.props.textColor}
+          widgetId={this.props.widgetId}
+        />
+      </WidgetStyleContainer>
     );
   }
 
@@ -191,7 +227,10 @@ export interface TextStyles {
   textAlign?: TextAlign;
 }
 
-export interface TextWidgetProps extends WidgetProps, TextStyles {
+export interface TextWidgetProps
+  extends WidgetProps,
+    TextStyles,
+    WidgetStyleContainerProps {
   text?: string;
   isLoading: boolean;
   shouldScroll: boolean;

@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { ButtonBoxShadowTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,9 +11,13 @@ export const CONFIG = {
   defaults: {
     backgroundColor: "#FFFFFF",
     rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 8 * GRID_DENSITY_MIGRATION_V1,
+    columns: 6 * GRID_DENSITY_MIGRATION_V1,
     widgetName: "Container",
     containerStyle: "card",
+    borderColor: "transparent",
+    borderWidth: "0",
+    borderRadius: "0",
+    boxShadow: ButtonBoxShadowTypes.NONE,
     children: [],
     blueprint: {
       view: [
