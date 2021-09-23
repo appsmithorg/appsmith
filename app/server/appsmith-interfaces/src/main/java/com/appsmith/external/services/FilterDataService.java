@@ -74,7 +74,7 @@ public class FilterDataService {
             connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
         }
     }
 
@@ -168,7 +168,7 @@ public class FilterDataService {
         } catch (SQLException e) {
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
         return rowsList;
@@ -328,7 +328,7 @@ public class FilterDataService {
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to apply filtering : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, e.getMessage());
         }
     }
 
@@ -357,7 +357,7 @@ public class FilterDataService {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Failed to filter due to error in ingesting the raw data");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Error in ingesting the data : " + e.getMessage());
         }
     }
 
@@ -367,7 +367,7 @@ public class FilterDataService {
                 connection = DriverManager.getConnection(URL);
             }
         } catch (SQLException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the filtering database");
         }
 
         return connection;
