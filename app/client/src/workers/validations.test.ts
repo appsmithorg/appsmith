@@ -29,7 +29,7 @@ describe("Validate Validators", () => {
         allowedValues: ["abc", "123", "mno", "test"],
       },
     };
-    const inputs = ["abc", "xyz", undefined, null, {}, [], 123];
+    const inputs = ["abc", "xyz", undefined, null, {}, [], 123, ""];
     const expected = [
       {
         isValid: true,
@@ -63,6 +63,31 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: "123",
+      },
+      {
+        isValid: true,
+        parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates text when required is set to false", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        default: "abc",
+        allowedValues: ["abc", "123", "mno", "test"],
+      },
+    };
+    const inputs = [""];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
       },
     ];
     inputs.forEach((input, index) => {
