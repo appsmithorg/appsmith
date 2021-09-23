@@ -475,6 +475,12 @@ export function bootIntercom(user?: User) {
   }
 }
 
+export const stopClickEventPropagation = (
+  e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+) => {
+  e.stopPropagation();
+};
+
 /**
  * returns the modText ( ctrl or command ) based on the user machine
  *
