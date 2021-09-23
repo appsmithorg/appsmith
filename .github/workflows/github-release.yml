@@ -80,11 +80,11 @@ jobs:
 
       - name: Create the bundle
         env:
-          REACT_APP_ENVIRONMENT: 'PRODUCTION'
-          REACT_APP_FUSIONCHARTS_LICENSE_KEY: '${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}'
-          REACT_APP_SEGMENT_CE_KEY: '${{ secrets.APPSMITH_SEGMENT_CE_KEY }}'
-          REACT_APP_VERSION_ID: '${{ needs.prelude.outputs.tag }}'
-          REACT_APP_INTERCOM_APP_ID: '${{ secrets.APPSMITH_INTERCOM_ID }}'
+          REACT_APP_ENVIRONMENT: "PRODUCTION"
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
+          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
+          REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
+          REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
         run: |
           REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
             yarn build
@@ -252,8 +252,8 @@ jobs:
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:latest
+            docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:latest
           fi
 
       - name: Build and push fat image
@@ -265,8 +265,8 @@ jobs:
 
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
-            docker build --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest .
-            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
+            docker build --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
