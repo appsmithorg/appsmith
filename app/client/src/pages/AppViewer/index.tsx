@@ -25,7 +25,6 @@ import {
 } from "actions/metaActions";
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
 import { getViewModePageList } from "selectors/editorSelectors";
 import AppComments from "comments/AppComments/AppComments";
 import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
@@ -91,7 +90,6 @@ class AppViewer extends Component<
       this.setState({ registered: true });
     });
     const { applicationId, pageId } = this.props.match.params;
-    log.debug({ applicationId, pageId });
     if (applicationId) {
       this.props.initializeAppViewer(applicationId, pageId);
     }
