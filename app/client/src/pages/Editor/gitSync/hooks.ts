@@ -3,10 +3,7 @@ import { useState, useCallback, useEffect } from "react";
 import { generateSSHKeyPair, getSSHKeyPair } from "actions/applicationActions";
 import { connectToGitInit } from "actions/gitSyncActions";
 import { ConnectToGitPayload } from "api/GitSyncAPI";
-import {
-  getCurrentAppGitMetaData,
-  getCurrentApplication,
-} from "selectors/applicationSelectors";
+import { getCurrentApplication } from "selectors/applicationSelectors";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 
 export const useSSHKeyPair = () => {
@@ -84,7 +81,6 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const onGitConnectSuccess = useCallback(() => {
     setIsConnectingToGit(false);
-
     onSuccess();
   }, [setIsConnectingToGit]);
 
@@ -115,11 +111,4 @@ export const useGitConnect = ({ onSuccess }: { onSuccess: () => void }) => {
     failedConnectingToGit,
     connectToGit,
   };
-};
-
-export const useIsGitConnected = () => {
-  // if remoteUrl is stored in gitApplicationMetaData it means application was connected to git successfully
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const remoteUrlInStore = gitMetaData?.remoteUrl;
-  return !!remoteUrlInStore;
 };

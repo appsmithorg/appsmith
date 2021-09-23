@@ -72,6 +72,14 @@ class GitSyncAPI extends Api {
       branchName,
     });
   }
+
+  static getLocalConfig(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/config/${applicationId}`);
+  }
+
+  static setLocalConfig(payload: GitConfig, applicationId: string) {
+    return Api.put(`${GitSyncAPI.baseURL}/config/${applicationId}`, payload);
+  }
 }
 
 export default GitSyncAPI;
