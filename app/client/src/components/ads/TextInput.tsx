@@ -107,6 +107,7 @@ const StyledInput = styled((props) => {
     "validator",
     "isValid",
     "cypressSelector",
+    "fill",
   ];
 
   return props.asyncControl ? (
