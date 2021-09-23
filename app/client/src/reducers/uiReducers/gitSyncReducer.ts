@@ -4,7 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/ReduxActionConstants";
-import { GitSyncModalTab, GitConfig, LocalGitConfig } from "entities/GitSync";
+import { GitSyncModalTab, GitConfig } from "entities/GitSync";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -141,7 +141,7 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
-    action: ReduxAction<LocalGitConfig>,
+    action: ReduxAction<GitConfig>,
   ) => ({
     ...state,
     localGitConfig: action.payload,
@@ -149,7 +149,7 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
-    action: ReduxAction<LocalGitConfig>,
+    action: ReduxAction<GitConfig>,
   ) => ({
     ...state,
     localGitConfig: action.payload,
@@ -184,7 +184,7 @@ export type GitSyncReducerState = {
   isFetchingGitConfig?: boolean;
 
   isFetchingLocalGitConfig?: boolean;
-  localGitConfig: LocalGitConfig;
+  localGitConfig: GitConfig;
 };
 
 export default gitSyncReducer;

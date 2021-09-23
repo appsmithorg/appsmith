@@ -18,8 +18,7 @@ import { Colors } from "constants/Colors";
 import { Classes } from "./constants";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import { debug } from "loglevel";
-import { getCurrentAppGitMetaData } from "../../../selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const Container = styled.div`
   height: 600px;
@@ -84,7 +83,6 @@ function GitSyncModal() {
   let initialTabIndex = 0;
   let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
 
-  debug({ gitMetaData });
   if (!remoteUrlInStore) {
     menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
   } else {

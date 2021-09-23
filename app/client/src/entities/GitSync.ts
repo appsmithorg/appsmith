@@ -8,8 +8,3 @@ export type GitConfig = {
   authorName: string;
   authorEmail: string;
 };
-
-export type LocalGitConfig = {
-  authorName: string;
-  authorEmail: string;
-};
