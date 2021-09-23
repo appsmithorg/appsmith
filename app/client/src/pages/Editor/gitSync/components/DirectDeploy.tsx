@@ -5,8 +5,6 @@ import {
 } from "pages/Editor/gitSync/components/StyledComponents";
 import {
   createMessage,
-  CONNECT_TO_GIT_REPOSITORY,
-  CONNECT_TO_GIT_REPOSITORY_SUBTITLE,
   CONNECT,
   DEPLOY_WITHOUT_GIT,
   DEPLOY_TO_CLOUD,
@@ -22,13 +20,15 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  align-item: flex-start;
-  height: 100%;
-`;
-
-const GitSection = styled.div`
   flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+
+  justify-content: flex-end;
+  /* bottom: ${(props) => `${props.theme.spaces[8]}px`}; */
+  bottom: 30px;
+  width: calc(100% - 30px);
+  position: absolute;
 `;
 
 const Separator = styled.div`
@@ -37,7 +37,7 @@ const Separator = styled.div`
   background-color: ${(props) => props.theme.colors.gitSyncModal.separator};
 `;
 
-export default function InitialState() {
+export default function DirectDeploy() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
@@ -55,27 +55,16 @@ export default function InitialState() {
 
   return (
     <Container>
-      <GitSection>
-        <Title>{createMessage(CONNECT_TO_GIT_REPOSITORY)}</Title>
-        <Subtitle>{createMessage(CONNECT_TO_GIT_REPOSITORY_SUBTITLE)}</Subtitle>
-        <Button
-          size={Size.medium}
-          text={createMessage(CONNECT)}
-          width="max-content"
-        />
-      </GitSection>
-      <div>
-        <Separator />
-        <Title>{createMessage(DEPLOY_TO_CLOUD)}</Title>
-        <Subtitle>{createMessage(DEPLOY_WITHOUT_GIT)}</Subtitle>
-        <Button
-          category={Category.tertiary}
-          onClick={handlePublish}
-          size={Size.medium}
-          text={createMessage(CONNECT)}
-          width="max-content"
-        />
-      </div>
+      <Separator />
+      <Title>{createMessage(DEPLOY_TO_CLOUD)}</Title>
+      <Subtitle>{createMessage(DEPLOY_WITHOUT_GIT)}</Subtitle>
+      <Button
+        category={Category.tertiary}
+        onClick={handlePublish}
+        size={Size.medium}
+        text={createMessage(CONNECT)}
+        width="max-content"
+      />
     </Container>
   );
 }
