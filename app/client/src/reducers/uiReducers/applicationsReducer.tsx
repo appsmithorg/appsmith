@@ -16,7 +16,6 @@ import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { GetSSHKeyResponseData } from "actions/applicationActions";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
-import { debug } from "loglevel";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -396,7 +395,6 @@ const applicationsReducer = createReducer(initialState, {
     state: ApplicationsReduxState,
     action: ReduxAction<ConnectToGitResponse>,
   ) => {
-    debug({ action });
     return {
       ...state,
       currentApplication: {
