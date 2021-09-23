@@ -18,7 +18,7 @@
         },
         {
           "label": "Use Prepared Statement",
-          "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. This feature can be used when dynamic bindings replace values and not when they contain SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+          "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",
           "initialValue": true
