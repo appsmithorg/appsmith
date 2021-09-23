@@ -42,6 +42,7 @@ import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
+import { Layers } from "constants/Layers";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -333,6 +334,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   isInvalid={evaluatedArguments[arg.name]?.isInvalid}
                   mode={EditorModes.TEXT_WITH_BINDING}
                   popperPlacement="right-start"
+                  popperZIndex={Layers.portals}
                   showLightningMenu={false}
                   size={EditorSize.EXTENDED}
                   tabBehaviour={TabBehaviour.INDENT}
