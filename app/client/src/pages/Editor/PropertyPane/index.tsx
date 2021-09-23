@@ -39,6 +39,8 @@ import { get } from "lodash";
 import { Layers } from "constants/Layers";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
+import SearchSnippets from "components/ads/SnippetButton";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { WidgetType } from "constants/WidgetConstants";
 
 const PropertyPaneWrapper = styled(PaneWrapper)<{
@@ -168,6 +170,16 @@ function PropertyPaneView(
       {
         tooltipContent: <span>Explore widget related docs</span>,
         icon: <PropertyPaneHelpButton />,
+      },
+      {
+        tooltipContent: <span>Search related snippets</span>,
+        icon: (
+          <SearchSnippets
+            entityId={widgetProperties.widgetId}
+            entityType={ENTITY_TYPE.WIDGET}
+            showIconOnly
+          />
+        ),
       },
       {
         tooltipContent: "Close",
