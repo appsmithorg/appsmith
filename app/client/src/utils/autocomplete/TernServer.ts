@@ -320,7 +320,7 @@ class TernServer {
             // We only add function if the entity type is action
             if (
               entityType &&
-              [ENTITY_TYPE.WIDGET, ENTITY_TYPE.APPSMITH].includes(entityType)
+              ![ENTITY_TYPE.WIDGET, ENTITY_TYPE.APPSMITH].includes(entityType)
             ) {
               // Global functions should be in best match as well as DataTree
               completionType.MATCHING_TYPE.push(completion);
