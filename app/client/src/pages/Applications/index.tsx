@@ -756,7 +756,7 @@ function ApplicationsSection(props: any) {
                     ) &&
                       !isFetchingApplications && (
                         <Button
-                          className="t--new-button"
+                          className="t--new-button createnew"
                           icon={"plus"}
                           isLoading={
                             creatingApplicationMap &&
