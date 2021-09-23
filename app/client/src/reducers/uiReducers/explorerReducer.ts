@@ -13,6 +13,7 @@ export interface ExplorerReduxState {
   };
   pinned: boolean;
 }
+
 const initialState: ExplorerReduxState = {
   pinned: true,
   entity: {},

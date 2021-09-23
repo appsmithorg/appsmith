@@ -28,7 +28,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const pinned = useSelector(getExplorerPinned);
   const [active, setActive] = useState(true);
   const isPreviewMode = useSelector(previewModeSelector);
-  const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
@@ -39,6 +38,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+
+  const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
 
   // registering event listeners
   useEffect(() => {

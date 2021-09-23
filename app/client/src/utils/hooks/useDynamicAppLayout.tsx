@@ -1,5 +1,5 @@
+import { updateCanvasLayout } from "actions/editorActions";
 import { theme } from "constants/DefaultTheme";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
@@ -8,7 +8,7 @@ import {
 import { APP_MODE } from "entities/App";
 import { debounce } from "lodash";
 import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getWidget, getWidgets } from "sagas/selectors";
@@ -16,29 +16,42 @@ import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
+  const dispatch = useDispatch();
+  const domEntityExplorer = document.querySelector(".js-entity-explorer");
+  const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
   const mainContainer = useSelector((state: AppState) =>
     getWidget(state, MAIN_CONTAINER_WIDGET_ID),
   );
+  const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const appMode = useSelector(getAppMode);
   const canvasWidgets = useSelector(getWidgets);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const dispatch = useDispatch();
 
+  /**
+   * calculate the width for the canvas
+   *
+   * @param screenWidth
+   * @param layoutMaxWidth
+   * @returns
+   */
   const calculateFluidMaxWidth = (
     screenWidth: number,
     layoutMaxWidth: number,
   ) => {
-    const screenWidthWithBuffer = 0.95 * screenWidth;
+    const screenWidthWithBuffer = screenWidth;
     const widthToFill =
       appMode === APP_MODE.EDIT
-        ? screenWidthWithBuffer - parseInt(theme.sidebarWidth)
+        ? screenWidthWithBuffer -
+          (domEntityExplorer?.clientWidth || 0) -
+          (domPropertyPane?.clientWidth || 0)
         : screenWidth;
     if (layoutMaxWidth < 0) {
       return widthToFill;
@@ -54,6 +67,7 @@ export const useDynamicAppLayout = () => {
     const { type } = appLayout;
     const { minWidth = -1, maxWidth = -1 } =
       layoutConfigurations[type] || layoutConfigurations[DefaultLayoutType];
+
     const calculatedMinWidth =
       appMode === APP_MODE.EDIT
         ? minWidth - parseInt(theme.sidebarWidth)
@@ -64,13 +78,7 @@ export const useDynamicAppLayout = () => {
       (type === "FLUID" || calculatedMinWidth <= layoutWidth) &&
       rightColumn !== layoutWidth
     ) {
-      dispatch({
-        type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
-        payload: {
-          width: layoutWidth,
-          height: mainContainer.minHeight,
-        },
-      });
+      dispatch(updateCanvasLayout(layoutWidth, mainContainer.minHeight));
     }
   };
 
@@ -78,19 +86,18 @@ export const useDynamicAppLayout = () => {
     mainContainer,
   ]);
 
+  /**
+   * calculates min height
+   */
+  const calculatedMinHeight = useMemo(() => {
+    return calculateDynamicHeight(canvasWidgets, mainContainer.minHeight);
+  }, [mainContainer]);
+
   useEffect(() => {
-    const calculatedMinHeight = calculateDynamicHeight(
-      canvasWidgets,
-      mainContainer.minHeight,
-    );
     if (calculatedMinHeight !== mainContainer.minHeight) {
-      dispatch({
-        type: ReduxActionTypes.UPDATE_CANVAS_LAYOUT,
-        payload: {
-          height: calculatedMinHeight,
-          width: mainContainer.rightColumn,
-        },
-      });
+      dispatch(
+        updateCanvasLayout(mainContainer.rightColumn, calculatedMinHeight),
+      );
     }
   }, [screenHeight, mainContainer.minHeight]);
 

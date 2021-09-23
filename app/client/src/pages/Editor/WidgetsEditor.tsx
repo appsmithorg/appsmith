@@ -162,6 +162,7 @@ function WidgetsEditor() {
         <OnboardingTasks />
       ) : (
         <EditorWrapper
+          className="js-widgets-editor"
           data-testid="widgets-editor"
           draggable
           onClick={handleWrapperClick}

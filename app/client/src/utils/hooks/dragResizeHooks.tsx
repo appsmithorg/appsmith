@@ -177,6 +177,8 @@ export const useWindowSizeHooks = () => {
     });
   };
   useEffect(() => {
+    // eslint-disable-next-line
+    console.log({ entity: document.querySelector(".js-entity-explorer") });
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);

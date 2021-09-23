@@ -48,7 +48,7 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_PARENT: "%",
 };
 
-interface LayoutConfig {
+export interface LayoutConfig {
   minWidth: number;
   maxWidth: number;
 }
