@@ -266,6 +266,7 @@ jobs:
           # Only build & tag with latest if the tag doesn't contain beta
           if [[ ! ${{needs.prelude.outputs.tag}} == *"beta"* ]]; then
             docker build --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest .
+            docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:latest
           fi
 
           echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
