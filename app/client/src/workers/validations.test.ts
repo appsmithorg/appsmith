@@ -972,6 +972,10 @@ describe("Validate Validators", () => {
         label: true,
         value: "true",
       },
+      {
+        paletteColors1: "#ffffff",
+        palettecolors2: "#ffffff",
+      },
     ];
     const config = [
       {
@@ -1015,6 +1019,28 @@ describe("Validate Validators", () => {
               params: {
                 required: true,
                 unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          allowedKeys: [
+            {
+              name: "paletteColors1",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+              },
+            },
+            {
+              name: "paletteColors2",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+                ignoreCase: true,
               },
             },
           ],
@@ -1033,6 +1059,13 @@ describe("Validate Validators", () => {
         isValid: true,
         parsed: { label: true, value: "true" },
       },
+      {
+        isValid: true,
+        parsed: {
+          paletteColors1: "#ffffff",
+          palettecolors2: "#ffffff",
+        },
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config[index], input, DUMMY_WIDGET);
@@ -1047,6 +1080,10 @@ describe("Validate Validators", () => {
       },
       {
         label: true,
+      },
+      {
+        paletteColors1: "#ffffff",
+        palettecolors2: 3,
       },
     ];
     const config = [
@@ -1091,6 +1128,28 @@ describe("Validate Validators", () => {
               params: {
                 required: true,
                 unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          allowedKeys: [
+            {
+              name: "paletteColors1",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+              },
+            },
+            {
+              name: "paletteColors2",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+                ignoreCase: true,
               },
             },
           ],
@@ -1110,6 +1169,15 @@ describe("Validate Validators", () => {
         isValid: false,
         message: "Missing required key: value",
         parsed: { label: true },
+      },
+      {
+        isValid: false,
+        message:
+          "Value of key: palettecolors2 is invalid: This value does not evaluate to type string",
+        parsed: {
+          paletteColors1: "#ffffff",
+          palettecolors2: "",
+        },
       },
     ];
     inputs.forEach((input, index) => {

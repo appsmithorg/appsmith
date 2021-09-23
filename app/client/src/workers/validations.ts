@@ -32,6 +32,20 @@ const flat = (array: Record<string, any>[], uniqueParam: string) => {
   });
   return result;
 };
+
+function getPropertyEntry(
+  obj: Record<string, unknown>,
+  name: string,
+  ignoreCase = false,
+) {
+  if (!ignoreCase) {
+    return name;
+  } else {
+    const keys = Object.getOwnPropertyNames(obj);
+    return keys.find((key) => key.toLowerCase() === name.toLowerCase()) || name;
+  }
+}
+
 function validatePlainObject(
   config: ValidationConfig,
   value: Record<string, unknown>,
@@ -42,24 +56,25 @@ function validatePlainObject(
     const _messages: string[] = [];
     const parsedValue: Record<string, unknown> = value;
     config.params.allowedKeys.forEach((entry) => {
-      if (value.hasOwnProperty(entry.name)) {
+      const ignoreCase = !!entry.params?.ignoreCase;
+      const entryName = getPropertyEntry(value, entry.name, ignoreCase);
+
+      if (value.hasOwnProperty(entryName)) {
         const { isValid, message, parsed } = validate(
           entry,
-          value[entry.name],
+          value[entryName],
           props,
         );
-        parsedValue[entry.name] = parsed;
+        parsedValue[entryName] = parsed;
         if (!isValid) {
-          value[entry.name] = parsed;
+          value[entryName] = parsed;
           _valid = isValid;
           message &&
-            _messages.push(
-              `Value of key: ${entry.name} is invalid: ${message}`,
-            );
+            _messages.push(`Value of key: ${entryName} is invalid: ${message}`);
         }
       } else if (entry.params?.required) {
         _valid = false;
-        _messages.push(`Missing required key: ${entry.name}`);
+        _messages.push(`Missing required key: ${entryName}`);
       }
     });
     if (_valid) {

@@ -102,6 +102,7 @@ export default [
                             type: ValidationTypes.TEXT,
                             params: {
                               strict: true,
+                              ignoreCase: true,
                             },
                           },
                         ],
