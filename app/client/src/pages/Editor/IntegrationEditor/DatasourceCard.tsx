@@ -234,7 +234,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
               <DatasourceName>{datasource.name}</DatasourceName>
             </DatasourceNameWrapper>
-            <Queries>
+            <Queries className={`t--queries-for-${plugin.type}`}>
               {queriesWithThisDatasource
                 ? `${queriesWithThisDatasource} ${QUERY} on this page`
                 : "No query is using this datasource"}
