@@ -23,6 +23,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -91,10 +92,8 @@ public class FilterDataService {
         if (items == null || items.size() == 0) {
             return items;
         }
-        // Generate the schema of the table using the first object
-        JsonNode jsonNode = items.get(0);
 
-        Map<String, DataType> schema = generateSchema(jsonNode);
+        Map<String, DataType> schema = generateSchema(items);
 
         if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
@@ -224,7 +223,7 @@ public class FilterDataService {
                     valueBuilder.append(finalValues);
                 } catch (IOException e) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        value + " could not parsed into an array");
+                            value + " could not parsed into an array");
                 }
 
                 valueBuilder.append(")");
@@ -431,9 +430,13 @@ public class FilterDataService {
     }
 
 
-    private Map<String, DataType> generateSchema(JsonNode jsonNode) {
+    private Map<String, DataType> generateSchema(ArrayNode items) {
 
-        Iterator<String> fieldNamesIterator = jsonNode.fieldNames();
+        JsonNode item = items.get(0);
+
+        Iterator<String> fieldNamesIterator = item.fieldNames();
+
+        Set<String> missingColumnDataTypes = new HashSet<>();
         /*
          * For an object of the following type :
          * {
@@ -462,14 +465,14 @@ public class FilterDataService {
                 .collect(Collectors.toMap(
                                 Function.identity(),
                                 name -> {
-                                    String value = jsonNode.get(name).asText();
+                                    String value = item.get(name).asText();
                                     if (StringUtils.isEmpty(value)) {
-                                        // TODO : Solve for this problem by choosing a row which contains all the data points to construct the schema
-                                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                                "Filtering failure : Mandatory data for column " + name + " in the first data row missing.");
+                                        missingColumnDataTypes.add(name);
+                                        // Default to string
+                                        return DataType.STRING;
+                                    } else {
+                                        return stringToKnownDataTypeConverter(value);
                                     }
-                                    DataType dataType = stringToKnownDataTypeConverter(value);
-                                    return dataType;
                                 },
                                 (u, v) -> {
                                     // This is not possible.
@@ -478,6 +481,28 @@ public class FilterDataService {
                                 LinkedHashMap::new
                         )
                 );
+
+
+        // Try to find the missing data type which has been initialized to String
+        Set<String> columns = new HashSet();
+        columns.addAll(missingColumnDataTypes);
+
+        for (String columnName : columns) {
+            for (JsonNode entry : items) {
+                String value = entry.get(columnName).asText();
+                if (!StringUtils.isEmpty(value)) {
+                    DataType dataType = stringToKnownDataTypeConverter(value);
+                    schema.put(columnName, dataType);
+                    missingColumnDataTypes.remove(columnName);
+                }
+            }
+        }
+
+        // We could not assert a data type for a column because no data exists in any of the rows
+        if (!missingColumnDataTypes.isEmpty()) {
+            // TODO : Decide on the interaction expected here. Currently we are defaulting to String and hence no
+            // error would be shown to the user and filtering on other columns should continue as is.
+        }
 
         return schema;
     }
@@ -523,7 +548,8 @@ public class FilterDataService {
         } catch (SQLException | IllegalArgumentException e) {
             // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
             // an alarm and fix quickly!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, e);
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                        "Error while interacting with value " + value + " : " + e.getMessage());
         }
 
         return preparedStatement;
