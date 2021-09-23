@@ -39,6 +39,15 @@ export const homePageIcon = (
   <Icon color={Colors.CHARCOAL} icon="home" iconSize={ENTITY_ICON_SIZE} />
 );
 
+const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
+export const defaultPageIcon = (
+  <DefaultPageIcon
+    color={Colors.GREEN}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
+);
+
 export const hiddenPageIcon = (
   <Icon color={Colors.CHARCOAL} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
 );
