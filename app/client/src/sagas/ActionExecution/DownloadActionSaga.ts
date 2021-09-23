@@ -1,31 +1,22 @@
-import { Toaster } from "components/ads/Toast";
-import {
-  createMessage,
-  DOWNLOAD_FILE_NAME_ERROR,
-  ERROR_WIDGET_DOWNLOAD,
-} from "constants/messages";
-import { Variant } from "components/ads/common";
+import { createMessage, DOWNLOAD_FILE_NAME_ERROR } from "constants/messages";
 import { getType, isURL, Types } from "utils/TypeHelpers";
 import downloadjs from "downloadjs";
 import AppsmithConsole from "utils/AppsmithConsole";
 import Axios from "axios";
 import { DownloadActionDescription } from "entities/DataTree/actionTriggers";
-import { TriggerFailureError } from "sagas/ActionExecution/PromiseActionSaga";
-
-const displayWidgetDownloadError = (message: string) => {
-  return Toaster.show({
-    text: createMessage(ERROR_WIDGET_DOWNLOAD, message),
-    variant: Variant.danger,
-  });
-};
+import { TriggerMeta } from "sagas/ActionExecution/ActionExecutionSagas";
+import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
 
 export default async function downloadSaga(
   action: DownloadActionDescription["payload"],
+  triggerMeta: TriggerMeta,
 ) {
   const { data, name, type } = action;
   if (!name) {
-    displayWidgetDownloadError(createMessage(DOWNLOAD_FILE_NAME_ERROR));
-    throw new TriggerFailureError(createMessage(DOWNLOAD_FILE_NAME_ERROR));
+    throw new TriggerFailureError(
+      createMessage(DOWNLOAD_FILE_NAME_ERROR),
+      triggerMeta,
+    );
   }
   const dataType = getType(data);
   if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
