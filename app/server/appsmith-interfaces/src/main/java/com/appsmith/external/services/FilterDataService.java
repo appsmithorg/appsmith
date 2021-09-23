@@ -463,6 +463,11 @@ public class FilterDataService {
                                 Function.identity(),
                                 name -> {
                                     String value = jsonNode.get(name).asText();
+                                    if (StringUtils.isEmpty(value)) {
+                                        // TODO : Solve for this problem by choosing a row which contains all the data points to construct the schema
+                                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                                "Filtering failure : Mandatory data for column " + name + " in the first data row missing.");
+                                    }
                                     DataType dataType = stringToKnownDataTypeConverter(value);
                                     return dataType;
                                 },
@@ -518,7 +523,7 @@ public class FilterDataService {
         } catch (SQLException | IllegalArgumentException e) {
             // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
             // an alarm and fix quickly!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e);
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, e);
         }
 
         return preparedStatement;
@@ -532,7 +537,8 @@ public class FilterDataService {
                 .map(condition -> {
                     if (!Condition.isValid(condition)) {
                         throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                "Condition for filtering were incomplete or incorrect. : " + condition);
+                                "Condition for filtering was incomplete or incorrect : " + condition.getPath() +
+                                        condition.getOperator().toString() + condition.getValue());
                     }
 
                     String path = condition.getPath();
