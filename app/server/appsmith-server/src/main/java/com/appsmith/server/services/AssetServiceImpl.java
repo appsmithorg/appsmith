@@ -19,7 +19,14 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Set;
+
+import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
 
 @Slf4j
 @Service
@@ -38,7 +45,7 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Mono<Asset> upload(Part filePart, int maxFileSizeKB) {
+    public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {
         if (filePart == null) {
             return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image."));
         }
@@ -66,10 +73,12 @@ public class AssetServiceImpl implements AssetService {
                     return DataBufferUtils.join(contentCache);
                 })
                 .flatMap(dataBuffer -> {
-                    byte[] data = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(data);
-                    DataBufferUtils.release(dataBuffer);
-                    return repository.save(new Asset(contentType, data));
+                    try {
+                        return repository.save(createAsset(dataBuffer, contentType, isThumbnail));
+                    } catch (IOException e) {
+                        log.error("failed to upload image", e);
+                        return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Upload image"));
+                    }
                 })
                 .flatMap(analyticsService::sendCreateEvent);
     }
@@ -88,6 +97,36 @@ public class AssetServiceImpl implements AssetService {
         return repository.deleteById(assetId)
                 .then(analyticsService.sendDeleteEvent(tempAsset))
                 .then();
+    }
+
+    private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
+        byte[] imageData;
+        MediaType contentType;
+
+        if(createThumbnail) {
+            imageData = resizeImage(dataBuffer);
+            contentType = MediaType.IMAGE_JPEG;
+        } else {
+            imageData = new byte[dataBuffer.readableByteCount()];
+            dataBuffer.read(imageData);
+            contentType = srcContentType;
+        }
+        DataBufferUtils.release(dataBuffer);
+        return new Asset(contentType, imageData);
+    }
+
+    private byte[] resizeImage(DataBuffer dataBuffer) throws IOException {
+        int dimension = THUMBNAIL_PHOTO_DIMENSION;
+        BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
+        Image scaledImage = bufferedImage.getScaledInstance(dimension, dimension, Image.SCALE_SMOOTH);
+        BufferedImage imageBuff = new BufferedImage(dimension, dimension, BufferedImage.TYPE_INT_RGB);
+        imageBuff.getGraphics().drawImage(scaledImage, 0, 0, new Color(0,0,0), null);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        ImageIO.write(imageBuff, "jpg", buffer);
+        byte[] data = buffer.toByteArray();
+        buffer.close();
+        DataBufferUtils.release(dataBuffer);
+        return data;
     }
 
     @Override
