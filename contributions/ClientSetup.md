@@ -57,7 +57,12 @@ On your development machine, please ensure that:
    ```
 
 1. Run cmd: `cp .env.example .env`
+1. Start your local server using docker.
 
+    ```bash
+    cd app/server
+    docker-compose up -d
+    ```
 1. Run the script `start-https.sh` in order to start the nginx container that will proxy the frontend code on your local system.
 
    ```bash
@@ -133,7 +138,7 @@ or Alternatively by,
 
 After this You can continue Setting up from [here](#pre-requisites).
 
-### Running Tests for CLient
+### Running Tests for Client
 
 1. In order to run the Cypress integration tests, you can create a local file `app/client/cypress.env.json` to populate `USERNAME` and `PASSWORD` env variables or use one of the methods [from their docs](https://docs.cypress.io/guides/guides/environment-variables.html#Setting).
 
