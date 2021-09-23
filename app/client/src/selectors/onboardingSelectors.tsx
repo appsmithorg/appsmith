@@ -35,3 +35,6 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
 
 export const getIsInOnboarding = (state: AppState) =>
   state.ui.onBoarding.inOnboarding;
+
+export const getInOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;

@@ -6,6 +6,7 @@ import {
   FlattenedWidgetProps,
   GRID_DENSITY_MIGRATION_V1,
 } from "widgets/constants";
+import { GridDefaults } from "constants/WidgetConstants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -16,7 +17,8 @@ export const CONFIG = {
   defaults: {
     rows: 6 * GRID_DENSITY_MIGRATION_V1,
     columns: 6 * GRID_DENSITY_MIGRATION_V1,
-    size: "MODAL_SMALL",
+    width: 456,
+    height: GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 24,
     canEscapeKeyClose: true,
     // detachFromLayout is set true for widgets that are not bound to the widgets within the layout.
     // setting it to true will only render the widgets(from sidebar) on the main container without any collision check.
@@ -25,7 +27,7 @@ export const CONFIG = {
     shouldScrollContents: true,
     widgetName: "Modal",
     children: [],
-    version: 1,
+    version: 2,
     blueprint: {
       view: [
         {
@@ -79,8 +81,9 @@ export const CONFIG = {
                     cols: 3 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
-                    text: "Cancel",
-                    buttonStyle: "SECONDARY_BUTTON",
+                    text: "Close",
+                    buttonStyle: "PRIMARY",
+                    buttonVariant: "OUTLINE",
                     version: 1,
                   },
                 },
@@ -92,7 +95,7 @@ export const CONFIG = {
                   },
                   size: {
                     rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    cols: 3 * GRID_DENSITY_MIGRATION_V1,
                   },
                   props: {
                     text: "Confirm",
@@ -138,7 +141,7 @@ export const CONFIG = {
                       widget.children.find(
                         (child) =>
                           child.type === "BUTTON_WIDGET" &&
-                          child.text === "Cancel",
+                          child.text === "Close",
                       );
 
                     if (cancelBtnChild && parent) {

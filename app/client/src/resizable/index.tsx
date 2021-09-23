@@ -28,6 +28,7 @@ const getSnappedValues = (
 
 type ResizableHandleProps = {
   allowResize: boolean;
+  showLightBorder?: boolean;
   dragCallback: (x: number, y: number) => void;
   component: StyledComponent<"div", Record<string, unknown>>;
   onStart: () => void;
@@ -60,6 +61,7 @@ function ResizableHandle(props: ResizableHandleProps) {
   const propsToPass = {
     ...bind(),
     showAsBorder: !props.allowResize,
+    showLightBorder: props.showLightBorder,
   };
 
   return <props.component {...propsToPass} />;
@@ -92,6 +94,8 @@ type ResizableProps = {
     position: { x: number; y: number },
   ) => boolean;
   className?: string;
+  resizeDualSides?: boolean;
+  showLightBorder?: boolean;
   zWidgetType?: string;
   zWidgetId?: string;
 };
@@ -126,6 +130,9 @@ export const Resizable = forwardRef(function Resizable(
     reset: false,
   });
 
+  const { resizeDualSides } = props;
+  const multiplier = resizeDualSides ? 2 : 1;
+
   const setNewDimensions = (rect: {
     width: number;
     height: number;
@@ -155,9 +162,9 @@ export const Resizable = forwardRef(function Resizable(
     handles.push({
       dragCallback: (x: number) => {
         setNewDimensions({
-          width: props.componentWidth - x,
+          width: props.componentWidth - multiplier * x,
           height: newDimensions.height,
-          x,
+          x: resizeDualSides ? newDimensions.x : x,
           y: newDimensions.y,
         });
       },
@@ -170,8 +177,8 @@ export const Resizable = forwardRef(function Resizable(
       dragCallback: (x: number, y: number) => {
         setNewDimensions({
           width: newDimensions.width,
-          height: props.componentHeight - y,
-          y: y,
+          height: props.componentHeight - multiplier * y,
+          y: resizeDualSides ? newDimensions.y : y,
           x: newDimensions.x,
         });
       },
@@ -183,7 +190,7 @@ export const Resizable = forwardRef(function Resizable(
     handles.push({
       dragCallback: (x: number) => {
         setNewDimensions({
-          width: props.componentWidth + x,
+          width: props.componentWidth + multiplier * x,
           height: newDimensions.height,
           x: newDimensions.x,
           y: newDimensions.y,
@@ -198,7 +205,7 @@ export const Resizable = forwardRef(function Resizable(
       dragCallback: (x: number, y: number) => {
         setNewDimensions({
           width: newDimensions.width,
-          height: props.componentHeight + y,
+          height: props.componentHeight + multiplier * y,
           x: newDimensions.x,
           y: newDimensions.y,
         });
@@ -286,6 +293,7 @@ export const Resizable = forwardRef(function Resizable(
         props.onStart();
       }}
       onStop={onResizeStop}
+      showLightBorder={props.showLightBorder}
       snapGrid={props.snapGrid}
     />
   ));

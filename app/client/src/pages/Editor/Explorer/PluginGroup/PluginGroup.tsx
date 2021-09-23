@@ -47,10 +47,8 @@ const ExplorerPluginGroup = memo((props: ExplorerPluginGroupProps) => {
 
   const emptyNode = (
     <EntityPlaceholder step={props.step + 1}>
-      No {props.actionConfig?.groupName || "Plugin Groups"} yet. Please click
-      the <strong>+</strong> icon on
-      <strong> {props.actionConfig?.groupName || "Plugin Groups"}</strong>{" "}
-      above, to create.
+      Please click the <strong>+</strong> icon above, to create new{" "}
+      {props.actionConfig?.groupName || "Plugin Groups"}
     </EntityPlaceholder>
   );
 

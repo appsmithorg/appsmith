@@ -99,6 +99,12 @@ import ButtonGroupWidget, {
 } from "widgets/ButtonGroupWidget";
 
 import log from "loglevel";
+import SingleSelectTreeWidget, {
+  CONFIG as SINGLE_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/SingleSelectTreeWidget";
+import MultiSelectTreeWidget, {
+  CONFIG as MULTI_SELECT_TREE_WIDGET_CONFIG,
+} from "widgets/MultiSelectTreeWidget";
 
 export const registerWidgets = () => {
   const start = performance.now();
@@ -139,5 +145,8 @@ export const registerWidgets = () => {
   registerWidget(StatboxWidget, STATBOX_WIDGET_CONFIG);
   registerWidget(AudioRecorderWidget, AUDIO_RECORDER_WIDGET_CONFIG);
   registerWidget(ButtonGroupWidget, BUTTON_GROUP_CONFIG);
+  registerWidget(MultiSelectTreeWidget, MULTI_SELECT_TREE_WIDGET_CONFIG);
+  registerWidget(SingleSelectTreeWidget, SINGLE_SELECT_TREE_WIDGET_CONFIG);
+
   log.debug("Widget registration took: ", performance.now() - start, "ms");
 };
