@@ -10,6 +10,8 @@ export const ReduxSagaChannels: { [key: string]: string } = {
 };
 
 export const ReduxActionTypes = {
+  FETCH_SSH_KEY_PAIR_INIT: "FETCH_SSH_KEY_PAIR_INIT",
+  FETCH_SSH_KEY_PAIR_SUCCESS: "FETCH_SSH_KEY_PAIR_SUCCESS",
   SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN: "SET_IS_IMPORT_APP_VIA_GIT_MODAL_OPEN",
   FETCH_GLOBAL_GIT_CONFIG_INIT: "FETCH_GLOBAL_GIT_CONFIG_INIT",
   FETCH_GLOBAL_GIT_CONFIG_SUCCESS: "FETCH_GLOBAL_GIT_CONFIG_SUCCESS",
@@ -23,6 +25,8 @@ export const ReduxActionTypes = {
   SWITCH_GIT_BRANCH_INIT: "SWITCH_GIT_BRANCH_INIT",
   COMMIT_TO_GIT_REPO_INIT: "COMMIT_TO_GIT_REPO_INIT",
   COMMIT_TO_GIT_REPO_SUCCESS: "COMMIT_TO_GIT_REPO_SUCCESS",
+  PUSH_TO_GIT_INIT: "PUSH_TO_GIT_INIT",
+  PUSH_TO_GIT_SUCCESS: "PUSH_TO_GIT_SUCCESS",
   UPDATE_THREAD_DRAFT_COMMENT: "UPDATE_THREAD_DRAFT_COMMENT",
   UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT:
     "UPDATE_UNPUBLISHED_THREAD_DRAFT_COMMENT",
@@ -588,6 +592,8 @@ export const ReduxActionTypes = {
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
+  PUSH_TO_GIT_ERROR: "PUSH_TO_GIT_ERROR",
+  FETCH_SSH_KEY_PAIR_ERROR: "FETCH_SSH_KEY_PAIR_ERROR",
   UPDATE_GLOBAL_GIT_CONFIG_ERROR: "UPDATE_GLOBAL_GIT_CONFIG_ERROR",
   FETCH_GLOBAL_GIT_CONFIG_ERROR: "FETCH_GLOBAL_GIT_CONFIG_ERROR",
   CONNECT_TO_GIT_ERROR: "CONNECT_TO_GIT_ERROR",
@@ -826,7 +832,7 @@ export interface ClonePageSuccessPayload {
 
 export type PageListPayload = Array<Page>;
 
-export type ApplicationPayload = {
+export interface ApplicationPayload {
   id: string;
   name: string;
   color?: string;
@@ -842,7 +848,12 @@ export type ApplicationPayload = {
   lastDeployedAt?: string;
   modifiedBy?: string;
   modifiedAt?: string;
-};
+}
+
+export interface CurrentApplicationData extends ApplicationPayload {
+  SSHKeyPair?: string;
+  deployKeyDocUrl?: string;
+}
 
 export type OrganizationDetails = {
   organization: Org;

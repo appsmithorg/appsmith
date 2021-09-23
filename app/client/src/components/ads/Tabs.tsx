@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
+import { Colors } from "constants/Colors";
 
 export type TabProp = {
   key: string;
@@ -34,7 +35,7 @@ const TabsWrapper = styled.div<{
     display: flex;
     flex-direction: ${(props) => (!!props.vertical ? "column" : "row")};
     align-items: ${(props) => (!!props.vertical ? "stretch" : "center")};
-    border-bottom: 1px solid #dfdfdf;
+    border-bottom: 1px solid ${Colors.ALTO};
     color: ${(props) => props.theme.colors.tabs.normal};
     path {
       fill: ${(props) => props.theme.colors.tabs.icon};
@@ -124,7 +125,7 @@ const TabTitleWrapper = styled.div<{
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background: #dfdfdf;
+    background: ${Colors.ALTO};
     svg {
       margin: auto;
       fill: ${(props) => props.theme.colors.tabs.normal};
