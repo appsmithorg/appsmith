@@ -178,7 +178,7 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
                     // Error message : E11000 duplicate key error collection: appsmith.application index:
                     // organization_application_deleted_gitRepo_gitBranch_compound_index dup key:
                     // { organizationId: "******", name: "AppName", deletedAt: null }
-                    if (error.getCause().getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
+                    if (error.getCause().getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         return Mono.error(
                             new AppsmithException(AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME)
                         );

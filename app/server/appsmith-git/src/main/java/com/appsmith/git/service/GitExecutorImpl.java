@@ -153,7 +153,6 @@ public class GitExecutorImpl implements GitExecutor {
         git.push()
             .setTransportConfigCallback(transportConfigCallback)
             .setRemote(remoteUrl)
-            .setTimeout(10)
             .call()
             .forEach(pushResult ->
                 pushResult.getRemoteUpdates()

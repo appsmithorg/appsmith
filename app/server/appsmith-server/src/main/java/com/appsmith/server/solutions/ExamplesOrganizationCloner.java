@@ -451,8 +451,8 @@ public class ExamplesOrganizationCloner {
         return applicationService.createDefault(application)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
-                            // organization_application_deleted_gitRepo_gitBranch_compound_index
-                            && error.getMessage().contains("organization_application_deleted_gitRepo_gitBranch_compound_index")) {
+                            // organization_application_deleted_gitApplicationMetadata_compound_index
+                            && error.getMessage().contains("organization_application_deleted_gitApplicationMetadata_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }

@@ -414,16 +414,19 @@ public class GitServiceImpl implements GitService {
     private Mono<String> pushApplication(String applicationId, boolean doPublish) {
 
         return publishAndOrGetApplication(applicationId, doPublish)
-                .zipWhen(application -> {
+                .flatMap(application -> {
                     if (applicationId.equals(application.getGitApplicationMetadata().getDefaultApplicationId())) {
                         return Mono.just(application);
                     }
-                    return applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId());
+                    return applicationService.findById(application.getGitApplicationMetadata().getDefaultApplicationId())
+                        .map(defaultApp -> {
+                            application.getGitApplicationMetadata().setGitAuth(defaultApp.getGitApplicationMetadata().getGitAuth());
+                            return application;
+                        });
                 })
-                .map(tuple -> {
-                    Application application = tuple.getT1();
+                .map(application -> {
                     // tuple.getT2() => default application fetched for private and public keys
-                    GitApplicationMetadata gitData = tuple.getT2().getGitApplicationMetadata();
+                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
 
                     if (gitData == null
                             || StringUtils.isEmptyOrNull(gitData.getBranchName())
@@ -546,7 +549,9 @@ public class GitServiceImpl implements GitService {
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
         if (Boolean.TRUE.equals(publish)) {
-            return applicationPageService.publish(applicationId, true);
+            return applicationPageService.publish(applicationId, true)
+                // Get application here to decrypt the git private key if present
+                .then(getApplicationById(applicationId));
         }
         return getApplicationById(applicationId);
     }
