@@ -2363,22 +2363,17 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   }
 });
 
-Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
-  cy.get(widgetsPage.buttonStyleDropdown).click({ force: true });
-  cy.get(
-    ".bp3-popover-content .t--dropdown-option:nth-child(" + index + ")",
-  ).click({ force: true });
+Cypress.Commands.add("changeButtonColor", (buttonColor) => {
+  cy.get(widgetsPage.buttonColor)
+    .click({ force: true })
+    .clear()
+    .type(buttonColor);
   cy.PublishtheApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
     "background-color",
     buttonColor,
   );
-  // cy.get(buttonBackground)
-  //   .first()
-  //   .trigger('mouseover', { force: true });
-  // cy.get(buttonBackground)
-  //   .should('have.css', 'background-color', hoverColor);
   cy.wait(1000);
 });
 
