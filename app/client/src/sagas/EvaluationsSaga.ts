@@ -400,23 +400,33 @@ export function* evaluateSnippetSaga(action: any) {
         {},
       );
     } else {
+      /* There are cases where the evaluation results come with triggers and errors.
+      Following code handles that. Also, we set the results to "undefined" when the evaluated value is undefined.
+      */
       yield put(
         setEvaluatedSnippet(
           result
             ? JSON.stringify(result, null, 2)
             : errors && errors.length
             ? JSON.stringify(errors, null, 2)
-            : "",
+            : "undefined",
         ),
       );
     }
     Toaster.show({
       text: createMessage(
-        result || triggers
+        result || triggers?.length > 0
           ? SNIPPET_EXECUTION_SUCCESS
-          : SNIPPET_EXECUTION_FAILED,
+          : errors && errors.length
+          ? SNIPPET_EXECUTION_FAILED
+          : SNIPPET_EXECUTION_SUCCESS,
       ),
-      variant: result || triggers ? Variant.success : Variant.danger,
+      variant:
+        result || triggers?.length > 0
+          ? Variant.success
+          : errors && errors.length
+          ? Variant.danger
+          : Variant.success,
     });
     yield put(
       setGlobalSearchFilterContext({
