@@ -584,6 +584,7 @@ export const ReduxActionTypes = {
   UNDO_END_FIRST_TIME_USER_ONBOARDING: "UNDO_END_FIRST_TIME_USER_ONBOARDING",
   SET_EXPLORER_PINNED: "SET_EXPLORER_PINNED",
   SET_PREVIEW_MODE: "SET_PREVIEW_MODE",
+  UPDATE_EXPLORER_WIDTH: "UPDATE_EXPLORER_WIDTH",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

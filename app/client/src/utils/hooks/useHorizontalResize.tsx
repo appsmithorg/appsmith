@@ -6,12 +6,12 @@ import { unFocus } from "utils/helpers";
  * use horizontal resize
  *
  * @param ref
- * @param onSizeChange
+ * @param onWidthChange
  */
 const useHorizontalResize = (
   ref: MutableRefObject<HTMLElement | null>,
-  onSizeChange: (newWidth: number) => void,
-  onDragFinished?: () => void,
+  onWidthChange?: (newWidth: number) => void,
+  onDragEnd?: () => void,
 ) => {
   let MIN_WIDTH = 0;
   let MAX_WIDTH = 0;
@@ -78,8 +78,8 @@ const useHorizontalResize = (
    */
   const onMouseUp = () => {
     if (resizing) {
-      if (typeof onDragFinished === "function") {
-        onDragFinished();
+      if (typeof onDragEnd === "function") {
+        onDragEnd();
       }
 
       setResizing(false);
@@ -126,7 +126,9 @@ const useHorizontalResize = (
           setPosition(newPosition);
         }
 
-        onSizeChange(newWidth);
+        if (typeof onWidthChange === "function") {
+          onWidthChange(newWidth);
+        }
       }
     }
   };

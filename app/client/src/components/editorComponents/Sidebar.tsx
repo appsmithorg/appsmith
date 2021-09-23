@@ -20,7 +20,8 @@ import AppComments from "comments/AppComments/AppComments";
 
 type Props = {
   width: number;
-  onWidthChange: (width: number) => void;
+  onWidthChange?: (width: number) => void;
+  onDragEnd?: () => void;
 };
 
 export const EntityExplorerSidebar = memo((props: Props) => {
@@ -39,7 +40,11 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     PerformanceTracker.stopTracking();
   });
 
-  const resizer = useHorizontalResize(sidebarRef, props.onWidthChange);
+  const resizer = useHorizontalResize(
+    sidebarRef,
+    props.onWidthChange,
+    props.onDragEnd,
+  );
 
   // registering event listeners
   useEffect(() => {

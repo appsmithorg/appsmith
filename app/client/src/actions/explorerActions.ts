@@ -23,3 +23,18 @@ export const setExplorerPinned = (shouldPin: boolean) => {
     },
   };
 };
+
+/**
+ * action that make explorer pin/unpin
+ *
+ * @param shouldPin
+ * @returns
+ */
+export const updateExplorerWidth = (width: number | undefined) => {
+  return {
+    type: ReduxActionTypes.UPDATE_EXPLORER_WIDTH,
+    payload: {
+      width,
+    },
+  };
+};

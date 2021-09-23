@@ -1,90 +1,35 @@
 import { updateCanvasLayout } from "actions/editorActions";
-import { theme } from "constants/DefaultTheme";
 import {
   DefaultLayoutType,
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { APP_MODE } from "entities/App";
-import { debounce } from "lodash";
-import { AppsmithDefaultLayout } from "pages/Editor/MainContainerLayoutControl";
+
+import { debounce, get } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
-import { getWidget, getWidgets } from "sagas/selectors";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getWidgetByID, getWidgets } from "sagas/selectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { getExplorerWidth } from "selectors/explorerSelector";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
+import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
+  const explorerWidth = useSelector(getExplorerWidth);
   const domEntityExplorer = document.querySelector(".js-entity-explorer");
   const domPropertyPane = document.querySelector(".js-property-pane-sidebar");
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
-  const mainContainer = useSelector((state: AppState) =>
-    getWidget(state, MAIN_CONTAINER_WIDGET_ID),
-  );
+  const mainContainer = useSelector(getWidgetByID(MAIN_CONTAINER_WIDGET_ID));
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
-  const appMode = useSelector(getAppMode);
   const canvasWidgets = useSelector(getWidgets);
   const appLayout = useSelector(getCurrentApplicationLayout);
-
-  /**
-   * calculate the width for the canvas
-   *
-   * @param screenWidth
-   * @param layoutMaxWidth
-   * @returns
-   */
-  const calculateFluidMaxWidth = (
-    screenWidth: number,
-    layoutMaxWidth: number,
-  ) => {
-    const screenWidthWithBuffer = screenWidth;
-    const widthToFill =
-      appMode === APP_MODE.EDIT
-        ? screenWidthWithBuffer -
-          (domEntityExplorer?.clientWidth || 0) -
-          (domPropertyPane?.clientWidth || 0)
-        : screenWidth;
-    if (layoutMaxWidth < 0) {
-      return widthToFill;
-    } else {
-      return widthToFill < layoutMaxWidth ? widthToFill : layoutMaxWidth;
-    }
-  };
-
-  const resizeToLayout = (
-    screenWidth: number,
-    appLayout = AppsmithDefaultLayout,
-  ) => {
-    const { type } = appLayout;
-    const { minWidth = -1, maxWidth = -1 } =
-      layoutConfigurations[type] || layoutConfigurations[DefaultLayoutType];
-
-    const calculatedMinWidth =
-      appMode === APP_MODE.EDIT
-        ? minWidth - parseInt(theme.sidebarWidth)
-        : minWidth;
-    const layoutWidth = calculateFluidMaxWidth(screenWidth, maxWidth);
-    const { rightColumn } = mainContainer;
-    if (
-      (type === "FLUID" || calculatedMinWidth <= layoutWidth) &&
-      rightColumn !== layoutWidth
-    ) {
-      dispatch(updateCanvasLayout(layoutWidth, mainContainer.minHeight));
-    }
-  };
-
-  const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
-    mainContainer,
-  ]);
 
   /**
    * calculates min height
@@ -92,6 +37,89 @@ export const useDynamicAppLayout = () => {
   const calculatedMinHeight = useMemo(() => {
     return calculateDynamicHeight(canvasWidgets, mainContainer.minHeight);
   }, [mainContainer]);
+
+  /**
+   * app layout range i.e minWidth and maxWidth for the current layout
+   * if there is no config for the current layout, use default layout i.e desktop
+   */
+  const layoutWidthRange = useMemo(() => {
+    let minWidth = -1;
+    let maxWidth = -1;
+
+    if (appLayout) {
+      const { type } = appLayout;
+      const currentLayoutConfig = get(
+        layoutConfigurations,
+        type,
+        layoutConfigurations[DefaultLayoutType],
+      );
+
+      if (currentLayoutConfig.minWidth) minWidth = currentLayoutConfig.minWidth;
+      if (currentLayoutConfig.maxWidth) maxWidth = currentLayoutConfig.maxWidth;
+    }
+
+    return { minWidth, maxWidth };
+  }, [appLayout]);
+
+  /**
+   * calculate the width for the canvas
+   *
+   * cases:
+   *  - if max width is negative, use calculated width
+   *  - if calculated width is in range of min/max widths of layout, use calculated width
+   *  - if calculated width is less then min width, use min Width
+   *  - if calculated width is larger than max width, use max width
+   *  - by default use min width
+   *
+   * @param screenWidth
+   * @param layoutMaxWidth
+   * @returns
+   */
+  const calculateCanvasWidth = () => {
+    const { maxWidth, minWidth } = layoutWidthRange;
+    let calculatedWidth = screenWidth - scrollbarWidth();
+
+    // if preview mode is on, we don't need to subtract the EE/Property Pane width
+    if (isPreviewMode === false) {
+      const sidebarsWidth =
+        (domEntityExplorer?.clientWidth || 0) +
+        (domPropertyPane?.clientWidth || 0);
+
+      calculatedWidth -= sidebarsWidth;
+    }
+
+    switch (true) {
+      case maxWidth < 0:
+      case appLayout?.type === "FLUID":
+      case calculatedWidth < maxWidth && calculatedWidth > minWidth:
+        return calculatedWidth;
+      case calculatedWidth < minWidth:
+        return minWidth;
+      case calculatedWidth > maxWidth:
+        return maxWidth;
+      default:
+        return minWidth;
+    }
+  };
+
+  /**
+   * resizes the layout based on the layout type
+   *
+   * @param screenWidth
+   * @param appLayout
+   */
+  const resizeToLayout = () => {
+    const calculatedWidth = calculateCanvasWidth();
+    const { rightColumn } = mainContainer;
+
+    if (rightColumn !== calculatedWidth) {
+      dispatch(updateCanvasLayout(calculatedWidth, mainContainer.minHeight));
+    }
+  };
+
+  const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
+    mainContainer,
+  ]);
 
   useEffect(() => {
     if (calculatedMinHeight !== mainContainer.minHeight) {
@@ -102,10 +130,16 @@ export const useDynamicAppLayout = () => {
   }, [screenHeight, mainContainer.minHeight]);
 
   useEffect(() => {
-    debouncedResize(screenWidth, appLayout);
+    debouncedResize();
   }, [screenWidth]);
 
   useEffect(() => {
-    resizeToLayout(screenWidth, appLayout);
-  }, [appLayout, currentPageId, mainContainer.rightColumn]);
+    resizeToLayout();
+  }, [
+    appLayout,
+    currentPageId,
+    mainContainer.rightColumn,
+    isPreviewMode,
+    explorerWidth,
+  ]);
 };

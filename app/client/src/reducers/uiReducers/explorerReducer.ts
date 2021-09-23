@@ -12,11 +12,13 @@ export interface ExplorerReduxState {
     editingEntityName?: string;
   };
   pinned: boolean;
+  width: number | undefined;
 }
 
 const initialState: ExplorerReduxState = {
   pinned: true,
   entity: {},
+  width: undefined,
 };
 
 const setUpdatingEntity = (
@@ -130,6 +132,12 @@ const explorerReducer = createReducer(initialState, {
     action: ReduxAction<{ shouldPin: boolean }>,
   ) => {
     return { ...state, pinned: action.payload.shouldPin };
+  },
+  [ReduxActionTypes.UPDATE_EXPLORER_WIDTH]: (
+    state: ExplorerReduxState,
+    action: ReduxAction<{ width: number | undefined }>,
+  ) => {
+    return { ...state, width: action.payload.width };
   },
 });
 

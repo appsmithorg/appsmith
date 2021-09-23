@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
+import { useDispatch } from "react-redux";
 import { Route, Switch, matchPath, useLocation } from "react-router";
 import EditorsRouter from "./routes";
 import WidgetsEditor from "./WidgetsEditor";
@@ -12,6 +13,7 @@ import getFeatureFlags from "utils/featureFlags";
 
 import { BUILDER_CHECKLIST_URL, BUILDER_URL } from "constants/routes";
 import OnboardingChecklist from "./FirstTimeUserOnboarding/Checklist";
+import { updateExplorerWidth } from "actions/explorerActions";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Container = styled.div`
@@ -24,6 +26,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 function MainContainer() {
+  const dispatch = useDispatch();
   const location = useLocation();
   const [sidebarWidth, setSidebarWidth] = useState(256);
 
@@ -35,6 +38,15 @@ function MainContainer() {
   const onLeftSidebarWidthChange = useCallback((newWidth) => {
     setSidebarWidth(newWidth);
   }, []);
+
+  /**
+   * on entity explorer sidebar drag end
+   *
+   * @return void
+   */
+  const onLeftSidebarDragEnd = useCallback(() => {
+    dispatch(updateExplorerWidth(sidebarWidth));
+  }, [sidebarWidth]);
 
   /**
    * checks if property pane should be rendered or not
@@ -57,6 +69,7 @@ function MainContainer() {
     <>
       <Container className="w-full overflow-x-hidden">
         <EntityExplorerSidebar
+          onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
           width={sidebarWidth}
         />
