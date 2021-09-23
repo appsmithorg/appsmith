@@ -179,7 +179,7 @@ jobs:
           path: app/rts/dist/
 
   package:
-    needs: [buildClient, buildServer, buildRts]
+    needs: [prelude, buildClient, buildServer, buildRts]
 
     runs-on: ubuntu-latest
 
