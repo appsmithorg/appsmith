@@ -7,6 +7,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
+import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import {
   getItemType,
   getItemTitle,
@@ -113,9 +114,9 @@ const ItemTitle = styled.div`
   justify-content: space-between;
   flex: 1;
   align-items: center;
-  ${(props) => getTypographyByKey(props, "p3")};
+  ${(props) => getTypographyByKey(props, "p1")};
   font-w [class^="ais-"] {
-    ${(props) => getTypographyByKey(props, "p3")};
+    ${(props) => getTypographyByKey(props, "p1")};
   }
 `;
 
@@ -394,12 +395,31 @@ function CategoryItem({
   );
 }
 
-function SnippetItem({
-  item: {
-    body: { shortTitle, title },
-  },
-}: any) {
-  return <span>{shortTitle || title}</span>;
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  && svg {
+    width: 14px;
+    height: 14px;
+    path {
+      fill: #716e6e !important;
+    }
+  }
+  && svg.snippet-icon {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+function SnippetItem({ item: { body } }: any) {
+  return (
+    <FlexWrapper>
+      <Snippet className="snippet-icon" />
+      <ItemTitle>
+        <span>{body.shortTitle || body.title}</span>
+      </ItemTitle>
+    </FlexWrapper>
+  );
 }
 
 const SearchItemByType = {

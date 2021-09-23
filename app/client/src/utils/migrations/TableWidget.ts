@@ -15,6 +15,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { cloneDeep, isString } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { DSLWidget } from "widgets/constants";
+import { getSubstringBetweenTwoWords } from "utils/helpers";
 
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: WidgetProps) => {
@@ -302,5 +303,136 @@ export const migrateTablePrimaryColumnsComputedValue = (
     }
     return child;
   });
+  return currentDSL;
+};
+
+const getUpdatedColumns = (
+  widgetName: string,
+  columns: Record<string, ColumnProperties>,
+) => {
+  const updatedColumns: Record<string, ColumnProperties> = {};
+  if (columns && Object.keys(columns).length > 0) {
+    for (const [columnId, columnProps] of Object.entries(columns)) {
+      const sanitizedColumnId = removeSpecialChars(columnId, 200);
+      const selectedRowBindingValue = `${widgetName}.selectedRow`;
+      let newOnClickBindingValue = undefined;
+      if (
+        columnProps.onClick &&
+        columnProps.onClick.includes(selectedRowBindingValue)
+      ) {
+        newOnClickBindingValue = columnProps.onClick.replace(
+          selectedRowBindingValue,
+          "currentRow",
+        );
+      }
+      updatedColumns[sanitizedColumnId] = {
+        ...columnProps,
+        onClick: newOnClickBindingValue,
+      };
+    }
+  }
+  return updatedColumns;
+};
+
+export const migrateTableWidgetSelectedRowBindings = (
+  currentDSL: DSLWidget,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      child.derivedColumns = getUpdatedColumns(
+        child.widgetName,
+        child.derivedColumns as Record<string, ColumnProperties>,
+      );
+      child.primaryColumns = getUpdatedColumns(
+        child.widgetName,
+        child.primaryColumns as Record<string, ColumnProperties>,
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableWidgetSelectedRowBindings(child);
+    }
+    return child;
+  });
+  return currentDSL;
+};
+
+/**
+ * This migration sanitizes the following properties -
+ * primaryColumns object key, for the value of each key - id, computedValue are sanitized
+ * columnOrder
+ * dynamicBindingPathList
+ *
+ * This migration solves the following issue -
+ * https://github.com/appsmithorg/appsmith/issues/6897
+ */
+export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "TABLE_WIDGET") {
+      const primaryColumnEntries: [string, ColumnProperties][] = Object.entries(
+        child.primaryColumns || {},
+      );
+
+      const newPrimaryColumns: Record<string, ColumnProperties> = {};
+      if (primaryColumnEntries.length) {
+        for (const [key, value] of primaryColumnEntries) {
+          const sanitizedKey = removeSpecialChars(key, 200);
+          const id = removeSpecialChars(value.id, 200);
+
+          // Sanitizes "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.$$$random_header))}}"
+          // to "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow._random_header))}}"
+          const computedValue = (value?.computedValue || "").replace(
+            key,
+            sanitizedKey,
+          );
+
+          newPrimaryColumns[sanitizedKey] = {
+            ...value,
+            computedValue,
+            id,
+          };
+        }
+
+        child.primaryColumns = newPrimaryColumns;
+      }
+
+      // Sanitizes [ "id", "name", $$$random_header ]
+      // to [ "id", "name", _random_header ]
+      child.columnOrder = (child.columnOrder || []).map((co: string) =>
+        removeSpecialChars(co, 200),
+      );
+
+      // Sanitizes [ {key: primaryColumns.$random.header.computedValue }]
+      // to [ {key: primaryColumns._random_header.computedValue }]
+      child.dynamicBindingPathList = (child.dynamicBindingPathList || []).map(
+        (path) => {
+          const pathChunks = path.key.split("."); // primaryColumns.$random.header.computedValue -> [ "primaryColumns", "$random", "header", "computedValue"]
+
+          // tableData is a valid dynamicBindingPath and pathChunks would have just one entry
+          if (pathChunks.length < 2) {
+            return path;
+          }
+
+          const firstPart = pathChunks[0] + "."; // "primaryColumns."
+          const lastPart = "." + pathChunks[pathChunks.length - 1]; // ".computedValue"
+
+          const key = getSubstringBetweenTwoWords(
+            path.key,
+            firstPart,
+            lastPart,
+          ); // primaryColumns.$random.header.computedValue -> $random.header
+
+          const sanitizedPrimaryColumnKey = removeSpecialChars(key, 200);
+
+          return {
+            key: firstPart + sanitizedPrimaryColumnKey + lastPart,
+          };
+        },
+      );
+    } else if (child.children && child.children.length > 0) {
+      child = migrateTableSanitizeColumnKeys(child);
+    }
+
+    return child;
+  });
+
   return currentDSL;
 };

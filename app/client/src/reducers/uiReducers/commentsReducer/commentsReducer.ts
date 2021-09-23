@@ -45,6 +45,7 @@ const initialState: CommentsReduxState = {
   draftComments: {},
   unpublishedThreadDraftComment: null,
   commentThreadsFetched: false,
+  lastUpdatedCommentThreadId: null,
 };
 
 /**

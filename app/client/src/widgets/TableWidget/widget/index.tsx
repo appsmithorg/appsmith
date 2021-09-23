@@ -47,6 +47,7 @@ import {
 import tablePropertyPaneConfig from "./propertyConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
+import { Colors } from "constants/Colors";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -66,6 +67,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
+      triggeredRowIndex: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
       // The following meta property is used for keep inline changed data for temp.
@@ -82,6 +84,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
+      triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
@@ -138,8 +141,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columnProperties.cellBackground,
         rowIndex,
       ),
-      buttonStyle: this.getPropertyValue(
-        columnProperties.buttonStyle,
+      buttonColor: this.getPropertyValue(
+        columnProperties.buttonColor,
         rowIndex,
       ),
       buttonLabelColor: this.getPropertyValue(
@@ -173,11 +176,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ),
       boxShadowColor: this.getPropertyValue(
         columnProperties.boxShadowColor,
-        rowIndex,
-        true,
-      ),
-      iconButtonStyle: this.getPropertyValue(
-        columnProperties.iconButtonStyle,
         rowIndex,
         true,
       ),
@@ -297,20 +295,23 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
         columnProperties: columnProperties,
         Cell: (props: any) => {
-          let rowIndex: number = props.cell.row.index;
+          const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
-          if (data && data.__originalIndex__) rowIndex = data.__originalIndex__;
+          const originalIndex = data?.__originalIndex__ || rowIndex;
 
+          // cellProperties order or size does not change when filter/sorting/grouping is applied
+          // on the data thus original index is need to identify the column's cell property.
           const cellProperties = this.getCellProperties(
             columnProperties,
-            rowIndex,
+            originalIndex,
           );
+
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: !!props.row.isSelected,
               onCommandClick: (action: string, onComplete: () => void) =>
                 this.onCommandClick(rowIndex, action, onComplete),
-              backgroundColor: cellProperties.buttonStyle || "rgb(3, 179, 101)",
+              backgroundColor: cellProperties.buttonColor || "rgb(3, 179, 101)",
               buttonLabelColor: cellProperties.buttonLabelColor || "#FFFFFF",
               isDisabled: cellProperties.isDisabled || false,
               isCellVisible: cellProperties.isCellVisible ?? true,
@@ -366,7 +367,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
               iconName: cellProperties.iconName as IconName,
-              buttonStyle: cellProperties.iconButtonStyle,
+              buttonColor: cellProperties.buttonColor || Colors.GREEN,
               buttonVariant: cellProperties.buttonVariant,
               borderRadius: cellProperties.borderRadius,
               boxShadow: cellProperties.boxShadow,
@@ -539,17 +540,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return computedValues;
   };
 
-  getEmptyRow = () => {
-    const columnKeys: string[] = getAllTableColumnKeys(
-      this.props.sanitizedTableData,
-    );
-    const selectedRow: { [key: string]: any } = {};
-    for (let i = 0; i < columnKeys.length; i++) {
-      selectedRow[columnKeys[i]] = "";
-    }
-    return selectedRow;
-  };
-
   getDerivedColumns = (
     derivedColumns: Record<string, ColumnProperties>,
     tableColumnCount: number,
@@ -688,7 +678,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           propertiesToUpdate.remove = pathsToDelete;
         }
 
-        super.batchUpdateWidgetProperty(propertiesToUpdate);
+        super.batchUpdateWidgetProperty(propertiesToUpdate, false);
       }
     }
   };
@@ -993,20 +983,27 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
+      this.props.updateWidgetMetaProperty(
+        "triggeredRowIndex",
+        this.props.filteredTableData[rowIndex].__originalIndex__,
+      );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
       }, "");
-
-      super.executeAction({
-        triggerPropertyName: "onClick",
-        dynamicString: modifiedAction,
-        event: {
-          type: EventType.ON_CLICK,
-          callback: onComplete,
-        },
-        responseData: rowData,
-      });
+      if (modifiedAction) {
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: modifiedAction,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: onComplete,
+          },
+          responseData: rowData,
+        });
+      } else {
+        onComplete();
+      }
     } catch (error) {
       log.debug("Error parsing row action", error);
     }
@@ -1041,13 +1038,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
       } else {
         selectedRowIndices.push(index);
+        //trigger onRowSelected  on row selection
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+          {
+            triggerPropertyName: "onRowSelected",
+            dynamicString: this.props.onRowSelected,
+            event: {
+              type: EventType.ON_ROW_SELECTED,
+            },
+          },
+        );
       }
-      this.props.updateWidgetMetaProperty(
-        "selectedRowIndices",
-        selectedRowIndices,
-      );
     } else {
       const selectedRowIndex = isNumber(this.props.selectedRowIndex)
         ? this.props.selectedRowIndex
@@ -1065,6 +1074,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_ROW_SELECTED,
           },
         });
+      } else {
+        //reset selected row
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
   };

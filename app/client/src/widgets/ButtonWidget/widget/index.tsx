@@ -11,8 +11,6 @@ import {
   ButtonBoxShadow,
   ButtonBorderRadius,
   ButtonBorderRadiusTypes,
-  ButtonStyleTypes,
-  ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
 
@@ -38,7 +36,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Label",
             helpText: "Sets the label of the button",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter label text",
+            placeholderText: "Submit",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -48,10 +46,39 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             propertyName: "tooltip",
             label: "Tooltip",
             controlType: "INPUT_TEXT",
-            placeholderText: "Enter tooltip text",
+            placeholderText: "Submits Form",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "googleRecaptchaKey",
+            label: "Google reCAPTCHA Key",
+            helpText: "Sets Google reCAPTCHA site key for the button",
+            controlType: "INPUT_TEXT",
+            placeholderText: "reCAPTCHA Key",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "recaptchaV2",
+            label: "Google reCAPTCHA Version",
+            controlType: "DROP_DOWN",
+            helpText: "Select reCAPTCHA version",
+            options: [
+              {
+                label: "reCAPTCHA v3",
+                value: false,
+              },
+              {
+                label: "reCAPTCHA v2",
+                value: true,
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -68,26 +95,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             label: "Disabled",
             controlType: "SWITCH",
             helpText: "Disables clicks to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "googleRecaptchaKey",
-            label: "Google Recaptcha Key",
-            helpText: "Sets Google Recaptcha v3 site key for button",
-            controlType: "INPUT_TEXT",
-            placeholderText: "Enter google recaptcha key",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "recaptchaV2",
-            label: "Google reCAPTCHA v2",
-            controlType: "SWITCH",
-            helpText: "Use reCAPTCHA v2",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -113,84 +120,12 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         sectionName: "Styles",
         children: [
           {
-            propertyName: "buttonStyle",
-            label: "Button Style",
-            controlType: "DROP_DOWN",
-            helpText: "Changes the style of the button",
-            options: [
-              {
-                label: "Primary",
-                value: "PRIMARY",
-              },
-              {
-                label: "Warning",
-                value: "WARNING",
-              },
-              {
-                label: "Danger",
-                value: "DANGER",
-              },
-              {
-                label: "Info",
-                value: "INFO",
-              },
-              {
-                label: "Secondary",
-                value: "SECONDARY",
-              },
-              {
-                label: "Custom",
-                value: "CUSTOM",
-              },
-            ],
-            updateHook: (
-              props: ButtonWidgetProps,
-              propertyPath: string,
-              propertyValue: string,
-            ) => {
-              let propertiesToUpdate = [
-                { propertyPath, propertyValue },
-                { propertyPath: "prevButtonStyle", propertyValue },
-              ];
-
-              if (propertyValue === "CUSTOM") {
-                propertiesToUpdate = [{ propertyPath, propertyValue }];
-              }
-
-              propertiesToUpdate.push({
-                propertyPath: "buttonColor",
-                propertyValue: "",
-              });
-
-              return propertiesToUpdate;
-            },
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "PRIMARY",
-                  "WARNING",
-                  "DANGER",
-                  "INFO",
-                  "SECONDARY",
-                  "CUSTOM",
-                ],
-              },
-            },
-          },
-          {
             propertyName: "buttonColor",
-            helpText:
-              "Sets the custom color preset based on the button variant",
+            helpText: "Changes the color of the button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
             isBindProperty: false,
             isTriggerProperty: false,
-            hidden: (props: ButtonWidgetProps) =>
-              props.buttonStyle !== ButtonStyleTypes.CUSTOM,
-            dependencies: ["buttonStyle"],
           },
           {
             propertyName: "buttonVariant",
@@ -199,15 +134,15 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             helpText: "Sets the variant of the icon button",
             options: [
               {
-                label: "Solid",
+                label: "Primary",
                 value: "SOLID",
               },
               {
-                label: "Outline",
+                label: "Secondary",
                 value: "OUTLINE",
               },
               {
-                label: "Ghost",
+                label: "Tertiary",
                 value: "GHOST",
               },
             ],
@@ -320,12 +255,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     ];
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      prevButtonStyle: "buttonStyle",
-    };
-  }
-
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       recaptchaToken: undefined,
@@ -384,7 +313,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         boxShadow={this.props.boxShadow}
         boxShadowColor={this.props.boxShadowColor}
         buttonColor={this.props.buttonColor}
-        buttonStyle={this.props.buttonStyle}
         buttonVariant={this.props.buttonVariant}
         clickWithRecaptcha={this.clickWithRecaptchaBound}
         googleRecaptchaKey={this.props.googleRecaptchaKey}
@@ -395,7 +323,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
         onClick={!this.props.isDisabled ? this.onButtonClickBound : undefined}
-        prevButtonStyle={this.props.prevButtonStyle}
         recaptchaV2={this.props.recaptchaV2}
         text={this.props.text}
         tooltip={this.props.tooltip}
@@ -419,8 +346,6 @@ export interface ButtonWidgetProps extends WidgetProps {
   recaptchaV2?: boolean;
   buttonType?: ButtonType;
   googleRecaptchaKey?: string;
-  buttonStyle?: ButtonStyleType;
-  prevButtonStyle?: ButtonStyleType;
   buttonVariant?: ButtonVariant;
   buttonColor?: string;
   borderRadius?: ButtonBorderRadius;

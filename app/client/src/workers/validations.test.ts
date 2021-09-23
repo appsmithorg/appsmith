@@ -29,7 +29,7 @@ describe("Validate Validators", () => {
         allowedValues: ["abc", "123", "mno", "test"],
       },
     };
-    const inputs = ["abc", "xyz", undefined, null, {}, [], 123];
+    const inputs = ["abc", "xyz", undefined, null, {}, [], 123, ""];
     const expected = [
       {
         isValid: true,
@@ -63,6 +63,64 @@ describe("Validate Validators", () => {
       {
         isValid: true,
         parsed: "123",
+      },
+      {
+        isValid: true,
+        parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates text when required is set to false", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        default: "abc",
+        allowedValues: ["abc", "123", "mno", "test"],
+      },
+    };
+    const inputs = [""];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "",
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(validation, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates strict text", () => {
+    const validation = {
+      type: ValidationTypes.TEXT,
+      params: {
+        required: true,
+        default: "abc",
+        allowedValues: ["abc", "123", "mno", "test"],
+        strict: true,
+      },
+    };
+    const inputs = ["abc", "xyz", 123];
+    const expected = [
+      {
+        isValid: true,
+        parsed: "abc",
+      },
+      {
+        isValid: false,
+        parsed: "abc",
+        message: "Value is not allowed",
+      },
+      {
+        isValid: false,
+        parsed: "abc",
+        message: `${WIDGET_TYPE_VALIDATION_ERROR} string ( abc | 123 | mno | test )`,
       },
     ];
     inputs.forEach((input, index) => {
@@ -188,7 +246,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "",
+        parsed: 150,
       },
     ];
     inputs.forEach((input, index) => {
@@ -267,7 +325,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "",
+        parsed: false,
       },
     ];
 
@@ -373,6 +431,7 @@ describe("Validate Validators", () => {
       '{ "key": "value" }',
       ["a", "b", "a", "c"],
       "",
+      "[]",
     ];
     const config = {
       type: ValidationTypes.ARRAY,
@@ -455,6 +514,11 @@ describe("Validate Validators", () => {
         message:
           "This property is required for the widget to function correctly",
       },
+      {
+        isValid: true,
+        parsed: [],
+        message: "",
+      },
     ];
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
@@ -480,7 +544,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "",
+        parsed: [],
       },
     ];
     inputs.forEach((input, index) => {
@@ -602,7 +666,7 @@ describe("Validate Validators", () => {
     const expected = [
       {
         isValid: true,
-        parsed: "",
+        parsed: [],
       },
     ];
     inputs.forEach((input, index) => {
@@ -611,7 +675,7 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates date iso string", () => {
+  it("correctly validates date iso string when required is true", () => {
     const defaultLocalDate = moment().toISOString(true);
     const defaultDate = moment().toISOString();
     const inputs = [
@@ -620,6 +684,7 @@ describe("Validate Validators", () => {
       "2021-08-08",
       undefined,
       null,
+      "",
     ];
 
     const config = {
@@ -653,6 +718,11 @@ describe("Validate Validators", () => {
         parsed: defaultDate,
         message: "Value does not match: ISO 8601 date string",
       },
+      {
+        isValid: false,
+        message: "Value does not match: ISO 8601 date string",
+        parsed: defaultDate,
+      },
     ];
 
     inputs.forEach((input, index) => {
@@ -661,7 +731,32 @@ describe("Validate Validators", () => {
     });
   });
 
-  it("correctly validates object array", () => {
+  it("correctly validates date iso string when required is false", () => {
+    const defaultDate = moment().toISOString();
+    const inputs = [""];
+
+    const config = {
+      type: ValidationTypes.DATE_ISO_STRING,
+      params: {
+        required: false,
+        default: defaultDate,
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: defaultDate,
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates object array when required is true", () => {
     const inputs = [
       [
         { apple: 1 },
@@ -678,6 +773,7 @@ describe("Validate Validators", () => {
       [null],
       [{ apple: 1 }, null, { banana: "2" }, undefined],
       `[{ "apple": 1, "orange": 2, "mango": "fruit", "watermelon": false }, null]`,
+      "",
     ];
 
     const config = {
@@ -746,6 +842,59 @@ describe("Validate Validators", () => {
         parsed: [{ id: 1, name: "alpha" }],
         message: "Invalid object at index 1",
       },
+      {
+        isValid: false,
+        parsed: [{ id: 1, name: "alpha" }],
+        message: "This value does not evaluate to type Array<Object>",
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates object array when required is false", () => {
+    const inputs = [""];
+
+    const config = {
+      type: ValidationTypes.OBJECT_ARRAY,
+      params: {
+        required: false,
+        default: [{ id: 1, name: "alpha" }],
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: [{ id: 1, name: "alpha" }],
+      },
+    ];
+
+    inputs.forEach((input, index) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+
+  it("correctly validates object array when required is false", () => {
+    const inputs = [[]];
+
+    const config = {
+      type: ValidationTypes.OBJECT_ARRAY,
+      params: {
+        required: false,
+        default: [{ id: 1, name: "alpha" }],
+      },
+    };
+
+    const expected = [
+      {
+        isValid: true,
+        parsed: [{ id: 1, name: "alpha" }],
+      },
     ];
 
     inputs.forEach((input, index) => {
@@ -791,6 +940,248 @@ describe("Validate Validators", () => {
 
     inputs.forEach((input, index) => {
       const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly validates array when default is given", () => {
+    const inputs = [undefined, null, ""];
+    const config = {
+      type: ValidationTypes.ARRAY,
+      params: {
+        required: true,
+        unique: true,
+        default: [],
+      },
+    };
+    const expected = {
+      isValid: true,
+      parsed: [],
+    };
+    inputs.forEach((input) => {
+      const result = validate(config, input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected);
+    });
+  });
+  it("correctly validates objects", () => {
+    const inputs = [
+      {
+        label: true,
+        value: "true",
+      },
+      {
+        label: true,
+        value: "true",
+      },
+      {
+        paletteColors1: "#ffffff",
+        palettecolors2: "#ffffff",
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          allowedKeys: [
+            {
+              name: "paletteColors1",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+              },
+            },
+            {
+              name: "paletteColors2",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+                ignoreCase: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: true,
+        parsed: {
+          label: "true",
+          value: "true",
+        },
+      },
+      {
+        isValid: true,
+        parsed: { label: true, value: "true" },
+      },
+      {
+        isValid: true,
+        parsed: {
+          paletteColors1: "#ffffff",
+          palettecolors2: "#ffffff",
+        },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
+      expect(result).toStrictEqual(expected[index]);
+    });
+  });
+  it("correctly validates objects to fail", () => {
+    const inputs = [
+      {
+        labels: true,
+        values: "true",
+      },
+      {
+        label: true,
+      },
+      {
+        paletteColors1: "#ffffff",
+        palettecolors2: 3,
+      },
+    ];
+    const config = [
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          required: true,
+          allowedKeys: [
+            {
+              name: "label",
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                required: true,
+              },
+            },
+            {
+              name: "value",
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                unique: true,
+              },
+            },
+          ],
+        },
+      },
+      {
+        type: ValidationTypes.OBJECT,
+        params: {
+          allowedKeys: [
+            {
+              name: "paletteColors1",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+              },
+            },
+            {
+              name: "paletteColors2",
+              type: ValidationTypes.TEXT,
+              params: {
+                strict: true,
+                ignoreCase: true,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const expected = [
+      {
+        isValid: false,
+        parsed: {
+          labels: true,
+          values: "true",
+        },
+        message: "Missing required key: label Missing required key: value",
+      },
+      {
+        isValid: false,
+        message: "Missing required key: value",
+        parsed: { label: true },
+      },
+      {
+        isValid: false,
+        message:
+          "Value of key: palettecolors2 is invalid: This value does not evaluate to type string",
+        parsed: {
+          paletteColors1: "#ffffff",
+          palettecolors2: "",
+        },
+      },
+    ];
+    inputs.forEach((input, index) => {
+      const result = validate(config[index], input, DUMMY_WIDGET);
       expect(result).toStrictEqual(expected[index]);
     });
   });

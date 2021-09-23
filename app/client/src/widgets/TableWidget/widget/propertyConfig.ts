@@ -281,7 +281,7 @@ export default [
         propertyName: "tableData",
         label: "Table Data",
         controlType: "INPUT_TEXT",
-        placeholderText: 'Enter [{ "col1": "val1" }]',
+        placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -882,55 +882,6 @@ export default [
                   },
                 },
                 {
-                  propertyName: "iconButtonStyle",
-                  label: "Icon Color",
-                  controlType: "DROP_DOWN",
-                  customJSControl: "COMPUTE_VALUE",
-                  isJSConvertible: true,
-                  helpText: "Sets the style of the icon button",
-                  options: [
-                    {
-                      label: "Primary",
-                      value: "PRIMARY",
-                    },
-                    {
-                      label: "Warning",
-                      value: "WARNING",
-                    },
-                    {
-                      label: "Danger",
-                      value: "DANGER",
-                    },
-                    {
-                      label: "Info",
-                      value: "INFO",
-                    },
-                    {
-                      label: "Secondary",
-                      value: "SECONDARY",
-                    },
-                  ],
-
-                  hidden: (props: TableWidgetProps, propertyPath: string) => {
-                    return hideByColumnType(props, propertyPath, [
-                      ColumnTypes.ICON_BUTTON,
-                    ]);
-                  },
-                  dependencies: [
-                    "primaryColumns",
-                    "derivedColumns",
-                    "columnOrder",
-                  ],
-                  isBindProperty: false,
-                  isTriggerProperty: false,
-                  validation: {
-                    type: ValidationTypes.TEXT,
-                    params: {
-                      default: "plus",
-                    },
-                  },
-                },
-                {
                   propertyName: "isDisabled",
                   label: "Disabled",
                   updateHook: updateDerivedColumnsHook,
@@ -961,7 +912,7 @@ export default [
                   isTriggerProperty: false,
                 },
                 {
-                  propertyName: "buttonStyle",
+                  propertyName: "buttonColor",
                   label: "Button Color",
                   controlType: "COLOR_PICKER",
                   helpText: "Changes the color of the button",
@@ -972,6 +923,7 @@ export default [
                   hidden: (props: TableWidgetProps, propertyPath: string) => {
                     return hideByColumnType(props, propertyPath, [
                       ColumnTypes.BUTTON,
+                      ColumnTypes.ICON_BUTTON,
                     ]);
                   },
                   dependencies: [
@@ -1155,7 +1107,7 @@ export default [
         propertyName: "defaultSearchText",
         label: "Default Search Text",
         controlType: "INPUT_TEXT",
-        placeholderText: "Enter default search text",
+        placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -1165,7 +1117,7 @@ export default [
         propertyName: "defaultSelectedRow",
         label: "Default Selected Row",
         controlType: "INPUT_TEXT",
-        placeholderText: "Enter row index",
+        placeholderText: "0",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -1184,7 +1136,7 @@ export default [
       {
         propertyName: "compactMode",
         helpText: "Selects row height",
-        label: "Row Height",
+        label: "Default Row Height",
         controlType: "DROP_DOWN",
         defaultValue: "DEFAULT",
         isBindProperty: true,

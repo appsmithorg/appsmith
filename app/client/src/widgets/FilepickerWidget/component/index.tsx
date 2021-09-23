@@ -3,7 +3,8 @@ import { ComponentProps } from "widgets/BaseComponent";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { BaseButton } from "components/designSystems/appsmith/BaseButton";
+import { BaseButton } from "widgets/ButtonWidget/component";
+import { Colors } from "constants/Colors";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,
@@ -29,9 +30,8 @@ class FilePickerComponent extends React.Component<
     }
     return (
       <BaseButton
-        accent="primary"
+        buttonColor={Colors.GREEN}
         disabled={this.props.isDisabled}
-        filled
         loading={this.props.isLoading}
         onClick={this.openModal}
         text={label}
