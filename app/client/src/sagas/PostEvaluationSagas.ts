@@ -40,7 +40,6 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import getFeatureFlags from "utils/featureFlags";
 import { TriggerEvaluationError } from "sagas/ActionExecution/ActionExecutionSagas";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;

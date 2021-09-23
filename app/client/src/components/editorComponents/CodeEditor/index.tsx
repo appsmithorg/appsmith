@@ -79,7 +79,6 @@ import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations } from "./lintHelpers";
-import getFeatureFlags from "utils/featureFlags";
 
 const AUTOCOMPLETE_CLOSE_KEY_CODES = [
   "Enter",
