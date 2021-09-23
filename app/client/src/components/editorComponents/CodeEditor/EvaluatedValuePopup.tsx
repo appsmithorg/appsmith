@@ -21,10 +21,7 @@ import { IPopoverSharedProps } from "@blueprintjs/core";
 import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
-import {
-  EvaluationError,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
@@ -363,14 +360,7 @@ function PopoverContent(props: PopoverContentProps) {
   const [openExpectedExample, setOpenExpectedExample] = useState(false);
   const toggleExpectedExample = () =>
     setOpenExpectedExample(!openExpectedExample);
-  const {
-    errors,
-    expected,
-    hasError,
-    onMouseEnter,
-    onMouseLeave,
-    theme,
-  } = props;
+  const { errors, hasError, onMouseEnter, onMouseLeave, theme } = props;
   let error: EvaluationError | undefined;
   if (hasError) {
     error = errors[0];
@@ -385,11 +375,7 @@ function PopoverContent(props: PopoverContentProps) {
     >
       {hasError && error && (
         <ErrorText>
-          <span className="t--evaluatedPopup-error">
-            {error.errorType === PropertyEvaluationErrorType.VALIDATION
-              ? `This value does not evaluate to type "${expected?.type}".`
-              : error.errorMessage}
-          </span>
+          <span className="t--evaluatedPopup-error">{error.errorMessage}</span>
           <EvaluatedValueDebugButton
             entity={props.entity}
             error={{ type: error.errorType, message: error.errorMessage }}

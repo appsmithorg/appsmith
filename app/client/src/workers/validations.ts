@@ -172,7 +172,7 @@ function validateArray(
         if (uniq(shouldBeUnique).length !== value.length) {
           _isValid = false;
           _messages.push(
-            `Array entry path:${param} must be unique. Duplicate values found`,
+            `path:${param} must be unique. Duplicate values found`,
           );
           break;
         }
@@ -686,7 +686,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
             response = {
               ...response,
               isValid: false,
-              message: `Array entry path:${param} must be unique. Duplicate values found`,
+              message: `path:${param} must be unique. Duplicate values found`,
             };
           }
         }
