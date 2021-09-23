@@ -593,8 +593,14 @@ export const SwitchCellWrapper = styled(CellWrapper)`
   }
 `;
 
-export const CurrencyCellWrapper = styled(CellWrapper)`
+export const CurrencyCellWrapper = styled(CellWrapper)<{ isInvalid?: boolean }>`
   & > .bp3-control-group {
     height: initial !important;
+    ${(props) =>
+      props.isInvalid
+        ? `.bp3-input-group input {
+      border: 1px solid ${Colors.RED} !important;
+    }`
+        : ""}
   }
 `;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
@@ -857,18 +857,27 @@ export function CurrencyCell(props: {
   const [value, setValue] = useState(props.value);
   const handleValueChange = (value: string) => {
     setValue(value);
-    props.onChange(props.columnId, props.rowIndex, props.action, value);
   };
+  const handleFocusChange = useCallback(
+    (isFocused: boolean) => {
+      // fire action if input blur and value is changed
+      if (!isFocused && value !== props.value) {
+        props.onChange(props.columnId, props.rowIndex, props.action, value);
+      }
+    },
+    [props.columnId, props.rowIndex, props.action, value],
+  );
   const { isValid, message } = isNumberValidator(value);
   return (
     <CurrencyCellWrapper
       cellProperties={props.cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={props.isHidden}
-      key={props.columnId + props.rowIndex}
+      isInvalid={!isValid}
     >
       <InputComponent
         autoFocus
+        buttonPosition="none"
         compactMode={false}
         currencyCountryCode={props.currencyCountryCode}
         decimalsInCurrency={props.decimalsInCurrency}
@@ -880,7 +889,7 @@ export function CurrencyCell(props: {
         label=""
         multiline={false}
         onCurrencyTypeChange={noop}
-        onFocusChange={noop}
+        onFocusChange={handleFocusChange}
         onISDCodeChange={noop}
         onValueChange={handleValueChange}
         showError={false}

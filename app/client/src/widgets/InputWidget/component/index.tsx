@@ -372,6 +372,7 @@ class InputComponent extends React.Component<
     return (
       <StyledNumericInput
         allowNumericCharactersOnly
+        buttonPosition={this.props.buttonPosition}
         className={this.props.isLoading ? "bp3-skeleton" : Classes.FILL}
         disabled={this.props.disabled}
         intent={this.props.intent}
@@ -544,6 +545,7 @@ export interface InputComponentProps extends ComponentProps {
   inputType: InputType;
   disabled?: boolean;
   intent?: Intent;
+  buttonPosition?: "left" | "right" | "none";
   defaultValue?: string | number;
   currencyCountryCode?: string;
   noOfDecimals?: number;
