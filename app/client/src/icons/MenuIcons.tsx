@@ -21,6 +21,7 @@ import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { ReactComponent as JSFunctionIcon } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasources-2.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
+import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -156,6 +157,11 @@ export const MenuIcons: {
   JS_ICON_V2: (props: IconProps) => (
     <IconWrapper {...props}>
       <StyledJSIconV2 />
+    </IconWrapper>
+  ),
+  DEFAULT_HOMEPAGE_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <DefaultHomeIcon />
     </IconWrapper>
   ),
 };
