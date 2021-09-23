@@ -21,7 +21,6 @@ import { ReactComponent as CopySvg } from "assets/icons/ads/file-copy-line.svg";
 import { ReactComponent as TickSvg } from "assets/images/tick.svg";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getCurrentUser } from "selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
@@ -31,9 +30,11 @@ import { getGlobalGitConfig } from "selectors/gitSyncSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
+  updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
 import DirectDeploy from "../components/DirectDeploy";
 import TooltipComponent from "components/ads/Tooltip";
+import { getLocalGitConfig } from "selectors/gitSyncSelectors";
 export const UrlOptionContainer = styled.div`
   display: flex;
   align-items: center;
@@ -166,25 +167,16 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const isGitConnected = !!remoteUrlInStore;
 
-  const currentUser = useSelector(getCurrentUser);
-
   const globalGitConfig = useSelector(getGlobalGitConfig);
-  const localGitConfig = useSelector(getGlobalGitConfig);
+  const localGitConfig = useSelector(getLocalGitConfig);
 
   const dispatch = useDispatch();
 
   const getInitGitConfig = () => {
     let initialAuthInfo = {
-      authorName: currentUser?.name || "",
-      authorEmail: currentUser?.email || "",
+      authorName: "",
+      authorEmail: "",
     };
-
-    if (globalGitConfig.authorEmail || globalGitConfig.authorName) {
-      initialAuthInfo = {
-        authorName: globalGitConfig.authorName || "",
-        authorEmail: globalGitConfig.authorEmail || "",
-      };
-    }
 
     if (localGitConfig.authorEmail || localGitConfig.authorName) {
       initialAuthInfo = {
@@ -258,7 +250,7 @@ function GitConnection({ isImport, onSuccess }: Props) {
 
   const isAuthorInfoUpdated = () => {
     return (
-      authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail &&
+      authorInfo.authorEmail !== initialAuthorInfoRef.current.authorEmail ||
       authorInfo.authorName !== initialAuthorInfoRef.current.authorName
     );
   };
@@ -270,8 +262,11 @@ function GitConnection({ isImport, onSuccess }: Props) {
   const onSubmit = () => {
     // Also check if isDefaultProfile switch is changed
     // For this we will need to store `isDefaultProfile` in backend
-    if (isGitConnected && isAuthorInfoUpdated() && !isRemoteUrlUpdated()) {
-      // just update local config
+    if (isGitConnected && !isRemoteUrlUpdated()) {
+      if (isAuthorInfoUpdated()) {
+        // just update local config
+        dispatch(updateLocalGitConfigInit(authorInfo));
+      }
     } else {
       connectToGit({
         remoteUrl,
@@ -309,6 +304,10 @@ function GitConnection({ isImport, onSuccess }: Props) {
     dispatch(fetchGlobalGitConfigInit());
     dispatch(fetchLocalGitConfigInit());
   }, []);
+
+  useEffect(() => {
+    setAuthorInfo(localGitConfig);
+  }, [localGitConfig.authorEmail, localGitConfig.authorName, setAuthorInfo]);
 
   const showDirectDeployOption = !SSHKeyPair && !remoteUrl;
 
