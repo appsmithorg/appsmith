@@ -251,6 +251,12 @@ const StyledButton = styled.div<ThemeProp & ButtonStyleProps>`
   `}
 `;
 
+const StyledButtonContent = styled.div`
+  & .bp3-icon {
+    margin-right: 10px;
+  }
+`;
+
 const BaseMenuItem = styled(MenuItem)<ThemeProp & BaseStyleProps>`
   padding: 8px 10px !important;
   ${({ backgroundColor, theme }) =>
@@ -370,7 +376,7 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
   };
 
   render = () => {
-    const { buttonVariant, groupButtons, orientation } = this.props;
+    const { buttonVariant, groupButtons, isDisabled, orientation } = this.props;
     const isHorizontal = orientation === "horizontal";
 
     let items = Object.keys(groupButtons)
@@ -416,12 +422,14 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
                     buttonStyle={button.buttonStyle}
                     buttonVariant={buttonVariant}
                     iconAlign={button.iconAlign}
-                    isDisabled={button.isDisabled}
+                    isDisabled={button.isDisabled || isDisabled}
                     isHorizontal={isHorizontal}
                     style={{ height: "100%", width: "100%" }}
                   >
-                    {button.iconName && <Icon icon={button.iconName} />}
-                    {!!button.label && <span>{button.label}</span>}
+                    <StyledButtonContent>
+                      {button.iconName && <Icon icon={button.iconName} />}
+                      {!!button.label && <span>{button.label}</span>}
+                    </StyledButtonContent>
                   </StyledButton>
                 </Popover2>
               </MenuButtonWrapper>
@@ -435,13 +443,15 @@ class ButtonGroupComponent extends React.Component<ButtonGroupComponentProps> {
               buttonStyle={button.buttonStyle}
               buttonVariant={buttonVariant}
               iconAlign={button.iconAlign}
-              isDisabled={button.isDisabled}
+              isDisabled={button.isDisabled || isDisabled}
               isHorizontal={isHorizontal}
               key={button.id}
               onClick={this.onButtonClick(button.onClick)}
             >
-              {button.iconName && <Icon icon={button.iconName} />}
-              {!!button.label && <span>{button.label}</span>}
+              <StyledButtonContent>
+                {button.iconName && <Icon icon={button.iconName} />}
+                {!!button.label && <span>{button.label}</span>}
+              </StyledButtonContent>
             </StyledButton>
           );
         })}
