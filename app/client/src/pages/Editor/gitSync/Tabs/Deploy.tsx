@@ -168,9 +168,8 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
           />
         </Section>
       ) : null}
-      {(isPushSuccessful || (pushImmediately && isCommitSuccessful)) && (
-        <DeployPreview />
-      )}
+
+      <DeployPreview />
     </Container>
   );
 });
