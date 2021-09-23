@@ -33,7 +33,7 @@ export const pushToRepoSuccess = () => ({
 });
 
 export type ConnectToGitResponse = {
-  gitApplicationMetaData: GitApplicationMetadata;
+  gitApplicationMetadata: GitApplicationMetadata;
 };
 
 type ConnectToGitRequestParams = {
@@ -92,12 +92,12 @@ export const setIsImportAppViaGitModalOpen = (payload: {
 });
 
 export const updateGlobalGitConfigInit = (payload: GitConfig) => ({
-  type: ReduxActionTypes.UPDATE_GIT_CONFIG_INIT,
+  type: ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT,
   payload,
 });
 
 export const updateGlobalGitConfigSuccess = (payload: GitConfig) => ({
-  type: ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS,
+  type: ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_SUCCESS,
   payload,
 });
 
@@ -107,5 +107,25 @@ export const fetchGlobalGitConfigInit = () => ({
 
 export const fetchGlobalGitConfigSuccess = (payload: GitConfig) => ({
   type: ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+// Local Git config is repo level
+export const updateLocalGitConfigInit = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT,
+  payload,
+});
+
+export const updateLocalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS,
+  payload,
+});
+
+export const fetchLocalGitConfigInit = () => ({
+  type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT,
+});
+
+export const fetchLocalGitConfigSuccess = (payload: GitConfig) => ({
+  type: ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS,
   payload,
 });

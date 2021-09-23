@@ -62,6 +62,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRowIndex: undefined,
       selectedRowIndices: undefined,
       searchText: undefined,
+      triggeredRowIndex: undefined,
       // The following meta property is used for rendering the table.
       filters: [],
       sortOrder: {
@@ -74,6 +75,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static getDerivedPropertiesMap() {
     return {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
+      triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
       pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
@@ -456,17 +458,6 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       log.debug("Error parsing column values:", value);
     }
     return computedValues;
-  };
-
-  getEmptyRow = () => {
-    const columnKeys: string[] = getAllTableColumnKeys(
-      this.props.sanitizedTableData,
-    );
-    const selectedRow: { [key: string]: any } = {};
-    for (let i = 0; i < columnKeys.length; i++) {
-      selectedRow[columnKeys[i]] = "";
-    }
-    return selectedRow;
   };
 
   getDerivedColumns = (
@@ -897,6 +888,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     try {
       const rowData = [this.props.filteredTableData[rowIndex]];
+      this.props.updateWidgetMetaProperty(
+        "triggeredRowIndex",
+        this.props.filteredTableData[rowIndex].__originalIndex__,
+      );
       const { jsSnippets } = getDynamicBindings(action);
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{(currentRow) => { ${next} }}} `;
@@ -948,13 +943,25 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
         selectedRowIndices.splice(rowIndex, 1);
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+        );
       } else {
         selectedRowIndices.push(index);
+        //trigger onRowSelected  on row selection
+        this.props.updateWidgetMetaProperty(
+          "selectedRowIndices",
+          selectedRowIndices,
+          {
+            triggerPropertyName: "onRowSelected",
+            dynamicString: this.props.onRowSelected,
+            event: {
+              type: EventType.ON_ROW_SELECTED,
+            },
+          },
+        );
       }
-      this.props.updateWidgetMetaProperty(
-        "selectedRowIndices",
-        selectedRowIndices,
-      );
     } else {
       const selectedRowIndex = isNumber(this.props.selectedRowIndex)
         ? this.props.selectedRowIndex
@@ -968,6 +975,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             type: EventType.ON_ROW_SELECTED,
           },
         });
+      } else {
+        //reset selected row
+        this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
       }
     }
   };
