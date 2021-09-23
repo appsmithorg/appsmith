@@ -440,6 +440,7 @@ public class GitServiceImpl implements GitService {
                                 Paths.get(application.getOrganizationId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
 
                         GitAuth gitAuth = gitData.getGitAuth();
+                        gitExecutor.checkoutToBranch(baseRepoSuffix, application.getGitApplicationMetadata().getBranchName());
                         return gitExecutor.pushApplication(
                             baseRepoSuffix, gitData.getRemoteUrl(), gitAuth.getPublicKey(), gitAuth.getPrivateKey()
                         );
