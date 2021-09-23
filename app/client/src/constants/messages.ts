@@ -502,8 +502,6 @@ export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const SHARE_APPLICATION = () => "Share Application";
-export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
@@ -519,10 +517,11 @@ export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
-export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
-export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
 export const CONNECT = () => "Connect";
+export const LATEST_DP_TITLE = () => "Latest Deployed Preview";
+export const LATEST_DP_SUBTITLE = () =>
+  "See your application in action after successful push";
+export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
@@ -532,9 +531,12 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PUSH_TO = () => "Push to";
 export const PUSH_CHANGES = () => "PUSH CHANGES";
+export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
+  "Committed and pushed Successfully";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
