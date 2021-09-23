@@ -678,3 +678,9 @@ export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
 
 export const USE_SNIPPET = () => "Snippet";
 export const SNIPPET_TOOLTIP = () => "Search Snippets";
+
+//Welcome page
+export const WELCOME_HEADER = () => "Welcome!";
+export const WELCOME_BODY = () =>
+  "Let us setup your account so you can make awesome applications!";
+export const WELCOME_ACTION = () => "Get Started";

@@ -1,93 +1,96 @@
 import React, { memo } from "react";
 import styled from "styled-components";
-import AppsmithLogo from "assets/images/appsmith_logo.png";
-import Button, { Category, Size } from "components/ads/Button";
-import { StyledLink } from "./common";
-import { DISCORD_URL } from "constants/ThirdPartyConstants";
+import Button from "components/ads/Button";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { useEffect } from "react";
-import { playOnboardingAnimation } from "utils/helpers";
+import { playWelcomeAnimation } from "utils/helpers";
+import {
+  createMessage,
+  WELCOME_ACTION,
+  WELCOME_BODY,
+  WELCOME_HEADER,
+} from "constants/messages";
 
 const LandingPageWrapper = styled.div`
-  width: 100%;
+  width: ${(props) => props.theme.pageContentWidth}px;
   height: 100vh;
   display: flex;
   justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+`;
+
+const LandingPageContent = styled.div`
+  width: 100%;
+  display: flex;
   align-items: center;
   position: relative;
   z-index: 100;
 `;
 
-const LandingPageContent = styled.div`
-  width: 735px;
-  text-align: center;
+const StyledTextBanner = styled.div`
+  min-width: ${(props) => props.theme.pageContentWidth * 0.55}px;
+  padding-left: 64px;
 `;
 
-const LogoContainer = styled.div``;
+const StyledBannerHeader = styled.h1`
+  font-size: 72px;
+  margin: 0px 0px;
+`;
 
-const AppsmithLogoImg = styled.img`
-  max-width: 170px;
+const StyledBannerBody = styled.p`
+  font-size: 24px;
+  margin: ${(props) => props.theme.spaces[7]}px 0px;
+  width: 400px;
+`;
+
+const StyledImageBanner = styled.div`
+  min-width: ${(props) => props.theme.pageContentWidth * 0.45}px;
 `;
 
 const ActionContainer = styled.div`
-  margin-top: 32px;
-`;
-
-const StyledBanner = styled.h2`
-  margin: 16px 0px;
-  font-weight: 500;
-  color: ${(props) => props.theme.colors.welcomePage.text};
+  margin-top: ${(props) => props.theme.spaces[15]}px;
 `;
 
 const StyledButton = styled(Button)`
   width: 136px;
   height: 38px;
-  margin: 0 auto;
+  font-size: 13px;
+  margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
-const Footer = styled.div`
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translate(-50%, 0);
-`;
+const StyledImage = styled.img``;
+
+const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner.svg`;
 
 type LandingPageProps = {
   onGetStarted: () => void;
 };
 
+const WELCOME_PAGE_ANIMATION_CONTAINER = "welcome-page-animation-container";
+
 export default memo(function LandingPage(props: LandingPageProps) {
   useEffect(() => {
-    playOnboardingAnimation();
+    playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
   }, []);
   return (
-    <LandingPageWrapper>
+    <LandingPageWrapper id={WELCOME_PAGE_ANIMATION_CONTAINER}>
       <LandingPageContent>
-        <LogoContainer>
-          <AppsmithLogoImg alt="Appsmith logo" src={AppsmithLogo} />
-        </LogoContainer>
-        <StyledBanner>
-          Thank you for trying Appsmith.
-          <br />
-          You’ll be building your new app very soon!
-        </StyledBanner>
-        <StyledBanner>
-          We have a few questions to set up your account.
-        </StyledBanner>
-        <ActionContainer>
-          <StyledButton
-            category={Category.primary}
-            onClick={props.onGetStarted}
-            size={Size.medium}
-            tag="button"
-            text="Get Started"
-          />
-        </ActionContainer>
-        <Footer>
-          For more queries reach us on our&nbsp;
-          <StyledLink href={DISCORD_URL} rel="noreferrer" target="_blank">
-            Discord Server
-          </StyledLink>
-        </Footer>
+        <StyledTextBanner>
+          <StyledBannerHeader>
+            {createMessage(WELCOME_HEADER)}
+          </StyledBannerHeader>
+          <StyledBannerBody>{createMessage(WELCOME_BODY)}</StyledBannerBody>
+          <ActionContainer>
+            <StyledButton
+              onClick={props.onGetStarted}
+              text={createMessage(WELCOME_ACTION)}
+            />
+          </ActionContainer>
+        </StyledTextBanner>
+        <StyledImageBanner>
+          <StyledImage src={getWelcomeImage()} />
+        </StyledImageBanner>
       </LandingPageContent>
     </LandingPageWrapper>
   );
