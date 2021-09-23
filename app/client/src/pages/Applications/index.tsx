@@ -121,7 +121,7 @@ const OrgSection = styled.div``;
 
 const PaddingWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   width: ${(props) => props.theme.card.minWidth}px;
 
