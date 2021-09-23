@@ -413,6 +413,10 @@ export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
 export const EXPORT_DEFAULT_BEGINNING = () =>
   `Start object with export default`;
+export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
+export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
+export const JS_EXECUTION_FAILURE_TOASTER = () =>
+  "There was an error while executing function";
 
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";

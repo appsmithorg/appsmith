@@ -43,6 +43,9 @@ import { Variant } from "components/ads/common";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_EXECUTION_SUCCESS,
+  JS_EXECUTION_FAILURE,
+  JS_EXECUTION_FAILURE_TOASTER,
 } from "constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -289,7 +292,7 @@ function* handleExecuteJSFunctionSaga(
       },
     });
     AppsmithConsole.info({
-      text: "Function executed successfully",
+      text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
         type: ENTITY_TYPE.JSACTION,
         name: collectionName + "." + action.name,
@@ -301,7 +304,7 @@ function* handleExecuteJSFunctionSaga(
     AppsmithConsole.addError({
       id: actionId,
       logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-      text: `Function execution failed`,
+      text: createMessage(JS_EXECUTION_FAILURE),
       source: {
         type: ENTITY_TYPE.JSACTION,
         name: collectionName + "." + action.name,
@@ -315,7 +318,7 @@ function* handleExecuteJSFunctionSaga(
       ],
     });
     Toaster.show({
-      text: e.message || "There was an error while executing function",
+      text: e.message || createMessage(JS_EXECUTION_FAILURE_TOASTER),
       variant: Variant.danger,
       showDebugButton: true,
     });
