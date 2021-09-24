@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.CommentBotEvent;
+import com.appsmith.server.constants.CommentState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -448,7 +448,7 @@ public class CommentServiceTest {
     public void getThreadsByApplicationId_WhenThreadWithCommentExists_ReturnThreadWithComments() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        userData.setCommentState(CommentState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();
@@ -490,7 +490,7 @@ public class CommentServiceTest {
     public void createThread_WhenSomeoneTaggedInFirstComment_NotificationCreated() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setLatestCommentEvent(CommentBotEvent.COMMENTED);
+        userData.setCommentState(CommentState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();

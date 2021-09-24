@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentState;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.User;
@@ -257,5 +258,16 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     @Override
     public Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser() {
         return featureFlagService.getAllFeatureFlagsForUser();
+    }
+
+    @Override
+    public Mono<UserData> setCommentEvent(CommentState commentState) {
+        if(commentState != CommentState.SKIPPED && commentState != CommentState.ONBOARDED) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentState));
+        }
+        return this.getForCurrentUser().flatMap(userData -> {
+            userData.setCommentState(commentState);
+            return repository.save(userData);
+        });
     }
 }
