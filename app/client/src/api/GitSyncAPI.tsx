@@ -9,14 +9,16 @@ export type CommitPayload = {
   doPush: boolean;
 };
 
-export type ConnectToGitPayload = {
+export type PushToGitPayload = {
   applicationId: string;
+};
+
+export type ConnectToGitPayload = {
   remoteUrl: string;
-  gitConfig: {
+  gitProfile: {
     authorName: string;
     authorEmail: string;
   };
-  organizationId?: string;
   isImport?: boolean;
   isDefaultProfile?: boolean;
 };
@@ -35,8 +37,12 @@ class GitSyncAPI extends Api {
     });
   }
 
-  static connect(payload: ConnectToGitPayload) {
-    return Api.post(`${GitSyncAPI.baseURL}/connect/`, payload);
+  static push({ applicationId }: PushToGitPayload): AxiosPromise<ApiResponse> {
+    return Api.post(`${GitSyncAPI.baseURL}/push/${applicationId}`);
+  }
+
+  static connect(payload: ConnectToGitPayload, applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/connect/${applicationId}`, payload);
   }
 
   static getGlobalConfig() {
@@ -45,6 +51,14 @@ class GitSyncAPI extends Api {
 
   static setGlobalConfig(payload: GitConfig) {
     return Api.post(`${GitSyncAPI.baseURL}/config/save`, payload);
+  }
+
+  static getLocalConfig(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/config/${applicationId}`);
+  }
+
+  static setLocalConfig(payload: GitConfig, applicationId: string) {
+    return Api.put(`${GitSyncAPI.baseURL}/config/${applicationId}`, payload);
   }
 }
 

@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Button } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
@@ -13,12 +12,15 @@ import {
   ButtonBorderRadiusTypes,
   ButtonBoxShadow,
   ButtonBoxShadowTypes,
-  ButtonStyleType,
-  ButtonStyleTypes,
   ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-
+import {
+  getCustomBackgroundColor,
+  getCustomBorderColor,
+  getCustomHoverColor,
+  getCustomTextColor,
+} from "widgets/ButtonWidget/component";
 const IconButtonContainer = styled.div`
   display: flex;
   align-items: center;
@@ -31,7 +33,7 @@ export interface ButtonStyleProps {
   borderRadius?: ButtonBorderRadius;
   boxShadow?: ButtonBoxShadow;
   boxShadowColor?: string;
-  buttonStyle?: ButtonStyleType;
+  buttonColor: string;
   buttonVariant?: ButtonVariant;
   dimension?: number;
   hasOnClickAction?: boolean;
@@ -54,25 +56,11 @@ export const StyledButton = styled((props) => (
   background-image: none !important;
   height: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
   width: ${({ dimension }) => (dimension ? `${dimension}px` : "auto")};
-  ${({ buttonStyle, buttonVariant, hasOnClickAction, theme }) => `
+  ${({ buttonColor, buttonVariant, hasOnClickAction, theme }) => `
     &:enabled {
       background: ${
-        buttonStyle === ButtonStyleTypes.WARNING
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.warning.solid.bgColor
-            : "none"
-          : buttonStyle === ButtonStyleTypes.DANGER
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.danger.solid.bgColor
-            : "none"
-          : buttonStyle === ButtonStyleTypes.INFO
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.info.solid.bgColor
-            : "none"
-          : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? buttonVariant === ButtonVariantTypes.SOLID
-            ? theme.colors.button.secondary.solid.bgColor
-            : "none"
+        getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
+          ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SOLID
           ? theme.colors.button.primary.solid.bgColor
           : "none"
@@ -82,26 +70,8 @@ export const StyledButton = styled((props) => (
     ${hasOnClickAction &&
       `&:hover:enabled, &:active:enabled {
         background: ${
-          buttonStyle === ButtonStyleTypes.WARNING
-            ? buttonVariant === ButtonVariantTypes.OUTLINE
-              ? theme.colors.button.warning.outline.hoverColor
-              : buttonVariant === ButtonVariantTypes.GHOST
-              ? theme.colors.button.warning.ghost.hoverColor
-              : theme.colors.button.warning.solid.hoverColor
-            : buttonStyle === ButtonStyleTypes.DANGER
-            ? buttonVariant === ButtonVariantTypes.SOLID
-              ? theme.colors.button.danger.solid.hoverColor
-              : theme.colors.button.danger.outline.hoverColor
-            : buttonStyle === ButtonStyleTypes.INFO
-            ? buttonVariant === ButtonVariantTypes.SOLID
-              ? theme.colors.button.info.solid.hoverColor
-              : theme.colors.button.info.outline.hoverColor
-            : buttonStyle === ButtonStyleTypes.SECONDARY
-            ? buttonVariant === ButtonVariantTypes.OUTLINE
-              ? theme.colors.button.secondary.outline.hoverColor
-              : buttonVariant === ButtonVariantTypes.GHOST
-              ? theme.colors.button.secondary.ghost.hoverColor
-              : theme.colors.button.secondary.solid.hoverColor
+          getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
+            ? getCustomHoverColor(theme, buttonVariant, buttonColor)
             : buttonVariant === ButtonVariantTypes.OUTLINE
             ? theme.colors.button.primary.outline.hoverColor
             : buttonVariant === ButtonVariantTypes.GHOST
@@ -116,16 +86,10 @@ export const StyledButton = styled((props) => (
     }
 
     border: ${
-      buttonVariant === ButtonVariantTypes.OUTLINE
-        ? buttonStyle === ButtonStyleTypes.WARNING
-          ? `1px solid ${theme.colors.button.warning.outline.borderColor}`
-          : buttonStyle === ButtonStyleTypes.DANGER
-          ? `1px solid ${theme.colors.button.danger.outline.borderColor}`
-          : buttonStyle === ButtonStyleTypes.INFO
-          ? `1px solid ${theme.colors.button.info.outline.borderColor}`
-          : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? `1px solid ${theme.colors.button.secondary.outline.borderColor}`
-          : `1px solid ${theme.colors.button.primary.outline.borderColor}`
+      getCustomBorderColor(buttonVariant, buttonColor) !== "none"
+        ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
+        : buttonVariant === ButtonVariantTypes.OUTLINE
+        ? `1px solid ${theme.colors.button.primary.outline.borderColor}`
         : "none"
     } !important;
 
@@ -138,15 +102,10 @@ export const StyledButton = styled((props) => (
 
       color: ${
         buttonVariant === ButtonVariantTypes.SOLID
-          ? `${theme.colors.button.primary.solid.textColor}`
-          : buttonStyle === ButtonStyleTypes.WARNING
-          ? `${theme.colors.button.warning.outline.textColor}`
-          : buttonStyle === ButtonStyleTypes.DANGER
-          ? `${theme.colors.button.danger.outline.textColor}`
-          : buttonStyle === ButtonStyleTypes.INFO
-          ? `${theme.colors.button.info.outline.textColor}`
-          : buttonStyle === ButtonStyleTypes.SECONDARY
-          ? `${theme.colors.button.secondary.outline.textColor}`
+          ? getCustomTextColor(theme, buttonColor)
+          : getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor) !==
+            "none"
+          ? getCustomBackgroundColor(ButtonVariantTypes.SOLID, buttonColor)
           : `${theme.colors.button.primary.outline.textColor}`
       } !important;
     }
@@ -188,7 +147,7 @@ export const StyledButton = styled((props) => (
 
 export interface IconButtonComponentProps extends ComponentProps {
   iconName?: IconName;
-  buttonStyle: ButtonStyleType;
+  buttonColor: string;
   buttonVariant: ButtonVariant;
   borderRadius: ButtonBorderRadius;
   boxShadow: ButtonBoxShadow;
@@ -206,7 +165,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     borderRadius,
     boxShadow,
     boxShadowColor,
-    buttonStyle,
+    buttonColor,
     buttonVariant,
     hasOnClickAction,
     height,
@@ -234,7 +193,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         boxShadowColor={boxShadowColor}
-        buttonStyle={buttonStyle}
+        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         dimension={dimension}
         disabled={isDisabled}
