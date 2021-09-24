@@ -255,10 +255,6 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
 export const ERROR_EVAL_TRIGGER = (message: string) =>
   `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_DELETE = (widgetName: string) =>
-  `${widgetName} widget deleted`;
-export const WIDGET_BULK_DELETE = (widgetName: string) =>
-  `${widgetName} widgets deleted`;
 export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
@@ -415,14 +411,31 @@ export const PARSE_JS_FUNCTION_ERROR = (message: string) =>
 export const EXECUTING_FUNCTION = () => `Executing function`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
+export const EXPORT_DEFAULT_BEGINNING = () =>
+  `Start object with export default`;
+
 // Import/Export Application features
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import Application";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
   `You want to remove ${name} from this organization`;
+export const PARSING_ERROR = () =>
+  "Syntax Error: Unable to parse code, please check error logs to debug";
+export const PARSING_WARNING = () =>
+  "Linting Errors: Please resolve linting errors before using these functions";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//undo redo
+export const WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} is removed`;
+export const WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} is added back`;
+export const BULK_WIDGET_REMOVED = (widgetName: string) =>
+  `${widgetName} widgets are removed`;
+export const BULK_WIDGET_ADDED = (widgetName: string) =>
+  `${widgetName} widgets are added back`;
 
 // Generate page from DB Messages
 
@@ -481,15 +494,14 @@ export const SNIPPET_EXECUTION_SUCCESS = () => `Snippet executed successfully.`;
 
 export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
-export const SEARCH_ITEM_SELECT = () => `Hit ⏎ to insert`;
+export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
+export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
 export const GIT_CONNECTION = () => "Git Connection";
 export const DEPLOY = () => "Deploy";
 export const MERGE = () => "Merge";
-export const SHARE_APPLICATION = () => "Share Application";
-export const SETTINGS = () => "Settings";
 export const CONNECT_TO_GIT = () => "Connect to Git Repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, Make commits, add deploy your application";
@@ -505,10 +517,11 @@ export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
 export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
-export const CONNECT_TO_GIT_REPOSITORY = () => "Connect to Git Repository";
-export const CONNECT_TO_GIT_REPOSITORY_SUBTITLE = () =>
-  "Checkout branches, make commits, add deploy your application";
 export const CONNECT = () => "Connect";
+export const LATEST_DP_TITLE = () => "Latest Deployed Preview";
+export const LATEST_DP_SUBTITLE = () =>
+  "See your application in action after successful push";
+export const CHECK_DP = () => "CHECK";
 export const DEPLOY_TO_CLOUD = () => "Deploy to cloud";
 export const DEPLOY_WITHOUT_GIT = () =>
   "Deploy your application without version control";
@@ -518,9 +531,12 @@ export const COMMIT_TO = () => "Commit to";
 export const PUSH = () => "PUSH";
 export const PUSH_TO = () => "Push to";
 export const PUSH_CHANGES = () => "PUSH CHANGES";
+export const PUSHED_SUCCESSFULLY = () => "PUSHED SUCCESSFULLY";
 export const PULL = () => "PULL";
 export const PUSH_CHANGES_IMMEDIATELY_TO = () => "Push changes immediately to";
 export const COMMIT_AND_PUSH = () => "Commit and push";
+export const COMMITTED_AND_PUSHED_SUCCESSFULLY = () =>
+  "Committed and pushed Successfully";
 export const COMMITTED_SUCCESSFULLY = () => "Committed Successfully";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
@@ -563,7 +579,7 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //First Time User Onboarding
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
-  CONNECT_A_DATASOURCE = "CONNECT DATA SOURCE",
+  CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
   CREATE_A_QUERY = "CREATE A QUERY",
   ADD_WIDGETS = "ADD WIDGETS",
   CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
@@ -582,13 +598,13 @@ export const ONBOARDING_CHECKLIST_BODY = () =>
 export const ONBOARDING_CHECKLIST_COMPLETE_TEXT = () => "complete";
 
 export const ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE = {
-  bold: () => "Connect your data source",
+  bold: () => "Connect your datasource",
   normal: () => "to start building an application.",
 };
 
 export const ONBOARDING_CHECKLIST_CREATE_A_QUERY = {
   bold: () => "Create a query",
-  normal: () => "of your data source.",
+  normal: () => "of your datasource.",
 };
 
 export const ONBOARDING_CHECKLIST_ADD_WIDGETS = {
@@ -603,7 +619,7 @@ export const ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET = {
 
 export const ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS = {
   bold: () => "Deploy your application",
-  normal: () => ", and see your creation live.",
+  normal: () => ",and see your creation live.",
 };
 
 export const ONBOARDING_CHECKLIST_FOOTER = () =>
@@ -638,24 +654,33 @@ export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
 //Tasks
 //1. datasource
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
-  "Start by adding your first Data source";
+  "Start by adding your first Datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
-  "Adding a data source makes creating applications more powerful. Don’t worry if you don’t have any data to hand, we have sample data you can use.";
-export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a data source";
+  "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample data you can use.";
+export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
-  "Great job adding a data source! The next thing you can do is create a query on your data.";
+  "Great job adding a datasource! The next thing you can do is create a query on your data.";
 export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ create a query";
 export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
 //2. widget
 export const ONBOARDING_TASK_WIDGET_HEADER = () =>
   "Next, add a widget to start displaying data";
 export const ONBOARDING_TASK_WIDGET_BODY = () =>
-  "Great job adding a data source! The next thing you can do is add widget to start start making your data visual.";
+  "Great job adding a datasource! The next thing you can do is add widget to start start making your data visual.";
 export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
-export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
+
+export const USE_SNIPPET = () => "Snippet";
+export const SNIPPET_TOOLTIP = () => "Search Snippets";
+
+//Welcome page
+export const WELCOME_HEADER = () => "Welcome!";
+export const WELCOME_BODY = () =>
+  "Let us setup your account so you can make awesome applications!";
+export const WELCOME_ACTION = () => "Get Started";

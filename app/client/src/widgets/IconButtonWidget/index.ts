@@ -1,12 +1,13 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { IconNames } from "@blueprintjs/icons";
-import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import {
   ButtonBorderRadiusTypes,
   ButtonBoxShadowTypes,
 } from "components/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -16,7 +17,7 @@ export const CONFIG = {
     iconName: IconNames.PLUS,
     borderRadius: ButtonBorderRadiusTypes.CIRCLE,
     boxShadow: ButtonBoxShadowTypes.NONE,
-    buttonStyle: ButtonStyleTypes.PRIMARY,
+    buttonColor: Colors.GREEN,
     buttonVariant: ButtonVariantTypes.SOLID,
     isDisabled: false,
     isVisible: true,

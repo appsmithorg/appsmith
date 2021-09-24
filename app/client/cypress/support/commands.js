@@ -1853,9 +1853,10 @@ Cypress.Commands.add("addAPIFromLightningMenu", (ApiName) => {
 Cypress.Commands.add("radioInput", (index, text) => {
   cy.get(widgetsPage.RadioInput)
     .eq(index)
-    .click()
-    .clear()
-    .type(text);
+    .click({ force: true })
+    .clear({ force: true })
+    .type(text)
+    .wait(200);
 });
 Cypress.Commands.add("tabVerify", (index, text) => {
   cy.get(".t--property-control-tabs input")
@@ -2362,22 +2363,17 @@ Cypress.Commands.add("openPropertyPaneCopy", (widgetType) => {
   }
 });
 
-Cypress.Commands.add("changeButtonStyle", (index, buttonColor, hoverColor) => {
-  cy.get(widgetsPage.buttonStyleDropdown).click({ force: true });
-  cy.get(
-    ".bp3-popover-content .t--dropdown-option:nth-child(" + index + ")",
-  ).click({ force: true });
+Cypress.Commands.add("changeButtonColor", (buttonColor) => {
+  cy.get(widgetsPage.buttonColor)
+    .click({ force: true })
+    .clear()
+    .type(buttonColor);
   cy.PublishtheApp();
   cy.get(widgetsPage.widgetBtn).should(
     "have.css",
     "background-color",
     buttonColor,
   );
-  // cy.get(buttonBackground)
-  //   .first()
-  //   .trigger('mouseover', { force: true });
-  // cy.get(buttonBackground)
-  //   .should('have.css', 'background-color', hoverColor);
   cy.wait(1000);
 });
 
@@ -2458,7 +2454,6 @@ Cypress.Commands.add("deleteWidget", (widget) => {
   cy.get(widgetsPage.removeWidget).click({ force: true });
   cy.wait(5000);
   cy.wait("@updateLayout");
-  cy.get(widgetsPage.deleteToast).should("have.text", "UNDO");
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {

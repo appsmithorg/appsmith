@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
 import {
+  INTEGRATION_EDITOR_MODES,
   INTEGRATION_EDITOR_URL,
   INTEGRATION_TABS,
   QueryEditorRouteParams,
@@ -20,9 +21,9 @@ import {
   getPluginIdsOfPackageNames,
   getPlugins,
   getPluginImages,
-  getDBDatasources,
   getAction,
   getActionResponses,
+  getDBAndRemoteDatasources,
 } from "selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import { QueryAction, QueryActionConfig } from "entities/Action";
@@ -190,7 +191,12 @@ class QueryEditor extends React.Component<Props> {
 
     const onCreateDatasourceClick = () => {
       history.push(
-        INTEGRATION_EDITOR_URL(applicationId, pageId, INTEGRATION_TABS.NEW),
+        INTEGRATION_EDITOR_URL(
+          applicationId,
+          pageId,
+          INTEGRATION_TABS.NEW,
+          INTEGRATION_EDITOR_MODES.AUTO,
+        ),
       );
     };
     return (
@@ -248,7 +254,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: getDBDatasources(state),
+    dataSources: getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[props.match.params.queryId],
     isDeleting: state.ui.queryPane.isDeleting[props.match.params.queryId],

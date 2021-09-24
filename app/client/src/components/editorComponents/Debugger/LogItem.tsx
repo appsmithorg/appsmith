@@ -255,7 +255,7 @@ function LogItem(props: LogItemProps) {
           <span className="debugger-timetaken">{props.timeTaken}</span>
         )}
         {props.severity !== Severity.INFO && (
-          <ContextualMenu error={errorToSearch}>
+          <ContextualMenu entity={props.source} error={errorToSearch}>
             <TooltipComponent
               content={
                 <Text style={{ color: "#ffffff" }} type={TextType.P3}>
@@ -279,7 +279,7 @@ function LogItem(props: LogItemProps) {
             {messages.map((e) => {
               return (
                 <MessageWrapper key={e.message}>
-                  <ContextualMenu entityName={props.source?.name} error={e}>
+                  <ContextualMenu entity={props.source} error={e}>
                     <span className="debugger-message t--debugger-message">
                       {isString(e.message)
                         ? e.message
