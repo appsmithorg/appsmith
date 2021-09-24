@@ -14,9 +14,9 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-import Switcher from "components/ads/Switcher";
-import { useDispatch } from "react-redux";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+// import Switcher from "components/ads/Switcher";
+// import { useDispatch } from "react-redux";
+// import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   background-color: ${Colors.WHITE};
@@ -37,14 +37,14 @@ const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   }
 `;
 
-const SwitchWrapper = styled.div`
-  padding: 8px;
-`;
+// const SwitchWrapper = styled.div`
+//   padding: 8px;
+// `;
 
 const initialPanel = { component: ExplorerSidebar };
 
 export const Sidebar = memo(() => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const panelRef = useRef<PanelStack>(null);
 
   const enableFirstTimeUserOnboarding = useSelector(

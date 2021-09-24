@@ -7,7 +7,6 @@ import {
   getCurrentPageId,
   getWidgetCards,
 } from "selectors/editorSelectors";
-import { getColorWithOpacity } from "constants/DefaultTheme";
 import { IPanelProps, Icon, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
