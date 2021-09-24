@@ -69,7 +69,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 38;
+export const LATEST_PAGE_VERSION = 41;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -93,8 +93,6 @@ export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
 export const CANVAS_CLASSNAME = "appsmith_widget_0";
-
-export const WIDGET_DELETE_UNDO_TIMEOUT = 7000;
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 

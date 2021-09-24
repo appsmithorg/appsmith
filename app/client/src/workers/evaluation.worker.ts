@@ -9,6 +9,7 @@ import {
   EvalErrorTypes,
   EvaluationError,
   PropertyEvaluationErrorType,
+  EVAL_ERROR_PATH,
 } from "utils/DynamicBindingUtils";
 import {
   CrashingError,
@@ -16,14 +17,18 @@ import {
   getSafeToRenderDataTree,
   removeFunctions,
   validateWidgetProperty,
-  getParams,
+  parseJSCollection,
 } from "./evaluationUtils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
+import ReplayDSL from "workers/ReplayDSL";
 import evaluate from "workers/evaluate";
+import { Severity } from "entities/AppsmithConsole";
+import _ from "lodash";
 
 const ctx: Worker = self as any;
 
 let dataTreeEvaluator: DataTreeEvaluator | undefined;
+let replayDSL: ReplayDSL | undefined;
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function messageEventListener(
@@ -42,6 +47,9 @@ function messageEventListener(
       });
     } catch (e) {
       console.error(e);
+      // we dont want to log dataTree because it is huge.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { dataTree, ...rest } = requestData;
       ctx.postMessage({
         requestId,
         responseData: {
@@ -49,7 +57,7 @@ function messageEventListener(
             {
               type: EvalErrorTypes.CLONE_ERROR,
               message: e,
-              context: requestData,
+              context: JSON.stringify(rest),
             },
           ],
         },
@@ -64,7 +72,12 @@ ctx.addEventListener(
   messageEventListener((method, requestData: any) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.EVAL_TREE: {
-        const { unevalTree, widgetTypeConfigMap } = requestData;
+        const {
+          shouldReplay = true,
+          unevalTree,
+          widgets,
+          widgetTypeConfigMap,
+        } = requestData;
         let dataTree: DataTree = unevalTree;
         let errors: EvalError[] = [];
         let logs: any[] = [];
@@ -73,6 +86,7 @@ ctx.addEventListener(
         let unEvalUpdates: DataTreeDiff[] = [];
         try {
           if (!dataTreeEvaluator) {
+            replayDSL = new ReplayDSL(widgets);
             dataTreeEvaluator = new DataTreeEvaluator(widgetTypeConfigMap);
             dataTree = dataTreeEvaluator.createFirstTree(unevalTree);
             evaluationOrder = dataTreeEvaluator.sortedDependencies;
@@ -81,6 +95,7 @@ ctx.addEventListener(
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
           } else {
             dataTree = {};
+            shouldReplay && replayDSL?.update(widgets);
             const updateResponse = dataTreeEvaluator.updateDataTree(unevalTree);
             evaluationOrder = updateResponse.evaluationOrder;
             unEvalUpdates = updateResponse.unEvalUpdates;
@@ -90,6 +105,8 @@ ctx.addEventListener(
           errors = dataTreeEvaluator.errors;
           dataTreeEvaluator.clearErrors();
           logs = dataTreeEvaluator.logs;
+          if (replayDSL?.logs) logs = logs.concat(replayDSL?.logs);
+          replayDSL?.clearLogs();
           dataTreeEvaluator.clearLogs();
         } catch (e) {
           if (dataTreeEvaluator !== undefined) {
@@ -202,56 +219,52 @@ ctx.addEventListener(
           validateWidgetProperty(validation, value, props),
         );
       }
+      case EVAL_WORKER_ACTIONS.UNDO: {
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.replay("UNDO");
+        replayDSL.clearLogs();
+        return replayResult;
+      }
+      case EVAL_WORKER_ACTIONS.REDO: {
+        if (!replayDSL) return;
+
+        const replayResult = replayDSL.replay("REDO");
+        replayDSL.clearLogs();
+        return replayResult;
+      }
       case EVAL_WORKER_ACTIONS.PARSE_JS_FUNCTION_BODY: {
         const { body, jsAction } = requestData;
-        const regex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
 
         if (!dataTreeEvaluator) {
           return true;
         }
         try {
-          const correctFormat = regex.test(body);
-          if (correctFormat) {
-            const toBeParsedBody = body.replace(/export default/g, "");
-            const parsed = body && eval("(" + toBeParsedBody + ")");
-            const parsedLength = Object.keys(parsed).length;
-            const actions = [];
-            const variables = [];
-            if (parsedLength > 0) {
-              for (const key in parsed) {
-                if (parsed.hasOwnProperty(key)) {
-                  if (typeof parsed[key] === "function") {
-                    const value = parsed[key];
-                    const params = getParams(value);
-                    actions.push({
-                      name: key,
-                      body: parsed[key].toString(),
-                      arguments: params,
-                    });
-                  } else {
-                    variables.push({
-                      name: key,
-                      value: parsed[key],
-                    });
-                  }
-                }
-              }
-            }
-            return {
-              actions: actions,
-              variables: variables,
-            };
-          } else {
-            throw new Error("syntax error");
-          }
+          const { errors, evalTree, result } = parseJSCollection(
+            body,
+            jsAction,
+            dataTreeEvaluator.evalTree,
+          );
+          return {
+            errors,
+            evalTree,
+            result,
+          };
         } catch (e) {
-          const errors = dataTreeEvaluator.errors;
-          errors.push({
-            type: EvalErrorTypes.PARSE_JS_ERROR,
-            message: e.message,
-            context: jsAction,
-          });
-          return errors;
+          const evalTree = dataTreeEvaluator.evalTree;
+          const errors = [
+            {
+              errorType: PropertyEvaluationErrorType.PARSE,
+              raw: "",
+              severity: Severity.ERROR,
+              errorMessage: e.message,
+            },
+          ];
+          _.set(evalTree, `${jsAction.name}.${EVAL_ERROR_PATH}.body`, errors);
+          return {
+            errors,
+            evalTree,
+          };
         }
       }
       case EVAL_WORKER_ACTIONS.EVAL_JS_FUNCTION: {

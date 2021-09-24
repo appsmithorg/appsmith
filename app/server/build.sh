@@ -8,7 +8,7 @@ mvn clean package "$@"
 
 if [ $? -eq 0 ]
 then
-  echo "mvn Successfull"
+  echo "mvn Successful"
 else
   echo "mvn Failed"
   exit 1
@@ -18,7 +18,7 @@ fi
 mkdir -p dist/plugins
 
 # Copy the server jar
-cp ./appsmith-server/target/server-1.0-SNAPSHOT.jar dist/
+cp -v ./appsmith-server/target/server-*.jar dist/
 
 # Copy all the plugins
 rsync -av --exclude "original-*.jar" ./appsmith-plugins/*/target/*.jar dist/plugins/

@@ -12,7 +12,7 @@ import { Redirect } from "react-router";
 const StyledSetupContainer = styled.div`
   background-color: ${(props) => props.theme.colors.homepageBackground};
   height: 100vh;
-  overflow: auto;
+  overflow: hidden;
 `;
 
 function Setup() {
