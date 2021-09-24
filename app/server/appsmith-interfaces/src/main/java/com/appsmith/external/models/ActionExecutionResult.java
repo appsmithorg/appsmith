@@ -45,16 +45,14 @@ public class ActionExecutionResult {
             this.statusCode = ((AppsmithPluginException) error).getAppErrorCode().toString();
             this.title = ((AppsmithPluginException) error).getTitle();
             this.errorType = ((AppsmithPluginException) error).getErrorType();
+
+            if (((AppsmithPluginException) error).getExternalError() != null && pluginErrorUtils != null) {
+                this.readableError = pluginErrorUtils.getReadableError(error);
+            }
         } else if (error instanceof BaseException) {
             this.statusCode = ((BaseException) error).getAppErrorCode().toString();
             this.title = ((BaseException) error).getTitle();
         }
-
-        if (pluginErrorUtils == null) {
-            return;
-        }
-
-        this.readableError = pluginErrorUtils.getReadableError(error);
     }
 
     public void setErrorInfo(Throwable error) {

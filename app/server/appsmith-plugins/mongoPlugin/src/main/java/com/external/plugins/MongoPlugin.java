@@ -279,6 +279,7 @@ public class MongoPlugin extends BasePlugin {
                             error -> {
                                 MongoCommandException e = error;
                                 return new AppsmithPluginException(
+                                    error,
                                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                     error.getErrorMessage()
                             );}
