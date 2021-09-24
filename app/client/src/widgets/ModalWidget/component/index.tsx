@@ -13,7 +13,6 @@ import {
   BottomHandleStyles,
 } from "components/editorComponents/ResizeStyledComponents";
 import { Layers } from "constants/Layers";
-import { MODAL_PORTAL_CLASSNAME } from "constants/WidgetConstants";
 import Resizable from "resizable";
 import { getCanvasClassName } from "utils/generators";
 import { AppState } from "reducers";
@@ -107,7 +106,6 @@ export type ModalComponentProps = {
   right?: number;
   hasBackDrop?: boolean;
   zIndex?: number;
-  portalClassName?: string;
   enableResize?: boolean;
   isEditMode?: boolean;
   resizeModal?: (dimensions: UIElementSize) => void;
@@ -139,6 +137,15 @@ export default function ModalComponent(props: ModalComponentProps) {
 
     return omit(allHandles, get(props, "disabledResizeHandles", []));
   }, [props]);
+
+  useEffect(() => {
+    return () => {
+      // handle modal close events when this component unmounts
+      // will be called in all cases :-
+      //  escape key press, click out side, close click from other btn widget
+      if (props.onModalClose) props.onModalClose();
+    };
+  }, []);
 
   useEffect(() => {
     if (!props.scrollContents) {
@@ -191,44 +198,32 @@ export default function ModalComponent(props: ModalComponentProps) {
   };
 
   return (
-    <Overlay
-      canEscapeKeyClose={false}
-      canOutsideClickClose={false}
-      enforceFocus={false}
-      hasBackdrop={false}
-      isOpen={props.isOpen}
-      onClose={props.onClose}
-      portalClassName={`${MODAL_PORTAL_CLASSNAME} ${props.portalClassName}`}
-      portalContainer={props.portalContainer}
-      usePortal={props.usePortal}
+    <Container
+      bottom={props.bottom}
+      height={props.height}
+      isEditMode={props.isEditMode}
+      left={props.left}
+      maxWidth={props.maxWidth}
+      minSize={props.minSize}
+      right={props.bottom}
+      top={props.top}
+      width={props.width}
+      zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
     >
-      <Container
-        bottom={props.bottom}
-        height={props.height}
-        isEditMode={props.isEditMode}
-        left={props.left}
-        maxWidth={props.maxWidth}
-        minSize={props.minSize}
-        right={props.bottom}
-        top={props.top}
-        width={props.width}
-        zIndex={props.zIndex !== undefined ? props.zIndex : Layers.modalWidget}
+      <Overlay
+        canEscapeKeyClose={props.canEscapeKeyClose}
+        canOutsideClickClose={props.canOutsideClickClose}
+        className={props.overlayClassName}
+        enforceFocus={false}
+        hasBackdrop={
+          props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
+        }
+        isOpen={props.isOpen}
+        onClose={props.onClose}
+        usePortal={false}
       >
-        <Overlay
-          canEscapeKeyClose={props.canEscapeKeyClose}
-          canOutsideClickClose={props.canOutsideClickClose}
-          className={props.overlayClassName}
-          enforceFocus={false}
-          hasBackdrop={
-            props.hasBackDrop !== undefined ? !!props.hasBackDrop : true
-          }
-          isOpen={props.isOpen}
-          onClose={props.onClose}
-          usePortal={false}
-        >
-          {getResizableContent()}
-        </Overlay>
-      </Container>
-    </Overlay>
+        {getResizableContent()}
+      </Overlay>
+    </Container>
   );
 }
