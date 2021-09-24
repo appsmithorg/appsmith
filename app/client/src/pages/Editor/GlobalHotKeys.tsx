@@ -43,6 +43,7 @@ import { APP_MODE } from "entities/App";
 import { commentModeSelector } from "selectors/commentsSelectors";
 import { createMessage, SAVE_HOTKEY_TOASTER_MESSAGE } from "constants/messages";
 import { setPreviewMode } from "actions/editorActions";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -66,6 +67,7 @@ type Props = {
   redo: () => void;
   appMode?: APP_MODE;
   isCommentMode: boolean;
+  isPreviewMode: boolean;
   setPreviewMode: (shouldSet: boolean) => void;
 };
 
@@ -333,6 +335,15 @@ class GlobalHotKeys extends React.Component<Props> {
           preventDefault
           stopPropagation
         />
+        <Hotkey
+          combo="mod + m"
+          global
+          label="Preview Mode"
+          onKeyDown={(e: any) => {
+            setCommentModeInUrl(false);
+            this.props.setPreviewMode(!this.props.isPreviewMode);
+          }}
+        />
       </Hotkeys>
     );
   }
@@ -348,6 +359,7 @@ const mapStateToProps = (state: AppState) => ({
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
   isCommentMode: commentModeSelector(state),
+  isPreviewMode: previewModeSelector(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

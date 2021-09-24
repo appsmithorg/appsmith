@@ -241,7 +241,7 @@ export function EditorHeader(props: EditorHeaderProps) {
         <HeaderSection className="">
           <div
             className={classNames({
-              "text-white pl-3 transform transition-all": true,
+              "text-white pl-3 transform transition-all duration-400": true,
               "ml-0": !pinned,
               "-ml-8": pinned,
             })}
