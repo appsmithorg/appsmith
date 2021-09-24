@@ -21,7 +21,6 @@ import { FieldEntityInformation } from "components/editorComponents/CodeEditor/E
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
-import { getDataTreeFunctions } from "workers/Actions";
 
 const DEFS: Def[] = [
   GLOBAL_FUNCTIONS,

@@ -341,7 +341,3 @@ export const enhanceDataTreeWithFunctions = (
 
   return withFunction;
 };
-
-export function getDataTreeFunctions() {
-  return Object.keys(DATA_TREE_FUNCTIONS);
-}
