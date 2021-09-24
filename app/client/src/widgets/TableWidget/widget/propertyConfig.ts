@@ -6,7 +6,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ButtonBorderRadiusTypes } from "components/constants";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
 
 enum ColumnTypes {
   TEXT = "text",
@@ -953,16 +956,16 @@ export default [
                   ],
                   options: [
                     {
-                      label: "Solid",
-                      value: "SOLID",
+                      label: "Primary",
+                      value: ButtonVariantTypes.PRIMARY,
                     },
                     {
-                      label: "Outline",
-                      value: "OUTLINE",
+                      label: "Secondary",
+                      value: ButtonVariantTypes.SECONDARY,
                     },
                     {
-                      label: "Ghost",
-                      value: "GHOST",
+                      label: "Tertiary",
+                      value: ButtonVariantTypes.TERTIARY,
                     },
                   ],
                   isBindProperty: false,

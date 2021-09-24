@@ -985,7 +985,7 @@ export const revertButtonStyleToButtonColor = (
           break;
         case "SECONDARY_BUTTON":
           currentDSL.buttonColor = Colors.GREEN;
-          currentDSL.buttonVariant = ButtonVariantTypes.OUTLINE;
+          currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
           break;
         case "DANGER_BUTTON":
           currentDSL.buttonColor = Colors.DANGER_SOLID;
