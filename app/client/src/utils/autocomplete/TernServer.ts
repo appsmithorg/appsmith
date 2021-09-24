@@ -317,16 +317,16 @@ class TernServer {
               completionType.MATCHING_TYPE.push(completion);
             }
           } else if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS") {
-            // We only add function if the entity type is action
+            // Global functions should be in best match as well as DataTree
             if (
-              entityType &&
-              ![ENTITY_TYPE.WIDGET, ENTITY_TYPE.APPSMITH].includes(entityType)
+              !entityType ||
+              ENTITY_TYPE.ACTION === entityType ||
+              ENTITY_TYPE.JSACTION === entityType
             ) {
-              // Global functions should be in best match as well as DataTree
               completionType.MATCHING_TYPE.push(completion);
               completionType.DATA_TREE.push(completion);
             }
-          } else if (completion.type === expectedType) {
+          } else {
             // All top level entities are set in data tree
             completionType.DATA_TREE.push(completion);
           }
