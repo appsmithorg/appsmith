@@ -1657,6 +1657,9 @@
             {
               "value": false,
               "key": "smartSubstitution"
+            },
+            {
+              "key": "where"
             }
           ]
         },
@@ -1753,6 +1756,9 @@
             {
               "value": false,
               "key": "smartSubstitution"
+            },
+            {
+              "key": "where"
             }
           ]
         },
