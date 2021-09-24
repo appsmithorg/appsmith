@@ -100,6 +100,8 @@ export type DataTreeEntity =
 
 export type DataTree = {
   [entityName: string]: DataTreeEntity;
+} & {
+  params?: Record<string, unknown>;
 };
 
 type DataTreeSeed = {
@@ -152,6 +154,7 @@ export class DataTreeFactory {
       store: { ...appData.store.persistent, ...appData.store.transient },
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
+    dataTree.params = {};
     return dataTree;
   }
 }
