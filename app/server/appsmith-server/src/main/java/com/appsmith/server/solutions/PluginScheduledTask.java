@@ -40,13 +40,9 @@ public class PluginScheduledTask {
 
     private Instant lastUpdatedAt = null;
 
-    /**
-     * Gets the external IP address of this server and pings a data point to indicate that this server instance is live.
-     * We use an initial delay of two minutes to roughly wait for the application along with the migrations are finished
-     * and ready.
-     */
+
     // Number of milliseconds between the start of each scheduled calls to this method.
-    @Scheduled(initialDelay = 2 * 60 * 1000 /* two minutes */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
+    @Scheduled(initialDelay = 30 * 1000 /* 30 seconds */, fixedRate = 2 * 60 * 60 * 1000 /* two hours */)
     public void updateRemotePlugins() {
         // Get all plugins on this instance
         final Mono<Map<PluginIdentifier, Plugin>> availablePluginsMono =
@@ -60,7 +56,7 @@ public class PluginScheduledTask {
         final Mono<Map<PluginIdentifier, Plugin>> newPluginsMono = getRemotePlugins();
 
         Mono.zip(availablePluginsMono, newPluginsMono)
-                .flatMapMany(tuple -> {
+                .flatMap(tuple -> {
                     final Map<PluginIdentifier, Plugin> availablePlugins = tuple.getT1();
                     final Map<PluginIdentifier, Plugin> newPlugins = tuple.getT2();
                     final List<Plugin> updatablePlugins = new ArrayList<>();
@@ -70,17 +66,24 @@ public class PluginScheduledTask {
                             v.setId(availablePlugins.get(k).getId());
                             updatablePlugins.add(v);
                         } else {
+                            v.setId(null);
                             insertablePlugins.add(v);
                         }
                     });
 
-                    final Flux<Plugin> updatedPluginsFlux = pluginService.saveAll(updatablePlugins);
-                    final Flux<Organization> organizationFlux = pluginService.saveAll(insertablePlugins)
-                            .filter(Plugin::getDefaultInstall)
-                            .collectList()
-                            .flatMapMany(pluginService::installDefaultPlugins);
+                    final Mono<List<Plugin>> updatedPluginsFlux = pluginService.saveAll(updatablePlugins)
+                            .collectList();
+                    final Mono<List<Organization>> organizationFlux =
+                            Flux.fromIterable(insertablePlugins)
+                                    .flatMap(pluginService::create)
+                                    .filter(Plugin::getDefaultInstall)
+                                    .collectList()
+                                    .flatMapMany(pluginService::installDefaultPlugins)
+                                    .collectList();
 
-                    return updatedPluginsFlux.zipWith(organizationFlux);
+                    return updatedPluginsFlux
+                            .zipWith(organizationFlux)
+                            .then();
                 })
                 .subscribeOn(Schedulers.single())
                 .subscribe();
