@@ -350,7 +350,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           )}
         </HeaderSection>
         {props.inOnboarding && <OnboardingHelper />}
-        <Suspense fallback={<Skeleton />}>
+        <Suspense fallback={<span />}>
           <GlobalSearch />
         </Suspense>
         {isSnipingMode && (
