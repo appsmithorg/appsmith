@@ -3,10 +3,11 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import CameraComponent from "../component";
 import { CameraMode } from "../constants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
@@ -96,7 +97,13 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
-    return {};
+    return {
+      image: undefined,
+    };
+  }
+
+  static getWidgetType(): string {
+    return "CAMERA_WIDGET";
   }
 
   getPageView() {
@@ -122,14 +129,36 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
         height={height}
         mirrored={isMirrored}
         mode={mode}
+        onImageCapture={this.handleImageCapture}
+        onVideoCapture={this.handleVideoCapture}
         width={width}
       />
     );
   }
 
-  static getWidgetType(): string {
-    return "CAMERA_WIDGET";
-  }
+  handleImageCapture = (image?: string | null) => {
+    if (image) {
+      this.props.updateWidgetMetaProperty("image", image, {
+        triggerPropertyName: "onMediaCapture",
+        dynamicString: this.props.onMediaCapture,
+        event: {
+          type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+        },
+      });
+    }
+  };
+
+  handleVideoCapture = (video?: Blob) => {
+    if (video) {
+      this.props.updateWidgetMetaProperty("video", video, {
+        triggerPropertyName: "onMediaCapture",
+        dynamicString: this.props.onMediaCapture,
+        event: {
+          type: EventType.ON_CAMERA_MEDIA_CAPTURE,
+        },
+      });
+    }
+  };
 }
 
 export interface CameraWidgetProps extends WidgetProps {
