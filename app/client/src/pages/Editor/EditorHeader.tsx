@@ -59,7 +59,6 @@ import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import getFeatureFlags from "utils/featureFlags";
 import { getIsInOnboarding } from "selectors/onboardingSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
-import Skeleton from "components/utils/Skeleton";
 
 const HeaderWrapper = styled(StyledHeader)`
   width: 100%;
@@ -350,7 +349,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           )}
         </HeaderSection>
         {props.inOnboarding && <OnboardingHelper />}
-        <Suspense fallback={<Skeleton />}>
+        <Suspense fallback={<span />}>
           <GlobalSearch />
         </Suspense>
         {isSnipingMode && (
