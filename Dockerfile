@@ -39,8 +39,8 @@ VOLUME [ "/appsmith-stacks" ]
 
 # ------------------------------------------------------------------------
 # Add backend server - Application Layer
-ARG JAR_FILE=./app/server/appsmith-server/target/server-*.jar
-ARG PLUGIN_JARS=./app/server/appsmith-plugins/*/target/*.jar
+ARG JAR_FILE=./app/server/dist/server-*.jar
+ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 #Create the plugins directory
