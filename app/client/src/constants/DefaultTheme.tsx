@@ -386,6 +386,8 @@ export type Theme = {
       hoverText: ShadeColor;
       inActiveBG: ShadeColor;
       inActiveText: ShadeColor;
+      border: Color;
+      background: Color;
     };
     [Skin.DARK]: {
       hoverBG: ShadeColor;
@@ -3013,10 +3015,12 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[12],
+      hoverBG: lightShades[2],
       hoverText: lightShades[0],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
+      border: Colors.WHITE,
+      background: Colors.WHITE,
     },
     [Skin.DARK]: {
       hoverBG: darkShades[0],
