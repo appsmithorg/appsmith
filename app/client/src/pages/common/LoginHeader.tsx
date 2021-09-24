@@ -31,7 +31,7 @@ export function LoginHeader() {
     <StyledPageHeader>
       <LogoContainer>
         <Link to={BASE_URL}>
-          <AppsmithLogo />
+          <AppsmithLogo className="logoimg t--Appsmith-logo-image" />
         </Link>
       </LogoContainer>
     </StyledPageHeader>
