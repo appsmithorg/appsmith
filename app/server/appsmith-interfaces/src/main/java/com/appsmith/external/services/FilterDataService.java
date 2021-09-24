@@ -9,21 +9,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -69,7 +74,7 @@ public class FilterDataService {
             connection = DriverManager.getConnection(URL);
         } catch (SQLException e) {
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the in memory database. Unable to perform filtering : " + e.getMessage());
         }
     }
 
@@ -88,24 +93,22 @@ public class FilterDataService {
             return items;
         }
 
-        if (!validConditionList(conditionList)) {
+        Map<String, DataType> schema = generateSchema(items);
+
+        if (!validConditionList(conditionList, schema)) {
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Conditions for filtering were incomplete or incorrect.");
         }
 
         List<Condition> conditions = addValueDataType(conditionList);
 
-        // Generate the schema of the table using the first object
-        JsonNode jsonNode = items.get(0);
-
-        Map<String, DataType> schema = generateSchema(jsonNode);
 
         String tableName = generateTable(schema);
 
         // insert the data
-        insertData(tableName, items, schema);
+        insertAllData(tableName, items, schema);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions);
+        List<Map<String, Object>> finalResults = executeFilterQuery(tableName, conditions, schema);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -115,46 +118,63 @@ public class FilterDataService {
         return finalResultsNode;
     }
 
-    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions) {
+    public List<Map<String, Object>> executeFilterQuery(String tableName, List<Condition> conditions, Map<String, DataType> schema) {
+        Connection conn = checkAndGetConnection();
+
         StringBuilder sb = new StringBuilder("SELECT * FROM " + tableName);
 
-        String whereClause = generateWhereClause(conditions);
+        LinkedHashMap<String, DataType> values = new LinkedHashMap<>();
+
+        String whereClause = generateWhereClause(conditions, values, schema);
+
         sb.append(whereClause);
 
         sb.append(";");
 
+        List<Map<String, Object>> rowsList = new ArrayList<>(50);
+
         String selectQuery = sb.toString();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
-        List<Map<String, Object>> rowsList = new ArrayList<>(50);
-
-        Connection conn = checkAndGetConnection();
-
         try {
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectQuery);
+            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+            Set<Map.Entry<String, DataType>> valueEntries = values.entrySet();
+            Iterator<Map.Entry<String, DataType>> iterator = valueEntries.iterator();
+            for (int i = 0; iterator.hasNext(); i++) {
+                Map.Entry<String, DataType> valueEntry = iterator.next();
+                String value = valueEntry.getKey();
+                DataType dataType = valueEntry.getValue();
+                setValueInStatement(preparedStatement, i + 1, value, dataType);
+            }
 
+            ResultSet resultSet = preparedStatement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int colCount = metaData.getColumnCount();
 
             while (resultSet.next()) {
                 Map<String, Object> row = new LinkedHashMap<>(colCount);
                 for (int i = 1; i <= colCount; i++) {
-                    row.put(metaData.getColumnName(i), resultSet.getObject(i));
+                    Object resultValue = resultSet.getObject(i);
+
+                    // Set null values to empty strings
+                    if (null == resultValue) {
+                        resultValue = "";
+                    }
+
+                    row.put(metaData.getColumnName(i), resultValue);
                 }
                 rowsList.add(row);
             }
-
         } catch (SQLException e) {
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
             log.error(e.getMessage());
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Filtering failure seen : " + e.getMessage());
         }
 
         return rowsList;
     }
 
-    private String generateWhereClause(List<Condition> conditions) {
+    private String generateWhereClause(List<Condition> conditions, LinkedHashMap<String, DataType> values, Map<String, DataType> schema) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -190,20 +210,20 @@ public class FilterDataService {
 
                 StringBuilder valueBuilder = new StringBuilder("(");
 
-                // The array could be an array of Strings
-                if (value.contains("\"")) {
-                    try {
-                        List<String> stringValues = objectMapper.readValue(value, List.class);
-                        List<String> updatedStringValues = stringValues.stream().map(stringValue -> "\'" + stringValue + "\'").collect(Collectors.toList());
-                        String finalValues = String.join(",", updatedStringValues);
-                        valueBuilder.append(finalValues);
-                    } catch (IOException e) {
-                        log.error(e.getMessage());
-                    }
-                } else {
-                    // Removes the outer square brackets from the string to leave behind just the values separated by comma
-                    String trimmedValue = value.replaceAll("^\\[|]$", "");
-                    valueBuilder.append(trimmedValue);
+                try {
+                    List<Object> arrayValues = objectMapper.readValue(value, List.class);
+                    List<String> updatedStringValues = arrayValues
+                            .stream()
+                            .map(fieldValue -> {
+                                values.put(String.valueOf(fieldValue), schema.get(path));
+                                return "?";
+                            })
+                            .collect(Collectors.toList());
+                    String finalValues = String.join(",", updatedStringValues);
+                    valueBuilder.append(finalValues);
+                } catch (IOException e) {
+                    throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            value + " could not be parsed into an array");
                 }
 
                 valueBuilder.append(")");
@@ -211,18 +231,15 @@ public class FilterDataService {
                 sb.append(value);
 
             } else {
-                // Since the value is not an array, surround the same with single quotes and append
-                sb.append("'");
-                sb.append(value);
-                sb.append("'");
+                // Not an array. Simply add a placeholder
+                sb.append("?");
+                values.put(value, schema.get(path));
             }
         }
-
         return sb.toString();
     }
 
-    // INSERT INTO tableName (columnName1, columnName2) VALUES (data1, data2)
-    public void insertData(String tableName, ArrayNode items, Map<String, DataType> schema) {
+    public void insertAllData(String tableName, ArrayNode items, Map<String, DataType> schema) {
 
         List<String> columnNames = schema.keySet().stream().collect(Collectors.toList());
 
@@ -235,23 +252,31 @@ public class FilterDataService {
         columnNamesBuilder.append(String.join(", ", quotedColumnNames));
         columnNamesBuilder.append(")");
 
+        // In order data types of all the columns
+        List<DataType> columnTypes = new ArrayList<>();
+        for (String columnName : columnNames) {
+            columnTypes.add(schema.get(columnName));
+        }
+
         insertQueryBuilder.append(columnNamesBuilder);
         insertQueryBuilder.append(" VALUES ");
 
         StringBuilder valuesMasterBuilder = new StringBuilder();
 
         int counter = 0;
+        List<String> inOrderValues = new ArrayList<>();
+
         for (JsonNode item : items) {
 
             // If the number of values inserted is greater than 1000, the insert would fail. Once we have reached 1000
             // rows, execute the insert for rows so far and start afresh for the rest of the rows
             if (counter == 1000) {
-                String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
-                executeDbQuery(insertQueryString);
 
+                insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
                 // Reset the values builder and counter for new insert queries.
                 valuesMasterBuilder = new StringBuilder();
                 counter = 0;
+                inOrderValues = new ArrayList<>();
             }
 
             StringBuilder valuesBuilder = new StringBuilder();
@@ -277,9 +302,8 @@ public class FilterDataService {
 
                 JsonNode fieldNode = item.get(columnName);
                 if (fieldNode != null) {
-                    valuesBuilder.append("'");
-                    valuesBuilder.append(fieldNode.asText());
-                    valuesBuilder.append("'");
+                    valuesBuilder.append("?");
+                    inOrderValues.add(fieldNode.asText());
                 }
             }
 
@@ -291,8 +315,7 @@ public class FilterDataService {
         }
 
         if (valuesMasterBuilder.length() > 0) {
-            String insertQueryString = finalInsertQueryString(insertQueryBuilder.toString(), valuesMasterBuilder);
-            executeDbQuery(insertQueryString);
+            insertReadyData(insertQueryBuilder.toString(), valuesMasterBuilder, inOrderValues, columnTypes);
         }
     }
 
@@ -305,20 +328,37 @@ public class FilterDataService {
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Filtering failure seen during insertion of data : " + e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, e.getMessage());
         }
     }
 
-    private String finalInsertQueryString(String partialInsertQuery, StringBuilder valuesBuilder) {
+    private void insertReadyData(String partialInsertQuery, StringBuilder valuesBuilder, List<String> inOrderValues, List<DataType> columnTypes) {
+
+        Connection conn = checkAndGetConnection();
 
         StringBuilder insertQueryBuilder = new StringBuilder(partialInsertQuery);
-
         insertQueryBuilder.append(valuesBuilder);
         insertQueryBuilder.append(";");
 
         String finalInsertQuery = insertQueryBuilder.toString();
 
-        return finalInsertQuery;
+        try {
+            PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery);
+
+            int valueCounter = 0;
+            while (valueCounter < inOrderValues.size()) {
+
+                for (int columnTypeCounter = 0; columnTypeCounter < columnTypes.size(); columnTypeCounter++, valueCounter++) {
+                    setValueInStatement(preparedStatement, valueCounter + 1, inOrderValues.get(valueCounter), columnTypes.get(columnTypeCounter));
+                }
+            }
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Error in ingesting the data : " + e.getMessage());
+        }
     }
 
     private Connection checkAndGetConnection() {
@@ -327,7 +367,7 @@ public class FilterDataService {
                 connection = DriverManager.getConnection(URL);
             }
         } catch (SQLException e) {
-            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Failed to connect to the in memory database. Unable to perform filtering");
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR, "Failed to connect to the filtering database");
         }
 
         return connection;
@@ -390,9 +430,13 @@ public class FilterDataService {
     }
 
 
-    private Map<String, DataType> generateSchema(JsonNode jsonNode) {
+    private Map<String, DataType> generateSchema(ArrayNode items) {
 
-        Iterator<String> fieldNamesIterator = jsonNode.fieldNames();
+        JsonNode item = items.get(0);
+
+        Iterator<String> fieldNamesIterator = item.fieldNames();
+
+        Set<String> missingColumnDataTypes = new HashSet<>();
         /*
          * For an object of the following type :
          * {
@@ -419,29 +463,124 @@ public class FilterDataService {
                     return name;
                 })
                 .collect(Collectors.toMap(
-                            Function.identity(),
-                            name -> {
-                                String value = jsonNode.get(name).asText();
-                                DataType dataType = stringToKnownDataTypeConverter(value);
-                                return dataType;
-                            },
-                            (u, v) -> {
-                                // This is not possible.
-                                throw new IllegalStateException(String.format("Duplicate key %s", u));
-                            },
-                            LinkedHashMap::new
+                                Function.identity(),
+                                name -> {
+                                    String value = item.get(name).asText();
+                                    if (StringUtils.isEmpty(value)) {
+                                        missingColumnDataTypes.add(name);
+                                        // Default to string
+                                        return DataType.STRING;
+                                    } else {
+                                        return stringToKnownDataTypeConverter(value);
+                                    }
+                                },
+                                (u, v) -> {
+                                    // This is not possible.
+                                    throw new IllegalStateException(String.format("Duplicate key %s", u));
+                                },
+                                LinkedHashMap::new
                         )
                 );
+
+
+        // Try to find the missing data type which has been initialized to String
+        Set<String> columns = new HashSet();
+        columns.addAll(missingColumnDataTypes);
+
+        for (String columnName : columns) {
+            for (JsonNode entry : items) {
+                String value = entry.get(columnName).asText();
+                if (!StringUtils.isEmpty(value)) {
+                    DataType dataType = stringToKnownDataTypeConverter(value);
+                    schema.put(columnName, dataType);
+                    missingColumnDataTypes.remove(columnName);
+                }
+            }
+        }
+
+        // We could not assert a data type for a column because no data exists in any of the rows
+        if (!missingColumnDataTypes.isEmpty()) {
+            // TODO : Decide on the interaction expected here. Currently we are defaulting to String and hence no
+            // error would be shown to the user and filtering on other columns should continue as is.
+        }
 
         return schema;
     }
 
+    private PreparedStatement setValueInStatement(PreparedStatement preparedStatement, int index, String value, DataType dataType) {
 
-    public boolean validConditionList(List<Condition> conditionList) {
+        // Override datatype to null for empty values
+        if (StringUtils.isEmpty(value)) {
+            dataType = DataType.NULL;
+        }
 
-        return conditionList
+        try {
+            switch (dataType) {
+                case NULL: {
+                    preparedStatement.setNull(index, Types.NULL);
+                    break;
+                }
+                case INTEGER: {
+                    preparedStatement.setInt(index, Integer.parseInt(value));
+                    break;
+                }
+                case LONG: {
+                    preparedStatement.setLong(index, Long.parseLong(value));
+                    break;
+                }
+                case FLOAT:
+                case DOUBLE: {
+                    preparedStatement.setBigDecimal(index, new BigDecimal(String.valueOf(value)));
+                    break;
+                }
+                case BOOLEAN: {
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value));
+                    break;
+                }
+                case STRING: {
+                    preparedStatement.setString(index, value);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+        } catch (SQLException | IllegalArgumentException e) {
+            // Alarm! This should never fail since appsmith is the creator of the query and supporter of it. Raise
+            // an alarm and fix quickly!
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
+                        "Error while interacting with value " + value + " : " + e.getMessage());
+        }
+
+        return preparedStatement;
+    }
+
+
+    public boolean validConditionList(List<Condition> conditionList, Map<String, DataType> schema) {
+
+        conditionList
                 .stream()
-                .allMatch(condition -> Condition.isValid(condition));
+                .map(condition -> {
+                    if (!Condition.isValid(condition)) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                "Condition \" " + condition.getPath() + " " + condition.getOperator().toString() + " "
+                                        + condition.getValue() + " \" is incorrect and could not be parsed.");
+                    }
+
+                    String path = condition.getPath();
+
+                    if (!schema.containsKey(path)) {
+                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                                path + " not found in the known column names :" + schema.keySet());
+                    }
+
+                    return condition;
+                })
+                .collect(Collectors.toList());
+
+        // All the conditions were iterated over and checked. In case an error was found, an exception has already been
+        // thrown. If reached here, everything is hunky-dory.
+        return true;
     }
 
 }
