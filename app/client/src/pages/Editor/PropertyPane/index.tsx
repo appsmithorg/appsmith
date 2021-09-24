@@ -168,20 +168,6 @@ function PropertyPaneView(
         ),
       },
       {
-        tooltipContent: <span>Explore widget related docs</span>,
-        icon: <PropertyPaneHelpButton />,
-      },
-      {
-        tooltipContent: <span>Search related snippets</span>,
-        icon: (
-          <SearchSnippets
-            entityId={widgetProperties.widgetId}
-            entityType={ENTITY_TYPE.WIDGET}
-            showIconOnly
-          />
-        ),
-      },
-      {
         tooltipContent: "Close",
         icon: (
           <Icon
