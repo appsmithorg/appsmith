@@ -7,6 +7,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.GitBranchDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -26,13 +27,13 @@ public interface GitService {
 
     Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata);
 
-    Mono<String> commitApplication(GitCommitDTO commitDTO, String applicationId);
+    Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<String> commitApplication(String applicationId);
 
-    Mono<List<GitLogDTO>> getCommitHistory(String applicationId);
+    Mono<List<GitLogDTO>> getCommitHistory(String defaultApplicationId, MultiValueMap<String, String> params);
 
-    Mono<String> pushApplication(String applicationId);
+    Mono<String> pushApplication(String defaultApplicationId, MultiValueMap<String, String> params);
 
     Mono<Application> detachRemote(String applicationId);
 
@@ -40,7 +41,7 @@ public interface GitService {
 
     Mono<Application> checkoutBranch(String defaultApplicationId, String branchName);
 
-    Mono<String> pullForApplication(String applicationId, String branchName);
+    Mono<String> pullApplication(String applicationId, String branchName);
 
     Mono<List<String>> listBranchForApplication(String applicationId);
 
