@@ -656,7 +656,7 @@ export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
 export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
   "Start by adding your first Data source";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
-  "Adding a data source makes creating applications more powerful. Don’t worry if you don’t have any data to hand, we have sample data you can use.";
+  "Adding a data source makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample data you can use.";
 export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a data source";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
@@ -674,7 +674,7 @@ export const ONBOARDING_TASK_WIDGET_BODY = () =>
 export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a Widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
-export const ONBOARDING_TASK_FOOTER = () => "Alternatively you can also";
+export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
 
 export const USE_SNIPPET = () => "Snippet";
 export const SNIPPET_TOOLTIP = () => "Search Snippets";
