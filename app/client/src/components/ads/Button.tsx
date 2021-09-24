@@ -462,6 +462,12 @@ const ButtonStyles = css<ThemeProp & ButtonProps>`
       stroke: ${(props) => props.theme.colors.button.disabledText};
     }
   }
+  .t--right-icon {
+    margin-left: ${(props) => props.theme.spaces[3] - 1.33}px;
+  }
+  .t--left-icon {
+    margin-right: ${(props) => props.theme.spaces[3] - 1.33}px;
+  }
 `;
 
 const StyledButton = styled("button")`
@@ -496,12 +502,16 @@ function IconLoadingState({ icon, size }: { size?: Size; icon?: IconName }) {
   return <Icon invisible name={icon} size={IconSizeProp(size)} />;
 }
 
-const getIconContent = (props: ButtonProps) =>
+const getIconContent = (props: ButtonProps, rightPosFlag = false) =>
   props.icon ? (
     props.isLoading ? (
       <IconLoadingState {...props} />
     ) : (
-      <Icon name={props.icon} size={IconSizeProp(props.size)} />
+      <Icon
+        className={rightPosFlag ? "t--right-icon" : "t--left-icon"}
+        name={props.icon}
+        size={IconSizeProp(props.size)}
+      />
     )
   ) : null;
 
@@ -523,10 +533,8 @@ const getButtonContent = (props: ButtonProps) => {
   return (
     <>
       {iconPos === IconPositions.left && getIconContent(props)}
-      <span style={{ marginRight: iconPos === IconPositions.right ? 7.67 : 0 }}>
-        {getTextContent(props)}
-      </span>
-      {iconPos === IconPositions.right && getIconContent(props)}
+      <span>{getTextContent(props)}</span>
+      {iconPos === IconPositions.right && getIconContent(props, true)}
       {props.isLoading ? <Spinner size={IconSizeProp(props.size)} /> : null}
     </>
   );
