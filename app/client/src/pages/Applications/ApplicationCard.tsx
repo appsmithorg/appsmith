@@ -53,6 +53,7 @@ import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { Colors } from "constants/Colors";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -304,6 +305,41 @@ const CardFooter = styled.div`
   margin-top: 4px;
 `;
 
+const IconScrollWrapper = styled.div`
+  position: relative;
+  .t--icon-selected {
+    background-color: rgba(248, 106, 43, 0.2);
+    border: 1px solid ${(props) => props.theme.colors.applications.cardMenuIcon};
+    svg {
+      path {
+        fill: ${(props) => props.theme.colors.applications.iconColor};
+      }
+    }
+  }
+  .icon-selector::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  .icon-selector::-webkit-scrollbar {
+    width: 0px;
+  }
+`;
+
+const MenuItemWrapper = styled(MenuItem)`
+  &.error-menuitem {
+    .${CsClasses.TEXT} {
+      color: ${Colors.DANGER_SOLID};
+    }
+    .${CsClasses.ICON} {
+      svg {
+        fill: ${Colors.DANGER_SOLID};
+        path {
+          fill: ${Colors.DANGER_SOLID};
+        }
+      }
+    }
+  }
+`;
+
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
@@ -366,6 +402,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: exportApplicationAsJSONFile,
         text: "Export",
         icon: "download",
+        cypressSelector: "t--export-app",
+      });
+      moreActionItems.push({
+        onSelect: exportApplicationAsJSONFile,
+        text: "Move App",
+        icon: "file-transfer",
         cypressSelector: "t--export-app",
       });
     }
@@ -445,7 +487,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     updatedActionItems.push({
       onSelect: deleteApp,
       text: "Are you sure?",
-      icon: "delete",
+      icon: "delete-blank",
       type: "warning",
       cypressSelector: "t--delete",
     });
@@ -460,7 +502,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: askForConfirmation,
         text: "Delete",
-        icon: "delete",
+        icon: "delete-blank",
         cypressSelector: "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
@@ -556,18 +598,25 @@ export function ApplicationCard(props: ApplicationCardProps) {
           </>
         )}
         {hasEditPermission && (
-          <>
+          <IconScrollWrapper>
             <IconSelector
+              className="icon-selector"
               fill
               onSelect={updateIcon}
-              selectedColor={selectedColor}
+              selectedColor={theme.colors.applications.cardMenuIcon}
               selectedIcon={appIcon}
             />
             <MenuDivider />
-          </>
+          </IconScrollWrapper>
         )}
         {moreActionItems.map((item: MenuItemProps) => {
-          return <MenuItem key={item.text} {...item} />;
+          return (
+            <MenuItemWrapper
+              key={item.text}
+              {...item}
+              className={item.icon === "delete-blank" ? "error-menuitem" : ""}
+            />
+          );
         })}
         <ForkApplicationModal
           applicationId={props.application.id}

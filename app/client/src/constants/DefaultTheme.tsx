@@ -574,6 +574,7 @@ const lightShades = [
   "#EBEBEB",
   "#858282",
   "#000000",
+  "#F86A2B",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -860,6 +861,7 @@ type ColorType = {
       textColor: ShadeColor;
       orgColor: ShadeColor;
     };
+    cardMenuIcon: ShadeColor;
   };
   switch: {
     border: ShadeColor;
@@ -1818,6 +1820,7 @@ export const dark: ColorType = {
       textColor: darkShades[8],
       orgColor: darkShades[9],
     },
+    cardMenuIcon: darkShades[7],
   },
   switch: {
     border: darkShades[5],
@@ -2447,6 +2450,7 @@ export const light: ColorType = {
       textColor: lightShades[8],
       orgColor: lightShades[9],
     },
+    cardMenuIcon: lightShades[17],
   },
   switch: {
     border: lightShades[5],

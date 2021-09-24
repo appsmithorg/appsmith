@@ -21,11 +21,11 @@ import { ReactComponent as InviteUserIcon } from "assets/icons/ads/invite-users.
 import { ReactComponent as ViewAllIcon } from "assets/icons/ads/view-all.svg";
 import { ReactComponent as ViewLessIcon } from "assets/icons/ads/view-less.svg";
 import { ReactComponent as ContextMenuIcon } from "assets/icons/ads/context-menu.svg";
-import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
+// import { ReactComponent as DuplicateIcon } from "assets/icons/ads/duplicate.svg";
 import { ReactComponent as LogoutIcon } from "assets/icons/ads/logout.svg";
 import { ReactComponent as ManageIcon } from "assets/icons/ads/manage.svg";
 import { ReactComponent as ArrowLeft } from "assets/icons/ads/arrow-left.svg";
-import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
+// import { ReactComponent as Fork } from "assets/icons/ads/fork.svg";
 import { ReactComponent as ChevronLeft } from "assets/icons/ads/chevron_left.svg";
 import { ReactComponent as ChevronRight } from "assets/icons/ads/chevron_right.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/ads/link.svg";
@@ -54,7 +54,7 @@ import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
 import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
 import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
-import { ReactComponent as Download } from "assets/icons/ads/download.svg";
+// import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
 import { ReactComponent as CapSolidIcon } from "assets/icons/control/cap_solid.svg";
 import { ReactComponent as CapDotIcon } from "assets/icons/control/cap_dot.svg";
@@ -82,13 +82,18 @@ import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import CommentContextMenu from "remixicon-react/More2FillIcon";
 import CreateNewIcon from "remixicon-react/AddLineIcon";
 import DatasourceIcon from "remixicon-react/CloudFillIcon";
+import DeleteBin7 from "remixicon-react/DeleteBin7LineIcon";
 import DiscordIcon from "remixicon-react/DiscordLineIcon";
 import DownArrow from "remixicon-react/ArrowDownSFillIcon";
+import Download from "remixicon-react/DownloadCloud2LineIcon";
+import DuplicateIcon from "remixicon-react/FileCopyLineIcon";
 import EditIcon from "remixicon-react/PencilFillIcon";
 import Emoji from "remixicon-react/EmotionLineIcon";
 import EyeOn from "remixicon-react/EyeLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
+import FileTransfer from "remixicon-react/FileTransferLineIcon";
 import Filter from "remixicon-react/Filter2FillIcon";
+import GitMerge from "remixicon-react/GitMergeLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
 import Link2 from "remixicon-react/LinkIcon";
@@ -98,7 +103,7 @@ import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
 import ShareBoxFillIcon from "remixicon-react/ShareBoxFillIcon";
-import ShareIcon from "remixicon-react/ShareForwardFillIcon";
+import ShareForwardIcon from "remixicon-react/ShareForwardFillIcon";
 import Trash from "remixicon-react/DeleteBinLineIcon";
 import UpArrow from "remixicon-react/ArrowUpSFillIcon";
 import WarningIcon from "remixicon-react/ErrorWarningFillIcon";
@@ -180,6 +185,7 @@ export const IconCollection = [
   "danger",
   "datasource",
   "delete",
+  "delete-blank",
   "desktop",
   "discord",
   "down-arrow-2",
@@ -192,6 +198,7 @@ export const IconCollection = [
   "expand-more",
   "eye-on",
   "eye-off",
+  "file-transfer",
   "filter",
   "fluid",
   "fork",
@@ -382,6 +389,9 @@ const Icon = forwardRef(
       case "delete":
         returnIcon = <Trash />;
         break;
+      case "delete-blank":
+        returnIcon = <DeleteBin7 />;
+        break;
       case "desktop":
         returnIcon = <DesktopIcon />;
         break;
@@ -418,6 +428,9 @@ const Icon = forwardRef(
       case "eye-off":
         returnIcon = <EyeOff />;
         break;
+      case "file-transfer":
+        returnIcon = <FileTransfer />;
+        break;
       case "filter":
         returnIcon = <Filter />;
         break;
@@ -425,7 +438,7 @@ const Icon = forwardRef(
         returnIcon = <FluidIcon />;
         break;
       case "fork":
-        returnIcon = <Fork />;
+        returnIcon = <GitMerge />;
         break;
       case "gear":
         returnIcon = <GearIcon />;
@@ -515,7 +528,7 @@ const Icon = forwardRef(
         returnIcon = <SendButton />;
         break;
       case "share":
-        returnIcon = <ShareIcon />;
+        returnIcon = <ShareForwardIcon />;
         break;
       case "share-2":
         returnIcon = <ShareIcon2 />;
