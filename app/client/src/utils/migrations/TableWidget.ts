@@ -325,10 +325,9 @@ const getUpdatedColumns = (
           "currentRow",
         );
       }
-      updatedColumns[sanitizedColumnId] = {
-        ...columnProps,
-        onClick: newOnClickBindingValue,
-      };
+      updatedColumns[sanitizedColumnId] = columnProps;
+      if (newOnClickBindingValue)
+        updatedColumns[sanitizedColumnId].onClick = newOnClickBindingValue;
     }
   }
   return updatedColumns;
