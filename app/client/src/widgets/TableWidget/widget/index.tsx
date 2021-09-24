@@ -212,11 +212,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleInputChange = (fieldName: string, value: any) => {
     const editedRowTempData = cloneDeep(this.props.editedRowTempData);
-    set(
-      editedRowTempData,
-      `${this.props.selectedRowIndex}.${fieldName}`,
-      value,
-    );
+    set(editedRowTempData, `${this.props.isRowEditing}.${fieldName}`, value);
     this.props.updateWidgetMetaProperty("editedRowTempData", editedRowTempData);
   };
 
@@ -246,6 +242,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       );
     }
+    // on save update triggeredRowIndex
+    this.props.updateWidgetMetaProperty(
+      "triggeredRowIndex",
+      this.props.isRowEditing,
+    );
+    // reset internal isRowEditing when row saved
     this.props.updateWidgetMetaProperty("isRowEditing", -1);
   };
 
