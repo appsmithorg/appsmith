@@ -217,7 +217,7 @@ export const getSSHKeyPairSuccess = (
 
 export const getSSHKeyPairError = (payload: {
   error: string;
-  show?: boolean;
+  show: boolean;
 }) => {
   return {
     type: ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR,

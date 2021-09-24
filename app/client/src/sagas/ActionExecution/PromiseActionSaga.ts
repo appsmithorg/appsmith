@@ -2,37 +2,26 @@ import { AppsmithPromisePayload } from "workers/Actions";
 import {
   executeActionTriggers,
   executeAppAction,
+  TriggerMeta,
 } from "sagas/ActionExecution/ActionExecutionSagas";
 import { all, call } from "redux-saga/effects";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import log from "loglevel";
-
-export class TriggerFailureError extends Error {
-  error?: Error;
-  constructor(reason: string, error?: Error) {
-    super(reason);
-    this.error = error;
-  }
-}
-
-export class PluginTriggerFailureError extends TriggerFailureError {
-  responseData: unknown[] = [];
-  constructor(reason: string, responseData: unknown[]) {
-    super(reason);
-    this.responseData = responseData;
-  }
-}
+import {
+  PluginTriggerFailureError,
+  UncaughtAppsmithPromiseError,
+  UserCancelledActionExecutionError,
+} from "sagas/ActionExecution/errorUtils";
 
 export default function* executePromiseSaga(
   trigger: AppsmithPromisePayload,
   eventType: EventType,
+  triggerMeta: TriggerMeta,
 ): any {
-  let error: unknown;
-
   try {
     const responses = yield all(
       trigger.executor.map((executionTrigger) =>
-        call(executeActionTriggers, executionTrigger, eventType),
+        call(executeActionTriggers, executionTrigger, eventType, triggerMeta),
       ),
     );
     if (trigger.then) {
@@ -41,21 +30,24 @@ export default function* executePromiseSaga(
         if (responses.length === 1) {
           responseData = responses[0];
         }
+        const thenArguments = responseData || [{}];
         for (const thenable of trigger.then) {
           responseData = yield call(executeAppAction, {
             dynamicString: thenable,
             event: {
               type: eventType,
             },
-            responseData,
+            responseData: thenArguments,
+            source: triggerMeta.source,
+            triggerPropertyName: triggerMeta.triggerPropertyName,
           });
         }
       }
     }
   } catch (e) {
-    log.error(e);
-    error = e;
-    if (trigger.catch) {
+    if (e instanceof UserCancelledActionExecutionError) {
+      // Let this pass to finally clause
+    } else if (trigger.catch) {
       let responseData = [e.message];
       if (e instanceof PluginTriggerFailureError) {
         responseData = e.responseData;
@@ -68,7 +60,12 @@ export default function* executePromiseSaga(
           type: eventType,
         },
         responseData: catchArguments,
+        source: triggerMeta.source,
+        triggerPropertyName: triggerMeta.triggerPropertyName,
       });
+    } else {
+      log.error(e);
+      throw new UncaughtAppsmithPromiseError(e.message, triggerMeta, e);
     }
   }
 
@@ -78,12 +75,9 @@ export default function* executePromiseSaga(
       event: {
         type: eventType,
       },
+      responseData: [{}],
+      source: triggerMeta.source,
+      triggerPropertyName: triggerMeta.triggerPropertyName,
     });
-  }
-
-  // Throwing any errors present, which can then be used by the caller
-  // to be show in a toast(or debugger etc.)
-  if (error) {
-    throw error;
   }
 }
