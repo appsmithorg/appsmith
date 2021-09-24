@@ -496,6 +496,7 @@ export const SNIPPET_EXECUTION_FAILED = () => `Snippet execution failed.`;
 
 export const SNIPPET_INSERT = () => `Hit ⏎ to insert`;
 export const SNIPPET_COPY = () => `Hit ⏎ to copy`;
+export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
