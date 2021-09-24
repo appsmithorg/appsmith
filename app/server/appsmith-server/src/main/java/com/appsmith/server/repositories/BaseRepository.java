@@ -10,6 +10,8 @@ import java.util.List;
 @NoRepositoryBean
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
 
+    Mono<T> retrieveById(ID id);
+
     /**
      * This function sets the deleted flag to true and then saves the modified document.
      *

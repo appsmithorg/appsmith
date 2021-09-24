@@ -4,6 +4,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.RemotePluginOrgDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.PluginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,5 +58,12 @@ public class PluginController extends BaseController<PluginService, Plugin, Stri
     public Mono<ResponseDTO<Object>> getDatasourceForm(@PathVariable String pluginId) {
         return service.getFormConfig(pluginId)
                 .map(form -> new ResponseDTO<>(HttpStatus.OK.value(), form, null));
+    }
+
+    @PostMapping("/remote/install")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<Void>> remoteInstall(@Valid @RequestBody RemotePluginOrgDTO plugin) {
+        return service.installRemotePlugin(plugin)
+                .map(organization -> new ResponseDTO<>(HttpStatus.OK.value(), organization, null));
     }
 }

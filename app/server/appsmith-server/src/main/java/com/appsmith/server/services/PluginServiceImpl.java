@@ -9,6 +9,7 @@ import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.dtos.InstallPluginRedisDTO;
 import com.appsmith.server.dtos.OrganizationPluginStatus;
 import com.appsmith.server.dtos.PluginOrgDTO;
+import com.appsmith.server.dtos.RemotePluginOrgDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PluginRepository;
@@ -646,6 +647,49 @@ public class PluginServiceImpl extends BaseService<PluginRepository, Plugin, Str
     @Override
     public Flux<Plugin> saveAll(Iterable<Plugin> plugins) {
         return repository.saveAll(plugins);
+    }
+
+    /**
+     * This method is only available to EE for now, since the interface to install a plugin selectively is exposed via
+     * an Appsmith app only in the SaaS Integration Creator app
+     *
+     * @param plugin The DTO that contains plugin information along with organization id
+     * @return A Void Mono on success
+     */
+    @Override
+    public Mono<Void> installRemotePlugin(RemotePluginOrgDTO plugin) {
+        final Plugin remotePlugin = plugin.getPlugin();
+        remotePlugin.setId(null);
+        // Look for an existing definition of this plugin
+        final Mono<OrganizationPlugin> organizationPluginMono = this.findUniqueRemotePlugin(remotePlugin)
+                .switchIfEmpty(Mono.just(remotePlugin))
+                .flatMap(retrievedPlugin -> {
+                    remotePlugin.setId(retrievedPlugin.getId());
+                    return repository.save(remotePlugin);
+                })
+                .map(savedPlugin -> new OrganizationPlugin(savedPlugin.getId(), OrganizationPluginStatus.ACTIVATED));
+
+        // Look for the organization that the plugin needs to be installed in
+        final Mono<Organization> organizationMono = Mono.justOrEmpty(plugin.getOrganizationId())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID)))
+                .flatMap(organizationService::retrieveById)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ORGANIZATION_ID, plugin.getOrganizationId())));
+        return organizationPluginMono
+                .zipWith(organizationMono)
+                .flatMap(tuple -> {
+                    final Organization organization = tuple.getT2();
+                    final OrganizationPlugin organizationPlugin = tuple.getT1();
+                    organization.getPlugins().add(organizationPlugin);
+                    return organizationService.save(organization);
+                })
+                .then();
+    }
+
+    private Mono<Plugin> findUniqueRemotePlugin(Plugin remotePlugin) {
+        return this.repository.findByPluginNameAndPackageNameAndVersion(
+                remotePlugin.getPluginName(),
+                remotePlugin.getPackageName(),
+                remotePlugin.getVersion());
     }
 
     @Override
