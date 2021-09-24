@@ -181,7 +181,7 @@ describe("Entity Explorer tests", () => {
     expect(highlighted.length).toBe(1);
     expect(active.length).toBe(1);
     const collapsible: any = active[0].parentElement?.querySelector(
-      ".bp3-icon.bp3-icon-caret-right",
+      ".t--entity-collapse-toggle",
     );
     fireEvent.click(collapsible);
     const buttonWidget: any = component.queryByText(children[2].widgetName);
