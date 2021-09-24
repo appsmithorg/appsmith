@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import styled from "styled-components";
 import Button from "components/ads/Button";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -11,13 +11,14 @@ import {
   WELCOME_HEADER,
 } from "constants/messages";
 
-const LandingPageWrapper = styled.div`
+const LandingPageWrapper = styled.div<{ hide: boolean }>`
   width: ${(props) => props.theme.pageContentWidth}px;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 0 auto;
+  opacity: ${(props) => (props.hide ? 0 : 1)};
 `;
 
 const LandingPageContent = styled.div`
@@ -91,12 +92,20 @@ const includeFonts = () => {
 };
 
 export default memo(function LandingPage(props: LandingPageProps) {
+  const [fontsInjected, setFontsInjected] = useState(false);
   useEffect(() => {
     includeFonts();
     playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
+    //wait for the fonts to be loaded
+    setTimeout(() => {
+      setFontsInjected(true);
+    }, 100);
   }, []);
   return (
-    <LandingPageWrapper id={WELCOME_PAGE_ANIMATION_CONTAINER}>
+    <LandingPageWrapper
+      hide={!fontsInjected}
+      id={WELCOME_PAGE_ANIMATION_CONTAINER}
+    >
       <LandingPageContent>
         <StyledTextBanner>
           <StyledBannerHeader>
