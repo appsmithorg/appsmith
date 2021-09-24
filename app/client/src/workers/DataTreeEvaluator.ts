@@ -378,7 +378,8 @@ export default class DataTreeEvaluator {
       }
     }
     if (isWidget(entity)) {
-      // Set default property dependency
+      // Make property dependant on the default property as any time the default changes
+      // the property needs to change
       const defaultProperties = this.widgetConfigMap[entity.type]
         .defaultProperties;
       Object.entries(defaultProperties).forEach(
@@ -388,6 +389,13 @@ export default class DataTreeEvaluator {
           ];
         },
       );
+      // Adding the dynamic triggers in the dependency list as they need linting whenever updated
+      // we dont make it dependant on anything else
+      if (entity.dynamicTriggerPathList) {
+        Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+          dependencies[`${entityName}.${key}`] = [];
+        });
+      }
     }
     if (isAction(entity)) {
       Object.entries(entity.dependencyMap).forEach(
