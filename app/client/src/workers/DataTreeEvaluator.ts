@@ -467,7 +467,7 @@ export default class DataTreeEvaluator {
                 currentTree,
                 resolvedFunctions,
                 evaluationSubstitutionType,
-                isATriggerPath,
+                false,
                 undefined,
                 fullPropertyPath,
               );

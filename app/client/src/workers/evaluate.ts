@@ -78,7 +78,6 @@ export const createGlobalData = (
   evalArguments?: Array<any>,
 ) => {
   const GLOBAL_DATA = Object.create(dataTree);
-  debugger;
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
   ///// Mocking Promise class

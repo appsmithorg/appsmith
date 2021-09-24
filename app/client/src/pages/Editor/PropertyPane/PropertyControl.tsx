@@ -352,7 +352,7 @@ const PropertyControl = memo((props: Props) => {
         type: "Function",
         autocompleteDataType: AutocompleteDataType.FUNCTION,
       };
-      config.evaluatedValue = "Evaluated when executed";
+      delete config.evaluatedValue;
     }
 
     const isDynamic: boolean = isPathADynamicProperty(
