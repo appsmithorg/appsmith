@@ -5,7 +5,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import { WidgetIcons } from "icons/WidgetIcons";
 import { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import QueryImageOutline from "assets/images/query-image-outline.png";
 import styled from "styled-components";
 import {
   HTTP_METHODS,
@@ -48,8 +47,13 @@ export const defaultPageIcon = (
   />
 );
 
+const HiddenPageIcon = MenuIcons.EYES_OFF_ICON;
 export const hiddenPageIcon = (
-  <Icon color={Colors.CHARCOAL} icon="eye-off" iconSize={ENTITY_ICON_SIZE} />
+  <HiddenPageIcon
+    color={Colors.CHARCOAL}
+    height={ENTITY_ICON_SIZE}
+    width={ENTITY_ICON_SIZE}
+  />
 );
 
 const WidgetIcon = MenuIcons.WIDGETS_ICON;
@@ -91,27 +95,14 @@ export const settingsIcon = (
   <SettingsIcon color={Colors.GRAY} height={16} width={16} />
 );
 
-const QueryIconWrapper = styled.div`
-  position: relative;
-  .inner-image {
-    position: absolute;
-    top: 5px;
-    left: 1.1px;
-    height: 11px;
-    width: 11px;
-  }
-  .outer-image {
-    height: 18px;
-    width: 14px;
-  }
-`;
-
-export function QueryIcon(props: { plugin: Plugin }) {
+const QueryMainIcon = MenuIcons.QUERY_MAIN;
+export function QueryIcon() {
   return (
-    <QueryIconWrapper>
-      <img className="inner-image" src={props.plugin.iconLocation} />
-      <img className="outer-image" src={QueryImageOutline} />
-    </QueryIconWrapper>
+    <QueryMainIcon
+      color={Colors.CHARCOAL}
+      height={ENTITY_ICON_SIZE}
+      width={ENTITY_ICON_SIZE}
+    />
   );
 }
 

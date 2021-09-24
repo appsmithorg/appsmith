@@ -106,7 +106,8 @@ export const EntityItem = styled.div<{
       props.rightIconClickable ? Colors.SHARK2 : "initial"};
     svg {
       path {
-        fill: ${Colors.WHITE};
+        fill: ${(props) =>
+          props.rightIconClickable ? Colors.WHITE : "initial"};
       }
     }
   }

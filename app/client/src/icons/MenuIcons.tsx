@@ -16,12 +16,14 @@ import { ReactComponent as ForeignKeyIcon } from "assets/icons/menu/foreign-key.
 import { ReactComponent as DatasourceColumnIcon } from "assets/icons/menu/datasource-column.svg";
 import { ReactComponent as WidgetsColoredIcon } from "assets/icons/menu/widgets-colored.svg";
 import { ReactComponent as JSIcon } from "assets/icons/menu/js-group.svg";
-import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file.svg";
+import { ReactComponent as JSFileIcon } from "assets/icons/menu/js-file-icon.svg";
 import { ReactComponent as LinkIcon } from "assets/icons/menu/link.svg";
 import { ReactComponent as JSFunctionIcon } from "assets/icons/menu/js-function.svg";
 import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasources-2.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
+import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
 import DefaultHomeIcon from "remixicon-react/Home4LineIcon";
+import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
@@ -34,6 +36,12 @@ const StyledDataSourcesIconV2 = styled(DataSourcesIconV2)`
 `;
 
 const StyledJSIconV2 = styled(JSIconV2)`
+  path {
+    fill: ${Colors.CHARCOAL};
+  }
+`;
+
+const StyledQueryMain = styled(QueryMain)`
   path {
     fill: ${Colors.CHARCOAL};
   }
@@ -162,6 +170,16 @@ export const MenuIcons: {
   DEFAULT_HOMEPAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
       <DefaultHomeIcon />
+    </IconWrapper>
+  ),
+  EYES_OFF_ICON: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <EyeOff />
+    </IconWrapper>
+  ),
+  QUERY_MAIN: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <StyledQueryMain />
     </IconWrapper>
   ),
 };
