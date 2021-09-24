@@ -427,6 +427,12 @@ export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
   "Linting Errors: Please resolve linting errors before using these functions";
+export const JS_FUNCTION_CREATE_SUCCESS = () =>
+  "New JS function added successfully";
+export const JS_FUNCTION_UPDATE_SUCCESS = () =>
+  "JS Function updated successfully";
+export const JS_FUNCTION_DELETE_SUCCESS = () =>
+  "JS function deleted successfully";
 
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
