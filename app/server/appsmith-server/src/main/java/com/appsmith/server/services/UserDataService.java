@@ -38,5 +38,5 @@ public interface UserDataService {
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
-    Mono<UserData> setCommentEvent(CommentState commentState);
+    Mono<UserData> setCommentState(CommentState commentState);
 }

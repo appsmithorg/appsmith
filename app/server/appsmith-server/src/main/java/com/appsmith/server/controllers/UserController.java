@@ -210,7 +210,15 @@ public class UserController extends BaseController<UserService, User, String> {
 
     @PatchMapping("/comment/state")
     public Mono<ResponseDTO<CommentState>> setCommentState(@RequestBody UserData userData) {
-        return userDataService.setCommentEvent(userData.getCommentState())
+        return userDataService.setCommentState(userData.getCommentState())
+                .map(savedUserData ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentState(), null)
+                );
+    }
+
+    @GetMapping("/comment/state")
+    public Mono<ResponseDTO<CommentState>> getCommentState() {
+        return userDataService.getForCurrentUser()
                 .map(savedUserData ->
                         new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentState(), null)
                 );

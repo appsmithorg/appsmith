@@ -261,7 +261,7 @@ public class UserDataServiceImpl extends BaseService<UserDataRepository, UserDat
     }
 
     @Override
-    public Mono<UserData> setCommentEvent(CommentState commentState) {
+    public Mono<UserData> setCommentState(CommentState commentState) {
         if(commentState != CommentState.SKIPPED && commentState != CommentState.ONBOARDED) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, QUserData.userData.commentState));
         }

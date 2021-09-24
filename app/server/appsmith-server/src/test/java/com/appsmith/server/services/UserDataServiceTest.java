@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.constants.CommentState;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -258,6 +259,38 @@ public class UserDataServiceTest {
         StepVerifier.create(userDataMono).assertNext(userData -> {
             assertThat(userData.getProfilePhotoAssetId()).isNotNull();
             Mockito.verify(userChangedHandler, Mockito.times(1)).publish(anyString(), anyString());
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setCommentState_WhenParamIsInvalid_ThrowsException() {
+        StepVerifier.create(userDataService.setCommentState(null))
+                .expectError(AppsmithException.class)
+                .verify();
+        StepVerifier.create(userDataService.setCommentState(CommentState.COMMENTED))
+                .expectError(AppsmithException.class)
+                .verify();
+        StepVerifier.create(userDataService.setCommentState(CommentState.RESOLVED))
+                .expectError(AppsmithException.class)
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void setCommentState_WhenParamIsValid_StateIsSet() {
+        Mono<UserData> userDataMono1 = userDataService.setCommentState(CommentState.SKIPPED).flatMap(userData ->
+                userDataService.getForCurrentUser()
+        );
+        StepVerifier.create(userDataMono1).assertNext(userData -> {
+            assertThat(userData.getCommentState()).isEqualTo(CommentState.SKIPPED);
+        }).verifyComplete();
+
+        Mono<UserData> userDataMono2 = userDataService.setCommentState(CommentState.ONBOARDED).flatMap(userData ->
+                userDataService.getForCurrentUser()
+        );
+        StepVerifier.create(userDataMono2).assertNext(userData -> {
+            assertThat(userData.getCommentState()).isEqualTo(CommentState.ONBOARDED);
         }).verifyComplete();
     }
 }

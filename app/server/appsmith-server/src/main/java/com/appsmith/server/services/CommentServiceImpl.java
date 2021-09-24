@@ -277,7 +277,7 @@ public class CommentServiceImpl extends BaseService<CommentRepository, Comment, 
                     ) && !CommentUtils.isAnyoneMentioned(commentThread.getComments().get(0));
 
                     // check whether this thread should be converted to bot thread
-                    if (userData.getCommentState() == null) {
+                    if (userData.getCommentState() == null || userData.getCommentState() == CommentState.ONBOARDED) {
                         commentThread.setIsPrivate(shouldCreateBotThread);
                         userData.setCommentState(CommentState.COMMENTED);
                         return userDataRepository.save(userData).then(

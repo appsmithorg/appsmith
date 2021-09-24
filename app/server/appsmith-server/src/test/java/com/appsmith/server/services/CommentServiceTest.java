@@ -418,10 +418,45 @@ public class CommentServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createThread_WhenUserFinishedOnBoarding_CreatesBotThreadAndComment() {
+        UserData userData = new UserData();
+        userData.setCommentState(CommentState.ONBOARDED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Comment comment = makePlainTextComment("test comment here");
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isTrue();
+            assertThat(thread.getSequenceId()).isEqualTo("#0");
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createThread_WhenFirstCommentFromViewer_BotThreadNotCreated() {
         Comment comment = makePlainTextComment("test comment here");
         Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
                 Set.of(AclPermission.READ_APPLICATIONS), comment
+        );
+
+        StepVerifier.create(commentThreadMono).assertNext(thread -> {
+            assertThat(thread.getIsPrivate()).isNotEqualTo(Boolean.TRUE);
+        }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenUserSkippedOnBoarding_BotThreadNotCreated() {
+        UserData userData = new UserData();
+        userData.setCommentState(CommentState.SKIPPED);
+        Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
+
+        Comment comment = makePlainTextComment("test comment here");
+        Mono<CommentThread> commentThreadMono = createAndFetchTestCommentThreadForBotTest(
+                Set.of(AclPermission.MANAGE_APPLICATIONS, AclPermission.COMMENT_ON_APPLICATIONS), comment
         );
 
         StepVerifier.create(commentThreadMono).assertNext(thread -> {
