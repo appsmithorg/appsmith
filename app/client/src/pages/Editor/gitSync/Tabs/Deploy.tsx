@@ -68,8 +68,8 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
   const isPushingToGit = useSelector(getIsPushingToGit);
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
 
-  const isCommitSuccessful = useSelector(getIsCommitSuccessful);
-  const isPushSuccessful = useSelector(getIsPushSuccessful);
+  const isCommitSuccessful = false;
+  const isPushSuccessful = false;
 
   const currentBranchName = gitMetaData?.branchName;
   const dispatch = useDispatch();
@@ -168,9 +168,8 @@ const Commit = withTheme(function Commit({ theme }: { theme: Theme }) {
           />
         </Section>
       ) : null}
-      {(isPushSuccessful || (pushImmediately && isCommitSuccessful)) && (
-        <DeployPreview />
-      )}
+
+      <DeployPreview />
     </Container>
   );
 });
