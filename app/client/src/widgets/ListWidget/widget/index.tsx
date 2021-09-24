@@ -647,14 +647,16 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
       try {
+        // Passing template instead of deriving from canvasChildren becuase lesser items to compare
+        // in memoize
         childCanvas.children = this.getCanvasChildren(
           template,
           this.props.listData,
           this.props.template,
+          canvasChildren,
           page,
           this.props.gridGap,
           this.props.itemBackgroundColor,
-          this.props.children,
         );
       } catch (e) {
         log.error(e);
@@ -667,8 +669,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     (
       template: any,
       listData: any,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       staticTemplate: any,
+      canvasChildren: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       page: number,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -676,25 +679,30 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      children,
     ) => {
-      let canvasChildren = [];
-      for (let i = 0; i < listData.length; i++) {
-        canvasChildren[i] = JSON.parse(JSON.stringify(template));
+      const canvasChildrenList = [];
+      if (listData.length > 0) {
+        for (let i = 0; i < listData.length; i++) {
+          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+        }
+        canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
+      } else {
+        canvasChildren = this.updateGridChildrenProps(canvasChildren);
       }
-
-      canvasChildren = this.updateGridChildrenProps(canvasChildren);
 
       return canvasChildren;
     },
     (prev: any, next: any) => {
+      // not comparing canvasChildren becuase template acts as a proxy
+
       return (
+        shallowEqual(prev[0], next[0]) &&
         shallowEqual(prev[1], next[1]) &&
         shallowEqual(prev[2], next[2]) &&
-        shallowEqual(prev[6], next[6]) &&
         prev[3] === next[3] &&
         prev[4] === next[4] &&
-        prev[5] === next[5]
+        prev[5] === next[6] &&
+        prev[6] === next[6]
       );
     },
   );
