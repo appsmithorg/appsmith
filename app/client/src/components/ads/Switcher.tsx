@@ -34,7 +34,7 @@ const SwitchBlock = styled.div<{ active?: boolean }>`
 
 /** Styles End **/
 
-type Switch = {
+export type Switch = {
   id: string;
   text: string;
   action: () => void;
@@ -43,15 +43,18 @@ type Switch = {
 export type SwitcherProps = CommonComponentProps & {
   switches: Array<Switch>;
   activeSwitchClass?: string;
+  activeObj?: Switch;
 };
 
 function Switcher(props: SwitcherProps) {
-  const { switches } = props;
+  const { activeObj, switches } = props;
   const [activeSlot, setActiveSlot] = useState("");
 
   useEffect(() => {
-    setActiveSlot(switches[0].id);
-  }, [switches]);
+    if (activeObj) {
+      switchClickHandler(activeObj);
+    }
+  }, [activeObj]);
 
   const switchClickHandler = (switchObj: Switch) => {
     setActiveSlot(switchObj.id);

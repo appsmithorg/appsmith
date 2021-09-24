@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from "react";
+import React, { memo, useEffect, useState } from "react";
 import styled from "styled-components";
 import ExplorerSidebar from "pages/Editor/Explorer";
 import { PanelStack, Classes } from "@blueprintjs/core";
@@ -14,9 +14,10 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar";
-// import Switcher from "components/ads/Switcher";
-// import { useDispatch } from "react-redux";
-// import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import Switcher from "components/ads/Switcher";
+import { useDispatch } from "react-redux";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import { AppState } from "reducers";
 
 const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   background-color: ${Colors.WHITE};
@@ -37,15 +38,31 @@ const SidebarWrapper = styled.div<{ inOnboarding: boolean }>`
   }
 `;
 
-// const SwitchWrapper = styled.div`
-//   padding: 8px;
-// `;
+const SwitchWrapper = styled.div`
+  padding: 8px;
+`;
 
 const initialPanel = { component: ExplorerSidebar };
 
 export const Sidebar = memo(() => {
-  // const dispatch = useDispatch();
-  const panelRef = useRef<PanelStack>(null);
+  const dispatch = useDispatch();
+  const switches = [
+    {
+      id: "explorer",
+      text: "Explorer",
+      action: () => dispatch(forceOpenWidgetPanel(false)),
+    },
+    {
+      id: "widgets",
+      text: "Widgets",
+      action: () => dispatch(forceOpenWidgetPanel(true)),
+    },
+  ];
+  const [activeSwitch, setActiveSwitch] = useState(switches[0]);
+
+  const isForceOpenWidgetPanel = useSelector(
+    (state: AppState) => state.ui.onBoarding.forceOpenWidgetPanel,
+  );
 
   const enableFirstTimeUserOnboarding = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -58,21 +75,13 @@ export const Sidebar = memo(() => {
     PerformanceTracker.stopTracking();
   });
 
-  // const switches = [
-  //   {
-  //     id: "explorer",
-  //     text: "Explorer",
-  //     action: () => {
-  //       dispatch(forceOpenWidgetPanel(false));
-  //       panelRef && panelRef.current && panelRef.current?.closePanel();
-  //     },
-  //   },
-  //   {
-  //     id: "widgets",
-  //     text: "Widgets",
-  //     action: () => dispatch(forceOpenWidgetPanel(true)),
-  //   },
-  // ];
+  useEffect(() => {
+    if (isForceOpenWidgetPanel) {
+      setActiveSwitch(switches[1]);
+    } else {
+      setActiveSwitch(switches[0]);
+    }
+  }, [isForceOpenWidgetPanel]);
 
   return (
     <SidebarWrapper
@@ -84,14 +93,10 @@ export const Sidebar = memo(() => {
       {(enableFirstTimeUserOnboarding || isFirstTimeUserOnboardingComplete) && (
         <OnboardingStatusbar />
       )}
-      {/* <SwitchWrapper>
-        <Switcher switches={switches} />
-      </SwitchWrapper> */}
-      <PanelStack
-        initialPanel={initialPanel}
-        ref={panelRef}
-        showPanelHeader={false}
-      />
+      <SwitchWrapper>
+        <Switcher activeObj={activeSwitch} switches={switches} />
+      </SwitchWrapper>
+      <PanelStack initialPanel={initialPanel} showPanelHeader={false} />
     </SidebarWrapper>
   );
 });
