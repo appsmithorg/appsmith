@@ -5,6 +5,7 @@ import {
   put,
   select,
   take,
+  all,
 } from "redux-saga/effects";
 
 import {
@@ -55,7 +56,7 @@ import {
 } from "./ReplaySaga";
 
 import { updateAndSaveLayout } from "actions/pageActions";
-import { get } from "lodash";
+import { get, isUndefined } from "lodash";
 import {
   setEvaluatedArgument,
   setEvaluatedSnippet,
@@ -382,51 +383,49 @@ export function* evaluateSnippetSaga(action: any) {
     if (isTrigger) {
       expression = `function() { ${expression} }`;
     }
-    const workerResponse = yield call(
-      worker.request,
-      EVAL_WORKER_ACTIONS.EVAL_EXPRESSION,
-      {
-        expression,
-        dataType,
-        isTrigger,
-      },
-    );
+    const workerResponse: {
+      errors: any;
+      result: any;
+      triggers: any;
+    } = yield call(worker.request, EVAL_WORKER_ACTIONS.EVAL_EXPRESSION, {
+      expression,
+      dataType,
+      isTrigger,
+    });
     const { errors, result, triggers } = workerResponse;
     if (triggers && triggers.length > 0) {
-      yield call(
-        executeActionTriggers,
-        triggers[0],
-        EventType.ON_SNIPPET_EXECUTE,
-        {},
+      yield all(
+        triggers.map((trigger: any) =>
+          call(
+            executeActionTriggers,
+            trigger,
+            EventType.ON_SNIPPET_EXECUTE,
+            {},
+          ),
+        ),
       );
+      //Result is when trigger is present. Following code will hide the evaluated snippet section
+      yield put(setEvaluatedSnippet(result));
     } else {
-      /* There are cases where the evaluation results come with triggers and errors.
-      Following code handles that. Also, we set the results to "undefined" when the evaluated value is undefined.
+      /* 
+        JSON.stringify(undefined) is undefined.
+        We need to set it manually to "undefined" for codeEditor to display it.
       */
       yield put(
         setEvaluatedSnippet(
-          result
-            ? JSON.stringify(result, null, 2)
-            : errors && errors.length
+          errors?.length
             ? JSON.stringify(errors, null, 2)
-            : "undefined",
+            : isUndefined(result)
+            ? "undefined"
+            : JSON.stringify(result),
         ),
       );
     }
     Toaster.show({
       text: createMessage(
-        result || triggers?.length > 0
-          ? SNIPPET_EXECUTION_SUCCESS
-          : errors && errors.length
-          ? SNIPPET_EXECUTION_FAILED
-          : SNIPPET_EXECUTION_SUCCESS,
+        errors?.length ? SNIPPET_EXECUTION_FAILED : SNIPPET_EXECUTION_SUCCESS,
       ),
-      variant:
-        result || triggers?.length > 0
-          ? Variant.success
-          : errors && errors.length
-          ? Variant.danger
-          : Variant.success,
+      variant: errors?.length ? Variant.danger : Variant.success,
     });
     yield put(
       setGlobalSearchFilterContext({
@@ -439,6 +438,10 @@ export function* evaluateSnippetSaga(action: any) {
         executionInProgress: false,
       }),
     );
+    Toaster.show({
+      text: createMessage(SNIPPET_EXECUTION_FAILED),
+      variant: Variant.danger,
+    });
     log.error(e);
     Sentry.captureException(e);
   }
