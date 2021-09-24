@@ -7,7 +7,7 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ### Good First Issues 
 
-Looking for issues to contribute? Click [here](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) !
+Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith!
 
 ### 🍴 Git Workflow
 
