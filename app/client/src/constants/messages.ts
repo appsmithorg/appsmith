@@ -29,6 +29,7 @@ export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
   `Please provide a valid email address`;
 export const ENTER_VIDEO_URL = () => `Please provide a valid url`;
+export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
