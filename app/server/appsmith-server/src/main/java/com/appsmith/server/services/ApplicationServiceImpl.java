@@ -471,4 +471,17 @@ public class ApplicationServiceImpl extends BaseService<ApplicationRepository, A
             )
             .map(BaseDomain::getId);
     }
+
+    /**
+     * As part of git sync feature a new application will be created for each branch with reference to main application
+     * feat/new-branch ----> new application in Appsmith
+     * Get all the applications which refer to the current application and archive those first one by one
+     * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+     * @param defaultApplicationId Main Application from which the branch was created
+     * @return Application flux which match the condition
+     */
+    @Override
+    public Flux<Application> finAllApplicationsByGitDefaultApplicationId(String defaultApplicationId) {
+        return repository.getApplicationByGitDefaultApplicationId(defaultApplicationId);
+    }
 }

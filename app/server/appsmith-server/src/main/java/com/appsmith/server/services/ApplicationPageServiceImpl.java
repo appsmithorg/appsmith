@@ -26,6 +26,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
+import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -289,6 +290,7 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
         page.setPolicies(documentPolicies);
     }
 
+
     /**
      * This function performs a soft delete for the application along with it's associated pages and actions.
      *
@@ -298,6 +300,14 @@ public class ApplicationPageServiceImpl implements ApplicationPageService {
     @Override
     public Mono<Application> deleteApplication(String id) {
         log.debug("Archiving application with id: {}", id);
+
+        /* As part of git sync feature a new application will be created for each branch with reference to main application
+         * feat/new-branch ----> new application in Appsmith
+         * Get all the applications which refer to the current application and archive those first one by one
+         * GitApplicationMetadata has a field called defaultApplicationId which refers to the main application
+         * */
+
+        applicationService.finAllApplicationsByGitDefaultApplicationId(id);
 
         Mono<Application> applicationMono = applicationService.findById(id, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
