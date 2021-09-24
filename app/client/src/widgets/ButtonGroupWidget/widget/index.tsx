@@ -6,7 +6,6 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  ButtonStyleTypes,
   ButtonBoxShadow,
   ButtonVariant,
   ButtonBorderRadiusTypes,
@@ -48,15 +47,15 @@ class ButtonGroupWidget extends BaseWidget<
             helpText: "Sets the variant of the icon button",
             options: [
               {
-                label: "Solid",
+                label: "Primary",
                 value: "SOLID",
               },
               {
-                label: "Outline",
+                label: "Secondary",
                 value: "OUTLINE",
               },
               {
-                label: "Ghost",
+                label: "Tertiary",
                 value: "GHOST",
               },
             ],
@@ -148,35 +147,12 @@ class ButtonGroupWidget extends BaseWidget<
                       validation: { type: ValidationTypes.TEXT },
                     },
                     {
-                      helpText: "Controls button color",
-                      propertyName: "buttonStyle",
-                      label: "Button Style",
-                      controlType: "DROP_DOWN",
-                      options: [
-                        {
-                          label: "Primary",
-                          value: "PRIMARY",
-                        },
-                        {
-                          label: "Warning",
-                          value: "WARNING",
-                        },
-                        {
-                          label: "Danger",
-                          value: "DANGER",
-                        },
-                        {
-                          label: "Info",
-                          value: "INFO",
-                        },
-                        {
-                          label: "Secondary",
-                          value: "SECONDARY",
-                        },
-                      ],
-                      isBindProperty: true,
+                      propertyName: "buttonColor",
+                      helpText: "Changes the color of the button",
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
                       isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
                     },
                     {
                       propertyName: "isDisabled",
@@ -510,7 +486,7 @@ export interface ButtonGroupWidgetProps extends WidgetProps {
       isDisabled?: boolean;
       label?: string;
       buttonType?: string;
-      buttonStyle?: ButtonStyleTypes;
+      buttonColor?: string;
       iconName?: IconName;
       iconAlign?: Alignment;
       onClick?: string;

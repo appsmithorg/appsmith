@@ -1,6 +1,7 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { Colors } from "constants/Colors";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -25,7 +26,7 @@ export const CONFIG = {
         iconName: "heart",
         id: "groupButton1",
         widgetId: "",
-        buttonStyle: "SECONDARY",
+        buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
         isVisible: true,
         isDisabled: false,
@@ -36,7 +37,7 @@ export const CONFIG = {
         label: "Add",
         iconName: "add",
         id: "groupButton2",
-        buttonStyle: "SECONDARY",
+        buttonColor: Colors.GREEN,
         buttonType: "SIMPLE",
         widgetId: "",
         isVisible: true,
@@ -49,7 +50,7 @@ export const CONFIG = {
         iconName: "more",
         id: "groupButton3",
         buttonType: "MENU",
-        buttonStyle: "SECONDARY",
+        buttonColor: Colors.GREEN,
         widgetId: "",
         isVisible: true,
         isDisabled: false,
