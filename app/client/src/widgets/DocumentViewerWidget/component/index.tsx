@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import styled from "styled-components";
 import { DocumentViewer } from "react-documents";
 import { includes, replace, split, get } from "lodash";
@@ -82,7 +82,7 @@ const getSettings = (docUrl: string) => {
 };
 
 function DocumentViewerComponent(props: DocumentViewerComponentProps) {
-  const { errorMessage, url, viewer } = useMemo(
+  const { errorMessage, url, viewer } = React.useMemo(
     () => getSettings(props.docUrl),
     [props.docUrl],
   );

@@ -15087,6 +15087,11 @@ react-docgen@^5.0.0:
     node-dir "^0.1.10"
     strip-indent "^3.0.0"
 
+react-documents@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-documents/-/react-documents-1.0.4.tgz#f1dee4d4a558210140f151b16a147eece4d85b54"
+  integrity sha512-EpoY+MZEu3hPffIWA4FadUYu8daubNkr+LK2zuoPkCAVtyNY+z+/RuzzTriuhjcDydKXzgzp42kQTfAD2j3Mxw==
+
 react-dom@^16.7.0, react-dom@^16.8.3, react-dom@^16.8.5:
   version "16.13.1"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-16.13.1.tgz"
