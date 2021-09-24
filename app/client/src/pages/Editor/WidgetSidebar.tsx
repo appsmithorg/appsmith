@@ -152,6 +152,7 @@ function WidgetSidebar(props: IPanelProps) {
         <ExplorerSearch
           autoFocus
           clear={clearSearchInput}
+          hideClear
           placeholder="Search widgets..."
           ref={searchInputRef}
         />
@@ -162,13 +163,13 @@ function WidgetSidebar(props: IPanelProps) {
           <Info>
             <p>{createMessage(WIDGET_SIDEBAR_CAPTION)}</p>
           </Info>
-          {/* <CloseIcon
+          <CloseIcon
             className="t--close-widgets-sidebar"
-            color={Colors.WHITE}
+            color={Colors.CHARCOAL}
             icon="cross"
             iconSize={16}
             onClick={closeWidgetPanel}
-          /> */}
+          />
         </Header>
         <CardsWrapper>
           {filteredCards.map((card) => (

@@ -27,8 +27,6 @@ import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found
 import { Colors } from "constants/Colors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import Switcher from "components/ads/Switcher";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -70,11 +68,6 @@ const NoResult = styled(NonIdealState)`
 const StyledDivider = styled(Divider)`
   border-bottom-color: rgba(255, 255, 255, 0.1);
 `;
-
-const SwitchWrapper = styled.div`
-  padding: 8px;
-`;
-
 function EntityExplorer(props: IPanelProps) {
   const { applicationId } = useParams<ExplorerURLParams>();
 
@@ -90,7 +83,6 @@ function EntityExplorer(props: IPanelProps) {
   const datasources = useFilteredDatasources(searchKeyword);
 
   const plugins = useSelector(getPlugins);
-  const currentPageId = useSelector(getCurrentPageId);
 
   const widgets = useWidgets(searchKeyword);
   const actions = useActions(searchKeyword);
@@ -128,25 +120,8 @@ function EntityExplorer(props: IPanelProps) {
     [openPanel, applicationId, isFirstTimeUserOnboardingEnabled],
   );
 
-  const switches = [
-    {
-      id: "explorer",
-      text: "Explorer",
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      action: () => {},
-    },
-    {
-      id: "widgets",
-      text: "Widgets",
-      action: () => currentPageId && showWidgetsSidebar(currentPageId),
-    },
-  ];
-
   return (
     <Wrapper ref={explorerRef}>
-      <SwitchWrapper>
-        <Switcher switches={switches} />
-      </SwitchWrapper>
       <Search clear={clearSearch} isHidden ref={searchInputRef} />
       <ExplorerPageGroup
         actions={actions}

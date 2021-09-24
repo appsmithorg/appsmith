@@ -79,6 +79,7 @@ export const ExplorerSearch = forwardRef(
       placeholder?: string;
       autoFocus?: boolean;
       isHidden?: boolean;
+      hideClear?: boolean;
     },
     ref: Ref<HTMLInputElement>,
   ) => {
@@ -93,7 +94,9 @@ export const ExplorerSearch = forwardRef(
           ref={ref}
           type="text"
         />
-        <Icon icon="cross" iconSize={12} onClick={props.clear} />
+        {props.hideClear !== true && (
+          <Icon icon="cross" iconSize={12} onClick={props.clear} />
+        )}
         <Underline className="underline" />
       </ExplorerSearchWrapper>
     );
