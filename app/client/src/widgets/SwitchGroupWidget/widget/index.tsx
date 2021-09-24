@@ -2,64 +2,11 @@ import React from "react";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import {
-  ValidationResponse,
-  ValidationTypes,
-} from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import SwitchGroupComponent, { OptionProps } from "../component";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-
-export function defaultSelectedValuesValidation(
-  value: unknown,
-  props: SwitchGroupWidgetProps,
-): ValidationResponse {
-  let isValid = true;
-  let values: string[] = [];
-  const messages: string[] = [];
-  const { options } = props;
-
-  const optionValues = options.map((option) => option.value);
-
-  if (typeof value === "string") {
-    try {
-      values = JSON.parse(value);
-      if (!Array.isArray(values)) {
-        throw new Error();
-      }
-    } catch {
-      values = value.length ? value.split(",") : [];
-      if (values.length > 0) {
-        values = values.map((_v: string) => _v.trim());
-      }
-    }
-  }
-  if (Array.isArray(value)) {
-    values = Array.from(new Set(value));
-  }
-
-  values.forEach((value, index) => {
-    if (!optionValues.includes(value)) {
-      isValid = false;
-      messages.push(`Mismatching value: ${value} at: ${index}`);
-    }
-  });
-
-  if (isValid) {
-    return {
-      isValid: true,
-      parsed: values,
-    };
-  }
-
-  return {
-    isValid: false,
-    parsed: values,
-    message: messages.join(" "),
-  };
-}
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,
@@ -118,13 +65,11 @@ class SwitchGroupWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
-              type: ValidationTypes.FUNCTION,
+              type: ValidationTypes.ARRAY,
               params: {
-                fn: defaultSelectedValuesValidation,
-                expected: {
-                  type: "Value or Array of values",
-                  example: `value1 | ['value1', 'value2']`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
+                deafult: [],
+                children: {
+                  type: ValidationTypes.TEXT,
                 },
               },
             },
