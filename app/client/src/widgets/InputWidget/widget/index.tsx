@@ -43,7 +43,7 @@ export function defaultValueValidation(
         return {
           isValid: true,
           parsed: undefined,
-          message: "",
+          messages: [""],
         };
       }
 
@@ -51,7 +51,7 @@ export function defaultValueValidation(
         return {
           isValid: false,
           parsed: undefined,
-          message: "This value must be a number",
+          messages: ["This value must be a number"],
         };
       }
     }
@@ -59,14 +59,14 @@ export function defaultValueValidation(
     return {
       isValid: true,
       parsed,
-      message: "",
+      messages: [""],
     };
   }
   if (_.isObject(value)) {
     return {
       isValid: false,
       parsed: JSON.stringify(value, null, 2),
-      message: "This value must be string",
+      messages: ["This value must be string"],
     };
   }
   let parsed = value;
@@ -78,14 +78,14 @@ export function defaultValueValidation(
       return {
         isValid: false,
         parsed: "",
-        message: "This value must be string",
+        messages: ["This value must be string"],
       };
     }
   }
   return {
     isValid,
     parsed: parsed,
-    message: "",
+    messages: [""],
   };
 }
 
