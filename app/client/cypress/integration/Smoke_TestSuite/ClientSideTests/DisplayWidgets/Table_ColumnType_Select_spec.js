@@ -73,6 +73,7 @@ describe("Table Widget new column type - Select", function() {
     cy.get(".select-popover-wrapper " + commonlocators.singleSelectMenuItem)
       .contains(dropdownOptions[1].value)
       .click({ force: true });
+    cy.wait(2000);
     // Reading single cell value of the table and verify it's value.
     cy.readTableSelectPublish("1", "5").then((tabData) => {
       expect(tabData).to.be.equal(dropdownOptions[1].value);
