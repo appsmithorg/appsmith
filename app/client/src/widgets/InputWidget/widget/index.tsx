@@ -494,14 +494,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     return {
       isValid: `{{
         function(){
-          if (typeof this.validation === "boolean" && !this.validation) {
-            return false;
-          }
           if (!this.isRequired && !this.text) {
             return true
           }
           if(this.isRequired && !this.text){
             return false
+          }
+          if (typeof this.validation === "boolean" && !this.validation) {
+            return false;
           }
           let parsedRegex = null;
           if (this.regex) {
