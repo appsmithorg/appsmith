@@ -71,6 +71,7 @@ export interface Basic {
 export interface ApiKey {
   authenticationType: AuthType.apiKey;
   label: string;
+  headerPrefix: string;
   value: string;
   addTo: string;
 }

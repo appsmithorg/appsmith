@@ -47,5 +47,10 @@ export const getOrganizationIdForImport = (state: AppState) =>
 export const getGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.globalGitConfig;
 
+export const getLocalGitConfig = createSelector(
+  getGitSyncState,
+  (gitSync) => gitSync.localGitConfig,
+);
+
 export const getIsFetchingGlobalGitConfig = (state: AppState) =>
   state.ui.gitSync.isFetchingGitConfig;
