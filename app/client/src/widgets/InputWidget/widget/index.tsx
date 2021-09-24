@@ -497,6 +497,12 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           if (typeof this.validation === "boolean" && !this.validation) {
             return false;
           }
+          if (!this.isRequired && !this.text) {
+            return true
+          }
+          if(this.isRequired && !this.text){
+            return false
+          }
           let parsedRegex = null;
           if (this.regex) {
             /*
