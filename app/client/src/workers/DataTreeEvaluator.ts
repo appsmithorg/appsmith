@@ -2,6 +2,7 @@ import {
   DependencyMap,
   EvalError,
   EvalErrorTypes,
+  EvaluationError,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEvalErrorPath,
@@ -16,11 +17,11 @@ import {
   DataTree,
   DataTreeAction,
   DataTreeEntity,
+  DataTreeJSAction,
   DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-  DataTreeJSAction,
 } from "entities/DataTree/dataTreeFactory";
 import {
   addDependantsOfNestedPropertyPaths,
@@ -33,15 +34,15 @@ import {
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
   getValidatedTree,
+  isAction,
+  isDynamicLeaf,
+  isJSAction,
+  isWidget,
   makeParentsDependOnChildren,
   removeFunctions,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   validateWidgetProperty,
-  isDynamicLeaf,
-  isWidget,
-  isAction,
-  isJSAction,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -660,15 +661,36 @@ export default class DataTreeEvaluator {
         }
       });
 
-      // if it is just one binding, return that directly
-      if (stringSegments.length === 1) return values[0];
-      // else return a combined value according to the evaluation type
-      return substituteDynamicBindingWithValues(
-        dynamicBinding,
-        stringSegments,
-        values,
-        evaluationSubstitutionType,
-      );
+      // We dont need to substitute template of the result if only one binding exists
+      // But it should not be of prepared statements since that does need a string
+      if (
+        stringSegments.length === 1 &&
+        evaluationSubstitutionType !== EvaluationSubstitutionType.PARAMETER
+      ) {
+        return values[0];
+      }
+      try {
+        // else return a combined value according to the evaluation type
+        return substituteDynamicBindingWithValues(
+          dynamicBinding,
+          stringSegments,
+          values,
+          evaluationSubstitutionType,
+        );
+      } catch (e) {
+        if (fullPropertyPath) {
+          const error: EvaluationError[] = [
+            {
+              raw: dynamicBinding,
+              errorType: PropertyEvaluationErrorType.PARSE,
+              errorMessage: e.message,
+              severity: Severity.ERROR,
+            },
+          ];
+          addErrorToEntityProperty(error, data, fullPropertyPath);
+        }
+        return undefined;
+      }
     }
     return undefined;
   }
