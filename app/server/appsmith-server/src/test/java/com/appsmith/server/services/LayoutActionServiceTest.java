@@ -1,12 +1,12 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
@@ -28,6 +28,9 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.OrganizationRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -58,6 +61,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -108,6 +112,8 @@ public class LayoutActionServiceTest {
     Datasource datasource;
 
     Datasource jsDatasource;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     @WithUserDetails(value = "api_user")
@@ -892,5 +898,97 @@ public class LayoutActionServiceTest {
                     assertThat(unpublishedAction.getActionConfiguration().getBody()).isEqualTo("NewNameTable1");
                 })
                 .verifyComplete();
+    }
+
+    @SneakyThrows
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void OnLoadActionsWhenActionDependentOnActionViaWidget() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
+
+        /*
+         * The left entity depends on the entity on the right
+         * firstWidget <- firstAction
+         * secondWidget <- firstWidget
+         * secondAction <- secondWidget
+         * thirdWidget <- secondAction
+         *
+         * Since firstWidget and thirdWidget are getting data from actions firstAction and secondAction, they both
+         * should exist in onPageLoadActions.
+         *
+         * But there is an implicit dependency :
+         * secondAction <- firstAction
+         * This is because :
+         * secondAction <- secondWidget <- firstWidget <- firstAction
+         */
+
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("firstAction");
+        action1.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration1 = new ActionConfiguration();
+        actionConfiguration1.setHttpMethod(HttpMethod.GET);
+        action1.setActionConfiguration(actionConfiguration1);
+        action1.setDatasource(datasource);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("secondAction");
+        action2.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration2 = new ActionConfiguration();
+        actionConfiguration2.setHttpMethod(HttpMethod.GET);
+        actionConfiguration2.setBody("{{secondWidget.data}}");
+        action2.setActionConfiguration(actionConfiguration2);
+        action2.setDatasource(datasource);
+
+        JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String,Object>>() {}));
+
+        ArrayList children = (ArrayList) parentDsl.get("children");
+
+        JSONObject firstWidget = new JSONObject();
+        firstWidget.put("widgetName", "firstWidget");
+        JSONArray temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        firstWidget.put("dynamicBindingPathList", temp);
+        firstWidget.put("testField", "{{ firstAction.data }}");
+        children.add(firstWidget);
+
+        JSONObject secondWidget = new JSONObject();
+        secondWidget.put("widgetName", "secondWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        secondWidget.put("dynamicBindingPathList", temp);
+        secondWidget.put("testField", "{{ firstWidget.data }}");
+        children.add(secondWidget);
+
+        JSONObject thirdWidget = new JSONObject();
+        thirdWidget.put("widgetName", "thirdWidget");
+        temp = new JSONArray();
+        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        thirdWidget.put("dynamicBindingPathList", temp);
+        thirdWidget.put("testField", "{{ secondAction.data }}");
+        children.add(thirdWidget);
+
+        parentDsl.put("children", children);
+
+        Layout layout = testPage.getLayouts().get(0);
+        layout.setDsl(parentDsl);
+
+        ActionDTO createdAction1 = layoutActionService.createSingleAction(action1).block();
+        ActionDTO createdAction2 = layoutActionService.createSingleAction(action2).block();
+
+        Mono<LayoutDTO> updateLayoutMono = layoutActionService.updateLayout(testPage.getId(), layout.getId(), layout);
+
+        StepVerifier.create(updateLayoutMono)
+                .assertNext(updatedLayout -> {
+                    log.debug("{}", updatedLayout.getMessages());
+                    DslActionDTO actionDTO = updatedLayout.getLayoutOnLoadActions().get(0).iterator().next();
+                    assertThat(actionDTO.getName()).isEqualTo("firstAction");
+
+                    List<LayoutActionUpdateDTO> actionUpdates = updatedLayout.getActionUpdates();
+                    assertThat(actionUpdates.size()).isEqualTo(2);
+                    assertThat(actionUpdates.get(0).getName()).isEqualTo("firstAction");
+                    assertThat(actionUpdates.get(0).getExecuteOnLoad()).isTrue();
+                })
+                .verifyComplete();
+
     }
 }
