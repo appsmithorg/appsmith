@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.constants.CommentState;
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -209,18 +209,18 @@ public class UserController extends BaseController<UserService, User, String> {
     }
 
     @PatchMapping("/comment/state")
-    public Mono<ResponseDTO<CommentState>> setCommentState(@RequestBody UserData userData) {
-        return userDataService.setCommentState(userData.getCommentState())
+    public Mono<ResponseDTO<CommentOnboardingState>> setCommentState(@RequestBody UserData userData) {
+        return userDataService.setCommentState(userData.getCommentOnboardingState())
                 .map(savedUserData ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentState(), null)
+                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentOnboardingState(), null)
                 );
     }
 
     @GetMapping("/comment/state")
-    public Mono<ResponseDTO<CommentState>> getCommentState() {
+    public Mono<ResponseDTO<CommentOnboardingState>> getCommentState() {
         return userDataService.getForCurrentUser()
                 .map(savedUserData ->
-                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentState(), null)
+                        new ResponseDTO<>(HttpStatus.OK.value(), savedUserData.getCommentOnboardingState(), null)
                 );
     }
 

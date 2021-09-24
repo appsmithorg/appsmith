@@ -2,7 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.CommentState;
+import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
@@ -420,7 +420,7 @@ public class CommentServiceTest {
     @WithUserDetails(value = "api_user")
     public void createThread_WhenUserFinishedOnBoarding_CreatesBotThreadAndComment() {
         UserData userData = new UserData();
-        userData.setCommentState(CommentState.ONBOARDED);
+        userData.setCommentOnboardingState(CommentOnboardingState.ONBOARDED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Comment comment = makePlainTextComment("test comment here");
@@ -451,7 +451,7 @@ public class CommentServiceTest {
     @WithUserDetails(value = "api_user")
     public void createThread_WhenUserSkippedOnBoarding_BotThreadNotCreated() {
         UserData userData = new UserData();
-        userData.setCommentState(CommentState.SKIPPED);
+        userData.setCommentOnboardingState(CommentOnboardingState.SKIPPED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Comment comment = makePlainTextComment("test comment here");
@@ -483,7 +483,7 @@ public class CommentServiceTest {
     public void getThreadsByApplicationId_WhenThreadWithCommentExists_ReturnThreadWithComments() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setCommentState(CommentState.COMMENTED);
+        userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();
@@ -525,7 +525,7 @@ public class CommentServiceTest {
     public void createThread_WhenSomeoneTaggedInFirstComment_NotificationCreated() {
         // mock the user data so that bot comment is not created
         UserData userData = new UserData();
-        userData.setCommentState(CommentState.COMMENTED);
+        userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
         Organization organization = new Organization();
