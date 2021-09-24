@@ -8,7 +8,6 @@ const urlTests = [
   { url: "appsmith.com", isValid: true },
   { url: "release.appsmith.com", isValid: true },
   { url: "appsmith.com/audio.mp3", isValid: true },
-  { url: "appsmith.com/audio.mp3", isValid: true },
   { url: "appsmith./audio.mp3", isValid: false },
   { url: "https://appsmith.com/randompath/somefile.mp3", isValid: true },
   { url: "https://appsmith.com/randompath/some file.mp3", isValid: true },

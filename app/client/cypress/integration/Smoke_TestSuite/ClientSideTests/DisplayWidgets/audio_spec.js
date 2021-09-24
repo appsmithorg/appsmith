@@ -3,7 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/audioWidgetDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Video Widget Functionality", function() {
+describe("Audio Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
