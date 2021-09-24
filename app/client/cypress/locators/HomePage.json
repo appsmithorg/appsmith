@@ -49,7 +49,7 @@
     "orgSection": "a:contains(",
     "createAppFrOrg": ") .t--create-app-popup", 
     "shareApp": ".t--application-share-btn",
-    "enablePublicAccess": ".slider",
+    "enablePublicAccess": ".t--share-public-toggle .slider",
     "closeBtn": ".bp3-dialog-close-button",
     "applicationName": ".t--application-name",
     "editingAppName": "bp3-editable-text-editing",

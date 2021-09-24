@@ -6,6 +6,7 @@ export interface DatasourceAuthentication {
   username?: string;
   password?: string;
   label?: string;
+  headerPrefix?: string;
   value?: string;
   addTo?: string;
   bearerToken?: string;
