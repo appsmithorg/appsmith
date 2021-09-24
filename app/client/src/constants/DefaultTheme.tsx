@@ -386,6 +386,8 @@ export type Theme = {
       hoverText: ShadeColor;
       inActiveBG: ShadeColor;
       inActiveText: ShadeColor;
+      border: Color;
+      background: Color;
     };
     [Skin.DARK]: {
       hoverBG: ShadeColor;
@@ -574,6 +576,7 @@ const lightShades = [
   "#EBEBEB",
   "#858282",
   "#000000",
+  "#F86A2B",
 ] as const;
 
 type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
@@ -860,6 +863,7 @@ type ColorType = {
       textColor: ShadeColor;
       orgColor: ShadeColor;
     };
+    cardMenuIcon: ShadeColor;
   };
   switch: {
     border: ShadeColor;
@@ -1818,6 +1822,7 @@ export const dark: ColorType = {
       textColor: darkShades[8],
       orgColor: darkShades[9],
     },
+    cardMenuIcon: darkShades[7],
   },
   switch: {
     border: darkShades[5],
@@ -2447,6 +2452,7 @@ export const light: ColorType = {
       textColor: lightShades[8],
       orgColor: lightShades[9],
     },
+    cardMenuIcon: lightShades[17],
   },
   switch: {
     border: lightShades[5],
@@ -2887,6 +2893,7 @@ export const theme: Theme = {
     textDefault: Colors.BLACK_PEARL,
     textOnDarkBG: Colors.WHITE,
     textOnGreyBG: Colors.CHARCOAL,
+    textOnWhiteBG: Colors.CODE_GRAY,
     textAnchor: Colors.PURPLE,
     border: Colors.GEYSER,
     paneCard: Colors.SHARK,
@@ -3008,10 +3015,12 @@ export const theme: Theme = {
   },
   dropdown: {
     [Skin.LIGHT]: {
-      hoverBG: lightShades[12],
+      hoverBG: lightShades[2],
       hoverText: lightShades[0],
       inActiveBG: lightShades[3],
       inActiveText: lightShades[8],
+      border: Colors.WHITE,
+      background: Colors.WHITE,
     },
     [Skin.DARK]: {
       hoverBG: darkShades[0],

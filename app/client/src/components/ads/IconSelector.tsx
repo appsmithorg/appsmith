@@ -87,6 +87,7 @@ function IconSelector(props: IconSelectorProps) {
 
   return (
     <IconPalette
+      className={props.className}
       data-cy={props.cypressSelector}
       fill={props.fill}
       ref={iconPaletteRef}
