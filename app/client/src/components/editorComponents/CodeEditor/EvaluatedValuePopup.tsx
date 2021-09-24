@@ -25,7 +25,7 @@ import { EvaluationError } from "utils/DynamicBindingUtils";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
-import { Layers } from "constants/Layers";
+import { Indices, Layers } from "constants/Layers";
 import { Variant } from "components/ads/common";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
@@ -182,6 +182,7 @@ interface Props {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
   entity?: FieldEntityInformation;
+  popperZIndex?: Indices;
 }
 
 interface PopoverContentProps {
@@ -457,7 +458,7 @@ function EvaluatedValuePopup(props: Props) {
         modifiers={modifiers}
         placement={placement}
         targetNode={wrapperRef.current || undefined}
-        zIndex={Layers.evaluationPopper}
+        zIndex={props.popperZIndex || Layers.evaluationPopper}
       >
         <PopoverContent
           entity={props.entity}

@@ -399,7 +399,7 @@ const applicationsReducer = createReducer(initialState, {
       ...state,
       currentApplication: {
         ...state.currentApplication,
-        gitApplicationMetaData: action.payload.gitApplicationMetaData,
+        gitApplicationMetadata: action.payload.gitApplicationMetadata,
       },
     };
   },
