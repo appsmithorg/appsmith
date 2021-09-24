@@ -16,15 +16,17 @@ export type ExecutionResult = {
   success: boolean;
 };
 
+export type TriggerSource = {
+  id: string;
+  name: string;
+};
+
 export type ExecuteTriggerPayload = {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
   responseData?: Array<any>;
   triggerPropertyName?: string;
-  source?: {
-    id: string;
-    name: string;
-  };
+  source?: TriggerSource;
   widgetId?: string;
 };
 

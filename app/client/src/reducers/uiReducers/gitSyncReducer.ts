@@ -20,6 +20,7 @@ const initialState: GitSyncReducerState = {
   `,
   isImportAppViaGitModalOpen: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
+  localGitConfig: { authorEmail: "", authorName: "" },
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -91,7 +92,9 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitConfig: true,
   }),
-  [ReduxActionTypes.UPDATE_GIT_CONFIG_INIT]: (state: GitSyncReducerState) => ({
+  [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
     ...state,
     isFetchingGitConfig: true,
   }),
@@ -103,7 +106,7 @@ const gitSyncReducer = createReducer(initialState, {
     globalGitConfig: action.payload,
     isFetchingGitConfig: false,
   }),
-  [ReduxActionTypes.UPDATE_GIT_CONFIG_SUCCESS]: (
+  [ReduxActionTypes.UPDATE_GLOBAL_GIT_CONFIG_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<GitConfig>,
   ) => ({
@@ -123,6 +126,47 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isFetchingGitConfig: false,
   }),
+
+  [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingLocalGitConfig: true,
+  }),
+  [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_INIT]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingLocalGitConfig: true,
+  }),
+  [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitConfig>,
+  ) => ({
+    ...state,
+    localGitConfig: action.payload,
+    isFetchingLocalGitConfig: false,
+  }),
+  [ReduxActionTypes.UPDATE_LOCAL_GIT_CONFIG_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<GitConfig>,
+  ) => ({
+    ...state,
+    localGitConfig: action.payload,
+    isFetchingLocalGitConfig: false,
+  }),
+  [ReduxActionErrorTypes.UPDATE_LOCAL_GIT_CONFIG_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingLocalGitConfig: false,
+  }),
+  [ReduxActionErrorTypes.FETCH_LOCAL_GIT_CONFIG_ERROR]: (
+    state: GitSyncReducerState,
+  ) => ({
+    ...state,
+    isFetchingLocalGitConfig: false,
+  }),
 });
 
 export type GitSyncReducerState = {
@@ -138,6 +182,9 @@ export type GitSyncReducerState = {
   gitError?: string;
   globalGitConfig: GitConfig;
   isFetchingGitConfig?: boolean;
+
+  isFetchingLocalGitConfig?: boolean;
+  localGitConfig: GitConfig;
 };
 
 export default gitSyncReducer;

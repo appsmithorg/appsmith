@@ -121,7 +121,7 @@ const OrgSection = styled.div``;
 
 const PaddingWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: center;
   width: ${(props) => props.theme.card.minWidth}px;
 
@@ -756,7 +756,7 @@ function ApplicationsSection(props: any) {
                     ) &&
                       !isFetchingApplications && (
                         <Button
-                          className="t--new-button"
+                          className="t--new-button createnew"
                           icon={"plus"}
                           isLoading={
                             creatingApplicationMap &&
