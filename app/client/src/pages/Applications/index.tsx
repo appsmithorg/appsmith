@@ -686,6 +686,7 @@ function ApplicationsSection(props: any) {
                   canEscapeKeyClose={false}
                   canOutsideClickClose={false}
                   isOpen={selectedOrgId === organization.id}
+                  onClose={() => setSelectedOrgId("")}
                   title={`Invite Users to ${organization.name}`}
                 >
                   <Form orgId={organization.id} />
